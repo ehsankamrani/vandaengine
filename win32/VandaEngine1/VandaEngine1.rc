@@ -1,0 +1,257 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_VANDAENGINE MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_VANDAENGINE ACCELERATORS 
+BEGIN
+    "?",            IDM_ABOUT,              ASCII,  ALT
+    "/",            IDM_ABOUT,              ASCII,  ALT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "Ehsan Kamrani "
+            VALUE "FileDescription", "Vanda Engine"
+            VALUE "FileVersion", "1.6.1"
+            VALUE "internalName", "VandaEngine.exe"
+            VALUE "LegalCopyright", "(c) 2016 Vanda Engine.  All rights reserved."
+            VALUE "OriginalFilename", "VandaEngine.exe"
+            VALUE "ProductName", " Vanda Engine"
+            VALUE "ProductVersion", "1.6.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG  22, 17, 230, 75
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            107,IDC_MYICON,14,9,16,16
+    LTEXT           "VandaEngine Version 1.6.1",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2018",IDC_STATIC,49,20,119,8
+    DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_VANDAENGINE         ICON                    "VandaEngine.ico"
+IDI_SMALL               ICON                    "small.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_APP_TITLE           "VandaEngine"
+    IDC_VANDAENGINE         "VANDAENGINE"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Farsi resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FAR)
+#ifdef _WIN32
+LANGUAGE LANG_FARSI, SUBLANG_DEFAULT
+#pragma code_page(1256)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_INIT_DIALOG DIALOGEX 0, 0, 291, 300
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "VandaEngine"
+FONT 9, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "Play",IDOK,110,267,174,26
+    PUSHBUTTON      "Cancel",IDCANCEL,12,267,83,26
+    CONTROL         130,IDC_STATIC_LOGO,"Static",SS_BITMAP | SS_CENTERIMAGE,8,7,272,148,WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE
+    GROUPBOX        "Multisampling",IDC_STATIC,113,170,169,29
+    GROUPBOX        "Resolution",IDC_STATIC,8,170,93,88
+    CONTROL         "Disable VSync",IDC_DVSYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,245,65,11
+    CONTROL         "No",IDC_MSAMPLE_NO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,122,183,20,8
+    CONTROL         "2",IDC_MSAMPLE_2,"Button",BS_AUTORADIOBUTTON,155,183,20,8
+    CONTROL         "4",IDC_MSAMPLE_4,"Button",BS_AUTORADIOBUTTON,186,183,21,8
+    CONTROL         "8",IDC_MSAMPLE_8,"Button",BS_AUTORADIOBUTTON,220,183,18,8
+    CONTROL         "16",IDC_MSAMPLE_16,"Button",BS_AUTORADIOBUTTON,252,183,23,8
+    GROUPBOX        "Anisotropic texture filtering",IDC_STATIC,113,207,169,29
+    CONTROL         "No",IDC_ISOTROP_NO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,122,220,22,8
+    CONTROL         "2",IDC_ISOTROP_2,"Button",BS_AUTORADIOBUTTON,153,220,18,8
+    CONTROL         "4",IDC_ISOTROP_4,"Button",BS_AUTORADIOBUTTON,186,220,20,8
+    CONTROL         "8",IDC_ISOTROP_8,"Button",BS_AUTORADIOBUTTON,220,220,21,8
+    CONTROL         "16",IDC_ISOTROP_16,"Button",BS_AUTORADIOBUTTON,252,220,25,8
+    CONTROL         "Current Resolution",IDC_RES_CURRENT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,16,181,78,8
+    CONTROL         "1024 * 768",IDC_RES_1024,"Button",BS_AUTORADIOBUTTON,16,206,66,8
+    CONTROL         "1280 * 720",IDC_RES_1280,"Button",BS_AUTORADIOBUTTON,16,219,67,8
+    CONTROL         "1440 * 900",IDC_RES_1440,"Button",BS_AUTORADIOBUTTON,16,232,77,8
+    CONTROL         "1680 * 1050",IDC_RES_1680,"Button",BS_AUTORADIOBUTTON,16,245,59,8
+    CONTROL         "800 * 600",IDC_RES_800,"Button",BS_AUTORADIOBUTTON,16,193,70,8
+    CONTROL         "FBO",IDC_FBO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,192,245,34,11
+    CONTROL         "VBO",IDC_VBO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,245,37,11
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_INIT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 284
+        VERTGUIDE, 122
+        VERTGUIDE, 155
+        VERTGUIDE, 186
+        VERTGUIDE, 220
+        VERTGUIDE, 252
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 293
+        HORZGUIDE, 245
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_LOGO                BITMAP                  "Logo_Init.bmp"
+#endif    // Farsi resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
