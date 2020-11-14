@@ -66,10 +66,13 @@ void CPrefabNameDlg::OnOK()
 	CChar strUp[MAX_NAME_SIZE];
 	Cpy(strUp, str);
 	StringToUpper(strUp);
-	if (Cmp(strUp, "PKG") || CmpIn(strUp, "VANDA_"))
+	if (!g_admin)
 	{
-		MessageBox("VANDA_ and PKG are reserved names. Please choose another name.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-		return;
+		if (Cmp(strUp, "PKG") || CmpIn(strUp, "VANDA_"))
+		{
+			MessageBox("VANDA_ and PKG are reserved names. Please choose another name.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
 	}
 	if (Cmp(str, "\n"))
 	{

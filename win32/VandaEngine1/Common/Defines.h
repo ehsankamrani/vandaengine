@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -62,9 +62,16 @@ enum CFontType
 
 enum CCameraType
 {
-	eCAMERA_DEFAULT_PHYSX,
-	eCAMERA_DEFAULT_FREE,
-	eCAMERA_COLLADA,
+	eCAMERA_PHYSX, //Physics camera attached to the character
+	eCAMERA_DEFAULT_FREE_NO_PHYSX, //default free camera of editor. Not active in play mode
+	eCAMERA_COLLADA, //camera imported from other 3D tools
+	eCAMERA_ENGINE, //camera created inside Vanda Engine
+};
+
+enum CPhysXCameraType
+{
+	ePHYSX_CAMERA_FIRST_PERSON = 0,
+	ePHYSX_CAMERA_THIRD_PERSON,
 };
 
 enum CGBufferTextureType {
@@ -81,12 +88,6 @@ enum CTriggerType
 {
 	eTRIGGER_BOX = 0,
 	eTRIGGER_SPHERE,
-};
-
-enum CCharacterType
-{
-	eCHARACTER_FIRST_PERSON = 0,
-	eCHARACTER_THIRD_PERSON,
 };
 
 enum CPhysXAlgorithm
@@ -316,8 +317,9 @@ const CInt ANIM_SAMPLE_RATE = 30; //used for animation
 #define TGA_DESC_HORIZONTAL 0x10
 #define TGA_DESC_VERTICAL 0x20
 
-#define TGA_TRUECOLOR_32      (4)
-#define TGA_TRUECOLOR_24      (3)
+#define IMG_TRUECOLOR_32      (4)
+#define IMG_TRUECOLOR_24      (3)
+#define IMG_GRAYSCALE         (1)
 
 const CInt32 MAX_NAME_SIZE = 1024; 
 const CInt32 MAX_URI_SIZE = 2048; 
@@ -343,12 +345,16 @@ const CInt32 MAX_TEX_COORDS = 20;
 #define DEG_TO_RAD(a)	(PI/180*(a))
 #define RAD_TO_DEG(a)	(180/PI*(a))
 
-#define DEFAULT_CAMERA_ANGLE 55
-#define MAX_CAMERA_ANGLE 70
-#define MIN_CAMERA_ANGLE 20
-#define DEFAULT_CAMERA_SPEED 3
+#define DEFAULT_CAMERA_ANGLE 54
+#define MAX_CAMERA_ANGLE 90
+#define MIN_CAMERA_ANGLE 10
+#define DEFAULT_CAMERA_SPEED 5
 
 #define DEFAULT_DOF_DISTANCE 9
 #define DEFAULT_DOF_RANGE 6
 
 #define MAX_ANIMATION_CLIPS 20
+
+#define NR_DIR_LIGHTS 2
+#define NR_POINT_LIGHTS 2
+#define NR_SPOT_LIGHTS 1

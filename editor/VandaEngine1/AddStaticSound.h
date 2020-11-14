@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -35,9 +35,9 @@ public:
 		CChar posX[MAX_NAME_SIZE];
 		CChar posY[MAX_NAME_SIZE];
 		CChar posZ[MAX_NAME_SIZE];
-		sprintf( posX, "%f", pos[0] );
-		sprintf( posY, "%f", pos[1] );
-		sprintf( posZ, "%f", pos[2] );
+		sprintf( posX, "%.3f", pos[0] );
+		sprintf( posY, "%.3f", pos[1] );
+		sprintf( posZ, "%.3f", pos[2] );
 		m_strStaticSoundPosX = posX;
 		m_strStaticSoundPosY = posY;
 		m_strStaticSoundPosZ = posZ;
@@ -65,35 +65,35 @@ public:
 	CVoid SetRolloff( CFloat rolloff )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", rolloff );
+		sprintf( temp, "%.3f", rolloff );
 		m_strStaticSoundRolloff = temp;
 	}
 
 	CVoid SetPitch( CFloat pitch )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", pitch );
+		sprintf( temp, "%.3f", pitch );
 		m_strStaticSoundPitch = temp;
 	}
 
 	CVoid SetReferenceDistance( CFloat referenceDistance )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", referenceDistance );
+		sprintf( temp, "%.3f", referenceDistance );
 		m_strStaticSoundReferenceDistance = temp;
 	}
 
 	CVoid SetMaxDistance( CFloat maxDistance )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", maxDistance );
+		sprintf( temp, "%.3f", maxDistance );
 		m_strStaticSoundMaxDistance = temp;
 	}
 
 	CVoid SetVolume( CFloat volume )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", volume );
+		sprintf( temp, "%.3f", volume );
 		m_strStaticSoundVolume = temp;
 	}
 

@@ -99,9 +99,9 @@
       <ValidateAllParameters>false</ValidateAllParameters>
     </Midl>
     <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BOOST_ALL_NO_LIB;PCRE_STATIC;DOM_INCLUDE_LIBXML;_CRT_SECURE_NO_DEPRECATE;NO_WARN_MBCS_MFC_DEPRECATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BOOST_LIB_DIAGNOSTIC;PCRE_STATIC;DOM_INCLUDE_LIBXML;_CRT_SECURE_NO_DEPRECATE;NO_WARN_MBCS_MFC_DEPRECATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -109,6 +109,8 @@
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -116,9 +118,9 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>libcollada14dom22-s.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcre.lib;pcrecpp.lib;minizip.lib;libboost_filesystem.lib;libboost_system.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcollada14dom22-s.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcre.lib;pcrecpp.lib;minizip.lib;ComCtl32.lib;libboost_filesystem.lib;libboost_system.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)VandaEngine1.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost\lib\vc12;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc12;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc12;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -127,11 +129,14 @@
       <TargetMachine>MachineX86</TargetMachine>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <UACUIAccess>false</UACUIAccess>
+      <StackReserveSize>
+      </StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AddAmbientSound.cpp" />
     <ClCompile Include="AddCharacterSound.cpp" />
+    <ClCompile Include="AddEngineCamera.cpp" />
     <ClCompile Include="AddGUIBackground.cpp" />
     <ClCompile Include="AddGUIButton.cpp" />
     <ClCompile Include="AddGUIText.cpp" />
@@ -144,14 +149,17 @@
     <ClCompile Include="AddSkyDome.cpp" />
     <ClCompile Include="AddStartupObject.cpp" />
     <ClCompile Include="AddStaticSound.cpp" />
+    <ClCompile Include="AddTerrain.cpp" />
     <ClCompile Include="AddTrigger.cpp" />
     <ClCompile Include="AddWater.cpp" />
     <ClCompile Include="AudioEngine\AmbientSound.cpp" />
     <ClCompile Include="Common\HyperLink.cpp" />
     <ClCompile Include="Common\Prefab.cpp" />
     <ClCompile Include="Common\Startup.cpp" />
+    <ClCompile Include="EditCamera.cpp" />
     <ClCompile Include="EditCurrentSceneOptions.cpp" />
     <ClCompile Include="EditGeneralPhysXProperties.cpp" />
+    <ClCompile Include="EditLOD.cpp" />
     <ClCompile Include="EditPhysX.cpp" />
     <ClCompile Include="EditProjectProperties.cpp" />
     <ClCompile Include="EditProjectVScenes.cpp" />
@@ -164,6 +172,9 @@
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="CustomBitmapButton.cpp" />
     <ClCompile Include="CustomButton.cpp" />
+    <ClCompile Include="GraphicsEngine\CHeightClass.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainTexture.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainVBOCull.cpp" />
     <ClCompile Include="GraphicsEngine\dds.cpp" />
     <ClCompile Include="Common\DecomposeMatrix.cpp" />
     <ClCompile Include="GraphicsEngine\DOF.cpp" />
@@ -181,6 +192,7 @@
     <ClCompile Include="GeneralAmbientColor.cpp" />
     <ClCompile Include="GraphicsEngine\Geometry.cpp" />
     <ClCompile Include="GraphicsEngine\Image.cpp" />
+    <ClCompile Include="GraphicsEngine\terrain.cpp" />
     <ClCompile Include="GUIDlg.cpp" />
     <ClCompile Include="GUIEngine\GUI.cpp" />
     <ClCompile Include="GUIEngine\GUIBackground.cpp" />
@@ -247,6 +259,7 @@
     <ClCompile Include="SceneProperties.cpp" />
     <ClCompile Include="GraphicsEngine\SceneRead.cpp" />
     <ClCompile Include="ScriptEditor.cpp" />
+    <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp" />
     <ClCompile Include="SelectAnimationClips.cpp" />
     <ClCompile Include="SelectCamera.cpp" />
     <ClCompile Include="SetCurrentProject.cpp" />
@@ -270,12 +283,14 @@
     <ClCompile Include="VandaEngine1Dlg.cpp" />
     <ClCompile Include="Common\Vector.cpp" />
     <ClCompile Include="GraphicsEngine\Water.cpp" />
+    <ClCompile Include="VsceneMenuCursor.cpp" />
     <ClCompile Include="WaterAttachment.cpp" />
     <ClCompile Include="WelcomeDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddAmbientSound.h" />
     <ClInclude Include="AddCharacterSound.h" />
+    <ClInclude Include="AddEngineCamera.h" />
     <ClInclude Include="AddGUIBackground.h" />
     <ClInclude Include="AddGUIButton.h" />
     <ClInclude Include="AddGUIText.h" />
@@ -288,14 +303,17 @@
     <ClInclude Include="AddSkyDome.h" />
     <ClInclude Include="AddStartupObject.h" />
     <ClInclude Include="AddStaticSound.h" />
+    <ClInclude Include="AddTerrain.h" />
     <ClInclude Include="AddTrigger.h" />
     <ClInclude Include="AddWater.h" />
     <ClInclude Include="AudioEngine\AmbientSound.h" />
     <ClInclude Include="Common\HyperLink.h" />
     <ClInclude Include="Common\Prefab.h" />
     <ClInclude Include="Common\Startup.h" />
+    <ClInclude Include="EditCamera.h" />
     <ClInclude Include="EditCurrentSceneOptions.h" />
     <ClInclude Include="EditGeneralPhysXProperties.h" />
+    <ClInclude Include="EditLOD.h" />
     <ClInclude Include="EditPhysX.h" />
     <ClInclude Include="EditProjectProperties.h" />
     <ClInclude Include="EditProjectVScenes.h" />
@@ -311,6 +329,9 @@
     <ClInclude Include="Common\utf8\core.h" />
     <ClInclude Include="CustomBitmapButton.h" />
     <ClInclude Include="CustomButton.h" />
+    <ClInclude Include="GraphicsEngine\CHeightClass.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainTexture.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainVBOCull.h" />
     <ClInclude Include="GraphicsEngine\dds.h" />
     <ClInclude Include="Common\DecomposeMatrix.h" />
     <ClInclude Include="Common\Defines.h" />
@@ -330,6 +351,7 @@
     <ClInclude Include="GraphicsEngine\Geometry.h" />
     <ClInclude Include="GraphicsEngine\Image.h" />
     <ClInclude Include="GraphicsEngine\imageLib.h" />
+    <ClInclude Include="GraphicsEngine\terrain.h" />
     <ClInclude Include="GUIDlg.h" />
     <ClInclude Include="GUIEngine\GUI.h" />
     <ClInclude Include="GUIEngine\GUIBackground.h" />
@@ -352,7 +374,6 @@
     <ClInclude Include="SaveLoadCharacterProfile.h" />
     <ClInclude Include="SavePrefabDlg.h" />
     <ClInclude Include="sceneManagerEngine\LOD.h" />
-    <ClInclude Include="Common\LuaForCpp.h" />
     <ClInclude Include="GraphicsEngine\Material.h" />
     <ClInclude Include="GraphicsEngine\Matrix.h" />
     <ClInclude Include="Common\minizip.h" />
@@ -400,6 +421,8 @@
     <ClInclude Include="SceneBanner.h" />
     <ClInclude Include="SceneProperties.h" />
     <ClInclude Include="ScriptEditor.h" />
+    <ClInclude Include="ScriptEngine\KeyboadAndMouseScript.h" />
+    <ClInclude Include="ScriptEngine\LuaForCpp.h" />
     <ClInclude Include="SelectAnimationClips.h" />
     <ClInclude Include="SelectCamera.h" />
     <ClInclude Include="SetCurrentProject.h" />
@@ -423,6 +446,7 @@
     <ClInclude Include="VandaEngine1Dlg.h" />
     <ClInclude Include="Common\Vector.h" />
     <ClInclude Include="GraphicsEngine\Water.h" />
+    <ClInclude Include="VsceneMenuCursor.h" />
     <ClInclude Include="WaterAttachment.h" />
     <ClInclude Include="WelcomeDialog.h" />
   </ItemGroup>
@@ -576,6 +600,7 @@
     <None Include="Assets\Icon\Vanda_Version.bmp" />
     <None Include="Assets\Icon\Welcome\Welcome_image.bmp" />
     <None Include="Assets\Icon\Welcome\Welcome_version.bmp" />
+    <None Include="ClassDiagram.cd" />
     <None Include="res\VandaEngine.ico" />
     <None Include="Assets\Icon\VandaRTI.bmp" />
     <None Include="Assets\Icon\Welcome\video_Down.bmp" />
@@ -599,6 +624,7 @@
     <ResourceCompile Include="VandaEngine1.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\Icon\Camera\camera_disable.bmp" />
     <Image Include="Assets\Icon\Default\Default.bmp" />
     <Image Include="Assets\Icon\Default\Default_gui.bmp" />
     <Image Include="Assets\Icon\Default\Default_package.bmp" />
@@ -607,7 +633,13 @@
     <Image Include="Assets\Icon\Default\Default_vin.bmp" />
     <Image Include="Assets\Icon\Default\Default_vpf.bmp" />
     <Image Include="Assets\Icon\Default\Default_Water.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_disable.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_down.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_focus.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_up.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\engine_camera.bmp" />
     <Image Include="Assets\Icon\EngineObjectList\Start.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\Terrain.bmp" />
     <Image Include="Assets\Icon\GUI List\GUIBackground.bmp" />
     <Image Include="Assets\Icon\GUI List\GUIButton.bmp" />
     <Image Include="Assets\Icon\GUI List\GUIText.bmp" />
@@ -655,6 +687,10 @@
     <Image Include="Assets\Icon\Startup\Start_Focus.bmp" />
     <Image Include="Assets\Icon\Startup\Start_Up.bmp" />
     <Image Include="Assets\Icon\StaticSound\StaticSound_Disable.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_disable.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_down.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_focus.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_up.bmp" />
     <Image Include="Assets\Icon\Test\Active\test_active_down.bmp" />
     <Image Include="Assets\Icon\Test\Active\test_active_focus.bmp" />
     <Image Include="Assets\Icon\Test\Active\test_active_up.bmp" />

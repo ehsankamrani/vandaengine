@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "scene.h"
@@ -35,14 +25,16 @@ CScene::CScene()
 	m_updateAnimation = CTrue;
 	m_numClips = 0;
 	m_isTrigger = CFalse;
-	m_isGrass = CFalse;
 	m_compress = CTrue;
 	m_playAnimation = m_loopAnimationAtStartup = CTrue;
+	m_alwaysVisible = CFalse;
+	m_castShadow = CTrue;
 	m_clipIndexForStartup = 0;
 	m_isLODScene = CFalse;
 	m_baseOfLODScene = NULL;
 	m_isVisible = CTrue;
 	m_updateBoundingBox = CFalse;
+	m_calculateDynamicBoundingBox = CFalse;
 }
 
 CScene::~CScene()
@@ -146,7 +138,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 1.6.1");
+		zipClose(zipOpen, "Vanda Engine 1.7.0");
 		free(buf);
 		return -1;
 	}
@@ -159,7 +151,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 1.6.1");
+			//zipClose(zf, "Vanda Engine 1.7.0");
 			//free(buf);
 			//return -1;
    //     }
@@ -175,7 +167,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.6.1");
+				zipClose(zf, "Vanda Engine 1.7.0");
 				free(buf);
 				return -1;
 			}
@@ -190,7 +182,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.6.1");
+				zipClose(zf, "Vanda Engine 1.7.0");
 				free(buf);
 				return -1;
             }
@@ -200,7 +192,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 1.6.1");
+	zipClose(zf,"Vanda Engine 1.7.0");
     free(buf);
 	return 1;
 }
@@ -366,9 +358,12 @@ CBool CScene::Load(CChar * fileName, CChar* clipName, CInt clipIndex, CScene* ot
 	//ret = kmzcleanup(m_collada, true);
 	//if (ret)
 	//	PrintInfo("kmzcleanup complete\n");
-	ret = Triangulate(m_collada);
-	if (ret)
-		PrintInfo("\nTriangulate complete");
+	if (!otherScene)
+	{
+		ret = Triangulate(m_collada);
+		if (ret)
+			PrintInfo("\nTriangulate complete");
+	}
 	//ret = deindexer(m_collada);
 	//if (ret)
 	//	PrintInfo("deindexer complete\n");
@@ -488,6 +483,7 @@ CBool CScene::Load(CChar * fileName, CChar* clipName, CInt clipIndex, CScene* ot
 					endTime = anim->GetEndTime();
 			}
 			newAnimClip->SetEnd((CDouble)endTime);
+
 			m_numClips = 1;
 			m_animationClips.push_back(newAnimClip);
 		}
@@ -683,16 +679,17 @@ CVoid CScene::Destroy()
 	}
 	while(!m_cameraInstances.empty())
 	{
-		for( CUInt size = 0; size < g_cameraInstances.size(); size++ )
+		for( CUInt size = 0; size < g_importedCameraInstances.size(); size++ )
 		{
-			if( Cmp( m_cameraInstances[0]->m_abstractCamera->GetName(), g_cameraInstances[size]->m_abstractCamera->GetName() ) )
+			//if( Cmp( m_cameraInstances[0]->m_abstractCamera->GetName(), g_importedCameraInstances[size]->m_abstractCamera->GetName() ) )
+			if (m_cameraInstances[0] == g_importedCameraInstances[size])
 			{
-				if( g_render.GetActiveInstanceCamera() == g_cameraInstances[size] )
+				if( g_render.GetActiveInstanceCamera() == g_importedCameraInstances[size] )
 				{
 					if (g_multipleView && g_render.GetDefaultInstanceCamera())
 					{
 						g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
-						g_currentCameraType = eCAMERA_DEFAULT_FREE;
+						g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 						g_multipleView->m_lockInput = CFalse;
 					}
 					else
@@ -701,7 +698,7 @@ CVoid CScene::Destroy()
 					}
 
 				}
-				g_cameraInstances.erase( g_cameraInstances.begin() + size );
+				g_importedCameraInstances.erase( g_importedCameraInstances.begin() + size );
 			}
 		}
 		CDelete(m_cameraInstances[0]);
@@ -768,13 +765,24 @@ CVoid CScene::Destroy()
 
 CVoid CScene::CalculateDistances()
 {
-	for( CUInt i = 0; i < m_instanceGeometries.size(); i++ )
+	if (g_camera)
 	{
-		CFloat x = g_camera->m_perspectiveCameraPos.x - m_instanceGeometries[i]->m_center.x;
-		CFloat y = g_camera->m_perspectiveCameraPos.y - m_instanceGeometries[i]->m_center.y;
-		CFloat z = g_camera->m_perspectiveCameraPos.z - m_instanceGeometries[i]->m_center.z;
+		for (CUInt i = 0; i < m_instanceGeometries.size(); i++)
+		{
+			CFloat x = g_camera->m_perspectiveCameraPos.x - m_instanceGeometries[i]->m_center.x;
+			CFloat y = g_camera->m_perspectiveCameraPos.y - m_instanceGeometries[i]->m_center.y;
+			CFloat z = g_camera->m_perspectiveCameraPos.z - m_instanceGeometries[i]->m_center.z;
 
-		m_instanceGeometries[i]->m_distanceFromCamera = sqrt( pow(x, 2) + pow(y, 2) + pow(z, 2) ) - m_instanceGeometries[i]->m_radius;
+			m_instanceGeometries[i]->m_distanceFromCamera = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)) - m_instanceGeometries[i]->m_radius;
+		}
+	}
+}
+
+CVoid CScene::UpdateDynamicPhysicsObjects()
+{
+	if (m_sceneRoot)
+	{
+		m_sceneRoot->UpdateDynamicPhysicsObjects(m_sceneRoot);
 	}
 }
 
@@ -794,19 +802,19 @@ CVoid CScene::RenderAnimatedModels(CBool sceneManager, CBool renderController)
 	}
 }
 
-CVoid CScene::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool renderController)
+CVoid CScene::ResetSkinData()
 {
-	if ( m_sceneRoot )
+	if (m_sceneRoot)
 	{
-		m_sceneRoot->Render(sceneManager, parentTreeNameOfGeometries, renderController); 
+		m_sceneRoot->ResetSkinData();
 	}
 }
 
-CVoid CScene::RenderGrass(CBool sceneManager, CChar* parentTreeNameOfGeometries)
+CVoid CScene::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool renderController, CBool checkVisibility, CBool drawGeometry)
 {
 	if ( m_sceneRoot )
 	{
-		m_sceneRoot->RenderGrass(sceneManager, parentTreeNameOfGeometries); 
+		m_sceneRoot->Render(sceneManager, parentTreeNameOfGeometries, renderController, checkVisibility, drawGeometry);
 	}
 }
 
@@ -852,7 +860,6 @@ CVoid CScene::Update( CFloat elapsedTime, CBool updateOrient, CBool resetTimer )
 CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 {
 	//Blend Cycle List
-	std::vector<CInt> index;
 	for (CUInt i = 0; i < m_blendCycleList.size(); i++)
 	{
 		CChar blendCycleName[MAX_NAME_SIZE];
@@ -867,12 +874,13 @@ CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 				break;
 			}
 		}
-		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() == 0.0f)
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= EPSILON)
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
-			index.push_back(i);
+			m_blendCycleList.erase(m_blendCycleList.begin() + i);
 			continue;
 		}
+
 		//make sure that current weight is not greater than target weight
 		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_BLEND_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() >= m_animationClips[clipIndex]->GetTargetWeight())
 		{
@@ -909,122 +917,131 @@ CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 			{
 				m_animationClips[clipIndex]->SetCurrentWeight(m_animationClips[clipIndex]->GetTargetWeight());
 			}
-			else if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= 0.0f)
+			else if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= EPSILON)
 			{
 				m_animationClips[clipIndex]->SetCurrentWeight(0.0f);
 			}
 		}
 
 		if (resetTimer)
-			if (m_animationClips[clipIndex]->GetCurrentTime() > m_animationClips[clipIndex]->GetEnd())
-				m_animationClips[clipIndex]->SetCurrentTime(m_animationClips[clipIndex]->GetCurrentTime() - m_animationClips[clipIndex]->GetEnd() + m_animationClips[clipIndex]->GetStart());
+		{
+			if (m_animationClips[clipIndex]->GetCurrentAnimationTime() > m_animationClips[clipIndex]->GetEnd())
+			{
+				m_animationClips[clipIndex]->SetCalculateDynamicBoundingBox(CFalse);
+				m_animationClips[clipIndex]->SetCurrentTime(m_animationClips[clipIndex]->GetCurrentAnimationTime() - m_animationClips[clipIndex]->GetEnd() + m_animationClips[clipIndex]->GetStart());
+			}
+		}
 		m_animationClips[clipIndex]->SetCurrentTime2(elapsedTime);
 	}
-	for (CUInt i = 0; i < index.size(); i++)
-		m_blendCycleList.erase(m_blendCycleList.begin() + index[i]);
 }
 
-CVoid CScene::UpdateExecuteActionList( CFloat elapsedTime, CBool &updateExecuteActionList )
+CVoid CScene::UpdateExecuteActionList(CFloat elapsedTime, CBool &updateExecuteActionList)
 {
 	//Execute Action List
-	std::vector <CInt> index;
-	if( m_executeActionList.size() == 0 )
+	if (m_executeActionList.size() == 0)
 	{
 		updateExecuteActionList = CFalse;
 		return;
 	}
 
-	for( CUInt i = 0; i < m_executeActionList.size(); i++ )
+	for (CUInt i = 0; i < m_executeActionList.size(); i++)
 	{
 		CChar executeActionName[MAX_NAME_SIZE];
-		Cpy( executeActionName, m_executeActionList[i].c_str() );
+		Cpy(executeActionName, m_executeActionList[i].c_str());
 		CInt clipIndex = 0;
 		//Find the animation clip 
-		for( CInt ac = 0; ac < GetNumClips(); ac++ )
+		for (CInt ac = 0; ac < GetNumClips(); ac++)
 		{
-			if( Cmp( m_animationClips[ac]->GetName(), executeActionName ) )
+			if (Cmp(m_animationClips[ac]->GetName(), executeActionName))
 			{
 				clipIndex = ac;
 				break;
 			}
 		}
 
-		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() >=  m_animationClips[clipIndex]->GetEnd() && !m_animationClips[clipIndex]->GetLock())
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd())
 		{
-			m_animationClips[clipIndex]->SetAnimationStatus( eANIM_NONE );
-			index.push_back(i);
+			m_animationClips[clipIndex]->SetCalculateDynamicBoundingBox(CFalse);
+		}
+
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd() && !m_animationClips[clipIndex]->GetLock())
+		{
+			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
+			m_executeActionList.erase(m_executeActionList.begin() + i);
 			continue;
 		}
-		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetStart() >= m_animationClips[clipIndex]->GetCurrentTime() && m_animationClips[clipIndex]->GetReverse())
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetStart() >= m_animationClips[clipIndex]->GetCurrentAnimationTime() && m_animationClips[clipIndex]->GetReverse())
 		{
-			m_animationClips[clipIndex]->SetAnimationStatus( eANIM_NONE );
-			index.push_back(i);
+			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
+			m_executeActionList.erase(m_executeActionList.begin() + i);
 			continue;
 		}
 
-		if( !(m_animationClips[clipIndex]->GetCurrentTime() >= m_animationClips[clipIndex]->GetEnd() && m_animationClips[clipIndex]->GetLock() && !m_animationClips[clipIndex]->GetReverse()) )
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_REMOVE_ACTION)
+		{
+			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
+			m_executeActionList.erase(m_executeActionList.begin() + i);
+			continue;
+		}
+
+		if (!(m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd() && m_animationClips[clipIndex]->GetLock() && !m_animationClips[clipIndex]->GetReverse()))
 			updateExecuteActionList = CTrue;
 
-		if( m_animationClips[clipIndex]->GetReverse() )
+		if (m_animationClips[clipIndex]->GetReverse())
 			elapsedTime = -elapsedTime;
 
-		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() >= ( m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn() ) && m_animationClips[clipIndex]->GetCurrentTime() <= (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut() ) )
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >= (m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn()) && m_animationClips[clipIndex]->GetCurrentAnimationTime() <= (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut()))
 		{
-			m_animationClips[clipIndex]->SetCurrentWeight( m_animationClips[clipIndex]->GetTargetWeight() );
+			m_animationClips[clipIndex]->SetCurrentWeight(m_animationClips[clipIndex]->GetTargetWeight());
 		}
-		else if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() < ( m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn() ) )
+		else if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() < (m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn()))
 		{
 			//compute current delay in or delay out time
 			CFloat Dc = 0.0f;
-			m_animationClips[clipIndex]->SetCurrentDelayInTime2( elapsedTime );
+			m_animationClips[clipIndex]->SetCurrentDelayInTime2(elapsedTime);
 			Dc = m_animationClips[clipIndex]->GetCurrentDelayInTime();
 			//compute M
 			CFloat M = 0.0f;
-			M = (m_animationClips[clipIndex]->GetTargetWeight() - m_animationClips[clipIndex]->GetStartWeight() ) / m_animationClips[clipIndex]->GetTargetDelayIn();
+			M = (m_animationClips[clipIndex]->GetTargetWeight() - m_animationClips[clipIndex]->GetStartWeight()) / m_animationClips[clipIndex]->GetTargetDelayIn();
 
 			//compute current weight
 			CFloat Wc = 0.0f;
 			Wc = M * Dc + m_animationClips[clipIndex]->GetStartWeight();
-			m_animationClips[clipIndex]->SetCurrentWeight( Wc );
+			m_animationClips[clipIndex]->SetCurrentWeight(Wc);
 
-			if( m_animationClips[clipIndex]->GetCurrentWeight() >= m_animationClips[clipIndex]->GetTargetWeight() )
-				m_animationClips[clipIndex]->SetCurrentWeight( m_animationClips[clipIndex]->GetTargetWeight() );
+			if (m_animationClips[clipIndex]->GetCurrentWeight() >= m_animationClips[clipIndex]->GetTargetWeight())
+				m_animationClips[clipIndex]->SetCurrentWeight(m_animationClips[clipIndex]->GetTargetWeight());
 		}
-		else if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() > (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut() ) )
+		else if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() > (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut()))
 		{
 			//compute current delay in or delay out time
 			CFloat Dc = 0.0f;
-			m_animationClips[clipIndex]->SetCurrentDelayOutTime2( elapsedTime );
+			m_animationClips[clipIndex]->SetCurrentDelayOutTime2(elapsedTime);
 			Dc = m_animationClips[clipIndex]->GetCurrentDelayOutTime();
 			//compute M
 			CFloat M = 0.0f;
-			M = (-m_animationClips[clipIndex]->GetTargetWeight() ) / m_animationClips[clipIndex]->GetTargetDelayOut();
+			M = (-m_animationClips[clipIndex]->GetTargetWeight()) / m_animationClips[clipIndex]->GetTargetDelayOut();
 			//compute current weight
 			CFloat Wc = 0.0f;
 			Wc = M * Dc + m_animationClips[clipIndex]->GetTargetWeight();
-			m_animationClips[clipIndex]->SetCurrentWeight( Wc );
-			if( m_animationClips[clipIndex]->GetCurrentWeight() <= 0.0f )
-				m_animationClips[clipIndex]->SetCurrentWeight( 0.0f );
+			m_animationClips[clipIndex]->SetCurrentWeight(Wc);
+			if (m_animationClips[clipIndex]->GetCurrentWeight() <= 0.0f)
+				m_animationClips[clipIndex]->SetCurrentWeight(0.0f);
 		}
 
-		if( m_animationClips[clipIndex]->GetReverse() )
+		if (m_animationClips[clipIndex]->GetReverse())
 		{
-			m_animationClips[clipIndex]->SetCurrentTime2( elapsedTime );
-			//if( m_animationClips[clipIndex]->GetCurrentTime() < m_animationClips[clipIndex]->GetStart() )
+			m_animationClips[clipIndex]->SetCurrentTime2(elapsedTime);
+			//if( m_animationClips[clipIndex]->GetCurrentAnimationTime() < m_animationClips[clipIndex]->GetStart() )
 			//	m_animationClips[clipIndex]->SetCurrentTime( m_animationClips[clipIndex]->GetStart() );
 		}
 		else
 		{
-			m_animationClips[clipIndex]->SetCurrentTime2( elapsedTime );
-			//if( m_animationClips[clipIndex]->GetCurrentTime() > m_animationClips[clipIndex]->GetEnd() )
+			m_animationClips[clipIndex]->SetCurrentTime2(elapsedTime);
+			//if( m_animationClips[clipIndex]->GetCurrentAnimationTime() > m_animationClips[clipIndex]->GetEnd() )
 			//	m_animationClips[clipIndex]->SetCurrentTime( m_animationClips[clipIndex]->GetEnd() );
 		}
 	}
-	for( CUInt j = 0; j < index.size(); j++ )
-	{
-		m_executeActionList.erase(m_executeActionList.begin() + index[j]);
-	}
-	index.clear();
 }
 
 CVoid CScene::CreateTrigger( CNovodex* nx )
@@ -1259,43 +1276,40 @@ CVoid CScene::SetClipIndexForStartup( CInt index )
 	m_clipIndexForStartup = index;
 }
 
-CVoid CScene::SetClipIndex( CInt index, CBool loopAnimation )
+CVoid CScene::SetCurrentClipIndex(CInt index)
 {
-	if (g_selectedName != -1)
+	m_currentClipIndex = index;
+}
+
+CVoid CScene::SetClipIndex(CInt index, CBool loopAnimation)
+{
+	CBool setIndex = CTrue;
+
+	if (g_editorMode == eMODE_PREFAB)
+		if (g_selectedName == -1)
+			setIndex = CFalse;
+	if (setIndex)
 	{
 		if (m_numClips == 0)
 			return;
 		m_currentClipIndex = index;
-		if (m_currentClipIndex == m_numClips - 1)
-			ex_pBtnNextAnim->EnableWindow(FALSE);
-		else if (m_numClips > 1)
-			ex_pBtnNextAnim->EnableWindow(TRUE);
-
-		if (m_currentClipIndex == 0)
-			ex_pBtnPrevAnim->EnableWindow(FALSE);
-		else if (m_numClips > 1)
-			ex_pBtnPrevAnim->EnableWindow(TRUE);
-
-		if (loopAnimation)
+		if (g_editorMode == eMODE_PREFAB)
 		{
-			for (CInt index = 0; index < m_numClips; index++)
-			{
-				if (m_currentClipIndex != index)
-				{
-					ClearCycle(index, 1.0f); //1.0 second
-				}
-				else
-				{
-					BlendCycle(index, 1.0f, 1.0f);
-				}
-			}
+			if (m_currentClipIndex == m_numClips - 1)
+				ex_pBtnNextAnim->EnableWindow(FALSE);
+			else if (m_numClips > 1)
+				ex_pBtnNextAnim->EnableWindow(TRUE);
+
+			if (m_currentClipIndex == 0)
+				ex_pBtnPrevAnim->EnableWindow(FALSE);
+			else if (m_numClips > 1)
+				ex_pBtnPrevAnim->EnableWindow(TRUE);
 		}
+
+		if (g_currentInstancePrefab)
+			PrintInfo("\nAnimation '" + (CString)g_currentInstancePrefab->GetName() + ":" + (CString)m_animationClips[m_currentClipIndex]->GetName() + "' activated");
 		else
-		{
-			ExecuteAction(m_currentClipIndex, m_animationClips[m_currentClipIndex]->GetDuration() * 0.1f, m_animationClips[m_currentClipIndex]->GetDuration() * 0.1f);
-		}
-
-		PrintInfo("\nAnimation '" + (CString)m_animationClips[m_currentClipIndex]->GetName() + "' activated");
+			PrintInfo("\nAnimation '" + (CString)g_render.GetScene()->GetName() + ":" + (CString)m_animationClips[m_currentClipIndex]->GetName() + "' activated");
 	}
 }
 CVoid CScene::SetNextAnimation() 
@@ -1402,8 +1416,8 @@ CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 		return CFalse;
 	}
 
-	if (weight == 0) return CFalse;
-	if (weight > 1) weight = 1;
+	if (weight < EPSILON) return CFalse;
+	if (weight > 1.0f) weight = 1.0f;
 
 	if (m_animationClips[id]->GetAnimationStatus() == eANIM_EXECUTE_ACTION)
 		return CFalse;
@@ -1450,6 +1464,9 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 		return CFalse;
 	}
 
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_NONE)
+		return CFalse;
+
 	if( m_animationClips[id]->GetAnimationStatus() != eANIM_BLEND_CYCLE || m_animationClips[id]->GetAnimationStatus() == eANIM_EXECUTE_ACTION)
 		return CFalse;
 
@@ -1493,8 +1510,8 @@ CBool CScene::ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat wei
 		return CFalse;
 	}
 
-	if( weight == 0 ) return CFalse;
-	if( weight > 1 ) weight = 1;
+	if( weight < EPSILON ) return CFalse;
+	if( weight > 1.0f ) weight = 1.0f;
 
 	if( delayIn + delayOut  > m_animationClips[id]->GetDuration() )
 	{
@@ -1563,3 +1580,417 @@ CBool CScene::ReverseExecuteAction(CInt id )
 	return CTrue;
 }
 
+CBool CScene::RemoveAction(CInt id)
+{
+	if (m_numClips == 0)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "scene '", GetName(), "' has no animation");
+		PrintInfo(temp, COLOR_RED);
+		return CFalse;
+	}
+
+	if (id > m_numClips - 1 || id < 0)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "Invalid animation ID for scene '", GetName(), "'");
+		PrintInfo(temp, COLOR_RED);
+		return CFalse;
+	}
+
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_NONE)
+		return CFalse;
+
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_BLEND_CYCLE || m_animationClips[id]->GetAnimationStatus() == eANIM_CLEAR_CYCLE)
+		return CFalse;
+
+	if (m_animationClips[id]->GetAnimationStatus() != eANIM_EXECUTE_ACTION)
+		return CFalse;
+
+	m_animationClips[id]->SetAnimationStatus(eANIM_REMOVE_ACTION);
+	m_animationClips[id]->SetTargetWeight(0.0f);
+	m_animationClips[id]->SetStartWeight(0.0f);
+	m_animationClips[id]->SetCurrentWeight(0.0f);
+
+	m_updateAnimationLists = CTrue;
+	return CTrue;
+}
+
+CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CInstanceGeometry* m_instanceGeo, CBool loadFromFile, CInstancePrefab* prefab)
+{
+	CGeometry* m_geo = m_instanceGeo->m_abstractGeometry;
+
+	if (m_geo->m_physx_points.size() == 0)
+	{
+		CUInt initialVertexCount = 0;
+		CUInt totalVertexCount = 0;
+		//DeIndex Mesh
+		for (CUInt groupCount = 0; groupCount < m_geo->m_groups.size(); groupCount++)
+		{
+			CPolyGroup* triangle = m_geo->m_groups[groupCount];
+			totalVertexCount += m_geo->m_groups[groupCount]->m_count * 3;
+			if (groupCount != 0)
+				initialVertexCount += m_geo->m_groups[groupCount - 1]->m_count * 3;
+
+			DeindexMesh(initialVertexCount, totalVertexCount, m_geo, triangle);
+		}
+	}
+	if (!loadFromFile)
+	{
+		if (m_instanceGeo->m_abstractGeometry->m_collapseMap.num == 0 && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH))
+		{
+			PrintInfo("\nCalculating LOD...");
+			m_instanceGeo->m_abstractGeometry->CalculateLODInfo(algorithm);
+		}
+		else
+		{
+			if ((algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH) && (m_instanceGeo->m_prevLodAlgorithm == eLOD_LENGTH_CURVATURE ||
+				m_instanceGeo->m_prevLodAlgorithm == eLOD_LENGTH))
+			{
+				if (m_instanceGeo->m_prevLodAlgorithm != algorithm) //regenerate PhysX informations
+				{
+					PrintInfo("\nRegenerating LOD...");
+					m_instanceGeo->m_abstractGeometry->CalculateLODInfo(algorithm);
+				}
+
+			}
+
+		}
+	}
+	//Generate PhysX mesh////////////////
+	std::vector<CFloat> vertices_temp;
+	std::vector<CInt> triangles_temp;
+	CInt num_verts;
+	if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH)
+	{
+		num_verts = CInt(CFloat(m_geo->m_physx_points.size()) * (CFloat)((CFloat)percentage / 100.0f));
+		if (num_verts < 3) num_verts = 3;
+		m_geo->RegenerateIndex(num_verts, triangles_temp);
+	}
+	else
+	{
+		num_verts = CInt(m_geo->m_physx_points.size());
+	}
+	//Scale and Rotation and Translation Matrices for Convex Hulls
+	CMatrix ZUpRotationForSkins;
+	CMatrixLoadIdentity(ZUpRotationForSkins);
+
+	CNode* tempParentNode = m_instanceGeo->m_node;
+	CBool foundTarget = CFalse;
+
+	CMatrix convexLocalToWorld;
+	const CMatrix *convex_ltow;
+	if (prefab)
+		convex_ltow = prefab->GetInstanceMatrix();
+	else
+		convex_ltow = m_instanceGeo->m_node->GetLocalToWorldMatrix();
+	CMatrixCopy(*convex_ltow, convexLocalToWorld);
+	CMatrix4x4Mult(convexLocalToWorld, ZUpRotationForSkins);
+	CMatrixCopy(ZUpRotationForSkins, convexLocalToWorld);
+
+	//decomp_affine;
+	AffineParts *parts = CNew(AffineParts);
+	HMatrix A;
+	CUInt k = 0;
+	for (CUInt i = 0; i < 4; i++)
+		for (CUInt j = 0; j < 4; j++)
+		{
+			A[j][i] = convexLocalToWorld[k];
+			k++;
+		}
+	decomp_affine(A, parts);
+	//rotation
+	CMatrix convexRotationMatrix;
+	CQuat convexQRotation(parts->q.x, parts->q.y, parts->q.z, parts->q.w);
+	CMatrixLoadIdentity(convexRotationMatrix);
+	CQuaternionToMatrix(&convexQRotation, convexRotationMatrix);
+
+	//////////////////////////SHEARING//////////////////////////////
+	CMatrix finalRS;
+	CMatrixLoadIdentity(finalRS);
+	//rotation scale
+	CMatrix convexRotationScaleMatrix;
+	CQuat convexQRotationScale(parts->u.x, parts->u.y, parts->u.z, parts->u.w);
+	CMatrixLoadIdentity(convexRotationScaleMatrix);
+	CQuaternionToMatrix(&convexQRotationScale, convexRotationScaleMatrix);
+	//transpose of rotation scale
+	CMatrix tConvexRotationScaleMatrix;
+	CMatrixLoadIdentity(tConvexRotationScaleMatrix);
+	CMatrixTranspose(convexRotationScaleMatrix, tConvexRotationScaleMatrix);
+	//scale factor
+	CMatrix convexScaleMatrix;
+	CVec4f convexScaleFactor(parts->f * parts->k.x, parts->f * parts->k.y, parts->f * parts->k.z, parts->f * parts->k.w);
+	CMatrixLoadIdentity(convexScaleMatrix);
+	CMatrix4x4Scale(convexScaleMatrix, convexScaleFactor);
+
+	//Compute UK(Ut) for possible shearing
+	CMatrix4x4Mult(convexRotationScaleMatrix, finalRS);
+	CMatrix4x4Mult(convexScaleMatrix, finalRS);
+	CMatrix4x4Mult(tConvexRotationScaleMatrix, finalRS);
+	///////////////////////////END OF SHEARING//////////////////////
+
+	CDelete(parts);
+
+	CVec3f convexPosition(convexLocalToWorld[12], convexLocalToWorld[13], convexLocalToWorld[14]);
+
+	NxVec3 NxConvexRow0(convexRotationMatrix[0], convexRotationMatrix[4], convexRotationMatrix[8]);
+	NxVec3 NxConvexRow1(convexRotationMatrix[1], convexRotationMatrix[5], convexRotationMatrix[9]);
+	NxVec3 NxConvexRow2(convexRotationMatrix[2], convexRotationMatrix[6], convexRotationMatrix[10]);
+	NxMat33 NxConvexMat33Rotation(NxConvexRow0, NxConvexRow1, NxConvexRow2);
+	////////////////
+	CMatrix PhysXMatrix;
+	CMatrixLoadIdentity(PhysXMatrix);
+	tempParentNode = m_instanceGeo->m_node;
+	foundTarget = CFalse;
+	for (CUInt i = 0; i < 16; i++)
+	{
+		PhysXMatrix[i] = m_instanceGeo->m_localToWorldMatrix[i];
+	}
+	for (CUInt i = 0; i < m_geo->m_physx_points.size(); i++)
+	{
+		CVec3f v = *(m_geo->m_physx_points[i]);
+
+		if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH)
+		{
+			CVec3f tv = *(m_geo->m_physx_points[i]);
+			CMatrixTransform(PhysXMatrix, v, tv);
+			vertices_temp.push_back(tv.x);
+			vertices_temp.push_back(tv.y);
+			vertices_temp.push_back(tv.z);
+		}
+		else
+		{
+			CVec3f tv = *(m_geo->m_physx_points[i]);
+			CMatrixTransform(finalRS, v, tv);
+
+			vertices_temp.push_back(tv.x);
+			vertices_temp.push_back(tv.y);
+			vertices_temp.push_back(tv.z);
+		}
+	}
+	CFloat* vertices = NULL;
+	CInt* triangles = NULL;
+	if (vertices_temp.size() > 0)
+		vertices = &vertices_temp[0];
+	if (triangles_temp.size() > 0)
+		triangles = &triangles_temp[0];
+	CBool failed = CFalse;
+	if (vertices != NULL && triangles != NULL && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH))
+	{
+		if (!g_multipleView->m_nx->CreateTriangleMesh((CInt)(vertices_temp.size() / 3), (CInt)(triangles_temp.size() / 3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName))
+			failed = CTrue;
+		else
+			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+
+	}
+	else if (vertices != NULL && algorithm == eLOD_CONVEX_HULL)
+	{
+		if (!g_multipleView->m_nx->CreateConvexMesh((CInt)(vertices_temp.size() / 3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation))
+			failed = CTrue;
+		else
+			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+	}
+	////////////////////////////////////////
+	if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH || algorithm == eLOD_CONVEX_HULL)
+	{
+		vertices_temp.clear();
+		triangles_temp.clear();
+		vertices = NULL;
+		triangles = NULL;
+
+		if (!failed)
+		{
+			m_instanceGeo->m_lodAlgorithm = algorithm;
+			if (algorithm != eLOD_CONVEX_HULL)
+				m_instanceGeo->m_prevLodAlgorithm = algorithm;
+			m_instanceGeo->m_hasPhysX = CTrue;
+			m_instanceGeo->m_physXDensity = density;
+			m_instanceGeo->m_physXPercentage = percentage;
+			m_instanceGeo->m_isTrigger = isTrigger;
+			m_instanceGeo->m_isInvisible = isInvisible;
+
+			return m_instanceGeo->m_nameIndex;
+		}
+		else
+			return -1;
+	}
+	else if (algorithm == eLOD_BOX || algorithm == eLOD_TRIGGER)
+	{
+		CFloat DimX, DimY, DimZ;
+		CFloat PosX, PosY, PosZ;
+		PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x) / 2.f;
+		PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
+		PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
+
+		//scale: For all of vertexes of original mesh, multiply the SR matrix by each vertex and find the bouding box
+		CVec3f m_minAABB;
+		CVec3f m_maxAABB;
+		m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
+		m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
+
+		for (CUInt i = 0; i < vertices_temp.size() / 3; i++)
+		{
+			if (vertices_temp[i * 3] > m_maxAABB.x)
+				m_maxAABB.x = vertices_temp[i * 3];
+			if (vertices_temp[(i * 3) + 1] > m_maxAABB.y)
+				m_maxAABB.y = vertices_temp[(i * 3) + 1];
+			if (vertices_temp[(i * 3) + 2]  > m_maxAABB.z)
+				m_maxAABB.z = vertices_temp[(i * 3) + 2];
+
+			if (vertices_temp[i * 3] < m_minAABB.x)
+				m_minAABB.x = vertices_temp[i * 3];
+			if (vertices_temp[(i * 3) + 1] < m_minAABB.y)
+				m_minAABB.y = vertices_temp[(i * 3) + 1];
+			if (vertices_temp[(i * 3) + 2]  < m_minAABB.z)
+				m_minAABB.z = vertices_temp[(i * 3) + 2];
+		}
+
+
+		CVec3f min(m_minAABB.x, m_minAABB.y, m_minAABB.z);
+		CVec3f max(m_maxAABB.x, m_maxAABB.y, m_maxAABB.z);
+
+		DimX = fabs(max.x - min.x) / 2.f;
+		DimY = fabs(max.y - min.y) / 2.f;
+		DimZ = fabs(max.z - min.z) / 2.f;
+		////////////////
+		if (algorithm == eLOD_BOX)
+			g_multipleView->m_nx->CreateBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+		else
+			g_multipleView->m_nx->CreateTriggerBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+		sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		m_instanceGeo->m_lodAlgorithm = algorithm;
+		m_instanceGeo->m_hasPhysX = CTrue;
+		m_instanceGeo->m_physXDensity = density;
+		m_instanceGeo->m_physXPercentage = percentage;
+		m_instanceGeo->m_isTrigger = isTrigger;
+		m_instanceGeo->m_isInvisible = isInvisible;
+
+		vertices_temp.clear();
+		triangles_temp.clear();
+		vertices = NULL;
+		triangles = NULL;
+
+		return m_instanceGeo->m_nameIndex;
+	}
+	else if (algorithm == eLOD_SPHERE)
+	{
+		CFloat PosX, PosY, PosZ;
+		PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x) / 2.f;
+		PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
+		PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
+
+		CFloat radius = 0.0f;
+		for (CUInt i = 0; i < vertices_temp.size() / 3; i++)
+		{
+			CVec3f cPos(0, 0, 0);
+			CVec3f vPos;
+			vPos.x = vertices_temp[i * 3]; vPos.y = vertices_temp[(i * 3) + 1]; vPos.z = vertices_temp[(i * 3) + 2];
+			CFloat length = (vPos - cPos).Size();
+			if (radius < length)
+				radius = length;
+		}
+		g_multipleView->m_nx->CreateSphere(NxVec3(PosX, PosY, PosZ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+		sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		m_instanceGeo->m_lodAlgorithm = algorithm;
+		m_instanceGeo->m_hasPhysX = CTrue;
+		m_instanceGeo->m_physXDensity = density;
+		m_instanceGeo->m_physXPercentage = percentage;
+		m_instanceGeo->m_isTrigger = isTrigger;
+		m_instanceGeo->m_isInvisible = isInvisible;
+
+		vertices_temp.clear();
+		triangles_temp.clear();
+		vertices = NULL;
+		triangles = NULL;
+
+		return m_instanceGeo->m_nameIndex;
+	}
+	else if (algorithm == eLOD_CAPSULE_METHOD1 || algorithm == eLOD_CAPSULE_METHOD2 || algorithm == eLOD_CAPSULE_METHOD3)
+	{
+		//For all of vertexes of original mesh, find the bouding box
+		CVec3f m_minAABB;
+		CVec3f m_maxAABB;
+		m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
+		m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
+
+		for (CUInt i = 0; i < vertices_temp.size() / 3; i++)
+		{
+			if (vertices_temp[i * 3] > m_maxAABB.x)
+				m_maxAABB.x = vertices_temp[i * 3];
+			if (vertices_temp[(i * 3) + 1] > m_maxAABB.y)
+				m_maxAABB.y = vertices_temp[(i * 3) + 1];
+			if (vertices_temp[(i * 3) + 2]  > m_maxAABB.z)
+				m_maxAABB.z = vertices_temp[(i * 3) + 2];
+
+			if (vertices_temp[i * 3] < m_minAABB.x)
+				m_minAABB.x = vertices_temp[i * 3];
+			if (vertices_temp[(i * 3) + 1] < m_minAABB.y)
+				m_minAABB.y = vertices_temp[(i * 3) + 1];
+			if (vertices_temp[(i * 3) + 2]  < m_minAABB.z)
+				m_minAABB.z = vertices_temp[(i * 3) + 2];
+		}
+
+
+		CFloat radius, height, PosX, PosY, PosZ;
+		if (algorithm == eLOD_CAPSULE_METHOD1)
+		{
+			CVec4f rot(1.0, .0, 0.0, 90.0);
+			CMatrix4x4RotateAngleAxis(convexRotationMatrix, rot);
+
+			radius = fabs(m_maxAABB.x - m_minAABB.x) / 2.f;
+			if (radius < fabs(m_maxAABB.y - m_minAABB.y) / 2.f)
+				radius = fabs(m_maxAABB.y - m_minAABB.y) / 2.f;
+
+			height = fabs(fabs(m_maxAABB.z - m_minAABB.z) - radius);
+		}
+		else if (algorithm == eLOD_CAPSULE_METHOD2)//second method
+		{
+			radius = fabs(m_maxAABB.x - m_minAABB.x) / 2.f;
+			if (radius < fabs(m_maxAABB.z - m_minAABB.z) / 2.f)
+				radius = fabs(m_maxAABB.z - m_minAABB.z) / 2.f;
+
+			height = fabs(fabs(m_maxAABB.y - m_minAABB.y) - radius);
+		}
+		else if (algorithm == eLOD_CAPSULE_METHOD3)//second method
+		{
+			CVec4f rot(0.0, 0.0, 1.0, 90.0);
+			CMatrix4x4RotateAngleAxis(convexRotationMatrix, rot);
+
+			radius = fabs(m_maxAABB.y - m_minAABB.y) / 2.f;
+			if (radius < fabs(m_maxAABB.z - m_minAABB.z) / 2.f)
+				radius = fabs(m_maxAABB.z - m_minAABB.z) / 2.f;
+
+			height = fabs(fabs(m_maxAABB.x - m_minAABB.x) - radius);
+		}
+		NxVec3 NxCapsuleRow0(convexRotationMatrix[0], convexRotationMatrix[4], convexRotationMatrix[8]);
+		NxVec3 NxCapsuleRow1(convexRotationMatrix[1], convexRotationMatrix[5], convexRotationMatrix[9]);
+		NxVec3 NxCapsuleRow2(convexRotationMatrix[2], convexRotationMatrix[6], convexRotationMatrix[10]);
+		NxMat33 NxCapsuleMat33Rotation(NxCapsuleRow0, NxCapsuleRow1, NxCapsuleRow2);
+
+		PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x) / 2.f;
+		PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
+		PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
+
+		g_multipleView->m_nx->CreateCapsule(NxVec3(PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+		sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		m_instanceGeo->m_lodAlgorithm = algorithm;
+		m_instanceGeo->m_hasPhysX = CTrue;
+		m_instanceGeo->m_physXDensity = density;
+		m_instanceGeo->m_physXPercentage = percentage;
+		m_instanceGeo->m_isTrigger = isTrigger;
+		m_instanceGeo->m_isInvisible = isInvisible;
+
+		vertices_temp.clear();
+		triangles_temp.clear();
+		vertices = NULL;
+		triangles = NULL;
+
+		return m_instanceGeo->m_nameIndex;
+	}
+	vertices_temp.clear();
+	triangles_temp.clear();
+	vertices = NULL;
+	triangles = NULL;
+
+	return -1;
+}

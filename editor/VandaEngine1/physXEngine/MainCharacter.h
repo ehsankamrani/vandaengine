@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -21,7 +21,7 @@ public:
 	CVoid SetName(CChar* name);
 	CVoid SetPackageName(CChar* name);
 	CVoid SetPrefabName(CChar* name);
-	CVoid SetType(CCharacterType type);
+	CVoid SetCameraType(CPhysXCameraType type);
 	CVoid SetPosition(CVec3f pos);
 	CVoid SetScale(CFloat scale);
 	CVoid SetCurrentRotation(CFloat rotation);
@@ -50,7 +50,7 @@ public:
 	CChar* GetSoundJumpPath() { return m_jumpSoundPath; }
 
 
-	CCharacterType GetType();
+	CPhysXCameraType GetCameraType();
 	std::vector<std::string> GetIdleName();
 	std::vector<std::string> GetWalkName();
 	std::vector<std::string> GetRunName();
@@ -118,7 +118,7 @@ private:
 	CChar m_jumpSoundPath[MAX_URI_SIZE];
 
 	CInstancePrefab* m_instancePrefab;
-	CCharacterType m_type;
+	CPhysXCameraType m_type;
 	CVec3f m_position;
 	CFloat m_scale;
 	CFloat m_currentRotation;

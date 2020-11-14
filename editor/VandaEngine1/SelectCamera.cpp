@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // SelectCamera.cpp : implementation file
@@ -60,11 +60,11 @@ BOOL CSelectCamera::OnInitDialog()
 	RECT rect;
 	m_listBoxCameraObjects.GetClientRect(&rect);
 	m_listBoxCameraObjects.InsertColumn(0, "Camera Names", LVCFMT_LEFT, rect.right - rect.left, 0 );
-	InserItemToCameraList( "*Default PhysX Camera (Play Mode)" );
-	InserItemToCameraList( "*Default Free Camera" );
-	for( CUInt i = 0; i < g_cameraInstances.size(); i++ )
+	//InserItemToCameraList( "*Default PhysX Camera (Play Mode)" );
+	//InserItemToCameraList( "*Default Free Camera" );
+	for( CUInt i = 0; i < g_importedCameraInstances.size(); i++ )
 	{
-		InserItemToCameraList( g_cameraInstances[i]->m_abstractCamera->GetName() );
+		InserItemToCameraList( g_importedCameraInstances[i]->m_abstractCamera->GetName() );
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -92,133 +92,74 @@ void CSelectCamera::OnBnClickedOk()
 		lvi.cchTextMax = cchBuf;
 		m_listBoxCameraObjects.GetItem(&lvi);
 
-		if( Cmp( "*Default PhysX Camera (Play Mode)", szBuffer ) )
-		{
-			g_render.SetActiveInstanceCamera( NULL );
-			g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
-			if (g_editorMode == eMODE_VSCENE)
+		//if( Cmp( "*Default PhysX Camera (Play Mode)", szBuffer ) )
+		//{
+		//	for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+		//	{
+		//		g_engineCameraInstances[c]->SetActive(CFalse);
+		//	}
+
+		//	ex_pVandaEngine1Dlg->OnBnClickedBtnPlayDeactive();
+		//}
+		//else if( Cmp( "*Default Free Camera", szBuffer ) )
+		//{
+		//	for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+		//	{
+		//		g_engineCameraInstances[c]->SetActive(CFalse);
+		//	}
+
+		//	ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+		//}
+		//else
+		//{
+			//if (g_multipleView->IsPlayGameMode())
+			//	ex_pVandaEngine1Dlg->ResetPhysX(CTrue);
+
+			for( CUInt i = 0; i < g_importedCameraInstances.size(); i++ )
 			{
-				//generate physX colliders
-				for (CUInt i = 0; i < g_scene.size(); i++)
+				if( Cmp( g_importedCameraInstances[i]->m_abstractCamera->GetName(), szBuffer ) )
 				{
-					for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-					{
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
-						{
-							g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
-						}
-					}
-					g_render.SetScene(g_scene[i]);
-					g_scene[i]->Update(0.0, CTrue);
-					g_render.GetScene()->m_update = CFalse;
-				}
-			}
-			ex_pBtnTestModeActive->ShowWindow(SW_SHOW);
-			ex_pBtnTestModeActive->EnableWindow(TRUE);
-			ex_pBtnTestModeActive->UpdateWindow();
-			ex_pBtnTestModeDeactive->ShowWindow(SW_HIDE);
-			ex_pBtnTestModeDeactive->EnableWindow(FALSE);
-			ex_pBtnTestModeDeactive->UpdateWindow();
-		}
-		else if( Cmp( "*Default Free Camera", szBuffer ) )
-		{
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
-				ex_pVandaEngine1Dlg->ResetPhysX(CTrue);
-
-			g_render.SetActiveInstanceCamera( g_render.GetDefaultInstanceCamera() );
-			g_currentCameraType = eCAMERA_DEFAULT_FREE;
-			if (g_editorMode == eMODE_VSCENE)
-			{
-				for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-				{
-					g_instancePrefab[i]->UpdateBoundingBox(CTrue);
-				}
-			}
-			else
-			{
-				for (CUInt i = 0; i < g_scene.size(); i++)
-				{
-					g_render.SetScene(g_scene[i]);
-					g_render.GetScene()->Update();
-				}
-			}
-
-			ex_pBtnTestModeActive->ShowWindow(SW_HIDE);
-			ex_pBtnTestModeActive->EnableWindow(FALSE);
-			ex_pBtnTestModeActive->UpdateWindow();
-			ex_pBtnTestModeDeactive->ShowWindow(SW_SHOW);
-			ex_pBtnTestModeDeactive->EnableWindow(TRUE);
-			ex_pBtnTestModeDeactive->UpdateWindow();
-
-			if (g_editorMode == eMODE_PREFAB)
-			{
-				for (CUInt i = 0; i < g_scene.size(); i++)
-				{
-					for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-					{
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
-						{
-							g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
-						}
-					}
-				}
-			}
-
-			g_multipleView->m_nx->gControllers->reportSceneChanged();
-			gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
-			gPhysXscene->flushStream();
-			gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
-
-		}
-		else
-		{
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
-				ex_pVandaEngine1Dlg->ResetPhysX(CTrue);
-
-			for( CUInt i = 0; i < g_cameraInstances.size(); i++ )
-			{
-				if( Cmp( g_cameraInstances[i]->m_abstractCamera->GetName(), szBuffer ) )
-				{
-					tempInstanceCamera = g_cameraInstances[i];
+					tempInstanceCamera = g_importedCameraInstances[i];
 					g_render.SetActiveInstanceCamera( tempInstanceCamera );
 					g_currentCameraType = eCAMERA_COLLADA;
+					ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(TRUE);
 
 					break;
 				}
 			}
-			for (CUInt i = 0; i < g_scene.size(); i++)
-			{
-				g_render.SetScene(g_scene[i]);
-				g_render.GetScene()->Update();
-			}
+			//for (CUInt i = 0; i < g_scene.size(); i++)
+			//{
+			//	g_render.SetScene(g_scene[i]);
+			//	g_render.GetScene()->Update();
+			//}
 
-			if (g_editorMode == eMODE_PREFAB)
-			{
-				for (CUInt i = 0; i < g_scene.size(); i++)
-				{
-					for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-					{
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
-						{
-							g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
-						}
-					}
-				}
-			}
+			//if (g_editorMode == eMODE_PREFAB)
+			//{
+			//	for (CUInt i = 0; i < g_scene.size(); i++)
+			//	{
+			//		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+			//		{
+			//			if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
+			//			{
+			//				g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
+			//			}
+			//		}
+			//	}
+			//}
 
-			ex_pBtnTestModeActive->ShowWindow(SW_HIDE);
-			ex_pBtnTestModeActive->EnableWindow(FALSE);
-			ex_pBtnTestModeActive->UpdateWindow();
-			ex_pBtnTestModeDeactive->ShowWindow(SW_SHOW);
-			ex_pBtnTestModeDeactive->EnableWindow(TRUE);
-			ex_pBtnTestModeDeactive->UpdateWindow();
+			//ex_pBtnTestModeActive->ShowWindow(SW_HIDE);
+			//ex_pBtnTestModeActive->EnableWindow(FALSE);
+			//ex_pBtnTestModeActive->UpdateWindow();
+			//ex_pBtnTestModeDeactive->ShowWindow(SW_SHOW);
+			//ex_pBtnTestModeDeactive->EnableWindow(TRUE);
+			//ex_pBtnTestModeDeactive->UpdateWindow();
 
-			g_multipleView->m_nx->gControllers->reportSceneChanged();
-			gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
-			gPhysXscene->flushStream();
-			gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+			//g_multipleView->m_nx->gControllers->reportSceneChanged();
+			//gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+			//gPhysXscene->flushStream();
+			//gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
-		}
+		//}
 	}
 	OnOK();
 }

@@ -78,6 +78,22 @@ void CAddStartupObject::OnBnClickedButtonRemoveScript()
 
 void CAddStartupObject::OnBnClickedOk()
 {
+	if (m_create)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+
 	if (m_strName.IsEmpty() || m_strScript.IsEmpty())
 	{
 		MessageBox("Please specify name as well as script", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
@@ -107,10 +123,26 @@ void CAddStartupObject::OnBnClickedOk()
 		ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
 		ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
 		g_menu.m_insertStartup = CTrue;
+		g_showArrow = CFalse;
 
 		g_engineObjectNames.push_back(name);
-	}
 
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+	}
 	CDialog::OnOK();
 }
 

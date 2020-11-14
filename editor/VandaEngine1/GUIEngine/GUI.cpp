@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CAddAmbientSound.cpp : implementation file
 //
@@ -17,7 +17,17 @@ CGUI::CGUI()
 
 CGUI::~CGUI()
 {
+	for (CUInt i = 0; i < m_guiButtons.size(); i++)
+		CDelete(m_guiButtons[i]);
+	m_guiButtons.clear();
 
+	for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
+		CDelete(m_guiBackgrounds[i]);
+	m_guiBackgrounds.clear();
+
+	for (CUInt i = 0; i < m_guiTexts.size(); i++)
+		CDelete(m_guiTexts[i]);
+	m_guiTexts.clear();
 }
 
 CVoid CGUI::AddGUIButton(CGUIButton* button)

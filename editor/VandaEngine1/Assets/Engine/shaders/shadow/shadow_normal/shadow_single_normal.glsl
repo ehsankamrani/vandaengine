@@ -1,118 +1,143 @@
-//Copyright (C) 2014 Ehsan Kamrani
+//Copyright (C) 2020 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 [vert]
 
 #version 130
-varying vec3 lightDir;
-varying vec4 ambient;
-varying vec4 diffuse;
-varying float dist;
+
+//Directional Light
+#define NR_DIR_LIGHTS 2
+uniform int nr_dir_lights;
+varying vec3 lightDir[NR_DIR_LIGHTS];
+
+//Point Light
+#define NR_POINT_LIGHTS 2  
+uniform int nr_point_lights;
+varying float pointLightDist[NR_POINT_LIGHTS];
+varying vec3 pointLightPos[NR_POINT_LIGHTS];
+
+//spot Lights
+#define NR_SPOT_LIGHTS 1
+uniform int nr_spot_lights;
+varying float spotLightDist[NR_SPOT_LIGHTS];
+varying vec3 spotLightPos[NR_SPOT_LIGHTS];
+varying vec3 spotLightDir[NR_SPOT_LIGHTS];
+
 varying vec3 viewDir;
-varying vec3 normal;
-//varying vec4 position;
-//varying vec3 GNormal;
-uniform mat4 camera_inverse_matrix;
-uniform float focalDistance, focalRange;
-uniform bool enableDirtMap;
-uniform bool pointLight;
 varying vec4 vPos;
+uniform bool enableDirtMap;
 void main()
 {
-	mat4 modelMatrix = camera_inverse_matrix * gl_ModelViewMatrix;
-	mat3 modelMatrix3x3 = mat3(modelMatrix); 
-	
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-    if( enableDirtMap )
-		gl_TexCoord[1] = gl_MultiTexCoord3; //second uv set
-
-    vec3 vertexPos = vec3(gl_ModelViewMatrix * gl_Vertex);
-    vPos = gl_ModelViewMatrix * gl_Vertex;
-
-	//GNormal = normalize( modelMatrix3x3 * gl_Normal );
-	
+	//normal calculations based on normal texture
     vec3 n, t, b;
-   
-    viewDir = -vertexPos;
-  
 	mat3 tbnMatrix;
 	n = normalize(gl_NormalMatrix * gl_Normal);
 	t = normalize(gl_NormalMatrix * gl_MultiTexCoord1.xyz);
 	b = normalize(gl_NormalMatrix * gl_MultiTexCoord2.xyz);
 		
 	tbnMatrix = mat3(t.x, b.x, n.x,
-                        t.y, b.y, n.y,
-                        t.z, b.z, n.z);
-                          
-   	viewDir = tbnMatrix * viewDir;
- 	vec3 tempVec;
- 	if( pointLight )
- 		tempVec = (gl_LightSource[0].position.xyz - vPos.xyz);
- 	else
- 		tempVec = gl_LightSource[0].position.xyz;
-    dist = length(tempVec );
-	lightDir = normalize( tbnMatrix * tempVec );	
-			
-	ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;
-	diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;
-    // fix of the clipping bug for both Nvidia and ATi
-    #ifdef __GLSL_CG_DATA_TYPES
-    gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
-    #endif
+                     t.y, b.y, n.y,
+                     t.z, b.z, n.z);
 
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    if( enableDirtMap )
+		gl_TexCoord[1] = gl_MultiTexCoord3; //second uv set
+
+    vPos = gl_ModelViewMatrix * gl_Vertex;
+
+    viewDir = vec3(-vPos);
+   	viewDir = tbnMatrix * viewDir;
+ 
+	int light_index = 0;
+ 	vec3 tempVec;
+	//directional Light
+	for(int i = 0; i < nr_dir_lights; i++)
+	{
+		tempVec = gl_LightSource[light_index].position.xyz;
+		lightDir[i] = normalize( tbnMatrix * tempVec );
+
+		light_index++;
+	}
+
+	//Point Lights
+	for(int i = 0; i < nr_point_lights; i++)
+	{
+		tempVec = (gl_LightSource[light_index].position.xyz - vPos.xyz);
+		pointLightDist[i] = length(tempVec);
+		pointLightPos[i] = normalize(tbnMatrix * tempVec);
+		light_index++;
+	}	
+	
+	//Spot Light
+	for(int i = 0; i < nr_spot_lights; i++)
+	{
+		tempVec = (gl_LightSource[light_index].position.xyz - vPos.xyz);
+		spotLightDist[i] = length(tempVec);
+		spotLightPos[i] = normalize( tbnMatrix * tempVec );
+		spotLightDir[i] = normalize( tbnMatrix * gl_LightSource[light_index].spotDirection );
+		light_index++;
+	}	
+	// fix of the clipping bug for both Nvidia and ATi
+    #ifdef __GLSL_CG_DATA_TYPES
+    gl_ClipVertex = vPos;
+    #endif
+	
     gl_Position = gl_ProjectionMatrix * vPos;
-    //position = modelMatrix * gl_Vertex;
 }
 
 [frag]
 
 #version 130
+
 #extension GL_EXT_texture_array : enable
-varying vec3 lightDir;
-varying float dist;
-uniform float light_radius;
-varying vec4 ambient;
-varying vec4 diffuse;
+
+//Directional Light
+#define NR_DIR_LIGHTS 2
+uniform int nr_dir_lights;
+varying vec3 lightDir[NR_DIR_LIGHTS];
+uniform int defaultDirLightIndex;
+
+//Point Light
+#define NR_POINT_LIGHTS 2  
+uniform int nr_point_lights;
+varying float pointLightDist[NR_POINT_LIGHTS];
+varying vec3 pointLightPos[NR_POINT_LIGHTS];
+uniform float point_light_radius[NR_POINT_LIGHTS];
+
+//spot Lights
+#define NR_SPOT_LIGHTS 1
+uniform int nr_spot_lights;
+varying float spotLightDist[NR_SPOT_LIGHTS];
+varying vec3 spotLightPos[NR_SPOT_LIGHTS];
+varying vec3 spotLightDir[NR_SPOT_LIGHTS];
+uniform float spot_light_radius[NR_SPOT_LIGHTS];
+
 varying vec3 viewDir;
-varying vec3 normal;  //It's just used for per pixel lighting without normal map
-//varying vec4 position;
-//varying vec3 GNormal;
-uniform bool enableParallaxMap;
 uniform bool enableAlphaMap;
 uniform bool enableColorMap;
 uniform bool enableDirtMap;
 uniform bool enableGlossMap;
 
 uniform sampler2D colorMap;
-uniform sampler2D normalMap;
 uniform sampler2D alphaMap;
 uniform sampler2D heightMap;
 uniform sampler2D glossMap;
 uniform sampler2D dirtMap;
 
-uniform bool firstPass;
-
+//normal and parallax mapping
+uniform sampler2D normalMap;
+uniform bool enableParallaxMap;
 uniform float parallaxMapScale;
 uniform float parallaxMapBias;
 
-
 out vec4 myVec40;
-//out vec4 myVec41;
-//out vec4 myVec42;
-//out vec4 myVec43;
-//out vec4 myVec44;
-//out vec4 myVec45;
-//out vec4 myVec46;
-//out vec4 myVec47;
-//out vec4 myVec48;
-uniform bool pointLight;
+
 //shadow
 uniform vec4 far_d;
-uniform vec2 texSize; // x - size, y - 1/size
 varying vec4 vPos;
 uniform sampler2DArray stex;
-uniform bool character_shadow;
 uniform float shadow_intensity;
-float shadowCoef()
+
+float shadowCoef(float ndotl)
 {
 	int index;
 	if(gl_FragCoord.z < far_d.x)
@@ -132,6 +157,10 @@ float shadowCoef()
 	vec4 shadow_coord = gl_TextureMatrix[index]*vPos;
 
 	shadow_coord.w = shadow_coord.z;
+	//variable bias
+	float bias = 0.001*tan(acos(ndotl));
+	bias = clamp(bias, 0,0.0025);
+	shadow_coord.w -= bias;
 	
 	// tell glsl in which layer to do the look up
 	shadow_coord.z = float(index);
@@ -148,27 +177,19 @@ float shadowCoef()
 
 void main()
 {
-	vec4 alphaColor;
+	float NdotL, att, spotEffect;
+	vec2 newTexCoord;
+  	vec3 halfV, viewV, ldir, ldirForDynamicShadow, n, sdir;
+	vec4 ambient, diffuse, textureColor, finalColor, alphaColor, glossColor, dirtColor, color, ambientGlobal, specular;
+
 	if( enableAlphaMap )
 	{
 	    alphaColor = texture2D(alphaMap, gl_TexCoord[0].xy);
 	
-	    if(alphaColor.a<0.1)
+	    if( alphaColor.a < 0.1)
 	    	discard;
 	}
-
-  	vec3 halfV,viewV,ldir,ldirForDynamicShadow;
-	float NdotL;
-
-	vec4 ambientGlobal, specular;	
-  	ambientGlobal = gl_LightModel.ambient * gl_FrontMaterial.ambient;
-
-	vec4 color = ambientGlobal;
-	float att;
-
 	viewV = normalize( viewDir );
-
-	vec2 newTexCoord;
 
 	if( enableParallaxMap )
 	{
@@ -181,83 +202,171 @@ void main()
 	else 
 		newTexCoord = gl_TexCoord[0].st;
 		
-	vec3 n, dynamicShadowN;
-	vec4 normalColor;
-	normalColor = texture2D(normalMap, newTexCoord );
     n = normalize(texture2D(normalMap, newTexCoord ).rgb * 2.0 - 1.0);
-	dynamicShadowN = normalize( normal );	
-	    	 
-	vec4 textureColor;
-	vec4 shadowColor = vec4(0.0, 0.0, 0.0, 0.0 );
-	vec4 dirtColor;
-	vec4 glossColor;
-	
-  	//att = 1.0 / (gl_LightSource[0].constantAttenuation +
-	//		gl_LightSource[0].linearAttenuation * dist +
-	//		gl_LightSource[0].quadraticAttenuation * dist * dist);
-	if( pointLight )
-		att = ( 1 - ( dist / light_radius ) ) / gl_LightSource[0].constantAttenuation;
-	else 
-		att = 1.0;
 
-	color += att * ambient;
-
-	ldir = normalize(lightDir); 
-	NdotL = max(dot(n,ldir),0.0);
-	if( NdotL > 0.0 )
+	int light_index = 0;
+	//Directional Light
+	for(int i = 0; i < nr_dir_lights; i++)
 	{
-		color += att * (diffuse * NdotL );
-			
-	 	specular = gl_FrontMaterial.specular * gl_LightSource[0].specular;
-	
-		float l_specular = pow(clamp(dot(reflect(-ldir, n), viewV), 0.0, 1.0), 
-					 gl_FrontMaterial.shininess );
-	
-		if( enableGlossMap )
+		if( i == defaultDirLightIndex)
 		{
-	 		glossColor = texture2D(glossMap, newTexCoord );
-			color += att * specular * l_specular * glossColor;
+			ambient = gl_FrontMaterial.ambient * gl_LightSource[light_index].ambient;
+			diffuse = gl_FrontMaterial.diffuse * gl_LightSource[light_index].diffuse;
+
+			color = ambient;
+
+			ldir = normalize(lightDir[i]); 
+			NdotL = max(dot(n,ldir),0.0);
+			if( NdotL > 0.0 )
+			{
+				float shadow_coef = shadowCoef(NdotL);
+
+				color += (diffuse * NdotL );
+			
+	 			specular = gl_FrontMaterial.specular * gl_LightSource[light_index].specular;
+	
+				float l_specular = pow(clamp(dot(reflect(-ldir, n), viewV), 0.0, 1.0), 
+								gl_FrontMaterial.shininess );
+	
+				if( enableGlossMap )
+				{
+	 				glossColor = texture2D(glossMap, newTexCoord );
+					color += specular * l_specular * glossColor;
+				}
+				else
+					color += specular * l_specular;
+
+				shadow_coef +=  1.0 - shadow_intensity;
+	
+				shadow_coef = clamp(shadow_coef, 0.0, 1.0);
+				color *= shadow_coef;
+			}
+			else
+			{
+				color *= 1.0 - shadow_intensity;
+			}
 		}
 		else
-			color += att * specular * l_specular;
-	}
+		{
+			ambient = gl_FrontMaterial.ambient * gl_LightSource[light_index].ambient;
+			diffuse = gl_FrontMaterial.diffuse * gl_LightSource[light_index].diffuse;
+
+			color = ambient;
+
+			ldir = normalize(lightDir[i]); 
+			NdotL = max(dot(n,ldir),0.0);
+			if( NdotL > 0.0 )
+			{
+				color += (diffuse * NdotL );
+			
+	 			specular = gl_FrontMaterial.specular * gl_LightSource[light_index].specular;
 	
+				float l_specular = pow(clamp(dot(reflect(-ldir, n), viewV), 0.0, 1.0), 
+								gl_FrontMaterial.shininess );
+	
+				if( enableGlossMap )
+				{
+	 				glossColor = texture2D(glossMap, newTexCoord );
+					color += specular * l_specular * glossColor;
+				}
+				else
+					color += specular * l_specular;
+			}
+		}
+		finalColor += color;
+		light_index++;
+	}
+
+	//point lights
+	for(int i = 0; i < nr_point_lights; i++)
+	{
+		color = vec4(0.0);
+
+		ldir = normalize(pointLightPos[i]); 
+		NdotL = max(dot(n,ldir),0.0);
+		if( NdotL > 0.0 )
+		{
+			ambient = gl_FrontMaterial.ambient * gl_LightSource[light_index].ambient;
+			diffuse = gl_FrontMaterial.diffuse * gl_LightSource[light_index].diffuse;
+
+			att = ( 1 - ( pointLightDist[i] / point_light_radius[i] ) ) / gl_LightSource[light_index].constantAttenuation;
+			att = max(att, 0.0);
+			color = att * ambient;
+
+			color += att * (diffuse * NdotL );
+			
+	 		specular = gl_FrontMaterial.specular * gl_LightSource[light_index].specular;
+	
+			float l_specular = pow(clamp(dot(reflect(-ldir, n), viewV), 0.0, 1.0), 
+						 gl_FrontMaterial.shininess );
+	
+			if( enableGlossMap )
+			{
+	 			glossColor = texture2D(glossMap, newTexCoord );
+				color += att * specular * l_specular * glossColor;
+			}
+			else
+				color += att * specular * l_specular;
+		}
+	
+		finalColor += color;
+		light_index++;
+	}
+
+	//Spot Lights
+	for(int i = 0; i < nr_spot_lights; i++)
+	{
+		color = vec4(0.0);
+		ldir = normalize(spotLightPos[i]); 
+		sdir = normalize(spotLightDir[i]);
+		NdotL = max(dot(n,ldir),0.0);
+		if( NdotL > 0.0 )
+		{
+			spotEffect = dot(sdir, -ldir);
+			if (spotEffect > gl_LightSource[light_index].spotCosCutoff)
+			{
+				ambient = gl_FrontMaterial.ambient * gl_LightSource[light_index].ambient;
+				diffuse = gl_FrontMaterial.diffuse * gl_LightSource[light_index].diffuse;
+
+				spotEffect = pow(spotEffect, gl_LightSource[light_index].spotExponent);
+				float tempAtt = ( 1 - ( spotLightDist[i] /  spot_light_radius[i] ) ) / gl_LightSource[light_index].constantAttenuation;
+				att = spotEffect * tempAtt;
+
+				color = att * ambient;
+
+				color += att * (diffuse * NdotL );
+			
+		 		specular = gl_FrontMaterial.specular * gl_LightSource[light_index].specular;
+	
+				float l_specular = pow(clamp(dot(reflect(-ldir, n), viewV), 0.0, 1.0), 
+							gl_FrontMaterial.shininess );
+	
+				if( enableGlossMap )
+				{
+	 				glossColor = texture2D(glossMap, newTexCoord );
+					color += att * specular * l_specular * glossColor;
+				}
+				else
+					color += att * specular * l_specular;
+			}
+		}
+	
+		finalColor += color;
+		light_index++;
+	}	
+
 	if( enableColorMap )
 	{
   		textureColor = texture2D(colorMap, newTexCoord );
-		color *= textureColor;
+		finalColor *= textureColor;
 	}
 
 	if( enableDirtMap )
 	{
   		dirtColor = texture2D(dirtMap, gl_TexCoord[1].st );
-		color *= dirtColor;
+		finalColor *= dirtColor;
 	}
-	if( firstPass )
-	{
-		float shadow_coef = shadowCoef();
-		if( character_shadow )
-		{
-			shadow_coef *= NdotL;
-		}
-		shadow_coef +=  1.0 - shadow_intensity;
-	
-		shadow_coef = clamp(shadow_coef, 0.0, 1.0);
-		color *= shadow_coef;
-	}	
-		//vec4 pos = normalize( position );
-		//myVec41 = vec4(pos.xyz,0);
-		//vec3 norm = normalize( GNormal );
-		//myVec42 = vec4( norm.xyz,0 );
-		//myVec43 =  textureColor;
-		//myVec44 =  normalColor;
-		//myVec45 =  glossColor;
-		//myVec46 =  shadowColor;
-		//myVec47 =  dirtColor;
-		//myVec48 =  alphaColor;
-	//}
-	
-	myVec40 = vec4(color.rgb, 0.0);
+	myVec40 = vec4(finalColor.rgb, 0.0);
 
 }
 

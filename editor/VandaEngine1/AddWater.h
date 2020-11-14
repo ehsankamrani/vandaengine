@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -34,6 +34,7 @@ public:
 	CString m_strWaterLX;
 	CString m_strWaterLY;
 	CString m_strWaterLZ;
+	CBool m_isVisible;
 
 	CFloat m_fWaterHeight;
 	CFloat m_fWaterSpeed;
@@ -55,6 +56,7 @@ public:
 	CChar* GetTempName() { return (CChar*)m_strTempWaterName.GetBuffer(m_strTempWaterName.GetLength()); m_strTempWaterName.ReleaseBuffer(); }
 	CChar* GetDuDvMap() {return (CChar*)m_strDuDvMap.GetBuffer(m_strDuDvMap.GetLength()); m_strDuDvMap.ReleaseBuffer(); }
 	CChar* GetNormalMap() {return (CChar*)m_strNormalMap.GetBuffer(m_strNormalMap.GetLength()); m_strNormalMap.ReleaseBuffer(); }
+	CBool GetVisible() { return m_isVisible; }
 
 	CVoid SetCreate( CBool create )
 	{
@@ -78,9 +80,9 @@ public:
 		CChar posX[MAX_NAME_SIZE];
 		CChar posY[MAX_NAME_SIZE];
 		CChar posZ[MAX_NAME_SIZE];
-		sprintf( posX, "%f", pos[0] );
-		sprintf( posY, "%f", pos[1] );
-		sprintf( posZ, "%f", pos[2] );
+		sprintf( posX, "%.3f", pos[0] );
+		sprintf( posY, "%.3f", pos[1] );
+		sprintf( posZ, "%.3f", pos[2] );
 		m_strWaterCX = posX;
 		m_strWaterCY = posY;
 		m_strWaterCZ = posZ;
@@ -90,9 +92,9 @@ public:
 		CChar posX[MAX_NAME_SIZE];
 		CChar posY[MAX_NAME_SIZE];
 		CChar posZ[MAX_NAME_SIZE];
-		sprintf( posX, "%f", pos[0] );
-		sprintf( posY, "%f", pos[1] );
-		sprintf( posZ, "%f", pos[2] );
+		sprintf( posX, "%.3f", pos[0] );
+		sprintf( posY, "%.3f", pos[1] );
+		sprintf( posZ, "%.3f", pos[2] );
 		m_strWaterLX = posX;
 		m_strWaterLY = posY;
 		m_strWaterLZ = posZ;
@@ -100,30 +102,35 @@ public:
 	CVoid SetHeight( CFloat height )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", height );
+		sprintf( temp, "%.3f", height );
 		m_strWaterHeight = temp;
 	}
 	CVoid SetSpeed( CFloat speed )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", speed );
+		sprintf( temp, "%.3f", speed );
 		m_strWaterSpeed = temp;
 	}
 	CVoid SetUV( CFloat UV )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", UV );
+		sprintf( temp, "%.3f", UV );
 		m_strWaterUV = temp;
 	}
 	CVoid SetScale( CFloat scale )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", scale );
+		sprintf( temp, "%.3f", scale );
 		m_strWaterScale = temp;
 	}
 	CVoid SetEditMode( CBool editMode )
 	{
 		m_editMode = editMode;
+	}
+
+	CVoid SetVisible(CBool isVisible)
+	{
+		m_isVisible = isVisible;
 	}
 // Dialog Data
 	enum { IDD = IDD_DIALOG_ADD_WATER };
@@ -212,4 +219,5 @@ public:
 	afx_msg void OnEnChangeEditWaterLightY();
 public:
 	afx_msg void OnEnChangeEditWaterLightZ();
+	CButton m_checkIsVisible;
 };

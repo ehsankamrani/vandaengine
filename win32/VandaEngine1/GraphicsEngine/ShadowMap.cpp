@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "StdAfx.h"
@@ -54,14 +54,14 @@ CBool CShadowMap::Init()
 {
 	if( g_render.UsingFBOs() && g_render.UsingShader() ) 
 	{
-		BSphere[0].center = vec3f(-50, 20.0, -50);
-		BSphere[1].center = vec3f(-50, 20.0,  50);
-		BSphere[2].center = vec3f( 50, 20.0,  50);
-		BSphere[3].center = vec3f( 50, 20.0, -50);
-		BSphere[0].radius = 1.0f;
-		BSphere[1].radius = 1.0f;
-		BSphere[2].radius = 1.0f;
-		BSphere[3].radius = 1.0f;
+		BSphere[0].center = vec3f(-256, 0.0, -256);
+		BSphere[1].center = vec3f(-256, 0.0, 256);
+		BSphere[2].center = vec3f(256, 0.0, 256);
+		BSphere[3].center = vec3f(256, 0.0, -256);
+		BSphere[0].radius = 50.0f;
+		BSphere[1].radius = 50.0f;
+		BSphere[2].radius = 50.0f;
+		BSphere[3].radius = 50.0f;
 
 		glGenFramebuffersEXT(1, &depth_fb);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, depth_fb);
@@ -85,7 +85,7 @@ CBool CShadowMap::Init()
 			// note that fov is in radians here and in OpenGL it is in degrees.
 			// the 0.2f factor is important because we might get artifacts at
 			// the screen borders.
-			f[i].fov = DEG_TO_RAD(54) + 1.0f;
+			f[i].fov = DEG_TO_RAD(54.0f) + 0.2f;
 			f[i].ratio = (double)g_width/(double)g_height;
 		}
 		return CTrue;
@@ -169,7 +169,7 @@ void CShadowMap::UpdateSplitDist(frustum f[MAX_SPLITS], float nd, float fd)
 // First, it computes the appropriate z-range and sets an orthogonal projection.
 // Then, it translates and scales it, so that it exactly captures the bounding box
 // of the current frustum slice
-float CShadowMap::ApplyCropMatrix(frustum &f)
+float CShadowMap::ApplyCropMatrix(frustum &f, vec3f cam_pos)
 {
 	float shad_modelview[16];
 	float shad_proj[16];
@@ -207,6 +207,17 @@ float CShadowMap::ApplyCropMatrix(frustum &f)
 	}
 	// make sure all relevant shadow casters are included
 	// note that these here are dummy objects at the edges of our scene
+
+	BSphere[0].center = cam_pos + vec3f(-g_shadowProperties.m_shadowFarClipPlane, 0.0, -g_shadowProperties.m_shadowFarClipPlane);
+	BSphere[1].center = cam_pos + vec3f(-g_shadowProperties.m_shadowFarClipPlane, 0.0, g_shadowProperties.m_shadowFarClipPlane);
+	BSphere[2].center = cam_pos + vec3f(g_shadowProperties.m_shadowFarClipPlane, 0.0, g_shadowProperties.m_shadowFarClipPlane);
+	BSphere[3].center = cam_pos + vec3f(g_shadowProperties.m_shadowFarClipPlane, 0.0, -g_shadowProperties.m_shadowFarClipPlane);
+
+	BSphere[0].radius = g_maxInstancePrefabRadius;
+	BSphere[1].radius = g_maxInstancePrefabRadius;
+	BSphere[2].radius = g_maxInstancePrefabRadius;
+	BSphere[3].radius = g_maxInstancePrefabRadius;
+
 	for(int i=0; i<NUM_OBJECTS; i++)
 	{
 		transf = nv_mvp*vec4f(BSphere[i].center, 1.0f);
@@ -260,6 +271,38 @@ float CShadowMap::ApplyCropMatrix(frustum &f)
 	return minZ;
 }
 
+void CShadowMap::UpdateFOV()
+{
+	CFloat fov;
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+	{
+		fov = g_render.GetDefaultInstanceCamera()->m_abstractCamera->GetAngle();
+	}
+	else if (g_currentCameraType == eCAMERA_COLLADA)
+	{
+		if (g_cameraProperties.m_readDAECameraFOVFromFile)
+			fov = g_render.GetActiveInstanceCamera()->m_abstractCamera->GetYFov();
+		else
+			fov = g_cameraProperties.m_daeCameraFOV;
+	}
+	else if (g_currentCameraType == eCAMERA_PHYSX)
+	{
+		fov = g_camera->m_cameraManager->GetAngle();
+	}
+	else if (g_currentCameraType == eCAMERA_ENGINE)
+	{
+		fov = g_render.GetActiveInstanceCamera()->m_abstractCamera->GetAngle();
+	}
+
+	for (int i = 0; i<MAX_SPLITS; i++)
+	{
+		// note that fov is in radians here and in OpenGL it is in degrees.
+		// the 0.2f factor is important because we might get artifacts at
+		// the screen borders.
+		f[i].fov = DEG_TO_RAD(fov) + 0.2f;
+	}
+}
+
 // here all shadow map textures and their corresponding matrices are created
 void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light_dir[4] )
 {
@@ -290,15 +333,15 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 	glViewport(0, 0, depth_size, depth_size);
 	// offset the geometry slightly to prevent z-fighting
 	// note that this introduces some light-leakage artifacts
-	glPolygonOffset( 1.0f, 3.0);
-	glEnable(GL_POLYGON_OFFSET_FILL);
+	//glPolygonOffset(1.0f, 2.0f);
+	//glEnable(GL_POLYGON_OFFSET_FILL);
 	//glCullFace( GL_FRONT );
 	// I assume that our objects are closed, so I don't disable face culling.
 	//glDisable(GL_CULL_FACE);
 
 	// compute the z-distances for each split as seen in camera space
 	UpdateSplitDist(f, g_shadowProperties.m_shadowNearClipPlane, g_shadowProperties.m_shadowFarClipPlane);
-
+	UpdateFOV();
 	// for all shadow maps:
 	for(int i=0; i<cur_num_splits; i++)
 	{
@@ -308,7 +351,7 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 		// adjust the view frustum of the light, so that it encloses the camera frustum slice fully.
 		// note that this function sets the projection matrix as it sees best fit
 		// minZ is just for optimization to cull trees that do not affect the shadows
-		float minZ = ApplyCropMatrix(f[i]);
+		float minZ = ApplyCropMatrix(f[i], vec3f(cam_pos));
 		// make the current depth map a rendering target
 		glFramebufferTextureLayerEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, depth_tex_ar, 0, i);
 
@@ -317,32 +360,81 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 
 		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
 		{
-			if (!g_instancePrefab[j]->GetVisible()) continue;
-			CPrefab* prefab = g_instancePrefab[j]->GetPrefab();
-			CScene* scene = NULL;
-			if (prefab && prefab->GetHasLod(0))
-				scene = g_instancePrefab[j]->GetScene(0);
-			if (!scene)
-				continue;
-			else
-				g_render.SetScene(g_instancePrefab[j]->GetScene(0));
-
-			if (!g_render.GetScene()->m_isTrigger)
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
 			{
-				g_render.GetScene()->Render(CFalse, NULL);
+				g_currentInstancePrefab = g_instancePrefab[j];
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				CScene* scene = NULL;
 
-				g_render.ModelViewMatrix();
-				g_render.PushMatrix();
-				g_render.MultMatrix(*(g_instancePrefab[j]->GetInstanceMatrix()));
-				g_render.GetScene()->RenderAnimatedModels(CFalse, CTrue);
-				g_render.PopMatrix();
+				if (prefab)
+				{
+					//manage LOD here
+					if (!g_currentInstancePrefab->GetVisible()) continue;
+					if (g_currentInstancePrefab->GetDistanceFromCamera() > g_shadowProperties.m_shadowFarClipPlane + g_currentInstancePrefab->GetRadius()) continue;
 
-				g_render.GetScene()->RenderAnimatedModels(CFalse, CFalse);
+					for (CUInt k = 0; k < 3; k++)
+					{
+						if (prefab->GetHasLod(k) && g_currentInstancePrefab->GetSceneVisible(k))
+						{
+							scene = g_currentInstancePrefab->GetScene(k);
+							break;
+						}
+					}
+					if (!scene)
+					{
+						//if instance is outside the frustom
+						if (!g_currentInstancePrefab->GetRenderForQuery())
+						{
+							//if prefab instance is outside frustom, it may still cast shadows. 
+							//select LOD 1 or 2 based on camera distance from camera.
+							//Note that we don't have access to occlusion culling for objects outside the frustom
+							if (g_currentInstancePrefab->GetDistanceFromCamera() > g_instancePrefabLODPercent.m_lod1MinObjectCameraDistance + g_currentInstancePrefab->GetRadius())
+							{
+								//select scene 2. If scene 2 is not available, select scene 1 instead
+								if (prefab->GetHasLod(2))
+								{
+									scene = g_currentInstancePrefab->GetScene(2);
+								}
+								if (!scene)
+								{
+									if (prefab->GetHasLod(1))
+										scene = g_currentInstancePrefab->GetScene(1);
+								}
+							}
+							else
+							{
+								//select scene 1
+								if (prefab->GetHasLod(1))
+									scene = g_currentInstancePrefab->GetScene(1);
+							}
+						}
+					}
+				} //if prefab
+				if (!scene)
+					continue;
+				else
+					g_render.SetScene(scene);
 
-				g_render.GetScene()->RenderModelsControlledByPhysX(CFalse);
-			}
+				if (!g_render.GetScene()->m_isTrigger)
+				{
+					g_render.GetScene()->Render(CFalse, NULL);
 
-		}
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+					g_render.MultMatrix(*(g_instancePrefab[j]->GetInstanceMatrix()));
+					g_render.GetScene()->RenderAnimatedModels(CFalse, CTrue);
+					g_render.PopMatrix();
+
+					g_render.GetScene()->RenderAnimatedModels(CFalse, CFalse);
+
+					g_render.GetScene()->RenderModelsControlledByPhysX(CFalse);
+				}
+			} //if
+
+		} //for
+
+		//render terrain here
+		//g_main->m_terrain->drawShadow();
 
 		glMatrixMode(GL_PROJECTION);
 		// store the product of all shadow matries for later
@@ -363,6 +455,7 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	g_render.m_useShader = CTrue;
 }
 
 void CShadowMap::ShowDepthTex()

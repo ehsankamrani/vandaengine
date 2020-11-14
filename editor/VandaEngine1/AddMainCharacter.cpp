@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddMainCharacter.cpp : implementation file
@@ -28,7 +28,7 @@ CAddMainCharacter::CAddMainCharacter(CWnd* pParent /*=NULL*/)
 	m_instance = NULL;
 	m_bRemoved = CFalse;
 	Cpy(m_oldName, "\n");
-	m_characterType = eCHARACTER_THIRD_PERSON;
+	m_characterType = ePHYSX_CAMERA_THIRD_PERSON;
 	m_camera = new CUpdateCamera();
 	m_newCharacter = CFalse;
 	m_clickedWalkSound = CFalse;
@@ -263,6 +263,16 @@ void CAddMainCharacter::OnBnClickedButtonSelectCharacter()
 		ex_pVandaEngine1Dlg->m_dlgPrefabs = CNew(CPrefabDlg);
 		ex_pDlgPrefabs = ex_pVandaEngine1Dlg->m_dlgPrefabs;
 		ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(NULL, g_currentPrefabPackageName, g_currentPrefabName);
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
 		CDelete(ex_pVandaEngine1Dlg->m_dlgPrefabs);
 
 		g_importPrefab = CFalse;
@@ -334,7 +344,7 @@ BOOL CAddMainCharacter::OnInitDialog()
 		m_newCharacter = CTrue;
 		g_mainCharacter = CNew(CMainCharacter);
 	}
-	if (g_mainCharacter->GetType() == eCHARACTER_THIRD_PERSON)
+	if (g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_THIRD_PERSON)
 		CheckRadioButton(IDC_RADIO_FIRST_PERSON, IDC_RADIO_THIRD_PERSON, IDC_RADIO_THIRD_PERSON);
 	else
 		CheckRadioButton(IDC_RADIO_FIRST_PERSON, IDC_RADIO_THIRD_PERSON, IDC_RADIO_FIRST_PERSON);
@@ -414,6 +424,19 @@ BOOL CAddMainCharacter::OnInitDialog()
 
 void CAddMainCharacter::OnBnClickedOk()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+
 	if (m_strPosX.IsEmpty() || m_strPosY.IsEmpty() || m_strPosZ.IsEmpty() || m_strScale.IsEmpty() || m_strName.IsEmpty() || m_strPlayMoreIdlesEveryXSeconds.IsEmpty() || m_comboIdle.GetCount() == 0 || m_comboWalk.GetCount() == 0 || m_comboJump.GetCount() == 0 || m_comboRun.GetCount() == 0)
 	{
 		MessageBox("Please Fill In All Of The Required Fields.", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
@@ -453,9 +476,9 @@ void CAddMainCharacter::OnBnClickedOk()
 
 	int newState = GetCheckedRadioButton(IDC_RADIO_FIRST_PERSON, IDC_RADIO_THIRD_PERSON);
 	if (newState == IDC_RADIO_FIRST_PERSON)
-		g_mainCharacter->SetType(eCHARACTER_FIRST_PERSON);
+		g_mainCharacter->SetCameraType(ePHYSX_CAMERA_FIRST_PERSON);
 	else
-		g_mainCharacter->SetType(eCHARACTER_THIRD_PERSON);
+		g_mainCharacter->SetCameraType(ePHYSX_CAMERA_THIRD_PERSON);
 
 	g_mainCharacter->SetName((CChar*)(LPCTSTR)m_strName);
 	if (m_instance)
@@ -516,6 +539,16 @@ void CAddMainCharacter::OnBnClickedOk()
 		ex_pVandaEngine1Dlg->m_dlgPrefabs = CNew(CPrefabDlg);
 		ex_pDlgPrefabs = ex_pVandaEngine1Dlg->m_dlgPrefabs;
 		ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(NULL, g_mainCharacter->GetPackageName(), g_mainCharacter->GetPrefabName());
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
 		CDelete(ex_pVandaEngine1Dlg->m_dlgPrefabs);
 
 		g_importPrefab = CFalse;
@@ -562,6 +595,8 @@ void CAddMainCharacter::OnBnClickedOk()
 	g_mainCharacter->GetInstancePrefab()->SetScale(scale_XYZ);
 	g_mainCharacter->GetInstancePrefab()->UpdateBoundingBox(CTrue);
 	g_mainCharacter->GetInstancePrefab()->CalculateDistance();
+	//g_mainCharacter->GetInstancePrefab()->UpdateIsStaticOrAnimated();
+
 
 	g_arrowPosition = pos_char;
 	g_arrowRotate.x = g_arrowRotate.y = g_arrowRotate.z = 0.0f;
@@ -601,7 +636,7 @@ void CAddMainCharacter::OnBnClickedOk()
 	g_multipleView->m_nx->gControllers->setPosition(pos);
 
 	//set default rotation and idle status here
-	g_multipleView->ManageCharacterBlends("idle", (CChar*)idleName[0].c_str());
+	g_multipleView->ManageCharacterBlends("idle");
 
 	g_multipleView->RenderCharacter(CFalse);
 	if (Cmp(m_oldName, "\n"))
@@ -611,6 +646,34 @@ void CAddMainCharacter::OnBnClickedOk()
 	}
 	m_instance->SetName("VANDA_MAIN_CHARACTER");
 
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, g_mainCharacter->GetName());
+
+	for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+	{
+		if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+		{
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+		}
+		else
+		{
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+		}
+	}
+
+
+	//Erase all items of m_listBoxEngineObjects
+	for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+	{
+		ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+		ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+	}
+	ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+	ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
+
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CTrue);
 	if (g_editorMode == eMODE_VSCENE)
@@ -619,6 +682,8 @@ void CAddMainCharacter::OnBnClickedOk()
 	ex_pVandaEngine1Dlg->m_mainBtnPlayer.EnableWindow(FALSE);
 	ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_PLAYER, MF_DISABLED | MF_GRAYED);
 	g_multipleView->SetElapsedTimeFromBeginning();
+
+
 	CDialog::OnOK();
 }
 
@@ -772,6 +837,16 @@ void CAddMainCharacter::OnBnClickedButtonLoadProfile()
 		ex_pVandaEngine1Dlg->m_dlgPrefabs = CNew(CPrefabDlg);
 		ex_pDlgPrefabs = ex_pVandaEngine1Dlg->m_dlgPrefabs;
 		ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(NULL, g_currentPrefabPackageName, g_currentPrefabName);
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
 		CDelete(ex_pVandaEngine1Dlg->m_dlgPrefabs);
 
 		g_importPrefab = CFalse;
@@ -826,7 +901,7 @@ void CAddMainCharacter::OnBnClickedButtonLoadProfile()
 			m_comboJump.InsertString(i, m_jumpName[i].c_str());
 		m_comboJump.SetCurSel(0);
 
-		if (m_characterType == eCHARACTER_THIRD_PERSON)
+		if (m_characterType == ePHYSX_CAMERA_THIRD_PERSON)
 			CheckRadioButton(IDC_RADIO_FIRST_PERSON, IDC_RADIO_THIRD_PERSON, IDC_RADIO_THIRD_PERSON);
 		else
 			CheckRadioButton(IDC_RADIO_FIRST_PERSON, IDC_RADIO_THIRD_PERSON, IDC_RADIO_FIRST_PERSON);
@@ -834,7 +909,7 @@ void CAddMainCharacter::OnBnClickedButtonLoadProfile()
 	}
 }
 
-CVoid CAddMainCharacter::SetCharacterType(CCharacterType characterType)
+CVoid CAddMainCharacter::SetCharacterCameraType(CPhysXCameraType characterType)
 {
 	m_characterType = characterType;
 }
@@ -903,9 +978,9 @@ void CAddMainCharacter::OnBnClickedButtonSaveProfile()
 
 	int newState = GetCheckedRadioButton(IDC_RADIO_FIRST_PERSON, IDC_RADIO_THIRD_PERSON);
 	if (newState == IDC_RADIO_FIRST_PERSON)
-		m_dlgProfiles.SetCharacterType(eCHARACTER_FIRST_PERSON);
+		m_dlgProfiles.SetCharacterCameraType(ePHYSX_CAMERA_FIRST_PERSON);
 	else
-		m_dlgProfiles.SetCharacterType(eCHARACTER_THIRD_PERSON);
+		m_dlgProfiles.SetCharacterCameraType(ePHYSX_CAMERA_THIRD_PERSON);
 
 	CChar characterName[MAX_NAME_SIZE];
 	Cpy(characterName, (LPCSTR)name);
@@ -984,6 +1059,8 @@ void CAddMainCharacter::OnEnChangeEditName()
 
 CVoid CAddMainCharacter::Destroy()
 {
+	if (!m_instance)
+		return;
 	CBool foundTarget = CFalse;
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -1104,6 +1181,16 @@ void CAddMainCharacter::OnBnClickedCancel()
 		ex_pVandaEngine1Dlg->m_dlgPrefabs = CNew(CPrefabDlg);
 		ex_pDlgPrefabs = ex_pVandaEngine1Dlg->m_dlgPrefabs;
 		ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(NULL, g_mainCharacter->GetPackageName(), g_mainCharacter->GetPrefabName());
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
 		CDelete(ex_pVandaEngine1Dlg->m_dlgPrefabs);
 
 		g_importPrefab = CFalse;
@@ -1119,6 +1206,8 @@ void CAddMainCharacter::OnBnClickedCancel()
 		g_mainCharacter->GetInstancePrefab()->SetScale(scale_XYZ);
 		g_mainCharacter->GetInstancePrefab()->UpdateBoundingBox(CTrue);
 		g_mainCharacter->GetInstancePrefab()->CalculateDistance();
+		//g_mainCharacter->GetInstancePrefab()->UpdateIsStaticOrAnimated();
+		g_camera->m_perspectiveCameraYaw = NxMath::degToRad(180.f);
 
 		g_arrowPosition = pos_char;
 		g_arrowRotate.x = g_arrowRotate.y = g_arrowRotate.z = 0.0f;
@@ -1133,7 +1222,7 @@ void CAddMainCharacter::OnBnClickedCancel()
 
 		//set default rotation and idle status here
 		std::vector<std::string> idleName = g_mainCharacter->GetIdleName();
-		g_multipleView->ManageCharacterBlends("idle", (CChar*)idleName[0].c_str());
+		g_multipleView->ManageCharacterBlends("idle");
 
 		g_multipleView->RenderCharacter(CFalse);
 

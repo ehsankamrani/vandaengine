@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditLight.cpp : implementation file
@@ -117,8 +117,8 @@ BOOL CEditLight::OnInitDialog()
 	m_fTolerance = g_lightProperties.m_tolerance;
 
 	CDialog::OnInitDialog();
-	m_strShininess.Format( "%f", m_fShininess );
-	m_strTolerance.Format( "%f", m_fTolerance );
+	m_strShininess.Format( "%.3f", m_fShininess );
+	m_strTolerance.Format( "%.3f", m_fTolerance );
 	m_editBoxShininess.SetWindowTextA( m_strShininess );
 	m_editBoxTolerance.SetWindowTextA( m_strTolerance );
 

@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "scene.h"
@@ -36,14 +26,16 @@ CScene::CScene()
 
 	m_numClips = 0;
 	m_isTrigger = CFalse;
-	m_isGrass = CFalse;
-	m_playAnimation = CTrue;
+	m_playAnimation = m_loopAnimationAtStartup = CTrue;
+	m_alwaysVisible = CFalse;
+	m_castShadow = CTrue;
 	m_clipIndexForStartup = 0;
 
 	m_isLODScene = CFalse;
 	m_baseOfLODScene = NULL;
 	m_isVisible = CTrue;
 	m_updateBoundingBox = CFalse;
+	m_calculateDynamicBoundingBox = CFalse;
 }
 
 CScene::~CScene()
@@ -199,7 +191,8 @@ CBool CScene::Load(CChar * fileName, CChar* clipName, CInt clipIndex, CScene* ot
 	//ret = kmzcleanup(m_collada, true);
 	//if (ret)
 	//	PrintInfo("kmzcleanup complete\n");
-	ret = Triangulate(m_collada);
+	if (!otherScene)
+		ret = Triangulate(m_collada);
 	//if (ret)
 	//	PrintInfo("triangulate complete\n");
 	//ret = deindexer(m_collada);
@@ -455,16 +448,17 @@ CVoid CScene::Destroy()
 	}
 	while(!m_cameraInstances.empty())
 	{
-		for( CUInt size = 0; size < g_cameraInstances.size(); size++ )
+		for( CUInt size = 0; size < g_importedCameraInstances.size(); size++ )
 		{
-			if( Cmp( m_cameraInstances[0]->m_abstractCamera->GetName(), g_cameraInstances[size]->m_abstractCamera->GetName() ) )
+			//if( Cmp( m_cameraInstances[0]->m_abstractCamera->GetName(), g_importedCameraInstances[size]->m_abstractCamera->GetName() ) )
+			if (m_cameraInstances[0] == g_importedCameraInstances[size])
 			{
-				if( g_render.GetActiveInstanceCamera() == g_cameraInstances[size] )
+				if( g_render.GetActiveInstanceCamera() == g_importedCameraInstances[size] )
 				{
 					if (g_main && g_render.GetDefaultInstanceCamera())
 					{
 						g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
-						g_currentCameraType = eCAMERA_DEFAULT_FREE;
+						g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
 						g_main->m_lockInput = CFalse;
 					}
 					else
@@ -472,7 +466,7 @@ CVoid CScene::Destroy()
 						g_render.SetActiveInstanceCamera(NULL);
 					}
 				}
-				g_cameraInstances.erase( g_cameraInstances.begin() + size );
+				g_importedCameraInstances.erase( g_importedCameraInstances.begin() + size );
 			}
 		}
 		CDelete(m_cameraInstances[0]);
@@ -539,16 +533,28 @@ CVoid CScene::Destroy()
 
 CVoid CScene::CalculateDistances()
 {
-	for( CUInt i = 0; i < m_instanceGeometries.size(); i++ )
+	if (g_camera)
 	{
+		for (CUInt i = 0; i < m_instanceGeometries.size(); i++)
+		{
 
-		CFloat x = g_camera->m_perspectiveCameraPos.x - m_instanceGeometries[i]->m_center.x;
-		CFloat y = g_camera->m_perspectiveCameraPos.y - m_instanceGeometries[i]->m_center.y;
-		CFloat z = g_camera->m_perspectiveCameraPos.z - m_instanceGeometries[i]->m_center.z;
+			CFloat x = g_camera->m_perspectiveCameraPos.x - m_instanceGeometries[i]->m_center.x;
+			CFloat y = g_camera->m_perspectiveCameraPos.y - m_instanceGeometries[i]->m_center.y;
+			CFloat z = g_camera->m_perspectiveCameraPos.z - m_instanceGeometries[i]->m_center.z;
 
-		m_instanceGeometries[i]->m_distanceFromCamera = sqrt( pow(x, 2) + pow(y, 2) + pow(z, 2) ) - m_instanceGeometries[i]->m_radius;
+			m_instanceGeometries[i]->m_distanceFromCamera = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)) - m_instanceGeometries[i]->m_radius;
+		}
 	}
 }
+
+CVoid CScene::UpdateDynamicPhysicsObjects()
+{
+	if (m_sceneRoot)
+	{
+		m_sceneRoot->UpdateDynamicPhysicsObjects(m_sceneRoot);
+	}
+}
+
 CVoid CScene::RenderModelsControlledByPhysX(CBool sceneManager)
 {
 	if ( m_sceneRoot )
@@ -565,19 +571,19 @@ CVoid CScene::RenderAnimatedModels(CBool sceneManager, CBool renderController)
 	}
 }
 
-CVoid CScene::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries)
+CVoid CScene::ResetSkinData()
 {
-	if ( m_sceneRoot )
+	if (m_sceneRoot)
 	{
-		m_sceneRoot->Render(sceneManager, parentTreeNameOfGeometries);  
+		m_sceneRoot->ResetSkinData();
 	}
 }
 
-CVoid CScene::RenderGrass(CBool sceneManager, CChar* parentTreeNameOfGeometries)
+CVoid CScene::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility, CBool drawGeometry)
 {
 	if ( m_sceneRoot )
 	{
-		m_sceneRoot->RenderGrass(sceneManager, parentTreeNameOfGeometries); 
+		m_sceneRoot->Render(sceneManager, parentTreeNameOfGeometries, CFalse, checkVisibility, drawGeometry);
 	}
 }
 
@@ -623,7 +629,6 @@ CVoid CScene::Update( CFloat elapsedTime, CBool initialUpdate, CBool updateOrien
 CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 {
 	//Blend Cycle List
-	std::vector<CInt> index;
 	for (CUInt i = 0; i < m_blendCycleList.size(); i++)
 	{
 		CChar blendCycleName[MAX_NAME_SIZE];
@@ -638,12 +643,13 @@ CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 				break;
 			}
 		}
-		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() == 0.0f)
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= EPSILON)
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
-			index.push_back(i);
+			m_blendCycleList.erase(m_blendCycleList.begin() + i);
 			continue;
 		}
+
 		//make sure that current weight is not greater than target weight
 		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_BLEND_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() >= m_animationClips[clipIndex]->GetTargetWeight())
 		{
@@ -680,26 +686,27 @@ CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 			{
 				m_animationClips[clipIndex]->SetCurrentWeight(m_animationClips[clipIndex]->GetTargetWeight());
 			}
-			else if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= 0.0f)
+			else if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= EPSILON)
 			{
 				m_animationClips[clipIndex]->SetCurrentWeight(0.0f);
 			}
 		}
 
 		if (resetTimer)
-			if (m_animationClips[clipIndex]->GetCurrentTime() > m_animationClips[clipIndex]->GetEnd())
-				m_animationClips[clipIndex]->SetCurrentTime(m_animationClips[clipIndex]->GetCurrentTime() - m_animationClips[clipIndex]->GetEnd() + m_animationClips[clipIndex]->GetStart());
+		{
+			if (m_animationClips[clipIndex]->GetCurrentAnimationTime() > m_animationClips[clipIndex]->GetEnd())
+			{
+				m_animationClips[clipIndex]->SetCalculateDynamicBoundingBox(CFalse);
+				m_animationClips[clipIndex]->SetCurrentTime(m_animationClips[clipIndex]->GetCurrentAnimationTime() - m_animationClips[clipIndex]->GetEnd() + m_animationClips[clipIndex]->GetStart());
+			}
+		}
 		m_animationClips[clipIndex]->SetCurrentTime2(elapsedTime);
-
 	}
-	for (CUInt i = 0; i < index.size(); i++)
-		m_blendCycleList.erase(m_blendCycleList.begin() + index[i]);
 }
 
 CVoid CScene::UpdateExecuteActionList( CFloat elapsedTime, CBool &updateExecuteActionList )
 {
 	//Execute Action List
-	std::vector <CInt> index;
 	if( m_executeActionList.size() == 0 )
 	{
 		updateExecuteActionList = CFalse;
@@ -721,30 +728,42 @@ CVoid CScene::UpdateExecuteActionList( CFloat elapsedTime, CBool &updateExecuteA
 			}
 		}
 
-		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() >=  m_animationClips[clipIndex]->GetEnd() && !m_animationClips[clipIndex]->GetLock())
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd())
+		{
+			m_animationClips[clipIndex]->SetCalculateDynamicBoundingBox(CFalse);
+		}
+
+		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >=  m_animationClips[clipIndex]->GetEnd() && !m_animationClips[clipIndex]->GetLock())
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus( eANIM_NONE );
-			index.push_back(i);
+			m_executeActionList.erase(m_executeActionList.begin() + i);
 			continue;
 		}
-		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetStart() >= m_animationClips[clipIndex]->GetCurrentTime() && m_animationClips[clipIndex]->GetReverse())
+		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetStart() >= m_animationClips[clipIndex]->GetCurrentAnimationTime() && m_animationClips[clipIndex]->GetReverse())
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus( eANIM_NONE );
-			index.push_back(i);
+			m_executeActionList.erase(m_executeActionList.begin() + i);
 			continue;
 		}
 
-		if( !(m_animationClips[clipIndex]->GetCurrentTime() >= m_animationClips[clipIndex]->GetEnd() && m_animationClips[clipIndex]->GetLock() && !m_animationClips[clipIndex]->GetReverse()) )
+		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_REMOVE_ACTION)
+		{
+			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
+			m_executeActionList.erase(m_executeActionList.begin() + i);
+			continue;
+		}
+
+		if( !(m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd() && m_animationClips[clipIndex]->GetLock() && !m_animationClips[clipIndex]->GetReverse()) )
 			updateExecuteActionList = CTrue;
 
 		if( m_animationClips[clipIndex]->GetReverse() )
 			elapsedTime = -elapsedTime;
 
-		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() >= ( m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn() ) && m_animationClips[clipIndex]->GetCurrentTime() <= (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut() ) )
+		if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >= ( m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn() ) && m_animationClips[clipIndex]->GetCurrentAnimationTime() <= (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut() ) )
 		{
 			m_animationClips[clipIndex]->SetCurrentWeight( m_animationClips[clipIndex]->GetTargetWeight() );
 		}
-		else if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() < ( m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn() ) )
+		else if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() < ( m_animationClips[clipIndex]->GetStart() + m_animationClips[clipIndex]->GetTargetDelayIn() ) )
 		{
 			//compute current delay in or delay out time
 			CFloat Dc = 0.0f;
@@ -762,7 +781,7 @@ CVoid CScene::UpdateExecuteActionList( CFloat elapsedTime, CBool &updateExecuteA
 			if( m_animationClips[clipIndex]->GetCurrentWeight() >= m_animationClips[clipIndex]->GetTargetWeight() )
 				m_animationClips[clipIndex]->SetCurrentWeight( m_animationClips[clipIndex]->GetTargetWeight() );
 		}
-		else if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentTime() > (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut() ) )
+		else if( m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() > (m_animationClips[clipIndex]->GetEnd() - m_animationClips[clipIndex]->GetTargetDelayOut() ) )
 		{
 			//compute current delay in or delay out time
 			CFloat Dc = 0.0f;
@@ -782,21 +801,16 @@ CVoid CScene::UpdateExecuteActionList( CFloat elapsedTime, CBool &updateExecuteA
 		if( m_animationClips[clipIndex]->GetReverse() )
 		{
 			m_animationClips[clipIndex]->SetCurrentTime2( elapsedTime );
-			//if( m_animationClips[clipIndex]->GetCurrentTime() < m_animationClips[clipIndex]->GetStart() )
+			//if( m_animationClips[clipIndex]->GetCurrentAnimationTime() < m_animationClips[clipIndex]->GetStart() )
 			//	m_animationClips[clipIndex]->SetCurrentTime( m_animationClips[clipIndex]->GetStart() );
 		}
 		else
 		{
 			m_animationClips[clipIndex]->SetCurrentTime2( elapsedTime );
-			//if( m_animationClips[clipIndex]->GetCurrentTime() > m_animationClips[clipIndex]->GetEnd() )
+			//if( m_animationClips[clipIndex]->GetCurrentAnimationTime() > m_animationClips[clipIndex]->GetEnd() )
 			//	m_animationClips[clipIndex]->SetCurrentTime( m_animationClips[clipIndex]->GetEnd() );
 		}
 	}
-	for( CUInt j = 0; j < index.size(); j++ )
-	{
-		m_executeActionList.erase(m_executeActionList.begin() + index[j]);
-	}
-	index.clear();
 }
 
 CVoid CScene::CreateTrigger( CNovodex* nx )
@@ -1039,6 +1053,12 @@ CVoid CScene::SetClipIndexForStartup( CInt index )
 	m_clipIndexForStartup = index;
 }
 //It's not equal with MFC function.
+
+CVoid CScene::SetCurrentClipIndex(CInt index)
+{
+	m_currentClipIndex = index;
+}
+
 CVoid CScene::SetClipIndex( CInt index, CBool loopAnimation )
 {
 	m_currentClipIndex = index;
@@ -1046,24 +1066,24 @@ CVoid CScene::SetClipIndex( CInt index, CBool loopAnimation )
 		m_currentClipIndex = m_numClips - 1;
 	if( m_currentClipIndex < 0 )
 		m_currentClipIndex = 0;
-	if( loopAnimation )
-	{
-		for( CInt index = 0; index < m_numClips; index++ )
-		{
-			if( m_currentClipIndex != index ) 
-			{
-				ClearCycle( index, 1.0f ); //1.0 second
-			}
-			else
-			{
-				BlendCycle( index, 1.0f, 1.0f );
-			}
-		}
-	}
-	else
-	{
-		ExecuteAction( m_currentClipIndex, m_animationClips[m_currentClipIndex]->GetDuration() * 0.1f, m_animationClips[m_currentClipIndex]->GetDuration() * 0.1f);
-	}
+	//if( loopAnimation )
+	//{
+	//	for( CInt index = 0; index < m_numClips; index++ )
+	//	{
+	//		if( m_currentClipIndex != index ) 
+	//		{
+	//			ClearCycle( index, 1.0f ); //1.0 second
+	//		}
+	//		else
+	//		{
+	//			BlendCycle( index, 1.0f, 1.0f );
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	ExecuteAction( m_currentClipIndex, m_animationClips[m_currentClipIndex]->GetDuration() * 0.1f, m_animationClips[m_currentClipIndex]->GetDuration() * 0.1f);
+	//}
 }
 
 CInt CScene::GetNumClips()
@@ -1094,8 +1114,8 @@ CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 		return CFalse;
 	}
 
-	if( weight == 0 ) return CFalse;
-	if( weight > 1 ) weight = 1;
+	if ( weight < EPSILON) return CFalse;
+	if( weight > 1.0f ) weight = 1.0f;
 
 	if( m_animationClips[id]->GetAnimationStatus() == eANIM_EXECUTE_ACTION) 
 		return CFalse;
@@ -1142,6 +1162,9 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 		return CFalse;
 	}
 
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_NONE)
+		return CFalse;
+
 	if( m_animationClips[id]->GetAnimationStatus() != eANIM_BLEND_CYCLE || m_animationClips[id]->GetAnimationStatus() == eANIM_EXECUTE_ACTION)
 		return CFalse;
 
@@ -1185,8 +1208,8 @@ CBool CScene::ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat wei
 		return CFalse;
 	}
 
-	if( weight == 0 ) return CFalse;
-	if( weight > 1 ) weight = 1;
+	if( weight < EPSILON ) return CFalse;
+	if( weight > 1.0f ) weight = 1.0f;
 
 	if( delayIn + delayOut  > m_animationClips[id]->GetDuration() )
 	{
@@ -1256,3 +1279,38 @@ CBool CScene::ReverseExecuteAction(CInt id )
 	return CTrue;
 }
 
+CBool CScene::RemoveAction(CInt id)
+{
+	if (m_numClips == 0)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "scene '", GetName(), "' has no animation");
+		//PrintInfo(temp, COLOR_RED);
+		return CFalse;
+	}
+
+	if (id > m_numClips - 1 || id < 0)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Invalid animation ID for scene '", GetName(), "'");
+		//PrintInfo(temp, COLOR_RED);
+		return CFalse;
+	}
+
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_NONE)
+		return CFalse;
+
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_BLEND_CYCLE || m_animationClips[id]->GetAnimationStatus() == eANIM_CLEAR_CYCLE)
+		return CFalse;
+
+	if (m_animationClips[id]->GetAnimationStatus() != eANIM_EXECUTE_ACTION)
+		return CFalse;
+
+	m_animationClips[id]->SetAnimationStatus(eANIM_REMOVE_ACTION);
+	m_animationClips[id]->SetTargetWeight(0.0f);
+	m_animationClips[id]->SetStartWeight(0.0f);
+	m_animationClips[id]->SetCurrentWeight(0.0f);
+
+	m_updateAnimationLists = CTrue;
+	return CTrue;
+}

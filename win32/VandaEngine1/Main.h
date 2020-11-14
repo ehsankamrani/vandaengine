@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -12,6 +12,7 @@
 #include "graphicsEngine/Scene.h"
 #include "graphicsEngine/Bloom.h"
 #include "graphicsEngine/Sky.h"
+#include "graphicsEngine/terrain.h"
 //#include "graphicsEngine/imagelib.h"
 #include "graphicsEngine/shadowMap.h"
 #include "graphicsEngine/particleSystem.h"
@@ -24,6 +25,7 @@
 #include "AudioEngine/OpenALSoundSource.h"
 #include "AudioEngine/StaticSound.h"
 #include "AudioEngine/AmbientSound.h"
+#include "ScriptEngine/KeyboadAndMouseScript.h"
 #include "Icon.h"
 
 struct CPhysXVariables
@@ -53,6 +55,8 @@ public:
 	void RemoveSelectedScene(CChar* szBuffer, CChar* sceneId);
 	CBool Init();
 	CBool Render();
+	CVoid CalculateDistnces(CBool force = CFalse);
+	CVoid ResetData();
 	CVoid Release();
 	CVoid DrawGrid(CVoid);
 	CBool InsertPrefab(CPrefab* prefab);
@@ -65,6 +69,8 @@ public:
 	std::vector<CFloat> distance_vector;
 	std::vector<CInstancePrefab*> sorted_prefabs;
 	CBool m_calculateDistance;
+	CImage* m_menuCursorImg;
+	CChar m_strMenuCursorImg[MAX_NAME_SIZE];
 
 	//shadow
 	float cam_proj[16];
@@ -73,8 +79,12 @@ public:
 	float cam_pos[3];
 	float cam_dir[3];
 	float far_bound[MAX_SPLITS];
+	CVec3f free_dae_cam_pos, free_dae_cam_at;
+
+	CVoid RenderTerrain();
 	CVoid RenderQueries(CBool init = CFalse);
-	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries);
+	CVoid RenderBakedOctree3DModels();
+	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue);
 	CVoid Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* parentTreeNameOfGeometries);
 	CVoid Render3DAnimatedModels(CBool sceneManager);
 	CVoid RenderCharacter(CBool sceneManager);
@@ -82,17 +92,18 @@ public:
 	CVoid Render3DModelsControlledByPhysX(CBool sceneManager = CTrue);
 	CVoid Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneManager = CTrue);
 
+	CVoid GenerateMenuCursorTexture(char* fileName);
+	CVoid DeleteMenuCursorTexture();
+
 	CVoid UpdateAnimations(CBool init = CFalse);
+	CVoid UpdateDynamicPhysicsObjects();
 	CVoid DrawGUI();
 	void ResetPhysX(CBool releasActors = CTrue);
 
 	CVoid ManageLODs();
-	CVoid EngineLightPass();
-	CVoid COLLADALightPass();
-	CVoid FixedFunctionLightPass();
-	CVoid DefaultLightPass();
+	CVoid Draw3DObjects();
+	CVoid SetDefaultLight();
 
-	CVoid BlendLights(CUInt lightIndex);
 	CVoid BlendFogWithScene();
 	CVoid ResetPhysXCounts();
 	CVoid UpdatePrefabInstanceBB();
@@ -101,11 +112,19 @@ public:
 	CUInt GetSelectedGUI();
 	CVoid FinishGUISelection();
 
-	CVec2f m_mousePosition; //Mouse position when the user clicks left mouse button
+	CVoid EnableIdleAnimations();
 
+	CVec2f m_mousePosition; //Mouse position when the user clicks left mouse button
+	CFloat GetElapsedTime() { return elapsedTime; }
+
+	CImage* GetMenuCursorImage() { return m_menuCursorImg; }
+	CIcon* GetCursorIcon() { return m_cursorIcon; }
+
+	CVoid SetExitGame(CBool set) { m_exitGame = set; }
+	CBool GetExitGame() { return m_exitGame; }
 public:
 
-	CIcon* m_icon; 
+	CIcon* m_cursorIcon;
 	CPhysXVariables m_physXVariables;
 
 	//Audio variables 
@@ -154,32 +173,38 @@ public:
 
 	CBool InitFBOs( CInt channels, CInt type );
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );
-	CVoid SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sHeight );
+	CVoid SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar);
+
+	std::vector<std::string> m_tempAllPlayingSoundSources;
+	CKeyboadAndMouseScript m_keyboadAndMouseScript;
+
 private:
 	CBool ProcessInputs();
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
 	CBool GetJumpCurrentEndDuration(CFloat& duration);
 	CBool IsJumping(CBool &isInList);
 	CVoid	ApplyForce( /*NxVec3 forceDirection, */CInt moveDirection, CFloat elapsedTime );
-	CBool UpdateCharacterBlendCycleTimer();
 	COpenALSoundBuffer* GetSoundBuffer( const CChar * name );
 	
 	GLuint *m_guiPtr, m_guiMinZ, m_guiSelectedName, m_guiBuffer[MAX_NAME_SIZE];//gui selection
-
 private:
 	CBool m_showHelpInfo;
 	CBool m_previousRightButtonDown;
 	CBool m_previousLeftButtonDown;
+	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
+	CBool m_publishDebug;
+	CBool m_exitGame;
 public:
 	CBool m_lockInput;
 	CBool m_loadScene;
+	CBool m_prevLoadScene;
 	CCameraType m_cameraType;
 	CCameraType m_cameraTypeOfPreviousFrame;
 	CShadowMap* m_dynamicShadowMap;
 	CDOF m_dof;
 	CFloat m_previousCharacterRotation;
 	CBool m_characterRotationTransition;
-	CInt m_firstIdleCounter;
 	CFloat m_idleCounter;
-
+	static CBool firstIdle;
+	static CChar currentIdleName[MAX_NAME_SIZE];
 };

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -70,8 +70,15 @@ CVoid COpenALSystem::PlayALSound(COpenALSoundSource& source)
 
 CVoid COpenALSystem::PauseALSound( COpenALSoundSource& source )
 {
-	if(m_init == CTrue)
-		alSourcePause( source.GetSource() );
+	if (m_init == CTrue)
+	{
+		ALenum state;
+
+		alGetSourcei(source.GetSource(), AL_SOURCE_STATE, &state);
+
+		if (state == AL_PLAYING)
+			alSourcePause(source.GetSource());
+	}
 }
 
 CVoid COpenALSystem::StopALSound( COpenALSoundSource& source )

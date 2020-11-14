@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -6,6 +6,7 @@
 
 bool CFont::Init( LPCWSTR fontName, int fontSize )
 {
+	m_fontSize = fontSize;
 	//hdc = CreateCompatibleDC(0);
 	hdc = GetDC(NULL);
 
@@ -48,20 +49,34 @@ void CFont::Release()
 	glDeleteLists( base, 96 );
 }
 
-void CFont::Print( char* string, GLfloat xPos, GLfloat yPos, GLfloat zPos, float r, float g, float b )
+void CFont::Print(char* string, GLfloat xPos, GLfloat yPos, GLfloat zPos, float r, float g, float b, bool selectionMode)
 {
-	glPushAttrib( GL_CURRENT_BIT );
-	glPushAttrib( GL_ENABLE_BIT );
-	glDisable( GL_TEXTURE_2D );
-    glDisable( GL_LIGHTING );
-	glColor3f( r, g, b );
-    glRasterPos3f( xPos, yPos, zPos );
-	glPushAttrib( GL_LIST_BASE );
-	glListBase( base - 32 );
-	glCallLists( (GLsizei)strlen( string ), GL_UNSIGNED_BYTE, string );
-	glPopAttrib();//GL_LIST_BASE
-	glPopAttrib();//GL_ENABLE_BIT
-	glPopAttrib();//GL_CURRENT_BIT
+	if (selectionMode)
+	{
+		glUseProgram(0);
+
+		glBegin(GL_QUADS);
+		glVertex3f(xPos, yPos, 0.0f);
+		glVertex3f(xPos + (strlen(string) * m_fontSize * 0.5f), yPos, 0.0f);
+		glVertex3f(xPos + (strlen(string) * m_fontSize * 0.5f), yPos + m_fontSize, 0.0f);
+		glVertex3f(xPos, yPos + m_fontSize, 0.0f);
+		glEnd();
+	}
+	else
+	{
+		glPushAttrib(GL_CURRENT_BIT);
+		glPushAttrib(GL_ENABLE_BIT);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glColor3f(r, g, b);
+		glRasterPos3f(xPos, yPos, zPos);
+		glPushAttrib(GL_LIST_BASE);
+		glListBase(base - 32);
+		glCallLists((GLsizei)strlen(string), GL_UNSIGNED_BYTE, string);
+		glPopAttrib();//GL_LIST_BASE
+		glPopAttrib();//GL_ENABLE_BIT
+		glPopAttrib();//GL_CURRENT_BIT
+	}
 }
 
 void CFont::StartRendering(GLdouble widht, GLdouble height)

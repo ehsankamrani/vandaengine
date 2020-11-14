@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 
@@ -8,8 +8,8 @@
 #include "dds.h"
 #include "..\common\utility.h"
 #include "OpenGL.h"
-//#include "targa.h" //advanced texture loader
-//#include "imageLib.h"
+#include "targa.h" //advanced texture loader
+#include "imageLib.h"
 #include <fstream>
 
 CTexture::CTexture()
@@ -46,65 +46,68 @@ CBool CTexture::SetTexture( CImage *texObj )
 	return CTrue; 
 }
 
-//CBool CTexture::LoadTargaTexture( CImage * texObj, CChar* name, CChar* sceneFileName ) 
-//{
-//	//attache the sceneFileName path( without the dea file ) to the texture name
-//	CChar pathName[MAX_NAME_SIZE]; 
-//
-//	if( sceneFileName ) //To deal with Collada files.
-//	{
-//		CChar * texName = GetAfterPath( name ); //don't know if it's required? Maybe the name in collada file has no path
-//		//strcpy( pathName , sceneFileName );
-//		//CChar *removeExtra = GetAfterPath( pathName );
-//		//removeExtra[0] = 0;
-//		//strcat( pathName, texName );
-//		CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
-//		Cpy( g_currentVSceneNameWithoutDot, g_currentVSceneName );
-//		GetWithoutDot( g_currentVSceneNameWithoutDot );
-//
-//		sprintf( pathName, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Textures/", texName );
-//	}
-//	else //To load independent targa files(not specified in a collada file )
-//		strcpy( pathName, name );
-//
-//	ILuint imageId;
-//	ilGenImages(1, &imageId);
-//	ilBindImage(imageId);
-//
-//	//PrintInfo( _T( "Reading Image : " ) );
-//	//PrintInfo( _T( "'" ) + CString( pathName ) + _T("'\n"), COLOR_RED_BLUE );
-//
-//	// Read in the image file into DevIL.
-//	if (!ilLoadImage(pathName)) {
-//		// ERROR
-//		ilDeleteImages(1, &imageId);
-//	    MessageBox( NULL, _T("CTexture::LoadTargaTexture > Couldn't load the targa file\n"), _T( "VandaEngine Error"), MB_OK );
-//		return false;
-//	}
-//	else {
-//		texObj->SetWidth( ilGetInteger(IL_IMAGE_WIDTH) );
-//		texObj->SetHeight( ilGetInteger(IL_IMAGE_HEIGHT) );
-//
-//		CUChar* imageData;
-//		CInt imageSize;
-//
-//		imageSize = ilGetInteger(IL_IMAGE_WIDTH) * ilGetInteger(IL_IMAGE_HEIGHT) * ilGetInteger(IL_IMAGE_CHANNELS);
-//		imageData = (CUChar*)malloc( imageSize );
-//
-//		if( ilGetInteger(IL_IMAGE_CHANNELS) == 3 )
-//			texObj->SetFormat( TGA_TRUECOLOR_24 );
-//		else if ( ilGetInteger(IL_IMAGE_CHANNELS) == 4 )
-//			texObj->SetFormat( TGA_TRUECOLOR_32 );
-//
-//		memcpy( imageData , ilGetData() , imageSize );
-//		texObj->SetImageData( imageData );
-//		ilDeleteImages(1, &imageId);
-//	}
-//	CreateTargaTexture( texObj );
-//
-//	return CTrue;
-//}
-//
+CBool CTexture::LoadTexture( CImage * texObj, CChar* name, CChar* sceneFileName, CBool createTexture ) 
+{
+	//attache the sceneFileName path( without the dea file ) to the texture name
+	CChar pathName[MAX_NAME_SIZE]; 
+
+	if( sceneFileName ) //To deal with Collada files.
+	{
+		CChar * texName = GetAfterPath( name ); //don't know if it's required? Maybe the name in collada file has no path
+		//strcpy( pathName , sceneFileName );
+		//CChar *removeExtra = GetAfterPath( pathName );
+		//removeExtra[0] = 0;
+		//strcat( pathName, texName );
+		CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
+		Cpy( g_currentVSceneNameWithoutDot, g_currentVSceneName );
+		GetWithoutDot( g_currentVSceneNameWithoutDot );
+
+		sprintf( pathName, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Textures/", texName );
+	}
+	else //To load independent targa files(not specified in a collada file )
+		strcpy( pathName, name );
+
+	ILuint imageId;
+	ilGenImages(1, &imageId);
+	ilBindImage(imageId);
+
+	//PrintInfo( _T( "Reading Image : " ) );
+	//PrintInfo( _T( "'" ) + CString( pathName ) + _T("'\n"), COLOR_RED_BLUE );
+
+	// Read in the image file into DevIL.
+	if (!ilLoadImage(pathName)) {
+		// ERROR
+		ilDeleteImages(1, &imageId);
+	    MessageBox( NULL, _T("CTexture::LoadTexture > Couldn't load the targa file\n"), _T( "VandaEngine Error"), MB_OK );
+		return false;
+	}
+	else {
+		texObj->SetWidth( ilGetInteger(IL_IMAGE_WIDTH) );
+		texObj->SetHeight( ilGetInteger(IL_IMAGE_HEIGHT) );
+
+		CUChar* imageData;
+		CInt imageSize;
+
+		imageSize = ilGetInteger(IL_IMAGE_WIDTH) * ilGetInteger(IL_IMAGE_HEIGHT) * ilGetInteger(IL_IMAGE_CHANNELS);
+		imageData = (CUChar*)malloc( imageSize );
+
+		if (ilGetInteger(IL_IMAGE_CHANNELS) == 1)
+			texObj->SetFormat(IMG_GRAYSCALE);
+		else if( ilGetInteger(IL_IMAGE_CHANNELS) == 3 )
+			texObj->SetFormat(IMG_TRUECOLOR_24);
+		else if ( ilGetInteger(IL_IMAGE_CHANNELS) == 4 )
+			texObj->SetFormat(IMG_TRUECOLOR_32);
+
+		memcpy( imageData , ilGetData() , imageSize );
+		texObj->SetImageData( imageData );
+		ilDeleteImages(1, &imageId);
+	}
+	if (createTexture)
+		CreateTexture( texObj );
+
+	return CTrue;
+}
+
 CBool CTexture::LoadDDSTexture( CImage * texObj, CChar* name, CChar* sceneFileName ) 
 {
 	//attache the sceneFileName path( without the dea file ) to the texture name
@@ -151,15 +154,15 @@ CBool CTexture::LoadDDSTexture( CImage * texObj, CChar* name, CChar* sceneFileNa
 	texObj->SetWidth( (CInt32)m_ddsImage->GetWidth() );
 	texObj->SetHeight( (CInt32)m_ddsImage->GetHeight() );
 	if( m_ddsImage->m_alphaChannel)
-		texObj->SetFormat(TGA_TRUECOLOR_32);
+		texObj->SetFormat(IMG_TRUECOLOR_32);
 	else
-		texObj->SetFormat(TGA_TRUECOLOR_24);
+		texObj->SetFormat(IMG_TRUECOLOR_24);
 	CreateDDSTexture( texObj, m_ddsImage );
 	return CTrue;
 }
 
 
-CBool CTexture::CreateTargaTexture( CImage * texObj )
+CBool CTexture::CreateTexture( CImage * texObj )
 {	
 	CUInt32 tId = 0; 
 	glGenTextures(1, &tId );

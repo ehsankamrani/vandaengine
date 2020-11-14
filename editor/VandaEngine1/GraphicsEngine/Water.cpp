@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -17,6 +17,12 @@ CWater::CWater()
 {
 	m_instancePrefab.clear();
 	SetIndex();
+	m_isVisible = CTrue;
+	if (GLEW_NV_occlusion_query)
+	{
+		glGenQueries(1, &m_queryIndex);
+	}
+
 }
 
 CWater::~CWater()
@@ -24,9 +30,32 @@ CWater::~CWater()
 	glDeleteTextures( MAX_WATER_TEXTURES, m_waterTexture );
 	glDeleteFramebuffersEXT( MAX_WATER_TEXTURES, m_fboID );
 	glDeleteRenderbuffersEXT(MAX_WATER_TEXTURES, m_rbID );
+	glDeleteQueries(1, &m_queryIndex);
 	m_VSceneList.clear(); //save functions
 }
 
+GLuint CWater::GetQueryIndex()
+{
+	return m_queryIndex;
+}
+
+CFloat CWater::GetDistanceFromCamera()
+{
+	return m_distanceFromCamera;
+}
+
+CVoid CWater::CalculateDistance()
+{
+	if (g_camera)
+	{
+		CVec3f center(m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2]);
+		CFloat x = g_camera->m_perspectiveCameraPos.x - center.x;
+		CFloat y = g_camera->m_perspectiveCameraPos.y - center.y;
+		CFloat z = g_camera->m_perspectiveCameraPos.z - center.z;
+
+		m_distanceFromCamera = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+	}
+}
 
 void CWater::CreateRenderTexture( CInt size, CInt channels, CInt type, CInt textureID)										
 {
@@ -77,6 +106,11 @@ void CWater::CreateRenderTexture( CInt size, CInt channels, CInt type, CInt text
 
 }
 
+CFloat CWater::GetRadius()
+{
+	return (m_fWaterScale / 2.0f);
+}
+
 void CWater::SetSideVertexPositions()
 {
 	m_sidePoint[0].x = m_fWaterCPos[0] -m_fWaterScale/2.0f;
@@ -99,7 +133,7 @@ void CWater::SetSideVertexPositions()
 void CWater::CreateReflectionTexture(int textureSize)
 {
 	if ( g_render.UsingFBOs() && g_options.m_enableFBO )
-		g_render.BindFBO(m_fboID[ WATER_REFLECTION_ID ]);
+		g_render.BindForWriting(m_fboID[ WATER_REFLECTION_ID ]);
 
     glViewport(0,0, textureSize, textureSize);
 
@@ -116,88 +150,65 @@ void CWater::CreateReflectionTexture(int textureSize)
 	
 	// Set our plane equation and turn clipping on
 	CDouble plane[4] = {0.0, 1.0, 0.0, -m_fWaterCPos[1]};
-	//glEnable(GL_CLIP_PLANE0);
+	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, plane);
 
 	// Render the world upside down and clipped (only render the top flipped).
 	// If we don't turn OFF caustics for the reflection texture we get horrible
 	// artifacts in the water.  That is why we set bRenderCaustics to FALSE.
-	//Currently I just render the sky
 	if( g_menu.m_insertAndShowSky )
 	{
 		g_skyDome->RenderDome();
 	}
-	CInt numLights = 0;
-
-	//Engine lights
-	for( CUInt i = 0; i < g_engineLights.size(); i++ )
+	
+	CInt m_numSamples;
+	CInt width, height;
+	if (g_menu.m_justPerspective)
 	{
-		if( numLights < 8 ) // 8 lights are supported
+		width = g_multipleView->m_width;
+		height = g_multipleView->m_height;
+	}
+	else
+	{
+		width = g_multipleView->m_width / 2;
+		height = g_multipleView->m_height / 2;
+
+	}
+
+	if (g_multipleView->m_multiSample)
+		m_numSamples = width * height * g_options.m_numSamples;
+	else
+		m_numSamples = width * height;
+
+	CFloat percentage;
+	percentage = ((CFloat)GetResult() / (CFloat)m_numSamples) * 100.0f;
+	//glEnable(GL_CLIP_DISTANCE0);
+
+	if (GetDistanceFromCamera() < g_instancePrefabLODPercent.m_waterReflectionCameraDistance + GetRadius()
+		|| percentage > g_instancePrefabLODPercent.m_waterReflectionPercents)
+	{
+
+		//3D Model data
+		if (g_render.m_useWaterReflection && g_options.m_enableWaterReflection)
 		{
-			if( g_render.SetInstanceLight(g_engineLights[i],numLights) )
-				++numLights;
+			if (g_engineLights.size() == 0)
+				g_multipleView->SetDefaultLight();
+
+			g_renderForWater = CTrue;
+			g_multipleView->Render3DModelsForWater(this, CFalse, NULL);
+			g_multipleView->Render3DAnimatedModelsForWater(this, CFalse);
+			g_multipleView->Render3DModelsControlledByPhysXForWater(this, CFalse);
+			g_renderForWater = CFalse;
 		}
+
 	}
-	//COLLADA Lights. Not recommended
-	for( CUInt i = 0 ; i < g_scene.size(); i++ )
-	{
-		g_render.SetScene( g_scene[i] );
-		
-		//set all the lights here
-		for( CUInt i = 0; i < g_render.GetScene()->GetLightInstanceCount(); i++ )
-		{
-			if( numLights < 8 ) // 8 lights are supported
-			{
-				CInstanceLight *instanceLight = g_render.GetScene()->GetLightInstances(i);
-				if( g_render.SetInstanceLight(instanceLight,numLights) )
-					++numLights;
-			}
-		}
-	}
-
-	if( numLights == 0 )
-	{
-		glEnable(GL_LIGHT0);	 //just for per vertex lighting 	
-
-		//This is the properties of the camera light
-		GLfloat light_pos0[4] = {g_camera->m_perspectiveCameraPos.x,g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z, 0.0f };
-		GLfloat light_ambient0[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
-		GLfloat light_diffuse0[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
-		GLfloat light_specular0[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-
-		glLightfv( GL_LIGHT0, GL_POSITION, light_pos0  );
-		glLightfv( GL_LIGHT0, GL_AMBIENT , light_ambient0 );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE , light_diffuse0 );
-		glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular0 );
-		glLightf ( GL_LIGHT0, GL_SPOT_CUTOFF,(GLfloat)180.0f );
-		glLightf ( GL_LIGHT0, GL_CONSTANT_ATTENUATION , (GLfloat)0.5f );
-		glLightf ( GL_LIGHT0, GL_LINEAR_ATTENUATION,	(GLfloat)0.0f );
-		glLightf ( GL_LIGHT0, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f );
-		numLights++;
-	}
-
-	glEnable( GL_CLIP_DISTANCE0 );
-
-	//3D Model data
-	if(	g_render.m_useWaterReflection && g_options.m_enableWaterReflection)
-	{
-		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-		{
-			glUseProgram(g_shaderType);
-			glUniform4fv(glGetUniformLocation(g_shaderType, "plane_equation"), 1, (GLfloat*)plane);
-		}
-		g_multipleView->Render3DModelsForWater(this, CTrue, NULL);
-		g_multipleView->Render3DAnimatedModelsForWater(this, CTrue);
-		g_multipleView->Render3DModelsControlledByPhysXForWater(this, CTrue);
-	}
-
 	// Turn clipping off
 	glDisable(GL_CLIP_PLANE0);
 
 	// Restore back-face culling
 	glCullFace(GL_BACK);
 	g_render.PopMatrix();
-	glDisable( GL_CLIP_DISTANCE0 );
+	//glDisable( GL_CLIP_DISTANCE0 );
 
 	glFlush();
 
@@ -257,6 +268,35 @@ void CWater::CreateRefractionDepthTexture(int textureSize)
 
 void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+
+		CInt m_numSamples;
+		CInt width, height;
+		if (g_menu.m_justPerspective)
+		{
+			width = g_multipleView->m_width;
+			height = g_multipleView->m_height;
+		}
+		else
+		{
+			width = g_multipleView->m_width / 2;
+			height = g_multipleView->m_height / 2;
+
+		}
+
+		if (g_multipleView->m_multiSample)
+			m_numSamples = width * height * g_options.m_numSamples;
+		else
+			m_numSamples = width * height;
+
+		CFloat percentage;
+		percentage = ((CFloat)GetResult() / (CFloat)m_numSamples) * 100.0f;
+
+		if (GetDistanceFromCamera() > g_instancePrefabLODPercent.m_waterInvisibleCameraDistance + GetRadius()
+			|| percentage < g_instancePrefabLODPercent.m_waterInvisiblePercent)
+			return;
+	}
 	if( g_fogBlurPass )
 	{
 		glDisable( GL_CULL_FACE );
@@ -348,7 +388,12 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 		float normalUV = m_fWaterUV * kNormalMapScale;
 
 		// Move the water by our global speed
-		move += m_fWaterSpeed * elapsedTime;
+		CBool isMoving = CTrue;
+		if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
+			isMoving = CFalse;
+
+		if (isMoving)
+			move += m_fWaterSpeed * elapsedTime;
 
 		glUseProgram( g_render.m_waterProgram );
 
@@ -485,6 +530,16 @@ CVoid CWater::SetName( CString name  ) {
 	name.ReleaseBuffer();
 }
 
+CVoid CWater::SetResult(GLint result)
+{
+	m_result = result;
+}
+
+GLint CWater::GetResult()
+{
+	return m_result;
+}
+
 CChar* CWater::GetName() { 
 	return m_strWaterName;
 }
@@ -503,41 +558,46 @@ CVoid CWater::SetDuDvMapName(CChar* name) {
 	Cpy(m_strDuDvMap, name);
 }
 
-CVoid CWater::RenderIcon( CBool selectionMode )
+CVoid CWater::RenderIcon(CBool selectionMode)
 {
 	glUseProgram(0);
 
-	if( selectionMode )
+	if (selectionMode)
 	{
-		glPushName( m_nameIndex );
+		glPushName(m_nameIndex);
 	}
-	if( !selectionMode )
+	if (!selectionMode)
 	{
-		if( m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName )
+		if (m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName)
 		{
 			g_tempLastEngineObjectSelectedName = m_nameIndex;
-			if( g_transformObject )
+			if (g_transformObject)
 			{
-				m_fWaterCPos[0] = g_arrowPosition.x; 
-				m_fWaterCPos[1] = g_arrowPosition.y; 
-				m_fWaterCPos[2] = g_arrowPosition.z; 
+				m_fWaterCPos[0] = g_arrowPosition.x;
+				m_fWaterCPos[1] = g_arrowPosition.y;
+				m_fWaterCPos[2] = g_arrowPosition.z;
 			}
 			else
 			{
-				g_arrowPosition.x = m_fWaterCPos[0]; 
-				g_arrowPosition.y = m_fWaterCPos[1]; 
-				g_arrowPosition.z = m_fWaterCPos[2]; 
+				g_arrowPosition.x = m_fWaterCPos[0];
+				g_arrowPosition.y = m_fWaterCPos[1];
+				g_arrowPosition.z = m_fWaterCPos[2];
 			}
-			g_glUtil.Billboarding( m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2], g_waterImg->GetId(), 0.5f, 0.5f, 1.0, 0.0, 0.0 );
+			g_glUtil.Billboarding(m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2], g_waterImg->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0);
 			SetSideVertexPositions();
+			for (CUInt i = 0; i < m_instancePrefab.size(); i++)
+			{
+				m_instancePrefab[i]->UpdateBoundingBox();
+				g_instancePrefab[i]->UpdateIsStaticOrAnimated();
+			}
 			g_showArrow = CTrue;
 		}
 		else
-			g_glUtil.Billboarding( m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2], g_waterImg->GetId(), 0.5f, 0.5f );
+			g_glUtil.Billboarding(m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2], g_waterImg->GetId(), 1.0f, 1.0f);
 	}
 	else
-		g_glUtil.Billboarding( m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2], g_waterImg->GetId(), 0.5f, 0.5f );
-	if( selectionMode )
+		g_glUtil.Billboarding(m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2], g_waterImg->GetId(), 1.0f, 1.0f);
+	if (selectionMode)
 		glPopName();
 
 }

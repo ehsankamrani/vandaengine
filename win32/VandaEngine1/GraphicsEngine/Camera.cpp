@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "camera.h"
@@ -19,6 +9,7 @@
 //{
 //
 //}
+
 CVoid CInstanceCamera::SetTransform()
 {
 	CMatrixLoadIdentity(m_transform);
@@ -198,7 +189,7 @@ GLvoid CCamera::UpdateCameraPosDir(const NxVec3& cameraPos, const NxVec3& charac
 {
 	g_render.ModelViewMatrix();
 	g_render.IdentityMatrix();
-	if ((!g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON))
+	if ((!g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON))
 	{
 		gluLookAt(cameraPos.x, cameraPos.y + g_physXProperties.m_fCapsuleHeight, cameraPos.z, //Eye position
 			characterPos.x, characterPos.y + g_physXProperties.m_fCapsuleHeight + y_offset, characterPos.z,    //At position 
@@ -206,7 +197,7 @@ GLvoid CCamera::UpdateCameraPosDir(const NxVec3& cameraPos, const NxVec3& charac
 	}
 	else
 	{
-		gluLookAt(cameraPos.x, cameraPos.y + g_physXProperties.m_fCapsuleHeight, cameraPos.z, //Eye position
+		gluLookAt(cameraPos.x, cameraPos.y + (g_physXProperties.m_fCapsuleHeight /*/ 2.0f*/), cameraPos.z, //Eye position
 			characterPos.x, characterPos.y + (g_physXProperties.m_fCapsuleHeight / 2.0f) + y_offset, characterPos.z,    //At position 
 			0.0f, 1.0f, 0.0f);           //Direction of the viewer
 	}

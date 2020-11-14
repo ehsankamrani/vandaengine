@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -26,7 +26,11 @@ enum
 
 class CWater
 {
-
+private:
+	GLuint m_queryIndex;
+	CFloat m_distanceFromCamera;
+	CBool m_queryVisible;
+	CBool m_isOutsideFrustom;
 public:
 	CWater();
 	~CWater();
@@ -38,20 +42,28 @@ public:
 	CFloat m_fWaterSpeed;
 	CFloat m_fWaterUV;
 	CFloat m_fWaterScale;
+	CBool m_isVisible;
+	GLint m_result;
+
 	//####public interface####	
 	//The user just needs to use these functions 
 	CFloat* GetPos() { return m_fWaterCPos; }
 	CFloat* GetLightPos() { return m_fWaterLPos; }
-	CFloat GetHeight() { return m_fWaterHeight; }
+	CFloat GetHeight() { return /*m_fWaterHeight*/m_fWaterCPos[1]; }
 	CFloat GetSpeed() { return m_fWaterSpeed; }
 	CFloat GetUV(){ return m_fWaterUV; }
 	CFloat GetScale() { return m_fWaterScale; }
 	CChar* GetName();
 	CChar* GetDuDvMapName();
 	CChar* GetNormalMapName();
+	GLuint GetQueryIndex();
+	CVoid CalculateDistance();
+	CFloat GetDistanceFromCamera();
+
 	CVoid SetDuDvMapName(CChar* name);
 	CVoid SetNormalMapName(CChar* name);
 	CInt GetIndex() { return m_nameIndex; }
+	CBool GetVisible() { return m_isVisible; }
 
 	CVoid SetName( CString name  );
 	CVoid SetDuDvMap( CString mapName, CBool updateSharedImages = CFalse );
@@ -62,8 +74,14 @@ public:
 	CVoid SetSpeed( CFloat speed ) { m_fWaterSpeed = speed; }
 	CVoid SetUV( CFloat UV ) { m_fWaterUV = UV; }
 	CVoid SetScale( CFloat scale ) { m_fWaterScale = scale; }
-
+	CVoid SetVisible(CBool isVisible) { m_isVisible = isVisible; }
+	CVoid SetQueryVisible(CBool visible) { m_queryVisible = visible; }
+	CBool GetQueryVisible() { return m_queryVisible; }
+	CVoid SetOutsideFrustom(CBool isOutsideFrustom) { m_isOutsideFrustom = isOutsideFrustom; }
+	CBool GetOutsideFrustom() { return m_isOutsideFrustom; }
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
+	CVoid SetResult(GLint result);
+	GLint GetResult();
 	// This renders the current screen to a texture map, given a specified size and type
 
 	CVoid CreateRenderTexture(CInt size, CInt channels, CInt type, CInt textureID );
@@ -75,7 +93,7 @@ public:
 	CVoid CreateRefractionDepthTexture(CInt textureSize);
 
 	void SetSideVertexPositions();
-
+	CFloat GetRadius();
 	CVoid RenderIcon( CBool selectionMode = CFalse );
 
 	std::vector<std::map<std::string,CBool>> m_VSceneList; //List of all VScenes created via the editor, save functions

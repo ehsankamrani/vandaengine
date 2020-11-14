@@ -1,17 +1,14 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 #include "../common/utility.h"
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp> 
+#include <boost/serialization/string.hpp>
+
+#include <iostream>
+#include <sstream>
 class CAnimation; 
 
 const CUInt MAX_TFORM_CHANNEL_IDS = 15;
@@ -26,8 +23,24 @@ protected:
 	CUInt m_numChannels[MAX_TFORM_ANIM_IDS]; 
 	CVec3f m_lookAt[3]; // this will store lookAt, eyePoint and up 
 	CVec4f m_matrix[4];  
-	CChar m_sid[MAX_STRING_SIZE];
-	CVec4f m_vector; // this will store axis rotation, translation or scale 
+	std::string m_sid;
+	CVec4f m_vector; // this will store axis rotation, translation or scale
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & m_type;
+		ar & m_animation;
+		ar & m_numAnimations;
+		ar & m_channelIds;
+		ar & m_numChannels;
+		ar & m_lookAt; // this will store lookAt, eyePoint and up 
+		ar & m_matrix;
+		ar & m_sid;
+		ar & m_vector; // this will store axis rotation, translation or scale
+	}
 
 public:
 	CTransform();
@@ -56,7 +69,7 @@ public:
 	inline CVoid SetType( CTFormType type ){ m_type = type; };
 	static CTFormType GetType( CChar * nameType ); 
 
-	inline CChar *GetSid(){ return m_sid; }
+	inline CChar *GetSid(){ return const_cast<CChar*>(m_sid.c_str()); }
 	inline CTFormType GetType(){ return m_type; }	
 	inline CVec4f &GetVecTrans(){ return m_vector;} // this will be rot,trans or scale depending on type	
 	inline CVec3f *GetLookAt(){ return m_lookAt;} 

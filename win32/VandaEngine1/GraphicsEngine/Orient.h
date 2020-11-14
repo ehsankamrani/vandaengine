@@ -1,25 +1,21 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #pragma once 
 #include "matrix.h"
 #include "transform.h"
 #include <vector>
 
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp> 
+#include <boost/serialization/string.hpp> 
+
+#include <iostream>
+#include <sstream>
 class COrient
 {
 protected:	
-	std::vector<CTransform *> m_transforms[MAX_ANIMATION_CLIPS];
+	std::vector<std::vector<CTransform *>> m_transforms;
 	std::vector<CTransform *> m_sumTransforms;
 	std::vector<CFloat> m_sumWeights;
 
@@ -34,6 +30,25 @@ protected:
 	//When true it causes an update of m_combinedSkinMatrix but unless
 	//SetLocalToWorldMatrix is called (and it never is) this will always be true.
 	CBool m_updateLocalToWorldMatrix; 
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & m_transforms;
+		ar & m_sumTransforms;
+		ar & m_sumWeights;
+		ar & m_updateLocalMatrix;					// LocalMatrix needs updating (initialize or update due to animations
+		ar & m_localMatrix;						// Matrix version of just the transforms in this node
+		ar & m_localToWorldMatrix;				// Full local to world matrix for this node
+		ar & m_inverseLocalToWorldMatrix;
+		ar & m_inverseTransposeLocalToWorldMatrix;
+		ar & m_inverseBindMatrix;
+		ar & m_combinedSkinMatrix;
+		ar & m_updateLocalToWorldMatrix;
+	}
 
 public:
 	COrient();

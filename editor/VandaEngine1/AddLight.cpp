@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddLight.cpp : implementation file
@@ -348,6 +348,8 @@ BOOL CAddLight::OnInitDialog()
 		else if( m_lightType == eLIGHTTYPE_SPOT )
 			m_comboLightType.SetCurSel( 2 );
 
+		m_initLightType = m_lightType;
+
 		m_comboLightType.UpdateWindow();
 
 		m_editBoxLightName.SetWindowTextA( m_strLightName );
@@ -466,6 +468,33 @@ void CAddLight::OnCbnSelchangeCombLightType()
 
 void CAddLight::OnOK()
 {
+	CInt dirLightCount = 0;
+
+	if (m_create)
+	{
+		if (m_lightType == eLIGHTTYPE_DIRECTIONAL)
+			dirLightCount++;
+	}
+	else
+	{
+		if (m_initLightType != m_lightType && m_lightType == eLIGHTTYPE_DIRECTIONAL)
+			dirLightCount++;
+	}
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+		{
+			dirLightCount++;
+		}
+	}
+	if (dirLightCount > NR_DIR_LIGHTS)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "Up to %d directional lights are supported", NR_DIR_LIGHTS);
+		MessageBox(temp, "Vanda Engine Error", MB_OK);
+		return;
+	}
+
 	CBool compare = CFalse;
 	if( !m_strLightName.IsEmpty() )
 	{

@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "Animation.h"
 
@@ -19,7 +10,7 @@ CBool CAnimSrc::Parse( const CChar * data )
 	const CChar * d = data; 
 			
 	// allocate for the keys 
-	m_array = CNewData( CFloat, m_count ); 
+	m_array.resize( m_count ); 
 
 	// copy the data 
 	for( CUInt i = 0; i < m_count; i++)
@@ -203,7 +194,7 @@ CVoid CAnimation::ResolveChannel(CAnimSampler * sampler, const char * target )
 	CUInt c = 0;
 
 	// we will need this later 
-    Cpy( m_targetTransform, element ); 
+    m_targetTransform = element; 
 
 	// if we have a valid target element 
 	if ( targetElement )
@@ -211,10 +202,10 @@ CVoid CAnimation::ResolveChannel(CAnimSampler * sampler, const char * target )
 		// to skip the '.'
 		targetElement ++;
 
-		Cpy( m_targetTransformElement, targetElement ); 
+		m_targetTransformElement = targetElement; 
 	
 		// remove the target element from the Target transform 
-		targetElement = FindStr( m_targetTransform, ( targetElement - 1 ) );// -1 to get back before the .  
+		targetElement = FindStr( m_targetTransform.c_str(), ( targetElement - 1 ) );// -1 to get back before the .  
 		// terminate the target element leaving only the transform sid 
 		targetElement[0] = 0; 
 	}
@@ -222,7 +213,7 @@ CVoid CAnimation::ResolveChannel(CAnimSampler * sampler, const char * target )
 	{
 		// in this case the target isn't just one animation element 
 		// it is the entire element group like rotateXYZ or TranslateXYZ.
-		Cpy( m_targetTransformElement, element ); 
+		m_targetTransformElement = element; 
 	}
     
 	// find the channel with this sampler and set the channel 
@@ -235,11 +226,11 @@ CVoid CAnimation::ResolveChannel(CAnimSampler * sampler, const char * target )
 			channel->SetTarget( tempTarget ); 
 
 			channel->ParseElement( element ); 
-			channel->ParseElementTarget( m_targetTransformElement ); 
+			channel->ParseElementTarget( const_cast<CChar*>(m_targetTransformElement.c_str()) ); 
 			m_numAnimChannels += channel->GetNumElementTargets(); 
 
-			channel->SetTargetElementTransform( m_targetTransformElement ); 
-			channel->SetTargetElement( m_targetTransform ); 
+			channel->SetTargetElementTransform( m_targetTransformElement.c_str() ); 
+			channel->SetTargetElement( m_targetTransform.c_str() ); 
 	
 			switch( channel->GetTargetElement() )
 			{
@@ -523,7 +514,7 @@ CVoid CAnimation::GenerateKeys()
 
 CVoid CAnimation::interp( CFloat & val, CKeySet * keySet, CFloat time )
 {
-	if ( !keySet->m_keys )
+	if ( keySet->m_keys.size() == 0)
 		return; 
 
 	// here need to get an actual interpolated value for this channel but for not just 

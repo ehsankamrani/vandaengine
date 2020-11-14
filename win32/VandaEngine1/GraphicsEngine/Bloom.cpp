@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -71,20 +71,6 @@ void CBloom::CreateRuntimeTexture( int textureWidth, int textureHeight, int scen
 	glPushAttrib( GL_VIEWPORT_BIT | GL_ENABLE_BIT ); 
 	glViewport( 0, 0, textureWidth, textureHeight);
 
-	if( g_useOldRenderingStyle )
-	{
-		glClearColor( 0,0,0,0 );
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		if( g_databaseVariables.m_insertAndShowSky )
-		{
-			g_skyDome->RenderDome();
-		}
-		g_octree->Render();
-		g_main->Render3DAnimatedModels( CTrue );
-		g_main->Render3DModelsControlledByPhysX();
-		g_main->RenderCharacter(CFalse);
-
-	}
 	glDisable(GL_DEPTH_TEST); 
 	glDisable( GL_LIGHTING );
 	glDisable( GL_CULL_FACE );

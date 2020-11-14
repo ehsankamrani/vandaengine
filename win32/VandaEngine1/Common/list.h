@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Zehne Ziba 
+//Copyright (C) 2020 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 
 #pragma once

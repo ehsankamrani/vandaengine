@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -23,7 +23,7 @@ CMainCharacter::CMainCharacter()
 	m_runName.clear();
 	m_runName.push_back("run");
 	m_instancePrefab = NULL;
-	m_type = eCHARACTER_THIRD_PERSON;
+	m_type = ePHYSX_CAMERA_THIRD_PERSON;
 	m_position.x = m_position.y = m_position.z = 0.0f;
 	m_scale = 0.01f;
 	m_currentRotation = 0.0f;
@@ -136,6 +136,9 @@ CVoid CMainCharacter::Reset()
 	Cpy(m_prefabName, "Character");
 	m_idleName.clear();
 	m_idleName.push_back("idle");
+	m_idleName.push_back("holding_idle");
+	m_idleName.push_back("dwarf_idle");
+	m_idleName.push_back("arm_stretching_idle");
 	m_walkName.clear();
 	m_walkName.push_back("walk");
 	m_jumpName.clear();
@@ -143,6 +146,7 @@ CVoid CMainCharacter::Reset()
 	m_runName.clear();
 	m_runName.push_back("run");
 	m_position.x = m_position.y = m_position.z = 0.0f;
+	m_currentRotation = 0.0f;
 	m_scale = 0.01f;
 }
 
@@ -151,7 +155,7 @@ CVoid CMainCharacter::SetName(CChar* name)
 	Cpy(m_name, name);
 }
 
-CVoid CMainCharacter::SetType(CCharacterType type)
+CVoid CMainCharacter::SetCameraType(CPhysXCameraType type)
 {
 	m_type = type;
 }
@@ -218,7 +222,7 @@ CChar* CMainCharacter::GetName()
 	return m_name;
 }
 
-CCharacterType CMainCharacter::GetType()
+CPhysXCameraType CMainCharacter::GetCameraType()
 {
 	return m_type;
 }

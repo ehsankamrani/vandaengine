@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #pragma once 
 #include "../VandaEngine1Dlg.h"
@@ -19,6 +9,13 @@
 #include <string>
 #include <map>
 #include <vector>
+
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp> 
+#include <boost/serialization/string.hpp> 
+
+#include <iostream>
+#include <sstream>
 class CAnimSrc; //forward 
 
 class CAnimSampler: public CBase
@@ -30,35 +27,59 @@ public:
 		//we delete the CAnimSrc object inside CAnimation  
 		m_inputs.clear();
 	}
-	CChar m_id[MAX_NAME_SIZE];
+	std::string m_id;
 	std::map< std::string, CAnimSrc* > m_inputs;
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<CBase>(*this);
+		ar & m_id;
+		ar & m_inputs;
+	}
+
 };
 
 class CAnimSrc: public CBase
 {
-protected:
-	CChar m_id[MAX_NAME_SIZE];
-	CFloat*	m_array;
-	CUInt m_count; 
+	protected:
+		std::string m_id;
+		std::vector<CFloat> m_array;
+		CUInt m_count; 
 
-public:
-	friend class CScene; 
-	friend class CAnimation; 
+	public:
+		friend class CScene; 
+		friend class CAnimation; 
 
-CAnimSrc()
-{
-	m_id[0] = 0;
-	m_array = NULL; 
-	m_count = 0; 
-}
+	CAnimSrc()
+	{
+		m_id;
+		m_array; 
+		m_count = 0; 
+	}
 
-~CAnimSrc()
-{
-	CDeleteData( m_array ); 
-}
+	~CAnimSrc()
+	{
+		m_array.clear();
+	}
 	
-CBool Parse( const CChar * data );
-inline CVoid SetCount( CInt c ){ m_count = c; };
+	CBool Parse( const CChar * data );
+	inline CVoid SetCount( CInt c ){ m_count = c; };
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<CBase>(*this);
+		ar& m_id;
+		ar& m_array;
+		ar& m_count;
+	}
 };
 
 struct CKeySet;  //forward 
@@ -68,9 +89,9 @@ class CAnimChannel: public CBase
 protected:
 	CAnimSampler*  m_sampler;
 	
-	CChar m_targetNameStr[MAX_NAME_SIZE];
-	CChar m_targetElementStr[MAX_NAME_SIZE];	
-	CChar m_targetElementTransformStr[MAX_NAME_SIZE];	
+	std::string m_targetNameStr;
+	std::string m_targetElementStr;
+	std::string m_targetElementTransformStr;
 
 	CAnimTarget	m_target;
 	CAnimTarget	m_targetElement;
@@ -80,6 +101,26 @@ protected:
 
 	CKeySet* m_keys[MAX_KEY_SETS]; 
 	CUInt m_numElementTargets; 
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<CBase>(*this);
+		ar& m_sampler;
+		ar& m_targetNameStr;
+		ar& m_targetElementStr;
+		ar& m_targetElementTransformStr;
+
+		ar& m_target;
+		ar& m_targetElement;
+
+		ar& m_inputSrcPtr;
+		ar& m_outputSrcPtr;
+		ar& m_keys;
+		ar& m_numElementTargets;
+	}
 
 public:
 	friend class CScene; 
@@ -105,12 +146,12 @@ public:
 	{
 	}
 
-	inline CVoid SetTarget( const CChar * target ) { Cpy( m_targetNameStr, target); }
-	inline CVoid SetTargetElement( const CChar*target ) { Cpy( m_targetElementStr, target); }
+	inline CVoid SetTarget( const CChar * target ) { m_targetNameStr = target; }
+	inline CVoid SetTargetElement( const CChar*target ) { m_targetElementStr = target; }
 	inline CVoid SetSampler( CAnimSampler * sampler ) { m_sampler = sampler; }
 	inline CVoid SetInputSrc( CAnimSrc * inputPtr )	{ m_inputSrcPtr = inputPtr; }
 	inline CVoid SetOutputSrc( CAnimSrc * outputPtr ) { m_outputSrcPtr = outputPtr; }
-	inline CVoid SetTargetElementTransform( const CChar*target ) { Cpy( m_targetElementTransformStr, target); }
+	inline CVoid SetTargetElementTransform( const CChar*target ) { m_targetElementTransformStr = target; }
 	
 	inline CVoid SetKeySet( CKeySet * set, CUInt i ) 
 	{ 
@@ -121,10 +162,10 @@ public:
 	inline CAnimSampler* GetSampler(){ return m_sampler; }
 	inline CAnimTarget GetTargetElement(){ return m_target; }
 	inline CAnimTarget GetTargetElement2(){ return m_targetElement; }
-	inline CChar* GetTargetElementString() { return m_targetElementStr; }
-	inline CChar*GetTargetElementTranform(){ return m_targetElementTransformStr; }
+	inline CChar* GetTargetElementString() { return const_cast<CChar*>(m_targetElementStr.c_str()); }
+	inline CChar*GetTargetElementTranform(){ return const_cast<CChar*>(m_targetElementTransformStr.c_str()); }
 	inline CUInt GetNumElementTargets(){ return m_numElementTargets; }
-	inline CChar* GetTarget() { return m_targetNameStr;}
+	inline CChar* GetTarget() { return const_cast<CChar*>(m_targetNameStr.c_str()); }
 
 	CBool AddSrc( CAnimSrc * channel );
 	CFloat interpolate( CFloat time ); 
@@ -134,56 +175,85 @@ public:
 
 struct CAnimKey
 {
-	COrient	m_orient;
+	COrient* m_orient; 
 	CFloat m_time; 
 	CBool m_hasRot; 
 	CBool m_hasTrans; 
 
 	CAnimKey()
 	{
-		m_orient = COrient(); 
+		m_orient = CNew (COrient); 
 		m_time = 0; 
 		m_hasRot = CFalse;  
 		m_hasTrans = CFalse;  
 	}
+
+	~CAnimKey()
+	{
+		CDelete(m_orient);
+	}
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & m_orient;
+		ar & m_time;
+		ar & m_hasRot;
+		ar & m_hasTrans;
+	}
+
 };
 
 struct CKeySet
 {
 	CInt m_numKeys; 
-	CFloat*	m_keys; 
-	CFloat*	m_time; 	
+	std::vector<CFloat>	m_keys;
+	std::vector<CFloat>	m_time;
 
 	CKeySet()
 	{
 		m_numKeys = 0; 
-		m_keys = NULL;
-		m_time = NULL; 
+		m_keys;
+		m_time; 
 	}
 
 	CBool AllocateKeys( CInt nKeys )
 	{
-		m_keys = CNewData( CFloat, nKeys ); 	
-		m_time = CNewData( CFloat, nKeys ); 
+		m_keys.resize(nKeys); 	
+		m_time.resize(nKeys ); 
 		m_numKeys = nKeys; 
 
 		for( CInt i = 0; i < nKeys; i++)
 		{
-			m_keys[i] = 0;
+			m_keys[i] = 0.0f;
 		}
 		return CTrue; 
 	}
 	CVoid DeAllocateKeys()
 	{
-		CDeleteData( m_keys ); 	
-		CDeleteData( m_time ); 
+		m_keys.clear(); 	
+		m_time.clear(); 
 	}
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & m_numKeys;
+		ar & m_keys;
+		ar & m_time;
+	}
+
 };
 
 class CAnimationClip: public CBase
 {
 public:
-	CAnimationClip() { m_index = -1; m_currentTime = 0.0; m_currentDelayInTime = 0.0f; m_currentDelayOutTime = 0.0f; m_currentWeight = 0.0f; m_targetDelayIn  = 0.0f; m_targetDelayOut = 0.0; m_startWeight = 0.0f; m_targetWeight = 0.0f; m_animationStatus = eANIM_NONE; m_lock = CFalse; m_reverse = CFalse;}
+	CAnimationClip() { m_index = -1; m_currentTime = 0.0; m_currentDelayInTime = 0.0f; m_currentDelayOutTime = 0.0f; m_currentWeight = 0.0f; m_targetDelayIn = 0.0f; m_targetDelayOut = 0.0; m_startWeight = 0.0f; m_targetWeight = 0.0f; m_animationStatus = eANIM_NONE; m_lock = CFalse; m_reverse = CFalse; m_calculateDynamicBoundingBox = CTrue; }
 	~CAnimationClip() {	m_animations.clear(); }
 
 	std::vector< CAnimation* > m_animations;
@@ -206,13 +276,14 @@ public:
 	CVoid SetAnimationStatus( CAnimationStatus status ) { m_animationStatus = status; }
 	CVoid SetLock( CBool lock ) { m_lock = lock; }
 	CVoid SetReverse(CBool reverse) { m_reverse = reverse; }
-
+	CVoid SetCalculateDynamicBoundingBox(CBool set) { m_calculateDynamicBoundingBox = set; }
+	CBool GetCalculateDynamicBoundingBox() { return m_calculateDynamicBoundingBox; }
 	//get methods
 	CInt GetIndex( CVoid ) { return m_index; }
 	CDouble GetStart() { return m_start; }
 	CDouble GetEnd() { return m_end; }
 	CAnimationStatus GetAnimationStatus() {return m_animationStatus; }
-	CFloat GetCurrentTime() { return m_currentTime; }
+	CFloat GetCurrentAnimationTime() { return m_currentTime; }
 	CFloat GetCurrentDelayInTime() { return m_currentDelayInTime; }
 	CFloat GetCurrentDelayOutTime() { return m_currentDelayOutTime; }
 	CFloat GetCurrentWeight() { return m_currentWeight; }
@@ -240,7 +311,34 @@ private:
 	CAnimationStatus m_animationStatus;
 	CBool m_lock;
 	CBool m_reverse;
+	CBool m_calculateDynamicBoundingBox;
 
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<CBase>(*this);
+
+		ar & m_animations;
+		ar & m_start;
+		ar & m_end;
+		ar & m_index;
+
+		ar & m_currentTime;
+		ar & m_currentDelayInTime;
+		ar & m_currentDelayOutTime;
+		ar & m_currentWeight;
+		ar & m_targetDelayIn;
+		ar & m_targetDelayOut;
+		ar & m_targetWeight;
+		ar & m_startWeight;
+		ar & m_animationStatus;
+		ar & m_lock;
+		ar & m_reverse;
+		ar & m_calculateDynamicBoundingBox;
+	}
 };
 
 class CAnimation: public CBase 
@@ -269,12 +367,12 @@ class CAnimation: public CBase
 	std::map< std::string, CAnimSampler* > m_samplers; 
 	std::map< std::string, CAnimSrc* > m_sources; 
 
-	CChar m_target[MAX_NAME_SIZE]; 
-	CChar m_targetTransform[MAX_NAME_SIZE];
-	CChar m_targetTransformElement[MAX_NAME_SIZE]; 
+	std::string m_target; 
+	std::string m_targetTransform;
+	std::string m_targetTransformElement;
 
 	//export data 
-	CAnimKey *m_keys; 
+	//CAnimKey *m_keys; 
 	CInt m_numKeys; 
 
 	CBool m_hasRotation;
@@ -283,7 +381,56 @@ class CAnimation: public CBase
 	CBool m_foundTarget; 
 	CAnimationClip* m_clipTarget;
 
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<CBase>(*this);
+
+		ar & m_numAnimChannels; // multipule elements can be targeted by one channel. 
+		ar & m_channels;
+
+		ar & m_animKeySets;
+
+		ar & m_rotXKeys;
+		ar & m_rotYKeys;
+		ar & m_rotZKeys;
+
+		ar & m_transXKeys;
+		ar & m_transYKeys;
+		ar & m_transZKeys;
+
+		ar & m_scaleXKeys;
+		ar & m_scaleYKeys;
+		ar & m_scaleZKeys;
+
+		ar & m_endTime;
+
+		ar & m_sampleRate;
+
+		ar & m_samplers;
+		ar & m_sources;
+
+		ar & m_target;
+		ar & m_targetTransform;
+		ar & m_targetTransformElement;
+
+		//export data 
+		//ar & m_keys;
+		ar & m_numKeys;
+
+		ar & m_hasRotation;
+		ar & m_hasTranslation;
+		ar & m_hasScale;
+		ar & m_foundTarget;
+		ar & m_clipTarget;
+	}
+
 public:
+	CVoid GenerateKeys();
+	CUInt GetChannelSize() { return m_channels.size(); }
 	CAnimation()
 	{	
 		m_animKeySets = NULL; 
@@ -291,7 +438,7 @@ public:
 		m_sampleRate = 30; // fps; 
 		m_target[0]	= 0; 
 
-		m_keys = NULL;
+		//m_keys = NULL;
 		m_numKeys = 0; 
 
 		m_hasRotation = CFalse;
@@ -351,14 +498,13 @@ protected:
 
 	CVoid	ResolveChannel( CAnimSampler * sampler, const char * target ); 
 	
-	inline  CVoid SetTarget( const CChar * t ){ Cpy( m_target, t ); }
+	inline  CVoid SetTarget( const CChar * t ){ m_target = t; }
 	inline CVoid SetClipTarget( CAnimationClip* clip ) { m_clipTarget = clip; }
-	inline	CChar* GetTarget(){	return m_target; }
+	inline	CChar* GetTarget(){	return const_cast<CChar*>(m_target.c_str()); }
 	inline CAnimationClip* GetClipTarget() { return m_clipTarget; }
-	inline	CChar* GetTransformTarget() { return m_targetTransform; }
-	inline	CChar* GetTransformTargetElement(){	return m_targetTransformElement; }
+	inline	CChar* GetTransformTarget() { return const_cast<CChar*>(m_targetTransform.c_str()); }
+	inline	CChar* GetTransformTargetElement(){ return const_cast<CChar*>(m_targetTransformElement.c_str()); }
 
-	CVoid	GenerateKeys();
 
 	CVoid 	AnimateRotateChannel( CVec4f & vec, CAnimTarget e, CFloat time ); 
 	CVoid 	AnimateTranslateChannel( CVec3f & vec, CAnimTarget e, CFloat time ); 

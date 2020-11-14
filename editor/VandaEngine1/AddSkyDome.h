@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -51,9 +51,9 @@ public:
 		CChar posX[MAX_NAME_SIZE];
 		CChar posY[MAX_NAME_SIZE];
 		CChar posZ[MAX_NAME_SIZE];
-		sprintf( posX, "%f", pos[0] );
-		sprintf( posY, "%f", pos[1] );
-		sprintf( posZ, "%f", pos[2] );
+		sprintf( posX, "%.3f", pos[0] );
+		sprintf( posY, "%.3f", pos[1] );
+		sprintf( posZ, "%.3f", pos[2] );
 		m_strSkyDomePosX = posX;
 		m_strSkyDomePosY = posY;
 		m_strSkyDomePosZ = posZ;
@@ -85,7 +85,7 @@ public:
 	CVoid SetRadius( CFloat radius )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", radius );
+		sprintf( temp, "%.3f", radius );
 		m_strSkyDomeRadius = temp;
 	}
 	
@@ -106,7 +106,7 @@ public:
 	CVoid SetDampening( CFloat dampening )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", dampening );
+		sprintf( temp, "%.3f", dampening );
 		m_strSkyDomeDampening = temp;
 	}
 

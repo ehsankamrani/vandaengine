@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // SaveLoadCharacterProfile.cpp : implementation file
@@ -193,7 +193,7 @@ void CSaveLoadCharacterProfile::OnBnClickedOk()
 			MessageBox("Couldn't open the file to save data!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
-		fwrite(&m_characterType, sizeof(CCharacterType), 1, filePtr);
+		fwrite(&m_characterType, sizeof(CPhysXCameraType), 1, filePtr);
 
 		fwrite(g_currentPrefabPackageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fwrite(g_currentPrefabName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -283,9 +283,9 @@ void CSaveLoadCharacterProfile::OnBnClickedOk()
 			MessageBox("Couldn't open the file to save data!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
-		CCharacterType characterType;
-		fread(&characterType, sizeof(CCharacterType), 1, filePtr);
-		ex_pMainCharacterDlg->SetCharacterType(characterType);
+		CPhysXCameraType characterCameraType;
+		fread(&characterCameraType, sizeof(CPhysXCameraType), 1, filePtr);
+		ex_pMainCharacterDlg->SetCharacterCameraType(characterCameraType);
 
 		fread(g_currentPrefabPackageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(g_currentPrefabName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -391,7 +391,7 @@ void CSaveLoadCharacterProfile::OnBnClickedOk()
 	CDialog::OnOK();
 }
 
-CVoid CSaveLoadCharacterProfile::SetCharacterType(CCharacterType type)
+CVoid CSaveLoadCharacterProfile::SetCharacterCameraType(CPhysXCameraType type)
 {
 	m_characterType = type;
 }

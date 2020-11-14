@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -21,6 +21,7 @@ CVoid COctree::Init()
 
 	m_geoCount = 0;
 	m_leaf = CFalse;
+	memset(m_name, 0, MAX_NAME_SIZE);
 }
 
 COctree::~COctree()
@@ -61,7 +62,7 @@ CVoid COctree::ResetOctreeGeoCount()
 	}
 }
 
-CVoid COctree::Render()
+CVoid COctree::Render(CBool checkVisibility, CBool drawGeometry)
 {
 	//CBool renderScenes = CFalse; //it's used for animations. If no scene is rendered
 								 //by octree, I update animations at the end of this function.	
@@ -88,7 +89,7 @@ CVoid COctree::Render()
 			//render all the geometries attached to this node
 			//scene manager = False
 			//renderScenes = CTrue;
-			g_multipleView->Render3DModels( CFalse, m_name );
+			g_multipleView->Render3DModels(CFalse, m_name, checkVisibility, drawGeometry);
 
 			//debug mode
 			if( g_menu.m_showOctree )
@@ -103,7 +104,7 @@ CVoid COctree::Render()
 			{
 				for ( CUInt i = 0; i < 8; i++ )
 					if( m_pSubNode[i] )
-						m_pSubNode[i]->Render();
+						m_pSubNode[i]->Render(checkVisibility, drawGeometry);
 			}
 			else
 			{
@@ -112,7 +113,7 @@ CVoid COctree::Render()
 					//frustum culling
 					//render the geometry
 					//renderScenes = CTrue;
-					g_multipleView->Render3DModels( CTrue, m_name );
+					g_multipleView->Render3DModels(CTrue, m_name, checkVisibility, drawGeometry);
 					//debug mode
 					if( g_menu.m_showOctree )
 					{
@@ -252,39 +253,36 @@ CVoid COctree::SplitNode8( COctree* parent )
 
 CVoid COctree::AttachLightsToGeometries()
 {
-	for( CUInt i = 0 ; i < g_scene.size(); i++ )
+	for( CUInt j = 0; j < g_engineLights.size(); j++ )
 	{
-		for( CUInt j = 0; j < g_scene[i]->GetLightInstanceCount(); j++ )
+		CInstanceLight *instanceLight = g_engineLights[j];
+		if( instanceLight )
 		{
-			CInstanceLight *instanceLight =g_scene[i]->GetLightInstances(j);
-			if( instanceLight )
+			for( CUInt k = 0 ; k < g_scene.size(); k++ )
 			{
-				for( CUInt k = 0 ; k < g_scene.size(); k++ )
+				if( !g_scene[k]->m_isTrigger )
 				{
-					if( !g_scene[k]->m_isTrigger )
+					for( CUInt l = 0;l < g_scene[k]->m_instanceGeometries.size(); l++ )
 					{
-						for( CUInt l = 0;l < g_scene[k]->m_instanceGeometries.size(); l++ )
+						CGeometry* m_abstractGeometry = g_scene[k]->m_instanceGeometries[l]->m_abstractGeometry;
+						if( !m_abstractGeometry->m_hasAnimation )
 						{
-							CGeometry* m_abstractGeometry = g_scene[k]->m_instanceGeometries[l]->m_abstractGeometry;
-							if( !m_abstractGeometry->m_hasAnimation )
+							for( CUInt m = 0; m < m_abstractGeometry->m_vertexcount; m++ )
 							{
-								for( CUInt m = 0; m < m_abstractGeometry->m_vertexcount; m++ )
-								{
-									CVec3f p,pt;
-									p = m_abstractGeometry->m_points[m];
-									CMatrixTransform( g_scene[k]->m_instanceGeometries[l]->m_localToWorldMatrix, p, pt );
+								CVec3f p,pt;
+								p = m_abstractGeometry->m_points[m];
+								CMatrixTransform( g_scene[k]->m_instanceGeometries[l]->m_localToWorldMatrix, p, pt );
 
-									CBool foundTarget = CFalse;
-									if( IsPointInLight( &pt, instanceLight ) )
-									{
-										g_scene[k]->m_instanceGeometries[l]->m_lights.push_back( instanceLight );
-										foundTarget = CTrue;
-										break;
-									}
-									if( foundTarget )
-									{
-										break;
-									}
+								CBool foundTarget = CFalse;
+								if( IsPointInLight( &pt, instanceLight ) )
+								{
+									g_scene[k]->m_instanceGeometries[l]->m_lights.push_back( instanceLight );
+									foundTarget = CTrue;
+									break;
+								}
+								if( foundTarget )
+								{
+									break;
 								}
 							}
 						}
@@ -391,20 +389,20 @@ CVoid COctree::ResetState()
 		}
 	}
 
-	////Detach lights
-	//for( CUInt i = 0 ; i < g_scene.size(); i++ )
-	//{
-	//	for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
-	//	{
-	//		for( CUInt k = 0; k < g_scene[i]->m_instanceGeometries[j]->m_lights.size(); k++ )
-	//		{
-	//			g_scene[i]->m_instanceGeometries[j]->m_lights[k] = NULL;
-	//		}
-	//		if( g_scene[i]->m_instanceGeometries[j]->m_lights.size() > 0 )
-	//			g_scene[i]->m_instanceGeometries[j]->m_lights.clear();
-	//	}
-	//}
-	///////////////
+	//Detach lights
+	for( CUInt i = 0 ; i < g_scene.size(); i++ )
+	{
+		for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
+		{
+			for( CUInt k = 0; k < g_scene[i]->m_instanceGeometries[j]->m_lights.size(); k++ )
+			{
+				g_scene[i]->m_instanceGeometries[j]->m_lights[k] = NULL;
+			}
+			if( g_scene[i]->m_instanceGeometries[j]->m_lights.size() > 0 )
+				g_scene[i]->m_instanceGeometries[j]->m_lights.clear();
+		}
+	}
+	/////////////
 	for( CUInt i = 0; i < 8; i++ )
 		CDelete( m_pSubNode[i] );
 	g_updateOctree = CTrue;

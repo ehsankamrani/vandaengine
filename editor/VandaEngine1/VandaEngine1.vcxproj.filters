@@ -432,6 +432,36 @@
     <ClCompile Include="Icon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EditLOD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EditCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsEngine\CHeightClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsEngine\CTerrainTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsEngine\CTerrainVBOCull.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddTerrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsEngine\terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VsceneMenuCursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddEngineCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddAmbientSound.h">
@@ -558,9 +588,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sceneManagerEngine\LOD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\LuaForCpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsEngine\Material.h">
@@ -885,6 +912,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Icon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditLOD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsEngine\CHeightClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsEngine\CTerrainTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsEngine\CTerrainVBOCull.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddTerrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsEngine\terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VsceneMenuCursor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddEngineCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptEngine\KeyboadAndMouseScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptEngine\LuaForCpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1386,6 +1446,7 @@
     <None Include="Assets\Icon\Welcome\Seperator.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VandaEngine1.rc">
@@ -1622,6 +1683,39 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Icon\EngineObjectList\Start.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Terrain\terrain_up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Terrain\terrain_focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Terrain\terrain_down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Terrain\terrain_disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineObjectList\Terrain.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineObjectList\engine_camera.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Camera\camera_disable.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

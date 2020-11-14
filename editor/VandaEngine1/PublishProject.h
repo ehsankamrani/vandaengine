@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -33,6 +33,9 @@ public:
 	CString m_strName;
 	CString m_strSplash;
 	CBool m_saveCurrentScene;
+
+private:
+	CBool m_publishDebug;
 protected:
 	virtual void OnOK();
 public:
@@ -53,4 +56,6 @@ public:
 	CVoid InserItemToScenesToBePublishedList( char * objectName );
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedMarkAsFirstScene();
+	CButton m_checkBoxDebug;
+	CBool GetPublishDebug() { return m_publishDebug; }
 };

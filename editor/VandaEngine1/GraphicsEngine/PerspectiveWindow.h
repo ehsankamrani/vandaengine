@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -14,6 +14,7 @@
 #include "..\AudioEngine/openal.h"
 #include "..\AudioEngine/OpenALSystem.h"
 #include "..\AudioEngine/ambientSound.h"
+#include"..\ScriptEngine/KeyboadAndMouseScript.h"
 #include "..\GraphicsEngine/SimpleFont.h"
 #include "../MouseTranslationController.h"
 #include "..\\Icon.h"
@@ -68,8 +69,8 @@ struct CUpdateCamera
 		m_perspectiveCameraPitch = 0.0f;
 		m_perspectiveCameraTilt = 0.0f;
 		m_perspectiveCurrentCameraTilt = 0.0f;
-		m_perspectiveCameraMinTilt = -1.0f;
-		m_perspectiveCameraMaxTilt = 1.0f;
+		m_perspectiveCameraMinTilt = -0.5f;
+		m_perspectiveCameraMaxTilt = 0.5f;
 		m_perspectiveCameraZoom = 0.0;
 		m_perspectiveCurrentCameraZoom = 0.0f;
 
@@ -89,7 +90,7 @@ struct CUpdateCamera
 		m_activateLowerRightCamera = CFalse;
 		m_activateUpperLeftCamera = CFalse;
 		m_activateUpperRightCamera = CFalse;
-		m_cameraSpeed = 3.0f;
+		m_cameraSpeed = 5.0f;
 
 	}
 	~CUpdateCamera()
@@ -103,8 +104,8 @@ struct CUpdateCamera
 		m_perspectiveCameraPitch = 0.0f;
 		m_perspectiveCameraTilt = 0.0f;
 		m_perspectiveCurrentCameraTilt = 0.0f;
-		m_perspectiveCameraMinTilt = -1.0f;
-		m_perspectiveCameraMaxTilt = 1.0f;
+		m_perspectiveCameraMinTilt = -0.5f;
+		m_perspectiveCameraMaxTilt = 0.5f;
 		m_perspectiveCameraZoom = 0.0;
 		m_perspectiveCurrentCameraZoom = 0.0f;
 
@@ -124,7 +125,7 @@ struct CUpdateCamera
 		m_activateLowerRightCamera = CFalse;
 		m_activateUpperLeftCamera = CFalse;
 		m_activateUpperRightCamera = CFalse;
-		m_cameraSpeed = 3.0f;
+		m_cameraSpeed = 5.0f;
 
 	}
 
@@ -184,24 +185,28 @@ public:
 	CVoid DrawUpperRight();
 	CVoid DrawLowerRight();
 	CVoid DrawPerspective();
+	CVoid CalculateDistances(CBool force = CFalse);
+	CVoid ResetData();
 	CVoid DrawJustPerspectiveBorders();
 	CVoid DrawBordersAndUI();
+	CVoid RenderTerrain();
 	CVoid RenderQueries(CBool init = CFalse);
-	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries );
+	CVoid RenderBakedOctree3DModels();
+	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue );
 	CVoid Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* parentTreeNameOfGeometries);
 	CVoid Render3DAnimatedModels(CBool sceneManager);
 	CVoid Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager);
 	CVoid Render3DModelsControlledByPhysX(CBool sceneManager = CTrue);
 	CVoid Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneManager = CTrue);
+	CVoid GenerateMenuCursorTexture(char* fileName);
+	CVoid DeleteMenuCursorTexture();
 	CVoid RenderCharacter(CBool sceneManager);
 	CVoid ManageLODs();
-	CVoid EngineLightPass();
-	CVoid COLLADALightPass();
-	CVoid DefaultLightPass();
+	CVoid Draw3DObjects();
+	CVoid SetDefaultLight();
 	CVoid UpdatePrefabInstanceBB();
-	CVoid FixedFunctionLightPass();
 	CVoid UpdateAnimations(CBool init = CFalse);
-	CVoid BlendLights(CUInt lightIndex);
+	CVoid UpdateDynamicPhysicsObjects();
 	CVoid BlendFogWithScene();
 	CVoid ResetPhysXCounts();
 	CBool InitAll();
@@ -210,7 +215,6 @@ public:
 	CVoid SetElapsedTimeFromBeginning();
 	CVoid EnableTimer( CBool enable );
 	CVoid ApplyForce( /*NxVec3 forceDirection, */CInt moveDirection, CFloat elapsedTime );
-	CBool UpdateCharacterBlendCycleTimer();
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
 	CBool IsJumping(CBool &isInList);
 	CBool GetJumpCurrentEndDuration(CFloat& duration);
@@ -222,6 +226,9 @@ public:
 	std::vector<CFloat> distance_vector;
 	std::vector<CInstancePrefab*> sorted_prefabs;
 	CBool m_calculateDistance;
+	CImage* m_menuCursorImg;
+	CChar m_strMenuCursorImg[MAX_NAME_SIZE];
+	CImage* GetMenuCursorImage() { return m_menuCursorImg; }
 	CUInt m_mFboID; //multisample FBO 
 	CUInt m_rbDepthID; //attach a render buffer to the depth buffer of multisample FBO
 	CUInt m_rbColorID[eGBUFFER_NUM_TEXTURES]; //attach a render buffer to the color buffers of multisample FBO
@@ -251,7 +258,7 @@ public:
 	CUInt m_rbMDepthIDFogDof;
 
 	CBool InitFBOs( CInt channels, CInt type );
-	CVoid SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sHeight );
+	CVoid SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar );
 	CDOF m_dof;
 	CBool m_lMouseDown, m_rMouseDown, m_mMouseDown, m_mouseMove;
 	CBool m_selectObject;
@@ -268,6 +275,7 @@ public:
 	float cam_pos[3];
 	float cam_dir[3];
 	float far_bound[MAX_SPLITS];
+	CVec3f free_dae_cam_pos, free_dae_cam_at;
 
 	//Audio variables 
 	ALfloat m_ambientSourcePos[3];
@@ -284,7 +292,6 @@ public:
 
 	CPhysXVariables m_physXVariables;
 	CNovodex* m_nx;
-	CTimer timer;
 	CBool m_enableTimer;
 	CSimpleFont m_simpleFont;
 	CSimpleFont m_simpleFont2;
@@ -309,6 +316,7 @@ public:
 
 	CBool m_lockInput;
 	CBool m_loadScene;
+	CBool m_isMenu;
 	CBool m_isPlayingGame;
 	CCameraType m_cameraType;
 	CCameraType m_cameraTypeOfPreviousFrame;
@@ -317,7 +325,7 @@ public:
 	CBloom* m_bloom;
 	CShadowMap* m_dynamicShadowMap;
 	
-	CIcon* m_icon;
+	CIcon* m_cursorIcon;
 
 	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE];//selection
 
@@ -325,23 +333,41 @@ public:
 
 	CVoid InitObjectSelection();
 	CVoid FinishObjectSelection();
+	
+	CVoid EnableIdleAnimations();
 
 	CFloat m_previousCharacterRotation;
 	CBool m_characterRotationTransition;
-	CInt m_firstIdleCounter;
+	CBool m_initError;
+
+	std::vector<std::string> m_tempAllPlayingSoundSources;
+	CKeyboadAndMouseScript m_keyboadAndMouseScript;
+
+private:
+	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
+	CBool m_playGameMode;
 
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnMouseHover(UINT nFlags, CPoint point);
-
+	CVoid SetInitError(CBool set) { m_initError = set; }
+	CBool GetInitError() { return m_initError; }
+	CBool IsPlayGameMode() { return m_playGameMode; }
+	CVoid SetPlayGameMode(CBool set) { m_playGameMode = set; }
+	CIcon* GetCursorIcon() { return m_cursorIcon; }
 	CVoid InitGUISelection();
 	CUInt GetSelectedGUI();
 	CVoid FinishGUISelection();
 
-	CFloat m_idleCounter;
+	CFloat GetElapsedTime() { return elapsedTime; }
 
+	CFloat m_idleCounter;
+	static CBool firstIdle;
+	static CChar currentIdleName[MAX_NAME_SIZE];
+	CChar* GetPreviousCharacterAnimationType() { return m_previousCharacterAnimationType; }
+	CTimer timer;
 };
 
 extern CInt g_numLights;

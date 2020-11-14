@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddResource.cpp : implementation file
@@ -148,7 +148,7 @@ void CAddResource::OnBnClickedButtonAddResource()
 	}
 
 	CFileDialog dlgOpen(TRUE, _T("*.ogg"), _T(""), OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
-		_T("Ogg, DDS, AVI (*.ogg; *.dds; *.avi)|*.ogg; *.dds; *.avi||"), NULL, NULL);
+		_T("Ogg, DDS, AVI (*.ogg; *.dds; *.avi; *.lua)|*.ogg; *.dds; *.avi; *.lua||"), NULL, NULL);
 	if (IDOK == dlgOpen.DoModal())
 	{
 		CString currentString;
@@ -309,6 +309,12 @@ void CAddResource::OnBnClickedOk()
 BOOL CAddResource::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	for (CUInt i = 0; i < g_projectResourceNames.size(); i++)
+	{
+		g_projectResourceNames[i].clear();
+	}
+	g_projectResourceNames.clear();
 
 	//load project files
 	FILE* filePtr;

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // PublishProject.cpp : implementation file
@@ -44,6 +44,7 @@ void CPublishProject::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SPLASH_LOGO, m_editBoxSplash);
 	DDX_Control(pDX, IDC_LIST_AVAILABLE_SCENES, m_listBoxAvailableScenes);
 	DDX_Control(pDX, IDC_LIST_SCENES_TO_PUBLISH, m_listBoxScenesToBePublished);
+	DDX_Control(pDX, IDC_CHECK_PUBLISH_DEBUG, m_checkBoxDebug);
 }
 
 
@@ -144,6 +145,12 @@ void CPublishProject::OnOK()
 	else
 		m_saveCurrentScene = CFalse;
 
+	checkState = m_checkBoxDebug.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_publishDebug = CTrue;
+	else
+		m_publishDebug = CFalse;
+
 	CDialog::OnOK();
 }
 
@@ -156,6 +163,8 @@ BOOL CPublishProject::OnInitDialog()
 	sceneToBePublishedIndex = -1;
 
 	m_checkBoxSave.SetCheck( BST_CHECKED );
+	m_checkBoxDebug.SetCheck(BST_UNCHECKED);
+	m_publishDebug = CFalse;
 	// Available Scenes
 	RECT rect;
 	m_listBoxAvailableScenes.GetClientRect(&rect);

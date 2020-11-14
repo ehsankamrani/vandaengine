@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -8,11 +8,11 @@
 #include <set>
 #include <map>
 #include <vector>
-class CSceneBanner
+class CVSceneBanner
 {
 public:
-	CSceneBanner();
-	~CSceneBanner();
+	CVSceneBanner();
+	~CVSceneBanner();
 	CVoid SetBannerPath( CChar* name ) { Cpy(m_path, name);}
 	CChar* GetBannerPath() {return m_path;}
 	CChar m_path[MAX_NAME_SIZE];

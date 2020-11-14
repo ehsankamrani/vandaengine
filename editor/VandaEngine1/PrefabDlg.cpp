@@ -64,7 +64,7 @@ void CPrefabDlg::OnBnClickedInsert()
 		return;
 	}
 
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
 		if (MessageBox("You can not insert prefabs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
@@ -142,7 +142,18 @@ void CPrefabDlg::OnBnClickedInsert()
 		g_arrowPosition.x = g_arrowPosition.y = g_arrowPosition.z = 0.0f; //put new prefab instance in (0,0,0)
 		g_arrowRotate.x = g_arrowRotate.y = g_arrowRotate.z = 0.0f; // no rotation
 		g_arrowScale.x = g_arrowScale.y = g_arrowScale.z = 1.0f; //original size
+		g_transformObject = CFalse;
 		ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab();
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CTrue);
 		g_importPrefab = CFalse;
@@ -866,7 +877,8 @@ BOOL CPrefabDlg::OnInitDialog()
 		Cpy(str, g_prefabPackagesAndNames[i].front().c_str());
 		if (Cmp(str, "Vanda_Basics"))
 		{
-			if (g_admin)
+			//if (g_admin)
+			if (g_editorMode == eMODE_PREFAB)
 				InsertItemToPackageList(str);
 			else
 				continue;

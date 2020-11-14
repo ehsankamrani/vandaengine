@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 
 #include "..\common\utility.h"
@@ -35,10 +26,11 @@ public:
 	CNode *m_parent;			
 	CLight *m_abstractLight;
 	CInt m_nameIndex;
-	CBool m_visible;
+	CFloat m_lodPercent;
 	GLuint m_queryIndex;
 	CVec3f m_position;
 	CFloat m_distanceFromCamera;
+	CBool m_runTimeVisible;
 
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }
@@ -46,11 +38,14 @@ public:
 	CBool RenderExtents();
 	CDouble GetRadius();
 	GLuint GetQueryIndex();
-	CVoid SetVisible(CBool visible) { m_visible = visible; }
-	CBool GetVisible() { return m_visible; }
+	CVoid SetLODPercent(CFloat percent) { m_lodPercent = percent; }
+	CFloat GetLODPercent() { return m_lodPercent; }
 	CVoid CalculateDistance();
 	CFloat GetDistanceFromCamera();
 	CVoid SetPosition(CVec3f pos);
+	CVec3f GetPosition();
+	CVoid SetRunTimeVisible(CBool set) { m_runTimeVisible = set; }
+	CBool GetRunTimeVisible() { return m_runTimeVisible; }
 
 };
 

@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #pragma once
 
@@ -156,7 +146,7 @@ public:
 	inline CChar* GetName(){ return m_name; }
 	inline CChar* GetId(){ return m_id; }
 	inline CChar* GetSid(){ return m_sid; }
-	//inline CNode*	GetParent(){ return m_parent; }
+	inline CNode* GetParent(){ return m_parent; }
 	inline CNode* GetChild(){ return m_children; }
 	
 	//inline CGeometry*	GetGeometry(){ return m_geometry; }
@@ -182,6 +172,7 @@ public:
 	CVoid UpdateOrient( CFloat time ); 
 	CVoid UpdateBoundingBox(CInstanceGeometry* geometry, CInstancePrefab* prefab = NULL);
 	CVoid UpdatePhysX( CInstanceGeometry* geometry );
+	CVoid UpdateDynamicPhysicsObjects(CNode* sceneRoot);
 	CVoid BuildLWMatrix(CFloat time);
 	CVoid SetScene( CScene* scene );
 	CScene* GetScene();
@@ -189,10 +180,10 @@ public:
 	CVoid RenderAABBWithLines(CBool animatedGeo); //It's used to draw AABBs
 	CVoid RenderAABBWithQuads(); //It's used to draw the AABB objects in selection mode 
 	CVoid RenderSelectionMode(); //It's used to draw the actual geometries in selection mode
-	CVoid Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool renderController = CFalse ); 
+	CVoid Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool renderController = CFalse, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue ); 
 	CVoid RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool renderController );
+	CVoid ResetSkinData();
 	CVoid RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot );
-	CVoid RenderGrass(CBool sceneManager, CChar* parentTreeNameOfGeometries );
 	CVoid EnableShader(CInstanceGeometry* instanceGeometry);
 
 	//---------------------- End External interfaces ---------------------------------//	

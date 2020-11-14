@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditSceneManager.cpp : implementation file
@@ -41,7 +41,7 @@ END_MESSAGE_MAP()
 void CEditSceneManager::OnEnChangeEditScenemanagerObjectPerSplit()
 {
 	m_editBoxObjectsPerSplit.GetWindowTextA( m_strObjectsPerSplit );
-	m_iObjectsPerSplit = (CInt)atof( m_strObjectsPerSplit );
+	m_iObjectsPerSplit = atoi(m_strObjectsPerSplit);
 }
 
 void CEditSceneManager::OnOK()
@@ -53,7 +53,7 @@ void CEditSceneManager::OnOK()
 	}
 	else
 	{
-		g_sceneManagerObjectsPerSplit = (CInt)m_iObjectsPerSplit;
+		g_sceneManagerObjectsPerSplit = m_iObjectsPerSplit;
 		g_updateOctree = CTrue;
 		CDialog::OnOK();
 	}

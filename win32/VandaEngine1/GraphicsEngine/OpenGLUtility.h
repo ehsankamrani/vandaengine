@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 /*************************************************
@@ -77,6 +77,7 @@ is the texture id.
 #include "targa.h" //advanced texture loader
 #include "..\common\vector.h"
 #include "..\common\defines.h"
+#include "..\common\utility.h"
 class COpenGLUtility
 {
 public:
@@ -84,8 +85,10 @@ public:
 	CVoid GetGLInfo();
 	GLvoid DrawCWBoxWithLines( CVector &min, CVector &max, CVector color );
 	GLvoid DrawCWBoxWithQuads( CVector &min, CVector &max );
+	GLvoid DrawSquare(CVec3f pos1, CVec3f pos2, CVec3f pos3, CVec3f pos4);
 	GLvoid DrawCCWBox( CVector &min, CVector &max, CBool boundingBox, CBool selectionMode );
 	GLvoid DrawQuad( CFloat* p );
+	GLvoid DrawSimpleBox(CVec3f min, CVec3f max);
 	GLvoid Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint texID, CFloat sizex, CFloat sizey, CFloat r = 1.0, CFloat g = 1.0, CFloat b = 1.0);
 	GLvoid BillboardingWithUserVectors( CFloat centerX, CFloat centerY, CFloat centerZ, GLuint texID, CFloat sizeX, CFloat sizeY,  CVector& up,  CVector& right );
     GLvoid StencilPattern( CInt n, CFloat* pArray, COpenGLShape type, CInt bit );
@@ -93,7 +96,7 @@ public:
 	CVoid SaveScreenShot( CChar* fileName, CInt16 CInt width, CInt16 CInt height );
 
 	//VBO functions here
-	CBool CheckForVBOs();
+	CBool SupportForVBOs();
 	CInt GenerateVBO();
 	CBool CopyVBOData( CUInt type, CUInt vboId, CVoid * data, CInt size );
 	CBool BindVBO( CUInt type, CUInt vboId );

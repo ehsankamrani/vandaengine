@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngine1Dlg.h : header file
@@ -21,6 +21,8 @@
 #include "AddGUIBackground.h"
 #include "AddGUIText.h"
 #include "AddLight.h"
+#include "AddEngineCamera.h"
+#include "AddTerrain.h"
 #include "AddWater.h"
 #include "AddStartupObject.h"
 #include "AddMultipleAnimations.h"
@@ -39,6 +41,8 @@
 #include "EditBloom.h"
 #include "EditOptions.h"
 #include "EditLight.h"
+#include "EditLOD.h"
+#include "EditCamera.h"
 #include "EditSceneManager.h"
 #include "EditGeneralPhysXProperties.h"
 #include "EditProjectProperties.h"
@@ -54,6 +58,7 @@
 #include "selectCamera.h"
 #include "graphicsEngine/water.h"
 #include "graphicsEngine/sky.h"
+#include "GraphicsEngine/terrain.h"
 #include <vector>
 #include "afxwin.h"
 #include "AudioEngine/openAL.h"
@@ -70,10 +75,11 @@
 #include "PhysX.h"
 #include "physXEngine/Trigger.h"
 #include "SceneBanner.h"
+#include "VsceneMenuCursor.h"
 #include "PublishProject.h"
 #include "CustomButton.h"
 #include "CustomBitmapButton.h"
-#include "common/luaforcpp.h"
+#include "ScriptEngine/luaforcpp.h"
 #include "Common/Prefab.h"
 #include "Common/Startup.h"
 #include "physXEngine\MainCharacter.h"
@@ -159,6 +165,7 @@ struct CPathProperties
 	CChar m_skyPath[MAX_NAME_SIZE];
 	CChar m_soundPath[MAX_NAME_SIZE];
 	CChar m_physXPath[MAX_NAME_SIZE];
+	CChar m_terrainPath[MAX_NAME_SIZE];
 
 	CPathProperties()
 	{
@@ -169,6 +176,7 @@ struct CPathProperties
 		Cpy( m_meshPath, "Assets/Meshes/" );
 		Cpy( m_soundPath, "Assets/Engine/Sounds/" );
 		Cpy( m_physXPath, "Assets/Engine/PhysX/" );
+		Cpy(m_terrainPath, "Assets/Engine/Textures/Terrain/");
 	}
 
 	CVoid Reset()
@@ -180,6 +188,7 @@ struct CPathProperties
 		Cpy( m_meshPath, "Assets/Meshes/" );
 		Cpy( m_soundPath, "Assets/Engine/Sounds/" );
 		Cpy( m_physXPath, "Assets/Engine/PhysX/" );
+		Cpy(m_terrainPath, "Assets/Engine/Textures/Terrain/");
 	}
 
 };
@@ -217,6 +226,29 @@ struct CLightProperties
 
 };
 
+struct CCurrentVSceneProperties
+{
+	CChar m_strBanner[MAX_NAME_SIZE]; // I use CVSceneBanner class to save banner
+	CChar m_strCursorImage[MAX_NAME_SIZE];
+	CBool m_isMenu;
+	CInt m_cursorSize;
+	CBool m_isPause;
+
+	CCurrentVSceneProperties()
+	{
+		m_isMenu = CFalse;
+		m_isPause = CFalse;
+		m_cursorSize = 5;
+	}
+
+	CVoid Reset()
+	{
+		m_isMenu = CFalse;
+		m_isPause = CFalse;
+		m_cursorSize = 5;
+	}
+};
+
 struct CShadowProperties
 {
 	CFloat m_shadowSplitWeight;
@@ -231,9 +263,9 @@ struct CShadowProperties
 
 	CShadowProperties()
 	{
-		m_shadowSplitWeight = 0.6f;
+		m_shadowSplitWeight = 0.3f;
 		m_shadowNearClipPlane = 0.1f;
-		m_shadowFarClipPlane = 60.f;
+		m_shadowFarClipPlane = 70.f;
 		m_shadowType = eSHADOW_PCF_GAUSSIAN;
 		m_shadowSplits = eSHADOW_3_SPLITS; //3 splits
 		m_shadowResolution = eSHADOW_2048;
@@ -246,10 +278,10 @@ struct CShadowProperties
 	{
 		m_shadowSplitWeight = 0.3f;
 		m_shadowNearClipPlane = 0.1f;
-		m_shadowFarClipPlane = 30.f;
+		m_shadowFarClipPlane = 70.f;
 		m_shadowType = eSHADOW_PCF_GAUSSIAN;
 		m_shadowSplits = eSHADOW_3_SPLITS; //3 splits
-		m_shadowResolution = eSHADOW_1024;
+		m_shadowResolution = eSHADOW_2048;
 		m_intensity = 0.5f;
 		m_enable = CFalse;
 		Cpy( m_directionalLightName, "\n" );
@@ -361,6 +393,7 @@ struct CMenuVariables
 	CBool m_showDynamicShadowDepthTexture;
 	CBool m_enableDynamicShadow; //deprecate; Moved to CShadowProperties::m_enable
 	CBool m_insertAndShowSky;
+	CBool m_insertAndShowTerrain;
 	CBool m_insertStartup;
 	CBool m_insertAmbientSound;
 	CBool m_playAmbientSound;
@@ -387,6 +420,7 @@ struct CMenuVariables
 		m_showDynamicShadowDepthTexture = CFalse;
 		m_enableDynamicShadow = CTrue;
 		m_insertAndShowSky = CFalse;
+		m_insertAndShowTerrain = CFalse;
 		m_insertStartup = CFalse;
  		m_insertAmbientSound = CFalse;
 		m_playAmbientSound = CFalse;
@@ -396,6 +430,153 @@ struct CMenuVariables
 		m_insertCharacter = CFalse;
 	}
 };
+
+struct CCameraProperties
+{
+	//free Perspective Camera
+	CFloat m_freePerspectiveFOV; //field of view
+	CFloat m_freePerspectiveNCP; //near clip plane
+	CFloat m_freePerspectiveFCP; //far clip plane
+
+	//Perspective Camera of Play Mode
+	CFloat m_playModePerspectiveFOV; //field of view
+	CFloat m_playModePerspectiveMaxFOV; //used for zoom
+	CFloat m_playModePerspectiveMinFOV; //used for zoom
+	CFloat m_playModePerspectiveNCP; //near clip plane
+	CFloat m_playModePerspectiveFCP; //far clip plane
+
+	//COLLADA Camera
+	CBool m_readDAECameraFOVFromFile;
+	CBool m_readDAECameraNCPFromFile;
+	CBool m_readDAECameraFCPFromFile;
+
+	CFloat m_daeCameraFOV; //field of view
+	CFloat m_daeCameraNCP; //near clip plane
+	CFloat m_daeCameraFCP; //far clip plane
+
+	CCameraProperties()
+	{
+		m_playModePerspectiveFOV = 54.f;
+		m_playModePerspectiveMaxFOV = 65.f;
+		m_playModePerspectiveMinFOV = 45.f;
+		m_playModePerspectiveNCP = 0.01f;
+		m_playModePerspectiveFCP = 5000.f;
+
+		m_freePerspectiveFOV = 54.f;
+		m_freePerspectiveNCP = 0.1f;
+		m_freePerspectiveFCP = 10000.0f;
+
+		//COLLADA Camera
+		m_readDAECameraFOVFromFile = CTrue;
+		m_readDAECameraNCPFromFile = CFalse;
+		m_readDAECameraFCPFromFile = CFalse;
+
+		m_daeCameraFOV = 54.0f; //field of view
+		m_daeCameraNCP = 0.1f; //near clip plane
+		m_daeCameraFCP = 1000.f; //far clip plane
+
+	}
+
+	CVoid Reset()
+	{
+		m_playModePerspectiveFOV = 54.f;
+		m_playModePerspectiveMaxFOV = 65.f;
+		m_playModePerspectiveMinFOV = 45.f;
+		m_playModePerspectiveNCP = 0.01f;
+		m_playModePerspectiveFCP = 5000.f;
+
+		m_freePerspectiveFOV = 54.f;
+		m_freePerspectiveNCP = 0.1f;
+		m_freePerspectiveFCP = 10000.0f;
+
+		//COLLADA Camera
+		m_readDAECameraFOVFromFile = CTrue;
+		m_readDAECameraNCPFromFile = CFalse;
+		m_readDAECameraFCPFromFile = CFalse;
+
+		m_daeCameraFOV = 54.0f; //field of view
+		m_daeCameraNCP = 0.1f; //near clip plane
+		m_daeCameraFCP = 1000.f; //far clip plane
+	}
+};
+
+struct CLODProperties
+{
+	CFloat m_lod1;
+	CFloat m_lod1MinObjectCameraDistance;
+	CVec2f m_lod2;
+	CVec2f m_lod3;
+	CFloat m_lod4;
+	CFloat m_lod4ObjectCameraDistance;
+	CFloat m_waterReflectionPercents;
+	CFloat m_waterReflectionCameraDistance;
+	CFloat m_waterInvisiblePercent;
+	CFloat m_waterInvisibleCameraDistance;
+	CLODProperties()
+	{
+		//initialize LOD numbers
+		m_lod1 = 12.0f;
+		m_lod1MinObjectCameraDistance = 20.0f;
+		m_lod2.x = 2.0f;
+		m_lod2.y = 10.0f;
+		m_lod3.x = 0.03f;
+		m_lod3.y = 1.9f;
+		m_lod4 = 0.003f;
+		m_lod4ObjectCameraDistance = 80.f;
+		m_waterReflectionPercents = 0.2f;
+		m_waterReflectionCameraDistance = 40.0f;
+		m_waterInvisiblePercent = 0.003f;
+		m_waterInvisibleCameraDistance = 120.0f;
+	}
+
+	CVoid Reset()
+	{
+		//initialize LOD numbers
+		m_lod1 = 12.0f;
+		m_lod1MinObjectCameraDistance = 20.0f;
+		m_lod2.x = 2.0f;
+		m_lod2.y = 10.0f;
+		m_lod3.x = 0.03f;
+		m_lod3.y = 1.9f;
+		m_lod4 = 0.003f;
+		m_lod4ObjectCameraDistance = 80.0f;
+		m_waterReflectionPercents = 0.2f;
+		m_waterReflectionCameraDistance = 40.0f;
+		m_waterInvisiblePercent = 0.003f;
+		m_waterInvisibleCameraDistance = 120.0f;
+	}
+};
+
+struct CPrefabProperties
+{
+	CInt m_clipIndex;
+	std::vector<std::string> m_names;
+	CBool m_loopAnimationAtStart;
+	CBool m_playAnimationAtStart;
+	CBool m_alwaysVisible;
+	CBool m_castShadow;
+
+	CPrefabProperties()
+	{
+		m_clipIndex = 0;
+		m_loopAnimationAtStart = CTrue;
+		m_playAnimationAtStart = CTrue;
+		m_alwaysVisible = CFalse;
+		m_castShadow = CTrue;
+	}
+
+	CVoid Reset()
+	{
+		m_clipIndex = 0;
+		m_names.clear();
+		m_loopAnimationAtStart = CTrue;
+		m_playAnimationAtStart = CTrue;
+		m_alwaysVisible = CFalse;
+		m_castShadow = CTrue;
+	}
+
+};
+
 // CVandaEngine1Dlg dialog
 class CVandaEngine1Dlg : public CDialog
 {
@@ -424,8 +605,11 @@ protected:
 	CBrush m_brush; // used to specify the colors of controls
 
 	CToolTipCtrl* m_pToolTip;
-public:
-//	afx_msg CVoid OnClose();
+private:
+	std::vector<CStaticSound*>m_engineStaticSounds;
+	std::vector<CInstancePrefab*> m_instancePrefab;
+	CCurrentVSceneProperties m_currentVSceneProperties;
+	std::vector<CGUI*> m_guis;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );
@@ -448,6 +632,8 @@ protected:
 	CVoid OnMenuClickedInsertStaticSound();
 	CVoid OnMenuClickedInsertSkyDome();
 	CVoid OnMenuClickedInsertStartup();
+	CVoid OnMenuClickedInsertTerrain();
+	CVoid OnMenuClickedInsertEngineCamera();
 	CVoid OnMenuClickedWaterAttachment();
 	CVoid OnMenuClickedInsertWater();
 	CVoid OnMenuClickedInsertAmbientSound();
@@ -507,10 +693,12 @@ public:
 	CImageList m_guiListImage;
 
 	CVoid ChangeLightProperties(CInstanceLight* light );
+	CVoid ChangeEngineCameraProperties(CInstanceCamera* cam);
 	CVoid ChangeWaterProperties( CWater* water);
 	CVoid ChangeStaticSoundProperties(CStaticSound* staticSound);
 	CVoid ChangeAmbientSoundProperties();
 	CVoid ChangeSkyDomeProperties();
+	CVoid ChangeTerrainProperties();
 	CVoid ChangeStartupProperties();
 public:
 	CWaterAttachment* m_dlgWaterAttachment;
@@ -519,6 +707,8 @@ public:
 	CAddGUIBackground* m_dlgAddGUIBackground;
 	CAddGUIText* m_dlgAddGUIText;
 	CAddLight* m_dlgAddLight;
+	CAddEngineCamera* m_dlgAddEngineCamera;
+	CAddTerrain* m_dlgAddTerrain;
 	CAddWater* m_dlgAddWater;
 	CAddMultipleAnimations* m_dlgAddMultipleAnimations;
 	CPublishProject* m_dlgPublishProject;
@@ -533,6 +723,8 @@ public:
 	CAddMainCharacter* m_dlgMainCharacter;
 	CEditBloom* m_dlgEditBloom;
 	CEditLight* m_dlgEditLight;
+	CEditLOD* m_dlgEditLOD;
+	CEditCamera* m_dlgEditCamera;
 	CEditSceneManager* m_dlgEditSceneManager;
 	CEditGeneralPhysXProperties* m_dlgEditGeneralPhysXProperties;
 	CEditShadow* m_dlgEditShadow;
@@ -549,6 +741,7 @@ public:
 	CSaveGUIDlg *m_dlgSaveGUIs;
 	NxExtendedVec3 m_currentCharacterPos;
 	CVec4f m_initCharacterRotate;
+	std::vector<std::string> m_deletedTriggerObjects;
 protected:
 	virtual void OnCancel();
 public:
@@ -630,6 +823,8 @@ public:
 	afx_msg void OnBnClickedBtnWeb();
 public:
 	CCustomBitmapButton m_mainBtnFacebook;
+
+	CVoid RemoveEngineObject();
 public:
 
 	afx_msg void OnBnClickedBtnFacebook();
@@ -672,7 +867,7 @@ public:
 	afx_msg void OnBnClickedBtnScriptManager();
 	CCustomBitmapButton m_mainBtnPublishSolution;
 	CCustomBitmapButton m_mainBtnScriptManager;
-	CCustomBitmapButton m_mainBtnCameraAndRenderingManager;
+	CCustomBitmapButton m_mainBtnFreeCamera;
 	afx_msg void OnBnClickedBtnCameraRenderingManager();
 	CCustomBitmapButton m_btnVandaVersion;
 	CCustomBitmapButton m_btnSceneProperties;
@@ -696,6 +891,7 @@ public:
 	afx_msg void OnBnClickedBtnTranslate();
 	afx_msg void OnBnClickedBtnRotate();
 	afx_msg void OnBnClickedBtnScale();
+	void PumpMessages();
 	CRichEditCtrl m_editX;
 	CRichEditCtrl m_editY;
 	CRichEditCtrl m_editZ;
@@ -732,6 +928,15 @@ public:
 	CVoid SaveGUIFiles();
 	CCustomBitmapButton m_mainBtnStartup;
 	afx_msg void OnBnClickedBtnStartup();
+	CCustomBitmapButton m_mainBtnTerrain;
+	afx_msg void OnBnClickedInsertTerrain();
+	CCustomBitmapButton m_mainBtnEngineCamera;
+	afx_msg void OnBnClickedBtnEngineCamera();
+	afx_msg void OnLvnItemchangingListScenes(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangingListEngineObjects(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangingListGuiElements(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangingListPhysxElements(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangingListObjects(NMHDR *pNMHDR, LRESULT *pResult);
 };
 
 //Edition.MaxVersion.MinVersion.BugFixes;
@@ -815,6 +1020,9 @@ extern CScene* g_centerArrowScene;
 extern CVec3f g_arrowPosition;
 extern CVec3f g_arrowRotate;
 extern CVec3f g_arrowScale;
+extern CLODProperties g_instancePrefabLODPercent;
+extern CPrefabProperties g_prefabProperties;
+extern CCameraProperties g_cameraProperties;
 
 extern CBool g_showArrow;
 extern COpenGLUtility g_glUtil;
@@ -840,7 +1048,8 @@ extern std::vector<CGUI*> g_guis;
 extern std::vector<CInstanceLight*> g_engineLights; //these aren't collada lights, they are specified via the editor
 extern std::vector<CTrigger*> g_triggers;
 extern std::vector<CWater*> g_engineWaters; //We may use multiple water surfaces in our engine
-extern std::vector<CInstanceCamera*> g_cameraInstances;
+extern std::vector<CInstanceCamera*> g_importedCameraInstances;
+extern std::vector<CInstanceCamera*> g_engineCameraInstances;
 extern std::vector<CResourceFile*> g_resourceFiles;
 extern std::vector<CStaticSound*> g_engineStaticSounds;
 extern COpenALSystem* g_soundSystem;
@@ -850,12 +1059,14 @@ extern CUpdateCamera *g_camera;
 extern CStartUp* g_startup;
 extern GLuint g_shaderType;
 extern CSkyDome *g_skyDome;   //Currently each map has just one sky, But I may decide to add extra layers later
+extern CTerrain *g_terrain;
 extern NxExtendedVec3 g_characterPos; //default camera attached to character controller
 extern CVec3f g_cameraInstancePos; //default free camera
 extern CVec2f g_cameraInstancePanTilt; //default free camera
 extern 	CBloom*	g_bloom;
 extern 	CExternalPhysX*  g_externalPhysX;
-extern CSceneBanner g_sceneBanner;
+extern CVSceneBanner g_sceneBanner;
+extern CVSceneMenuCursor g_vsceneMenuCursor;
 extern std::vector<CImage*>g_images; // This variable holds the information of all the images of Engine
 extern std::vector<CImage*>g_waterImages; // This variable holds the information of water images of Engine
 extern CShadowMap* g_dynamicShadowMap;
@@ -873,6 +1084,7 @@ extern CShadowProperties g_shadowProperties;
 extern CPhysXProperties g_physXProperties;
 extern CDOFProperties g_dofProperties;
 extern CLightProperties g_lightProperties;
+extern CCurrentVSceneProperties g_currentVSceneProperties;
 extern CCharacterBlendingProperties g_characterBlendingProperties;
 extern CFogProperties g_fogProperties;
 extern CPathProperties g_pathProperties;
@@ -888,6 +1100,7 @@ extern CInt g_sceneManagerObjectsPerSplit;
 extern CLuaState g_lua;
 extern CBool g_testScript;
 extern CBool g_renderShadow;
+extern CFloat g_maxInstancePrefabRadius; //maximum radius of prefabs: currently used for the max radius of dynamic shadow
 
 extern CEditorMode g_editorMode;
 
@@ -895,6 +1108,7 @@ extern CBool g_clickedOpen;
 extern CBool g_clickedNew;
 
 extern CCameraType g_currentCameraType;
+extern CBool g_renderForWater;
 extern std::vector<std::vector<std::string>> g_prefabPackagesAndNames;
 extern std::vector<std::vector<std::string>> g_guiPackagesAndNames;
 extern std::vector<std::vector<std::string>> g_projectResourceNames;

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -27,11 +27,11 @@ public:
 	CButton m_checkBoxLoopAnimation;
 	CComboBox m_comboAnimationClip;
 	virtual BOOL OnInitDialog();
-	CVoid SetScene(CScene* scene);
-	CScene* m_scene;
 protected:
 	virtual void OnOK();
 public:
 	afx_msg void OnCbnSelchangeComboAnimationClip();
 	CInt m_currentAnimClip;
+	CButton m_checkBoxAlwaysVisible;
+	CButton m_checkBoxCastShadow;
 };

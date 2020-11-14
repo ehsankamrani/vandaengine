@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "transform.h"
 #include "matrix.h"
@@ -23,7 +14,7 @@ CTransform::CTransform()
 	}
 	m_numAnimations = 0;
 	memset(m_channelIds, 0, sizeof( m_channelIds ));
-	memset(m_sid, 0, sizeof( m_sid ));
+	//memset(m_sid, 0, sizeof( m_sid ));
 }
 
 CTransform::~CTransform()
@@ -91,7 +82,7 @@ CVoid CTransform::AddMatrix( CVec4f m[], CFloat weight )
 
 CVoid CTransform::SetSid( CChar * sid )
 {
-	Cpy( m_sid, sid ); 
+	m_sid = sid; 
 }
 
 CTFormType CTransform::GetType( CChar * nameType )

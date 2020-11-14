@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -10,7 +10,7 @@ class CAmbientSound
 {
 public:
 	CAmbientSound() { m_buffer = NULL; m_source = NULL; }
-	~CAmbientSound() { m_source->GetSource();alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE); CDelete( m_buffer ); CDelete( m_source ) }
+	~CAmbientSound() { alSourceStop(m_source->GetSource()); alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE); CDelete(m_buffer); CDelete(m_source) }
 	CVoid SetName( CChar* name ) {Cpy( m_name, name ); }
 	CVoid SetPath( CChar* path ) {Cpy( m_path, path ); }
 	CVoid SetVolume( CFloat volume) { m_volume = volume; }

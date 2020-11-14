@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // ShadowDialog.cpp : implementation file
@@ -131,16 +131,16 @@ void CEditShadow::OnOK()
 BOOL CEditShadow::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-	m_strSplitWeight.Format( "%f", g_shadowProperties.m_shadowSplitWeight);
+	m_strSplitWeight.Format( "%.3f", g_shadowProperties.m_shadowSplitWeight);
 	m_editBoxSplitWeight.SetWindowTextA( m_strSplitWeight );
 
-	m_strNearClipPlane.Format( "%f", g_shadowProperties.m_shadowNearClipPlane);
+	m_strNearClipPlane.Format( "%.3f", g_shadowProperties.m_shadowNearClipPlane);
 	m_editBoxNearClipPlane.SetWindowTextA( m_strNearClipPlane );
 
-	m_strFarClipPlane.Format( "%f", g_shadowProperties.m_shadowFarClipPlane);
+	m_strFarClipPlane.Format( "%.3f", g_shadowProperties.m_shadowFarClipPlane);
 	m_editBoxFarClipPlane.SetWindowTextA( m_strFarClipPlane );
 
-	m_strIntensity.Format( "%f", g_shadowProperties.m_intensity);
+	m_strIntensity.Format( "%.3f", g_shadowProperties.m_intensity);
 	m_editBoxIntensity.SetWindowTextA( m_strIntensity );
 
 	m_comboAlgorithm.InsertString( 0, "Debug" );

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngine1Dlg.cpp : implementation file
@@ -9,11 +9,16 @@
 #include "VandaEngine1Dlg.h"
 #include "PleaseWait.h"
 #include "GraphicsEngine/Animation.h"
-//#include "graphicsEngine\\imagelib.h"
+#include "graphicsEngine\\imagelib.h"
 #include "physxengine\\nx.h"
 #include <windows.h>
 #include <shlobj.h>
 #include "Common/Prefab.h"
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <iostream>
+#include <sstream>
+#include <thread>
 #pragma comment(lib, "shfolder.lib")
 
 #ifdef _DEBUG
@@ -128,7 +133,8 @@ std::vector<CGUI*> g_guis;
 std::vector<CInstanceLight*> g_engineLights;
 std::vector<CTrigger*> g_triggers;
 std::vector<CWater*> g_engineWaters;
-std::vector<CInstanceCamera*> g_cameraInstances;
+std::vector<CInstanceCamera*> g_importedCameraInstances;
+std::vector<CInstanceCamera*> g_engineCameraInstances;
 std::vector<CResourceFile*> g_resourceFiles;
 std::vector<CImage*> g_images;
 std::vector<CImage*>g_waterImages; // This variable holds the information of water images of Engine
@@ -145,6 +151,7 @@ GLuint g_shaderType;
 CUpdateCamera *g_camera = NULL;
 CStartUp* g_startup = NULL;
 CSkyDome *g_skyDome = NULL;
+CTerrain *g_terrain = NULL;
 NxExtendedVec3 g_characterPos;
 CVec3f g_cameraInstancePos; //default free camera
 CVec2f g_cameraInstancePanTilt; //default free camera
@@ -156,6 +163,7 @@ CDOFProperties g_dofProperties;
 CFogProperties g_fogProperties;
 CBloomProperties g_bloomProperties;
 CLightProperties g_lightProperties;
+CCurrentVSceneProperties g_currentVSceneProperties;
 CCharacterBlendingProperties g_characterBlendingProperties;
 CPathProperties g_pathProperties;
 CExtraTexturesNamingConventions g_extraTexturesNamingConventions;
@@ -169,19 +177,25 @@ CInt g_sceneManagerObjectsPerSplit = 15;
 CLuaState g_lua;
 CBool g_testScript = CFalse;
 CBool g_renderShadow = CFalse;
+CFloat g_maxInstancePrefabRadius = -1.0f;
+CLODProperties g_instancePrefabLODPercent;
+CPrefabProperties g_prefabProperties;
+CCameraProperties g_cameraProperties;
 
 CEditorMode g_editorMode = eMODE_VSCENE;
 
 CBool g_clickedOpen = CFalse;
 CBool g_clickedNew = CFalse;
 
-CCameraType g_currentCameraType = eCAMERA_DEFAULT_FREE;
+CCameraType g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
+CBool g_renderForWater = CFalse;
 std::vector<std::vector<std::string>> g_prefabPackagesAndNames;
 std::vector<std::vector<std::string>> g_guiPackagesAndNames;
 std::vector<std::vector<std::string>> g_projectResourceNames;
 CBloom* g_bloom = NULL;
 CExternalPhysX*  g_externalPhysX = NULL;
-CSceneBanner g_sceneBanner;
+CVSceneBanner g_sceneBanner;
+CVSceneMenuCursor g_vsceneMenuCursor;
 CInt g_width;
 CInt g_height;
 // CAboutDlg dialog used for App About
@@ -221,6 +235,51 @@ DWORD __stdcall MEditStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LO
 
 	return 0;
 }
+CVoid SetDialogData4(CChar* name, CFloat x, CFloat y, CFloat z, CBool showXYZ = CTrue, CBool showArrow = CTrue)
+{
+	//selected object
+	COLORREF color = COLOR_WHITE;
+	CHARFORMAT cf;
+	cf.dwMask = CFM_COLOR/* | CFM_SIZE*/;
+	cf.dwEffects = NULL;
+	cf.crTextColor = color;
+
+	ex_pStaticSelectedObject->SetWindowTextA("\n");
+	CInt nSel = ex_pStaticSelectedObject->GetWindowTextLength();
+	ex_pStaticSelectedObject->SetSel(nSel, nSel);
+
+	ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
+
+	ex_pStaticSelectedObject->ReplaceSel(name);
+
+	if (showArrow)
+		g_showArrow = CTrue;
+
+	if (showXYZ)
+	{
+		CFloat val;
+		CChar temp1[MAX_NAME_SIZE];
+		val = roundf(x * 100) / 100;
+		sprintf(temp1, "%.2f", val);
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
+
+		CChar temp2[MAX_NAME_SIZE];
+		val = roundf(y * 100) / 100;
+		sprintf(temp2, "%.2f", val);
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
+
+		CChar temp3[MAX_NAME_SIZE];
+		val = roundf(z * 100) / 100;
+		sprintf(temp3, "%.2f", val);
+		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
+	}
+	else
+	{
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
+	}
+}
 
 CVoid SetDialogData3(CBool selected, CInstancePrefab* instancePrefab)
 {
@@ -246,17 +305,17 @@ CVoid SetDialogData3(CBool selected, CInstancePrefab* instancePrefab)
 			CFloat val;
 			CChar temp1[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetTranslate().x * 100) / 100;
-			sprintf(temp1, "%.02f", val);
+			sprintf(temp1, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
 
 			CChar temp2[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetTranslate().y * 100) / 100;
-			sprintf(temp2, "%.02f", val);
+			sprintf(temp2, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
 
 			CChar temp3[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetTranslate().z * 100) / 100;
-			sprintf(temp3, "%.02f", val);
+			sprintf(temp3, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
 		}
 		else if (g_currentTransformType == eCRotate)
@@ -269,40 +328,40 @@ CVoid SetDialogData3(CBool selected, CInstancePrefab* instancePrefab)
 			rotate = instancePrefab->GetRotate().x;
 			if (rotate >= 360.0f)
 				rotate -= 360.0f;
-			else if (rotate < 0)
+			else if (rotate < 0.0f)
 				rotate = 360 + rotate;
 			rot.x = rotate; rot.y = instancePrefab->GetRotate().y; rot.z = instancePrefab->GetRotate().z; rot.w = instancePrefab->GetRotate().w;
 			instancePrefab->SetRotate(rot);
 
 			val = roundf(instancePrefab->GetRotate().x * 100) / 100;
-			sprintf(temp1, "%.02f", val);
+			sprintf(temp1, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
 
 			rotate = instancePrefab->GetRotate().y;
 			if (rotate >= 360.0f)
 				rotate -= 360.0f;
-			else if (rotate < 0)
+			else if (rotate < 0.0f)
 				rotate = 360 + rotate;
 			rot.x = instancePrefab->GetRotate().x; rot.y = rotate; rot.z = instancePrefab->GetRotate().z; rot.w = instancePrefab->GetRotate().w;
 			instancePrefab->SetRotate(rot);
 
 			CChar temp2[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetRotate().y * 100) / 100;
-			sprintf(temp2, "%.02f", val);
+			sprintf(temp2, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
 
 
 			rotate = instancePrefab->GetRotate().z;
 			if (rotate >= 360.0f)
 				rotate -= 360.0f;
-			else if (rotate < 0)
+			else if (rotate < 0.0f)
 				rotate = 360 + rotate;
 			rot.x = instancePrefab->GetRotate().x; rot.y = instancePrefab->GetRotate().y; rot.z = rotate; rot.w = instancePrefab->GetRotate().w;
 			instancePrefab->SetRotate(rot);
 
 			CChar temp3[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetRotate().z * 100) / 100;
-			sprintf(temp3, "%.02f", val);
+			sprintf(temp3, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
 		}
 		else if (g_currentTransformType == eCScale)
@@ -310,23 +369,23 @@ CVoid SetDialogData3(CBool selected, CInstancePrefab* instancePrefab)
 			CFloat val;
 			CChar temp1[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetScale().x * 100) / 100;
-			sprintf(temp1, "%.02f", val);
+			sprintf(temp1, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
 
 			CChar temp2[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetScale().y * 100) / 100;
-			sprintf(temp2, "%.02f", val);
+			sprintf(temp2, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
 
 			CChar temp3[MAX_NAME_SIZE];
 			val = roundf(instancePrefab->GetScale().z * 100) / 100;
-			sprintf(temp3, "%.02f", val);
+			sprintf(temp3, "%.2f", val);
 			ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
 		}
 	}
 	else
 	{
-		ex_pStaticSelectedObject->ReplaceSel("Nothing Selected");
+		ex_pStaticSelectedObject->ReplaceSel("\n");
 		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
@@ -367,7 +426,7 @@ CVoid SetDialogData2( CBool selected, CPolyGroup* group, CBool engineObject, CBo
 		{
 			g_render.GetSelectedScene()->SetCurrentClipIndex();
 
-			if( g_render.GetSelectedScene()->m_animationStatus == eANIM_PLAY )
+			if (g_render.GetSelectedScene()->GetAnimationStatus() == eANIM_PLAY)
 			{
 				ex_pBtnPlayAnim->EnableWindow( FALSE );
 				ex_pBtnPlayAnim->ShowWindow( SW_HIDE );
@@ -414,6 +473,16 @@ CVoid SetDialogData2( CBool selected, CPolyGroup* group, CBool engineObject, CBo
 			ex_pEditMaterial->SetEditBoxBias( group->m_parallaxMapBias );
 			ex_pEditMaterial->SetEditBoxScale( group->m_parallaxMapScale );
 
+			ex_pEditMaterial->SetAmbientColor(group->GetAmbient());
+			ex_pEditMaterial->SetDiffuseColor(group->GetDiffuse());
+			ex_pEditMaterial->SetSpecularColor(group->GetSpecular());
+			ex_pEditMaterial->SetEmissionColor(group->GetEmission());
+			ex_pEditMaterial->SetShininess(group->GetShininess());
+			ex_pEditMaterial->SetTransparency(group->GetTransparency());
+
+			ex_pEditMaterial->SetGeometry(NULL);
+			ex_pEditMaterial->SetPolyGroup(group);
+
 			if( Cmp( group->m_strDirtMap, "\n" ) == CFalse )
 				ex_pEditMaterial->SetRemoveDirtBtnState( CTrue );
 			else
@@ -446,9 +515,6 @@ CVoid SetDialogData2( CBool selected, CPolyGroup* group, CBool engineObject, CBo
 		ex_pBtnPhysXEditor->EnableWindow( FALSE );
 		ex_pMenu->EnableMenuItem( ID_TOOLS_PHYSXEDITOR,  MF_DISABLED | MF_GRAYED );
 
-		//ex_pBtnScriptEditor->EnableWindow( FALSE );
-		//ex_pMenu->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED );
-
 		ex_pEditMaterial->SetNormalBtnState( CFalse );
 		ex_pEditMaterial->SetDirtBtnState( CFalse );
 		ex_pEditMaterial->SetDiffuseBtnState( CFalse );
@@ -472,7 +538,7 @@ CVoid SetDialogData2( CBool selected, CPolyGroup* group, CBool engineObject, CBo
 		ex_pBtnPrevAnim->EnableWindow( FALSE );
 		ex_pBtnNextAnim->EnableWindow( FALSE );
 
-		ex_pStaticSelectedObject->SetWindowTextA( "Nothing Selected" );
+		ex_pStaticSelectedObject->SetWindowTextA( "\n" );
 	}
 }
 
@@ -515,7 +581,7 @@ CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo, CGeometry* 
 		if( g_render.GetSelectedScene()->m_hasAnimation )
 		{
 			g_render.GetSelectedScene()->SetCurrentClipIndex();
-			if( g_render.GetSelectedScene()->m_animationStatus == eANIM_PLAY )
+			if (g_render.GetSelectedScene()->GetAnimationStatus() == eANIM_PLAY)
 			{
 				ex_pBtnPlayAnim->EnableWindow( FALSE );
 				ex_pBtnPlayAnim->ShowWindow( SW_HIDE );
@@ -549,18 +615,6 @@ CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo, CGeometry* 
 			ex_pBtnPhysXEditor->EnableWindow( TRUE );
 			ex_pMenu->EnableMenuItem( ID_TOOLS_PHYSXEDITOR, MF_ENABLED );
 
-			//if( instanceGeo->m_isTrigger )
-			//{
-			//	ex_pBtnScriptEditor->EnableWindow( TRUE );
-			//	ex_pMenu->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_ENABLED );
-			//	ex_pAddScript->SetInstanceGeo( instanceGeo );
-			//}
-			//else
-			//{
-			//	ex_pBtnScriptEditor->EnableWindow( FALSE );
-			//	ex_pMenu->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED );
-			//}
-
 			ex_pEditMaterial->SetNormalBtnState( CTrue );
 			ex_pEditMaterial->SetDirtBtnState( CTrue );
 			ex_pEditMaterial->SetDiffuseBtnState( CTrue );
@@ -573,6 +627,10 @@ CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo, CGeometry* 
 
 			ex_pEditMaterial->SetEditBoxBias( geo->m_parallaxMapBias );
 			ex_pEditMaterial->SetEditBoxScale( geo->m_parallaxMapScale );
+
+			ex_pEditMaterial->SetGeometry(geo);
+			ex_pEditMaterial->SetPolyGroup(NULL);
+
 			ex_pEditPhysX->SetPhysX( instanceGeo );
 
 			if( Cmp( geo->m_strDirtMap, "\n" ) == CFalse )
@@ -606,9 +664,6 @@ CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo, CGeometry* 
 		ex_pBtnPhysXEditor->EnableWindow( FALSE );
 		ex_pMenu->EnableMenuItem( ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED );
 
-		//ex_pBtnScriptEditor->EnableWindow( FALSE );
-		//ex_pMenu->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED );
-
 		ex_pEditMaterial->SetNormalBtnState( CFalse );
 		ex_pEditMaterial->SetDirtBtnState( CFalse );
 		ex_pEditMaterial->SetDiffuseBtnState( CFalse );
@@ -635,7 +690,7 @@ CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo, CGeometry* 
 		ex_pBtnPrevAnim->EnableWindow( FALSE );
 		ex_pBtnNextAnim->EnableWindow( FALSE );
 
-		ex_pStaticSelectedObject->SetWindowTextA( "Nothing Selected" );
+		ex_pStaticSelectedObject->SetWindowTextA( "\n" );
 	}
 }
 
@@ -940,6 +995,41 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	g_globalAmbientColor.r = g_globalAmbientColor.g = g_globalAmbientColor.b = 0.5f;
 	g_globalAmbientColor.a = 1.0f;
 	m_askRemoveScene = CTrue;
+
+	m_dlgSaveGUIs = NULL;
+	m_dlgWaterAttachment = NULL;
+	m_dlgAddTrigger = NULL;
+	m_dlgAddGUIButton = NULL;
+	m_dlgAddGUIBackground = NULL;
+	m_dlgAddGUIText = NULL;
+	m_dlgAddLight = NULL;
+	m_dlgAddEngineCamera = NULL;
+	m_dlgAddTerrain = NULL;
+	m_dlgAddWater = NULL;
+	m_dlgAddMultipleAnimations = NULL;
+	m_dlgPublishProject = NULL;
+	m_dlgAddStaticSound = NULL;
+	m_dlgAddSkyDome = NULL;
+	m_dlgAddAmbientSound = NULL;
+	m_dlgGeneralAmbientColor = NULL;
+	m_dlgSelectCamera = NULL;
+	m_dlgMainCharacter = NULL;
+	m_dlgEditBloom = NULL;
+	m_dlgEditLight = NULL;
+	m_dlgEditLOD = NULL;
+	m_dlgEditCamera = NULL;
+	m_dlgEditSceneManager = NULL;
+	m_dlgEditGeneralPhysXProperties = NULL;
+	m_dlgEditShadow = NULL;
+	m_dlgOptions = NULL;
+	m_dlgSceneOptions = NULL;
+	m_dlgCurrentSceneOptions = NULL;
+	m_dlgEditDOF = NULL;
+	m_dlgEditFog = NULL;
+	m_dlgConsole = NULL;
+	m_dlgPrefabs = NULL;
+	m_dlgGUIs = NULL;
+	m_dlgSavePrefabs = NULL;
 }
 
 CVandaEngine1Dlg::~CVandaEngine1Dlg()
@@ -1023,6 +1113,8 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 
 	CDelete( g_skyDome );
 
+	CDelete(g_terrain);
+
 	CDelete(g_startup);
 
 	for( std::vector<CInstanceLight*>::iterator it = g_engineLights.begin(); it != g_engineLights.end(); it++ )
@@ -1032,16 +1124,24 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	}
 	g_engineLights.clear();
 
+	for (std::vector<CInstanceCamera*>::iterator it = g_engineCameraInstances.begin(); it != g_engineCameraInstances.end(); it++)
+	{
+		CDelete((*it)->m_abstractCamera);
+		CDelete(*it);
+	}
+	g_engineCameraInstances.clear();
+
 	for( std::vector<CWater*>::iterator it = g_engineWaters.begin(); it != g_engineWaters.end(); it++ )
 	{
 		CDelete( *it );
 	}
 	g_engineWaters.clear();
 
-	for( std::vector<CStaticSound*>::iterator it = g_engineStaticSounds.begin(); it != g_engineStaticSounds.end(); it++ )
+	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
-		CDelete( *it );
+		CDelete(g_engineStaticSounds[i]);
 	}
+
 	if( g_engineStaticSounds.size() > 0 )
 		g_engineStaticSounds.clear();
 
@@ -1090,6 +1190,11 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	}
 	g_projects.clear();
 
+	//Delete Resource Files
+	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+		CDelete(g_resourceFiles[j]);
+	g_resourceFiles.clear();
+
 }
 
 CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
@@ -1132,7 +1237,7 @@ CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_YOUTUBE, m_mainBtnYoutube);
 	DDX_Control(pDX, IDC_BTN_PUBLISH_SOLUTION, m_mainBtnPublishSolution);
 	DDX_Control(pDX, IDC_BTN_SCRIPT_MANAGER, m_mainBtnScriptManager);
-	DDX_Control(pDX, IDC_BTN_CAMERA_RENDERING_MANAGER, m_mainBtnCameraAndRenderingManager);
+	DDX_Control(pDX, IDC_BTN_CAMERA_RENDERING_MANAGER, m_mainBtnFreeCamera);
 	DDX_Control(pDX, IDC_BTN_VANDA_VERSION, m_btnVandaVersion);
 	DDX_Control(pDX, IDC_BTN_SCENE_PROPERTIES, m_btnSceneProperties);
 	DDX_Control(pDX, IDC_BTN_PHYSX_EDITOR, m_mainBtnPhysXEditor);
@@ -1157,6 +1262,8 @@ CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_GUI_PROPERTIES, m_btnGUIProperties);
 	DDX_Control(pDX, IDC_BTN_GUI_PACKAGE, m_mainBtnGUIEditor);
 	DDX_Control(pDX, IDC_BTN_STARTUP, m_mainBtnStartup);
+	DDX_Control(pDX, IDC_BTN_TERRAIN, m_mainBtnTerrain);
+	DDX_Control(pDX, IDC_BTN_ENGINE_CAMERA, m_mainBtnEngineCamera);
 }
 
 BEGIN_MESSAGE_MAP(CVandaEngine1Dlg, CDialog)
@@ -1230,6 +1337,13 @@ ON_BN_CLICKED(IDC_BTN_GUI_PROPERTIES, &CVandaEngine1Dlg::OnBnClickedBtnGuiProper
 ON_BN_CLICKED(IDC_BTN_GUI_PACKAGE, &CVandaEngine1Dlg::OnBnClickedBtnGuiPackage)
 ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GUI_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangedListGuiElements)
 ON_BN_CLICKED(IDC_BTN_STARTUP, &CVandaEngine1Dlg::OnBnClickedBtnStartup)
+ON_BN_CLICKED(IDC_BTN_TERRAIN, &CVandaEngine1Dlg::OnBnClickedInsertTerrain)
+ON_BN_CLICKED(IDC_BTN_ENGINE_CAMERA, &CVandaEngine1Dlg::OnBnClickedBtnEngineCamera)
+ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_SCENES, &CVandaEngine1Dlg::OnLvnItemchangingListScenes)
+ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_ENGINE_OBJECTS, &CVandaEngine1Dlg::OnLvnItemchangingListEngineObjects)
+ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_GUI_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangingListGuiElements)
+ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_PHYSX_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangingListPhysxElements)
+ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_OBJECTS, &CVandaEngine1Dlg::OnLvnItemchangingListObjects)
 END_MESSAGE_MAP()
 
 
@@ -1280,7 +1394,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	//m_pToolTip->AddTool(&m_mainBtnImportPhysX, "Import PhysX"); removed in version 1.4 or later
 	m_pToolTip->AddTool(&m_mainBtnPublishSolution, "Publish Solution");
 	m_pToolTip->AddTool(&m_mainBtnScriptManager, "Script Manager");
-	m_pToolTip->AddTool(&m_mainBtnCameraAndRenderingManager, "Camera And Rendering");
+	m_pToolTip->AddTool(&m_mainBtnFreeCamera, "Activate Default Free Camera");
 	m_pToolTip->AddTool(&m_mainBtnWaterAttach, "Water Attachment");
 	m_pToolTip->AddTool(&m_mainBtnTimer, "Enable/Disable Timer");
 	m_pToolTip->AddTool(&m_mainBtnMaterial, "Open Material Editor");
@@ -1297,7 +1411,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnTestActive, "Enable/Disable Play Mode");
 	m_pToolTip->AddTool(&m_mainBtnTestDeactive, "Enable/Disable Play Mode");
 	m_pToolTip->AddTool(&m_mainBtnConsole, "Console Window");
-	m_pToolTip->AddTool(&m_mainBtnWeb, "www.vandaengine.org");
+	m_pToolTip->AddTool(&m_mainBtnWeb, "www.vanda3d.org");
 	m_pToolTip->AddTool(&m_mainBtnFacebook, "www.facebook.com/VandaEngine");
 	m_pToolTip->AddTool(&m_mainBtnTwitter, "www.twitter.com/Vanda_Engine");
 	m_pToolTip->AddTool(&m_mainBtnYoutube, "www.youtube.com/VandaEngine");
@@ -1309,7 +1423,9 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnStaticSound, "Create Static Sound");
 	m_pToolTip->AddTool(&m_mainBtnPlayer, "Create Player");
 	m_pToolTip->AddTool(&m_mainBtnLight, "Create Light");
+	m_pToolTip->AddTool(&m_mainBtnTerrain, "Create Terrain");
 	m_pToolTip->AddTool(&m_mainBtnTrigger, "Create Trigger");
+	m_pToolTip->AddTool(&m_mainBtnEngineCamera, "Create Camera");
 	m_pToolTip->AddTool(&m_mainBtnGUIButton, "Create Button");
 	m_pToolTip->AddTool(&m_mainBtnGUIBackground, "Create Background Image");
 	m_pToolTip->AddTool(&m_mainBtnGUIText, "Create Text");
@@ -1330,7 +1446,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.6.1"));
+	SetWindowText(_T("Vanda Engine 1.7.0"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -1483,10 +1599,11 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	rcRect.left = previousRight + m_horizontalPointFivePercent;
 	rcRect.right = rcRect.left + fivePercent;
 
-	m_mainBtnCameraAndRenderingManager.MoveWindow( rcRect );
-	m_mainBtnCameraAndRenderingManager.LoadBitmaps( IDB_BITMAP_CAMERA_UP, IDB_BITMAP_CAMERA_DOWN, IDB_BITMAP_CAMERA_FOCUS );
-	m_mainBtnCameraAndRenderingManager.ShowWindow( SW_SHOW );
-	m_mainBtnCameraAndRenderingManager.UpdateWindow();
+	m_mainBtnFreeCamera.MoveWindow( rcRect );
+	m_mainBtnFreeCamera.LoadBitmaps( IDB_BITMAP_CAMERA_UP, IDB_BITMAP_CAMERA_DOWN, IDB_BITMAP_CAMERA_FOCUS, IDB_BITMAP_CAMERA_DISABLE );
+	m_mainBtnFreeCamera.ShowWindow( SW_SHOW );
+	m_mainBtnFreeCamera.EnableWindow(FALSE);
+	m_mainBtnFreeCamera.UpdateWindow();
 
 	//Initialize main *Camera And Rendering* button here
 	previousRight = rcRect.right;
@@ -1769,11 +1886,31 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	rcRect.top = CInt((m_startLeftButtons + 7 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100);
 	rcRect.bottom = rcRect.top + (ButtonSize * (windowRect.bottom - windowRect.top) / 100);
 
+	m_mainBtnTerrain.MoveWindow(rcRect);
+	m_mainBtnTerrain.LoadBitmaps(IDB_BITMAP_TERRAIN_UP, IDB_BITMAP_TERRAIN_DOWN, IDB_BITMAP_TERRAIN_FOCUS, IDB_BITMAP_TERRAIN_DISABLE);
+	m_mainBtnTerrain.ShowWindow(SW_SHOW);
+	m_mainBtnTerrain.UpdateWindow();
+	m_mainBtnTerrain.EnableWindow(TRUE);
+
+	//Initialize main *Player* button here
+	rcRect.top = CInt((m_startLeftButtons + 8 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100);
+	rcRect.bottom = rcRect.top + (ButtonSize * (windowRect.bottom - windowRect.top) / 100);
+
 	m_mainBtnTrigger.MoveWindow(rcRect);
 	m_mainBtnTrigger.LoadBitmaps(IDB_BITMAP_TRIGGER_UP, IDB_BITMAP_TRIGGER_DOWN, IDB_BITMAP_TRIGGER_FOCUS, IDB_BITMAP_TRIGGER_DISABLE);
 	m_mainBtnTrigger.ShowWindow(SW_SHOW);
 	m_mainBtnTrigger.UpdateWindow();
 	m_mainBtnTrigger.EnableWindow(TRUE);
+
+	//Initialize main *Player* button here
+	rcRect.top = CInt((m_startLeftButtons + 9 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100);
+	rcRect.bottom = rcRect.top + (ButtonSize * (windowRect.bottom - windowRect.top) / 100);
+
+	m_mainBtnEngineCamera.MoveWindow(rcRect);
+	m_mainBtnEngineCamera.LoadBitmaps(IDB_BITMAP_ENGINE_CAMERA_UP, IDB_BITMAP_ENGINE_CAMERA_DOWN, IDB_BITMAP_ENGINE_CAMERA_FOCUS, IDB_BITMAP_ENGINE_CAMERA_DISABLE);
+	m_mainBtnEngineCamera.ShowWindow(SW_SHOW);
+	m_mainBtnEngineCamera.UpdateWindow();
+	m_mainBtnEngineCamera.EnableWindow(TRUE);
 
 	m_horizontalSizeOfLeftCulomn = 2 * m_horizontalPointFivePercent + 1 * fivePercent; //2 gaps+1 Buttons
 	m_horizontalSizeOfRightCulomn = 5 * m_horizontalPointFivePercent + 5.5 * fivePercent; //5 gaps+3 Buttons
@@ -2086,7 +2223,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_listBoxEngineObjects.SetTextBkColor( RGB( 40, 40, 40 ));
 	m_listBoxEngineObjects.SetTextColor(RGB(140, 140, 140));
 
-	m_engineObjectListImage.Create(16,16,ILC_COLOR24,7,6);
+	m_engineObjectListImage.Create(16,16,ILC_COLOR24,10,7);
 	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_WATER);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
@@ -2112,6 +2249,14 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	cBmp.DeleteObject();
 
 	cBmp.LoadBitmap(IDB_BITMAP_OBJECTLIST_STARTUP);
+	m_engineObjectListImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+
+	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_TERRAIN);
+	m_engineObjectListImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+
+	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_ENGINE_CAMERA);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 
@@ -2334,7 +2479,6 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	GetMenu()->EnableMenuItem(ID_TOOLS_CULLFACES, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED);
-	GetMenu()->EnableMenuItem(ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_IMPORTOPTIONS, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_GEOMETRY_AMBIENTCOLOR, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_DISABLED | MF_GRAYED);
@@ -2356,22 +2500,26 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	g_width = rcClient.right - rcClient.left;
 	g_height = rcClient.bottom - rcClient.top;
 
-
 	//Create the OpenGLw window here
 	g_multipleView = CNew( CMultipleWindows );
 	if (!g_multipleView->Create(NULL, NULL, WS_VISIBLE | WS_CHILD , rcClient, this, 0))
 	{
-		PostQuitMessage(0);
-		return FALSE;
+		PrintInfo("\nCouldn't create the OpenGL window", COLOR_RED);
+		g_multipleView->SetInitError(CTrue);
 	}
 
 	g_glUtil.InitGLEW();
+	if (!g_render.SupportForFBOs() || !g_render.SupportForVBOs())
+	{
+		PrintInfo("\nYour implementation doesn't support FBO or VBO.\nUpdating the driver of your graphics card may solve the issue", COLOR_RED);
+		g_multipleView->SetInitError(CTrue);
+	}
 	//if (!glewIsSupported("GL_VERSION_3_0"))
 	//{
 		//MessageBox( "Your implementation does not support OpenGL 3.3\nVanda may crash or you may not be able to use all the features of Vanda\nUpdating your graphics driver may fix this problem" );
 	//}
-	//ilInit();
-	//iluInit();
+	ilInit();
+	iluInit();
 	if(GLEW_ARB_color_buffer_float)
 	{
 		glClampColorARB( GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE );
@@ -2409,8 +2557,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			{
 				PrintInfo( "\nWarning! Couldn't create an OpenGL window after multisampling faild", COLOR_YELLOW );
 
-				PostQuitMessage(0);
-				return FALSE;
+				g_multipleView->SetInitError(CTrue);
 			}
 		}
 	}
@@ -2424,7 +2571,8 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 
 	if( !g_multipleView->InitAll() )
 	{
-		MessageBox( "fatal error(s) occured. Please fix the error(s)", "Vanda Engine 1 Error", MB_OK );
+		PrintInfo( "\nFatal error(s) occured. Please fix the error(s)", COLOR_RED );
+		g_multipleView->SetInitError(CTrue);
 	}
 
 	if( g_multipleView->m_multiSample && GLEW_NV_multisample_filter_hint)
@@ -2615,7 +2763,6 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	}
 	fclose(filePtr);
 	//////////////////
-
 
 	//GUIPackagePath path
 	CChar GUIPackageFilePath[MAX_NAME_SIZE];
@@ -2855,7 +3002,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.6.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -2902,41 +3049,67 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		g_shadowProperties.m_enable = CTrue;
 	}
 	g_sceneBanner.SetBannerPath("Assets/Engine/Textures/Loading.dds");
+	g_vsceneMenuCursor.SetCursorPath("Assets/Engine/Textures/Cursor.dds");
     srand(time(NULL));
+
+
 	//initialize lua/////////////////
 	LuaOpenLibs(g_lua);
 	lua_register(g_lua, "PlaySoundLoop", PlaySoundLoop);
 	lua_register(g_lua, "PlaySoundOnce", PlaySoundOnce);
 	lua_register(g_lua, "PauseSound", PauseSound);
 	lua_register(g_lua, "StopSound", StopSound);
+
 	lua_register(g_lua, "BlendCycle", BlendCycle);
 	lua_register(g_lua, "ClearCycle", ClearCycle);
 	lua_register(g_lua, "ExecuteAction", ExecuteAction);
 	lua_register(g_lua, "ReverseExecuteAction", ReverseExecuteAction);
+	lua_register(g_lua, "RemoveAction", RemoveAction);
+	lua_register(g_lua, "GetAnimationClipDuration", GetAnimationClipDuration);
+	lua_register(g_lua, "PauseAnimations", PauseAnimations);
+
 	lua_register(g_lua, "LoadVScene", LoadVScene);
-	lua_register(g_lua, "ActivateCamera", ActivateCamera);
+	lua_register(g_lua, "ExitGame", ExitGame);
+	lua_register(g_lua, "SetCurrentVSceneAsMenu", SetCurrentVSceneAsMenu);
+
+	lua_register(g_lua, "ActivateThirdPersonCamera", ActivateThirdPersonCamera);
+	lua_register(g_lua, "ActivateFirstPersonCamera", ActivateFirstPersonCamera);
+	lua_register(g_lua, "ActivateImportedCamera", ActivateImportedCamera);
+	lua_register(g_lua, "ActivateEngineCamera", ActivateEngineCamera);
 
 	lua_register(g_lua, "LoadResource", LoadResource);
+	lua_register(g_lua, "DeleteAllResources", DeleteAllResources);
 	lua_register(g_lua, "PlayResourceSoundLoop", PlayResourceSoundLoop);
 	lua_register(g_lua, "PlayResourceSoundOnce", PlayResourceSoundOnce);
 	lua_register(g_lua, "StopResourceSound", StopResourceSound);
 	lua_register(g_lua, "PauseResourceSound", PauseResourceSound);
 	lua_register(g_lua, "StopAllResourceSounds", StopAllResourceSounds);
-
-	lua_register(g_lua, "LoadGUI", LoadGUI);
+	lua_register(g_lua, "ShowCursorIcon", ShowCursorIcon);
+	lua_register(g_lua, "HideCursorIcon", HideCursorIcon);
+	lua_register(g_lua, "AttachScriptToKey", AttachScriptToKey);
+	
 	lua_register(g_lua, "ShowGUI", ShowGUI);
 	lua_register(g_lua, "HideGUI", HideGUI);
-	lua_register(g_lua, "ShowIcon", ShowIcon);
-	lua_register(g_lua, "HideIcon", HideIcon);
+
+	lua_register(g_lua, "SetPrefabInstanceVisible", SetPrefabInstanceVisible);
+	lua_register(g_lua, "SetPrefabInstanceInvisible", SetPrefabInstanceInvisible);
+
 
 	////////////////////////////////
 
 	//Remove desktop.ini read only flag. (used for Uninstall)
 	//SetFileAttributes("C:/Users/Public/Desktop/desktop.ini", GetFileAttributes( "C:/Users/Public/Desktop/desktop.ini" ) & ~FILE_ATTRIBUTE_READONLY );
-	PrintInfo( "\nVersion 1.6 initialized successfully" );
+	if (g_multipleView->GetInitError() || !g_render.m_shaderAvailable)
+	{
+		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
+
+	}
+	else
+		PrintInfo( "\nVersion 1.7 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
+
 	if( !g_openVINFile && g_options.m_showStartupDialog )
 	{
 		if( g_multipleView->m_enableTimer )
@@ -2958,6 +3131,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetDialogData3(CFalse);
 	dlgWaiting->ShowWindow(SW_HIDE);
 	CDelete(dlgWaiting);
+
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -3031,15 +3205,43 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		if (g_editorMode != eMODE_VSCENE)
 		{
-			if (g_multipleView->m_enableTimer)
-				g_multipleView->EnableTimer(CFalse);
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return FALSE;
+				}
+			}
+
 			if (!OnMenuClickedNew(CTrue)) //ask to see if we should proceed?
 				return FALSE;
+
+			if (g_multipleView->m_enableTimer)
+				g_multipleView->EnableTimer(CFalse);
+
+			g_multipleView->SetPlayGameMode(CFalse);
+
+			g_render.GetDefaultInstanceCamera()->MoveTransform2(7, 5, 7);
+			g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(43, -25);
+			g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+
 			SetMenu(ex_pMenu);
+
+			GetMenu()->EnableMenuItem(ID_MODIFY_PREFABOPTIONS, MF_DISABLED | MF_GRAYED);
 
 			GetMenu()->CheckMenuItem(ID_MODE_VSCENE, MF_CHECKED);
 			GetMenu()->CheckMenuItem(ID_MODE_PREFAB, MF_UNCHECKED);
 			GetMenu()->CheckMenuItem(ID_MODE_GUI, MF_UNCHECKED);
+
+			GetMenu()->EnableMenuItem(ID_SCRIPT_KEYSANDBUTTONS, MF_ENABLED);
 
 			GetDlgItem(IDC_STATIC_SCENES)->ShowWindow(SW_HIDE);
 			GetDlgItem(IDC_STATIC_SCENES)->UpdateWindow();
@@ -3070,16 +3272,16 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.6.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
 			}
 
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+			if (g_multipleView->IsPlayGameMode())
 				PrintInfo("\nPlay mode disabled");
 
-			g_currentCameraType = eCAMERA_DEFAULT_FREE;
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 			m_mainBtnTestActive.ShowWindow(SW_HIDE);
 			m_mainBtnTestActive.EnableWindow(FALSE);
 			m_mainBtnTestActive.UpdateWindow();
@@ -3098,13 +3300,45 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		if (g_editorMode != eMODE_PREFAB)
 		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return FALSE;
+				}
+			}
+
 			if (!OnMenuClickedNew(CTrue)) //ask to see if we should proceed?
 				return FALSE;
+
+			if (g_multipleView->m_enableTimer)
+				g_multipleView->EnableTimer(CFalse);
+
+			g_multipleView->SetPlayGameMode(CFalse);
+
+			g_render.GetDefaultInstanceCamera()->MoveTransform2(7, 5, 7);
+			g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(43, -25);
+			g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+
 			SetMenu(ex_pMenu);
+
+			GetMenu()->EnableMenuItem(ID_MODIFY_PREFABOPTIONS, MF_ENABLED);
 
 			GetMenu()->CheckMenuItem(ID_MODE_PREFAB, MF_CHECKED);
 			GetMenu()->CheckMenuItem(ID_MODE_VSCENE, MF_UNCHECKED);
 			GetMenu()->CheckMenuItem(ID_MODE_GUI, MF_UNCHECKED);
+			GetMenu()->EnableMenuItem(ID_SCRIPT_KEYSANDBUTTONS, MF_DISABLED | MF_GRAYED);
+
+			GetMenu()->CheckMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_CHECKED);
+			g_menu.m_geometryBasedSelection = CTrue;
 
 			if (g_multipleView->m_enableTimer)
 				g_multipleView->EnableTimer(CFalse);
@@ -3124,13 +3358,13 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.6.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.0 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+			if (g_multipleView->IsPlayGameMode())
 				PrintInfo("\nPlay mode disabled");
 
-			g_currentCameraType = eCAMERA_DEFAULT_FREE;
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 			m_mainBtnTestActive.ShowWindow(SW_HIDE);
 			m_mainBtnTestActive.EnableWindow(FALSE);
 			m_mainBtnTestActive.UpdateWindow();
@@ -3152,8 +3386,28 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		if (g_editorMode != ID_MODE_GUI)
 		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return FALSE;
+				}
+			}
+
 			if (!OnMenuClickedNew(CTrue)) //ask to see if we should proceed?
 				return FALSE;
+
+			if (g_multipleView->m_enableTimer)
+				g_multipleView->EnableTimer(CFalse);
+
+			g_multipleView->SetPlayGameMode(CFalse);
+
+			GetMenu()->EnableMenuItem(ID_MODIFY_PREFABOPTIONS, MF_DISABLED | MF_GRAYED);
 
 			GetMenu()->CheckMenuItem(ID_MODE_VSCENE, MF_UNCHECKED);
 			GetMenu()->CheckMenuItem(ID_MODE_PREFAB, MF_UNCHECKED);
@@ -3178,13 +3432,13 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.6.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.0 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+			if (g_multipleView->IsPlayGameMode())
 				PrintInfo("\nPlay mode disabled");
 
-			g_currentCameraType = eCAMERA_DEFAULT_FREE;
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 			m_mainBtnTestActive.ShowWindow(SW_HIDE);
 			m_mainBtnTestActive.EnableWindow(FALSE);
 			m_mainBtnTestActive.UpdateWindow();
@@ -3232,6 +3486,38 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	else if (wParam == ID_FILE_NEW || wParam == ID_FILE_NEW_GUI)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnMenuClickedNew(CTrue); //ask to see if we should proceed?
@@ -3242,6 +3528,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_FILE_OPEN)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedOpenVScene();
@@ -3252,6 +3571,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_FILE_SAVE || wParam == ID_FILE_SAVE_GUI)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		if (g_editorMode == eMODE_PREFAB)
@@ -3267,6 +3619,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_FILE_SAVEAS || wParam == ID_FILE_SAVEAS_GUI)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		if (g_editorMode == eMODE_PREFAB)
@@ -3282,6 +3667,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_IMPORT_COLLADA )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedImportCollada();
@@ -3293,6 +3711,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_IMPORT_COLLADA_MULTIPLE_ANIMATIONS)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnBnClickedBtnColladaMultipleAnimations();
@@ -3316,6 +3767,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	//}
 	else if( wParam == ID_PROJECT_NEW )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3331,6 +3815,39 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_PROJECT_EDITCURRENT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3356,6 +3873,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_PROJECT_EDITVSCENESOFCURRENTPROJECT)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 
@@ -3373,6 +3924,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_PROJECT_SETCURRENT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3388,6 +3973,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_PROJECT_ADDRESOURCETOCURRENTPROJECT)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 
@@ -3403,10 +4022,78 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_PUBLISH_PROJECT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		OnBnClickedBtnPublishSolution();
 	}
 	else if (wParam == ID_FILE_EXIT || wParam == ID_FILE_EXIT_GUI)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		//configuration
 		CChar ConfigPath[MAX_NAME_SIZE];
 		HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, ConfigPath);
@@ -3430,12 +4117,15 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		SaveGUIFiles();
 
-		if( g_menu.m_insertStartup || g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 )
+		if( g_menu.m_insertStartup || g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 		{
 			CInt iResponse;
 			iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
 			if( iResponse == IDYES )
 			{
+				if (g_multipleView->IsPlayGameMode())
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
 				if( g_multipleView->m_enableTimer )
 					g_multipleView->EnableTimer( CFalse );
 				if (g_editorMode == eMODE_PREFAB)
@@ -3464,6 +4154,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_INSERT_LIGHT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedInsertLight();
@@ -3475,6 +4199,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_INSERT_WATER )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedInsertWater();
@@ -3486,6 +4244,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_INSERT_SOUND_AMBIENT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedInsertAmbientSound();
@@ -3496,6 +4288,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_INSERT_SOUND_STATIC )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedInsertStaticSound();
@@ -3506,6 +4332,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_INSERT_SKYDOME)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnMenuClickedInsertSkyDome();
@@ -3515,8 +4375,87 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
+	else if (wParam == ID_INSERT_TERRAIN)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+		OnMenuClickedInsertTerrain();
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+	}
 	else if (wParam == ID_INSERT_STARTUP)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnMenuClickedInsertStartup();
@@ -3528,6 +4467,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_INSERT_PLAYER)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnBnClickedBtnPlayer();
@@ -3540,6 +4513,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_INSERT_TRIGGER)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnBnClickedBtnTrigger();
@@ -3549,8 +4556,88 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
+	else if (wParam == ID_INSERT_ENGINE_CAMERA)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+		OnMenuClickedInsertEngineCamera();
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+	}
+
 	else if (wParam == ID_INSERT_GUI_BUTTON)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnBnClickedBtnGuiButton();
@@ -3562,6 +4649,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_INSERT_GUI_BACKGROUND)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnBnClickedBtnGuiBackground();
@@ -3573,6 +4694,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_INSERT_GUI_TEXT)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnBnClickedBtnGuiText();
@@ -3584,6 +4739,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_PREFAB_EDITOR || wParam == ID_INSERT_PREFAB)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnMenuClickedPrefab();
@@ -3596,6 +4785,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	else if (wParam == ID_GUI_EDITOR || wParam == ID_INSERT_GUI)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnMenuClickedGUI();
@@ -3628,6 +4851,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_MODIFY_SHADOW )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3643,6 +4900,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_MODIFY_DOF )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3658,6 +4949,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_MODIFY_FOG )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3673,37 +4998,282 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_TOOLS_PHYSXEDITOR )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		OnBnClickedBtnPhysxEditor();
 	}
 	else if( wParam == ID_TOOLS_CAMERASPEED_INCREASE )
 	{
-		if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
-			g_camera->m_cameraSpeed += 1.0f;
-	}
-	else if( wParam == ID_TOOLS_CAMERASPEED_DECREASE )
-	{
-		if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
+		if (g_multipleView->IsPlayGameMode())
 		{
-			g_camera->m_cameraSpeed -= 1.0f;
-			if( g_camera->m_cameraSpeed < 0.0f )
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 			{
-				g_camera->m_cameraSpeed += 1.0f;
-				PrintInfo( "\nError: Couldn't decrease the camera speed", COLOR_RED );
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+		{
+			g_camera->m_cameraSpeed += 5.0f;
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%.2f", "\nCamera Speed Increased to: ", g_camera->m_cameraSpeed);
+			PrintInfo(temp);
+		}
+		else if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					g_engineCameraInstances[c]->IncreaseOrDecreaseCameraSpeed(5.0f);
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "%s%.2f", "\nCamera Speed Increased to: ", g_engineCameraInstances[c]->GetCameraSpeed());
+					PrintInfo(temp);
+					break;
+				}
 			}
 		}
 	}
+	else if( wParam == ID_TOOLS_CAMERASPEED_DECREASE )
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
+		{
+			g_camera->m_cameraSpeed -= 5.0f;
+			if( g_camera->m_cameraSpeed < EPSILON )
+			{
+				g_camera->m_cameraSpeed += 5.0f;
+				PrintInfo( "\nError: Couldn't Decrease the Camera Speed", COLOR_RED );
+			}
+			else
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%.2f", "\nCamera Speed Decreased to: ", g_camera->m_cameraSpeed);
+				PrintInfo(temp);
+			}
+		}
+		else if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					g_engineCameraInstances[c]->IncreaseOrDecreaseCameraSpeed(-5.0f);
+					if (g_engineCameraInstances[c]->GetCameraSpeed() < EPSILON)
+					{
+						g_engineCameraInstances[c]->IncreaseOrDecreaseCameraSpeed(5.0f);
+						PrintInfo("\nError: Couldn't Decrease the Camera Speed", COLOR_RED);
+					}
+					else
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "%s%.2f", "\nCamera Speed Decreased to: ", g_engineCameraInstances[c]->GetCameraSpeed());
+						PrintInfo(temp);
+					}
+				}
+			}
+		}
+
+	}
 	else if( wParam == ID_TOOLS_CAMERASPEED_DEFAULT )
 	{
-		if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 		{
 			g_camera->m_cameraSpeed = DEFAULT_CAMERA_SPEED;
-			PrintInfo( "\nCamera speed set to default" );
+			PrintInfo( "\nCamera Speed Set to Default Speed" );
 		}
+		else if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					g_engineCameraInstances[c]->SetCameraSpeed(DEFAULT_CAMERA_SPEED);
+					PrintInfo("\nCamera Speed Set to Default Speed");
+					break;
+				}
+			}
+		}
+
 	}
 	else if( wParam == ID_TOOLS_CAMERAZOOM_DEFAULT )
 	{
-		if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
-			g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+		{
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+			PrintInfo("\nCamera Zoom Set to Default Zoom");
+		}
+		else if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					g_engineCameraInstances[c]->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+					PrintInfo("\nCamera Zoom Set to Default Speed");
+					break;
+				}
+			}
+		}
 
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
@@ -3712,12 +5282,80 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	else if( wParam == ID_TOOLS_CULLFACES )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		OnBnClickedCullFace();
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
 	else if( wParam == ID_GEOMETRY_AMBIENTCOLOR )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -3732,16 +5370,50 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	else if( wParam == ID_TOOLS_WATERATTACHMENT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_selectedName == -1 )
 		{
 			MessageBox( "Please select a prefab instance", "VandaEngine Error", MB_OK | MB_ICONINFORMATION);
 			return FALSE;
 		}
-		else if( !g_menu.m_geometryBasedSelection )
-		{
-			MessageBox( "Water attachment does not work with material based selection.\nPlease switch to geometry based selection and try again!", "VandaEngine Error", MB_OK | MB_ICONERROR);
-			return FALSE;
-		}
+		//else if( !g_menu.m_geometryBasedSelection )
+		//{
+		//	MessageBox( "Water attachment does not work with material based selection.\nPlease switch to geometry based selection and try again!", "VandaEngine Error", MB_OK | MB_ICONERROR);
+		//	return FALSE;
+		//}
 		else if (g_selectedName != -1)
 		{
 			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -3767,10 +5439,78 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_TOOLS_SCRIPTMANAGER )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		OnBnClickedBtnScriptManager();
 	}
 	else if( wParam == ID_TOOLS_SELECTCAMERA )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedSelectCamera();
@@ -3781,6 +5521,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_TOOLS_OPTIONS )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedGeneralOptions();
@@ -3791,6 +5565,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_TOOLS_IMPORTOPTIONS )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedSceneOptions();
@@ -3799,8 +5607,42 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if (wParam == ID_TOOLS_CURRENTSCENEOPTIONS)
+	else if (wParam == ID_MODIFY_CURRENT_VSCENE_PROPERTIES)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
 		OnMenuClickedCurrentSceneOptions();
@@ -3812,6 +5654,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	else if( wParam == ID_TOOLS_GEOMETRYBASEDSELECTION )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		g_menu.m_geometryBasedSelection = !g_menu.m_geometryBasedSelection;
 		ex_pBtnMaterialEditor->EnableWindow( FALSE );
 		GetMenu()->EnableMenuItem( ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED );
@@ -3819,10 +5695,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		ex_pBtnPhysXEditor->EnableWindow( FALSE );
 		GetMenu()->EnableMenuItem( ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED );
 
-		//ex_pBtnScriptEditor->EnableWindow( FALSE );
-		//GetMenu()->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED );
-
-		ex_pStaticSelectedObject->SetWindowTextA( "Nothing Selected" );
+		ex_pStaticSelectedObject->SetWindowTextA( "\n" );
 
 		if( g_menu.m_geometryBasedSelection )
 		{
@@ -3858,6 +5731,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_TOOLS_MATERIALEDITOR)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 		OnMenuClickedEditMaterial();
@@ -3991,7 +5898,8 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			{
 				for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 				{
-					g_instancePrefab[i]->UpdateBoundingBox(CTrue);
+					g_instancePrefab[i]->UpdateBoundingBox(CFalse);
+					g_instancePrefab[i]->UpdateIsStaticOrAnimated();
 				}
 			}
 			else
@@ -4201,6 +6109,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if ( wParam == ID_POLGYGONMODE_FILL )
 	{
+		g_render.m_useShader = CTrue;
 		g_polygonMode = ePOLYGON_FILL;
 		GetMenu()->CheckMenuItem( ID_POLGYGONMODE_FILL, MF_CHECKED );
 		GetMenu()->CheckMenuItem( ID_POLGYGONMODE_LINE, MF_UNCHECKED );
@@ -4210,6 +6119,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if ( wParam == ID_POLGYGONMODE_LINE )
 	{
+		g_render.m_useShader = CFalse;
 		g_polygonMode = ePOLYGON_LINE;
 		GetMenu()->CheckMenuItem( ID_POLGYGONMODE_FILL, MF_UNCHECKED );
 		GetMenu()->CheckMenuItem( ID_POLGYGONMODE_LINE, MF_CHECKED );
@@ -4219,6 +6129,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if ( wParam == ID_POLGYGONMODE_POINT )
 	{
+		g_render.m_useShader = CFalse;
 		g_polygonMode = ePOLYGON_POINT;
 		GetMenu()->CheckMenuItem( ID_POLGYGONMODE_FILL, MF_UNCHECKED );
 		GetMenu()->CheckMenuItem( ID_POLGYGONMODE_LINE, MF_UNCHECKED );
@@ -4228,6 +6139,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_MODIFY_BLOOM )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -4243,6 +6188,40 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_MODIFY_LIGHT )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -4256,8 +6235,141 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
+	else if (wParam == ID_MODIFY_LOD)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+
+		m_dlgEditLOD = CNew(CEditLOD);
+		m_dlgEditLOD->DoModal();
+		CDelete(m_dlgEditLOD);
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+	}
+	else if (wParam == ID_MODIFY_CAMERA)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+
+		m_dlgEditCamera = CNew(CEditCamera);
+		m_dlgEditCamera->DoModal();
+		CDelete(m_dlgEditCamera);
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+	}
+
 	else if( wParam == ID_MODIFY_SCENEMANAGER )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
@@ -4273,10 +6385,44 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if( wParam == ID_MODIFY_GENERALPHYSXOPTIONS )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
-		if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+		if (g_multipleView->IsPlayGameMode())
 		{
 			if (MessageBox("You can not modify PhysX options in Play Mode. Exit from Play Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 			{
@@ -4285,6 +6431,27 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			else
 			{
 				return FALSE;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
 			}
 		}
 
@@ -4299,10 +6466,50 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->RenderWindow();
 		
 	}
+	else if (wParam == ID_MODIFY_PREFABOPTIONS)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		CSceneProperties* m_dlgSceneProperties = CNew(CSceneProperties);
+		m_dlgSceneProperties->DoModal();
+		CDelete(m_dlgSceneProperties);
+	}
 	else if( wParam == ID_HELP_ONLINEHELP )
 	{
 		//ShellExecute(NULL, "open", "data\\help\\vanda.chm", NULL, NULL, SW_SHOWNORMAL);
-		ShellExecute(NULL, "open", "http://vandaengine.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
+		ShellExecute(NULL, "open", "https://vanda3d.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
 
 		g_multipleView->SetElapsedTimeFromBeginning();
 	}
@@ -4311,8 +6518,9 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
+		//CAboutDlg dlgAbout;
+		//dlgAbout.DoModal();
+		m_dlgWelcome.DoModal();
 
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CTrue );
@@ -4451,7 +6659,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnPublishSolution.ShowWindow(SW_HIDE);
 		m_mainBtnPrefab.ShowWindow(SW_HIDE);
 		m_mainBtnGUIEditor.ShowWindow(SW_SHOW);
-		m_mainBtnCameraAndRenderingManager.ShowWindow(SW_HIDE);
+		m_mainBtnFreeCamera.ShowWindow(SW_HIDE);
 		m_mainBtnPrevAnim.ShowWindow(SW_HIDE);
 		m_mainBtnNextAnim.ShowWindow(SW_HIDE);
 		m_mainBtnPlayAnim.ShowWindow(SW_HIDE);
@@ -4464,7 +6672,9 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnAmbientSound.ShowWindow(SW_HIDE);
 		m_mainBtnPlayer.ShowWindow(SW_HIDE);
 		m_mainBtnLight.ShowWindow(SW_HIDE);
+		m_mainBtnTerrain.ShowWindow(SW_HIDE);
 		m_mainBtnTrigger.ShowWindow(SW_HIDE);
+		m_mainBtnEngineCamera.ShowWindow(SW_HIDE);
 		m_mainBtnMaterial.ShowWindow(SW_HIDE);
 		m_mainBtnPhysXEditor.ShowWindow(SW_HIDE);
 		m_mainBtnScriptManager.ShowWindow(SW_HIDE);
@@ -4493,7 +6703,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
-		m_btnSceneProperties.ShowWindow(SW_SHOW);
+		//m_btnSceneProperties.ShowWindow(SW_SHOW);
 		m_btnRemoveScene.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_DISABLED | MF_GRAYED);
@@ -4519,8 +6729,17 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_INSERT_TRIGGER, MF_DISABLED | MF_GRAYED);
 		m_mainBtnTrigger.ShowWindow(SW_HIDE);
 
+		ex_pMenu->EnableMenuItem(ID_INSERT_ENGINE_CAMERA, MF_DISABLED | MF_GRAYED);
+		m_mainBtnEngineCamera.ShowWindow(SW_HIDE);
+
+		ex_pMenu->EnableMenuItem(ID_INSERT_TERRAIN, MF_DISABLED | MF_GRAYED);
+		m_mainBtnTerrain.ShowWindow(SW_HIDE);
+
 		ex_pMenu->EnableMenuItem(ID_INSERT_GUI, MF_DISABLED | MF_GRAYED);
 		m_mainBtnGUIEditor.ShowWindow(SW_HIDE);
+
+		ex_pMenu->EnableMenuItem(ID_TOOLS_WATERATTACHMENT, MF_DISABLED | MF_GRAYED);
+		m_mainBtnTrigger.ShowWindow(SW_HIDE);
 
 		GetDlgItem(IDC_STATIC_PHYSX_ELEMENTS)->ShowWindow(SW_SHOW);
 		m_listBoxPhysXElements.ShowWindow(SW_SHOW);
@@ -4595,17 +6814,17 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnMaterial.ShowWindow(SW_SHOW);
 		m_mainBtnPhysXEditor.ShowWindow(SW_SHOW);
 
-		ex_pMenu->EnableMenuItem(ID_TOOLS_CULLFACES, MF_ENABLED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_ENABLED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_ENABLED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_SCRIPTMANAGER, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_TOOLS_CULLFACES, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_IMPORTOPTIONS, MF_ENABLED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_CURRENTSCENEOPTIONS, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_MODIFY_CURRENT_VSCENE_PROPERTIES, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_GEOMETRY_AMBIENTCOLOR, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_ENABLED);
 
 		m_mainBtnPrefab.ShowWindow(SW_SHOW);
-		m_mainBtnCameraAndRenderingManager.ShowWindow(SW_SHOW);
+		m_mainBtnFreeCamera.ShowWindow(SW_SHOW);
+		m_mainBtnFreeCamera.EnableWindow(FALSE);
 		m_mainBtnScriptManager.ShowWindow(SW_SHOW);
 
 		m_startLeftButtons = 6;
@@ -4648,7 +6867,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
-		m_mainBtnCameraAndRenderingManager.MoveWindow(rcRect);
+		m_mainBtnFreeCamera.MoveWindow(rcRect);
 
 		//Initialize main *Previous Animation* button here
 		previousRight = rcRect.right;
@@ -4775,8 +6994,17 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_INSERT_TRIGGER, MF_ENABLED);
 		m_mainBtnTrigger.ShowWindow(SW_SHOW);
 
+		ex_pMenu->EnableMenuItem(ID_INSERT_ENGINE_CAMERA, MF_ENABLED);
+		m_mainBtnEngineCamera.ShowWindow(SW_SHOW);
+
+		ex_pMenu->EnableMenuItem(ID_INSERT_TERRAIN, MF_ENABLED);
+		m_mainBtnTerrain.ShowWindow(SW_SHOW);
+
 		ex_pMenu->EnableMenuItem(ID_INSERT_GUI, MF_ENABLED);
 		m_mainBtnGUIEditor.ShowWindow(SW_SHOW);
+
+		ex_pMenu->EnableMenuItem(ID_TOOLS_WATERATTACHMENT, MF_ENABLED);
+		m_mainBtnTrigger.ShowWindow(SW_SHOW);
 
 		m_mainBtnPrevAnim.ShowWindow(SW_HIDE);
 		m_mainBtnPrevAnim.EnableWindow(FALSE);
@@ -4791,7 +7019,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnNextAnim.EnableWindow(FALSE);
 
 		m_mainBtnPrefab.ShowWindow(SW_SHOW);
-		m_mainBtnCameraAndRenderingManager.ShowWindow(SW_SHOW);
+		m_mainBtnFreeCamera.ShowWindow(SW_SHOW);
+		m_mainBtnFreeCamera.EnableWindow(FALSE);
 		m_mainBtnScriptManager.ShowWindow(SW_SHOW);
 
 		GetDlgItem(IDC_STATIC_PHYSX_ELEMENTS)->ShowWindow(SW_HIDE);
@@ -4879,8 +7108,22 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		rcRect.top = CInt((m_startLeftButtons + 7 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100.0f);
 		rcRect.bottom = rcRect.top + (ButtonSize * CFloat(windowRect.bottom - windowRect.top) / 100.0f);
 
+		m_mainBtnTerrain.MoveWindow(rcRect);
+		m_mainBtnTerrain.UpdateWindow();
+
+		//Initialize main *Player* button here
+		rcRect.top = CInt((m_startLeftButtons + 8 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100.0f);
+		rcRect.bottom = rcRect.top + (ButtonSize * CFloat(windowRect.bottom - windowRect.top) / 100.0f);
+
 		m_mainBtnTrigger.MoveWindow(rcRect);
 		m_mainBtnTrigger.UpdateWindow();
+
+		//Initialize main *Player* button here
+		rcRect.top = CInt((m_startLeftButtons + 9 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100.0f);
+		rcRect.bottom = rcRect.top + (ButtonSize * CFloat(windowRect.bottom - windowRect.top) / 100.0f);
+
+		m_mainBtnEngineCamera.MoveWindow(rcRect);
+		m_mainBtnEngineCamera.UpdateWindow();
 
 		ex_pMenu->EnableMenuItem(ID_IMPORT_COLLADA, MF_DISABLED | MF_GRAYED);
 		m_mainBtnImportCollada.ShowWindow(SW_HIDE);
@@ -4919,9 +7162,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_TOOLS_CULLFACES, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_IMPORTOPTIONS, MF_DISABLED | MF_GRAYED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_CURRENTSCENEOPTIONS, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_MODIFY_CURRENT_VSCENE_PROPERTIES, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_GEOMETRY_AMBIENTCOLOR, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_DISABLED | MF_GRAYED);
 
@@ -4985,7 +7227,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
-		m_mainBtnCameraAndRenderingManager.MoveWindow(rcRect);
+		m_mainBtnFreeCamera.MoveWindow(rcRect);
 
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
@@ -5100,7 +7342,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 
 		ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
 
-		ex_pStaticSelectedObject->ReplaceSel("Nothing Selected");
+		ex_pStaticSelectedObject->ReplaceSel("\n");
 		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
 
@@ -5117,7 +7359,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	CInt iResponse;
 	if( askQuestion )
 	{ 
-		if (g_menu.m_insertStartup || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene)
+		if (g_menu.m_insertStartup || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
 			iResponse = MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	}
 
@@ -5154,10 +7396,16 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	g_camera->Reset();
 	g_camera->m_cameraManager = CNew(CCamera);
 
+	g_maxInstancePrefabRadius = -1.0f;
+
 	g_dofProperties.Reset();
 	g_fogProperties.Reset();
 	g_bloomProperties.Reset();
 	g_lightProperties.Reset();
+	g_currentVSceneProperties.Reset();
+	g_instancePrefabLODPercent.Reset();
+	g_prefabProperties.Reset();
+	g_cameraProperties.Reset();
 	g_characterBlendingProperties.Reset();
 	g_shadowProperties.Reset();
 	g_physXProperties.Reset();
@@ -5166,7 +7414,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		g_shadowProperties.m_enable = CTrue;
 	g_pathProperties.Reset();
 	g_sceneBanner.SetBannerPath("Assets/Engine/Textures/Loading.dds");
+	g_vsceneMenuCursor.SetCursorPath("Assets/Engine/Textures/Cursor.dds");
 	g_sceneBanner.ClearVScenes();
+	g_vsceneMenuCursor.ClearVScenes();
 	CDelete(g_externalPhysX);
 	g_extraTexturesNamingConventions.Reset();
 	g_sceneManagerObjectsPerSplit = 15;
@@ -5235,16 +7485,22 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 
 	g_octree->ResetState();
 	g_render.SetScene( NULL );
-	if( g_currentCameraType == eCAMERA_COLLADA )
+	if( g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
 	{
-		g_currentCameraType = eCAMERA_DEFAULT_FREE;
+		g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 		g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 
 		g_multipleView->m_lockInput = CFalse;
 	}
-	g_render.GetDefaultInstanceCamera()->MoveTransform2(10, 5, 10);
-	g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(43, -25);
-
+	if (g_render.GetDefaultInstanceCamera())
+	{
+		g_render.GetDefaultInstanceCamera()->MoveTransform2(10, 5, 10);
+		g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(43, -25);
+		g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+	}
 	Cpy(g_shadowProperties.m_directionalLightName, "\n" );
 	if( g_multipleView->m_nx->m_hasScene || gPhysXscene )
 	{
@@ -5261,11 +7517,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	if( g_engineWaters.size() > 0 )
 		g_engineWaters.clear();
 
-	for( std::vector<CStaticSound*>::iterator it = g_engineStaticSounds.begin(); it != g_engineStaticSounds.end(); it++ )
+	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
-		CDelete( *it );
+		CDelete(g_engineStaticSounds[i]);
 	}
-	if( g_engineStaticSounds.size() > 0 )
+	if (g_engineStaticSounds.size() > 0)
 		g_engineStaticSounds.clear();
 
 	if( g_engineObjectNames.size() > 0 )
@@ -5287,6 +7543,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	if( g_engineLights.size() > 0 )
 		g_engineLights.clear();
 
+	for (std::vector<CInstanceCamera*>::iterator it = g_engineCameraInstances.begin(); it != g_engineCameraInstances.end(); it++)
+	{
+		CDelete((*it)->m_abstractCamera);
+		CDelete(*it);
+	}
+	if (g_engineCameraInstances.size() > 0)
+		g_engineCameraInstances.clear();
 
 	for( std::vector<CImage*>::iterator it = g_images.begin(); it != g_images.end(); it++ )
 	{
@@ -5309,12 +7572,28 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	}
 	g_soundBuffers.clear();
 
+	//Delete Resource Files
+	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+		CDelete(g_resourceFiles[j]);
+	g_resourceFiles.clear();
+
+	if (g_multipleView && g_multipleView->GetCursorIcon())
+		g_multipleView->GetCursorIcon()->SetVisible(CFalse);
+
 	if (g_editorMode == eMODE_VSCENE)
 	{
 		g_menu.m_insertAndShowSky = CFalse;
 		CDelete(g_skyDome);
 		GetMenu()->EnableMenuItem(ID_INSERT_SKYDOME, MF_ENABLED);
 		m_mainBtnSky.EnableWindow(TRUE);
+	}
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		g_menu.m_insertAndShowTerrain = CFalse;
+		CDelete(g_terrain);
+		GetMenu()->EnableMenuItem(ID_INSERT_TERRAIN, MF_ENABLED);
+		m_mainBtnTerrain.EnableWindow(TRUE);
 	}
 
 	g_menu.m_insertStartup = CFalse;
@@ -5412,7 +7691,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else
 		g_shareGeometriesBetweenScenes = CTrue;
 
-	g_selectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+	g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
 	g_transformObject = CFalse;
 
 	//Delete all items from list boxes
@@ -5457,18 +7736,22 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	m_dlgEditMaterial->SetRemoveGlossBtnState( CFalse );
 	/////
 
-	ex_pBtnNextAnim->EnableWindow( FALSE );
-	ex_pBtnPrevAnim->EnableWindow( FALSE );
-	ex_pBtnPlayAnim->EnableWindow( FALSE );
-
+	if (g_editorMode == eMODE_PREFAB)
+	{
+		ex_pBtnNextAnim->EnableWindow(FALSE);
+		ex_pBtnPrevAnim->EnableWindow(FALSE);
+		ex_pBtnPlayAnim->EnableWindow(FALSE);
+		ex_pBtnPauseAnim->EnableWindow(FALSE);
+		g_render.SetSelectedScene(NULL);
+		GetMenu()->CheckMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_CHECKED);
+		g_menu.m_geometryBasedSelection = CTrue;
+		g_selectedName = -1;
+	}
 	ex_pBtnMaterialEditor->EnableWindow( FALSE );
 	GetMenu()->EnableMenuItem( ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED );
 
 	ex_pBtnPhysXEditor->EnableWindow( FALSE );
 	GetMenu()->EnableMenuItem( ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED );
-
-	//ex_pBtnScriptEditor->EnableWindow( FALSE );
-	//GetMenu()->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED );
 
 	Cpy( g_currentVSceneName, "\n" ); //save functions
 	Cpy(g_currentPackageAndPrefabName, "\n");
@@ -5487,7 +7770,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.6.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.0 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -5540,8 +7823,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportColladaMultipleAnimations(CChar* file
 		tempScene->SetLoadAnimation(CTrue);
 
 		g_render.SetScene(tempScene);
-		tempScene->SetClipIndex(0);
-		tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 		tempScene->m_animationSceneNames = animations;
 
 		//save functions/////////////////////////////////
@@ -5635,17 +7916,51 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportColladaMultipleAnimations(CChar* file
 				PrintInfo("\nCouldn't create triggers. Please remove current external PhysX scene", COLOR_RED);
 			}
 		}
-		else if (CmpIn(tempScene->GetName(), "grass"))
+
+		if (g_scene.size() == 1)
 		{
-			tempScene->m_isGrass = CTrue;
-			for (CUInt j = 0; j < tempScene->m_geometries.size(); j++)
+			g_prefabProperties.m_names.clear();
+
+			for (CInt ac = 0; ac < tempScene->GetNumClips(); ac++)
 			{
-				tempScene->m_geometries[j]->SetDiffuse("grass_color");
+				g_prefabProperties.m_names.push_back( tempScene->m_animationClips[ac]->GetName());
+				g_prefabProperties.m_clipIndex = 0;
 			}
+			tempScene->m_playAnimation = g_prefabProperties.m_playAnimationAtStart;
+			tempScene->m_loopAnimationAtStartup = g_prefabProperties.m_loopAnimationAtStart;
+			tempScene->m_alwaysVisible = g_prefabProperties.m_alwaysVisible;
+			tempScene->m_castShadow = g_prefabProperties.m_castShadow;
+			tempScene->SetClipIndexForStartup(g_prefabProperties.m_clipIndex);
+			tempScene->SetClipIndex(g_prefabProperties.m_clipIndex);
+		}
+
+		if (g_scene.size() > 1)
+		{
+			tempScene->m_playAnimation = g_scene[0]->m_playAnimation;
+			tempScene->m_loopAnimationAtStartup = g_scene[0]->m_loopAnimationAtStartup;
+			tempScene->SetClipIndexForStartup(g_scene[0]->GetClipIndexForStartup());
+			tempScene->SetCurrentClipIndex(g_scene[0]->GetClipIndexForStartup());
+			tempScene->m_alwaysVisible = g_scene[0]->m_alwaysVisible;
+			tempScene->m_castShadow = g_scene[0]->m_castShadow;
+		}
+		if (tempScene->m_playAnimation)
+		{
+			tempScene->SetAnimationStatus(eANIM_PLAY);
+			if (tempScene->GetNumClips())
+			{
+				if (tempScene->m_loopAnimationAtStartup)
+					tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+				else
+					tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
+			}
+		}
+		else
+		{
+			tempScene->SetAnimationStatus(eANIM_PAUSE);
 		}
 
 		PrintInfo("\nscene '");
-		PrintInfo(tempScene->m_fileName, COLOR_RED_GREEN);
+		PrintInfo(tempScene->GetFileName(), COLOR_RED_GREEN);
 		PrintInfo("' imported successufully");
 	}
 	else
@@ -5781,9 +8096,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 		g_reportInfo = CFalse;
 		if( tempScene->Load( (char*)fileName.GetString(), NULL, 0, NULL, CTrue, CFalse ) )
 		{
-			tempScene->SetClipIndex( 0 );
-			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
-
 			//save functions/////////////////////////////////
 			for (CUInt index = 0; index < g_allPrefabNames.size(); index++)
 			{
@@ -5875,17 +8187,51 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 					PrintInfo( "\nCouldn't create triggers. Please remove current external PhysX scene", COLOR_RED );
 				}
 			}
-			else if( CmpIn( tempScene->GetName(), "grass" ) )
+
+			if (g_scene.size() == 1)
 			{
-				tempScene->m_isGrass = CTrue;
-				for( CUInt j = 0; j < tempScene->m_geometries.size(); j++ )
+				g_prefabProperties.m_names.clear();
+
+				for (CInt ac = 0; ac < tempScene->GetNumClips(); ac++)
 				{
-					tempScene->m_geometries[j]->SetDiffuse( "grass_color" );
+					g_prefabProperties.m_names.push_back(tempScene->m_animationClips[ac]->GetName());
+					g_prefabProperties.m_clipIndex = 0;
 				}
+				tempScene->m_playAnimation = g_prefabProperties.m_playAnimationAtStart;
+				tempScene->m_loopAnimationAtStartup = g_prefabProperties.m_loopAnimationAtStart;
+				tempScene->m_alwaysVisible = g_prefabProperties.m_alwaysVisible;
+				tempScene->m_castShadow = g_prefabProperties.m_castShadow;
+				tempScene->SetClipIndexForStartup(g_prefabProperties.m_clipIndex);
+				tempScene->SetCurrentClipIndex(g_prefabProperties.m_clipIndex);
+			}
+
+			if (g_scene.size() > 1)
+			{
+				tempScene->m_playAnimation = g_scene[0]->m_playAnimation;
+				tempScene->m_loopAnimationAtStartup = g_scene[0]->m_loopAnimationAtStartup;
+				tempScene->SetClipIndexForStartup(g_scene[0]->GetClipIndexForStartup());
+				tempScene->SetClipIndex(g_scene[0]->GetClipIndexForStartup());
+				tempScene->m_alwaysVisible = g_scene[0]->m_alwaysVisible;
+				tempScene->m_castShadow = g_scene[0]->m_castShadow;
+			}
+			if (tempScene->m_playAnimation)
+			{
+				tempScene->SetAnimationStatus(eANIM_PLAY);
+				if (tempScene->GetNumClips())
+				{
+					if (tempScene->m_loopAnimationAtStartup)
+						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+					else
+						tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
+				}
+			}
+			else
+			{
+				tempScene->SetAnimationStatus(eANIM_PAUSE);
 			}
 
 			PrintInfo("\nscene '");
-			PrintInfo(tempScene->m_fileName, COLOR_RED_GREEN);
+			PrintInfo(tempScene->GetFileName(), COLOR_RED_GREEN);
 			PrintInfo("' imported successufully");
 		}
 		else
@@ -6018,6 +8364,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertLight()
 	INT_PTR result = m_dlgAddLight->DoModal();
 	if ( result  == IDOK )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		CInstanceLight* instance_light = new CInstanceLight();
 		CLight* abstract_light = new CLight();
 
@@ -6044,11 +8403,61 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertLight()
 		abstract_light->SetQuadraticAttenuation( m_dlgAddLight->GetQuadAttenuation() );
 
 		instance_light->SetIndex();
-
+		instance_light->CalculateDistance();
 		g_engineLights.push_back( instance_light );
+
+		if (Cmp(g_shadowProperties.m_directionalLightName, "\n"))
+		{
+			for (CUInt i = 0; i < g_engineLights.size(); i++)
+			{
+				if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+				{
+					Cpy(g_shadowProperties.m_directionalLightName, g_engineLights[i]->m_abstractLight->GetName());
+					break;
+				}
+			}
+		}
+		//mark this new object as selected
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = instance_light->GetIndex();
 
 		InsertItemToEngineObjectList( abstract_light->GetName(), eENGINEOBJECTLIST_LIGHT );
 		g_engineObjectNames.push_back( m_dlgAddLight->GetName() );
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			g_instancePrefab[j]->SetLightCooked(CFalse);
+		}
+		if (g_terrain)
+			g_terrain->GetTerrain()->SetLightCooked(CFalse);
+
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, abstract_light->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+
+		//Erase all items of m_listBoxEngineObjects
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+		}
+		ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+		ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
 
 		CDelete( m_dlgAddLight );
 		PrintInfo( "\nNew light added successfully" );
@@ -6064,6 +8473,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
 	INT_PTR result = m_dlgAddStaticSound->DoModal();
 	if ( result  == IDOK )
 	{
+		if (m_dlgAddStaticSound->m_create)
+		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
+
 		COpenALSoundSource* m_staticSoundSource = CNew( COpenALSoundSource );
 		CStaticSound* m_staticSound = CNew( CStaticSound );
 
@@ -6139,6 +8564,38 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
 		g_engineStaticSounds.push_back( m_staticSound );
 		InsertItemToEngineObjectList( m_staticSound->GetName(), eENGINEOBJECTLIST_STATICSOUND );
 		g_engineObjectNames.push_back( m_dlgAddStaticSound->GetName() );
+
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = m_staticSound->GetIndex();
+
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, m_staticSound->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+
+		//Erase all items of m_listBoxEngineObjects
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+		}
+		ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+		ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
+
 		CDelete( m_dlgAddStaticSound );
 	}
 	else if( result == IDCANCEL )
@@ -6152,6 +8609,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertSkyDome()
 	INT_PTR result = m_dlgAddSkyDome->DoModal();
 	if ( result == IDOK )
 	{
+		if (m_dlgAddSkyDome->m_create)
+		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
+
 		CChar temp[ MAX_NAME_SIZE];
 		sprintf( temp, "%s", m_dlgAddSkyDome->m_strSkyDomePath );
 		g_skyDome = CNew( CSkyDome );
@@ -6178,6 +8651,40 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertSkyDome()
 		g_menu.m_insertAndShowSky = CTrue;
 		InsertItemToEngineObjectList( g_skyDome->GetName(), eENGINEOBJECTLIST_SKY);
 		g_engineObjectNames.push_back( m_dlgAddSkyDome->GetName() );
+
+		//mark this new object as selected
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = g_skyDome->GetIndex();
+
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, g_skyDome->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+
+		//Erase all items of m_listBoxEngineObjects
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+		}
+		ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+		ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
+
+
 		CDelete( m_dlgAddSkyDome );
 	}
 	else if( result == IDCANCEL )
@@ -6192,6 +8699,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertWater()
 	INT_PTR result = m_dlgAddWater->DoModal();
 	if ( result  == IDOK )
 	{
+		if (m_dlgAddWater->m_create)
+		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
+
 		CWater* water = new CWater;
 		water->SetName( m_dlgAddWater->GetName() );
 		water->SetDuDvMap( m_dlgAddWater->GetDuDvMap(), CTrue );
@@ -6201,12 +8724,13 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertWater()
 		water->SetLightPos( m_dlgAddWater->GetLightPos() );
 		water->SetScale( m_dlgAddWater->GetScale() );
 		water->SetSpeed( m_dlgAddWater->GetSpeed() );
+		water->SetVisible(m_dlgAddWater->GetVisible());
 		water->SetUV( m_dlgAddWater->GetUV() );
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID );
 		water->SetSideVertexPositions();
-
+		water->CalculateDistance();
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
@@ -6217,6 +8741,39 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertWater()
 		g_engineWaters.push_back( water );
 		InsertItemToEngineObjectList( water->GetName() , eENGINEOBJECTLIST_WATER);
 		g_engineObjectNames.push_back( m_dlgAddWater->GetName() );
+
+		//mark this new object as selected
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = water->GetIndex();
+
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, water->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+
+		//Erase all items of m_listBoxEngineObjects
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+		}
+		ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+		ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
+
 		CDelete( m_dlgAddWater );
 		PrintInfo( "\nNew water surface added successfully" );
 	}
@@ -6231,6 +8788,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 	INT_PTR result = m_dlgAddAmbientSound->DoModal();
 	if ( result  == IDOK )
 	{
+		if (m_dlgAddAmbientSound->m_create)
+		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
+
 		if( g_multipleView->m_ambientSound )
 		{
 			g_multipleView->m_soundSystem->StopALSound( *(g_multipleView->m_ambientSound->GetSoundSource()) );
@@ -6279,6 +8852,26 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 		GetMenu()->EnableMenuItem( ID_INSERT_SOUND_AMBIENT, MF_DISABLED | MF_GRAYED );
 		m_mainBtnAmbientSound.EnableWindow( FALSE );
 		g_engineObjectNames.push_back( m_dlgAddAmbientSound->GetName() );
+		g_showArrow = CFalse;
+
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, g_multipleView->m_ambientSound->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
 		CDelete( m_dlgAddAmbientSound );
 	}
 	else if( result == IDCANCEL )
@@ -7047,7 +9640,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		Cpy(g_currentGUIPackageName, m_strNewGUIPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.6.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -7078,7 +9671,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		return;
 	}
 	CInt result = IDOK;
-
+	m_dlgSavePrefabs = NULL;
 	if (askQuestion || Cmp(g_currentPackageAndPrefabName, "\n"))
 	{
 		m_dlgSavePrefabs = CNew(CSavePrefabDlg);
@@ -7190,7 +9783,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 					if (g_scene[i]->m_compress)
 					{
 						//Compress dae files////////////////////////////////////////////////
-						//zip pathr
+						//zip path
 						CChar zipPathTemp[MAX_NAME_SIZE];
 						Cpy(zipPathTemp, g_scene[i]->GetFileName());
 						CChar* zipPathPointer = GetAfterPath(zipPathTemp);
@@ -7219,21 +9812,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 									CChar fileName[MAX_NAME_SIZE];
 									Cpy(fileName, g_scene[i]->m_animationSceneNames[j].c_str());
 
-									CChar zipPathTemp[MAX_NAME_SIZE];
-									Cpy(zipPathTemp, fileName);
-									CChar* zipPathPointer = GetAfterPath(zipPathTemp);
-									GetWithoutDot(zipPathPointer);
-									CChar zipPath[MAX_NAME_SIZE];
-									sprintf(zipPath, "%s%s%s", newExternalScenePath, zipPathPointer, ".zip");
+									CChar binPathTemp[MAX_NAME_SIZE];
+									Cpy(binPathTemp, fileName);
+									CChar* binPathPointer = GetAfterPath(binPathTemp);
+									GetWithoutDot(binPathPointer);
+									CChar binPath[MAX_NAME_SIZE];
+									sprintf(binPath, "%s%s%s", newExternalScenePath, binPathPointer, ".vac");
 
-									CChar zipFileName[MAX_NAME_SIZE];
-									Cpy(zipFileName, GetAfterPath(fileName));
+									CChar binFileName[MAX_NAME_SIZE];
+									Cpy(binFileName, GetAfterPath(fileName));
 
 									CChar temp[MAX_NAME_SIZE];
-									sprintf(temp, "\n%s %s %s", "Compressing '", zipFileName, "' ...");
+									sprintf(temp, "\n%s %s %s", "Saving '", binFileName, "' ...");
 									PrintInfo(temp);
-									g_scene[i]->WriteZipFile(zipPath, zipFileName, fileName, g_currentPassword);
-
+									//Save
+									std::ofstream ofs(binPath, ios_base::binary);
+									boost::archive::binary_oarchive oa(ofs);
+									oa << g_scene[i]->m_animationClips[j];
 								}
 							}
 							else
@@ -7244,21 +9839,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 									CChar fileName[MAX_NAME_SIZE];
 									Cpy(fileName, g_scene[i]->m_animationSceneNames[j].c_str());
 
-									CChar zipPathTemp[MAX_NAME_SIZE];
-									Cpy(zipPathTemp, fileName);
-									CChar* zipPathPointer = GetAfterPath(zipPathTemp);
-									GetWithoutDot(zipPathPointer);
-									CChar zipPath[MAX_NAME_SIZE];
-									sprintf(zipPath, "%s%s%s", newExternalScenePath, zipPathPointer, ".zip");
+									CChar binPathTemp[MAX_NAME_SIZE];
+									Cpy(binPathTemp, fileName);
+									CChar* binPathPointer = GetAfterPath(binPathTemp);
+									GetWithoutDot(binPathPointer);
+									CChar binPath[MAX_NAME_SIZE];
+									sprintf(binPath, "%s%s%s", newExternalScenePath, binPathPointer, ".vac");
 
-									CChar zipFileName[MAX_NAME_SIZE];
-									Cpy(zipFileName, GetAfterPath(fileName));
+									CChar binFileName[MAX_NAME_SIZE];
+									Cpy(binFileName, GetAfterPath(fileName));
 
 									CChar temp[MAX_NAME_SIZE];
-									sprintf(temp, "\n%s %s %s", "Compressing '", zipFileName, "' ...");
+									sprintf(temp, "\n%s %s %s", "Saving '", binFileName, "' ...");
 									PrintInfo(temp);
-
-									g_scene[i]->WriteZipFile(zipPath, zipFileName, fileName, NULL);
+									//Save
+									std::ofstream ofs(binPath, ios_base::binary);
+									boost::archive::binary_oarchive oa(ofs);
+									oa << g_scene[i]->m_animationClips[j];
 								}
 
 							}
@@ -7271,21 +9868,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 								CChar fileName[MAX_NAME_SIZE];
 								Cpy(fileName, g_scene[i]->m_animationSceneNames[j].c_str());
 
-								CChar zipPathTemp[MAX_NAME_SIZE];
-								Cpy(zipPathTemp, fileName);
-								CChar* zipPathPointer = GetAfterPath(zipPathTemp);
-								GetWithoutDot(zipPathPointer);
-								CChar zipPath[MAX_NAME_SIZE];
-								sprintf(zipPath, "%s%s%s", newExternalScenePath, zipPathPointer, ".zip");
+								CChar binPathTemp[MAX_NAME_SIZE];
+								Cpy(binPathTemp, fileName);
+								CChar* binPathPointer = GetAfterPath(binPathTemp);
+								GetWithoutDot(binPathPointer);
+								CChar binPath[MAX_NAME_SIZE];
+								sprintf(binPath, "%s%s%s", newExternalScenePath, binPathPointer, ".vac");
 
-								CChar zipFileName[MAX_NAME_SIZE];
-								Cpy(zipFileName, GetAfterPath(fileName));
+								CChar binFileName[MAX_NAME_SIZE];
+								Cpy(binFileName, GetAfterPath(fileName));
 
 								CChar temp[MAX_NAME_SIZE];
-								sprintf(temp, "\n%s %s %s", "Compressing '", zipFileName, "' ...");
+								sprintf(temp, "\n%s %s %s", "Saving '", binFileName, "' ...");
 								PrintInfo(temp);
-
-								g_scene[i]->WriteZipFile(zipPath, zipFileName, fileName, g_currentPassword);
+								//Save
+								std::ofstream ofs(binPath, ios_base::binary);
+								boost::archive::binary_oarchive oa(ofs);
+								oa << g_scene[i]->m_animationClips[j];
 
 							}
 
@@ -7401,21 +10000,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 									CChar fileName[MAX_NAME_SIZE];
 									Cpy(fileName, g_scene[i]->m_animationSceneNames[j].c_str());
 
-									CChar zipPathTemp[MAX_NAME_SIZE];
-									Cpy(zipPathTemp, fileName);
-									CChar* zipPathPointer = GetAfterPath(zipPathTemp);
-									GetWithoutDot(zipPathPointer);
-									CChar zipPath[MAX_NAME_SIZE];
-									sprintf(zipPath, "%s%s%s", newExternalScenePath, zipPathPointer, ".zip");
+									CChar binPathTemp[MAX_NAME_SIZE];
+									Cpy(binPathTemp, fileName);
+									CChar* binPathPointer = GetAfterPath(binPathTemp);
+									GetWithoutDot(binPathPointer);
+									CChar binPath[MAX_NAME_SIZE];
+									sprintf(binPath, "%s%s%s", newExternalScenePath, binPathPointer, ".vac");
 
-									CChar zipFileName[MAX_NAME_SIZE];
-									Cpy(zipFileName, GetAfterPath(fileName));
+									CChar binFileName[MAX_NAME_SIZE];
+									Cpy(binFileName, GetAfterPath(fileName));
 
 									CChar temp[MAX_NAME_SIZE];
-									sprintf(temp, "\n%s %s %s", "Compressing '", zipFileName, "' ...");
+									sprintf(temp, "\n%s %s %s", "Saving '", binFileName, "' ...");
 									PrintInfo(temp);
-
-									g_scene[i]->WriteZipFile(zipPath, zipFileName, fileName, g_currentPassword);
+									//Save
+									std::ofstream ofs(binPath, ios_base::binary);
+									boost::archive::binary_oarchive oa(ofs);
+									oa << g_scene[i]->m_animationClips[j];
 								}
 
 							}
@@ -7427,21 +10028,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 									CChar fileName[MAX_NAME_SIZE];
 									Cpy(fileName, g_scene[i]->m_animationSceneNames[j].c_str());
 
-									CChar zipPathTemp[MAX_NAME_SIZE];
-									Cpy(zipPathTemp, fileName);
-									CChar* zipPathPointer = GetAfterPath(zipPathTemp);
-									GetWithoutDot(zipPathPointer);
-									CChar zipPath[MAX_NAME_SIZE];
-									sprintf(zipPath, "%s%s%s", newExternalScenePath, zipPathPointer, ".zip");
+									CChar binPathTemp[MAX_NAME_SIZE];
+									Cpy(binPathTemp, fileName);
+									CChar* binPathPointer = GetAfterPath(binPathTemp);
+									GetWithoutDot(binPathPointer);
+									CChar binPath[MAX_NAME_SIZE];
+									sprintf(binPath, "%s%s%s", newExternalScenePath, binPathPointer, ".vac");
 
-									CChar zipFileName[MAX_NAME_SIZE];
-									Cpy(zipFileName, GetAfterPath(fileName));
+									CChar binFileName[MAX_NAME_SIZE];
+									Cpy(binFileName, GetAfterPath(fileName));
 
 									CChar temp[MAX_NAME_SIZE];
-									sprintf(temp, "\n%s %s %s", "Compressing '", zipFileName, "' ...");
+									sprintf(temp, "\n%s %s %s", "Saving '", binFileName, "' ...");
 									PrintInfo(temp);
-
-									g_scene[i]->WriteZipFile(zipPath, zipFileName, fileName, NULL);
+									//Save
+									std::ofstream ofs(binPath, ios_base::binary);
+									boost::archive::binary_oarchive oa(ofs);
+									oa << g_scene[i]->m_animationClips[j];
 								}
 
 							}
@@ -7454,21 +10057,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 								CChar fileName[MAX_NAME_SIZE];
 								Cpy(fileName, g_scene[i]->m_animationSceneNames[j].c_str());
 
-								CChar zipPathTemp[MAX_NAME_SIZE];
-								Cpy(zipPathTemp, fileName);
-								CChar* zipPathPointer = GetAfterPath(zipPathTemp);
-								GetWithoutDot(zipPathPointer);
-								CChar zipPath[MAX_NAME_SIZE];
-								sprintf(zipPath, "%s%s%s", newExternalScenePath, zipPathPointer, ".zip");
+								CChar binPathTemp[MAX_NAME_SIZE];
+								Cpy(binPathTemp, fileName);
+								CChar* binPathPointer = GetAfterPath(binPathTemp);
+								GetWithoutDot(binPathPointer);
+								CChar binPath[MAX_NAME_SIZE];
+								sprintf(binPath, "%s%s%s", newExternalScenePath, binPathPointer, ".vac");
 
-								CChar zipFileName[MAX_NAME_SIZE];
-								Cpy(zipFileName, GetAfterPath(fileName));
+								CChar binFileName[MAX_NAME_SIZE];
+								Cpy(binFileName, GetAfterPath(fileName));
 
 								CChar temp[MAX_NAME_SIZE];
-								sprintf(temp, "\n%s %s %s", "Compressing '", zipFileName, "' ...");
+								sprintf(temp, "\n%s %s %s", "Saving '", binFileName, "' ...");
 								PrintInfo(temp);
-
-								g_scene[i]->WriteZipFile(zipPath, zipFileName, fileName, g_currentPassword);
+								//Save
+								std::ofstream ofs(binPath, ios_base::binary);
+								boost::archive::binary_oarchive oa(ofs);
+								oa << g_scene[i]->m_animationClips[j];
 							}
 						}
 						g_scene[i]->m_compress = CFalse;
@@ -7565,7 +10170,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 					CChar sceneWithoutDot[MAX_NAME_SIZE];
 					Cpy(sceneWithoutDot, GetAfterPath((CChar*)g_scene[i]->m_animationSceneNames[j].c_str()));
 					GetWithoutDot(sceneWithoutDot);
-					Append(sceneWithoutDot, ".zip");
+					Append(sceneWithoutDot, ".vac");
 					if (Cmp(sceneWithoutDot, data.cFileName))
 					{
 						foundTarget = CTrue;
@@ -7638,7 +10243,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 			CBool foundTarget = CFalse;
 			for (CUInt i = 0; i < g_images.size(); i++)
 			{
-				if (Cmp(GetAfterPath(g_images[i]->m_fileName), data.cFileName))
+				if (Cmp(GetAfterPath(g_images[i]->GetFileName()), data.cFileName))
 				{
 					foundTarget = CTrue;
 					break;
@@ -7687,10 +10292,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		fwrite(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fwrite(&g_bloomProperties, sizeof(CBloomProperties), 1, filePtr);
 		fwrite(&g_lightProperties, sizeof(CLightProperties), 1, filePtr);
+		fwrite(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
+		fwrite(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+
 		//fwrite(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fwrite(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 		fwrite(&g_vandaDemo, sizeof(CBool), 1, filePtr);
 		fwrite(g_sceneBanner.GetBannerPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		
 		fwrite(&g_extraTexturesNamingConventions, sizeof(CExtraTexturesNamingConventions), 1, filePtr);
 		fwrite(&g_useGlobalAmbientColor, sizeof(CBool), 1, filePtr);
 		fwrite(&g_globalAmbientColor, sizeof(CColor4f), 1, filePtr);
@@ -7699,18 +10308,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 
 		g_characterPos = g_multipleView->m_nx->gCharacterPos;
 
-		g_cameraInstancePos.x = g_render.GetDefaultInstanceCamera()->m_x;
-		g_cameraInstancePos.y = g_render.GetDefaultInstanceCamera()->m_y;
-		g_cameraInstancePos.z = g_render.GetDefaultInstanceCamera()->m_z;
-		g_cameraInstancePanTilt.x = g_render.GetDefaultInstanceCamera()->m_pan;
-		g_cameraInstancePanTilt.y = g_render.GetDefaultInstanceCamera()->m_tilt;
-
+		g_cameraInstancePos.x = g_render.GetDefaultInstanceCamera()->GetPos().x;
+		g_cameraInstancePos.y = g_render.GetDefaultInstanceCamera()->GetPos().y;
+		g_cameraInstancePos.z = g_render.GetDefaultInstanceCamera()->GetPos().z;
+		g_cameraInstancePanTilt.x = g_render.GetDefaultInstanceCamera()->GetPan();
+		g_cameraInstancePanTilt.y = g_render.GetDefaultInstanceCamera()->GetTilt();
+		CFloat cameraInstanceZoom = g_render.GetDefaultInstanceCamera()->m_abstractCamera->GetAngle();
 
 		fwrite(&g_multipleView->m_nx->m_hasScene, sizeof(CBool), 1, filePtr);
 		fwrite(g_multipleView->m_nx->m_sceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fwrite(&g_characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 		fwrite(&g_cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fwrite(&g_cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+		fwrite(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 
 		CInt tempSceneSize = (CInt)g_scene.size();
 		CInt tempGeoSize;
@@ -7730,6 +10340,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 			fwrite(&g_scene[i]->m_playAnimation, 1, sizeof(CBool), filePtr);
 			fwrite(&g_scene[i]->m_loopAnimationAtStartup, 1, sizeof(CBool), filePtr);
 			fwrite(&g_scene[i]->m_isVisible, 1, sizeof(CBool), filePtr);
+			fwrite(&g_scene[i]->m_alwaysVisible, 1, sizeof(CBool), filePtr);
+			fwrite(&g_scene[i]->m_castShadow, 1, sizeof(CBool), filePtr);
 
 			tempSceneAnimationListSize = (CInt)g_scene[i]->m_animationSceneNames.size();
 			fwrite(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
@@ -7819,6 +10431,20 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 
 					fwrite(&g_scene[i]->m_geometries[j]->m_groups[k]->m_hasDiffuse, sizeof(CBool), 1, filePtr);
 					fwrite(g_scene[i]->m_geometries[j]->m_groups[k]->m_strDiffuse, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+					//Material Colors
+					fwrite(g_scene[i]->m_geometries[j]->m_groups[k]->GetAmbient(), sizeof(CFloat), 4, filePtr);
+					fwrite(g_scene[i]->m_geometries[j]->m_groups[k]->GetDiffuse(), sizeof(CFloat), 4, filePtr);
+					fwrite(g_scene[i]->m_geometries[j]->m_groups[k]->GetSpecular(), sizeof(CFloat), 4, filePtr);
+					fwrite(g_scene[i]->m_geometries[j]->m_groups[k]->GetEmission(), sizeof(CFloat), 4, filePtr);
+
+					CFloat shininess = g_scene[i]->m_geometries[j]->m_groups[k]->GetShininess();
+					CFloat transparency = g_scene[i]->m_geometries[j]->m_groups[k]->GetTransparency();
+
+					fwrite(&shininess, sizeof(CFloat), 1, filePtr);
+					fwrite(&transparency, sizeof(CFloat), 1, filePtr);
+					//////////////////
+
 				}
 			}// for all of the geos
 
@@ -7872,7 +10498,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		Cpy(g_currentPrefabPackageName, m_strNewPrefabPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.6.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -8006,13 +10632,42 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		sprintf(startupPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Startup/");
 
 		CChar skyPath[MAX_NAME_SIZE];
-		sprintf( skyPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sky/" );
+		sprintf(skyPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sky/");
+
+		CChar terrainPath[MAX_NAME_SIZE];
+		sprintf(terrainPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Terrain/");
 
 		CChar bannerPath[MAX_NAME_SIZE];
 		sprintf( bannerPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Banner/" );
 
-		CChar scriptPath[MAX_NAME_SIZE];
-		sprintf(scriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/");
+		CChar cursorPath[MAX_NAME_SIZE];
+		sprintf(cursorPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Cursor/");
+
+		CChar rootScriptPath[MAX_NAME_SIZE];
+		sprintf(rootScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/");
+
+		CChar rootTriggersScriptPath[MAX_NAME_SIZE];
+		sprintf(rootTriggersScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/");
+
+		std::vector<std::string> scriptPath;
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+			{
+				CScene* scene = g_instancePrefab[j]->GetScene(0);
+				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+				{
+					if (scene->m_instanceGeometries[k]->m_hasEnterScript || scene->m_instanceGeometries[k]->m_hasExitScript)
+					{
+						CChar tempScriptPath[MAX_NAME_SIZE];
+						sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_instancePrefab[j]->GetName());
+						scriptPath.push_back(tempScriptPath);
+						g_instancePrefab[j]->SetTempScriptPath(tempScriptPath);
+					}
+
+				}
+			}
+		}
 
 		//Directories of g_currentVSceneName
 		CChar currentWaterTexturesPath[MAX_NAME_SIZE];
@@ -8034,13 +10689,37 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		sprintf(currentStartupPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Startup/");
 
 		CChar currentSkyPath[MAX_NAME_SIZE];
-		sprintf( currentSkyPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/" );
+		sprintf(currentSkyPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/");
+
+		CChar currentTerrainPath[MAX_NAME_SIZE];
+		sprintf(currentTerrainPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/");
 
 		CChar currentBannerPath[MAX_NAME_SIZE];
 		sprintf( currentBannerPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Banner/" );
 
-		CChar currentScriptPath[MAX_NAME_SIZE];
-		sprintf(currentScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/");
+		CChar currentCursorPath[MAX_NAME_SIZE];
+		sprintf(currentCursorPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cursor/");
+
+		CChar rootCurrentScriptPath[MAX_NAME_SIZE];
+		sprintf(rootCurrentScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/");
+		std::vector<std::string> currentScriptPath;
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+			{
+				CScene* scene = g_instancePrefab[j]->GetScene(0);
+				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+				{
+					if (scene->m_instanceGeometries[k]->m_hasEnterScript || scene->m_instanceGeometries[k]->m_hasExitScript)
+					{
+						CChar tempCurrentScriptPath[MAX_NAME_SIZE];
+						sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", g_instancePrefab[j]->GetName());
+						currentScriptPath.push_back(tempCurrentScriptPath);
+						g_instancePrefab[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
+					}
+				}
+			}
+		}
 
 		if( saveAlgorithm == 0 || saveAlgorithm == 3)
 		{
@@ -8050,9 +10729,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory(staticSoundPath);
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
 			RemoveAllFilesInDirectory(startupPath);
-			RemoveAllFilesInDirectory( skyPath );
+			RemoveAllFilesInDirectory(skyPath);
+			RemoveAllFilesInDirectory(terrainPath);
 			RemoveAllFilesInDirectory(bannerPath);
-			RemoveAllFilesInDirectory( scriptPath );
+			RemoveAllFilesInDirectory(cursorPath);
+
+			//RemoveAllFilesInDirectory(scriptPath);
+			//for (CUInt j = 0; j < scriptPath.size(); j++)
+			//	RemoveAllFilesInDirectory((CChar*)scriptPath[j].c_str());
+			RemoveAllFilesAndFoldersInDirectory(rootScriptPath);
+			//As Previous functions removes main directory, I'll recreate it
+			CreateWindowsDirectory(rootScriptPath);
+			CreateWindowsDirectory(rootTriggersScriptPath);
 
 		}
 		else if( saveAlgorithm == 1 || saveAlgorithm == 4)
@@ -8065,24 +10753,44 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory( staticSoundPath );
 			CreateWindowsDirectory(mainCharacterSoundPath);
 			CreateWindowsDirectory(startupPath);
-			CreateWindowsDirectory( skyPath );
+			CreateWindowsDirectory(skyPath);
+			CreateWindowsDirectory(terrainPath);
 			CreateWindowsDirectory(bannerPath);
-			CreateWindowsDirectory(scriptPath);
+			CreateWindowsDirectory(cursorPath);
+			CreateWindowsDirectory(rootScriptPath);
+			CreateWindowsDirectory(rootTriggersScriptPath);
+			for (CUInt j = 0; j < scriptPath.size(); j++)
+				CreateWindowsDirectory((CChar*)scriptPath[j].c_str());
+
 
 		}
 		if( saveAlgorithm == 0 || saveAlgorithm == 1 || saveAlgorithm == 2 )
 		{
 			//copy the assets from original place to the existing directory
 			//banner
-			if( g_sceneBanner.IsInVSceneList(pureFileName, CTrue, CTrue ) )
+			if (g_sceneBanner.IsInVSceneList(pureFileName, CTrue, CTrue))
 			{
-				CopyOneFileToDstDirectory( g_sceneBanner.GetBannerPath(), bannerPath );
+				CopyOneFileToDstDirectory(g_sceneBanner.GetBannerPath(), bannerPath);
 			}
+
+			//Menu Cursor
+			if (g_vsceneMenuCursor.IsInVSceneList(pureFileName, CTrue, CTrue))
+			{
+				CopyOneFileToDstDirectory(g_vsceneMenuCursor.GetCursorPath(), cursorPath);
+			}
+
+			
 			CChar* tempAfterPath = GetAfterPath(g_sceneBanner.GetBannerPath());
 			CChar newPathAndName[MAX_NAME_SIZE];
 			Cpy(newPathAndName, bannerPath );
 			Append(newPathAndName, tempAfterPath );
 			g_sceneBanner.SetBannerPath( newPathAndName );
+
+			CChar* tempCursorAfterPath = GetAfterPath(g_vsceneMenuCursor.GetCursorPath());
+			CChar newCursorPathAndName[MAX_NAME_SIZE];
+			Cpy(newCursorPathAndName, cursorPath);
+			Append(newCursorPathAndName, tempCursorAfterPath);
+			g_vsceneMenuCursor.SetCursorPath(newCursorPathAndName);
 
 			//scripts
 			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
@@ -8094,23 +10802,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					{
 						if (scene->m_instanceGeometries[k]->m_hasEnterScript && scene->m_instanceGeometries[k]->m_updateEnterScript)
 						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_enterScript, scriptPath);
+							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_enterScript, g_instancePrefab[j]->GetTempScriptPath());
 							scene->m_instanceGeometries[k]->m_updateEnterScript = CFalse;
 
 							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript);
 							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, scriptPath);
+							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
 							Append(NewPathAndName, TempAfterPath);
 							Cpy(scene->m_instanceGeometries[k]->m_enterScript, NewPathAndName);
 						}
 						if (scene->m_instanceGeometries[k]->m_hasExitScript && scene->m_instanceGeometries[k]->m_updateExitScript)
 						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_exitScript, scriptPath);
+							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_exitScript, g_instancePrefab[j]->GetTempScriptPath());
 							scene->m_instanceGeometries[k]->m_updateExitScript = CFalse;
 
 							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript);
 							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, scriptPath);
+							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
 							Append(NewPathAndName, TempAfterPath);
 							Cpy(scene->m_instanceGeometries[k]->m_exitScript, NewPathAndName);
 						}
@@ -8146,7 +10854,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 				CChar* tempAfterPath = GetAfterPath(g_startup->GetScriptPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, scriptPath);
+				Cpy(newPathAndName, startupPath);
 				Append(newPathAndName, tempAfterPath);
 				g_startup->SetScriptPath(newPathAndName);
 				g_startup->SetUpdateScript(CFalse);
@@ -8165,6 +10873,76 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				Append(newPathAndName, tempAfterPath );
 				g_skyDome->SetPath( newPathAndName );
 			}
+
+			//terrain
+			if (g_terrain)
+			{
+				if (g_terrain->IsInVSceneList(pureFileName, CTrue, CFalse))
+				{
+					CopyOneFileToDstDirectory(g_terrain->GetHeightMapPath(), terrainPath);
+
+					CopyOneFileToDstDirectory(g_terrain->GetBottomTexturePath(), terrainPath);
+					CopyOneFileToDstDirectory(g_terrain->GetBottomNormalMapPath(), terrainPath);
+
+					CopyOneFileToDstDirectory(g_terrain->GetSlopeTexturePath(), terrainPath);
+					CopyOneFileToDstDirectory(g_terrain->GetSlopeNormalMapPath(), terrainPath);
+
+					CopyOneFileToDstDirectory(g_terrain->GetTopTexturePath(), terrainPath);
+					CopyOneFileToDstDirectory(g_terrain->GetTopNormalMapPath(), terrainPath);
+
+					if (g_terrain->GetCookPhysicsTriangles())
+					{
+						CopyAllFilesAndFoldersToDstDirectory(g_terrain->GetPhysicsPath(), terrainPath, CFalse);
+						g_terrain->SetCookPhysicsTriangles(CFalse);
+					}
+					//Height Map
+					CChar* tempHeightMapAfterPath = GetAfterPath(g_terrain->GetHeightMapPath());
+					CChar newHeightMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newHeightMapPathAndName, terrainPath);
+					Append(newHeightMapPathAndName, tempHeightMapAfterPath);
+					g_terrain->SetHeightMapPath(newHeightMapPathAndName);
+
+					//Bottom Textures
+					CChar* tempBottomTextureAfterPath = GetAfterPath(g_terrain->GetBottomTexturePath());
+					CChar newBottomTexturePathAndName[MAX_NAME_SIZE];
+					Cpy(newBottomTexturePathAndName, terrainPath);
+					Append(newBottomTexturePathAndName, tempBottomTextureAfterPath);
+					g_terrain->SetBottomTexturePath(newBottomTexturePathAndName);
+
+					CChar* tempBottomNormalMapAfterPath = GetAfterPath(g_terrain->GetBottomNormalMapPath());
+					CChar newBottomNormalMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newBottomNormalMapPathAndName, terrainPath);
+					Append(newBottomNormalMapPathAndName, tempBottomNormalMapAfterPath);
+					g_terrain->SetBottomNormalMapPath(newBottomNormalMapPathAndName);
+
+					//Slope Textures
+					CChar* tempSlopeTextureAfterPath = GetAfterPath(g_terrain->GetSlopeTexturePath());
+					CChar newSlopeTexturePathAndName[MAX_NAME_SIZE];
+					Cpy(newSlopeTexturePathAndName, terrainPath);
+					Append(newSlopeTexturePathAndName, tempSlopeTextureAfterPath);
+					g_terrain->SetSlopeTexturePath(newSlopeTexturePathAndName);
+
+					CChar* tempSlopeNormalMapAfterPath = GetAfterPath(g_terrain->GetSlopeNormalMapPath());
+					CChar newSlopeNormalMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newSlopeNormalMapPathAndName, terrainPath);
+					Append(newSlopeNormalMapPathAndName, tempSlopeNormalMapAfterPath);
+					g_terrain->SetSlopeNormalMapPath(newSlopeNormalMapPathAndName);
+
+					//Top Textures
+					CChar* tempTopTextureAfterPath = GetAfterPath(g_terrain->GetTopTexturePath());
+					CChar newTopTexturePathAndName[MAX_NAME_SIZE];
+					Cpy(newTopTexturePathAndName, terrainPath);
+					Append(newTopTexturePathAndName, tempTopTextureAfterPath);
+					g_terrain->SetTopTexturePath(newTopTexturePathAndName);
+
+					CChar* tempTopNormalMapAfterPath = GetAfterPath(g_terrain->GetTopNormalMapPath());
+					CChar newTopNormalMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newTopNormalMapPathAndName, terrainPath);
+					Append(newTopNormalMapPathAndName, tempTopNormalMapAfterPath);
+					g_terrain->SetTopNormalMapPath(newTopNormalMapPathAndName);
+				}
+			}
+
 			//ambient sound
 			if( g_multipleView->m_ambientSound )
 			{
@@ -8252,20 +11030,40 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentStartupPath, startupPath);
 			CopyAllFilesFromSrcToDstDirectory(currentSkyPath, skyPath);
+			CopyAllFilesFromSrcToDstDirectory(currentTerrainPath, terrainPath);
 			CopyAllFilesFromSrcToDstDirectory(currentBannerPath, bannerPath);
-			CopyAllFilesFromSrcToDstDirectory(currentScriptPath, scriptPath);
+			CopyAllFilesFromSrcToDstDirectory(currentCursorPath, cursorPath);
+
+			//CopyAllFilesFromSrcToDstDirectory(currentScriptPath, scriptPath);
+			//for (CUInt j = 0; j < scriptPath.size(); j++)
+			//	CopyAllFilesFromSrcToDstDirectory((CChar*)currentScriptPath[j].c_str(), (CChar*)scriptPath[j].c_str());
+			CopyAllFilesAndFoldersToDstDirectory(rootCurrentScriptPath, rootScriptPath);
 
 			//Banner
 			if( g_sceneBanner.IsInVSceneList(g_currentVSceneName, CTrue, CFalse ) )
 			{
 				CopyOneFileToDstDirectory( g_sceneBanner.GetBannerPath(), bannerPath );
 			}
+
+			//Menu Cursor
+			if (g_vsceneMenuCursor.IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+			{
+				CopyOneFileToDstDirectory(g_vsceneMenuCursor.GetCursorPath(), cursorPath);
+			}
+
 			CChar* tempAfterPath = GetAfterPath(g_sceneBanner.GetBannerPath());
 			CChar newPathAndName[MAX_NAME_SIZE];
 			Cpy(newPathAndName, bannerPath );
 			Append(newPathAndName, tempAfterPath );
 			g_sceneBanner.SetBannerPath( newPathAndName );
 			g_sceneBanner.IsInVSceneList(pureFileName,CTrue, CTrue );
+
+			CChar* tempCursorAfterPath = GetAfterPath(g_vsceneMenuCursor.GetCursorPath());
+			CChar newCursorPathAndName[MAX_NAME_SIZE];
+			Cpy(newCursorPathAndName, cursorPath);
+			Append(newCursorPathAndName, tempCursorAfterPath);
+			g_vsceneMenuCursor.SetCursorPath(newCursorPathAndName);
+			g_vsceneMenuCursor.IsInVSceneList(pureFileName, CTrue, CTrue);
 
 			//scripts
 			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
@@ -8277,23 +11075,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					{
 						if (scene->m_instanceGeometries[k]->m_hasEnterScript && scene->m_instanceGeometries[k]->m_updateEnterScript)
 						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_enterScript, scriptPath);
+							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_enterScript, g_instancePrefab[j]->GetTempScriptPath());
 							scene->m_instanceGeometries[k]->m_updateEnterScript = CFalse;
 
 							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript);
 							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, scriptPath);
+							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
 							Append(NewPathAndName, TempAfterPath);
 							Cpy(scene->m_instanceGeometries[k]->m_enterScript, NewPathAndName);
 						}
 						if (scene->m_instanceGeometries[k]->m_hasExitScript && scene->m_instanceGeometries[k]->m_updateExitScript)
 						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_exitScript, scriptPath);
+							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_exitScript, g_instancePrefab[j]->GetTempScriptPath());
 							scene->m_instanceGeometries[k]->m_updateExitScript = CFalse;
 
 							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript);
 							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, scriptPath);
+							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
 							Append(NewPathAndName, TempAfterPath);
 							Cpy(scene->m_instanceGeometries[k]->m_exitScript, NewPathAndName);
 						}
@@ -8321,7 +11119,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 			}
 
-			//startup dome
+			//startup
 			if (g_startup)
 			{
 				if (g_startup->GetUpdateScript())
@@ -8330,7 +11128,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 				CChar* tempAfterPath = GetAfterPath(g_startup->GetScriptPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, scriptPath);
+				Cpy(newPathAndName, startupPath);
 				Append(newPathAndName, tempAfterPath);
 				g_startup->SetScriptPath(newPathAndName);
 				g_startup->SetUpdateScript(CFalse);
@@ -8351,6 +11149,80 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 				g_skyDome->IsInVSceneList(pureFileName,CTrue, CTrue );
 			}
+
+			//terrain
+			if (g_terrain)
+			{
+				if (g_terrain->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+				{
+					CopyOneFileToDstDirectory(g_terrain->GetHeightMapPath(), terrainPath);
+
+					CopyOneFileToDstDirectory(g_terrain->GetBottomTexturePath(), terrainPath);
+					CopyOneFileToDstDirectory(g_terrain->GetBottomNormalMapPath(), terrainPath);
+
+					CopyOneFileToDstDirectory(g_terrain->GetSlopeTexturePath(), terrainPath);
+					CopyOneFileToDstDirectory(g_terrain->GetSlopeNormalMapPath(), terrainPath);
+
+					CopyOneFileToDstDirectory(g_terrain->GetTopTexturePath(), terrainPath);
+					CopyOneFileToDstDirectory(g_terrain->GetTopNormalMapPath(), terrainPath);
+
+					if (g_terrain->GetCookPhysicsTriangles())
+					{
+						CopyAllFilesAndFoldersToDstDirectory(g_terrain->GetPhysicsPath(), terrainPath, CFalse);
+						g_terrain->SetCookPhysicsTriangles(CFalse);
+					}
+
+					//Height Map
+					CChar* tempHeightMapAfterPath = GetAfterPath(g_terrain->GetHeightMapPath());
+					CChar newHeightMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newHeightMapPathAndName, terrainPath);
+					Append(newHeightMapPathAndName, tempHeightMapAfterPath);
+					g_terrain->SetHeightMapPath(newHeightMapPathAndName);
+
+					//Bottom Textures
+					CChar* tempBottomTextureAfterPath = GetAfterPath(g_terrain->GetBottomTexturePath());
+					CChar newBottomTexturePathAndName[MAX_NAME_SIZE];
+					Cpy(newBottomTexturePathAndName, terrainPath);
+					Append(newBottomTexturePathAndName, tempBottomTextureAfterPath);
+					g_terrain->SetBottomTexturePath(newBottomTexturePathAndName);
+
+					CChar* tempBottomNormalMapAfterPath = GetAfterPath(g_terrain->GetBottomNormalMapPath());
+					CChar newBottomNormalMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newBottomNormalMapPathAndName, terrainPath);
+					Append(newBottomNormalMapPathAndName, tempBottomNormalMapAfterPath);
+					g_terrain->SetBottomNormalMapPath(newBottomNormalMapPathAndName);
+
+					//Slope Textures
+					CChar* tempSlopeTextureAfterPath = GetAfterPath(g_terrain->GetSlopeTexturePath());
+					CChar newSlopeTexturePathAndName[MAX_NAME_SIZE];
+					Cpy(newSlopeTexturePathAndName, terrainPath);
+					Append(newSlopeTexturePathAndName, tempSlopeTextureAfterPath);
+					g_terrain->SetSlopeTexturePath(newSlopeTexturePathAndName);
+
+					CChar* tempSlopeNormalMapAfterPath = GetAfterPath(g_terrain->GetSlopeNormalMapPath());
+					CChar newSlopeNormalMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newSlopeNormalMapPathAndName, terrainPath);
+					Append(newSlopeNormalMapPathAndName, tempSlopeNormalMapAfterPath);
+					g_terrain->SetSlopeNormalMapPath(newSlopeNormalMapPathAndName);
+
+					//Top Textures
+					CChar* tempTopTextureAfterPath = GetAfterPath(g_terrain->GetTopTexturePath());
+					CChar newTopTexturePathAndName[MAX_NAME_SIZE];
+					Cpy(newTopTexturePathAndName, terrainPath);
+					Append(newTopTexturePathAndName, tempTopTextureAfterPath);
+					g_terrain->SetTopTexturePath(newTopTexturePathAndName);
+
+					CChar* tempTopNormalMapAfterPath = GetAfterPath(g_terrain->GetTopNormalMapPath());
+					CChar newTopNormalMapPathAndName[MAX_NAME_SIZE];
+					Cpy(newTopNormalMapPathAndName, terrainPath);
+					Append(newTopNormalMapPathAndName, tempTopNormalMapAfterPath);
+					g_terrain->SetTopNormalMapPath(newTopNormalMapPathAndName);
+
+				}
+				g_terrain->IsInVSceneList(pureFileName, CTrue, CTrue);
+
+			}
+
 			//ambient sound
 			if( g_multipleView->m_ambientSound )
 			{
@@ -8438,6 +11310,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				g_engineWaters[i]->IsInVSceneList(pureFileName,CTrue, CTrue );
 			}
 		}
+
 		HANDLE hFind;
 		WIN32_FIND_DATA data;
 
@@ -8468,41 +11341,24 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}while (FindNextFile( hFind, &data));
 		FindClose(hFind);
 
-		//Delete removed scripts
-		CChar tempScriptPath[MAX_NAME_SIZE];
-		sprintf(tempScriptPath, "%s%s", scriptPath, "*.*");
-		hFind = FindFirstFile(tempScriptPath, &data);
+		//Delete removed cursors
+		CChar cursorTempPath[MAX_NAME_SIZE];
+		sprintf(cursorTempPath, "%s%s", cursorPath, "*.*");
+		hFind = FindFirstFile(cursorTempPath, &data);
 		do
 		{
-			CChar scriptTempPath[MAX_NAME_SIZE];
-			sprintf(scriptTempPath, "%s%s", scriptPath, data.cFileName);
-
+			CChar cursorTempPath[MAX_NAME_SIZE];
+			sprintf(cursorTempPath, "%s%s", cursorPath, data.cFileName);
 			CBool foundTarget = CFalse;
-			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			if (Cmp(GetAfterPath(g_vsceneMenuCursor.GetCursorPath()), data.cFileName))
 			{
-				if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
-				{
-					CScene* scene = g_instancePrefab[j]->GetScene(0);
-					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
-					{
-						if (scene->m_instanceGeometries[k]->m_hasEnterScript && Cmp(GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript), data.cFileName))
-						{
-							foundTarget = CTrue;
-							break;
-						}
-						if (scene->m_instanceGeometries[k]->m_hasExitScript && Cmp(GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript), data.cFileName))
-						{
-							foundTarget = CTrue;
-							break;
-						}
-					}
-				}
+				foundTarget = CTrue;
 			}
 
 			//Remove Files
 			if (!foundTarget)
 			{
-				if (!DeleteFile(scriptTempPath))
+				if (!DeleteFile(cursorTempPath))
 				{
 					//CChar temp[MAX_NAME_SIZE];
 					//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
@@ -8511,6 +11367,80 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 		} while (FindNextFile(hFind, &data));
 		FindClose(hFind);
+
+
+		//Delete removed scripts
+		for (CUInt sc = 0; sc < scriptPath.size(); sc++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s", scriptPath[sc].c_str(), "*.*");
+			hFind = FindFirstFile(tempScriptPath, &data);
+			do
+			{
+				CChar scriptTempPath[MAX_NAME_SIZE];
+				sprintf(scriptTempPath, "%s%s", scriptPath[sc].c_str(), data.cFileName);
+
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				{
+					if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+					{
+						CScene* scene = g_instancePrefab[j]->GetScene(0);
+						for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+						{
+							if (scene->m_instanceGeometries[k]->m_hasEnterScript && Cmp(GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript), data.cFileName))
+							{
+								foundTarget = CTrue;
+								break;
+							}
+							if (scene->m_instanceGeometries[k]->m_hasExitScript && Cmp(GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript), data.cFileName))
+							{
+								foundTarget = CTrue;
+								break;
+							}
+						}
+					}
+				}
+
+				//Remove Files
+				if (!foundTarget)
+				{
+					if (!DeleteFile(scriptTempPath))
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+						//PrintInfo( temp, COLOR_RED );
+					}
+				}
+			} while (FindNextFile(hFind, &data));
+			FindClose(hFind);
+		}
+
+		//Delete removed trigger object's folders
+		for (CUInt k = 0; k < m_deletedTriggerObjects.size(); k++)
+		{
+			CBool foundTarget = CFalse;
+			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			{
+				if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+				{
+					if (Cmp(m_deletedTriggerObjects[k].c_str(), g_instancePrefab[j]->GetName()))
+					{
+						foundTarget = CTrue;
+						break;
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar tempScriptPath[MAX_NAME_SIZE];
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", (CChar*)m_deletedTriggerObjects[k].c_str());
+				RemoveAllFilesInDirectory(tempScriptPath);
+				RemoveDirectoryA(tempScriptPath);
+			}
+		}
+
+		m_deletedTriggerObjects.clear();
 
 		//Delete removed startup script
 		if (g_startup)
@@ -8580,6 +11510,51 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory( skyPath );
 		}
 
+		//Delete removed terrain files
+		if (g_terrain)
+		{
+			CChar terrainTempPath[MAX_NAME_SIZE];
+			sprintf(terrainTempPath, "%s%s", terrainPath, "*.*");
+			hFind = FindFirstFile(terrainTempPath, &data);
+			do
+			{
+				CChar fileName[MAX_NAME_SIZE];
+				Cpy(fileName, data.cFileName);
+				if (Cmp(CharUpperA(PathFindExtensionA(fileName)), ".DDS") ||
+					Cmp(CharUpperA(PathFindExtensionA(fileName)), ".TGA"))
+				{
+					CChar terrainTempPath[MAX_NAME_SIZE];
+					sprintf(terrainTempPath, "%s%s", terrainPath, data.cFileName);
+					CBool foundTarget = CFalse;
+					if (Cmp(GetAfterPath(g_terrain->GetHeightMapPath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetBottomTexturePath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetBottomNormalMapPath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetSlopeTexturePath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetSlopeNormalMapPath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetTopTexturePath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetTopNormalMapPath()), data.cFileName))
+					{
+						foundTarget = CTrue;
+					}
+
+					//Remove Files
+					if (!foundTarget)
+					{
+						if (!DeleteFile(terrainTempPath))
+						{
+							//CChar temp[MAX_NAME_SIZE];
+							//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+							//PrintInfo( temp, COLOR_RED );
+						}
+					}
+				}
+			} while (FindNextFile(hFind, &data));
+			FindClose(hFind);
+		}
+		else
+		{
+			RemoveAllFilesInDirectory(terrainPath);
+		}
 
 		//delete removed ambient sounds
 		if( g_multipleView->m_ambientSound )
@@ -8729,6 +11704,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}while (FindNextFile( hFind, &data));
 		FindClose(hFind);
 
+		if (g_terrain)
+			g_terrain->SetPhysicsPath(terrainPath);
+
 		//Mark Current VScene 
 		Cpy( g_currentVSceneName, pureFileName );
 
@@ -8764,52 +11742,48 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		fwrite( &g_fogProperties, sizeof( CFogProperties ), 1, filePtr  );
 		fwrite( &g_bloomProperties, sizeof( CBloomProperties ), 1, filePtr  );
 		fwrite( &g_lightProperties, sizeof( CLightProperties ), 1, filePtr  );
+		fwrite(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
+		fwrite(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+		fwrite(&g_currentVSceneProperties, sizeof(CCurrentVSceneProperties), 1, filePtr);
+
 		//fwrite(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fwrite( &g_pathProperties, sizeof( CPathProperties ), 1, filePtr  );
 		fwrite( &g_vandaDemo, sizeof(CBool), 1, filePtr);
-		fwrite(g_sceneBanner.GetBannerPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr );
-		fwrite( &g_extraTexturesNamingConventions, sizeof( CExtraTexturesNamingConventions ), 1, filePtr  );
+		fwrite(g_sceneBanner.GetBannerPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fwrite(g_vsceneMenuCursor.GetCursorPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fwrite(&g_extraTexturesNamingConventions, sizeof(CExtraTexturesNamingConventions), 1, filePtr);
 		fwrite( &g_useGlobalAmbientColor, sizeof( CBool ), 1, filePtr  );
 		fwrite( &g_globalAmbientColor, sizeof( CColor4f ), 1, filePtr  );
 		fwrite( &g_sceneManagerObjectsPerSplit, sizeof( CInt), 1, filePtr );
 
 		//save physx data
-		CBool foundCharacterTarget = CFalse;
-		CInstancePrefab* instance_prefab = NULL;
-		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		NxExtendedVec3 characterPos;
+		if (g_mainCharacter)
 		{
-			if (Cmp(g_instancePrefab[i]->GetPrefab()->GetPackageName(), "Vanda_Basics") && Cmp(g_instancePrefab[i]->GetPrefab()->GetPrefabName(), "Character"))
-			{
-				instance_prefab = g_instancePrefab[i];
-				foundCharacterTarget = CTrue;
-				break;
-			}
-		}
-		if (foundCharacterTarget)
-		{
-			g_characterPos.x = instance_prefab->GetTranslate().x;
-			g_characterPos.y = instance_prefab->GetTranslate().y + (g_physXProperties.m_fCapsuleHeight / 2.f);
-			g_characterPos.z = instance_prefab->GetTranslate().z;
-
+			characterPos.x = g_multipleView->m_nx->gControllers->getPosition().x;
+			characterPos.y = g_multipleView->m_nx->gControllers->getPosition().y;
+			characterPos.z = g_multipleView->m_nx->gControllers->getPosition().z;
 		}
 		else
 		{ 
 			NxExtendedVec3 pos(0.0f, 1.6f, 0.0f);
-			g_characterPos = pos;
+			characterPos = pos;
 		}
 
-		g_cameraInstancePos.x = g_render.GetDefaultInstanceCamera()->m_x;
-		g_cameraInstancePos.y = g_render.GetDefaultInstanceCamera()->m_y;
-		g_cameraInstancePos.z = g_render.GetDefaultInstanceCamera()->m_z;
-		g_cameraInstancePanTilt.x = g_render.GetDefaultInstanceCamera()->m_pan;
-		g_cameraInstancePanTilt.y = g_render.GetDefaultInstanceCamera()->m_tilt;
+		g_cameraInstancePos.x = g_render.GetDefaultInstanceCamera()->GetPos().x;
+		g_cameraInstancePos.y = g_render.GetDefaultInstanceCamera()->GetPos().y;
+		g_cameraInstancePos.z = g_render.GetDefaultInstanceCamera()->GetPos().z;
+		g_cameraInstancePanTilt.x = g_render.GetDefaultInstanceCamera()->GetPan();
+		g_cameraInstancePanTilt.y = g_render.GetDefaultInstanceCamera()->GetTilt();
+		CFloat cameraInstanceZoom = g_render.GetDefaultInstanceCamera()->m_abstractCamera->GetAngle();
 
 		fwrite( &g_multipleView->m_nx->m_hasScene, sizeof( CBool ), 1, filePtr  );
 		fwrite( g_multipleView->m_nx->m_sceneName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-		fwrite( &g_characterPos, sizeof( NxExtendedVec3 ), 1, filePtr );
+		fwrite(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 		fwrite( &g_cameraInstancePos, sizeof( CVec3f ), 1, filePtr );
-		fwrite( &g_cameraInstancePanTilt, sizeof( CVec2f ), 1, filePtr );
-		
+		fwrite(&g_cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+		fwrite(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
+
 		//save prefabs here
 		CUInt pr_size = 0;
 		for (CUInt i = 0; i < g_prefab.size(); i++)
@@ -8887,128 +11861,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//is gui visible?
 			CBool isVisible = g_guis[i]->GetVisible();
 			fwrite(&isVisible, sizeof(CBool), 1, filePtr);
-
-			CUInt numButtons = g_guis[i]->m_guiButtons.size();
-			fwrite(&numButtons, sizeof(CUInt), 1, filePtr);
-
-			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
-			{
-				//save button information
-				fwrite(g_guis[i]->m_guiButtons[j]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guis[i]->m_guiButtons[j]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guis[i]->m_guiButtons[j]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				CVec2f pos = g_guis[i]->m_guiButtons[j]->GetPosition();
-				pos.x /= (CFloat)g_width;
-				pos.y /= (CFloat)g_height;
-
-				fwrite(&pos, sizeof(CVec2f), 1, filePtr);
-
-				CInt size = g_guis[i]->m_guiButtons[j]->GetSize();
-				fwrite(&size, sizeof(CInt), 1, filePtr);
-
-				fwrite(g_guis[i]->m_guiButtons[j]->GetMainImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//disable image
-				CBool hasDisableImage = g_guis[i]->m_guiButtons[j]->GetHasDisableImage();
-				fwrite(&hasDisableImage, sizeof(CBool), 1, filePtr);
-
-				if (hasDisableImage)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetDisableImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//hover image
-				CBool hasHoverImage = g_guis[i]->m_guiButtons[j]->GetHasHoverImage();
-				fwrite(&hasHoverImage, sizeof(CBool), 1, filePtr);
-
-				if (hasHoverImage)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetHoverImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//left click image
-				CBool hasLeftClickImage = g_guis[i]->m_guiButtons[j]->GetHasLeftClickImage();
-				fwrite(&hasLeftClickImage, sizeof(CBool), 1, filePtr);
-
-				if (hasLeftClickImage)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetLeftClickImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//right click image
-				CBool hasRightClickImage = g_guis[i]->m_guiButtons[j]->GetHasRightClickImage();
-				fwrite(&hasRightClickImage, sizeof(CBool), 1, filePtr);
-
-				if (hasRightClickImage)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetRightClickImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//left click script
-				CBool hasLeftClickScript = g_guis[i]->m_guiButtons[j]->GetHasLeftClickScript();
-				fwrite(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
-
-				if (hasLeftClickScript)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetLeftClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//right click script
-				CBool hasRightClickScript = g_guis[i]->m_guiButtons[j]->GetHasRightClickScript();
-				fwrite(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-				if (hasRightClickScript)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetRightClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				//hover script
-				CBool hasHoverScript = g_guis[i]->m_guiButtons[j]->GetHasHoverScript();
-				fwrite(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-				if (hasHoverScript)
-					fwrite(g_guis[i]->m_guiButtons[j]->GetHoverScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			}
-			CUInt numBackgrounds = g_guis[i]->m_guiBackgrounds.size();
-			fwrite(&numBackgrounds, sizeof(CUInt), 1, filePtr);
-
-			for (CUInt j = 0; j < g_guis[i]->m_guiBackgrounds.size(); j++)
-			{
-				//save background information
-				fwrite(g_guis[i]->m_guiBackgrounds[j]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guis[i]->m_guiBackgrounds[j]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guis[i]->m_guiBackgrounds[j]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				CVec2f pos = g_guis[i]->m_guiBackgrounds[j]->GetPosition();
-				pos.x /= (CFloat)g_width;
-				pos.y /= (CFloat)g_height;
-
-				fwrite(&pos, sizeof(CVec2f), 1, filePtr);
-
-				CInt size = g_guis[i]->m_guiBackgrounds[j]->GetSize();
-				fwrite(&size, sizeof(CInt), 1, filePtr);
-
-				fwrite(g_guis[i]->m_guiBackgrounds[j]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			}
-
-			CUInt numTexts = g_guis[i]->m_guiTexts.size();
-			fwrite(&numTexts, sizeof(CUInt), 1, filePtr);
-
-			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
-			{
-				//save text information
-				fwrite(g_guis[i]->m_guiTexts[j]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guis[i]->m_guiTexts[j]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guis[i]->m_guiTexts[j]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-				CVec2f pos = g_guis[i]->m_guiTexts[j]->GetPosition();
-				pos.x /= (CFloat)g_width;
-				pos.y /= (CFloat)g_height;
-
-				fwrite(&pos, sizeof(CVec2f), 1, filePtr);
-
-				CInt size = g_guis[i]->m_guiTexts[j]->GetSize();
-				fwrite(&size, sizeof(CInt), 1, filePtr);
-
-				fwrite(g_guis[i]->m_guiTexts[j]->GetText(), sizeof(CChar), MAX_URI_SIZE, filePtr);
-
-				CVec3f color = g_guis[i]->m_guiTexts[j]->GetColor();
-				fwrite(&color, sizeof(CVec3f), 1, filePtr);
-
-				CFontType font = g_guis[i]->m_guiTexts[j]->GetFontType();
-				fwrite(&font, sizeof(CFontType), 1, filePtr);
-			}
 		}
 		//End of GUIs///////////////////
 
@@ -9024,6 +11876,40 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( &g_skyDome->m_dampening, sizeof( CFloat ), 1, filePtr );
 			fwrite( &g_skyDome->m_exponential, sizeof( CBool ), 1, filePtr );
 		}
+
+		//save terrain
+
+		fwrite(&g_menu.m_insertAndShowTerrain, sizeof(CBool), 1, filePtr);
+		if (g_menu.m_insertAndShowTerrain)
+		{
+			CFloat terrain_shininess = g_terrain->GetShininess();
+			CInt terrain_smooth = g_terrain->GetSmooth();
+			CFloat terrain_scale_height = g_terrain->GetScaleHeight();
+			CFloat terrain_scale_width = g_terrain->GetScaleWidth();
+			CFloat terrain_slope_factor = g_terrain->GetSlopeFactor();
+			CFloat terrain_top_start_height = g_terrain->GetTopStartHeight();
+			CBool terrain_flatten = g_terrain->GetFlatten();
+
+			fwrite(g_terrain->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetHeightMapPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetBottomTexturePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetBottomNormalMapPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetSlopeTexturePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetSlopeNormalMapPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetTopTexturePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_terrain->GetTopNormalMapPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(&terrain_shininess, sizeof(CFloat), 1, filePtr);
+			fwrite(&terrain_smooth, sizeof(CInt), 1, filePtr);
+			fwrite(&terrain_scale_height, sizeof(CFloat), 1, filePtr);
+			fwrite(&terrain_scale_width, sizeof(CFloat), 1, filePtr);
+			fwrite(&terrain_slope_factor, sizeof(CFloat), 1, filePtr);
+			fwrite(&terrain_top_start_height, sizeof(CFloat), 1, filePtr);
+			fwrite(&terrain_flatten, sizeof(CBool), 1, filePtr);
+			fwrite(g_terrain->GetAmbientColor(), sizeof(CFloat), 4, filePtr);
+			fwrite(g_terrain->GetDiffuseColor(), sizeof(CFloat), 4, filePtr);
+			fwrite(g_terrain->GetSpecularColor(), sizeof(CFloat), 4, filePtr);
+		}
+
 		//save all the waters 
 		CInt tempWaterCount = (CInt)g_engineWaters.size();
 		fwrite( &tempWaterCount, sizeof( CInt ), 1, filePtr );
@@ -9037,7 +11923,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( &g_engineWaters[i]->m_fWaterHeight, sizeof( CFloat ), 1, filePtr );
 			fwrite( &g_engineWaters[i]->m_fWaterSpeed, sizeof( CFloat ), 1, filePtr );
 			fwrite( &g_engineWaters[i]->m_fWaterScale, sizeof( CFloat ), 1, filePtr );
-			fwrite( &g_engineWaters[i]->m_fWaterUV, sizeof( CFloat ), 1, filePtr );
+			fwrite(&g_engineWaters[i]->m_fWaterUV, sizeof(CFloat), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_isVisible, sizeof(CBool), 1, filePtr);
+
 			CInt tempInstancePrefabCount = (CInt)g_engineWaters[i]->m_instancePrefab.size();
 			fwrite( &tempInstancePrefabCount, sizeof( CInt ), 1, filePtr );
 			for( CUInt j = 0; j < g_engineWaters[i]->m_instancePrefab.size(); j++ )
@@ -9067,6 +11955,29 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				fwrite( &g_engineLights[i]->m_abstractLight->m_spotExponent, sizeof( CFloat ), 1, filePtr  );
 			}
 		}
+
+		//save engine cameras
+		CInt tempCameraCount = (CInt)g_engineCameraInstances.size();
+		fwrite(&tempCameraCount, sizeof(CInt), 1, filePtr);
+
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			CFloat pos[3] = { g_engineCameraInstances[i]->GetPos().x, g_engineCameraInstances[i]->GetPos().y, g_engineCameraInstances[i]->GetPos().z };
+			CFloat pan = g_engineCameraInstances[i]->GetPan();
+			CFloat tilt = g_engineCameraInstances[i]->GetTilt();
+			CFloat fov = g_engineCameraInstances[i]->m_abstractCamera->GetAngle();
+			CFloat ncp = g_engineCameraInstances[i]->GetNCP();
+			CFloat fcp = g_engineCameraInstances[i]->GetFCP();
+
+			fwrite(g_engineCameraInstances[i]->m_abstractCamera->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(pos, sizeof(CFloat), 3, filePtr);
+			fwrite(&pan, sizeof(CFloat), 1, filePtr);
+			fwrite(&tilt, sizeof(CFloat), 1, filePtr);
+			fwrite(&fov, sizeof(CFloat), 1, filePtr);
+			fwrite(&ncp, sizeof(CFloat), 1, filePtr);
+			fwrite(&fcp, sizeof(CFloat), 1, filePtr);
+		}
+
 		//save static sounds data
 		CInt tempStaticSoundCount = (CInt)g_engineStaticSounds.size();
 		fwrite( &tempStaticSoundCount, sizeof( CInt ), 1, filePtr );
@@ -9126,7 +12037,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		if (hasCharacter)
 		{
-			CCharacterType type = g_mainCharacter->GetType();
+			CPhysXCameraType type = g_mainCharacter->GetCameraType();
 			CVec3f translation = g_mainCharacter->GetInstancePrefab()->GetTranslate();
 			CVec4f rotation = g_mainCharacter->GetInstancePrefab()->GetRotate();
 			CVec3f scaling = g_mainCharacter->GetInstancePrefab()->GetScale();
@@ -9299,7 +12210,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.6.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -10268,6 +13179,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		m_newInstancePrefab = CNew(CInstancePrefab);
 		m_newInstancePrefab->SetNameIndex(); //for selection only
 		m_newInstancePrefab->GenQueryIndex();
+		m_newInstancePrefab->SetWater(NULL);
 		g_selectedName = m_newInstancePrefab->GetNameIndex(); //select this element
 		g_instancePrefab.push_back(m_newInstancePrefab);
 		g_currentInstancePrefab = m_newInstancePrefab;
@@ -10336,6 +13248,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 			m_newInstancePrefab->SetName(instanceName);
 			Cpy(g_currentInstancePrefabName, instanceName);
 			m_newInstancePrefab->SetVisible(CTrue);
+			g_currentInstancePrefab = m_newInstancePrefab;
 			SetDialogData3(CTrue, m_newInstancePrefab);
 
 		}
@@ -10367,6 +13280,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		CFogProperties fogProperties;
 		CBloomProperties bloomProperties;
 		CLightProperties lightProperties;
+		CLODProperties lodProperties;
+		CCameraProperties cameraProperties;
 		CPathProperties pathProperties;
 		CCharacterBlendingProperties characterBlendingProperties;
 		fread(&physXProperties, sizeof(CPhysXProperties), 1, filePtr);
@@ -10374,6 +13289,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		fread(&fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fread(&bloomProperties, sizeof(CBloomProperties), 1, filePtr);
 		fread(&lightProperties, sizeof(CLightProperties), 1, filePtr);
+		fread(&lodProperties, sizeof(CLODProperties), 1, filePtr);
+		fread(&cameraProperties, sizeof(CCameraProperties), 1, filePtr);
 		//fread(&characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fread(&pathProperties, sizeof(CPathProperties), 1, filePtr);
 		fread(&g_vandaDemo, sizeof(CBool), 1, filePtr);
@@ -10396,12 +13313,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		NxExtendedVec3 characterPos;
 		CVec3f cameraInstancePos;
 		CVec2f cameraInstancePanTilt;
+		CFloat cameraInstanceZoom;
 		fread(&insertPhysXScene, sizeof(CBool), 1, filePtr);
 		fread(strPhysXSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 
 		fread(&cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+		fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 
 		CChar tempSceneName[MAX_NAME_SIZE];
 
@@ -10414,13 +13333,15 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		for (CInt i = 0; i < tempSceneSize; i++)
 		{
 			CInt clipIndex;
-			CBool playAnimation, loopAnimation, isVisible;
+			CBool playAnimation, loopAnimation, isVisible, isAlwaysVisible, castShadow;
 
 			fread(tempSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fread(&clipIndex, 1, sizeof(CInt), filePtr);
 			fread(&playAnimation, 1, sizeof(CBool), filePtr);
 			fread(&loopAnimation, 1, sizeof(CBool), filePtr);
 			fread(&isVisible, 1, sizeof(CBool), filePtr);
+			fread(&isAlwaysVisible, 1, sizeof(CBool), filePtr);
+			fread(&castShadow, 1, sizeof(CBool), filePtr);
 			fread(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
 
 			CScene * tempScene = new CScene();
@@ -10450,23 +13371,51 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 
 			g_scene.push_back(tempScene);
 			g_reportInfo = CFalse;
+
 			for (CUInt j = 0; j < tempScene->m_animationSceneNames.size(); j++)
 			{
-				CScene * animScene = new CScene();
 				CChar sceneName[MAX_NAME_SIZE];
 				Cpy(sceneName, tempScene->m_animationSceneNames[j].c_str());
 				CChar * nameOnly = GetAfterPath(sceneName);
+				GetWithoutDot(nameOnly);
+				Append(nameOnly, ".vac");
 
-				//save functions. it should be copies in WIN32 Project as well
 				CChar name[MAX_NAME_SIZE];
 				sprintf(name, "%s%s%s%s", packagePath, g_currentPrefabName, "/External Scenes/", nameOnly);
 
 				CChar clipName[MAX_NAME_SIZE];
 				Cpy(clipName, GetAfterPath(sceneName));
 				GetWithoutDot(clipName);
-				animScene->Load(name, clipName, j, tempScene, CFalse, CTrue);
-				CDelete(animScene);
+
+				//Loading Animations from Binary File
+				std::ifstream ifs(name, ios_base::binary);
+				boost::archive::binary_iarchive ia(ifs);
+				CAnimationClip* p;
+				ia >> p;
+				for (CUInt l = 0; l < p->m_animations.size(); l++)
+				{
+					if (!tempScene->GetAnimation(p->m_animations[l]->GetName(), p->m_animations[l]->GetDocURI()))
+					{
+						tempScene->m_animations.push_back(p->m_animations[l]);
+
+						if (p->m_animations[l]->GetChannelSize() > 0)
+						{
+							p->m_animations[l]->GenerateKeys();
+						}
+						if (p->m_animations[l]->GetEndTime() > tempScene->GetLastKeyTime())
+							tempScene->SetLastKeyTime(p->m_animations[l]->GetEndTime());
+
+					}
+				}
+				p->SetAnimationStatus(eANIM_NONE);
+				p->SetCurrentTime(0.0f);
+				p->SetCurrentTime2(0.0f);
+				p->SetCurrentWeight(0.0f);
+				tempScene->m_animationClips.push_back(p);
+
+				tempScene->m_hasAnimation = CTrue;
 			}
+
 			if (tempScene->m_animationSceneNames.size())
 				tempScene->SetNumClips(tempScene->m_animationSceneNames.size());
 
@@ -10480,18 +13429,26 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				tempScene->SetClipIndexForStartup(clipIndex);
 				tempScene->m_playAnimation = playAnimation;
 				tempScene->m_isVisible = isVisible;
+				tempScene->m_loopAnimationAtStartup = loopAnimation;
+				tempScene->m_alwaysVisible = isAlwaysVisible;
+				tempScene->m_castShadow = castShadow;
+
 				if (tempScene->m_playAnimation)
 				{
-					tempScene->m_animationStatus = eANIM_PLAY;
+					tempScene->SetAnimationStatus(eANIM_PLAY);
 					tempScene->SetClipIndex(clipIndex, loopAnimation);
 					if (tempScene->GetNumClips())
-						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+					{
+						if (tempScene->m_loopAnimationAtStartup)
+							tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+						else
+							tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
+					}
 				}
 				else
 				{
-					tempScene->m_animationStatus = eANIM_PAUSE;
+					tempScene->SetAnimationStatus(eANIM_PAUSE);
 				}
-				tempScene->m_loopAnimationAtStartup = loopAnimation;
 				//save functions/////////////////////////////////
 				g_currentScene = tempScene; //mark the current scene. Save functions
 
@@ -10524,7 +13481,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 					tempScene->SetDocURI(m_newPrefab->GetCurrentInstance()->GetName());
 				}
 				PrintInfo("\nScene ' ");
-				PrintInfo(tempScene->m_fileName, COLOR_RED_GREEN);
+				PrintInfo(tempScene->GetFileName(), COLOR_RED_GREEN);
 				PrintInfo(" ' loaded successfully");
 
 				sceneLoaded = CTrue;
@@ -10563,15 +13520,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 					PrintInfo("\nCouldn't create the triggers. In order to create triggers from COLLADA files, you should remove current external PhysX scene.", COLOR_RED);
 				}
 
-			}
-			else if (CmpIn(tempScene->GetName(), "grass"))
-			{
-				tempScene->m_isGrass = CTrue;
-				for (CUInt j = 0; j < (CUInt)tempGeoSize; j++)
-				{
-					if (tempScene->m_geometries.size() >= j + 1)
-						tempScene->m_geometries[j]->SetDiffuse("grass_color");
-				}
 			}
 
 			for (CUInt j = 0; j < (CUInt)tempGeoSize; j++)
@@ -10658,7 +13606,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				fread(&m_groupSize, sizeof(CUInt), 1, filePtr);
 				//store group info
 
-				if (sceneLoaded && !tempScene->m_isGrass )
+				if (sceneLoaded)
 				{
 					if (m_hasDirtMap && tempScene->m_geometries.size() >= j + 1)
 					{
@@ -10702,15 +13650,19 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 						fread(&m_hasGroupGlossMap, sizeof(CBool), 1, filePtr);
 						fread(m_strGroupGlossMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupGlossMap && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetGlossMap(m_strGroupGlossMap);
-
+							tempScene->m_geometries[j]->m_groups[k]->m_updateGlossMap = CFalse;
+						}
 						CChar m_strGroupDirtMap[MAX_NAME_SIZE];
 						CBool m_hasGroupDirtMap;
 						fread(&m_hasGroupDirtMap, sizeof(CBool), 1, filePtr);
 						fread(m_strGroupDirtMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupDirtMap && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetDirtMap(m_strGroupDirtMap);
-
+							tempScene->m_geometries[j]->m_groups[k]->m_updateDirtMap = CFalse;
+						}
 						CChar m_strGroupNormalMap[MAX_NAME_SIZE];
 						CFloat m_bias, m_scale;
 						CBool m_hasGroupNormalMap;
@@ -10719,14 +13671,41 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 						fread(&m_bias, sizeof(CFloat), 1, filePtr);
 						fread(&m_scale, sizeof(CFloat), 1, filePtr);
 						if (m_hasGroupNormalMap && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetNormalMap(m_strGroupNormalMap, m_bias, m_scale);
-
+							tempScene->m_geometries[j]->m_groups[k]->m_updateNormalMap = CFalse;
+						}
 						CChar m_strGroupDiffuseMap[MAX_NAME_SIZE];
 						CBool m_hasGroupDiffuse;
 						fread(&m_hasGroupDiffuse, sizeof(CBool), 1, filePtr);
 						fread(m_strGroupDiffuseMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupDiffuse && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetDiffuse(m_strGroupDiffuseMap);
+							tempScene->m_geometries[j]->m_groups[k]->m_updateDiffuse = CFalse;
+						}
+						//Material Colors
+						CFloat ambient[4]; CFloat diffuse[4]; CFloat specular[4]; CFloat emission[4];
+						CFloat shininess, transparency;
+
+						fread(ambient, sizeof(CFloat), 4, filePtr);
+						fread(diffuse, sizeof(CFloat), 4, filePtr);
+						fread(specular, sizeof(CFloat), 4, filePtr);
+						fread(emission, sizeof(CFloat), 4, filePtr);
+						fread(&shininess, sizeof(CFloat), 1, filePtr);
+						fread(&transparency, sizeof(CFloat), 1, filePtr);
+
+						if (tempScene->m_geometries.size() >= j + 1)
+						{
+							tempScene->m_geometries[j]->m_groups[k]->SetReadMaterialColorFromGameEngine();
+							tempScene->m_geometries[j]->m_groups[k]->SetAmbient(ambient);
+							tempScene->m_geometries[j]->m_groups[k]->SetDiffuse(diffuse);
+							tempScene->m_geometries[j]->m_groups[k]->SetSpecular(specular);
+							tempScene->m_geometries[j]->m_groups[k]->SetEmission(emission);
+							tempScene->m_geometries[j]->m_groups[k]->SetShininess(shininess);
+							tempScene->m_geometries[j]->m_groups[k]->SetTransparency(transparency);
+						}
+						//////////////////
 					}
 				}
 			} //for all of the geos
@@ -10824,7 +13803,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 			}
 		} // for all of the scenes
 		g_reportInfo = CTrue;
-		if (g_currentCameraType == eCAMERA_DEFAULT_FREE)
+		if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 		{
 			g_multipleView->m_nx->gControllers->reportSceneChanged();
 			gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
@@ -10839,6 +13818,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		{
 			m_newInstancePrefab->UpdateBoundingBox(CTrue);
 			m_newInstancePrefab->CalculateDistance();
+			m_newInstancePrefab->UpdateIsStaticOrAnimated();
+			g_currentInstancePrefab = m_newInstancePrefab;
+			g_transformObject = CFalse;
+			g_selectedName = g_lastEngineObjectSelectedName = g_currentInstancePrefab->GetNameIndex();
+			g_currentInstancePrefab->UpdateArrow();
+		
 			CChar tempInstanceName[MAX_NAME_SIZE];
 			sprintf(tempInstanceName, "%s%s%s", "\nPrefab Instance ' ", m_newInstancePrefab->GetName(), " ' created successfully");
 			PrintInfo(tempInstanceName, COLOR_GREEN);
@@ -10865,10 +13850,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		}
 		//if (!prefab)
 		//	g_octree->ResetState(); //recalculate octree
+
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "\ntotal errors: %i, total warnings: %i", totalErrors, totalWarnings);
 		PrintInfo(temp, COLOR_RED_GREEN);
 		totalErrors = totalWarnings = 0;
+		g_updateOctree = CTrue;
 	}
 	else
 	{
@@ -10902,6 +13889,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		lvi.cchTextMax = cchBuf;
 		m_dlgPrefabs->m_listPrefabPackages.GetItem(&lvi);
 		m_dlgPrefabs->m_selectedPackageName = szBuffer;
+
+		if (Cmp(szBuffer, "Vanda_Basics") && !g_admin)
+		{
+			MessageBox("Access Denied!", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
+			return CFalse;
+		}
 	}
 	else
 	{
@@ -11023,10 +14016,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 			CDelete(dlgWaiting);
 			return CFalse;
 		}
-		if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+		if (g_multipleView->IsPlayGameMode())
 			PrintInfo("\nPlay mode disabled");
 
-		g_currentCameraType = eCAMERA_DEFAULT_FREE;
+		g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 		m_mainBtnTestActive.ShowWindow(SW_HIDE);
 		m_mainBtnTestActive.EnableWindow(FALSE);
 		m_mainBtnTestActive.UpdateWindow();
@@ -11086,6 +14079,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		fread(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fread(&g_bloomProperties, sizeof(CBloomProperties), 1, filePtr);
 		fread(&g_lightProperties, sizeof(CLightProperties), 1, filePtr);
+		fread(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
+		fread(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+
 		//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 		fread(&g_vandaDemo, sizeof(CBool), 1, filePtr);
@@ -11108,6 +14104,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		NxExtendedVec3 characterPos;
 		CVec3f cameraInstancePos;
 		CVec2f cameraInstancePanTilt;
+		CFloat cameraInstanceZoom;
 		fread(&insertPhysXScene, sizeof(CBool), 1, filePtr);
 		fread(strPhysXSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
@@ -11121,10 +14118,15 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 
 		fread(&cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+		fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 		g_cameraInstancePos = cameraInstancePos;
 		g_cameraInstancePanTilt = cameraInstancePanTilt;
 		g_render.GetDefaultInstanceCamera()->MoveTransform2(cameraInstancePos.x, cameraInstancePos.y, cameraInstancePos.z);
 		g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(cameraInstancePanTilt.x, cameraInstancePanTilt.y);
+		g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(cameraInstanceZoom);
+		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
 		PrintInfo("\nDefault Free camera info imported successfully");
 
 		if (insertPhysXScene)
@@ -11189,7 +14191,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		for (CInt i = 0; i < tempSceneSize; i++)
 		{
 			CInt clipIndex;
-			CBool playAnimation, loopAnimation, isVisible;
+			CBool playAnimation, loopAnimation, isVisible, isAlwaysVisible, castShadow;
 			CInt tempSceneAnimationListSize;
 
 			fread(tempSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -11197,6 +14199,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 			fread(&playAnimation, 1, sizeof(CBool), filePtr);
 			fread(&loopAnimation, 1, sizeof(CBool), filePtr);
 			fread(&isVisible, 1, sizeof(CBool), filePtr);
+			fread(&isAlwaysVisible, 1, sizeof(CBool), filePtr);
+			fread(&castShadow, 1, sizeof(CBool), filePtr);
 			fread(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
 
 			CScene * tempScene = new CScene();
@@ -11228,21 +14232,47 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 
 			for (CUInt j = 0; j < tempScene->m_animationSceneNames.size(); j++)
 			{
-				CScene * animScene = new CScene();
 				CChar sceneName[MAX_NAME_SIZE];
 				Cpy(sceneName, tempScene->m_animationSceneNames[j].c_str());
 				CChar * nameOnly = GetAfterPath(sceneName);
-
-				//save functions. it should be copies in WIN32 Project as well
+				GetWithoutDot(nameOnly);
+				Append(nameOnly, ".vac");
 				CChar name[MAX_NAME_SIZE];
 				sprintf(name, "%s%s%s%s", packagePath, g_currentPrefabName, "/External Scenes/", nameOnly);
 
 				CChar clipName[MAX_NAME_SIZE];
 				Cpy(clipName, GetAfterPath(sceneName));
 				GetWithoutDot(clipName);
-				animScene->Load(name, clipName, j, tempScene, CTrue, CTrue);
-				CDelete(animScene);
+
+				//Load 
+				std::ifstream ifs(name, ios_base::binary);
+				boost::archive::binary_iarchive ia(ifs);
+				CAnimationClip* p;
+				ia >> p;
+				for (CUInt l = 0; l < p->m_animations.size(); l++)
+				{
+					if (!tempScene->GetAnimation(p->m_animations[l]->GetName(), p->m_animations[l]->GetDocURI()))
+					{
+						tempScene->m_animations.push_back(p->m_animations[l]);
+
+						if (p->m_animations[l]->GetChannelSize() > 0)
+						{
+							p->m_animations[l]->GenerateKeys();
+						}
+						if (p->m_animations[l]->GetEndTime() > tempScene->GetLastKeyTime())
+							tempScene->SetLastKeyTime(p->m_animations[l]->GetEndTime());
+
+					}
+				}
+				p->SetAnimationStatus(eANIM_NONE);
+				p->SetCurrentTime(0.0f);
+				p->SetCurrentTime2(0.0f);
+				p->SetCurrentWeight(0.0f);
+				tempScene->m_animationClips.push_back(p);
+
+				tempScene->m_hasAnimation = CTrue;
 			}
+
 			if(tempScene->m_animationSceneNames.size())
 				tempScene->SetNumClips(tempScene->m_animationSceneNames.size());
 
@@ -11255,18 +14285,26 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				tempScene->SetClipIndexForStartup(clipIndex);
 				tempScene->m_playAnimation = playAnimation;
 				tempScene->m_isVisible = isVisible;
+				tempScene->m_loopAnimationAtStartup = loopAnimation;
+				tempScene->m_alwaysVisible = isAlwaysVisible;
+				tempScene->m_castShadow = castShadow;
+
 				if (tempScene->m_playAnimation)
 				{
-					tempScene->m_animationStatus = eANIM_PLAY;
-					tempScene->SetClipIndex(clipIndex, loopAnimation);
+					tempScene->SetAnimationStatus(eANIM_PLAY);
+					tempScene->SetCurrentClipIndex(clipIndex);
 					if (tempScene->GetNumClips())
-						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+					{
+						if (tempScene->m_loopAnimationAtStartup)
+							tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+						else
+							tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
+					}
 				}
 				else
 				{
-					tempScene->m_animationStatus = eANIM_PAUSE;
+					tempScene->SetAnimationStatus(eANIM_PAUSE);
 				}
-				tempScene->m_loopAnimationAtStartup = loopAnimation;
 				//save functions/////////////////////////////////
 				g_currentScene = tempScene; //mark the current scene. Save functions
 
@@ -11284,7 +14322,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 
 				InsertItemToSceneList(tempScene->m_pureFileName);
 				PrintInfo("\nScene ' ");
-				PrintInfo(tempScene->m_fileName, COLOR_RED_GREEN);
+				PrintInfo(tempScene->GetFileName(), COLOR_RED_GREEN);
 				PrintInfo(" ' loaded successfully");
 
 				sceneLoaded = CTrue;
@@ -11330,15 +14368,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 					PrintInfo("\nCouldn't create the triggers. In order to create triggers from COLLADA files, you should remove current external PhysX scene.", COLOR_RED);
 				}
 
-			}
-			else if (CmpIn(tempScene->GetName(), "grass"))
-			{
-				tempScene->m_isGrass = CTrue;
-				for (CUInt j = 0; j < (CUInt)tempGeoSize; j++)
-				{
-					if (tempScene->m_geometries.size() >= j + 1)
-						tempScene->m_geometries[j]->SetDiffuse("grass_color");
-				}
 			}
 
 			if (i == tempSceneSize - 1) //last scene is selected, so show its objects
@@ -11484,7 +14513,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				fread(&m_groupSize, sizeof(CUInt), 1, filePtr);
 				//store group info
 
-				if (sceneLoaded && !tempScene->m_isGrass)
+				if (sceneLoaded)
 				{
 					if (m_hasDirtMap && tempScene->m_geometries.size() >= j + 1)
 					{
@@ -11528,15 +14557,20 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 						fread(&m_hasGroupGlossMap, sizeof(CBool), 1, filePtr);
 						fread(m_strGroupGlossMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupGlossMap && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetGlossMap(m_strGroupGlossMap);
+							tempScene->m_geometries[j]->m_groups[k]->m_updateGlossMap = CFalse;
+						}
 
 						CChar m_strGroupDirtMap[MAX_NAME_SIZE];
 						CBool m_hasGroupDirtMap;
 						fread(&m_hasGroupDirtMap, sizeof(CBool), 1, filePtr);
 						fread(m_strGroupDirtMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupDirtMap && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetDirtMap(m_strGroupDirtMap);
-
+							tempScene->m_geometries[j]->m_groups[k]->m_updateDirtMap = CFalse;
+						}
 						CChar m_strGroupNormalMap[MAX_NAME_SIZE];
 						CFloat m_bias, m_scale;
 						CBool m_hasGroupNormalMap;
@@ -11545,14 +14579,42 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 						fread(&m_bias, sizeof(CFloat), 1, filePtr);
 						fread(&m_scale, sizeof(CFloat), 1, filePtr);
 						if (m_hasGroupNormalMap && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetNormalMap(m_strGroupNormalMap, m_bias, m_scale);
-
+							tempScene->m_geometries[j]->m_groups[k]->m_updateNormalMap = CFalse;
+						}
 						CChar m_strGroupDiffuseMap[MAX_NAME_SIZE];
 						CBool m_hasGroupDiffuse;
 						fread(&m_hasGroupDiffuse, sizeof(CBool), 1, filePtr);
 						fread(m_strGroupDiffuseMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupDiffuse && tempScene->m_geometries.size() >= j + 1)
+						{
 							tempScene->m_geometries[j]->m_groups[k]->SetDiffuse(m_strGroupDiffuseMap);
+							tempScene->m_geometries[j]->m_groups[k]->m_updateDiffuse = CFalse;
+						}
+						//Material Colors
+						CFloat ambient[4]; CFloat diffuse[4]; CFloat specular[4]; CFloat emission[4];
+						CFloat shininess, transparency;
+
+						fread(ambient, sizeof(CFloat), 4, filePtr);
+						fread(diffuse, sizeof(CFloat), 4, filePtr);
+						fread(specular, sizeof(CFloat), 4, filePtr);
+						fread(emission, sizeof(CFloat), 4, filePtr);
+						fread(&shininess, sizeof(CFloat), 1, filePtr);
+						fread(&transparency, sizeof(CFloat), 1, filePtr);
+
+						if (tempScene->m_geometries.size() >= j + 1)
+						{
+							tempScene->m_geometries[j]->m_groups[k]->SetReadMaterialColorFromGameEngine();
+							tempScene->m_geometries[j]->m_groups[k]->SetAmbient(ambient);
+							tempScene->m_geometries[j]->m_groups[k]->SetDiffuse(diffuse);
+							tempScene->m_geometries[j]->m_groups[k]->SetSpecular(specular);
+							tempScene->m_geometries[j]->m_groups[k]->SetEmission(emission);
+							tempScene->m_geometries[j]->m_groups[k]->SetShininess(shininess);
+							tempScene->m_geometries[j]->m_groups[k]->SetTransparency(transparency);
+						}
+						//////////////////
+
 					}
 				}
 			} //for all of the geos
@@ -11651,7 +14713,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 			g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
 		}
 
-		if (g_currentCameraType == eCAMERA_DEFAULT_FREE)
+		if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 		{
 			g_multipleView->m_nx->gControllers->reportSceneChanged();
 			gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
@@ -11660,7 +14722,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.6.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.0 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -11670,6 +14732,26 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		sprintf(temp2, "\ntotal errors: %i, total warnings: %i", totalErrors, totalWarnings);
 		PrintInfo(temp2, COLOR_RED_GREEN);
 		totalErrors = totalWarnings = 0;
+		if (g_scene.size() > 0)
+		{
+			for (CUInt i = 0; i < 3; i++)
+			{
+				if (g_scene[i])
+				{
+					for (CInt ac = 0; ac < g_scene[i]->GetNumClips(); ac++)
+					{
+						g_prefabProperties.m_names.push_back(g_scene[i]->m_animationClips[ac]->GetName());
+						g_prefabProperties.m_clipIndex = g_scene[i]->GetClipIndexForStartup();
+						g_prefabProperties.m_alwaysVisible = g_scene[i]->m_alwaysVisible;
+						g_prefabProperties.m_castShadow = g_scene[i]->m_castShadow;
+						g_prefabProperties.m_loopAnimationAtStart = g_scene[i]->m_loopAnimationAtStartup;
+						g_prefabProperties.m_playAnimationAtStart = g_scene[i]->m_playAnimation;
+					}
+
+					break;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -11685,7 +14767,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 {
 	CInt iResponse = IDNO;
-	if (askQuestion && (g_menu.m_insertStartup || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_multipleView->m_nx->m_hasScene))
+	if (askQuestion && (g_menu.m_insertStartup || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain))
 		iResponse= MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	else
 		iResponse = IDNO;
@@ -11735,9 +14817,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			CChar reportTemp[MAX_NAME_SIZE];
 			CChar pathName[MAX_NAME_SIZE];
-			Cpy( pathName, m_strpathName.GetString() );
-			sprintf( reportTemp, "\nVIN file '%s'...", GetAfterPath( pathName ) );
-			PrintInfo( reportTemp, COLOR_RED_GREEN );
+			Cpy(pathName, m_strpathName.GetString());
+			sprintf(reportTemp, "\nVIN file '%s'...", GetAfterPath(pathName));
+			PrintInfo(reportTemp, COLOR_RED_GREEN);
 
 			CChar currentVSceneName[MAX_NAME_SIZE];
 			Cpy(currentVSceneName, (CChar*)GetAfterPath(m_strpathName.GetBuffer(m_strpathName.GetLength()))); //For save functions
@@ -11751,34 +14833,34 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			sprintf(filePath, "%s%s%s%s", g_currentProjectPath, currentVSceneNameWithoutDot, "/", currentVSceneName);
 			FILE *filePtr;
 			filePtr = fopen(filePath, "rb");
-			if(!filePtr )
+			if (!filePtr)
 			{
-				MessageBox( "Couldn't open the file to load data\nMake sure that your selected scene belongs to current project", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+				MessageBox("Couldn't open the file to load data\nMake sure that your selected scene belongs to current project", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 				dlgWaiting->ShowWindow(SW_HIDE);
 				CDelete(dlgWaiting);
 				return CFalse;
 			}
 			CChar engineName[MAX_NAME_SIZE];
-			fread( &engineName, sizeof( CChar), MAX_NAME_SIZE, filePtr );
-			if( !CmpIn( engineName, "VandaEngine" ) )
+			fread(&engineName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			if (!CmpIn(engineName, "VandaEngine"))
 			{
-				fclose( filePtr );
-				MessageBox( "Invalid Vin file!", "Vanda Engine Error", MB_OK | MB_ICONERROR );
+				fclose(filePtr);
+				MessageBox("Invalid Vin file!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 				dlgWaiting->ShowWindow(SW_HIDE);
 				CDelete(dlgWaiting);
 				return CFalse;
 			}
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+			if (g_multipleView->IsPlayGameMode())
 				PrintInfo("\nPlay mode disabled");
 
-			g_currentCameraType = eCAMERA_DEFAULT_FREE;
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 			m_mainBtnTestActive.ShowWindow(SW_HIDE);
 			m_mainBtnTestActive.EnableWindow(FALSE);
 			m_mainBtnTestActive.UpdateWindow();
 			m_mainBtnTestDeactive.ShowWindow(SW_SHOW);
 			m_mainBtnTestDeactive.EnableWindow(TRUE);
 			m_mainBtnTestDeactive.UpdateWindow();
-			
+
 			g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 
 			g_importColladaImages = CFalse;
@@ -11786,19 +14868,19 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			SetCapture();
 			SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
 			Cpy(g_currentVSceneName, currentVSceneNameWithoutDot);
-			fread(  &g_edition, sizeof( CChar), MAX_NAME_SIZE, filePtr );
-			fread( &g_maxVersion, 1, sizeof( CInt ), filePtr );
-			fread( &g_minVersion, 1, sizeof( CInt ), filePtr );
-			fread( &g_bugFixesVersion, 1, sizeof( CInt ), filePtr );
-			fread(  &g_currentPassword, sizeof( CChar), MAX_NAME_SIZE, filePtr );
+			fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fread(&g_maxVersion, 1, sizeof(CInt), filePtr);
+			fread(&g_minVersion, 1, sizeof(CInt), filePtr);
+			fread(&g_bugFixesVersion, 1, sizeof(CInt), filePtr);
+			fread(&g_currentPassword, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			//read engine options
-			fread( &g_shadowProperties, sizeof( CShadowProperties ), 1, filePtr  );
-			switch( g_shadowProperties.m_shadowResolution )
+			fread(&g_shadowProperties, sizeof(CShadowProperties), 1, filePtr);
+			switch (g_shadowProperties.m_shadowResolution)
 			{
 			case eSHADOW_1024:
 				g_dynamicShadowMap->depth_size = 1024;
-					break;
+				break;
 			case eSHADOW_2048:
 				g_dynamicShadowMap->depth_size = 2048;
 				break;
@@ -11808,9 +14890,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			default:
 				break;
 			}
-			g_dynamicShadowMap->RegenerateDepthTex( g_dynamicShadowMap->depth_size );
+			g_dynamicShadowMap->RegenerateDepthTex(g_dynamicShadowMap->depth_size);
 
-			switch( g_shadowProperties.m_shadowSplits )
+			switch (g_shadowProperties.m_shadowSplits)
 			{
 			case eSHADOW_1_SPLIT:
 				g_dynamicShadowMap->cur_num_splits = 1;
@@ -11829,38 +14911,58 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			}
 
 			g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
-			fread( &g_physXProperties, sizeof( CPhysXProperties ), 1, filePtr );
+			fread(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
 			ResetPhysX(); //reset the physX based on the g_physXProperties information
-			fread( &g_dofProperties, sizeof( CDOFProperties ), 1, filePtr  );
-			fread( &g_fogProperties, sizeof( CFogProperties ), 1, filePtr  );
-			fread( &g_bloomProperties, sizeof( CBloomProperties ), 1, filePtr  );
-			fread( &g_lightProperties, sizeof( CLightProperties ), 1, filePtr  );
+			fread(&g_dofProperties, sizeof(CDOFProperties), 1, filePtr);
+			fread(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
+			fread(&g_bloomProperties, sizeof(CBloomProperties), 1, filePtr);
+			fread(&g_lightProperties, sizeof(CLightProperties), 1, filePtr);
+			fread(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
+			fread(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+			fread(&g_currentVSceneProperties, sizeof(CCurrentVSceneProperties), 1, filePtr);
+
 			//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
-			fread( &g_pathProperties, sizeof( CPathProperties ), 1, filePtr  );
-			fread( &g_vandaDemo, sizeof(CBool), 1, filePtr);
+			fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
+			fread(&g_vandaDemo, sizeof(CBool), 1, filePtr);
 
 			CChar banner[MAX_NAME_SIZE];
-			fread(&banner, sizeof(CChar), MAX_NAME_SIZE, filePtr );
+			fread(&banner, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			g_sceneBanner.SetBannerPath(banner);
+
+			CChar cursor[MAX_NAME_SIZE];
+			fread(&cursor, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			//g_vsceneMenuCursor.SetCursorPath(cursor);
+
 			//save functions/////////////////////////////////
 			g_sceneBanner.ClearVScenes();
-			for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
+			for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
 			{
-				if( Cmp( g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str() ) ) //current scene name found
-					g_sceneBanner.AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CFalse ); //Do not write to zip file
+				if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
+					g_sceneBanner.AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
 				else
-					g_sceneBanner.AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file
+					g_sceneBanner.AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
 			}
 			//save functions/////////////////////////////////
 
-			fread( &g_extraTexturesNamingConventions, sizeof( CExtraTexturesNamingConventions ), 1, filePtr  );
-			fread( &g_useGlobalAmbientColor, sizeof( CBool ), 1, filePtr  );
-			fread( &g_globalAmbientColor, sizeof( CColor4f ), 1, filePtr  );
-			fread( &g_sceneManagerObjectsPerSplit, sizeof( CInt), 1, filePtr );
+			//save functions/////////////////////////////////
+			g_vsceneMenuCursor.ClearVScenes();
+			for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
+			{
+				if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
+					g_vsceneMenuCursor.AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
+				else
+					g_vsceneMenuCursor.AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
+			}
+			//save functions/////////////////////////////////
+
+			fread(&g_extraTexturesNamingConventions, sizeof(CExtraTexturesNamingConventions), 1, filePtr);
+			fread(&g_useGlobalAmbientColor, sizeof(CBool), 1, filePtr);
+			fread(&g_globalAmbientColor, sizeof(CColor4f), 1, filePtr);
+			fread(&g_sceneManagerObjectsPerSplit, sizeof(CInt), 1, filePtr);
 
 			CFog fog;
-			fog.SetColor( g_fogProperties.m_fogColor );
-			fog.SetDensity( g_fogProperties.m_fogDensity );
+			fog.SetColor(g_fogProperties.m_fogColor);
+			fog.SetDensity(g_fogProperties.m_fogDensity);
 
 			//read physX 
 			CBool insertPhysXScene = CFalse;
@@ -11868,68 +14970,75 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			NxExtendedVec3 characterPos;
 			CVec3f cameraInstancePos;
 			CVec2f cameraInstancePanTilt;
-			fread( &insertPhysXScene, sizeof( CBool ), 1, filePtr  );
-			fread( strPhysXSceneName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fread( &characterPos, sizeof( NxExtendedVec3 ), 1, filePtr );
+			CFloat cameraInstanceZoom;
+			fread(&insertPhysXScene, sizeof(CBool), 1, filePtr);
+			fread(strPhysXSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fread(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 			g_characterPos = characterPos;
 
 			g_multipleView->m_nx->gCharacterPos.x = g_characterPos.x;
 			g_multipleView->m_nx->gCharacterPos.y = g_characterPos.y;
 			g_multipleView->m_nx->gCharacterPos.z = g_characterPos.z;
 
-			PrintInfo( "\nDefault PhysX camera info imported successfully" );
+			PrintInfo("\nDefault PhysX camera info imported successfully");
 
-			fread( &cameraInstancePos, sizeof( CVec3f ), 1, filePtr );
-			fread( &cameraInstancePanTilt, sizeof( CVec2f ), 1, filePtr );
+			fread(&cameraInstancePos, sizeof(CVec3f), 1, filePtr);
+			fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+			fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 			g_cameraInstancePos = cameraInstancePos;
 			g_cameraInstancePanTilt = cameraInstancePanTilt;
 			g_render.GetDefaultInstanceCamera()->MoveTransform2(cameraInstancePos.x, cameraInstancePos.y, cameraInstancePos.z);
 			g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(cameraInstancePanTilt.x, cameraInstancePanTilt.y);
-			PrintInfo( "\nDefault Free camera info imported successfully" );
+			g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(cameraInstanceZoom);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+			g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
 
-			if( insertPhysXScene )
+			PrintInfo("\nDefault Free camera info imported successfully");
+
+			if (insertPhysXScene)
 			{
 				//Copy this part to Win32 Project. Save functions
 				CChar temp[MAX_NAME_SIZE];
-				CChar* PhysXName = GetAfterPath( strPhysXSceneName );
+				CChar* PhysXName = GetAfterPath(strPhysXSceneName);
 				CChar PhysXPath[MAX_NAME_SIZE];
 				CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
-				Cpy( g_currentVSceneNameWithoutDot, g_currentVSceneName );
-				GetWithoutDot( g_currentVSceneNameWithoutDot );
-				sprintf( PhysXPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/External Physics/", PhysXName );
-				if( g_multipleView->m_nx->LoadScene( PhysXPath, NXU::FT_XML ) )
+				Cpy(g_currentVSceneNameWithoutDot, g_currentVSceneName);
+				GetWithoutDot(g_currentVSceneNameWithoutDot);
+				sprintf(PhysXPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/External Physics/", PhysXName);
+				if (g_multipleView->m_nx->LoadScene(PhysXPath, NXU::FT_XML))
 				{
 					g_physXProperties.m_bDebugMode = CTrue;
-					m_btnRemovePhysX.EnableWindow( TRUE );
-					GetMenu()->CheckMenuItem( ID_PHYSICS_DEBUGMODE, MF_CHECKED );
-					PrintInfo( "\nPhysX debug activated" );
+					m_btnRemovePhysX.EnableWindow(TRUE);
+					GetMenu()->CheckMenuItem(ID_PHYSICS_DEBUGMODE, MF_CHECKED);
+					PrintInfo("\nPhysX debug activated");
 
-					g_multipleView->m_nx->SetSceneName( PhysXPath );
-					sprintf( temp, "\nPhysX scene '%s' imported successufully", PhysXPath );
-					PrintInfo( temp );
+					g_multipleView->m_nx->SetSceneName(PhysXPath);
+					sprintf(temp, "\nPhysX scene '%s' imported successufully", PhysXPath);
+					PrintInfo(temp);
 
 					m_physXElementListIndex = -1;
-					for (int nItem = m_listBoxPhysXElements.GetItemCount()-1; nItem >= 0 ;nItem-- )
+					for (int nItem = m_listBoxPhysXElements.GetItemCount() - 1; nItem >= 0; nItem--)
 					{
 						m_listBoxPhysXElements.DeleteItem(nItem);
 					}
 					CInt count = 0;
-					for( std::vector<std::string>::iterator it = g_multipleView->m_nx->m_nxActorNames.begin(); it != g_multipleView->m_nx->m_nxActorNames.end();it++ )
+					for (std::vector<std::string>::iterator it = g_multipleView->m_nx->m_nxActorNames.begin(); it != g_multipleView->m_nx->m_nxActorNames.end(); it++)
 					{
 						CChar temp[MAX_NAME_SIZE];
-						Cpy( temp, (*it).c_str() );
-						InsertItemToPhysXList( temp, g_multipleView->m_nx->m_nxActorTypes[count] );
+						Cpy(temp, (*it).c_str());
+						InsertItemToPhysXList(temp, g_multipleView->m_nx->m_nxActorTypes[count]);
 						count++;
 					}
 					//save functions/////////////////////////////////
 					CDelete(g_externalPhysX);
 					g_externalPhysX = CNew(CExternalPhysX);
-					for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
+					for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
 					{
-						if( Cmp( g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str() ) ) //current scene name found
-							g_externalPhysX->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CFalse ); //Do not write to zip file
+						if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
+							g_externalPhysX->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
 						else
-							g_externalPhysX->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file
+							g_externalPhysX->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
 					}
 					g_externalPhysX->SetPhysXPath(PhysXPath);
 					//save functions/////////////////////////////////
@@ -11937,12 +15046,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				}
 				else
 				{
-					sprintf( temp, "\nCouldn't load the PhysX scene '%s'", PhysXPath );
-					PrintInfo( temp, COLOR_RED );
-					g_multipleView->m_nx->SetSceneName( PhysXPath );
+					sprintf(temp, "\nCouldn't load the PhysX scene '%s'", PhysXPath);
+					PrintInfo(temp, COLOR_RED);
+					g_multipleView->m_nx->SetSceneName(PhysXPath);
 				}
 			}
-			g_multipleView->m_nx->ResetCharacterPos( characterPos );
+			g_multipleView->m_nx->ResetCharacterPos(characterPos);
 
 			//read prefabs here
 			CUInt prefabSize;
@@ -11962,7 +15071,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				new_prefab->SetPackageName(package_name);
 				new_prefab->SetPrefabName(prefab_name);
 
-
 				g_prefab.push_back(new_prefab);
 
 				CUInt prefabInstanceSize;
@@ -11979,12 +15087,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					new_instance_prefab->SetPrefab(new_prefab);
 					new_instance_prefab->SetNameIndex(); //for selection only
 					new_instance_prefab->GenQueryIndex();
+					new_instance_prefab->SetWater(NULL);
 					g_instancePrefab.push_back(new_instance_prefab);
 					Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 					g_editorMode = eMODE_PREFAB; //to load textures from prefab locations
 					OnMenuClickedInsertPrefab(new_prefab);
 					new_instance_prefab->UpdateBoundingBox(CTrue);
 					new_instance_prefab->CalculateDistance();
+					new_instance_prefab->UpdateIsStaticOrAnimated();
 
 					g_editorMode = eMODE_VSCENE; //to load textures from prefab locations
 					if (CmpIn(new_instance_prefab->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(new_instance_prefab->GetName(), "Vanda_Basics_Sphere_Trigger"))
@@ -11993,7 +15103,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						{
 							Cpy(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_enterScript, new_instance_prefab->GetEnterScript());
 							Cpy(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_exitScript, new_instance_prefab->GetExitScript());
-							if (!Cmp(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_enterScript, "\n" ))
+							if (!Cmp(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_enterScript, "\n"))
 								new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_hasEnterScript = CTrue;
 							else
 								new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_hasEnterScript = CFalse;
@@ -12011,29 +15121,37 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					PrintInfo(tempInstanceName, COLOR_GREEN);
 
 					InsertItemToSceneList(new_instance_prefab->GetName());
+					UpdateWindow();
 				}
 			}
-
+			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			{
+				if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+				{
+					if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+						g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+				}
+			}
 			//g_octree->ResetState();
 
 			//insert items
 			//insert new instance and select it
-			m_listBoxScenes.SetItemState(m_listBoxScenes.GetItemCount() - 1, LVIS_SELECTED, LVIS_SELECTED);
-			m_listBoxScenes.SetSelectionMark(m_listBoxScenes.GetItemCount() - 1);
+			//m_listBoxScenes.SetItemState(m_listBoxScenes.GetItemCount() - 1, LVIS_SELECTED, LVIS_SELECTED);
+			//m_listBoxScenes.SetSelectionMark(m_listBoxScenes.GetItemCount() - 1);
 			//delete elements of previous selected prefab from the list
 			for (int nItem = m_listBoxObjects.GetItemCount() - 1; nItem >= 0; nItem--)
 			{
 				m_listBoxObjects.DeleteItem(nItem);
 			}
 			//show the elements of newly selected prefab instance
-			for (CUInt j = 0; j < 3; j++)
-			{
-				if (g_instancePrefab.size())
-				{
-					if (g_instancePrefab[g_instancePrefab.size() - 1]->GetPrefab()->GetHasLod(j))
-						InsertItemToObjectList(g_instancePrefab[g_instancePrefab.size() - 1]->GetScene(j)->GetName(), eOBJECTLIST_SCENE);
-				}
-			}
+			//for (CUInt j = 0; j < 3; j++)
+			//{
+			//	if (g_instancePrefab.size())
+			//	{
+			//		if (g_instancePrefab[g_instancePrefab.size() - 1]->GetPrefab()->GetHasLod(j))
+			//			InsertItemToObjectList(g_instancePrefab[g_instancePrefab.size() - 1]->GetScene(j)->GetName(), eOBJECTLIST_SCENE);
+			//	}
+			//}
 
 			CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
 			Cpy(g_currentVSceneNameWithoutDot, g_currentVSceneName);
@@ -12058,6 +15176,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				new_gui->SetPackageName(packageName);
 
+
 				CChar guiName[MAX_NAME_SIZE];
 				fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -12069,257 +15188,296 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				new_gui->SetVisible(isVisible);
 
-				CUInt numButtons;
-				fread(&numButtons, sizeof(CUInt), 1, filePtr);
-
-				for (CUInt j = 0; j < numButtons; j++)
+				CChar docPath[MAX_NAME_SIZE];
+				HRESULT doc_result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, docPath);
+				if (doc_result != S_OK)
 				{
-					//load button information
-
-					CChar name[MAX_NAME_SIZE];
-					fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CChar packageName[MAX_NAME_SIZE];
-					fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CChar guiName[MAX_NAME_SIZE];
-					fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CVec2f pos;
-					fread(&pos, sizeof(CVec2f), 1, filePtr);
-					pos.x *= (CFloat)g_width;
-					pos.y *= (CFloat)g_height;
-
-					CInt size;
-					fread(&size, sizeof(CInt), 1, filePtr);
-
-					CChar mainImagePath[MAX_NAME_SIZE];
-					fread(mainImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//disable image
-					CBool hasDisableImage;
-					fread(&hasDisableImage, sizeof(CBool), 1, filePtr);
-
-					CChar disableImagePath[MAX_NAME_SIZE];
-					if (hasDisableImage)
-						fread(disableImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//hover image
-					CBool hasHoverImage;
-					fread(&hasHoverImage, sizeof(CBool), 1, filePtr);
-
-					CChar hoverImagePath[MAX_NAME_SIZE];
-					if (hasHoverImage)
-						fread(hoverImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//left click image
-					CBool hasLeftClickImage;
-					fread(&hasLeftClickImage, sizeof(CBool), 1, filePtr);
-
-					CChar leftClickImagePath[MAX_NAME_SIZE];
-					if (hasLeftClickImage)
-						fread(leftClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//right click image
-					CBool hasRightClickImage;
-					fread(&hasRightClickImage, sizeof(CBool), 1, filePtr);
-
-					CChar rightClickImagePath[MAX_NAME_SIZE];
-					if (hasRightClickImage)
-						fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//left click script
-					CBool hasLeftClickScript;
-					fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
-
-					CChar leftClickScriptPath[MAX_NAME_SIZE];
-					if (hasLeftClickScript)
-						fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//right click script
-					CBool hasRightClickScript;
-					fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-					CChar rightClickScriptPath[MAX_NAME_SIZE];
-					if (hasRightClickScript)
-						fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					//hover script
-					CBool hasHoverScript;
-					fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-					CChar hoverScriptPath[MAX_NAME_SIZE];
-					if (hasHoverScript)
-						fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CGUIButton* guiButton = CNew(CGUIButton);
-
-					guiButton->SetName(name);
-					guiButton->SetPackageName(packageName);
-					guiButton->SetGUIName(guiName);
-					guiButton->SetSize(size);
-					guiButton->SetMainImagePath(mainImagePath);
-					guiButton->LoadMainImage();
-					guiButton->SetPosition(pos);
-					if (hasDisableImage)
-					{
-						guiButton->SetDisableImagePath(disableImagePath);
-						guiButton->SetHasDisableImage(CTrue);
-						guiButton->LoadDisableImage();
-					}
-					else
-					{
-						guiButton->SetHasDisableImage(CFalse);
-					}
-					if (hasHoverImage)
-					{
-						guiButton->SetHoverImagePath(hoverImagePath);
-						guiButton->SetHasHoverImage(CTrue);
-						guiButton->LoadHoverImage();
-					}
-					else
-					{
-						guiButton->SetHasHoverImage(CFalse);
-					}
-					if (hasLeftClickImage)
-					{
-						guiButton->SetLeftClickImagePath(leftClickImagePath);
-						guiButton->SetHasLeftClickImage(CTrue);
-						guiButton->LoadLeftClickImage();
-					}
-					else
-					{
-						guiButton->SetHasLeftClickImage(CFalse);
-					}
-					if (hasRightClickImage)
-					{
-						guiButton->SetRightClickImagePath(rightClickImagePath);
-						guiButton->SetHasRightClickImage(CTrue);
-						guiButton->LoadRightClickImage();
-					}
-					else
-					{
-						guiButton->SetHasRightClickImage(CFalse);
-					}
-					if (hasLeftClickScript)
-					{
-						guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-						guiButton->SetHasLeftClickScript(CTrue);
-					}
-					else
-					{
-						guiButton->SetHasLeftClickScript(CFalse);
-					}
-					if (hasRightClickScript)
-					{
-						guiButton->SetRightClickScriptPath(rightClickScriptPath);
-						guiButton->SetHasRightClickScript(CTrue);
-					}
-					else
-					{
-						guiButton->SetHasRightClickScript(CFalse);
-					}
-					if (hasHoverScript)
-					{
-						guiButton->SetHoverScriptPath(hoverScriptPath);
-						guiButton->SetHasHoverScript(CTrue);
-					}
-					else
-					{
-						guiButton->SetHasHoverScript(CFalse);
-					}
-					new_gui->AddGUIButton(guiButton);
-
+					PrintInfo("\nCouldn't get the documents folder", COLOR_RED);
+					return CFalse;
 				}
-
-				CUInt numBackgrounds;
-				fread(&numBackgrounds, sizeof(CUInt), 1, filePtr);
-
-				for (CUInt j = 0; j < numBackgrounds; j++)
+				else
 				{
-					//load background information
+					CChar guiPath[MAX_NAME_SIZE];
+					CChar guiAndPackageName[MAX_NAME_SIZE];
 
-					CChar name[MAX_NAME_SIZE];
-					fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+					Cpy(guiAndPackageName, packageName);
+					Append(guiAndPackageName, "_");
+					Append(guiAndPackageName, guiName);
 
-					CChar packageName[MAX_NAME_SIZE];
-					fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+					Append(docPath, "/Vanda/GUIs/");
+					Append(docPath, packageName);
+					Append(docPath, "/");
 
-					CChar guiName[MAX_NAME_SIZE];
-					fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+					Cpy(guiPath, docPath);
+					Append(guiPath, guiName);
+					Append(guiPath, "/");
+					Append(guiPath, guiAndPackageName);
+					Append(guiPath, ".gui");
 
-					CVec2f pos;
-					fread(&pos, sizeof(CVec2f), 1, filePtr);
-					pos.x *= (CFloat)g_width;
-					pos.y *= (CFloat)g_height;
-
-					CInt size;
-					fread(&size, sizeof(CInt), 1, filePtr);
-
-					CChar imagePath[MAX_NAME_SIZE];
-					fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CGUIBackground* guiBackground = CNew(CGUIBackground);
-					guiBackground->SetName(name);
-					guiBackground->SetPackageName(packageName);
-					guiBackground->SetGUIName(guiName);
-					guiBackground->SetSize(size);
-					guiBackground->SetImagePath(imagePath);
-					guiBackground->LoadBackgroundImage();
-					guiBackground->SetPosition(pos);
-					new_gui->AddGUIBackground(guiBackground);
-
-				}
-
-				CUInt numTexts;
-				fread(&numTexts, sizeof(CUInt), 1, filePtr);
-
-				for (CUInt j = 0; j < numTexts; j++)
-				{
-					//load text information
-
-					CChar name[MAX_NAME_SIZE];
-					fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CChar packageName[MAX_NAME_SIZE];
-					fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CChar guiName[MAX_NAME_SIZE];
-					fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-					CVec2f pos;
-					fread(&pos, sizeof(CVec2f), 1, filePtr);
-					pos.x *= (CFloat)g_width;
-					pos.y *= (CFloat)g_height;
-
-					CInt size;
-					fread(&size, sizeof(CInt), 1, filePtr);
-
-					CChar text[MAX_URI_SIZE];
-					fread(text, sizeof(CChar), MAX_URI_SIZE, filePtr);
-
-					CVec3f color;
-					fread(&color, sizeof(CVec3f), 1, filePtr);
-
-					CFontType font;
-					fread(&font, sizeof(CFontType), 1, filePtr);
-
-					CGUIText* guiText = CNew(CGUIText);
-					guiText->SetName(name);
-					guiText->SetPackageName(packageName);
-					guiText->SetGUIName(guiName);
-					guiText->SetPosition(pos);
-					guiText->SetSize(size);
-					guiText->SetColor(color);
-					guiText->SetText(text);
-					guiText->SetType(font);
-					if (!guiText->SetFont())
+					FILE *filePtr;
+					filePtr = fopen(guiPath, "rb");
+					if (!filePtr)
 					{
-						CDelete(guiText);
+						MessageBox("Couldn't open the GUI file to load data", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+						dlgWaiting->ShowWindow(SW_HIDE);
+						CDelete(dlgWaiting);
+						return CFalse;
 					}
 
-					new_gui->AddGUIText(guiText);
+					CUInt numButtons;
+					fread(&numButtons, sizeof(CUInt), 1, filePtr);
 
+					for (CUInt j = 0; j < numButtons; j++)
+					{
+						//load button information
+
+						CChar name[MAX_NAME_SIZE];
+						fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CChar packageName[MAX_NAME_SIZE];
+						fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CChar guiName[MAX_NAME_SIZE];
+						fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CVec2f pos;
+						fread(&pos, sizeof(CVec2f), 1, filePtr);
+						pos.x *= (CFloat)g_width;
+						pos.y *= (CFloat)g_height;
+
+						CInt size;
+						fread(&size, sizeof(CInt), 1, filePtr);
+
+						CChar mainImagePath[MAX_NAME_SIZE];
+						fread(mainImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//disable image
+						CBool hasDisableImage;
+						fread(&hasDisableImage, sizeof(CBool), 1, filePtr);
+
+						CChar disableImagePath[MAX_NAME_SIZE];
+						if (hasDisableImage)
+							fread(disableImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//hover image
+						CBool hasHoverImage;
+						fread(&hasHoverImage, sizeof(CBool), 1, filePtr);
+
+						CChar hoverImagePath[MAX_NAME_SIZE];
+						if (hasHoverImage)
+							fread(hoverImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//left click image
+						CBool hasLeftClickImage;
+						fread(&hasLeftClickImage, sizeof(CBool), 1, filePtr);
+
+						CChar leftClickImagePath[MAX_NAME_SIZE];
+						if (hasLeftClickImage)
+							fread(leftClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//right click image
+						CBool hasRightClickImage;
+						fread(&hasRightClickImage, sizeof(CBool), 1, filePtr);
+
+						CChar rightClickImagePath[MAX_NAME_SIZE];
+						if (hasRightClickImage)
+							fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//left click script
+						CBool hasLeftClickScript;
+						fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+
+						CChar leftClickScriptPath[MAX_NAME_SIZE];
+						if (hasLeftClickScript)
+							fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//right click script
+						CBool hasRightClickScript;
+						fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
+
+						CChar rightClickScriptPath[MAX_NAME_SIZE];
+						if (hasRightClickScript)
+							fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						//hover script
+						CBool hasHoverScript;
+						fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
+
+						CChar hoverScriptPath[MAX_NAME_SIZE];
+						if (hasHoverScript)
+							fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CGUIButton* guiButton = CNew(CGUIButton);
+
+						guiButton->SetName(name);
+						guiButton->SetPackageName(packageName);
+						guiButton->SetGUIName(guiName);
+						guiButton->SetSize(size);
+						guiButton->SetMainImagePath(mainImagePath);
+						guiButton->LoadMainImage();
+						guiButton->SetPosition(pos);
+						if (hasDisableImage)
+						{
+							guiButton->SetDisableImagePath(disableImagePath);
+							guiButton->SetHasDisableImage(CTrue);
+							guiButton->LoadDisableImage();
+						}
+						else
+						{
+							guiButton->SetHasDisableImage(CFalse);
+						}
+						if (hasHoverImage)
+						{
+							guiButton->SetHoverImagePath(hoverImagePath);
+							guiButton->SetHasHoverImage(CTrue);
+							guiButton->LoadHoverImage();
+						}
+						else
+						{
+							guiButton->SetHasHoverImage(CFalse);
+						}
+						if (hasLeftClickImage)
+						{
+							guiButton->SetLeftClickImagePath(leftClickImagePath);
+							guiButton->SetHasLeftClickImage(CTrue);
+							guiButton->LoadLeftClickImage();
+						}
+						else
+						{
+							guiButton->SetHasLeftClickImage(CFalse);
+						}
+						if (hasRightClickImage)
+						{
+							guiButton->SetRightClickImagePath(rightClickImagePath);
+							guiButton->SetHasRightClickImage(CTrue);
+							guiButton->LoadRightClickImage();
+						}
+						else
+						{
+							guiButton->SetHasRightClickImage(CFalse);
+						}
+						if (hasLeftClickScript)
+						{
+							guiButton->SetLeftClickScriptPath(leftClickScriptPath);
+							guiButton->SetHasLeftClickScript(CTrue);
+						}
+						else
+						{
+							guiButton->SetHasLeftClickScript(CFalse);
+						}
+						if (hasRightClickScript)
+						{
+							guiButton->SetRightClickScriptPath(rightClickScriptPath);
+							guiButton->SetHasRightClickScript(CTrue);
+						}
+						else
+						{
+							guiButton->SetHasRightClickScript(CFalse);
+						}
+						if (hasHoverScript)
+						{
+							guiButton->SetHoverScriptPath(hoverScriptPath);
+							guiButton->SetHasHoverScript(CTrue);
+						}
+						else
+						{
+							guiButton->SetHasHoverScript(CFalse);
+						}
+						new_gui->AddGUIButton(guiButton);
+
+					}
+
+					CUInt numBackgrounds;
+					fread(&numBackgrounds, sizeof(CUInt), 1, filePtr);
+
+					for (CUInt j = 0; j < numBackgrounds; j++)
+					{
+						//load background information
+
+						CChar name[MAX_NAME_SIZE];
+						fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CChar packageName[MAX_NAME_SIZE];
+						fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CChar guiName[MAX_NAME_SIZE];
+						fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CVec2f pos;
+						fread(&pos, sizeof(CVec2f), 1, filePtr);
+						pos.x *= (CFloat)g_width;
+						pos.y *= (CFloat)g_height;
+
+						CInt size;
+						fread(&size, sizeof(CInt), 1, filePtr);
+
+						CChar imagePath[MAX_NAME_SIZE];
+						fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CGUIBackground* guiBackground = CNew(CGUIBackground);
+						guiBackground->SetName(name);
+						guiBackground->SetPackageName(packageName);
+						guiBackground->SetGUIName(guiName);
+						guiBackground->SetSize(size);
+						guiBackground->SetImagePath(imagePath);
+						guiBackground->LoadBackgroundImage();
+						guiBackground->SetPosition(pos);
+						new_gui->AddGUIBackground(guiBackground);
+
+					}
+
+					CUInt numTexts;
+					fread(&numTexts, sizeof(CUInt), 1, filePtr);
+
+					for (CUInt j = 0; j < numTexts; j++)
+					{
+						//load text information
+
+						CChar name[MAX_NAME_SIZE];
+						fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CChar packageName[MAX_NAME_SIZE];
+						fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CChar guiName[MAX_NAME_SIZE];
+						fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+						CVec2f pos;
+						fread(&pos, sizeof(CVec2f), 1, filePtr);
+						pos.x *= (CFloat)g_width;
+						pos.y *= (CFloat)g_height;
+
+						CInt size;
+						fread(&size, sizeof(CInt), 1, filePtr);
+
+						CChar text[MAX_URI_SIZE];
+						fread(text, sizeof(CChar), MAX_URI_SIZE, filePtr);
+
+						CVec3f color;
+						fread(&color, sizeof(CVec3f), 1, filePtr);
+
+						CFontType font;
+						fread(&font, sizeof(CFontType), 1, filePtr);
+
+						CGUIText* guiText = CNew(CGUIText);
+						guiText->SetName(name);
+						guiText->SetPackageName(packageName);
+						guiText->SetGUIName(guiName);
+						guiText->SetPosition(pos);
+						guiText->SetSize(size);
+						guiText->SetColor(color);
+						guiText->SetText(text);
+						guiText->SetType(font);
+						if (!guiText->SetFont())
+						{
+							CDelete(guiText);
+						}
+
+						new_gui->AddGUIText(guiText);
+
+					}
+
+					fclose(filePtr);
 				}
 
 				g_guis.push_back(new_gui);
@@ -12329,57 +15487,58 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				PrintInfo(tempInstanceName, COLOR_GREEN);
 
 				InsertItemToSceneList(new_gui->GetName());
-
+				UpdateWindow();
 			}
 			//End of GUIs///////////////////
 
 			//sky object
 			CBool showSky;
-			fread( &showSky, sizeof( CBool ), 1, filePtr );
+			fread(&showSky, sizeof(CBool), 1, filePtr);
 
-			if( showSky )
+			if (showSky)
 			{
 				CChar name[MAX_NAME_SIZE];
 				CChar path[MAX_NAME_SIZE];
 				CInt slices, sides;
 				CFloat dampening, radius, position[3];
 				CBool exponential;
-				fread( name, sizeof( CChar ), MAX_NAME_SIZE, filePtr );
-				fread( path, sizeof( CChar ), MAX_NAME_SIZE, filePtr );
-				fread( &slices, sizeof( CInt ), 1, filePtr );
-				fread( &sides, sizeof( CInt ), 1, filePtr );
-				fread( &radius, sizeof( CFloat ), 1, filePtr );
-				fread( position, sizeof( CFloat ), 3, filePtr );
-				fread( &dampening, sizeof( CFloat ), 1, filePtr );
-				fread( &exponential, sizeof( CBool ), 1, filePtr );
-				
+				fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(path, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(&slices, sizeof(CInt), 1, filePtr);
+				fread(&sides, sizeof(CInt), 1, filePtr);
+				fread(&radius, sizeof(CFloat), 1, filePtr);
+				fread(position, sizeof(CFloat), 3, filePtr);
+				fread(&dampening, sizeof(CFloat), 1, filePtr);
+				fread(&exponential, sizeof(CBool), 1, filePtr);
+
 				CChar skyPath[MAX_NAME_SIZE];
-				CChar* tempPath = GetAfterPath( path );
+				CChar* tempPath = GetAfterPath(path);
 				//Copy this to Win32 Project as well
-				sprintf( skyPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/", tempPath );
-				g_skyDome = CNew( CSkyDome );
-				g_skyDome->SetName( name );
-				g_skyDome->SetPath( skyPath );
-				g_skyDome->SetSlices( slices );
-				g_skyDome->SetSides( sides );
-				g_skyDome->SetRadius( radius );
-				g_skyDome->SetPosition( position );
-				g_skyDome->SetDampening( dampening );
-				g_skyDome->SetExponential( exponential );
+				sprintf(skyPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/", tempPath);
+				g_skyDome = CNew(CSkyDome);
+				g_skyDome->SetName(name);
+				g_skyDome->SetPath(skyPath);
+				g_skyDome->SetSlices(slices);
+				g_skyDome->SetSides(sides);
+				g_skyDome->SetRadius(radius);
+				g_skyDome->SetPosition(position);
+				g_skyDome->SetDampening(dampening);
+				g_skyDome->SetExponential(exponential);
 				g_skyDome->Initialize();
 				g_menu.m_insertAndShowSky = CTrue;
-				GetMenu()->EnableMenuItem( ID_INSERT_SKYDOME, MF_DISABLED | MF_GRAYED );
-				m_mainBtnSky.EnableWindow( FALSE );
+				GetMenu()->EnableMenuItem(ID_INSERT_SKYDOME, MF_DISABLED | MF_GRAYED);
+				m_mainBtnSky.EnableWindow(FALSE);
 
-				InsertItemToEngineObjectList( g_skyDome->GetName() , eENGINEOBJECTLIST_SKY);
+				InsertItemToEngineObjectList(g_skyDome->GetName(), eENGINEOBJECTLIST_SKY);
+				UpdateWindow();
 
 				//save functions/////////////////////////////////
-				for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
+				for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
 				{
-					if( Cmp( g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str() ) ) //current scene name found
-						g_skyDome->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CFalse ); //Do not write to zip file
+					if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
+						g_skyDome->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
 					else
-						g_skyDome->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file
+						g_skyDome->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
 				}
 				//save functions/////////////////////////////////
 
@@ -12387,6 +15546,121 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			else
 				g_menu.m_insertAndShowSky = CFalse;
 
+			//Load terrain here
+			CBool showTerrain;
+
+			fread(&showTerrain, sizeof(CBool), 1, filePtr);
+			if (showTerrain)
+			{
+				CChar name[MAX_NAME_SIZE], heightMapPath[MAX_NAME_SIZE], bottomTexturePath[MAX_NAME_SIZE], bottomNormalMapPath[MAX_NAME_SIZE],
+					slopeTexturePath[MAX_NAME_SIZE], slopeNormalMapPath[MAX_NAME_SIZE], topTexturePath[MAX_NAME_SIZE], topNormalPath[MAX_NAME_SIZE];
+
+				CChar* temp_heightMapPath; CChar* temp_bottomTexturePath; CChar* temp_bottomNormalMapPath;
+				CChar* temp_slopeTexturePath; CChar* temp_slopeNormalMapPath; CChar* temp_topTexturePath; CChar* temp_topNormalPath;
+
+				CChar final_heightMapPath[MAX_NAME_SIZE], final_bottomTexturePath[MAX_NAME_SIZE], final_bottomNormalMapPath[MAX_NAME_SIZE],
+					final_slopeTexturePath[MAX_NAME_SIZE], final_slopeNormalMapPath[MAX_NAME_SIZE], final_topTexturePath[MAX_NAME_SIZE], final_topNormalPath[MAX_NAME_SIZE];
+
+				CFloat shininess, scaleHeight, scaleWidth, slopeFactor, startHeight;
+				CInt smooth;
+				CBool flatten;
+				CFloat ambientColor[4], diffuseColor[4], specularColor[4];
+
+				fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(heightMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(bottomTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(bottomNormalMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(slopeTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(slopeNormalMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(topTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(topNormalPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(&shininess, sizeof(CFloat), 1, filePtr);
+				fread(&smooth, sizeof(CInt), 1, filePtr);
+				fread(&scaleHeight, sizeof(CFloat), 1, filePtr);
+				fread(&scaleWidth, sizeof(CFloat), 1, filePtr);
+				fread(&slopeFactor, sizeof(CFloat), 1, filePtr);
+				fread(&startHeight, sizeof(CFloat), 1, filePtr);
+				fread(&flatten, sizeof(CBool), 1, filePtr);
+				fread(ambientColor, sizeof(CFloat), 4, filePtr);
+				fread(diffuseColor, sizeof(CFloat), 4, filePtr);
+				fread(specularColor, sizeof(CFloat), 4, filePtr);
+
+				temp_heightMapPath = GetAfterPath(heightMapPath);
+				sprintf(final_heightMapPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_heightMapPath);
+
+				temp_bottomTexturePath = GetAfterPath(bottomTexturePath);
+				sprintf(final_bottomTexturePath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_bottomTexturePath);
+
+				temp_bottomNormalMapPath = GetAfterPath(bottomNormalMapPath);
+				sprintf(final_bottomNormalMapPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_bottomNormalMapPath);
+
+				temp_slopeTexturePath = GetAfterPath(slopeTexturePath);
+				sprintf(final_slopeTexturePath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_slopeTexturePath);
+
+				temp_slopeNormalMapPath = GetAfterPath(slopeNormalMapPath);
+				sprintf(final_slopeNormalMapPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_slopeNormalMapPath);
+
+				temp_topTexturePath = GetAfterPath(topTexturePath);
+				sprintf(final_topTexturePath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_topTexturePath);
+
+				temp_topNormalPath = GetAfterPath(topNormalPath);
+				sprintf(final_topNormalPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_topNormalPath);
+
+				CChar PhysicsPath[MAX_NAME_SIZE];
+				sprintf(PhysicsPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/");
+
+				g_terrain = CNew(CTerrain);
+				g_terrain->SetCookPhysicsTriangles(CFalse);
+				g_terrain->SetPhysicsPath(PhysicsPath);
+				g_terrain->SetName(name);
+
+				g_terrain->SetHeightMapPath(final_heightMapPath);
+
+				g_terrain->SetBottomTexturePath(final_bottomTexturePath);
+				g_terrain->SetBottomNormalMapPath(final_bottomNormalMapPath);
+
+				g_terrain->SetSlopeTexturePath(final_slopeTexturePath);
+				g_terrain->SetSlopeNormalMapPath(final_slopeNormalMapPath);
+
+				g_terrain->SetTopTexturePath(final_topTexturePath);
+				g_terrain->SetTopNormalMapPath(final_topNormalPath);
+
+				g_terrain->SetShininess(shininess);
+				g_terrain->SetSmooth(smooth);
+				g_terrain->SetScaleHeight(scaleHeight);
+				g_terrain->SetScaleWidth(scaleWidth);
+				g_terrain->SetSlopeFactor(slopeFactor);
+				g_terrain->SetTopStartHeight(startHeight);
+				g_terrain->SetFlatten(flatten);
+
+				g_terrain->SetAmbientColor(ambientColor);
+				g_terrain->SetDiffuseColor(diffuseColor);
+				g_terrain->SetSpecularColor(specularColor);
+
+				g_terrain->Initialize();
+
+				g_menu.m_insertAndShowTerrain = CTrue;
+				GetMenu()->EnableMenuItem(ID_INSERT_TERRAIN, MF_DISABLED | MF_GRAYED);
+				m_mainBtnTerrain.EnableWindow(FALSE);
+
+				InsertItemToEngineObjectList(g_terrain->GetName(), eENGINEOBJECTLIST_TERRAIN);
+				UpdateWindow();
+
+				//save functions/////////////////////////////////
+				for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
+				{
+					if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
+						g_terrain->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
+					else
+						g_terrain->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
+				}
+				//save functions/////////////////////////////////
+
+			}
+			else
+				g_menu.m_insertAndShowTerrain = CFalse;
+
+			//Load waters here
 			CInt tempWaterCount, tempInstancePrefabWaterCount;
 			CChar strNormalMap[ MAX_NAME_SIZE];
 			CChar strDuDvMap[ MAX_NAME_SIZE ];
@@ -12394,7 +15668,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CFloat waterPos[3];
 			CFloat waterLightPos[3];
 			CFloat waterHeight, waterSpeed, waterScale, waterUV;
-
+			CBool waterVisible;
 			fread( &tempWaterCount, sizeof( CInt ), 1, filePtr );
 			for( CInt i = 0 ; i < tempWaterCount; i++ )
 			{
@@ -12410,6 +15684,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread( &waterSpeed, sizeof( CFloat ), 1, filePtr );
 				fread( &waterScale, sizeof( CFloat ), 1, filePtr );
 				fread( &waterUV, sizeof( CFloat ), 1, filePtr );
+				fread(&waterVisible, sizeof(CBool), 1, filePtr);
 
 				fread(&tempInstancePrefabWaterCount, sizeof(CInt), 1, filePtr);
 				for (CInt j = 0; j < tempInstancePrefabWaterCount; j++)
@@ -12420,7 +15695,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					for (CUInt k = 0; k < g_instancePrefab.size(); k++)
 					{
 						if (Cmp(g_instancePrefab[k]->GetName(), instanceName))
+						{
 							water->m_instancePrefab.push_back(g_instancePrefab[k]);
+							g_instancePrefab[k]->SetWater(water);
+							g_instancePrefab[k]->UpdateBoundingBoxForWater(waterHeight);
+						}
 					}
 				}
 
@@ -12446,6 +15725,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				water->SetScale( waterScale );
 				water->SetUV( waterUV );
 				water->SetPos( waterPos );
+				water->SetVisible(waterVisible);
 				water->SetLightPos( waterLightPos );
 				water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
 				water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
@@ -12464,6 +15744,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				g_engineWaters.push_back( water );
 				InsertItemToEngineObjectList( water->GetName() , eENGINEOBJECTLIST_WATER);
+				UpdateWindow();
 
 			}
 			//Engine Lights
@@ -12521,7 +15802,57 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_engineLights.push_back( instance_light );
 
 				InsertItemToEngineObjectList( lightName, eENGINEOBJECTLIST_LIGHT );
+				UpdateWindow();
 				g_engineObjectNames.push_back( lightName );
+
+			}
+
+			//Engine Cameras
+			CInt tempCameraCount;
+			fread(&tempCameraCount, sizeof(CInt), 1, filePtr);
+
+			for (CInt i = 0; i < tempCameraCount; i++)
+			{
+				CChar cameraName[MAX_NAME_SIZE];
+				CFloat pos[3], pan, tilt, fov, ncp, fcp;
+
+				fread(cameraName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(pos, sizeof(CFloat), 3, filePtr);
+				fread(&pan, sizeof(CFloat), 1, filePtr);
+				fread(&tilt, sizeof(CFloat), 1, filePtr);
+				fread(&fov, sizeof(CFloat), 1, filePtr);
+				fread(&ncp, sizeof(CFloat), 1, filePtr);
+				fread(&fcp, sizeof(CFloat), 1, filePtr);
+
+				CInstanceCamera* instance_camera = new CInstanceCamera();
+				CCamera* abstract_camera = new CCamera();
+
+				CNode* parent = CNew(CNode);
+				instance_camera->m_parent = parent;
+				instance_camera->m_abstractCamera = abstract_camera;
+				abstract_camera->SetName(cameraName);
+
+				CVec3f vec_pos(pos[0], pos[1], pos[2]);
+				instance_camera->SetPos(vec_pos);
+				instance_camera->SetPan(pan);
+				instance_camera->SetTilt(tilt);
+				instance_camera->m_abstractCamera->SetAngle(fov);
+				instance_camera->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+				instance_camera->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+				instance_camera->SetNCP(ncp);
+				instance_camera->SetFCP(fcp);
+
+				instance_camera->MoveTransform2(vec_pos.x, vec_pos.y, vec_pos.z);
+				instance_camera->SetPanAndTilt2(pan, tilt);
+				instance_camera->ZoomTransform2(0.0f);
+
+				instance_camera->SetIndex();
+
+				g_engineCameraInstances.push_back(instance_camera);
+
+				InsertItemToEngineObjectList(cameraName, eENGINEOBJECTLIST_ENGINE_CAMERA);
+				UpdateWindow();
+				g_engineObjectNames.push_back(cameraName);
 
 			}
 
@@ -12635,6 +15966,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				if( !notLoaded )
 				{
 					InsertItemToEngineObjectList( m_staticSound->GetName() , eENGINEOBJECTLIST_STATICSOUND);
+					UpdateWindow();
 					PrintInfo( "\nStatic sound '", COLOR_GREEN );
 					PrintInfo( StaticSoundPath, COLOR_RED_GREEN );
 					PrintInfo( "' initialized successfully", COLOR_GREEN );
@@ -12728,6 +16060,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					m_mainBtnAmbientSound.EnableWindow( FALSE );
 
 					InsertItemToEngineObjectList( g_multipleView->m_ambientSound->GetName(), eENGINEOBJECTLIST_AMBIENTSOUND );
+					UpdateWindow();
 				}
 
 			}
@@ -12807,6 +16140,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				new_instance_prefab->SetName(instance_name);
 				new_instance_prefab->SetNameIndex(); //for selection only
 				new_instance_prefab->GenQueryIndex();
+				new_instance_prefab->SetWater(NULL);
 				g_instancePrefab.push_back(new_instance_prefab);
 				Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 				g_importPrefab = CTrue;
@@ -12821,6 +16155,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				new_trigger->GetInstancePrefab()->SetScale(scaling);
 				new_trigger->GetInstancePrefab()->UpdateBoundingBox();
 				new_trigger->GetInstancePrefab()->CalculateDistance();
+				//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
 
 				CScene* scene = new_trigger->GetInstancePrefab()->GetScene(0);
 				for (CUInt i = 0; i < scene->m_instanceGeometries.size(); i++)
@@ -12845,6 +16180,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				g_triggers.push_back(new_trigger);
 				ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(new_trigger->GetName(), eENGINEOBJECTLIST_TRIGGER);
+				UpdateWindow();
 				g_engineObjectNames.push_back(new_trigger->GetName());
 
 
@@ -12858,7 +16194,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				if (!g_mainCharacter)
 					g_mainCharacter = CNew(CMainCharacter);
 
-				CCharacterType type;
+				CPhysXCameraType type;
 				CChar name[MAX_NAME_SIZE];
 				CChar packageName[MAX_NAME_SIZE];
 				CChar prefabName[MAX_NAME_SIZE];
@@ -12870,7 +16206,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_mainCharacter->SetName(name);
 				g_mainCharacter->SetPackageName(packageName);
 				g_mainCharacter->SetPrefabName(prefabName);
-				g_mainCharacter->SetType(type);
+				g_mainCharacter->SetCameraType(type);
 
 				CChar instance_name[MAX_NAME_SIZE];
 				CVec3f translation;
@@ -12935,10 +16271,21 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				new_instance_prefab->SetName(instance_name);
 				new_instance_prefab->SetNameIndex(); //for selection only
 				new_instance_prefab->GenQueryIndex();
+				new_instance_prefab->SetWater(NULL);
 				g_instancePrefab.push_back(new_instance_prefab);
 				Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 				g_importPrefab = CTrue;
 				ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(new_prefab);
+
+				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				{
+					if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+					{
+						if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+							g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+					}
+				}
+
 				g_importPrefab = CFalse;
 				g_instancePrefab[g_instancePrefab.size() - 1]->SetName("VANDA_MAIN_CHARACTER");
 
@@ -12949,11 +16296,15 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_mainCharacter->GetInstancePrefab()->SetScale(scaling);
 				g_mainCharacter->GetInstancePrefab()->UpdateBoundingBox();
 				g_mainCharacter->GetInstancePrefab()->CalculateDistance();
-
+				//g_mainCharacter->GetInstancePrefab()->UpdateIsStaticOrAnimated();
+				g_mainCharacter->SetCurrentRotation(rotation.y);
+				g_mainCharacter->SetPosition(translation);
+				g_camera->m_perspectiveCameraYaw = NxMath::degToRad(rotation.y) + NxMath::degToRad(180.f);
 
 				g_multipleView->RenderCharacter(CFalse);
 
 				ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(g_mainCharacter->GetName(), eENGINEOBJECTLIST_CHARACTER);
+				UpdateWindow();
 				g_engineObjectNames.push_back(g_mainCharacter->GetName());
 
 				//save main actions
@@ -13009,7 +16360,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						g_mainCharacter->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
 				}
 
-				g_multipleView->ManageCharacterBlends("idle", (CChar*)idleName[0].c_str());
+				g_multipleView->ManageCharacterBlends("idle");
 
 				ex_pVandaEngine1Dlg->m_mainBtnPlayer.EnableWindow(FALSE);
 				ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_PLAYER, MF_DISABLED | MF_GRAYED);
@@ -13056,6 +16407,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_startup->SetUpdateScript(CFalse);
 				g_menu.m_insertStartup = CTrue;
 				InsertItemToEngineObjectList(g_startup->GetName(), eENGINEOBJECTLIST_STARTUP);
+				UpdateWindow();
 
 				//LuaLoadAndExecute(g_lua, newPath);
 			}
@@ -13064,6 +16416,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_menu.m_insertStartup = CFalse;
 			}
 
+			//Set Cursor Path
+			CChar cursorPath[MAX_NAME_SIZE];
+			CChar* tempcursorPath = GetAfterPath(cursor);
+			sprintf(cursorPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cursor/", tempcursorPath);
+			g_vsceneMenuCursor.SetCursorPath(cursorPath);
+			
 			fclose( filePtr );
 			ReleaseCapture();
 			m_savePathName = m_strpathName;
@@ -13082,7 +16440,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.6.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -13101,13 +16459,37 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 			{
 				g_instancePrefab[i]->UpdateBoundingBox(CTrue);
+				g_instancePrefab[i]->UpdateIsStaticOrAnimated();
+				g_instancePrefab[i]->SetLightCooked(CFalse);
 			}
+			if (g_terrain)
+				g_terrain->GetTerrain()->SetLightCooked(CFalse);
 
 			g_multipleView->RenderQueries(CTrue);
+			if (g_terrain)
+				g_terrain->GetTerrain()->SetUpdate(CTrue);
 		}
+
 		g_transformObject = CFalse;
-		g_selectedName = -1;
+		g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1;
 		g_clickedOpen = CFalse;
+		g_showArrow = CFalse;
+		ex_pStaticSelectedObject->SetWindowTextA("\n");
+		m_editX.SetWindowTextA("\n");
+		m_editY.SetWindowTextA("\n");
+		m_editZ.SetWindowTextA("\n");
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+		}
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxObjects.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxObjects.Update(k);
+		}
+
 	}
 	else if (iResponse == IDCANCEL)
 	{
@@ -13115,6 +16497,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 		CDelete(dlgWaiting);
 		return CFalse;
 	}
+	g_updateOctree = CTrue;
 	dlgWaiting->ShowWindow(SW_HIDE);
 	CDelete(dlgWaiting);
 
@@ -13332,6 +16715,51 @@ CVoid CVandaEngine1Dlg::OnBnClickedCullFace()
 
 void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	int nSelected = -1; 
 	POSITION p = m_listBoxEngineObjects.GetFirstSelectedItemPosition();
 	while(p)
@@ -13371,9 +16799,23 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 				g_multipleView->EnableTimer( CFalse );
 		
 			ChangeSkyDomeProperties();
-
+			
 			if( g_multipleView->m_enableTimer )
 				g_multipleView->EnableTimer( CTrue );
+
+			g_multipleView->SetElapsedTimeFromBeginning();
+			g_multipleView->RenderWindow();
+			return;
+		}
+		if (g_terrain && Cmp(g_terrain->GetName(), szBuffer))
+		{
+			if (g_multipleView->m_enableTimer)
+				g_multipleView->EnableTimer(CFalse);
+
+			ChangeTerrainProperties();
+
+			if (g_multipleView->m_enableTimer)
+				g_multipleView->EnableTimer(CTrue);
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			g_multipleView->RenderWindow();
@@ -13390,6 +16832,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 				if( g_multipleView->m_enableTimer )
 					g_multipleView->EnableTimer( CTrue );
+
+				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				{
+					g_instancePrefab[j]->SetLightCooked(CFalse);
+				}
+				if (g_terrain)
+					g_terrain->GetTerrain()->SetLightCooked(CFalse);
 
 				g_multipleView->SetElapsedTimeFromBeginning();
 				g_multipleView->RenderWindow();
@@ -13439,12 +16888,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 				m_dlgAddTrigger = CNew(CAddTrigger);
 				m_dlgAddTrigger->Init(g_triggers[i]);
-				m_dlgAddTrigger->DoModal();
+				if (m_dlgAddTrigger->DoModal() == IDCANCEL)
+				{
+					CDelete(m_dlgAddTrigger);
+					return;
+				}
 				CDelete(m_dlgAddTrigger);
+
 				m_listBoxEngineObjects.DeleteItem(nSelected);
 				InsertItemToEngineObjectList(g_triggers[i]->GetName(), eENGINEOBJECTLIST_TRIGGER);
 
 				g_engineObjectNames.push_back(g_triggers[i]->GetName());
+
+				g_transformObject = CFalse;
+				g_selectedName = g_lastEngineObjectSelectedName = g_triggers[i]->GetInstancePrefab()->GetNameIndex();
+
+				CChar name[MAX_NAME_SIZE];
+				Cpy(name, g_triggers[i]->GetName());
+
+				for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+				{
+					if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+					{
+						ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+						ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+						ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+					}
+					else
+					{
+						ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+						ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+					}
+				}
 
 				if (g_multipleView->m_enableTimer)
 					g_multipleView->EnableTimer(CTrue);
@@ -13454,10 +16929,27 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 			}
 		}
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), szBuffer))
+			{
+				if (g_multipleView->m_enableTimer)
+					g_multipleView->EnableTimer(CFalse);
+
+				ChangeEngineCameraProperties(g_engineCameraInstances[i]);
+
+				if (g_multipleView->m_enableTimer)
+					g_multipleView->EnableTimer(CTrue);
+
+				g_multipleView->SetElapsedTimeFromBeginning();
+				g_multipleView->RenderWindow();
+				return;
+			}
+		}
 
 		if (g_menu.m_insertCharacter && Cmp(g_mainCharacter->GetName(), szBuffer))
 		{
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+			if (g_multipleView->IsPlayGameMode())
 			{
 				if (MessageBox("You can not change main character properties in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 				{
@@ -13475,12 +16967,37 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			m_dlgMainCharacter = CNew(CAddMainCharacter);
 			ex_pMainCharacterDlg = m_dlgMainCharacter;
 			m_dlgMainCharacter->Init(g_mainCharacter->GetName());
-			m_dlgMainCharacter->DoModal();
+			if (m_dlgMainCharacter->DoModal() == IDCANCEL)
+			{
+				CDelete(m_dlgMainCharacter);
+				return;
+			}
 			CDelete(m_dlgMainCharacter);
 			m_listBoxEngineObjects.DeleteItem(nSelected);
 			InsertItemToEngineObjectList(g_mainCharacter->GetName(), eENGINEOBJECTLIST_CHARACTER);
 
 			g_engineObjectNames.push_back(g_mainCharacter->GetName());
+
+			g_transformObject = CFalse;
+			g_selectedName = g_lastEngineObjectSelectedName = g_mainCharacter->GetInstancePrefab()->GetNameIndex();
+			CChar name[MAX_NAME_SIZE];
+
+			Cpy(name, g_mainCharacter->GetName());
+
+			for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+			{
+				if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+				{
+					ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+					ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+					ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+				}
+				else
+				{
+					ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+					ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+				}
+			}
 
 			if (g_multipleView->m_enableTimer)
 				g_multipleView->EnableTimer(CTrue);
@@ -13508,15 +17025,16 @@ CVoid CVandaEngine1Dlg::SortEngineObjectList(CInt selectedIndex)
 {
 	m_engineObjectListIndex--;
 }
-void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
+
+CVoid CVandaEngine1Dlg::RemoveEngineObject()
 {
-	int nSelected = -1; 
+	int nSelected = -1;
 	POSITION p = m_listBoxEngineObjects.GetFirstSelectedItemPosition();
-	while(p)
+	while (p)
 	{
 		nSelected = m_listBoxEngineObjects.GetNextSelectedItem(p);
 	}
-	if( nSelected >= 0 )
+	if (nSelected >= 0)
 	{
 		TCHAR szBuffer[1024];
 		DWORD cchBuf(1024);
@@ -13529,17 +17047,37 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
 		m_listBoxEngineObjects.GetItem(&lvi);
 
 		CInt result = IDYES;
-		if( m_askRemoveEngineObject )
+		if (m_askRemoveEngineObject)
 		{
 			CChar tempString[MAX_NAME_SIZE];
-			sprintf( tempString, "Delete object '%s' ?", szBuffer );
-			result = MessageBox( tempString, "Warning", MB_YESNO | MB_ICONERROR );
+			sprintf(tempString, "Delete object '%s' ?", szBuffer);
+			result = MessageBox(tempString, "Warning", MB_YESNO | MB_ICONERROR);
 		}
-		if( result == IDYES )
+		if (result == IDYES)
 		{
-			for( CUInt i = 0; i < g_engineObjectNames.size(); i++ )
+			if (g_multipleView->IsPlayGameMode())
 			{
-				if( Cmp( g_engineObjectNames[i].c_str(), szBuffer ) )
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				g_instancePrefab[i]->SetLightCooked(CFalse);
+			}
+			if (g_terrain)
+				g_terrain->GetTerrain()->SetLightCooked(CFalse);
+
+			for (CUInt i = 0; i < g_engineObjectNames.size(); i++)
+			{
+				if (Cmp(g_engineObjectNames[i].c_str(), szBuffer))
 					g_engineObjectNames.erase(g_engineObjectNames.begin() + i);
 			}
 
@@ -13561,107 +17099,158 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
 				return;
 			}
 
-			if( g_skyDome && Cmp( g_skyDome->GetName(), szBuffer )  )
+			if (g_skyDome && Cmp(g_skyDome->GetName(), szBuffer))
 			{
-				if( g_skyDome->GetIndex() == g_selectedName || g_skyDome->GetIndex()  == g_lastEngineObjectSelectedName )
+				if (g_skyDome->GetIndex() == g_selectedName || g_skyDome->GetIndex() == g_lastEngineObjectSelectedName)
 				{
 					g_showArrow = CFalse;
 				}
-				CDelete( g_skyDome );
+				CDelete(g_skyDome);
 				g_menu.m_insertAndShowSky = CFalse;
-				GetMenu()->EnableMenuItem( ID_INSERT_SKYDOME, MF_ENABLED );
-				m_mainBtnSky.EnableWindow( TRUE );
+				GetMenu()->EnableMenuItem(ID_INSERT_SKYDOME, MF_ENABLED);
+				m_mainBtnSky.EnableWindow(TRUE);
 
 				m_listBoxEngineObjects.DeleteItem(nSelected);
 				g_multipleView->SetElapsedTimeFromBeginning();
 				g_multipleView->RenderWindow();
-				if( m_listBoxEngineObjects.GetItemCount() == 0 )
+				if (m_listBoxEngineObjects.GetItemCount() == 0)
 				{
-					m_btnRemoveEngineObject.EnableWindow( FALSE );
-					m_btnEngineObjectProperties.EnableWindow( FALSE );
+					m_btnRemoveEngineObject.EnableWindow(FALSE);
+					m_btnEngineObjectProperties.EnableWindow(FALSE);
 				}
 				SortEngineObjectList(nSelected);
+
+				g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse);
+
 				return;
 			}
-			for( CUInt i = 0; i < g_engineLights.size(); i++ )
+			if (g_terrain && Cmp(g_terrain->GetName(), szBuffer))
 			{
-				if( Cmp( g_engineLights[i]->m_abstractLight->GetName(), szBuffer ) )
+				if (g_terrain->GetIndex() == g_selectedName || g_terrain->GetIndex() == g_lastEngineObjectSelectedName)
 				{
-					if( g_engineLights[i]->GetIndex() == g_selectedName || g_engineLights[i]->GetIndex()  == g_lastEngineObjectSelectedName )
+					g_showArrow = CFalse;
+				}
+				glFlush();
+				SwapBuffers(g_multipleView->m_pDC->m_hDC);
+				g_menu.m_insertAndShowTerrain = CFalse;
+				CDelete(g_terrain);
+				GetMenu()->EnableMenuItem(ID_INSERT_TERRAIN, MF_ENABLED);
+				m_mainBtnTerrain.EnableWindow(TRUE);
+
+				m_listBoxEngineObjects.DeleteItem(nSelected);
+				g_multipleView->SetElapsedTimeFromBeginning();
+
+				g_multipleView->RenderWindow();
+
+				if (m_listBoxEngineObjects.GetItemCount() == 0)
+				{
+					m_btnRemoveEngineObject.EnableWindow(FALSE);
+					m_btnEngineObjectProperties.EnableWindow(FALSE);
+				}
+				SortEngineObjectList(nSelected);
+
+				g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse);
+
+				return;
+			}
+			for (CUInt i = 0; i < g_engineLights.size(); i++)
+			{
+				if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), szBuffer))
+				{
+					if (g_engineLights[i]->GetIndex() == g_selectedName || g_engineLights[i]->GetIndex() == g_lastEngineObjectSelectedName)
 					{
 						g_showArrow = CFalse;
 					}
 
-					if( g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL )
-						if( Cmp( g_shadowProperties.m_directionalLightName, g_engineLights[i]->m_abstractLight->GetName() ) )
-							Cpy( g_shadowProperties.m_directionalLightName, "\n" );
+					if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+						if (Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[i]->m_abstractLight->GetName()))
+							Cpy(g_shadowProperties.m_directionalLightName, "\n");
 
-					CDelete( g_engineLights[i] );
-					g_engineLights.erase( g_engineLights.begin() + i );
+					CDelete(g_engineLights[i]);
+					g_engineLights.erase(g_engineLights.begin() + i);
 
 					m_listBoxEngineObjects.DeleteItem(nSelected);
 					g_multipleView->SetElapsedTimeFromBeginning();
 					g_multipleView->RenderWindow();
-					if( m_listBoxEngineObjects.GetItemCount() == 0 )
+					if (m_listBoxEngineObjects.GetItemCount() == 0)
 					{
-						m_btnRemoveEngineObject.EnableWindow( FALSE );
-						m_btnEngineObjectProperties.EnableWindow( FALSE );
+						m_btnRemoveEngineObject.EnableWindow(FALSE);
+						m_btnEngineObjectProperties.EnableWindow(FALSE);
 					}
 					SortEngineObjectList(nSelected);
+
+					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse);
+
 					return;
 
 				}
 			}
-			for( CUInt i = 0; i < g_engineWaters.size(); i++ )
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
 			{
-				if( Cmp( g_engineWaters[i]->GetName(), szBuffer ) )
+				if (Cmp(g_engineWaters[i]->GetName(), szBuffer))
 				{
-					if( g_engineWaters[i]->GetIndex() == g_selectedName || g_engineWaters[i]->GetIndex()  == g_lastEngineObjectSelectedName )
+					if (g_engineWaters[i]->GetIndex() == g_selectedName || g_engineWaters[i]->GetIndex() == g_lastEngineObjectSelectedName)
 					{
 						g_showArrow = CFalse;
 					}
 
 					//delete the scene
-					CDelete(  g_engineWaters[i] );
+					CDelete(g_engineWaters[i]);
 					//delete the vector that holds the scene
-					g_engineWaters.erase( g_engineWaters.begin( ) + i );
+					g_engineWaters.erase(g_engineWaters.begin() + i);
 
 					m_listBoxEngineObjects.DeleteItem(nSelected);
 					g_multipleView->SetElapsedTimeFromBeginning();
 					g_multipleView->RenderWindow();
-					if( m_listBoxEngineObjects.GetItemCount() == 0 )
+					if (m_listBoxEngineObjects.GetItemCount() == 0)
 					{
-						m_btnRemoveEngineObject.EnableWindow( FALSE );
-						m_btnEngineObjectProperties.EnableWindow( FALSE );
+						m_btnRemoveEngineObject.EnableWindow(FALSE);
+						m_btnEngineObjectProperties.EnableWindow(FALSE);
 					}
 					SortEngineObjectList(nSelected);
+
+					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse);
+
 					return;
 				}
 			}
 
-			for( CUInt i = 0; i < g_engineStaticSounds.size(); i++ )
+			for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 			{
-				if( Cmp( g_engineStaticSounds[i]->GetName(), szBuffer ) )
+				if (Cmp(g_engineStaticSounds[i]->GetName(), szBuffer))
 				{
-					if( g_engineStaticSounds[i]->GetIndex() == g_selectedName || g_engineStaticSounds[i]->GetIndex()  == g_lastEngineObjectSelectedName )
+					if (g_engineStaticSounds[i]->GetIndex() == g_selectedName || g_engineStaticSounds[i]->GetIndex() == g_lastEngineObjectSelectedName)
 					{
 						g_showArrow = CFalse;
 					}
 
 					//delete the scene
-					CDelete(  g_engineStaticSounds[i] );
+					CDelete(g_engineStaticSounds[i]);
 					//delete the vector that holds the scene
-					g_engineStaticSounds.erase( g_engineStaticSounds.begin( ) + i );
+					g_engineStaticSounds.erase(g_engineStaticSounds.begin() + i);
 
 					m_listBoxEngineObjects.DeleteItem(nSelected);
 					g_multipleView->SetElapsedTimeFromBeginning();
 					g_multipleView->RenderWindow();
-					if( m_listBoxEngineObjects.GetItemCount() == 0 )
+					if (m_listBoxEngineObjects.GetItemCount() == 0)
 					{
-						m_btnRemoveEngineObject.EnableWindow( FALSE );
-						m_btnEngineObjectProperties.EnableWindow( FALSE );
+						m_btnRemoveEngineObject.EnableWindow(FALSE);
+						m_btnEngineObjectProperties.EnableWindow(FALSE);
 					}
 					SortEngineObjectList(nSelected);
+
+					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse);
+
 					return;
 				}
 			}
@@ -13674,7 +17263,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
 					{
 						g_showArrow = CFalse;
 					}
-
+					m_deletedTriggerObjects.push_back(g_triggers[i]->GetInstancePrefab()->GetName());
 					CDelete(g_triggers[i]);
 					g_triggers.erase(g_triggers.begin() + i);
 
@@ -13688,6 +17277,42 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
 						m_btnEngineObjectProperties.EnableWindow(FALSE);
 					}
 					SortEngineObjectList(nSelected);
+
+					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse);
+
+					return;
+				}
+			}
+
+			for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+			{
+				if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), szBuffer))
+				{
+					if (g_engineCameraInstances[i]->GetIndex() == g_selectedName || g_engineCameraInstances[i]->GetIndex() == g_lastEngineObjectSelectedName)
+					{
+						g_showArrow = CFalse;
+					}
+
+					CDelete(g_engineCameraInstances[i]);
+					g_engineCameraInstances.erase(g_engineCameraInstances.begin() + i);
+
+					m_listBoxEngineObjects.DeleteItem(nSelected);
+					g_multipleView->SetElapsedTimeFromBeginning();
+					g_multipleView->RenderQueries(CTrue);
+					g_multipleView->RenderWindow();
+					if (m_listBoxEngineObjects.GetItemCount() == 0)
+					{
+						m_btnRemoveEngineObject.EnableWindow(FALSE);
+						m_btnEngineObjectProperties.EnableWindow(FALSE);
+					}
+					SortEngineObjectList(nSelected);
+
+					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse);
+
 					return;
 				}
 			}
@@ -13719,29 +17344,88 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
 				m_mainBtnPlayer.EnableWindow(TRUE);
 				GetMenu()->EnableMenuItem(ID_INSERT_PLAYER, MF_ENABLED);
 
+				g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse);
+
 				return;
 			}
 
-			if( g_menu.m_insertAmbientSound && Cmp( g_multipleView->m_ambientSound->GetName(), szBuffer )  )
+			if (g_menu.m_insertAmbientSound && Cmp(g_multipleView->m_ambientSound->GetName(), szBuffer))
 			{
-				g_multipleView->m_soundSystem->StopALSound( *(g_multipleView->m_ambientSound->GetSoundSource()) );
-				alSourcei(g_multipleView->m_ambientSound->GetSoundSource()->GetSource(), AL_BUFFER, AL_NONE); 
-				CDelete( g_multipleView->m_ambientSound );
+				g_multipleView->m_soundSystem->StopALSound(*(g_multipleView->m_ambientSound->GetSoundSource()));
+				alSourcei(g_multipleView->m_ambientSound->GetSoundSource()->GetSource(), AL_BUFFER, AL_NONE);
+				CDelete(g_multipleView->m_ambientSound);
 				g_menu.m_insertAmbientSound = CFalse;
 				m_listBoxEngineObjects.DeleteItem(nSelected);
-				GetMenu()->EnableMenuItem( ID_INSERT_SOUND_AMBIENT, MF_ENABLED );
-				m_mainBtnAmbientSound.EnableWindow( TRUE );
+				GetMenu()->EnableMenuItem(ID_INSERT_SOUND_AMBIENT, MF_ENABLED);
+				m_mainBtnAmbientSound.EnableWindow(TRUE);
 				g_multipleView->SetElapsedTimeFromBeginning();
-				if( m_listBoxEngineObjects.GetItemCount() == 0 )
+				if (m_listBoxEngineObjects.GetItemCount() == 0)
 				{
-					m_btnRemoveEngineObject.EnableWindow( FALSE );
-					m_btnEngineObjectProperties.EnableWindow( FALSE );
+					m_btnRemoveEngineObject.EnableWindow(FALSE);
+					m_btnEngineObjectProperties.EnableWindow(FALSE);
 				}
 				SortEngineObjectList(nSelected);
 				return;
 			}
 		} //end of if( result == IDYES )
 	} // end of if( nSelected >= 0 )
+
+}
+
+void CVandaEngine1Dlg::OnBnClickedBtnRemoveEngineObject()
+{
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+	RemoveEngineObject();
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CTrue);
 }
 
 CVoid CVandaEngine1Dlg::SortPhysXList()
@@ -13756,6 +17440,51 @@ CVoid CVandaEngine1Dlg::SortSceneList(CInt selectedIndex)
 
 CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	int nSelected = -1; 
 	POSITION p = m_listBoxScenes.GetFirstSelectedItemPosition();
 	while(p)
@@ -13791,6 +17520,21 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 		CPrefab* dstPrefab = NULL;
 		if( result == IDYES )
 		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			g_showArrow = CFalse;
+
 			SetCapture();
 			SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
 
@@ -13874,11 +17618,18 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 			}
 
 			g_octree->ResetState();
-			Cpy(g_shadowProperties.m_directionalLightName, "\n" );
+			//Cpy(g_shadowProperties.m_directionalLightName, "\n" );
 
 			if (g_editorMode == eMODE_PREFAB)
 			{
 				RemoveSelectedScene(szBuffer);
+				if (g_scene.size() == 0)
+				{
+					g_prefabProperties.m_names.clear();
+					g_prefabProperties.m_clipIndex = 0;
+				}
+					
+				
 			}
 			else //vscene
 			{
@@ -13924,11 +17675,12 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 			ReleaseCapture();
 		} //if
 
-		if( g_currentCameraType == eCAMERA_DEFAULT_FREE || g_currentCameraType == eCAMERA_COLLADA )
+		if( !g_multipleView->IsPlayGameMode() )
 		{
 			if( gPhysXscene )
 			{
 			  // Run collision and dynamics for delta time since the last frame
+				g_multipleView->m_nx->gControllers->reportSceneChanged();
 				gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
 				gPhysXscene->flushStream();
 				gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
@@ -14026,8 +17778,8 @@ CVoid CVandaEngine1Dlg::InsertItemToSceneList( char * sceneName )
 			{
 				if (Cmp(g_scene[i]->m_pureFileName, sceneName))
 				{
-					if (g_scene[i]->m_hasAnimation)
-						m_btnSceneProperties.EnableWindow(TRUE);
+					//if (g_scene[i]->m_hasAnimation)
+					//	m_btnSceneProperties.EnableWindow(TRUE);
 					//if we are loading the scenes from a vin file, set the check box based on the visible property of the scene
 					if (g_scene[i]->m_isVisible)
 						m_listBoxScenes.SetCheck(index);
@@ -14111,7 +17863,6 @@ CVoid CVandaEngine1Dlg::InsertItemToEngineObjectList( char * objectName, int ima
 	m_listBoxEngineObjects.SetSelectionMark(engineObjectIndex);
 	m_listBoxEngineObjects.EnsureVisible(engineObjectIndex, FALSE);
 	m_listBoxEngineObjects.UpdateWindow();
-
 	//if( m_listBoxEngineObjects.GetItemCount() )
 	//{
 	//	m_btnRemoveEngineObject.EnableWindow( TRUE );
@@ -14177,32 +17928,161 @@ COpenALSoundBuffer *CVandaEngine1Dlg::GetSoundBuffer( const CChar * name )
 }
 
 
-
-CVoid CVandaEngine1Dlg::ChangeLightProperties(CInstanceLight* light )
+CVoid CVandaEngine1Dlg::ChangeEngineCameraProperties(CInstanceCamera* camera)
 {
-	m_dlgAddLight = CNew( CAddLight );
-	m_dlgAddLight->SetName( light->m_abstractLight->GetName() );
-	m_dlgAddLight->SetPos( light->m_abstractLight->GetPosition() );
-	m_dlgAddLight->SetAmbient( light->m_abstractLight->GetAmbient() );
-	m_dlgAddLight->SetDiffuse( light->m_abstractLight->GetDiffuse() );
-	m_dlgAddLight->SetSpecular( light->m_abstractLight->GetSpecular() );
-	m_dlgAddLight->SetType( light->m_abstractLight->GetType() );
-	m_dlgAddLight->SetShininess( light->m_abstractLight->GetShininess() );
-	m_dlgAddLight->SetConstantAttenuation( light->m_abstractLight->GetConstantAttenuation() );
-	m_dlgAddLight->SetLinearAttenuation( light->m_abstractLight->GetLinearAttenuation() );
-	m_dlgAddLight->SetQuadAttenuation( light->m_abstractLight->GetQuadraticAttenuation() );
-	if( m_dlgAddLight->GetType() == eLIGHTTYPE_SPOT )
+	m_dlgAddEngineCamera = CNew(CAddEngineCamera);
+	m_dlgAddEngineCamera->SetName(camera->m_abstractCamera->GetName());
+	m_dlgAddEngineCamera->SetPosX(camera->GetPos().x);
+	m_dlgAddEngineCamera->SetPosY(camera->GetPos().y);
+	m_dlgAddEngineCamera->SetPosZ(camera->GetPos().z);
+	m_dlgAddEngineCamera->SetPan(camera->GetPan());
+	m_dlgAddEngineCamera->SetTilt(camera->GetTilt());
+	m_dlgAddEngineCamera->SetFOV(camera->m_abstractCamera->GetAngle());
+	m_dlgAddEngineCamera->SetFCP(camera->GetFCP());
+	m_dlgAddEngineCamera->SetNCP(camera->GetNCP());
+	m_dlgAddEngineCamera->SetCreate(CFalse);
+	CFloat speed = camera->GetCameraSpeed();
+	INT_PTR result = m_dlgAddEngineCamera->DoModal();
+	if (result == IDOK)
 	{
-		m_dlgAddLight->SetSpotDirection( light->m_abstractLight->GetSpotDirection() );
-		m_dlgAddLight->SetSpotExponent( light->m_abstractLight->GetSpotExponent() );
-		m_dlgAddLight->SetSpotCuttoff( light->m_abstractLight->GetSpotCutoff() );
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		if (camera->GetIndex() == g_selectedName || camera->GetIndex() == g_lastEngineObjectSelectedName)
+		{
+			g_showArrow = CFalse;
+		}
+		m_askRemoveEngineObject = CFalse;
+		m_askRemoveScene = CTrue;
+		OnBnClickedBtnRemoveEngineObject();
+		m_askRemoveEngineObject = CTrue;
+
+		CInstanceCamera* instance_camera = new CInstanceCamera();
+		CCamera* abstract_camera = new CCamera();
+
+		CNode* parent = CNew(CNode);
+		instance_camera->m_parent = parent;
+		instance_camera->m_abstractCamera = abstract_camera;
+		abstract_camera->SetName(m_dlgAddEngineCamera->GetName());
+
+		CVec3f pos(m_dlgAddEngineCamera->GetPosX(), m_dlgAddEngineCamera->GetPosY(), m_dlgAddEngineCamera->GetPosZ());
+		instance_camera->SetPos(pos);
+
+		instance_camera->m_abstractCamera->SetAngle(m_dlgAddEngineCamera->GetFOV());
+		instance_camera->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+		instance_camera->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+		instance_camera->SetFCP(m_dlgAddEngineCamera->GetFCP());
+		instance_camera->SetNCP(m_dlgAddEngineCamera->GetNCP());
+		instance_camera->SetPan(m_dlgAddEngineCamera->GetPan());
+		instance_camera->SetTilt(m_dlgAddEngineCamera->GetTilt());
+		instance_camera->SetCameraSpeed(speed);
+
+		instance_camera->MoveTransform2(pos.x, pos.y, pos.z);
+		instance_camera->SetPanAndTilt2(m_dlgAddEngineCamera->GetPan(), m_dlgAddEngineCamera->GetTilt());
+		instance_camera->ZoomTransform2(0.0f);
+
+		instance_camera->SetIndex();
+
+		g_engineCameraInstances.push_back(instance_camera);
+		InsertItemToEngineObjectList(instance_camera->m_abstractCamera->GetName(), eENGINEOBJECTLIST_ENGINE_CAMERA);
+
+		g_engineObjectNames.push_back(m_dlgAddEngineCamera->GetName());
+
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = instance_camera->GetIndex();
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, abstract_camera->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+		if (m_dlgAddEngineCamera->IsActive())
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (Cmp(g_engineCameraInstances[c]->m_abstractCamera->GetName(), name))
+				{
+					g_engineCameraInstances[c]->SetActive(CTrue);
+					g_render.SetActiveInstanceCamera(g_engineCameraInstances[c]);
+					m_mainBtnFreeCamera.EnableWindow(TRUE);
+				}
+				else
+					g_engineCameraInstances[c]->SetActive(CFalse);
+			}
+			g_currentCameraType = eCAMERA_ENGINE;
+		}
+
+		CDelete(m_dlgAddEngineCamera);
 	}
-	m_dlgAddLight->SetEditMode( CTrue );
+	else if (result == IDCANCEL)
+		CDelete(m_dlgAddEngineCamera);
+
+}
+
+CVoid CVandaEngine1Dlg::ChangeLightProperties(CInstanceLight* light)
+{
+	m_dlgAddLight = CNew(CAddLight);
+	m_dlgAddLight->SetName(light->m_abstractLight->GetName());
+	m_dlgAddLight->SetPos(light->m_abstractLight->GetPosition());
+	m_dlgAddLight->SetAmbient(light->m_abstractLight->GetAmbient());
+	m_dlgAddLight->SetDiffuse(light->m_abstractLight->GetDiffuse());
+	m_dlgAddLight->SetSpecular(light->m_abstractLight->GetSpecular());
+	m_dlgAddLight->SetType(light->m_abstractLight->GetType());
+	m_dlgAddLight->SetShininess(light->m_abstractLight->GetShininess());
+	m_dlgAddLight->SetConstantAttenuation(light->m_abstractLight->GetConstantAttenuation());
+	m_dlgAddLight->SetLinearAttenuation(light->m_abstractLight->GetLinearAttenuation());
+	m_dlgAddLight->SetQuadAttenuation(light->m_abstractLight->GetQuadraticAttenuation());
+	if (m_dlgAddLight->GetType() == eLIGHTTYPE_SPOT)
+	{
+		m_dlgAddLight->SetSpotDirection(light->m_abstractLight->GetSpotDirection());
+		m_dlgAddLight->SetSpotExponent(light->m_abstractLight->GetSpotExponent());
+		m_dlgAddLight->SetSpotCuttoff(light->m_abstractLight->GetSpotCutoff());
+	}
+	m_dlgAddLight->SetEditMode(CTrue);
+
+	CBool isDefaultDirectionlLight = CFalse;
+	if (Cmp(g_shadowProperties.m_directionalLightName, light->m_abstractLight->GetName()))
+		isDefaultDirectionlLight = CTrue;
 
 	INT_PTR result = m_dlgAddLight->DoModal();
-	if ( result  == IDOK )
+	if (result == IDOK)
 	{
-		if( light->GetIndex() == g_selectedName || light->GetIndex()  == g_lastEngineObjectSelectedName )
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		if (light->GetIndex() == g_selectedName || light->GetIndex() == g_lastEngineObjectSelectedName)
 		{
 			g_showArrow = CFalse;
 		}
@@ -14216,37 +18096,68 @@ CVoid CVandaEngine1Dlg::ChangeLightProperties(CInstanceLight* light )
 
 		instance_light->m_parent = NULL; //Not using COLLADA parent
 		instance_light->m_abstractLight = abstract_light;
-		abstract_light->SetName( m_dlgAddLight->GetName() );
-		abstract_light->SetType( m_dlgAddLight->GetType() );
-		switch( m_dlgAddLight->GetType() )
+		abstract_light->SetName(m_dlgAddLight->GetName());
+		abstract_light->SetType(m_dlgAddLight->GetType());
+		switch (m_dlgAddLight->GetType())
 		{
 		case eLIGHTTYPE_SPOT:
-			instance_light->m_abstractLight->SetSpotCutoff( m_dlgAddLight->GetSpotCuttoff() );
-			instance_light->m_abstractLight->SetSpotExponent( m_dlgAddLight->GetSpotExponent() );
-			instance_light->m_abstractLight->SetSpotDirection( m_dlgAddLight->GetSpotDirection() );
+			instance_light->m_abstractLight->SetSpotCutoff(m_dlgAddLight->GetSpotCuttoff());
+			instance_light->m_abstractLight->SetSpotExponent(m_dlgAddLight->GetSpotExponent());
+			instance_light->m_abstractLight->SetSpotDirection(m_dlgAddLight->GetSpotDirection());
 			break;
 		}
 
-		abstract_light->SetAmbient ( m_dlgAddLight->GetAmbientColor() );
-		abstract_light->SetDiffuse( m_dlgAddLight->GetDiffuseColor() );
-		abstract_light->SetSpecular( m_dlgAddLight->GetSpecularColor() );
-		abstract_light->SetPosition( m_dlgAddLight->GetLightPos() );
-		abstract_light->SetShininess( m_dlgAddLight->GetShininess() );
-		abstract_light->SetConstantAttenuation( m_dlgAddLight->GetConstantAttenuation() );
-		abstract_light->SetLinearAttenuation( m_dlgAddLight->GetLinearAttenuation() );
-		abstract_light->SetQuadraticAttenuation( m_dlgAddLight->GetQuadAttenuation() );
+		abstract_light->SetAmbient(m_dlgAddLight->GetAmbientColor());
+		abstract_light->SetDiffuse(m_dlgAddLight->GetDiffuseColor());
+		abstract_light->SetSpecular(m_dlgAddLight->GetSpecularColor());
+		abstract_light->SetPosition(m_dlgAddLight->GetLightPos());
+		abstract_light->SetShininess(m_dlgAddLight->GetShininess());
+		abstract_light->SetConstantAttenuation(m_dlgAddLight->GetConstantAttenuation());
+		abstract_light->SetLinearAttenuation(m_dlgAddLight->GetLinearAttenuation());
+		abstract_light->SetQuadraticAttenuation(m_dlgAddLight->GetQuadAttenuation());
 
 		instance_light->SetIndex();
+		instance_light->CalculateDistance();
 
-		g_engineLights.push_back( instance_light );
-		InsertItemToEngineObjectList( instance_light->m_abstractLight->GetName() , eENGINEOBJECTLIST_LIGHT);
+		if (isDefaultDirectionlLight)
+			Cpy(g_shadowProperties.m_directionalLightName, instance_light->m_abstractLight->GetName());
+
+		g_engineLights.push_back(instance_light);
+		InsertItemToEngineObjectList(instance_light->m_abstractLight->GetName(), eENGINEOBJECTLIST_LIGHT);
 
 		g_engineObjectNames.push_back(m_dlgAddLight->GetName());
 
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			g_instancePrefab[j]->SetLightCooked(CFalse);
+		}
+		if (g_terrain)
+			g_terrain->GetTerrain()->SetLightCooked(CFalse);
+
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = instance_light->GetIndex();
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, abstract_light->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
 		CDelete(m_dlgAddLight);
 	}
-	else if( result == IDCANCEL )
-		CDelete( m_dlgAddLight );
+	else if (result == IDCANCEL)
+		CDelete(m_dlgAddLight);
 
 
 }
@@ -14271,15 +18182,37 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 	m_dlgAddWater->SetLightPos( water->GetLightPos() );
 	m_dlgAddWater->SetPos( water->GetPos() );
 	m_dlgAddWater->SetSpeed( water->GetSpeed() );
+	m_dlgAddWater->SetVisible(water->GetVisible());
 	m_dlgAddWater->SetEditMode( CTrue );
 
 	INT_PTR result = m_dlgAddWater->DoModal();
 	if ( result  == IDOK )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		if( water->GetIndex() == g_selectedName || water->GetIndex()  == g_lastEngineObjectSelectedName )
 		{
 			g_showArrow = CFalse;
 		}
+
+		std::vector<CInstancePrefab*> instancePrefab;
+
+		for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
+		{
+			instancePrefab.push_back(water->m_instancePrefab[i]);
+		}
+
 		m_askRemoveEngineObject = CFalse;
 		OnBnClickedBtnRemoveEngineObject();
 		m_askRemoveEngineObject = CTrue;
@@ -14294,21 +18227,47 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 		water->SetScale( m_dlgAddWater->GetScale() );
 		water->SetUV( m_dlgAddWater->GetUV() );
 		water->SetSpeed( m_dlgAddWater->GetSpeed() );
+		water->SetVisible(m_dlgAddWater->GetVisible());
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID );
 		water->SetSideVertexPositions();
+
+		for (CUInt i = 0; i < instancePrefab.size(); i++)
+		{
+			water->m_instancePrefab.push_back(instancePrefab[i]);
+		}
+
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
 			water->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
-
 		g_engineWaters.push_back( water );
 		InsertItemToEngineObjectList( water->GetName() , eENGINEOBJECTLIST_WATER);
 
 		g_engineObjectNames.push_back(m_dlgAddWater->GetName());
+
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = water->GetIndex();
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, water->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
 
 		CDelete(m_dlgAddWater);
 	}
@@ -14340,6 +18299,19 @@ CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
 	INT_PTR result = m_dlgAddStaticSound->DoModal();
 	if ( result  == IDOK )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		if( sound->GetIndex() == g_selectedName || sound->GetIndex()  == g_lastEngineObjectSelectedName )
 		{
 			g_showArrow = CFalse;
@@ -14427,11 +18399,30 @@ CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
 			m_staticSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
-
 		g_engineStaticSounds.push_back( m_staticSound );
 		InsertItemToEngineObjectList( m_staticSound->GetName() , eENGINEOBJECTLIST_STATICSOUND);
 
 		g_engineObjectNames.push_back(m_dlgAddStaticSound->GetName());
+
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = m_staticSound->GetIndex();
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, m_staticSound->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
 
 		CDelete( m_dlgAddStaticSound );
 	}
@@ -14456,6 +18447,19 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 	INT_PTR result = m_dlgAddAmbientSound->DoModal();
 	if ( result  == IDOK )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		m_askRemoveEngineObject = CFalse;
 		OnBnClickedBtnRemoveEngineObject();
 		m_askRemoveEngineObject = CTrue;
@@ -14507,6 +18511,26 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 		InsertItemToEngineObjectList( g_multipleView->m_ambientSound->GetName() , eENGINEOBJECTLIST_AMBIENTSOUND);
 
 		g_engineObjectNames.push_back(m_dlgAddAmbientSound->GetName());
+		g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+		g_transformObject = CFalse;
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, g_multipleView->m_ambientSound->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+		g_showArrow = CFalse;
 
 		CDelete( m_dlgAddAmbientSound );
 	}
@@ -14523,6 +18547,19 @@ CVoid CVandaEngine1Dlg::ChangeStartupProperties()
 	m_dlgAddStartup->SetScriptPath(g_startup->GetScriptPath());
 	if (m_dlgAddStartup->DoModal() == IDOK)
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		m_askRemoveEngineObject = CFalse;
 		OnBnClickedBtnRemoveEngineObject();
 		m_askRemoveEngineObject = CTrue;
@@ -14536,10 +18573,187 @@ CVoid CVandaEngine1Dlg::ChangeStartupProperties()
 		ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
 		ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
 		g_menu.m_insertStartup = CTrue;
+		g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+		g_transformObject = CFalse;
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, g_startup->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+		g_showArrow = CFalse;
 
 		g_engineObjectNames.push_back(g_startup->GetName());
 	}
 	CDelete(m_dlgAddStartup);
+}
+
+CVoid CVandaEngine1Dlg::ChangeTerrainProperties()
+{
+	m_dlgAddTerrain = CNew(CAddTerrain);
+
+	m_dlgAddTerrain->SetName(g_terrain->GetName());
+
+	m_dlgAddTerrain->SetHeightMapPath(g_terrain->GetHeightMapPath());
+
+	m_dlgAddTerrain->SetBottomTexturePath(g_terrain->GetBottomTexturePath());
+	m_dlgAddTerrain->SetBottomNormalMapPath(g_terrain->GetBottomNormalMapPath());
+
+	m_dlgAddTerrain->SetSlopeTexturePath(g_terrain->GetSlopeTexturePath());
+	m_dlgAddTerrain->SetSlopeNormalMapPath(g_terrain->GetSlopeNormalMapPath());
+
+	m_dlgAddTerrain->SetTopTexturePath(g_terrain->GetTopTexturePath());
+	m_dlgAddTerrain->SetTopNormalMapPath(g_terrain->GetTopNormalMapPath());
+
+	m_dlgAddTerrain->SetShininess(g_terrain->GetShininess());
+	m_dlgAddTerrain->SetSmooth(g_terrain->GetSmooth());
+	m_dlgAddTerrain->SetScaleHeight(g_terrain->GetScaleHeight());
+	m_dlgAddTerrain->SetScaleWidth(g_terrain->GetScaleWidth());
+	m_dlgAddTerrain->SetSlopeFactor(g_terrain->GetSlopeFactor());
+	m_dlgAddTerrain->SetTopStartHeight(g_terrain->GetTopStartHeight());
+	m_dlgAddTerrain->SetFlatten(g_terrain->GetFlatten());
+
+	m_dlgAddTerrain->SetAmbientColor(g_terrain->GetAmbientColor());
+	m_dlgAddTerrain->SetDiffuseColor(g_terrain->GetDiffuseColor());
+	m_dlgAddTerrain->SetSpecularColor(g_terrain->GetSpecularColor());
+	m_dlgAddTerrain->SetEditMode(CTrue);
+
+	CBool flatten = g_terrain->GetFlatten();
+	CFloat scaleWidth = g_terrain->GetScaleWidth();
+	CFloat scaleHeight = g_terrain->GetScaleHeight();
+	CInt smooth = g_terrain->GetSmooth();
+	CChar physics_path[MAX_NAME_SIZE];
+	Cpy(physics_path, g_terrain->GetPhysicsPath());
+	CBool cookPhysicsTriangles = g_terrain->GetCookPhysicsTriangles();
+	INT_PTR result = m_dlgAddTerrain->DoModal();
+	if (result == IDOK)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		if (g_terrain->GetIndex() == g_selectedName || g_terrain->GetIndex() == g_lastEngineObjectSelectedName)
+		{
+			g_showArrow = CFalse;
+		}
+		m_askRemoveEngineObject = CFalse;
+		OnBnClickedBtnRemoveEngineObject();
+		m_askRemoveEngineObject = CTrue;
+
+		CDelete(g_terrain);
+		g_terrain = CNew(CTerrain);
+
+		g_terrain->SetName(m_dlgAddTerrain->GetName());
+
+		g_terrain->SetHeightMapPath(m_dlgAddTerrain->GetHeightMapPath());
+
+		g_terrain->SetBottomTexturePath(m_dlgAddTerrain->GetBottomTexturePath());
+		g_terrain->SetBottomNormalMapPath(m_dlgAddTerrain->GetBottomNormalMapPath());
+
+		g_terrain->SetSlopeTexturePath(m_dlgAddTerrain->GetSlopeTexturePath());
+		g_terrain->SetSlopeNormalMapPath(m_dlgAddTerrain->GetSlopeNormalMapPath());
+
+		g_terrain->SetTopTexturePath(m_dlgAddTerrain->GetTopTexturePath());
+		g_terrain->SetTopNormalMapPath(m_dlgAddTerrain->GetTopNormalMapPath());
+
+		g_terrain->SetShininess(m_dlgAddTerrain->GetShininess());
+		g_terrain->SetSmooth(m_dlgAddTerrain->GetSmooth());
+		g_terrain->SetScaleHeight(m_dlgAddTerrain->GetScaleHeight());
+		g_terrain->SetScaleWidth(m_dlgAddTerrain->GetScaleWidth());
+		g_terrain->SetSlopeFactor(m_dlgAddTerrain->GetSlopeFactor());
+		g_terrain->SetTopStartHeight(m_dlgAddTerrain->GetTopStartHeight());
+		g_terrain->SetFlatten(m_dlgAddTerrain->GetFlatten());
+
+		g_terrain->SetAmbientColor(m_dlgAddTerrain->GetAmbientColor());
+		g_terrain->SetDiffuseColor(m_dlgAddTerrain->GetDiffuseColor());
+		g_terrain->SetSpecularColor(m_dlgAddTerrain->GetSpecularColor());
+
+		if (m_dlgAddTerrain->GetChangedHeightMap() || flatten != g_terrain->GetFlatten() || fabs(scaleWidth - g_terrain->GetScaleWidth()) > EPSILON ||
+			fabs(scaleHeight - g_terrain->GetScaleHeight()) > EPSILON || smooth != g_terrain->GetSmooth())
+		{
+			g_terrain->SetCookPhysicsTriangles(CTrue);
+		}
+		else
+		{
+			g_terrain->SetCookPhysicsTriangles(CFalse);
+		}
+
+		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+
+		if (g_terrain->GetCookPhysicsTriangles())
+		{
+			SetCapture();
+			SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+
+			dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
+			dlgWaiting->ShowWindow(SW_SHOW);
+		}
+
+		g_terrain->Initialize();
+		if (g_terrain->GetCookPhysicsTriangles())
+		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+				g_multipleView->RenderWindow();
+			}
+
+			dlgWaiting->ShowWindow(SW_HIDE);
+			ReleaseCapture();
+		}
+		CDelete(dlgWaiting);
+
+		//Save PhysX Triangles?
+		if (cookPhysicsTriangles)
+		{
+			g_terrain->SetCookPhysicsTriangles(CTrue);
+			g_terrain->SetPhysicsPath(physics_path);
+		}
+		if (!g_terrain->GetCookPhysicsTriangles())
+		{
+			g_terrain->SetPhysicsPath(physics_path);
+		}
+
+		g_menu.m_insertAndShowTerrain = CTrue;
+		InsertItemToEngineObjectList(g_terrain->GetName(), eENGINEOBJECTLIST_TERRAIN);
+
+		g_engineObjectNames.push_back(m_dlgAddTerrain->GetName());
+
+		GetMenu()->EnableMenuItem(ID_INSERT_TERRAIN, MF_DISABLED | MF_GRAYED);
+		CDelete(m_dlgAddTerrain);
+		m_mainBtnTerrain.EnableWindow(FALSE);
+
+		//save functions/////////////////////////////////
+		for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
+		{
+			g_terrain->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue);
+		}
+		//save functions/////////////////////////////////
+
+	}
+	else if (result == IDCANCEL)
+		CDelete(m_dlgAddTerrain);
+
 }
 
 CVoid CVandaEngine1Dlg::ChangeSkyDomeProperties()
@@ -14559,6 +18773,19 @@ CVoid CVandaEngine1Dlg::ChangeSkyDomeProperties()
 	INT_PTR result = m_dlgAddSkyDome->DoModal();
 	if ( result == IDOK )
 	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		if( g_skyDome->GetIndex() == g_selectedName || g_skyDome->GetIndex()  == g_lastEngineObjectSelectedName )
 		{
 			g_showArrow = CFalse;
@@ -14594,18 +18821,35 @@ CVoid CVandaEngine1Dlg::ChangeSkyDomeProperties()
 		CDelete( m_dlgAddSkyDome );
 		m_mainBtnSky.EnableWindow( FALSE );
 
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = g_skyDome->GetIndex();
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, g_skyDome->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
 			g_skyDome->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
-
-
 	}
 	else if( result == IDCANCEL )
 		CDelete( m_dlgAddSkyDome );
-
 }
 
 void CVandaEngine1Dlg::OnClose()
@@ -14632,10 +18876,15 @@ void CVandaEngine1Dlg::OnClose()
 	SaveGUIFiles();
 
 
-	if (g_menu.m_insertStartup || g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0)
+	if (g_menu.m_insertStartup || g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 	{
 		CInt iResponse;
 		iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
+		if (iResponse == IDYES || iResponse == IDNO)
+		{
+			if (g_multipleView->IsPlayGameMode())
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+		}
 		if( iResponse == IDYES )
 		{
 			if( g_multipleView->m_enableTimer )
@@ -14686,9 +18935,9 @@ BOOL CVandaEngine1Dlg::PreTranslateMessage(MSG* pMsg)
 }
 void CVandaEngine1Dlg::OnBnClickedBtnNew()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (MessageBox("You can not create a new scene in Play Mode. Exit from Play Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
@@ -14698,6 +18947,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnNew()
 			return;
 		}
 	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
@@ -14711,9 +18992,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnNew()
 
 void CVandaEngine1Dlg::OnBnClickedBtnSave()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (MessageBox("You can not save your scene in Play Mode. Exit from Play Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
@@ -14723,6 +19004,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnSave()
 			return;
 		}
 	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
@@ -14749,9 +19062,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnSave()
 
 void CVandaEngine1Dlg::OnBnClickedBtnSaveas()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (MessageBox("You can not save your scene in Play Mode. Exit from Play Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
@@ -14761,6 +19074,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnSaveas()
 			return;
 		}
 	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
@@ -14784,9 +19129,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnSaveas()
 
 void CVandaEngine1Dlg::OnBnClickedBtnOpen()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (MessageBox("You can not open your scene in Play Mode. Exit from Play Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
@@ -14796,13 +19141,49 @@ void CVandaEngine1Dlg::OnBnClickedBtnOpen()
 			return;
 		}
 	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	if (g_editorMode == eMODE_PREFAB)
+	{
 		OnMenuClickedOpenPrefab();
+	}
 	else
+	{
 		OnMenuClickedOpenVScene();
+	}
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CTrue );
 
@@ -14811,6 +19192,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnOpen()
 
 void CVandaEngine1Dlg::OnBnClickedBtnCollada()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedImportCollada();
@@ -14835,6 +19261,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnCollada()
 
 void CVandaEngine1Dlg::OnBnClickedBtnAnimPrev()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 
@@ -14849,6 +19320,54 @@ void CVandaEngine1Dlg::OnBnClickedBtnAnimPrev()
 
 void CVandaEngine1Dlg::OnBnClickedBtnAnimNext()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (!g_render.GetSelectedScene())
+		return;
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 
@@ -14862,10 +19381,58 @@ void CVandaEngine1Dlg::OnBnClickedBtnAnimNext()
 
 void CVandaEngine1Dlg::OnBnClickedBtnAnimPlay()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (!g_render.GetSelectedScene())
+		return;
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 
-	g_render.GetSelectedScene()->m_animationStatus = eANIM_PLAY; 
+	g_render.GetSelectedScene()->SetAnimationStatus(eANIM_PLAY);
 	if( !g_render.GetSelectedScene()->UpdateAnimationLists() && g_render.GetSelectedScene()->GetNumClips() == 1)
 	{
 		g_render.GetSelectedScene()->SetClipIndex(0);
@@ -14912,7 +19479,54 @@ void CVandaEngine1Dlg::OnBnClickedBtnTimer()
 
 void CVandaEngine1Dlg::OnBnClickedBtnAnimPause()
 {
-	g_render.GetSelectedScene()->m_animationStatus = eANIM_PAUSE;
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (!g_render.GetSelectedScene())
+		return;
+	g_render.GetSelectedScene()->SetAnimationStatus(eANIM_PAUSE);
 	PrintInfo("\nAnimation '" + (CString)g_render.GetSelectedScene()->m_animationClips[g_render.GetSelectedScene()->GetCurrentClipIndex()]->GetName() + "'paused");
 
 	ex_pBtnPlayAnim->EnableWindow( TRUE );
@@ -14923,7 +19537,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnAnimPause()
 
 void CVandaEngine1Dlg::OnBnClickedBtnWeb()
 {
-	ShellExecute(NULL, "open", "http://www.vandaengine.org", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 	g_multipleView->SetElapsedTimeFromBeginning();
 }
 
@@ -14936,6 +19550,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnFacebook()
 
 void CVandaEngine1Dlg::OnBnClickedBtnMaterial()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedEditMaterial();
@@ -14948,6 +19607,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnMaterial()
 
 void CVandaEngine1Dlg::OnBnClickedBtnLight()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedInsertLight();
@@ -14960,6 +19664,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnLight()
 
 void CVandaEngine1Dlg::OnBnClickedBtnWater()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedInsertWater();
@@ -14972,6 +19721,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnWater()
 
 void CVandaEngine1Dlg::OnBnClickedBtnAmbientsound()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedInsertAmbientSound();
@@ -14983,6 +19777,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnAmbientsound()
 
 void CVandaEngine1Dlg::OnBnClickedBtnStaticsound()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedInsertStaticSound();
@@ -14994,6 +19833,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnStaticsound()
 
 void CVandaEngine1Dlg::OnBnClickedBtnSky()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedInsertSkyDome();
@@ -15006,9 +19890,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnSky()
 
 void CVandaEngine1Dlg::OnBnClickedBtnPlayer()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (MessageBox("You can not insert main character in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
@@ -15018,6 +19902,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayer()
 			return;
 		}
 	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
@@ -15195,8 +20111,8 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 			{
 				if (Cmp(g_scene[i]->m_pureFileName, szBuffer))
 				{
-					if (g_scene[i]->m_hasAnimation)
-						m_btnSceneProperties.EnableWindow(TRUE);
+					//if (g_scene[i]->m_hasAnimation)
+					//	m_btnSceneProperties.EnableWindow(TRUE);
 
 					for (CUInt j = 0; j < g_scene[i]->m_images.size(); j++)
 					{
@@ -15262,6 +20178,13 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 				if (Cmp(g_instancePrefab[i]->GetName(), szBuffer))
 				{
 					m_newInstancePrefab = g_instancePrefab[i];
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_instancePrefab[i]->GetNameIndex();
+					g_showArrow = CTrue;
+					g_render.SetSelectedInstancePrefab(g_instancePrefab[i]);
+					g_transformObject = CFalse;
+					g_instancePrefab[i]->UpdateArrow();
+					SetDialogData3(CTrue, g_instancePrefab[i]);
+					break;
 				}
 			}
 			if (m_newInstancePrefab)
@@ -15293,9 +20216,20 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 
 					for (CUInt i = 0; i < gui->m_guiTexts.size(); i++)
 						InsertItemToObjectList(gui->m_guiTexts[i]->GetName(), eOBJECTLIST_GUI_TEXT);
+
+					ex_pVandaEngine1Dlg->m_editX.EnableWindow(TRUE);
+					ex_pVandaEngine1Dlg->m_editY.EnableWindow(TRUE);
 				}
 			}
 
+		}
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			for (int i = 0; i < m_listBoxEngineObjects.GetItemCount(); i++)
+			{
+				m_listBoxEngineObjects.SetItemState(i, 0, LVIS_SELECTED);
+				m_listBoxEngineObjects.Update(i);
+			}
 		}
 	}
 	else
@@ -15303,6 +20237,8 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 		m_btnRemoveScene.EnableWindow( FALSE );
 		m_btnSceneProperties.EnableWindow( FALSE );
 	}
+
+
 }
 
 void CVandaEngine1Dlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *pResult)
@@ -15315,10 +20251,146 @@ void CVandaEngine1Dlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT 
 	{
 		nSelected = m_listBoxEngineObjects.GetNextSelectedItem(p);
 	}
-	if( nSelected >= 0 )
+	if (nSelected >= 0)
 	{
+		TCHAR szBuffer[1024];
+		DWORD cchBuf(1024);
+		LVITEM lvi;
+		lvi.iItem = nSelected;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = szBuffer;
+		lvi.cchTextMax = cchBuf;
+		m_listBoxEngineObjects.GetItem(&lvi);
+
+		CBool foundTarget = CFalse;
+		CBool XYZInfo;
+		if (g_currentTransformType == eCTranslate)
+			XYZInfo = CTrue;
+		else
+			XYZInfo = CFalse;
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), szBuffer))
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineLights[i]->GetIndex();
+				SetDialogData4(g_engineLights[i]->m_abstractLight->GetName(), g_engineLights[i]->m_abstractLight->GetPosition()[0], g_engineLights[i]->m_abstractLight->GetPosition()[1], g_engineLights[i]->m_abstractLight->GetPosition()[2], XYZInfo);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+		if (!foundTarget)
+		{
+			if (g_skyDome && Cmp(g_skyDome->GetName(), szBuffer))
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_skyDome->GetIndex();
+				SetDialogData4(g_skyDome->GetName(), g_skyDome->GetPosition()[0], g_skyDome->GetPosition()[1], g_skyDome->GetPosition()[2], XYZInfo);
+				foundTarget = CTrue;
+			}
+		}
+		if (!foundTarget)
+		{
+			if (g_mainCharacter && Cmp(g_mainCharacter->GetName(), szBuffer))
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_mainCharacter->GetInstancePrefab()->GetNameIndex();
+				
+				g_transformObject = CFalse;
+				g_mainCharacter->GetInstancePrefab()->UpdateArrow();
+				g_mainCharacter->SetPosition(g_arrowPosition);
+
+				if (g_currentTransformType == eCTranslate)
+					SetDialogData4(g_mainCharacter->GetName(), g_mainCharacter->GetInstancePrefab()->GetTranslate().x, g_mainCharacter->GetInstancePrefab()->GetTranslate().y, g_mainCharacter->GetInstancePrefab()->GetTranslate().z, CTrue);
+				if (g_currentTransformType == eCRotate)
+					SetDialogData4(g_mainCharacter->GetName(), g_mainCharacter->GetInstancePrefab()->GetRotate().x, g_mainCharacter->GetInstancePrefab()->GetRotate().y, g_mainCharacter->GetInstancePrefab()->GetRotate().z, CTrue);
+				if (g_currentTransformType == eCScale)
+					SetDialogData4(g_mainCharacter->GetName(), g_mainCharacter->GetInstancePrefab()->GetScale().x, g_mainCharacter->GetInstancePrefab()->GetScale().y, g_mainCharacter->GetInstancePrefab()->GetScale().z, CTrue);
+				foundTarget = CTrue;
+			}
+		}
+
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				if (Cmp(g_engineWaters[i]->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineWaters[i]->GetIndex();
+					SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetPos()[0], g_engineWaters[i]->GetPos()[1], g_engineWaters[i]->GetPos()[2], XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+			{
+				if (Cmp(g_engineStaticSounds[i]->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineStaticSounds[i]->GetIndex();
+					SetDialogData4(g_engineStaticSounds[i]->GetName(), g_engineStaticSounds[i]->GetPosition()[0], g_engineStaticSounds[i]->GetPosition()[1], g_engineStaticSounds[i]->GetPosition()[2], XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_triggers.size(); i++)
+			{
+				if (Cmp(g_triggers[i]->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_triggers[i]->GetInstancePrefab()->GetNameIndex();
+					
+					g_transformObject = CFalse;
+					g_triggers[i]->GetInstancePrefab()->UpdateArrow();
+
+					SetDialogData4(g_triggers[i]->GetName(), g_triggers[i]->GetInstancePrefab()->GetTranslate().x, g_triggers[i]->GetInstancePrefab()->GetTranslate().y, g_triggers[i]->GetInstancePrefab()->GetTranslate().z, XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+			{
+				if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineCameraInstances[i]->GetIndex();
+					SetDialogData4(g_engineCameraInstances[i]->m_abstractCamera->GetName(), g_engineCameraInstances[i]->GetPos().x, g_engineCameraInstances[i]->GetPos().y, g_engineCameraInstances[i]->GetPos().z, XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+
 		m_btnRemoveEngineObject.EnableWindow( TRUE );
 		m_btnEngineObjectProperties.EnableWindow( TRUE );
+
+		if (!foundTarget) //it's something like ambient sound that doesn't need transformation
+		{
+			g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+			SetDialogData4(szBuffer, 0, 0, 0, CFalse, CFalse);
+			g_transformObject = CFalse;
+			g_showArrow = CFalse;
+		}
+		else
+			g_showArrow = CTrue;
+
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			for (int i = 0; i < m_listBoxScenes.GetItemCount(); i++)
+			{
+				m_listBoxScenes.SetItemState(i, 0, LVIS_SELECTED);
+			}
+
+			for (int nItem = m_listBoxObjects.GetItemCount() - 1; nItem >= 0; nItem--)
+			{
+				m_listBoxObjects.DeleteItem(nItem);
+			}
+		}
+
 	}
 	else
 	{
@@ -15371,6 +20443,8 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 	g_multipleView->m_nx->gDefaultGravity.z = g_physXProperties.m_fGravityZ;
 	gPhysicsSDK->setParameter( NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth );
 
+	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->gDefaultGravity.x, g_multipleView->m_nx->gDefaultGravity.y, g_multipleView->m_nx->gDefaultGravity.z));
+
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
 	defaultMaterial->setStaticFriction(g_physXProperties.m_fDefaultStaticFriction);
@@ -15393,11 +20467,12 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 	g_multipleView->m_nx->gCharacterWalkSpeed = g_physXProperties.m_fCharacterWalkSpeed;
 	g_multipleView->m_nx->gCharacterRunSpeed = g_physXProperties.m_fCharacterRunSpeed;
 
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE || g_currentCameraType == eCAMERA_COLLADA )
+	if (!g_multipleView->IsPlayGameMode())
 	{
 		if( gPhysXscene )
 		{
 		  // Run collision and dynamics for delta time since the last frame
+			g_multipleView->m_nx->gControllers->reportSceneChanged();
 			gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
 			gPhysXscene->flushStream();
 			gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
@@ -15407,6 +20482,50 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 
 void CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
@@ -15495,9 +20614,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx()
 		}
 	}
 	g_multipleView->m_nx->gControllers->reportSceneChanged();
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE && gPhysXscene )
+	if( !g_multipleView->IsPlayGameMode() && gPhysXscene )
 	{
 	  // Run collision and dynamics for delta time since the last frame
+		g_multipleView->m_nx->gControllers->reportSceneChanged();
 		gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
 		gPhysXscene->flushStream();
 		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
@@ -15549,6 +20669,51 @@ void CVandaEngine1Dlg::OnLvnItemchangedListPhysxElements(NMHDR *pNMHDR, LRESULT 
 
 void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 
@@ -15558,7 +20723,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 	{
 		if( !Cmp(g_currentVSceneName, "\n") && m_dlgPublishProject->m_saveCurrentScene )
 		{
-			if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+			if (g_multipleView->IsPlayGameMode())
 				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
 			for( CUInt index = 0; index < g_VSceneNamesOfCurrentProjectToBePublished.size(); index++ )
@@ -15577,13 +20742,25 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		SetCapture();
 		SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
 
+		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
+		dlgWaiting->ShowWindow(SW_SHOW);
+
 		CChar rootPath[MAX_NAME_SIZE];
 		sprintf( rootPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/" );
 		CreateWindowsDirectory( rootPath );
 		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/DLLs/", rootPath );
-		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/Publish/", rootPath );
 		CChar oldFileName[MAX_NAME_SIZE];
-		sprintf( oldFileName, "%s%s", rootPath, "publish.exe" );
+		if (m_dlgPublishProject->GetPublishDebug())
+		{
+			sprintf(oldFileName, "%s%s", rootPath, "publish-debug.exe");
+			CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Publish-Debug/", rootPath);
+		}
+		else
+		{
+			sprintf(oldFileName, "%s%s", rootPath, "publish.exe");
+			CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Publish/", rootPath);
+		}
 		CChar newFileName[MAX_NAME_SIZE];
 		sprintf( newFileName, "%s%s%s", rootPath, m_dlgPublishProject->m_strName, ".exe" );
 
@@ -15670,15 +20847,15 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		CreateWindowsDirectory(shadowShaderNormalPath);
 		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Shadow/shadow_normal/", shadowShaderNormalPath);
 
-		CChar spotShadowShaderPath[MAX_NAME_SIZE];
-		sprintf( spotShadowShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Shadow/Spot/" );
-		CreateWindowsDirectory( spotShadowShaderPath );
-		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/Shaders/Shadow/Spot/", spotShadowShaderPath );
+		CChar terrainShaderPath[MAX_NAME_SIZE];
+		sprintf(terrainShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Terrain/");
+		CreateWindowsDirectory(terrainShaderPath);
+		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Terrain/", terrainShaderPath);
 
-		CChar spotNormalShadowShaderPath[MAX_NAME_SIZE];
-		sprintf(spotNormalShadowShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Shadow/Spot/spot_normal/");
-		CreateWindowsDirectory(spotNormalShadowShaderPath);
-		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Shadow/Spot/spot_normal/", spotNormalShadowShaderPath);
+		CChar terrainShadowShaderPath[MAX_NAME_SIZE];
+		sprintf(terrainShadowShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Terrain/Shadow/");
+		CreateWindowsDirectory(terrainShadowShaderPath);
+		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Terrain/Shadow/", terrainShadowShaderPath);
 
 		std::vector<std::string> m_packagePrefabNames;
 		std::vector<std::string> m_packageNames;
@@ -15719,10 +20896,16 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			sprintf(originalStartupPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Startup/");
 
 			CChar originalSkyPath[MAX_NAME_SIZE];
-			sprintf( originalSkyPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sky/" );
+			sprintf(originalSkyPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sky/");
+
+			CChar originalTerrainPath[MAX_NAME_SIZE];
+			sprintf(originalTerrainPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Terrain/");
 
 			CChar originalBannerPath[MAX_NAME_SIZE];
 			sprintf(originalBannerPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Banner/");
+
+			CChar originalCursorPath[MAX_NAME_SIZE];
+			sprintf(originalCursorPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Cursor/");
 
 			CChar originalScriptPath[MAX_NAME_SIZE];
 			sprintf(originalScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/");
@@ -15732,10 +20915,16 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 
 			////////
 
+			CChar temp_scene[MAX_NAME_SIZE];
+			sprintf(temp_scene, "\nPublishing VScene ' %s ' ...", currentSceneNameWithoutDot);
+			PrintInfo(temp_scene, COLOR_GREEN);
+
 			CChar VScenePath[MAX_NAME_SIZE];
 			sprintf( VScenePath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/" );
 			CreateWindowsDirectory( VScenePath );
 			CopyAllFilesFromSrcToDstDirectory(originalVScenePath, VScenePath);
+
+			PrintInfo("\nPublishing Waters...");
 
 			CChar waterTexturesPath[MAX_NAME_SIZE];
 			sprintf( waterTexturesPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Waters/" );
@@ -15746,40 +20935,70 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			sprintf( soundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/" );
 			CreateWindowsDirectory( soundPath );
 
+			PrintInfo("\nPublishing Ambient Sound...");
+
 			CChar ambientSoundPath[MAX_NAME_SIZE];
 			sprintf( ambientSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/Ambient/" );
 			CreateWindowsDirectory( ambientSoundPath );
 			CopyAllFilesFromSrcToDstDirectory(originalAmbientSoundPath, ambientSoundPath);
+
+			PrintInfo("\nPublishing 3D Sounds...");
 
 			CChar staticSoundPath[MAX_NAME_SIZE];
 			sprintf( staticSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/Static/" );
 			CreateWindowsDirectory( staticSoundPath );
 			CopyAllFilesFromSrcToDstDirectory(originalStaticSoundPath, staticSoundPath);
 
+			PrintInfo("\nPublishing Main Character...");
+
 			CChar mainCharacterSoundPath[MAX_NAME_SIZE];
 			sprintf(mainCharacterSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Character/");
 			CreateWindowsDirectory(mainCharacterSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(originalCharacterSoundPath, mainCharacterSoundPath);
+
+			PrintInfo("\nPublishing Startup Object...");
 
 			CChar startupPath[MAX_NAME_SIZE];
 			sprintf(startupPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Startup/");
 			CreateWindowsDirectory(startupPath);
 			CopyAllFilesFromSrcToDstDirectory(originalStartupPath, startupPath);
 
+			PrintInfo("\nPublishing Sky...");
+
 			CChar skyPath[MAX_NAME_SIZE];
 			sprintf( skyPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sky/" );
 			CreateWindowsDirectory( skyPath );
 			CopyAllFilesFromSrcToDstDirectory(originalSkyPath, skyPath);
+
+			PrintInfo("\nPublishing Terrain...");
+
+			CChar terrainPath[MAX_NAME_SIZE];
+			sprintf(terrainPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Terrain/");
+			CreateWindowsDirectory(terrainPath);
+			CopyAllFilesFromSrcToDstDirectory(originalTerrainPath, terrainPath);
+
+			PrintInfo("\nPublishing Banner...");
 
 			CChar bannerPath[MAX_NAME_SIZE];
 			sprintf(bannerPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Banner/");
 			CreateWindowsDirectory(bannerPath);
 			CopyAllFilesFromSrcToDstDirectory(originalBannerPath, bannerPath);
 
+			PrintInfo("\nPublishing Cursor...");
+
+			CChar cursorPath[MAX_NAME_SIZE];
+			sprintf(cursorPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Cursor/");
+			CreateWindowsDirectory(cursorPath);
+			CopyAllFilesFromSrcToDstDirectory(originalCursorPath, cursorPath);
+
+			PrintInfo("\nPublishing Scripts...");
+
 			CChar scriptPath[MAX_NAME_SIZE];
 			sprintf(scriptPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Script/");
 			CreateWindowsDirectory(scriptPath);
-			CopyAllFilesFromSrcToDstDirectory(originalScriptPath, scriptPath);
+			CopyAllFilesAndFoldersToDstDirectory(originalScriptPath, scriptPath);
+
+			PrintInfo("\nPublishing Resources...");
 
 			CChar resourcePath[MAX_NAME_SIZE];
 			sprintf(resourcePath, "%s%s", rootPath, "/Assets/Resources/");
@@ -15973,6 +21192,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		m_packageNames.clear();
 		m_prefabNames.clear();
 		ReleaseCapture();
+
+		dlgWaiting->ShowWindow(SW_HIDE);
+		CDelete(dlgWaiting);
 	}
 	g_VSceneNamesOfCurrentProjectToBePublished.clear();
 	if( g_multipleView->m_enableTimer )
@@ -15983,6 +21205,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 
 void CVandaEngine1Dlg::OnBnClickedBtnScriptManager()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	CBool foundTarget = CFalse;
 	if (g_selectedName != -1)
 	{
@@ -16046,17 +21313,107 @@ void CVandaEngine1Dlg::OnBnClickedBtnScriptManager()
 
 void CVandaEngine1Dlg::OnBnClickedBtnCameraRenderingManager()
 {
-	if( g_multipleView->m_enableTimer )
-		g_multipleView->EnableTimer( CFalse );
-	OnMenuClickedSelectCamera();
-	if( g_multipleView->m_enableTimer )
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					if (MessageBox("Activate Default Free Camera?", "Vanda Engine", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+					{
+						g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+						g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					}
+					else
+					{
+						return;
+					}
+				}
+			}
+			g_showArrow = CTrue;
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				g_engineCameraInstances[c]->SetActive(CFalse);
+			}
+		}
+		else if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Activate Default Free Camera?", "Vanda Engine", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+		}
+	}
+
+	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer( CTrue );
 	g_multipleView->SetElapsedTimeFromBeginning();
 	g_multipleView->RenderWindow();
+	m_mainBtnFreeCamera.EnableWindow(FALSE);
 }
 
 void CVandaEngine1Dlg::OnBnClickedBtnSceneProperties()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	if (g_currentCameraType == eCAMERA_ENGINE)
+	{
+		if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+			g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				g_engineCameraInstances[c]->SetActive(CFalse);
+			}
+		}
+		else
+		{
+			return;
+		}
+	}
+	if (g_currentCameraType == eCAMERA_COLLADA)
+	{
+		if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+			g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+		}
+		else
+		{
+			return;
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+
 	int nSelected = -1; 
 	POSITION p = m_listBoxScenes.GetFirstSelectedItemPosition();
 	while(p)
@@ -16086,7 +21443,6 @@ void CVandaEngine1Dlg::OnBnClickedBtnSceneProperties()
 			g_multipleView->EnableTimer( CFalse );
 
 		CSceneProperties* m_dlgSceneProperties = CNew (CSceneProperties);
-		m_dlgSceneProperties->SetScene( scene );
 		m_dlgSceneProperties->DoModal();
 		CDelete( m_dlgSceneProperties );
 
@@ -16100,6 +21456,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnSceneProperties()
 
 void CVandaEngine1Dlg::OnBnClickedBtnPhysxEditor()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 	OnMenuClickedEditPhysX();
@@ -16120,17 +21521,50 @@ void CVandaEngine1Dlg::OnNcLButtonDblClk(UINT nHitTest, CPoint point)
 
 void CVandaEngine1Dlg::OnBnClickedBtnPrefabs()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (MessageBox("You can not insert prefabs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
 		}
 		else
 		{
 			return;
 		}
 	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
 
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
@@ -16198,22 +21632,22 @@ void CVandaEngine1Dlg::RemoveSelectedScene(CChar* szBuffer, CChar* sceneId)
 											CGeometry* m_geo = g_scene[m]->m_instanceGeometries[n]->m_abstractGeometry;
 											for (CUInt o = 0; o < m_geo->m_groups.size(); o++)
 											{
-												if (m_geo->m_groups[o]->m_hasDiffuse && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_diffuseImg->m_fileName)))
+												if (m_geo->m_groups[o]->m_hasDiffuse && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_diffuseImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
 												}
-												else if (m_geo->m_groups[o]->m_hasNormalMap && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_normalMapImg->m_fileName)))
+												else if (m_geo->m_groups[o]->m_hasNormalMap && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_normalMapImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
 												}
-												else if (m_geo->m_groups[o]->m_hasGlossMap && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_glossMapImg->m_fileName)))
+												else if (m_geo->m_groups[o]->m_hasGlossMap && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_glossMapImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
 												}
-												else if (m_geo->m_groups[o]->m_hasDirtMap && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_dirtMapImg->m_fileName)))
+												else if (m_geo->m_groups[o]->m_hasDirtMap && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_dirtMapImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
@@ -16230,9 +21664,9 @@ void CVandaEngine1Dlg::RemoveSelectedScene(CChar* szBuffer, CChar* sceneId)
 								{
 									for (CUInt p = 0; p < g_images.size(); p++)
 									{
-										if (Cmp(GetAfterPath(g_images[p]->m_fileName), GetAfterPath(currentImage->m_fileName)))
+										if (Cmp(GetAfterPath(g_images[p]->GetFileName()), GetAfterPath(currentImage->GetFileName())))
 										{
-											CChar* nameAfterPath = GetAfterPath(currentImage->m_fileName);
+											CChar* nameAfterPath = GetAfterPath(currentImage->GetFileName());
 											CChar temp[MAX_NAME_SIZE];
 											sprintf(temp, "\n%s%s%s", "Image '", nameAfterPath, "' removed from memory");
 											PrintInfo(temp, COLOR_YELLOW);
@@ -16380,6 +21814,22 @@ void CVandaEngine1Dlg::OnBnClickedBtnTimerPause()
 
 }
 
+void CVandaEngine1Dlg::PumpMessages()
+{
+	// Must call Create() before using the dialog
+	ASSERT(m_hWnd != NULL);
+
+	MSG msg;
+	// Handle dialog messages
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		if (!IsDialogMessage(&msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+}
 
 void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 {
@@ -16391,16 +21841,34 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		m_mainBtnTestDeactive.ShowWindow(SW_SHOW);
 		m_mainBtnTestDeactive.EnableWindow(TRUE);
 		m_mainBtnTestDeactive.UpdateWindow();
-		g_currentCameraType = eCAMERA_DEFAULT_FREE;
+		g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+		g_multipleView->SetPlayGameMode(CFalse);
 		PrintInfo("\nPlay mode disabled");
 
 		return;
 	}
 
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	SetCapture();
+	SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+
+	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
+	dlgWaiting->ShowWindow(SW_SHOW);
+
+	if (g_multipleView->IsPlayGameMode())
 		ex_pVandaEngine1Dlg->ResetPhysX(CTrue);
 
-	g_currentCameraType = eCAMERA_DEFAULT_FREE;
+	if (g_menu.m_insertAndShowTerrain)
+	{
+		g_terrain->GetTerrain()->resetPhysXActors();
+	}
+
+	for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+	{
+		g_engineCameraInstances[c]->SetActive(CFalse);
+	}
+
+	g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 	m_mainBtnTestActive.ShowWindow(SW_HIDE);
 	m_mainBtnTestActive.EnableWindow(FALSE);
 	m_mainBtnTestActive.UpdateWindow();
@@ -16411,13 +21879,146 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 	g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 	if (g_editorMode == eMODE_VSCENE)
 	{
+		//Load static sound parameters
+		for (CUInt i = 0; i < m_engineStaticSounds.size(); i++)
+		{
+			for (CUInt j = 0; j < g_engineStaticSounds.size(); j++)
+			{
+				if (Cmp(m_engineStaticSounds[i]->GetName(), g_engineStaticSounds[j]->GetName()))
+				{
+					g_engineStaticSounds[j]->SetName(m_engineStaticSounds[i]->GetName());
+					g_engineStaticSounds[j]->SetLoop(m_engineStaticSounds[i]->GetLoop());
+					g_engineStaticSounds[j]->GetSoundSource()->SetLooping(m_engineStaticSounds[i]->GetLoop());
+					g_engineStaticSounds[j]->SetPlay(m_engineStaticSounds[i]->GetPlay());
+
+					if (g_engineStaticSounds[j]->GetPlay())
+						g_soundSystem->PlayALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+					else
+						g_soundSystem->StopALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+
+					CDelete(m_engineStaticSounds[i]);
+					break;
+				}
+			}
+		}
+		m_engineStaticSounds.clear();
+		//End of load static sound parameters//////
+
+		//Load prefab instance parameters
+		for (CUInt i = 0; i < m_instancePrefab.size(); i++)
+		{
+			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			{
+				if (Cmp(m_instancePrefab[i]->GetName(), g_instancePrefab[j]->GetName()))
+				{
+					if (g_mainCharacter)
+						if (Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[j]->GetName())) continue;
+
+					g_instancePrefab[j]->SetVisible(m_instancePrefab[i]->GetVisible());
+					g_instancePrefab[j]->SetSceneVisible(0, m_instancePrefab[i]->GetSceneVisible(0));
+					g_instancePrefab[j]->SetSceneVisible(1, m_instancePrefab[i]->GetSceneVisible(1));
+					g_instancePrefab[j]->SetSceneVisible(2, m_instancePrefab[i]->GetSceneVisible(2));
+					g_instancePrefab[j]->SetRenderForQuery(CTrue);
+
+					//remove all animations
+					for (CUInt k = 0; k < 3; k++)
+					{
+						CPrefab* prefab = g_instancePrefab[j]->GetPrefab();
+
+						if (prefab && prefab->GetHasLod(k))
+						{
+							CScene* scene = g_instancePrefab[j]->GetScene(k);
+							for (CInt l = 0; l < scene->GetNumClips(); l++)
+							{
+								scene->ClearCycle(l, 0.0f);
+								scene->RemoveAction(l);
+
+								g_multipleView->RenderWindow();
+
+								scene->m_blendCycleList.clear();
+								scene->m_executeActionList.clear();
+								scene->m_animationClips[l]->SetAnimationStatus(eANIM_NONE);
+							}
+
+						}
+
+					}
+
+					for (CUInt k = 0; k < 3; k++)
+					{
+						if (m_instancePrefab[i]->GetPrefab() && m_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+						{
+							CScene* scene = m_instancePrefab[i]->GetScene(k);
+							if (!scene) continue;
+
+							//load animation status
+							g_instancePrefab[j]->GetScene(k)->SetAnimationStatus(scene->GetAnimationStatus());
+
+							for (CInt l = 0; l < scene->GetNumClips(); l++)
+							{
+								CAnimationStatus animationClipStatus = scene->m_animationClips[l]->GetAnimationStatus();
+
+								if (g_instancePrefab[j]->GetScene(k)->GetAnimationStatus() == eANIM_PLAY)
+								{
+									if (animationClipStatus == eANIM_BLEND_CYCLE)
+									{
+										g_instancePrefab[j]->GetScene(k)->BlendCycle(l, 1.0f, 0.0f);
+									}
+									else if (animationClipStatus == eANIM_EXECUTE_ACTION)
+									{
+										g_instancePrefab[j]->GetScene(k)->ExecuteAction(l, 0.0f, 0.0f, 1.0f, CFalse);
+									}
+								}
+								g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetAnimationStatus(animationClipStatus);
+								g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetCurrentTime(scene->m_animationClips[l]->GetCurrentAnimationTime());
+							}
+
+							if (scene)
+								CDelete(scene);
+						}
+					}
+
+					CDelete(m_instancePrefab[i]);
+					break;
+				}
+			}
+		}
+		m_instancePrefab.clear();
+		//end of load prefab instance parameters
+
+		//Load Current VScene info
+		g_currentVSceneProperties.m_isMenu = m_currentVSceneProperties.m_isMenu;
+		g_currentVSceneProperties.m_cursorSize = m_currentVSceneProperties.m_cursorSize;
+		g_currentVSceneProperties.m_isPause = m_currentVSceneProperties.m_isPause;
+
+		//Load GUI info
+		for (CUInt i = 0; i < m_guis.size(); i++)
+		{
+			g_guis[i]->SetVisible(m_guis[i]->GetVisible());
+			CDelete(m_guis[i]);
+		}
+		m_guis.clear();
+		//End of load GUI info
+
+		//Delete Resource Files
+		for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+			CDelete(g_resourceFiles[j]);
+		g_resourceFiles.clear();
+
+		if (g_multipleView && g_multipleView->GetCursorIcon())
+			g_multipleView->GetCursorIcon()->SetVisible(CFalse);
+
+		//////////
+
 		if (g_mainCharacter)
 		{
-			g_multipleView->ManageCharacterBlends(""); //clear all cycles
-		}
-		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-		{
-			g_instancePrefab[i]->UpdateBoundingBox(CTrue);
+			Cpy(g_multipleView->GetPreviousCharacterAnimationType(), "\n");
+			CMultipleWindows::firstIdle = CTrue;
+			g_multipleView->ManageCharacterBlends("idle");
+			g_multipleView->m_idleCounter = 0.0f;
+			g_mainCharacter->GetInstancePrefab()->SetRotate(m_initCharacterRotate);
+			g_multipleView->m_soundSystem->StopALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
+			g_multipleView->m_soundSystem->StopALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
 		}
 
 		//stop all resource sounds
@@ -16430,7 +22031,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		}
 
 		//hide mouse icon
-		g_multipleView->m_icon->SetVisible(CFalse);
+		g_multipleView->GetCursorIcon()->SetVisible(CFalse);
 
 
 		//restore default GUI
@@ -16447,16 +22048,19 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
 			if (g_engineStaticSounds[i]->GetLoop())
-				g_engineStaticSounds[i]->m_source->SetLooping(CTrue);
+				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CTrue);
 			else
-				g_engineStaticSounds[i]->m_source->SetLooping(CFalse);
+				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CFalse);
 
 			if (g_engineStaticSounds[i]->GetPlay())
-				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->m_source));
+				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 			else
-				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->m_source));
+				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 		}
-
+		if (/*g_currentVSceneProperties.m_isMenu*/g_multipleView->GetMenuCursorImage())
+		{
+			g_multipleView->DeleteMenuCursorTexture();
+		}
 	}
 	else
 	{
@@ -16480,29 +22084,47 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 			}
 		}
 	}
+
 	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
 	g_multipleView->m_nx->gControllers->reportSceneChanged();
 	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
 	gPhysXscene->flushStream();
 	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
-	if (g_mainCharacter)
-		g_mainCharacter->GetInstancePrefab()->SetRotate(m_initCharacterRotate);
-	g_multipleView->RenderWindow();
+	g_multipleView->SetPlayGameMode(CFalse);
+
 	if (g_editorMode == eMODE_VSCENE)
 	{
-		CFloat tempDelayIn = g_characterBlendingProperties.m_idleDelayIn;
-		g_characterBlendingProperties.m_idleDelayIn = 0.0f;
-		g_multipleView->ManageCharacterBlends("idle");
-		g_characterBlendingProperties.m_idleDelayIn = tempDelayIn;
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->UpdateBoundingBox(CTrue);
+			g_instancePrefab[i]->UpdateIsStaticOrAnimated();
+		}
 	}
+	for (CUInt i = 0; i < 10; i++)
+		g_multipleView->RenderWindow();
+
 	PrintInfo("\nPlay mode disabled");
+
+	ReleaseCapture();
+
+	dlgWaiting->ShowWindow(SW_HIDE);
+	CDelete(dlgWaiting);
 
 }
 
 
 void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 {
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		if (!g_mainCharacter)
+		{
+			MessageBox("Please insert a player from Insert > Player menu and try again", "Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		m_mainBtnTestActive.ShowWindow(SW_SHOW);
@@ -16511,24 +22133,114 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		m_mainBtnTestDeactive.ShowWindow(SW_HIDE);
 		m_mainBtnTestDeactive.EnableWindow(FALSE);
 		m_mainBtnTestDeactive.UpdateWindow();
-		g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+
+		//Disable items in play mode
+		g_multipleView->m_selectedGUIIndex = -1;
+
+		for (int i = 0; i < m_listBoxGUIElements.GetItemCount(); i++)
+		{
+			m_listBoxGUIElements.SetItemState(i, 0, LVIS_SELECTED);
+			m_listBoxGUIElements.Update(i);
+		}
+		ex_pStaticSelectedObject->SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
+
+		g_multipleView->SetPlayGameMode(CTrue);
+
 		PrintInfo("\nPlay mode enabled");
 
 		return;
 	}
+	gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
+
+	SetCapture();
+	SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+
+	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
+	dlgWaiting->ShowWindow(SW_SHOW);
+
+	g_multipleView->m_loadScene = CTrue;
 
 	g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetDefaultAngle());
 	g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraTilt;
-	g_camera->m_perspectiveCameraYaw = g_camera->m_perspectiveCameraPitch = 0.0f;
+	/*g_camera->m_perspectiveCameraYaw = */g_camera->m_perspectiveCameraPitch = 0.0f;
+
+	for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+	{
+		g_engineCameraInstances[c]->SetActive(CFalse);
+	}
+
+	//deselect all items
+	g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+	g_transformObject = CFalse;
+	g_showArrow = CFalse;
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		for (int i = 0; i < m_listBoxScenes.GetItemCount(); i++)
+		{
+			m_listBoxScenes.SetItemState(i, 0, LVIS_SELECTED);
+			m_listBoxScenes.Update(i);
+		}
+
+		for (int nItem = m_listBoxObjects.GetItemCount() - 1; nItem >= 0; nItem--)
+		{
+			m_listBoxObjects.DeleteItem(nItem);
+		}
+
+		for (int i = 0; i < m_listBoxEngineObjects.GetItemCount(); i++)
+		{
+			m_listBoxEngineObjects.SetItemState(i, 0, LVIS_SELECTED);
+			m_listBoxEngineObjects.Update(i);
+		}
+	}
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		for (int i = 0; i < m_listBoxScenes.GetItemCount(); i++)
+		{
+			m_listBoxScenes.SetItemState(i, 0, LVIS_SELECTED);
+			m_listBoxScenes.Update(i);
+		}
+
+		for (int nItem = m_listBoxObjects.GetItemCount() - 1; nItem >= 0; nItem--)
+		{
+			m_listBoxObjects.DeleteItem(nItem);
+		}
+
+		for (int i = 0; i < m_listBoxPhysXElements.GetItemCount(); i++)
+		{
+			m_listBoxPhysXElements.SetItemState(i, 0, LVIS_SELECTED);
+			m_listBoxPhysXElements.Update(i);
+		}
+	}
+	ex_pStaticSelectedObject->SetWindowTextA("\n");
+	ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
+	ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
+	ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
 
 	g_render.SetActiveInstanceCamera(NULL);
-	g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+	g_currentCameraType = eCAMERA_PHYSX;
 	m_mainBtnTestActive.ShowWindow(SW_SHOW);
 	m_mainBtnTestActive.EnableWindow(TRUE);
 	m_mainBtnTestActive.UpdateWindow();
 	m_mainBtnTestDeactive.ShowWindow(SW_HIDE);
 	m_mainBtnTestDeactive.EnableWindow(FALSE);
 	m_mainBtnTestDeactive.UpdateWindow();
+
+	if (g_editorMode == eMODE_VSCENE)
+		m_currentCharacterPos = g_multipleView->m_nx->gControllers->getPosition();
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		NxExtendedVec3 sp;
+		sp.x = g_render.GetDefaultInstanceCamera()->GetPos().x;
+		sp.y = g_render.GetDefaultInstanceCamera()->GetPos().y;
+		sp.z = g_render.GetDefaultInstanceCamera()->GetPos().z;
+		g_multipleView->m_nx->gControllers->setPosition(sp);
+		m_currentCharacterPos = g_multipleView->m_nx->gControllers->getPosition();
+	}
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -16545,25 +22257,144 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
+		//Save sounds
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			CStaticSound* m_staticSound = CNew(CStaticSound);
+			COpenALSoundSource* m_staticSoundSource = CNew(COpenALSoundSource);
+			m_staticSound->SetName(g_engineStaticSounds[i]->GetName());
+			m_staticSound->SetLoop(g_engineStaticSounds[i]->GetLoop());
+			m_staticSound->SetPlay(g_engineStaticSounds[i]->GetPlay());
+			m_staticSound->SetSoundSource(m_staticSoundSource);
+			m_staticSound->SetSoundBuffer(NULL);
+			m_engineStaticSounds.push_back(m_staticSound);
+		}
+
+		//Save prefab instances
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
+			new_instance_prefab->SetName(g_instancePrefab[i]->GetName());
+			new_instance_prefab->SetPrefab(g_instancePrefab[i]->GetPrefab());
+			new_instance_prefab->SetVisible(g_instancePrefab[i]->GetVisible2());
+			new_instance_prefab->SetSceneVisible(0, g_instancePrefab[i]->GetSceneVisible(0));
+			new_instance_prefab->SetSceneVisible(1, g_instancePrefab[i]->GetSceneVisible(1));
+			new_instance_prefab->SetSceneVisible(2, g_instancePrefab[i]->GetSceneVisible(2));
+			m_instancePrefab.push_back(new_instance_prefab);
+
+			//Animations
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (new_instance_prefab->GetPrefab() && new_instance_prefab->GetPrefab()->GetHasLod(j))
+				{
+					CScene* scene = g_instancePrefab[i]->GetScene(j);
+					if (!scene) continue;
+
+					CScene* temp_scene = CNew(CScene);
+					temp_scene->SetAnimationStatus(scene->GetAnimationStatus());
+
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CAnimationClip * newAnimClip = CNew(CAnimationClip);
+						temp_scene->m_animationClips.push_back(newAnimClip);
+						temp_scene->m_animationClips[k]->SetAnimationStatus(scene->m_animationClips[k]->GetAnimationStatus());
+						temp_scene->m_animationClips[k]->SetCurrentTime(scene->m_animationClips[k]->GetCurrentAnimationTime());
+					}
+					temp_scene->SetNumClips(scene->GetNumClips());
+					new_instance_prefab->SetScene(j, temp_scene);
+				}
+			}
+
+		}
+
+		//Save VScene Info
+		m_currentVSceneProperties.m_isMenu = g_currentVSceneProperties.m_isMenu;
+		m_currentVSceneProperties.m_cursorSize = g_currentVSceneProperties.m_cursorSize;
+		m_currentVSceneProperties.m_isPause = g_currentVSceneProperties.m_isPause;
+
+		//Save GUIs
+		for (CUInt i = 0; i < g_guis.size(); i++)
+		{
+			CGUI* new_gui = CNew(CGUI);
+			new_gui->SetVisible(g_guis[i]->GetVisible());
+			m_guis.push_back(new_gui);
+		}
+
 		if (g_mainCharacter)
 		{
 			g_multipleView->m_characterRotationTransition = CTrue;
-			g_multipleView->ManageCharacterBlends(""); //clear all cycles
+			g_multipleView->ManageCharacterBlends("idle");
+			m_initCharacterRotate = g_mainCharacter->GetInstancePrefab()->GetRotate();
+			g_mainCharacter->SetCurrentRotation(m_initCharacterRotate.y);
+			CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
+			g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
+			g_camera->m_perspectiveCameraYaw = NxMath::degToRad(m_initCharacterRotate.y) + NxMath::degToRad(180.f);
+			g_multipleView->m_idleCounter = 0.0f;
+		}
+
+		//g_multipleView->RenderWindow();
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->UpdateBoundingBox(CTrue);//init
+			g_instancePrefab[i]->UpdateIsStaticOrAnimated(); //init
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			CScene* scene = NULL;
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j))
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					if (scene)
+					{
+						g_instancePrefab[i]->SetSceneVisible(j, CTrue);
+					}
+					if (scene->GetNumClips() > 0)
+					{
+						if (scene->m_loopAnimationAtStartup)
+							scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+						else
+							scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f);
+					}
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						scene->m_animationClips[k]->SetCurrentTime(0.0f); //start from beginning
+					}
+
+				}
+			}
+
 		}
 
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
-			g_instancePrefab[i]->UpdateBoundingBox();
-		}
+			g_currentInstancePrefab = g_instancePrefab[i];
 
-		//generate physX colliders
-		for (CUInt i = 0; i < g_scene.size(); i++)
-		{
-			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+			CScene* scene = NULL;
+
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
 			{
-				if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
+				if (prefab && prefab->GetHasLod(j))
 				{
-					g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
+					scene = g_instancePrefab[i]->GetScene(j);
+					if (scene)
+					{
+						for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+						{
+							if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
+							{
+								scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+							}
+							else if (scene->m_instanceGeometries[k]->m_hasPhysX)
+							{
+								scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, NULL);
+							}
+						}
+						scene->m_update = CFalse;
+
+					}
+
 				}
 			}
 		}
@@ -16572,8 +22403,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		if (g_menu.m_insertStartup)
 			LuaLoadAndExecute(g_lua, g_startup->GetScriptPath());
 
+		if (g_currentVSceneProperties.m_isMenu)
+		{
+			g_multipleView->GenerateMenuCursorTexture(g_vsceneMenuCursor.GetCursorPath());
+		}
 	}
-	m_currentCharacterPos = g_multipleView->m_nx->gControllers->getPosition();
 	if (g_physXProperties.m_bGroundPlane)
 	{
 		NxVec3 rot0(0, 0, 0);
@@ -16582,23 +22416,29 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		NxMat33 rot(rot0, rot1, rot2);
 		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
 	}
-	if (g_mainCharacter)
-	{
-		m_initCharacterRotate = g_mainCharacter->GetInstancePrefab()->GetRotate();
-		g_mainCharacter->SetCurrentRotation(m_initCharacterRotate.y);
-	}
+
+	g_multipleView->SetElapsedTimeFromBeginning();
+
+	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(EPSILON/*g_elapsedTime*/);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
+	g_multipleView->SetPlayGameMode(CTrue);
+
 	g_multipleView->RenderWindow();
-	g_multipleView->m_idleCounter = 0.0f;
-	if (g_editorMode == eMODE_VSCENE)
-	{
-		CFloat tempDelayIn = g_characterBlendingProperties.m_idleDelayIn;
-		g_characterBlendingProperties.m_idleDelayIn = 0.0f;
-		g_multipleView->ManageCharacterBlends("idle");
-		g_characterBlendingProperties.m_idleDelayIn = tempDelayIn;
-	}
+
+	g_multipleView->m_loadScene = CFalse;
 
 	PrintInfo("\nPlay mode enabled");
 
+	ReleaseCapture();
+
+	dlgWaiting->ShowWindow(SW_HIDE);
+	CDelete(dlgWaiting);
+
+	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->gDefaultGravity.x, g_multipleView->m_nx->gDefaultGravity.y, g_multipleView->m_nx->gDefaultGravity.z));
 }
 
 
@@ -16610,17 +22450,17 @@ void CVandaEngine1Dlg::OnBnClickedBtnTranslate()
 		CFloat val;
 		CChar temp1[MAX_NAME_SIZE];
 		val = roundf(g_arrowPosition.x * 100) / 100;
-		sprintf(temp1, "%.02f", val);
+		sprintf(temp1, "%.2f", val);
 		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
 
 		CChar temp2[MAX_NAME_SIZE];
 		val = roundf(g_arrowPosition.y * 100) / 100;
-		sprintf(temp2, "%.02f", val);
+		sprintf(temp2, "%.2f", val);
 		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
 
 		CChar temp3[MAX_NAME_SIZE];
 		val = roundf(g_arrowPosition.z * 100) / 100;
-		sprintf(temp3, "%.02f", val);
+		sprintf(temp3, "%.2f", val);
 		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
 	}
 	ex_pMenu->CheckMenuItem(ID_EDIT_TRANSLATE, MF_CHECKED);
@@ -16634,12 +22474,14 @@ void CVandaEngine1Dlg::OnBnClickedBtnTranslate()
 void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 {
 	g_currentTransformType = eCRotate;
+	CBool foundPrefabTarget = CFalse;
 	if (g_selectedName != -1)
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
 			if (g_instancePrefab[i]->GetNameIndex() == g_selectedName)
 			{
+				foundPrefabTarget = CTrue;
 				CInstancePrefab* instancePrefab = g_instancePrefab[i];
 				CFloat val;
 				CChar temp1[MAX_NAME_SIZE];
@@ -16655,7 +22497,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 				instancePrefab->SetRotate(rot);
 
 				val = roundf(instancePrefab->GetRotate().x * 100) / 100;
-				sprintf(temp1, "%.02f", val);
+				sprintf(temp1, "%.2f", val);
 				ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
 
 				rotate = instancePrefab->GetRotate().y;
@@ -16668,12 +22510,15 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 
 				CChar temp2[MAX_NAME_SIZE];
 				val = roundf(instancePrefab->GetRotate().y * 100) / 100;
-				sprintf(temp2, "%.02f", val);
+				sprintf(temp2, "%.2f", val);
 				ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
 
-				if (g_mainCharacter && g_mainCharacter->GetInstancePrefab() == g_instancePrefab[i])
+				if (g_mainCharacter && Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[i]->GetName()))
 				{
 					g_mainCharacter->SetCurrentRotation(val);
+					CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
+					g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
+					g_camera->m_perspectiveCameraYaw = NxMath::degToRad(val) + NxMath::degToRad(180.f);
 				}
 
 				rotate = instancePrefab->GetRotate().z;
@@ -16686,7 +22531,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 
 				CChar temp3[MAX_NAME_SIZE];
 				val = roundf(instancePrefab->GetRotate().z * 100) / 100;
-				sprintf(temp3, "%.02f", val);
+				sprintf(temp3, "%.2f", val);
 				ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
 				break;
 			}
@@ -16696,6 +22541,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 	ex_pMenu->CheckMenuItem(ID_EDIT_ROTATE, MF_CHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_SCALE, MF_UNCHECKED);
 
+	if (!foundPrefabTarget)
+	{
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
+	}
+
 	PrintInfo("\nRotation Activated");
 }
 
@@ -16703,27 +22555,28 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 void CVandaEngine1Dlg::OnBnClickedBtnScale()
 {
 	g_currentTransformType = eCScale;
-
+	CBool foundPrefabTarget = CFalse;
 	if (g_selectedName != -1)
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
 			if (g_instancePrefab[i]->GetNameIndex() == g_selectedName)
 			{
+				foundPrefabTarget = CTrue;
 				CFloat val;
 				CChar temp1[MAX_NAME_SIZE];
 				val = roundf(g_instancePrefab[i]->GetScale().x * 100) / 100;
-				sprintf(temp1, "%.02f", val);
+				sprintf(temp1, "%.2f", val);
 				ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
 
 				CChar temp2[MAX_NAME_SIZE];
 				val = roundf(g_instancePrefab[i]->GetScale().y * 100) / 100;
-				sprintf(temp2, "%.02f", val);
+				sprintf(temp2, "%.2f", val);
 				ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
 
 				CChar temp3[MAX_NAME_SIZE];
 				val = roundf(g_instancePrefab[i]->GetScale().z * 100) / 100;
-				sprintf(temp3, "%.02f", val);
+				sprintf(temp3, "%.2f", val);
 				ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
 				break;
 			}
@@ -16733,6 +22586,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnScale()
 	ex_pMenu->CheckMenuItem(ID_EDIT_TRANSLATE, MF_UNCHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_ROTATE, MF_UNCHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_SCALE, MF_CHECKED);
+
+	if (!foundPrefabTarget)
+	{
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
+	}
 
 	PrintInfo("\nScale Activated");
 }
@@ -16754,7 +22614,7 @@ void CVandaEngine1Dlg::OnEnChangeEditX()
 	m_editX.SetSelectionCharFormat(cf);
 	m_editX.ReplaceSel(m_str);
 
-	if (g_editorMode == eMODE_GUI && g_currentCameraType != eCAMERA_DEFAULT_PHYSX)
+	if (g_editorMode == eMODE_GUI && !g_multipleView->IsPlayGameMode())
 	{
 		if (g_multipleView->m_selectedGUIIndex != -1)
 		{
@@ -16850,14 +22710,20 @@ void CVandaEngine1Dlg::OnEnChangeEditX()
 				{
 					if (val > 360.0f)
 					{
-						val = 0.0;
-						m_editY.SetWindowTextA("0.0");
+						val -= 360.0f;
 					}
 					else if (val < 0.0f)
 					{
-						val = 0.0f;
-						m_editY.SetWindowTextA("0.0");
+						val = 360 + val;
 					}
+
+					CChar rotVal[MAX_NAME_SIZE];
+					sprintf(rotVal, "%.2f", val);
+					m_editX.SetWindowTextA(rotVal);
+					CInt nSel = m_editX.GetWindowTextLength();
+					m_editX.SetSel(0, nSel);
+					m_editX.SetSelectionCharFormat(cf);
+					m_editX.ReplaceSel(rotVal);
 
 					g_arrowRotate.z = val;
 					g_transformDirection = YTRANS;
@@ -16877,7 +22743,7 @@ void CVandaEngine1Dlg::OnEnChangeEditX()
 					if (val < 0.001f)
 					{
 						val = 0.001f;
-						m_editY.SetWindowTextA("0.001");
+						m_editX.SetWindowTextA("0.001");
 					}
 
 					g_arrowScale.x = val;
@@ -16911,7 +22777,7 @@ void CVandaEngine1Dlg::OnEnChangeEditY()
 	m_editY.SetSelectionCharFormat(cf);
 	m_editY.ReplaceSel(m_str);
 
-	if (g_editorMode == eMODE_GUI && g_currentCameraType != eCAMERA_DEFAULT_PHYSX)
+	if (g_editorMode == eMODE_GUI && !g_multipleView->IsPlayGameMode())
 	{
 		if (g_multipleView->m_selectedGUIIndex != -1)
 		{
@@ -17023,17 +22889,27 @@ void CVandaEngine1Dlg::OnEnChangeEditY()
 				{
 					if (val > 360.0f)
 					{
-						val = 0.0;
-						m_editY.SetWindowTextA("0.0");
+						val -= 360.0f;
 					}
 					else if (val < 0.0f)
 					{
-						val = 0.0f;
-						m_editY.SetWindowTextA("0.0");
+						val = 360 + val;
 					}
-					if (g_mainCharacter && g_mainCharacter->GetInstancePrefab() == g_instancePrefab[i])
+
+					CChar rotVal[MAX_NAME_SIZE];
+					sprintf(rotVal, "%.2f", val);
+					m_editY.SetWindowTextA(rotVal);
+					CInt nSel = m_editY.GetWindowTextLength();
+					m_editY.SetSel(0, nSel);
+					m_editY.SetSelectionCharFormat(cf);
+					m_editY.ReplaceSel(rotVal);
+
+					if (g_mainCharacter && g_mainCharacter->GetInstancePrefab() && Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[i]->GetName()))
 					{
 						g_mainCharacter->SetCurrentRotation(val);
+						CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
+						g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
+						g_camera->m_perspectiveCameraYaw = NxMath::degToRad(val) + NxMath::degToRad(180.f);
 					}
 
 					g_arrowRotate.y = val;
@@ -17112,14 +22988,20 @@ void CVandaEngine1Dlg::OnEnChangeEditZ()
 				{
 					if (val > 360.0f)
 					{
-						val = 0.0;
-						m_editY.SetWindowTextA("0.0");
+						val -= 360.0f;
 					}
 					else if (val < 0.0f)
 					{
-						val = 0.0f;
-						m_editY.SetWindowTextA("0.0");
+						val = 360 + val;
 					}
+
+					CChar rotVal[MAX_NAME_SIZE];
+					sprintf(rotVal, "%.2f", val);
+					m_editZ.SetWindowTextA(rotVal);
+					CInt nSel = m_editZ.GetWindowTextLength();
+					m_editZ.SetSel(0, nSel);
+					m_editZ.SetSelectionCharFormat(cf);
+					m_editZ.ReplaceSel(rotVal);
 
 					g_arrowRotate.x = val;
 					g_transformDirection = XTRANS;
@@ -17139,7 +23021,7 @@ void CVandaEngine1Dlg::OnEnChangeEditZ()
 					if (val < 0.001f)
 					{
 						val = 0.001f;
-						m_editY.SetWindowTextA("0.001");
+						m_editZ.SetWindowTextA("0.001");
 					}
 
 					g_arrowScale.z = val;
@@ -17158,16 +23040,61 @@ void CVandaEngine1Dlg::OnEnChangeEditZ()
 
 void CVandaEngine1Dlg::OnBnClickedBtnWaterAttach()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if (g_selectedName == -1)
 	{
 		MessageBox("Please select a prefab instance", "VandaEngine Error", MB_OK | MB_ICONINFORMATION);
 		return;
 	}
-	else if (!g_menu.m_geometryBasedSelection)
-	{
-		MessageBox("Water attachment does not work with material based selection.\nPlease switch to geometry based selection and try again!", "VandaEngine Error", MB_OK | MB_ICONERROR);
-		return;
-	}
+	//else if (!g_menu.m_geometryBasedSelection)
+	//{
+	//	MessageBox("Water attachment does not work with material based selection.\nPlease switch to geometry based selection and try again!", "VandaEngine Error", MB_OK | MB_ICONERROR);
+	//	return;
+	//}
 	else if (g_selectedName != -1)
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -17195,6 +23122,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnWaterAttach()
 
 void CVandaEngine1Dlg::OnBnClickedBtnTrigger()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
 	m_dlgAddTrigger = CNew(CAddTrigger);
@@ -17211,15 +23183,69 @@ void CVandaEngine1Dlg::OnBnClickedBtnTrigger()
 
 void CVandaEngine1Dlg::OnBnClickedBtnColladaMultipleAnimations()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+
 	m_dlgAddMultipleAnimations = CNew(CAddMultipleAnimations);
 	m_dlgAddMultipleAnimations->DoModal();
 	CDelete(m_dlgAddMultipleAnimations);
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CTrue);
+
+	g_multipleView->SetElapsedTimeFromBeginning();
+
 }
 
 
 void CVandaEngine1Dlg::OnBnClickedBtnGuiButton()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
 		if (MessageBox("You can not insert GUIs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
@@ -17248,7 +23274,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiButton()
 
 void CVandaEngine1Dlg::OnBnClickedBtnGuiBackground()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
 		if (MessageBox("You can not insert GUIs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
@@ -17276,12 +23302,40 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiBackground()
 
 void CVandaEngine1Dlg::OnBnClickedBtnGuiText()
 {
-	if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_multipleView->IsPlayGameMode())
 	{
 		if (MessageBox("You can not insert GUIs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
 			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
+		}
+		else
+		{
+			return;
+		}
+	}
+	if (g_currentCameraType == eCAMERA_ENGINE)
+	{
+		if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+			g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				g_engineCameraInstances[c]->SetActive(CFalse);
+			}
+		}
+		else
+		{
+			return;
+		}
+	}
+	if (g_currentCameraType == eCAMERA_COLLADA)
+	{
+		if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+			g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 		}
 		else
 		{
@@ -17304,6 +23358,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiText()
 
 void CVandaEngine1Dlg::OnBnClickedBtnRemoveGui()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	int nSelected = -1;
 	POSITION p = m_listBoxGUIElements.GetFirstSelectedItemPosition();
 	while (p)
@@ -17404,6 +23503,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveGui()
 
 void CVandaEngine1Dlg::OnBnClickedBtnGuiProperties()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	int nSelected = -1;
 	POSITION p = m_listBoxGUIElements.GetFirstSelectedItemPosition();
 	while (p)
@@ -17805,13 +23949,42 @@ CVoid CVandaEngine1Dlg::ChangeGUITextProperties(CGUIText* text)
 
 void CVandaEngine1Dlg::OnBnClickedBtnGuiPackage()
 {
-	if (g_editorMode != eMODE_GUI)
+	if (g_multipleView->IsPlayGameMode())
 	{
-		if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{
-			if (MessageBox("You can not insert GUIs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 			{
-				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 			}
 			else
 			{
@@ -17819,6 +23992,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiPackage()
 			}
 		}
 	}
+	g_multipleView->RenderWindow();
 
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
@@ -17842,13 +24016,151 @@ void CVandaEngine1Dlg::OnLvnItemchangedListGuiElements(NMHDR *pNMHDR, LRESULT *p
 	}
 	if (nSelected >= 0)
 	{
+		TCHAR szBuffer[1024];
+		DWORD cchBuf(1024);
+		LVITEM lvi;
+		lvi.iItem = nSelected;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = szBuffer;
+		lvi.cchTextMax = cchBuf;
+		m_listBoxGUIElements.GetItem(&lvi);
+
 		m_btnRemoveGUI.EnableWindow(TRUE);
 		m_btnGUIProperties.EnableWindow(TRUE);
+
+
+		CBool foundTarget = CFalse;
+		for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+		{
+			if (Cmp(szBuffer, g_guiBackgrounds[k]->GetName()))
+			{
+				g_multipleView->m_selectedGUIIndex = g_guiBackgrounds[k]->GetIndex();
+
+				COLORREF color = COLOR_WHITE;
+				CHARFORMAT cf;
+				cf.dwMask = CFM_COLOR/* | CFM_SIZE*/;
+				cf.dwEffects = NULL;
+				cf.crTextColor = color;
+
+				ex_pStaticSelectedObject->SetWindowTextA("\n");
+				CInt nSel = ex_pStaticSelectedObject->GetWindowTextLength();
+				ex_pStaticSelectedObject->SetSel(nSel, nSel);
+
+				ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
+
+				ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiBackgrounds[k]->GetName());
+
+				CChar posX[MAX_NAME_SIZE];
+				CChar posY[MAX_NAME_SIZE];
+				CVec2f position = g_guiBackgrounds[k]->GetPosition();
+				sprintf(posX, "%.0f", position.x);
+				sprintf(posY, "%.0f", position.y);
+
+				ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(posX);
+				ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(posY);
+
+				foundTarget = CTrue;
+
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt k = 0; k < g_guiButtons.size(); k++)
+			{
+				if (Cmp(szBuffer, g_guiButtons[k]->GetName()))
+				{
+					g_multipleView->m_selectedGUIIndex = g_guiButtons[k]->GetIndex();
+
+					COLORREF color = COLOR_WHITE;
+					CHARFORMAT cf;
+					cf.dwMask = CFM_COLOR/* | CFM_SIZE*/;
+					cf.dwEffects = NULL;
+					cf.crTextColor = color;
+
+					ex_pStaticSelectedObject->SetWindowTextA("\n");
+					CInt nSel = ex_pStaticSelectedObject->GetWindowTextLength();
+					ex_pStaticSelectedObject->SetSel(nSel, nSel);
+
+					ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
+
+					ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiButtons[k]->GetName());
+
+					CChar posX[MAX_NAME_SIZE];
+					CChar posY[MAX_NAME_SIZE];
+					CVec2f position = g_guiButtons[k]->GetPosition();
+					sprintf(posX, "%.0f", position.x);
+					sprintf(posY, "%.0f", position.y);
+
+					ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(posX);
+					ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(posY);
+
+					foundTarget = CTrue;
+
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt k = 0; k < g_guiTexts.size(); k++)
+			{
+				if (Cmp(szBuffer, g_guiTexts[k]->GetName()))
+				{
+					g_multipleView->m_selectedGUIIndex = g_guiTexts[k]->GetIndex();
+
+					COLORREF color = COLOR_WHITE;
+					CHARFORMAT cf;
+					cf.dwMask = CFM_COLOR/* | CFM_SIZE*/;
+					cf.dwEffects = NULL;
+					cf.crTextColor = color;
+
+					ex_pStaticSelectedObject->SetWindowTextA("\n");
+					CInt nSel = ex_pStaticSelectedObject->GetWindowTextLength();
+					ex_pStaticSelectedObject->SetSel(nSel, nSel);
+
+					ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
+
+					ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiTexts[k]->GetName());
+
+					CChar posX[MAX_NAME_SIZE];
+					CChar posY[MAX_NAME_SIZE];
+					CVec2f position = g_guiTexts[k]->GetPosition();
+					sprintf(posX, "%.0f", position.x);
+					sprintf(posY, "%.0f", position.y);
+
+					ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(posX);
+					ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(posY);
+
+					foundTarget = CTrue;
+
+				}
+			}
+		}
 	}
 	else
 	{
+		g_multipleView->m_selectedGUIIndex = -1;
+
 		m_btnRemoveGUI.EnableWindow(FALSE);
 		m_btnGUIProperties.EnableWindow(FALSE);
+
+		COLORREF color = COLOR_WHITE;
+		CHARFORMAT cf;
+		cf.dwMask = CFM_COLOR/* | CFM_SIZE*/;
+		cf.dwEffects = NULL;
+		cf.crTextColor = color;
+
+		ex_pStaticSelectedObject->SetWindowTextA("\n");
+		CInt nSel = ex_pStaticSelectedObject->GetWindowTextLength();
+		ex_pStaticSelectedObject->SetSel(nSel, nSel);
+
+		ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
+
+		ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel("\n");
+
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
+
 	}
 }
 
@@ -17943,6 +24255,51 @@ CVoid CVandaEngine1Dlg::SaveGUIFiles()
 
 void CVandaEngine1Dlg::OnBnClickedBtnStartup()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
 	OnMenuClickedInsertStartup();
@@ -17958,4 +24315,376 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStartup()
 	CAddStartupObject* m_dlgStartup = CNew(CAddStartupObject);
 	m_dlgStartup->DoModal();
 	CDelete(m_dlgStartup);
+}
+
+CVoid CVandaEngine1Dlg::OnMenuClickedInsertEngineCamera()
+{
+	m_dlgAddEngineCamera = CNew(CAddEngineCamera);
+	m_dlgAddEngineCamera->SetCreate(CTrue);
+	INT_PTR result = m_dlgAddEngineCamera->DoModal();
+	if (result == IDOK)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		CInstanceCamera* instance_camera = new CInstanceCamera();
+		CCamera* abstract_camera = new CCamera();
+
+		CNode* parent = CNew(CNode);
+		instance_camera->m_parent = parent;
+		instance_camera->m_abstractCamera = abstract_camera;
+		instance_camera->m_abstractCamera->SetName(m_dlgAddEngineCamera->GetName());
+		instance_camera->m_abstractCamera->SetAngle(m_dlgAddEngineCamera->GetFOV());
+		instance_camera->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+		instance_camera->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+
+		CVec3f pos(m_dlgAddEngineCamera->GetPosX(), m_dlgAddEngineCamera->GetPosY(), m_dlgAddEngineCamera->GetPosZ());
+		instance_camera->SetPos(pos);
+		instance_camera->SetNCP(m_dlgAddEngineCamera->GetNCP());
+		instance_camera->SetFCP(m_dlgAddEngineCamera->GetFCP());
+		instance_camera->SetPan(m_dlgAddEngineCamera->GetPan());
+		instance_camera->SetTilt(m_dlgAddEngineCamera->GetTilt());
+
+		instance_camera->MoveTransform2(pos.x, pos.y, pos.z);
+		instance_camera->SetPanAndTilt2(m_dlgAddEngineCamera->GetPan(), m_dlgAddEngineCamera->GetTilt());
+		instance_camera->ZoomTransform2(0.0f);
+
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, m_dlgAddEngineCamera->GetName());
+
+		instance_camera->SetIndex();
+		g_engineCameraInstances.push_back(instance_camera);
+
+		//mark this new object as selected
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = instance_camera->GetIndex();
+
+		InsertItemToEngineObjectList(instance_camera->m_abstractCamera->GetName(), eENGINEOBJECTLIST_ENGINE_CAMERA);
+		g_engineObjectNames.push_back(m_dlgAddEngineCamera->GetName());
+
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+		{
+			if (Cmp(name, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+			else
+			{
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+			}
+		}
+
+
+		//Erase all items of m_listBoxEngineObjects
+		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+		{
+			ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+		}
+		ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+		ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
+
+		if (m_dlgAddEngineCamera->IsActive())
+		{
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+			{
+				if (Cmp(g_engineCameraInstances[c]->m_abstractCamera->GetName(), name))
+				{
+					g_engineCameraInstances[c]->SetActive(CTrue);
+					g_render.SetActiveInstanceCamera(g_engineCameraInstances[c]);
+					m_mainBtnFreeCamera.EnableWindow(TRUE);
+				}
+				else
+					g_engineCameraInstances[c]->SetActive(CFalse);
+			}
+			g_currentCameraType = eCAMERA_ENGINE;
+		}
+
+		CDelete(m_dlgAddEngineCamera);
+		PrintInfo("\nNew Camera added successfully");
+
+	}
+	else if (result == IDCANCEL)
+		CDelete(m_dlgAddEngineCamera);
+
+}
+
+CVoid CVandaEngine1Dlg::OnMenuClickedInsertTerrain()
+{
+	m_dlgAddTerrain = CNew(CAddTerrain);
+	m_dlgAddTerrain->SetCreate(CTrue);
+	INT_PTR result = m_dlgAddTerrain->DoModal();
+	if (result == IDOK)
+	{
+		if (m_dlgAddTerrain->m_create)
+		{
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
+
+		SetCapture();
+		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+
+		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
+		dlgWaiting->ShowWindow(SW_SHOW);
+
+		g_terrain = CNew(CTerrain);
+
+		g_terrain->SetName(m_dlgAddTerrain->GetName());
+
+		g_terrain->SetHeightMapPath(m_dlgAddTerrain->GetHeightMapPath());
+
+		g_terrain->SetBottomTexturePath(m_dlgAddTerrain->GetBottomTexturePath());
+		g_terrain->SetBottomNormalMapPath(m_dlgAddTerrain->GetBottomNormalMapPath());
+
+		g_terrain->SetSlopeTexturePath(m_dlgAddTerrain->GetSlopeTexturePath());
+		g_terrain->SetSlopeNormalMapPath(m_dlgAddTerrain->GetSlopeNormalMapPath());
+
+		g_terrain->SetTopTexturePath(m_dlgAddTerrain->GetTopTexturePath());
+		g_terrain->SetTopNormalMapPath(m_dlgAddTerrain->GetTopNormalMapPath());
+
+		g_terrain->SetShininess(m_dlgAddTerrain->GetShininess());
+		g_terrain->SetSmooth(m_dlgAddTerrain->GetSmooth());
+		g_terrain->SetScaleHeight(m_dlgAddTerrain->GetScaleHeight());
+		g_terrain->SetScaleWidth(m_dlgAddTerrain->GetScaleWidth());
+		g_terrain->SetSlopeFactor(m_dlgAddTerrain->GetSlopeFactor());
+		g_terrain->SetTopStartHeight(m_dlgAddTerrain->GetTopStartHeight());
+		g_terrain->SetFlatten(m_dlgAddTerrain->GetFlatten());
+
+		g_terrain->SetAmbientColor(m_dlgAddTerrain->GetAmbientColor());
+		g_terrain->SetDiffuseColor(m_dlgAddTerrain->GetDiffuseColor());
+		g_terrain->SetSpecularColor(m_dlgAddTerrain->GetSpecularColor());
+
+		if (g_multipleView->IsPlayGameMode())
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+			g_multipleView->RenderWindow();
+		}
+
+		g_terrain->Initialize();
+		//save functions/////////////////////////////////
+		for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
+		{
+			g_terrain->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file and copy the textures
+		}
+		//save functions/////////////////////////////////
+
+		GetMenu()->EnableMenuItem(ID_INSERT_TERRAIN, MF_DISABLED | MF_GRAYED);
+		m_mainBtnTerrain.EnableWindow(FALSE);
+
+		g_menu.m_insertAndShowTerrain = CTrue;
+		InsertItemToEngineObjectList(g_terrain->GetName(), eENGINEOBJECTLIST_TERRAIN);
+		g_engineObjectNames.push_back(m_dlgAddTerrain->GetName());
+
+		//mark this new object as selected
+		g_transformObject = CFalse;
+		g_selectedName = g_lastEngineObjectSelectedName = g_terrain->GetIndex();
+
+		CDelete(m_dlgAddTerrain);
+		dlgWaiting->ShowWindow(SW_HIDE);
+		CDelete(dlgWaiting);
+		ReleaseCapture();
+	}
+	else if (result == IDCANCEL)
+		CDelete(m_dlgAddTerrain);
+}
+
+void CVandaEngine1Dlg::OnBnClickedInsertTerrain()
+{
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+	OnMenuClickedInsertTerrain();
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CTrue);
+
+	g_multipleView->SetElapsedTimeFromBeginning();
+	g_multipleView->RenderWindow();
+}
+
+
+
+void CVandaEngine1Dlg::OnBnClickedBtnEngineCamera()
+{
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+	OnMenuClickedInsertEngineCamera();
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CTrue);
+
+	g_multipleView->SetElapsedTimeFromBeginning();
+	g_multipleView->RenderWindow();
+}
+
+
+void CVandaEngine1Dlg::OnLvnItemchangingListScenes(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	if (g_multipleView->IsPlayGameMode()) {
+		*pResult = 1;
+		return;
+	}
+	*pResult = 0;
+}
+
+
+void CVandaEngine1Dlg::OnLvnItemchangingListEngineObjects(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	if (g_multipleView->IsPlayGameMode()) {
+		*pResult = 1;
+		return;
+	}
+	*pResult = 0;
+}
+
+
+void CVandaEngine1Dlg::OnLvnItemchangingListGuiElements(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	if (g_multipleView->IsPlayGameMode()) {
+		*pResult = 1;
+		return;
+	}
+	*pResult = 0;
+}
+
+
+void CVandaEngine1Dlg::OnLvnItemchangingListPhysxElements(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	if (g_multipleView->IsPlayGameMode()) {
+		*pResult = 1;
+		return;
+	}
+	*pResult = 0;
+}
+
+
+void CVandaEngine1Dlg::OnLvnItemchangingListObjects(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	if (g_multipleView->IsPlayGameMode()) {
+		*pResult = 1;
+		return;
+	}
+	*pResult = 0;
 }

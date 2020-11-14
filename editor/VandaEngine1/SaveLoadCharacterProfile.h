@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -31,7 +31,7 @@ public:
 	CImageList m_profileImage;
 	CBool m_save;
 	CChar m_name[MAX_NAME_SIZE];
-	CVoid SetCharacterType(CCharacterType type);
+	CVoid SetCharacterCameraType(CPhysXCameraType type);
 	CChar* GetName();
 	CVoid SetIdleName(std::vector<std::string> idle);
 	CVoid SetWalkName(std::vector<std::string> walk);
@@ -49,7 +49,7 @@ public:
 	std::vector<std::string> m_jump;
 	std::vector<std::string> m_run;
 	CChar m_characterName[MAX_NAME_SIZE];
-	CCharacterType m_characterType;
+	CPhysXCameraType m_characterType;
 	afx_msg void OnEnChangeProfileName();
 	virtual BOOL OnInitDialog();
 	CVoid SetSaveMode(CBool save);

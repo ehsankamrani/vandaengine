@@ -1,18 +1,10 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "camera.h"
 #include "../VandaEngine1Dlg.h"
+#include "..//GraphicsEngine/Render.h"
 
 CVoid CInstanceCamera::SetTransform()
 {
@@ -23,18 +15,73 @@ CVoid CInstanceCamera::SetTransform()
 	CMatrixTranslate(m_transform, 0, 0, m_zoom);
 	m_parent->SetLocalToWorldMatrix(&m_transform);
 }
-CVoid CInstanceCamera::RenderIcon()
+
+CVoid CInstanceCamera::RenderIcon(CBool selectionMode)
 {
-	CMatrix mat;
-	const CMatrix *ltow;
-	ltow = m_parent->GetLocalToWorldMatrix();
-	CMatrixCopy(*ltow, mat); 
-	CVec3f at(0,0,-1),pos( 0,0,0), tAt, tPos;
-	CMatrixTransform( mat, at, tAt );
-	CMatrixTransform( mat, pos, tPos );
-	if( g_menu.m_showCameraIcons )
-		g_glUtil.Billboarding( tPos.x, tPos.y, tPos.z, g_cameraImg->GetId(), 0.7, 0.7 );
+	if (m_active) return;
+
+	CVec3f final_pos;
+	CVec3f final_at;
+	if (m_parent)
+	{
+		CMatrix mat;
+		const CMatrix *ltow;
+		ltow = m_parent->GetLocalToWorldMatrix();
+		CMatrixCopy(*ltow, mat);
+		CVec3f at(0, 0, -1), pos(0, 0, 0);
+		CMatrixTransform(mat, at, final_at);
+		CMatrixTransform(mat, pos, final_pos);
+	}
+	else
+	{
+		final_pos.x = m_x; final_pos.y = m_y; final_pos.z = m_z;
+	}
+
+	if (selectionMode)
+	{
+		glPushName(m_nameIndex);
+	}
+	if (!selectionMode)
+	{
+		if (m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName)
+		{
+			g_tempLastEngineObjectSelectedName = m_nameIndex;
+			if (g_transformObject)
+			{
+				final_pos.x = g_arrowPosition.x;
+				final_pos.y = g_arrowPosition.y;
+				final_pos.z = g_arrowPosition.z;
+				m_x = final_pos.x; m_y = final_pos.y; m_z = final_pos.z;
+				SetTransform();
+			}
+			else
+			{
+				g_arrowPosition.x = final_pos.x;
+				g_arrowPosition.y = final_pos.y;
+				g_arrowPosition.z = final_pos.z;
+			}
+			if (g_menu.m_showCameraIcons)
+				g_glUtil.Billboarding(final_pos.x, final_pos.y, final_pos.z, g_cameraImg->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0);
+
+			if (g_currentCameraType != eCAMERA_ENGINE)
+				g_showArrow = CTrue;
+		}
+		else
+		{
+			if (g_menu.m_showCameraIcons)
+				g_glUtil.Billboarding(final_pos.x, final_pos.y, final_pos.z, g_cameraImg->GetId(), 1.0f, 1.0f);
+		}
+	}
+	else
+	{
+		if (g_menu.m_showCameraIcons)
+			g_glUtil.Billboarding(final_pos.x, final_pos.y, final_pos.z, g_cameraImg->GetId(), 1.0f, 1.0f);
+	}
+	if (selectionMode)
+		glPopName();
+
 }
+
 CVoid CCamera::Update( CInt32 sWidth, CInt32 sHeight )
 {
 
@@ -212,7 +259,7 @@ GLvoid CCamera::UpdateCameraPosDir(const NxVec3& cameraPos, const NxVec3& charac
 {
 	g_render.ModelViewMatrix();
 	g_render.IdentityMatrix();
-	if ((g_currentCameraType == eCAMERA_DEFAULT_PHYSX && !g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON))
+	if ((g_currentCameraType == eCAMERA_PHYSX && !g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON))
 	{
 		gluLookAt(cameraPos.x, cameraPos.y + g_physXProperties.m_fCapsuleHeight, cameraPos.z, //Eye position
 			characterPos.x, characterPos.y + g_physXProperties.m_fCapsuleHeight + y_offset, characterPos.z,    //At position 
@@ -220,7 +267,7 @@ GLvoid CCamera::UpdateCameraPosDir(const NxVec3& cameraPos, const NxVec3& charac
 	}
 	else
 	{
-		gluLookAt(cameraPos.x, cameraPos.y + g_physXProperties.m_fCapsuleHeight, cameraPos.z, //Eye position
+		gluLookAt(cameraPos.x, cameraPos.y + (g_physXProperties.m_fCapsuleHeight/* / 2.0f*/), cameraPos.z, //Eye position
 			characterPos.x, characterPos.y + (g_physXProperties.m_fCapsuleHeight / 2.0f) + y_offset, characterPos.z,    //At position 
 			0.0f, 1.0f, 0.0f);           //Direction of the viewer
 	}

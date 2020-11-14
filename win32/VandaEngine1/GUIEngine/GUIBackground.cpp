@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CAddAmbientSound.cpp : implementation file
 //
@@ -76,6 +76,9 @@ CVoid CGUIBackground::Render(CBool selectionMode)
 	{
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	glEnable(GL_TEXTURE_2D);

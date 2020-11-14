@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -7,7 +7,7 @@
 #include "..\common\utility.h"
 #include "..\graphicsEngine\Geometry.h"
 #include "..\graphicsEngine\OpenGLUtility.h"
-
+#include "..\GraphicsEngine\Light.h"
 
 enum COctreeID
 {
@@ -28,9 +28,11 @@ public:
 	COctree();
 	~COctree();
 	CVoid GetWorldDimensions();
-	CVoid Render();
+	CVoid Render(CBool checkVisibility = CFalse, CBool drawGeometry = CTrue);
 	CVoid SplitNode8( COctree* parent );
 	CBool AttachGeometriesToNode();
+	CVoid AttachLightsToGeometries();
+	CBool IsPointInLight(CVec3f* p, CInstanceLight* light);
 	CVoid SetName( CChar* name );
 	inline CChar* GetName() { return m_name; }
 	CVoid SetLevel( CInt level );

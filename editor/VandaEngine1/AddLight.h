@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -43,9 +43,9 @@ public:
 		CChar posX[MAX_NAME_SIZE];
 		CChar posY[MAX_NAME_SIZE];
 		CChar posZ[MAX_NAME_SIZE];
-		sprintf( posX, "%f", pos[0] );
-		sprintf( posY, "%f", pos[1] );
-		sprintf( posZ, "%f", pos[2] );
+		sprintf( posX, "%.3f", pos[0] );
+		sprintf( posY, "%.3f", pos[1] );
+		sprintf( posZ, "%.3f", pos[2] );
 		m_strLightPosX = posX;
 		m_strLightPosY = posY;
 		m_strLightPosZ = posZ;
@@ -68,25 +68,25 @@ public:
 	CVoid SetShininess( CFloat shininess )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", shininess );
+		sprintf( temp, "%.3f", shininess );
 		m_strShininess = temp;
 	}
 	CVoid SetConstantAttenuation( CFloat cAtt )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", cAtt );
+		sprintf( temp, "%.3f", cAtt );
 		m_strConstantAttenuation = temp;
 	}
 	CVoid SetLinearAttenuation( CFloat lAtt )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", lAtt );
+		sprintf( temp, "%.3f", lAtt );
 		m_strLinearAttenuation = temp;
 	}
 	CVoid SetQuadAttenuation( CFloat qAtt )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", qAtt );
+		sprintf( temp, "%.3f", qAtt );
 		m_strQuadAttenuation = temp;
 	}
 	CVoid SetSpotDirection( CFloat* spotDirection )
@@ -94,9 +94,9 @@ public:
 		CChar dirX[MAX_NAME_SIZE];
 		CChar dirY[MAX_NAME_SIZE];
 		CChar dirZ[MAX_NAME_SIZE];
-		sprintf( dirX, "%f", spotDirection[0] );
-		sprintf( dirY, "%f", spotDirection[1] );
-		sprintf( dirZ, "%f", spotDirection[2] );
+		sprintf( dirX, "%.3f", spotDirection[0] );
+		sprintf( dirY, "%.3f", spotDirection[1] );
+		sprintf( dirZ, "%.3f", spotDirection[2] );
 		m_strSpotDirectionX = dirX;
 		m_strSpotDirectionY = dirY;
 		m_strSpotDirectionZ = dirZ;
@@ -104,13 +104,13 @@ public:
 	CVoid SetSpotCuttoff( CFloat spotCutoff )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", spotCutoff );
+		sprintf( temp, "%.3f", spotCutoff );
 		m_strSpotCutoff = temp;
 	}
 	CVoid SetSpotExponent( CFloat spotExponent )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", spotExponent );
+		sprintf( temp, "%.3f", spotExponent );
 		m_strSpotExponent = temp;
 	}
 	CVoid SetType(CLightType lightType)
@@ -191,6 +191,7 @@ private:
 	CFloat m_fDiffuseColor[4];
 	CFloat m_fSpecularColor[4];
 	CLightType m_lightType;
+	CLightType m_initLightType;
 
 	CBool m_create;
 	CBool m_editMode;

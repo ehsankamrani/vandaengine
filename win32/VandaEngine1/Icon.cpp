@@ -57,10 +57,10 @@ CVoid CIcon::Render(CVec2f pos)
 
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-	glTexCoord2d(0, 1);  glVertex3f(pos.x, pos.y, -1.0f);
-	glTexCoord2d(1, 1);  glVertex3f(pos.x + w, pos.y, -1.0f);
-	glTexCoord2d(1, 0);  glVertex3f(pos.x + w, pos.y - h, -1.0f);
-	glTexCoord2d(0, 0);  glVertex3f(pos.x, pos.y - h, -1.0f);
+	glTexCoord2d(0, 1);  glVertex3f(pos.x - (w / 2.0f), pos.y + (h / 2.0f), -1.0f);
+	glTexCoord2d(1, 1);  glVertex3f(pos.x + w - (w / 2.0f), pos.y + (h / 2.0f), -1.0f);
+	glTexCoord2d(1, 0);  glVertex3f(pos.x + w - (w / 2.0f), pos.y - h + (h / 2.0f), -1.0f);
+	glTexCoord2d(0, 0);  glVertex3f(pos.x - (w / 2.0f), pos.y - h + (h / 2.0f), -1.0f);
 	glEnd();
 
 	glPopAttrib();

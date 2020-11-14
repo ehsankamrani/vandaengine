@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // WelcomeDialog.cpp : implementation file
@@ -112,15 +112,15 @@ BOOL CWelcomeDialog::OnInitDialog()
 	m_linkIntroduction.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
 
 	m_linkVEStructure.SetColours(RGB(222, 122, 5), RGB(5, 122, 222));
-	m_linkVEStructure.SetURL("http://vandaengine.org/an-overview-to-vanda-engine/");
+	m_linkVEStructure.SetURL("https://vanda3d.org/an-overview-to-vanda-engine/");
 	m_linkVEStructure.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
 
 	m_linkTutorials.SetColours(RGB(222, 122, 5), RGB(5, 122, 222));
-	m_linkTutorials.SetURL("http://vandaengine.org/tutorials/");
+	m_linkTutorials.SetURL("https://vanda3d.org/tutorials/");
 	m_linkTutorials.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
 
 	m_linkHelp.SetColours(RGB(222, 122, 5), RGB(5, 122, 222));
-	m_linkHelp.SetURL("http://vandaengine.org/vandaengine/Doc/Reference/");
+	m_linkHelp.SetURL("https://vanda3d.org/vandaengine/Doc/Reference/");
 	m_linkHelp.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
 
 	//m_linkRunDemoInEditor.SetColours( RGB(222, 122, 5), RGB(222, 122, 5) );
@@ -132,8 +132,26 @@ BOOL CWelcomeDialog::OnInitDialog()
 	//m_linkPublishedDemo.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
 
 	m_linkDonate.SetColours(RGB(222, 122, 5), RGB(222, 122, 5));
-	m_linkDonate.SetURL( "http://vandaengine.org/donate/" );
+	m_linkDonate.SetURL( "https://vanda3d.org/donate/" );
 	m_linkDonate.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
+
+	if (g_options.m_showStartupDialog)
+	{
+		m_btnCheck.ShowWindow(SW_HIDE);
+		m_btnCheck.UpdateWindow();
+
+		m_btnUncheck.ShowWindow(SW_SHOW);
+		m_btnUncheck.UpdateWindow();
+	}
+	else
+	{
+		m_btnCheck.ShowWindow(SW_SHOW);
+		m_btnCheck.UpdateWindow();
+
+		m_btnUncheck.ShowWindow(SW_HIDE);
+		m_btnUncheck.UpdateWindow();
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -176,7 +194,7 @@ HBRUSH CWelcomeDialog::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void CWelcomeDialog::OnBnClickedWelcomeButtonHelp()
 {
 		ShellExecute(NULL, "open", "Assets\\Doc\\vanda.chm", NULL, NULL, SW_SHOWNORMAL);
-		//ShellExecute(NULL, "open", "http://vandaengine.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
+		//ShellExecute(NULL, "open", "https://vanda3d.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CWelcomeDialog::OnBnClickedWelcomeButtonCheck()
@@ -208,12 +226,12 @@ void CWelcomeDialog::OnBnClickedWelcomeButtonVideo()
 
 void CWelcomeDialog::OnBnClickedWelcomeButtonTutorials()
 {
-	ShellExecute(NULL, "open", "http://vandaengine.org/tutorials/", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", "https://vanda3d.org/tutorials/", NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CWelcomeDialog::OnBnClickedWelcomeButtonVandaOverview()
 {
-	ShellExecute(NULL, "open", "http://vandaengine.org/an-overview-to-vanda-engine/", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", "https://vanda3d.org/an-overview-to-vanda-engine/", NULL, NULL, SW_SHOWNORMAL);
 }
 
 
@@ -234,7 +252,7 @@ void CWelcomeDialog::OnBnClickedWelcomeButtonRunDemoPublished()
 
 void CWelcomeDialog::OnBnClickedWelcomeButtonDonate()
 {
-	ShellExecute(NULL, "open", "http://vandaengine.org/donate/", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", "https://vanda3d.org/donate/", NULL, NULL, SW_SHOWNORMAL);
 }
 
 

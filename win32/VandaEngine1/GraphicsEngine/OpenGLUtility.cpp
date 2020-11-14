@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -101,6 +101,47 @@ GLvoid COpenGLUtility::DrawQuad( CFloat* p )
 		   glVertex3f( p[loop*5+2], p[loop*5+3], p[loop*5+4] );
 	   }
     glEnd();
+}
+
+GLvoid COpenGLUtility::DrawSimpleBox(CVec3f min, CVec3f max)
+{
+	// cube ///////////////////////////////////////////////////////////////////////
+	//    v6----- v5
+	//   /|      /|
+	//  v1------v0|
+	//  | |     | |
+	//  | |v7---|-|v4
+	//  |/      |/
+	//  v2------v3
+
+	// vertex coords array for glDrawArrays() =====================================
+	// A cube has 6 sides and each side has 2 triangles, therefore, a cube consists
+	// of 36 vertices (6 sides * 2 tris * 3 vertices = 36 vertices). And, each
+	// vertex is 3 components (x,y,z) of floats, therefore, the size of vertex
+	// array is 108 floats (36 * 3 = 108).
+	GLfloat vertices[] = {
+		max.x, max.y, max.z, min.x, max.y, max.z, min.x, min.y, max.z,      // v0-v1-v2 (front)
+		min.x, min.y, max.z, max.x, min.y, max.z, max.x, max.y, max.z,      // v2-v3-v0
+
+		max.x, max.y, max.z, max.x, min.y, max.z, max.x, min.y, min.z,      // v0-v3-v4 (right)
+		max.x, min.y, min.z, max.x, max.y, min.z, max.x, max.y, max.z,      // v4-v5-v0
+
+		max.x, max.y, max.z, max.x, max.y, min.z, min.x, max.y, min.z,      // v0-v5-v6 (top)
+		min.x, max.y, min.z, min.x, max.y, max.z, max.x, max.y, max.z,      // v6-v1-v0
+
+		min.x, max.y, max.z, min.x, max.y, min.z, min.x, min.y, min.z,      // v1-v6-v7 (left)
+		min.x, min.y, min.z, min.x, min.y, max.z, min.x, max.y, max.z,      // v7-v2-v1
+
+		min.x, min.y, min.z, max.x, min.y, min.z, max.x, min.y, max.z,      // v7-v4-v3 (bottom)
+		max.x, min.y, max.z, min.x, min.y, max.z, min.x, min.y, min.z,      // v3-v2-v7
+
+		max.x, min.y, min.z, min.x, min.y, min.z, min.x, max.y, min.z,      // v4-v7-v6 (back)
+		min.x, max.y, min.z, max.x, max.y, min.z, max.x, min.y, min.z };    // v6-v5-v4
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDisableClientState(GL_VERTEX_ARRAY);  // disable vertex arrays
 }
 
 GLvoid COpenGLUtility::StencilPattern( CInt n, CFloat* pArray, COpenGLShape type, CInt bit )
@@ -232,6 +273,21 @@ GLvoid COpenGLUtility::BillboardingWithUserVectors( CFloat centerX, CFloat cente
 	glEnd();
 	glDisable( GL_TEXTURE_2D );
 	glDisable( GL_BLEND );
+}
+
+GLvoid COpenGLUtility::DrawSquare(CVec3f pos1, CVec3f pos2, CVec3f pos3, CVec3f pos4)
+{
+	glUseProgram(0);
+	glPushAttrib(GL_ENABLE_BIT);
+	glDisable(GL_LIGHTING);                               //No need to compute lighting in selection mode
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);											// Draw A Quad
+	glVertex3f(pos1.x, pos1.y, pos1.z);					// Top Right Of The Quad (Top)
+	glVertex3f(pos2.x, pos2.y, pos2.z);					// Top Left Of The Quad (Top)
+	glVertex3f(pos3.x, pos3.y, pos3.z);					// Bottom Left Of The Quad (Top)
+	glVertex3f(pos4.x, pos4.y, pos4.z);
+	glEnd();													// Done Drawing The Quad
+	glPopAttrib();
 }
 
 GLvoid COpenGLUtility::DrawCWBoxWithQuads( CVector &min, CVector &max )

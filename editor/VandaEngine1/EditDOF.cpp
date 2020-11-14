@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditDOF.cpp : implementation file
@@ -63,10 +63,10 @@ BOOL CEditDOF::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_strFocalDistance.Format( "%f", g_dofProperties.m_dofFocalDistance);
+	m_strFocalDistance.Format( "%.3f", g_dofProperties.m_dofFocalDistance);
 	m_editBoxFocalDistance.SetWindowTextA( m_strFocalDistance );
 
-	m_strFocalRange.Format( "%f", g_dofProperties.m_dofFocalRange);
+	m_strFocalRange.Format( "%.3f", g_dofProperties.m_dofFocalRange);
 	m_editBoxFocalRange.SetWindowTextA( m_strFocalRange );
 
 	if( g_dofProperties.m_enable )

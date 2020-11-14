@@ -1,23 +1,16 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "Light.h"
 
 CInstanceLight::CInstanceLight()
 {
-	glGenQueries(1, &m_queryIndex);
-	m_visible = CTrue;
+	if (GLEW_NV_occlusion_query)
+	{
+		glGenQueries(1, &m_queryIndex);
+	}
+	m_runTimeVisible = CTrue;
 }
 
 CInstanceLight::~CInstanceLight()
@@ -57,6 +50,8 @@ CDouble CInstanceLight::GetRadius()
 
 CVoid CInstanceLight::CalculateDistance()
 {
+	if (!g_camera)
+		return;
 	if (m_parent)
 	{
 		float *matrix = (float *)m_parent->GetLocalToWorldMatrix();
@@ -87,6 +82,11 @@ CVoid CInstanceLight::SetPosition(CVec3f pos)
 	m_position.x = pos.x;
 	m_position.y = pos.y;
 	m_position.z = pos.z;
+}
+
+CVec3f CInstanceLight::GetPosition()
+{
+	return m_position;
 }
 
 CLight::CLight()

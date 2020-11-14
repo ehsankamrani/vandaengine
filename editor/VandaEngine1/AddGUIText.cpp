@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddGUIText.cpp : implementation file
@@ -62,14 +62,14 @@ CVoid CAddGUIText::SetPosition(CVec2f pos)
 	m_fPosX = pos.x;
 	m_fPosY = pos.y;
 
-	m_strPosX.Format("%f", m_fPosX);
-	m_strPosY.Format("%f", m_fPosY);
+	m_strPosX.Format("%.3f", m_fPosX);
+	m_strPosY.Format("%.3f", m_fPosY);
 }
 
 CVoid CAddGUIText::SetSize(CFloat size)
 {
 	m_fTextSize = size;
-	m_strTextSize.Format("%f", m_fTextSize);
+	m_strTextSize.Format("%.3f", m_fTextSize);
 }
 
 CVoid CAddGUIText::SetColor(CVec3f color)
@@ -181,6 +181,13 @@ void CAddGUIText::OnBnClickedOk()
 			CDelete(guiText);
 			return;
 		}
+
+		if (!Cmp(g_currentPackageAndGUIName, "\n"))
+		{
+			guiText->SetPackageName(g_currentGUIPackageName);
+			guiText->SetGUIName(g_currentGUIName);
+		}
+
 		g_guiTexts.push_back(guiText);
 		g_guiNames.push_back(m_strName.GetBuffer(m_strName.GetLength()));
 		ex_pVandaEngine1Dlg->InsertItemToGUIList(m_strName.GetBuffer(m_strName.GetLength()), eGUILIST_TEXT);
@@ -222,7 +229,7 @@ BOOL CAddGUIText::OnInitDialog()
 		m_fColor[3] = 1.0f;
 		m_fPosX = g_width / 2;
 		m_fPosY = g_height / 2;
-		m_strPosX.Format("%f", m_fPosX); m_strPosY.Format("%f", m_fPosY);
+		m_strPosX.Format("%.3f", m_fPosX); m_strPosY.Format("%.3f", m_fPosY);
 		m_editPosX.SetWindowTextA(m_strPosX);
 		m_editPosY.SetWindowTextA(m_strPosY);
 

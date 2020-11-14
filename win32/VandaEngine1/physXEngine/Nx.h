@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -23,6 +23,7 @@
 #include <map>
 #include <vector>
 #include <stdio.h>
+#include <Defines.h>
 //#include "TriggerReport.h"
 #define SKINWIDTH 0.01f
 
@@ -145,6 +146,8 @@ public:
 	CVoid SetActorCollisionGroup(NxActor* actor, NxCollisionGroup group);
 	CVoid PostUpdateCharacter();
 	CVoid SetupGLMatrix(const NxVec3& pos, const NxMat33& orient);
+	CBool CookTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, const CChar* path, const CChar* name);
+	NxActor* CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, const CChar* name);
 	NxActor* CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name );
 	NxActor* CreateConvexMesh( CInt vertexCount, CFloat* meshVertices, const NxVec3& pos,  NxMat33 rotation, const NxReal densit, const CChar* name, CBool IsTrigger, CBool isKinematic );
 

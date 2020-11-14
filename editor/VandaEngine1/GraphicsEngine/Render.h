@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 //#include "cg.h"
 #include "matrix.h"
@@ -33,7 +24,10 @@ public:
 	CBool DestroyCg();
 	CVoid Destroy();
 	// Set the pointer to the active camera instance
-	inline CVoid  SetActiveInstanceCamera(CInstanceCamera *inst){m_activeInstanceCamera = inst;}
+	inline CVoid  SetActiveInstanceCamera(CInstanceCamera *inst)
+	{
+		m_activeInstanceCamera = inst;
+	}
 	// Get a pointer to the active camera instance
 	inline CInstanceCamera* GetActiveInstanceCamera(){return m_activeInstanceCamera;}
 	inline CInstanceCamera* GetDefaultInstanceCamera() { return m_defaultInstanceCamera;}
@@ -57,17 +51,19 @@ public:
 
 	//GLSL variables
 	GLuint m_shaderProgram;
+	GLuint m_waterShaderProgram;
 	GLuint m_shader_normalProgram;
-	GLuint m_spotShaderProgram;
-	GLuint m_spot_normalShaderProgram;
 	GLuint m_deferredProgram;
 	GLuint m_blendTexturesProgram;
 	GLuint m_waterProgram;
 	GLuint m_blurProgram;
 	GLuint m_glowProgram;
-	GLuint m_grassProgram;
 	GLuint m_fogBlurProgram;
 	GLuint m_waterFogBlurProgram;
+	GLuint m_terrainProgram;
+	GLuint m_terrainNormalMapLayerProgram;
+	GLuint m_terrainDiffuseLayerProgram;
+	GLuint m_terrainOtherLayerProgram;
 	GLuint m_dofProgram[4];
 
 	GLuint m_shad_single_hl_prog;
@@ -79,6 +75,16 @@ public:
     GLuint m_shad_pcf_4tap_prog;
     GLuint m_shad_pcf_8tap_prog;
     GLuint m_shad_pcf_gaussian_prog;
+
+	GLuint m_terrain_shad_single_prog;
+	GLuint m_terrain_shad_multi_prog;
+	GLuint m_terrain_shad_multi_noleak_prog;
+	GLuint m_terrain_shad_pcf_prog;
+	GLuint m_terrain_shad_pcf_trilin_prog;
+	GLuint m_terrain_shad_pcf_4tap_prog;
+	GLuint m_terrain_shad_pcf_8tap_prog;
+	GLuint m_terrain_shad_pcf_gaussian_prog;
+
 
 	//+ normal map
 	GLuint m_shad_single_hl_normal_prog;
@@ -92,27 +98,6 @@ public:
 	GLuint m_shad_pcf_gaussian_normal_prog;
 
 	GLuint m_shad_view_depth;
-
-	GLuint m_shad_single_hl_spot_prog;
-	GLuint m_shad_single_spot_prog ;
-	GLuint m_shad_multi_spot_prog ;
-	GLuint m_shad_multi_noleak_spot_prog ;
-    GLuint m_shad_pcf_spot_prog;
-    GLuint m_shad_pcf_trilin_spot_prog;
-    GLuint m_shad_pcf_4tap_spot_prog;
-    GLuint m_shad_pcf_8tap_spot_prog;
-    GLuint m_shad_pcf_gaussian_spot_prog;
-
-	//spot + normal map
-	GLuint m_shad_single_hl_spot_normal_prog;
-	GLuint m_shad_single_spot_normal_prog;
-	GLuint m_shad_multi_spot_normal_prog;
-	GLuint m_shad_multi_noleak_spot_normal_prog;
-	GLuint m_shad_pcf_spot_normal_prog;
-	GLuint m_shad_pcf_trilin_spot_normal_prog;
-	GLuint m_shad_pcf_4tap_spot_normal_prog;
-	GLuint m_shad_pcf_8tap_spot_normal_prog;
-	GLuint m_shad_pcf_gaussian_spot_normal_prog;
 
 	//layers
 	GLuint m_shaderColorMapLayerProgram;
@@ -157,15 +142,16 @@ public:
 	CVoid ReadTextFile(const char *pszFilename, std::string &buffer);
 	CInt ReadAnyTextFile(CChar* fileName,  std::string& buffer);
 	CBool SetInstanceLight( CInstanceLight * lightInstance, CInt lightNumber, CBool markDefaultDirectionalLight = CTrue );
-	CVoid SetMaterial( CMaterial * mat, CGeometryColor color, CBool hasDiffuse );
-	CBool SetTexture( CImage * texObj, CBool hasDiffuse );
+	CVoid SetMaterialFromCOLLADA( CMaterial * mat, CGeometryColor color, CBool hasDiffuse );
+	CVoid SetMaterialFromGameEngine(CFloat* ambient, CFloat* diffuse, CFloat* specular, CFloat* emission, CFloat shininess, CFloat transparency, CGeometryColor color);
+	CBool SetTexture(CImage * texObj, CBool hasDiffuse);
 
 	CUInt GenerateVBO();
 	CBool CopyVBOData(CUInt type, CUInt vboID, CVoid * data, CInt size );
 	CBool CopyVBOSubData( CUInt type, CUInt vboId, CVoid * data, CUInt offset, CInt size );
 	CBool BindVBO(CUInt type, CUInt vboUID );
 	CVoid FreeVBO( CUInt vboUID ); 
-	CBool CheckForVBOs();
+	CBool SupportForVBOs();
 
 	//frame buffer and render buffer functions
 	CUInt GenerateFBO();
@@ -174,7 +160,7 @@ public:
 	CBool BindForWriting(CUInt fboId);
 	CVoid SetReadBuffer(CGBufferTextureType TextureType);
 	CVoid FreeFBO( CUInt fboUID ); 
-	CBool CheckForFBOs();
+	CBool SupportForFBOs();
 	CVoid Attach2DTextureToFBOColor( CUInt textureId, CInt colorBufferId = 0 );
 	CVoid AttachRenderBufferToFBOColor( CUInt m_rbColorID, CInt colorBufferId = 0 );
 

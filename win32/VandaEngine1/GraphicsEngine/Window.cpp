@@ -1,10 +1,13 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "window.h"
 #include "..\resource.h"
 #include "..\VandaEngine1Win32.h"
+#include <dwmapi.h>
+
+#pragma comment(lib, "Dwmapi.lib")
 
 CWindow::CWindow()
 {
@@ -168,25 +171,25 @@ BOOL CWindow::CreateWindowGL(CWindowGL* window)									// This Code Creates Our
 	if (!RegisterClassEx(&windowClass))
 		return 0;
 
+
 	RECT windowRect = {0, 0, window->init.width, window->init.height};	// Define Our Window Coordinates
 
 
- 
 	if (window->init.isFullScreen == TRUE)								// Fullscreen Requested, Try Changing Video Modes
 	{
 		if (ChangeScreenResolution (window->init.width, window->init.height, window->init.bitsPerPixel) == FALSE)
 		{
 			// Fullscreen Mode Failed.  Run In Windowed Mode Instead
-			MessageBox (HWND_DESKTOP, _T("Mode Switch Failed.\nRunning In Windowed Mode."), _T("Error"), MB_OK | MB_ICONEXCLAMATION);
-			window->init.isFullScreen = FALSE;							// Set isFullscreen To False (Windowed Mode)
+			MessageBox (HWND_DESKTOP, _T("Mode Switch Failed."), _T("Error"), MB_OK | MB_ICONEXCLAMATION);
+			return 0;							// Set isFullscreen To False (Windowed Mode)
 		}
 	}
 	else if( window->init.isFullScreen == FALSE )																// If Fullscreen Was Not Selected
 	{
 		// Adjust Window, Account For Window Borders
+		windowExtendedStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;	// Window Extended Style
 		AdjustWindowRectEx (&windowRect, windowStyle, 0, windowExtendedStyle);
 	}
-
 	// Create The OpenGL Window
 	window->hWnd = CreateWindowEx (windowExtendedStyle,					// Extended Style
 									window->init.className,	// Class Name

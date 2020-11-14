@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // stdafx.h : include file for standard system include files,
@@ -98,26 +98,47 @@ CGeometry* GetGeometryFromScenes(const CChar * name, const CChar * DocURI);
 class CPrefab;
 CPrefab* GetPrefab(CChar* name);
 
+//Sounds
 CInt PlaySoundLoop(lua_State *L);
 CInt PlaySoundOnce(lua_State *L);
 CInt StopSound(lua_State *L);
 CInt PauseSound(lua_State *L);
+
+//Animations
 CInt BlendCycle(lua_State *L);
 CInt ClearCycle(lua_State *L);
 CInt ExecuteAction(lua_State *L);
 CInt ReverseExecuteAction(lua_State *L);
-CInt LoadVScene( lua_State *L);
-CInt ActivateCamera(lua_State *L);
+CInt RemoveAction(lua_State *L);
+CInt PauseAnimations(lua_State *L);
+CInt GetAnimationClipDuration(lua_State *L);
 
+//Prefabs
+CInt SetPrefabInstanceVisible(lua_State *L);
+CInt SetPrefabInstanceInvisible(lua_State *L);
+
+//VScene
+CInt LoadVScene(lua_State *L);
+CInt SetCurrentVSceneAsMenu(lua_State *L);
+CInt ExitGame(lua_State *L);
+
+//Cameras
+CInt ActivateImportedCamera(lua_State *L);
+CInt ActivateEngineCamera(lua_State *L);
+CInt ActivateThirdPersonCamera(lua_State *L);
+CInt ActivateFirstPersonCamera(lua_State *L);
+
+//Resources
 CInt LoadResource(lua_State *L);
+CInt DeleteAllResources(lua_State *L);
 CInt PlayResourceSoundLoop(lua_State *L);
 CInt PlayResourceSoundOnce(lua_State *L);
 CInt StopResourceSound(lua_State *L);
 CInt PauseResourceSound(lua_State *L);
 CInt StopAllResourceSounds(lua_State *L);
-
-CInt LoadGUI(lua_State *L);
+CInt ShowCursorIcon(lua_State *L);
+CInt HideCursorIcon(lua_State *L);
+CInt AttachScriptToKey(lua_State *L);
+//GUIs
 CInt ShowGUI(lua_State *L);
 CInt HideGUI(lua_State *L);
-CInt ShowIcon(lua_State *L);
-CInt HideIcon(lua_State *L);

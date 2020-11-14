@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditBloom.cpp : implementation file
@@ -81,7 +81,7 @@ BOOL CEditBloom::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_strBloomIntensity.Format( "%f", g_bloomProperties.m_bloomIntensity);
+	m_strBloomIntensity.Format( "%.3f", g_bloomProperties.m_bloomIntensity);
 	m_editBoxBloomIntensity.SetWindowTextA( m_strBloomIntensity );
 
 	if( g_bloomProperties.m_enable )

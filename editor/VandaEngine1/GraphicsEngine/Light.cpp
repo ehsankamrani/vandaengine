@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "Light.h"
 #include "../VandaEngine1Dlg.h"
@@ -19,18 +10,13 @@ CInstanceLight::CInstanceLight()
 	if (GLEW_NV_occlusion_query)
 	{
 		glGenQueries(1, &m_queryIndex);
-		m_visible = CTrue;
 	}
-	else
-	{
-		m_visible = CFalse;
-	}
+	m_runTimeVisible = CTrue;
 }
 
 CInstanceLight::~CInstanceLight()
 {
-	if (m_visible)
-		glDeleteQueries(1, &m_queryIndex);
+	glDeleteQueries(1, &m_queryIndex);
 }
 
 GLuint CInstanceLight::GetQueryIndex()
@@ -103,7 +89,19 @@ CBool CInstanceLight::RenderExtents()
 			}
 			return true;
 		case eLIGHTTYPE_SPOT:
-			return false;
+			if (m_parent)
+			{
+				CFloat* p = (GLfloat*)&Position;
+				CFloat* c = m_abstractLight->GetDiffuse();
+				g_glUtil.DrawSphere(radius, 10, 10, p, c);
+			}
+			else
+			{
+				CFloat* p = m_abstractLight->GetPosition();
+				CFloat* c = m_abstractLight->GetDiffuse();
+				g_glUtil.DrawSphere(radius, 10, 10, p, c);
+			}
+			return true;
 		default:
 			return false;
 	}
@@ -112,10 +110,10 @@ CBool CInstanceLight::RenderExtents()
 CBool CInstanceLight::RenderIcon(CBool selectionMode)
 {
 	CVec4f  Position;
-	if( m_parent )
+	if (m_parent)
 	{
 		float *matrix = (float *)m_parent->GetLocalToWorldMatrix();
-		Position.x = matrix[12]; Position.y = matrix[13]; Position.z =  matrix[14]; 
+		Position.x = matrix[12]; Position.y = matrix[13]; Position.z = matrix[14];
 	}
 	else
 	{
@@ -124,63 +122,63 @@ CBool CInstanceLight::RenderIcon(CBool selectionMode)
 		Position.z = m_abstractLight->GetPosition()[2];
 	}
 	CImage* img = NULL;
-	if( !m_parent ) //Engine Light Icons
+	if (!m_parent) //Engine Light Icons
 	{
-		switch(m_abstractLight->GetType())
+		switch (m_abstractLight->GetType())
 		{
-			case eLIGHTTYPE_AMBIENT:
-				return false;
-			case eLIGHTTYPE_DIRECTIONAL:
-				img = g_directionalLightImg;
-				break;
-			case eLIGHTTYPE_POINT:
-				img = g_pointLightImg;
-				break;
-			case eLIGHTTYPE_SPOT:
-				img = g_spotLightImg;
-				break;
-			default:
-				return false;
+		case eLIGHTTYPE_AMBIENT:
+			return false;
+		case eLIGHTTYPE_DIRECTIONAL:
+			img = g_directionalLightImg;
+			break;
+		case eLIGHTTYPE_POINT:
+			img = g_pointLightImg;
+			break;
+		case eLIGHTTYPE_SPOT:
+			img = g_spotLightImg;
+			break;
+		default:
+			return false;
 		}
 	}
 	else
 	{
-		switch(m_abstractLight->GetType())
+		switch (m_abstractLight->GetType())
 		{
-			case eLIGHTTYPE_AMBIENT:
-				return false;
-			case eLIGHTTYPE_DIRECTIONAL:
-				img = g_directionalLightCOLLADAImg;
-				break;
-			case eLIGHTTYPE_POINT:
-				img = g_pointLightCOLLADAImg;
-				break;
-			case eLIGHTTYPE_SPOT:
-				img = g_spotLightCOLLADAImg;
-				break;
-			default:
-				return false;
+		case eLIGHTTYPE_AMBIENT:
+			return false;
+		case eLIGHTTYPE_DIRECTIONAL:
+			img = g_directionalLightCOLLADAImg;
+			break;
+		case eLIGHTTYPE_POINT:
+			img = g_pointLightCOLLADAImg;
+			break;
+		case eLIGHTTYPE_SPOT:
+			img = g_spotLightCOLLADAImg;
+			break;
+		default:
+			return false;
 		}
 	}
 
-	if( g_menu.m_showLightIcons )
+	if (g_menu.m_showLightIcons)
 	{
-		if( selectionMode && !m_parent )
-			glPushName( m_nameIndex );
-		if( m_parent )
+		if (selectionMode && !m_parent)
+			glPushName(m_nameIndex);
+		if (m_parent)
 		{
 			CFloat* p = (GLfloat*)&Position;
 			CFloat* c = m_abstractLight->GetDiffuse();
 			//if( m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName )
 			//{
 			//	g_tempLastEngineObjectSelectedName = m_nameIndex;
-			//	g_glUtil.Billboarding( p[0], p[1], p[2], img->GetId(), 0.7, 0.7, 1.0, 0.0, 0.0 );
+			//	g_glUtil.Billboarding( p[0], p[1], p[2], img->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0 );
 			//	g_arrowPosition.x = p[0]; g_arrowPosition.y = p[1]; g_arrowPosition.z = p[2]; 
 			//	g_showArrow = CTrue;
 			//}
 			//else
 			//{
-				g_glUtil.Billboarding( p[0], p[1], p[2], img->GetId(), 0.7, 0.7 );
+			g_glUtil.Billboarding(p[0], p[1], p[2], img->GetId(), 1.0f, 1.0f);
 			//}
 
 		}
@@ -188,36 +186,43 @@ CBool CInstanceLight::RenderIcon(CBool selectionMode)
 		{
 			CFloat* p = m_abstractLight->GetPosition();
 			CFloat* c = m_abstractLight->GetDiffuse();
-			if( !selectionMode )
+			if (!selectionMode)
 			{
-				if( m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName )
+				if (m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName)
 				{
 					g_tempLastEngineObjectSelectedName = m_nameIndex;
-					if( g_transformObject )
+					if (g_transformObject)
 					{
-						p[0] = g_arrowPosition.x; 
-						p[1] = g_arrowPosition.y; 
-						p[2] = g_arrowPosition.z; 
+						p[0] = g_arrowPosition.x;
+						p[1] = g_arrowPosition.y;
+						p[2] = g_arrowPosition.z;
+
+						for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+						{
+							g_instancePrefab[j]->SetLightCooked(CFalse);
+						}
+						if (g_terrain)
+							g_terrain->GetTerrain()->SetLightCooked(CFalse);
 					}
 					else
 					{
-						g_arrowPosition.x = p[0]; 
-						g_arrowPosition.y = p[1]; 
-						g_arrowPosition.z = p[2]; 
+						g_arrowPosition.x = p[0];
+						g_arrowPosition.y = p[1];
+						g_arrowPosition.z = p[2];
 					}
 
-					g_glUtil.Billboarding( p[0], p[1], p[2], img->GetId(), 0.7, 0.7, 1.0, 0.0, 0.0 );
+					g_glUtil.Billboarding(p[0], p[1], p[2], img->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0);
 					g_showArrow = CTrue;
 				}
 				else
 				{
-					g_glUtil.Billboarding( p[0], p[1], p[2], img->GetId(), 0.7, 0.7 );
+					g_glUtil.Billboarding(p[0], p[1], p[2], img->GetId(), 1.0f, 1.0f);
 				}
 			}
 			else
-				g_glUtil.Billboarding( p[0], p[1], p[2], img->GetId(), 0.7, 0.7 );
+				g_glUtil.Billboarding(p[0], p[1], p[2], img->GetId(), 1.0f, 1.0f);
 		}
-		if( selectionMode && !m_parent)
+		if (selectionMode && !m_parent)
 			glPopName();
 	}
 	return CTrue;
@@ -225,6 +230,8 @@ CBool CInstanceLight::RenderIcon(CBool selectionMode)
 
 CVoid CInstanceLight::CalculateDistance()
 {
+	if (!g_camera)
+		return;
 	if (m_parent)
 	{
 		float *matrix = (float *)m_parent->GetLocalToWorldMatrix();
@@ -255,6 +262,11 @@ CVoid CInstanceLight::SetPosition(CVec3f pos)
 	m_position.x = pos.x;
 	m_position.y = pos.y;
 	m_position.z = pos.z;
+}
+
+CVec3f CInstanceLight::GetPosition()
+{
+	return m_position;
 }
 
 CLight::CLight()

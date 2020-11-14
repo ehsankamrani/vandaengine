@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -34,7 +34,8 @@ public:
 	CVoid RegenerateDepthTex(GLuint depth_size);
 	void UpdateFrustumPoints(frustum &f, vec3f &center, vec3f &view_dir);
 	void UpdateSplitDist(frustum f[MAX_SPLITS], float nd, float fd);
-	float ApplyCropMatrix(frustum &f);
+	void UpdateFOV();
+	float ApplyCropMatrix(frustum &f, vec3f cam_pos);
 	void MakeShadowMap( float cam_pos[3], float cam_view[3], float light_dir[4] );
 	void ShowDepthTex();
 

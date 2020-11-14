@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 /*************************************************
 *******HOW TO SPECIFY THE LENS OF THE CCamera*****
@@ -49,6 +39,7 @@ after the functions listed in number 6.
 #include "base.h"
 #include "matrix.h"
 #include "node.h"
+
 class CCamera;
 
 class CInstanceCamera
@@ -62,10 +53,44 @@ public:
 		m_pan=0;
 		m_tilt=0;
 		m_zoom=0;
+		m_ncp = 0.01f;
+		m_fcp = 50000.f;
+		m_active = CFalse;
+		m_cameraSpeed = DEFAULT_CAMERA_SPEED;
+		m_enableTimer = CFalse;
+		m_elaspedSeconds = 0.0f;
+		m_endTime = 0.0f;
 	};
 	CNode *m_parent;			// Node where this instance was instantiated
 	CCamera	*m_abstractCamera;	// The abstract Camera where the CCamera parameters are stored
 	CMatrix m_transform;
+
+	CBool IsActive() { return m_active; }
+	CVoid SetActive(CBool set) { m_active = set; }
+
+	CBool IsTimerEnabled() { return m_enableTimer; }
+	CVoid SetIsTimerEnabled(CBool set) { m_enableTimer = set; }
+	CFloat GetElaspedSeconds() { return m_elaspedSeconds; }
+	CVoid SetEndTime(CFloat time) { m_endTime = time; }
+	CBool IncreaseElapsedSeconds(CFloat elapsedSeconds)
+	{
+		if (m_enableTimer)
+		{
+			m_elaspedSeconds += elapsedSeconds;
+			if (m_elaspedSeconds > m_endTime)
+			{
+				m_enableTimer = CFalse;
+				m_elaspedSeconds = m_endTime = 0.0f;
+				return CFalse;
+			}
+			else
+			{
+				return CTrue;
+			}
+		}
+		else
+			return CTrue;
+	}
 	CVoid SetPanAndTilt(CFloat setpan, CFloat settilt)
 	{
 		m_pan += setpan;
@@ -120,13 +145,42 @@ public:
 		SetTransform();
 	}
 
-public:
-	CVoid SetTransform();  //it's use for free camera instance
-
+	//Get
+	CFloat GetZoom() { return m_zoom; }
+	CVec3f GetPos() { CVec3f m_pos(m_x, m_y, m_z); return m_pos; }
+	CFloat GetNCP() { return m_ncp; }
+	CFloat GetFCP() { return m_fcp; }
+	CFloat GetPan() { return m_pan; }
+	CFloat GetTilt() { return m_tilt; }
+	//Set
+	CVoid SetZoom(CFloat zoom) { m_zoom = zoom; }
+	CVoid SetPos(CVec3f pos) { m_x = pos.x; m_y = pos.y; m_z = pos.z; }
+	CVoid SetNCP(CFloat ncp) { m_ncp = ncp; }
+	CVoid SetFCP(CFloat fcp) { m_fcp = fcp; }
+	CVoid SetPan(CFloat pan) { m_pan = pan; }
+	CVoid SetTilt(CFloat tilt) { m_tilt = tilt; }
+	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
+	CInt GetIndex() { return m_nameIndex; }
+private:
 	CFloat	m_pan;
 	CFloat	m_tilt;
-	CFloat m_x,m_y,m_z;
+	CFloat m_x, m_y, m_z;
 	CFloat	m_zoom;
+	CFloat m_ncp, m_fcp;
+	CBool m_active;
+	CVec3f m_up;
+	CVec3f m_direction;
+	CInt m_nameIndex;
+	CFloat m_cameraSpeed;
+	CBool m_enableTimer;
+	CFloat m_elaspedSeconds;
+	CFloat m_endTime;
+
+public:
+	CVoid SetTransform();  //it's use for free camera instance
+	CFloat GetCameraSpeed() { return m_cameraSpeed; }
+	CVoid SetCameraSpeed(CFloat speed) { m_cameraSpeed = speed; }
+	CVoid IncreaseOrDecreaseCameraSpeed(CFloat speed) { m_cameraSpeed += speed; }
 };
 
 #pragma once
@@ -264,8 +318,8 @@ struct CUpdateCamera
 		m_perspectiveCameraPitch = 0.0f;
 		m_perspectiveCameraTilt = 0.0f;
 		m_perspectiveCurrentCameraTilt = 0.0f;
-		m_perspectiveCameraMinTilt = -1.0f;
-		m_perspectiveCameraMaxTilt = 1.0f;
+		m_perspectiveCameraMinTilt = -0.5f;
+		m_perspectiveCameraMaxTilt = 0.5f;
 		m_perspectiveCameraZoom = 0.0;
 		m_perspectiveCurrentCameraZoom = 0.0f;
 		m_cameraSpeed = 1.0f;
@@ -282,8 +336,8 @@ struct CUpdateCamera
 		m_perspectiveCameraPitch = 0.0f;
 		m_perspectiveCameraTilt = 0.0f;
 		m_perspectiveCurrentCameraTilt = 0.0f;
-		m_perspectiveCameraMinTilt = -1.0f;
-		m_perspectiveCameraMaxTilt = 1.0f;
+		m_perspectiveCameraMinTilt = -0.5f;
+		m_perspectiveCameraMaxTilt = 0.5f;
 		m_perspectiveCameraZoom = 0.0;
 		m_perspectiveCurrentCameraZoom = 0.0f;
 		m_cameraSpeed = 1.0f;

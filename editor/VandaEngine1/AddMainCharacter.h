@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -53,7 +53,7 @@ public:
 	afx_msg void OnBnClickedButtonLoadProfile();
 	afx_msg void OnBnClickedButtonSaveProfile();
 	afx_msg void OnEnChangeEditName();
-	CVoid SetCharacterType(CCharacterType m_characterType);
+	CVoid SetCharacterCameraType(CPhysXCameraType m_characterType);
 	CVoid SetCharacterName(CChar* name);
 	CVoid SetCharacterPosition(CVec3f pos);
 	CVoid SetCharacterScale(CFloat scale);
@@ -80,7 +80,7 @@ private:
 
 	CString m_strPlayMoreIdlesEveryXSeconds;
 
-	CCharacterType m_characterType;
+	CPhysXCameraType m_characterType;
 	CVec3f m_position;
 	CFloat m_scale;
 

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -81,6 +81,8 @@ CVoid CSkyDome::Destroy()
 
 CVoid CSkyDome::RenderDome()
 {
+	glMatrixMode(GL_MODELVIEW);
+	g_render.PushMatrix();
 
 	glPushAttrib( GL_LIGHTING_BIT );
 	glDisable( GL_LIGHTING );
@@ -104,8 +106,6 @@ CVoid CSkyDome::RenderDome()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, 0, &m_texCoordBuffer[0]);
 
-	glMatrixMode( GL_MODELVIEW );
-	g_render.PushMatrix();
 	glTranslatef( m_position[0], m_position[1], m_position[2] );
 	
 	for (i = 0; i < m_numSlices; i++)
@@ -126,7 +126,11 @@ CVoid CSkyDome::RenderDome()
 	//glDisable(GL_BLEND);
 	//glEnable(GL_DEPTH_TEST);
 	glPopAttrib();
+
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+
 }
 
 CVoid CSkyDome::SetSkyTexture( CChar* path )

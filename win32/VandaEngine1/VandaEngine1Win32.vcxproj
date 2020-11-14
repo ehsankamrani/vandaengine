@@ -74,19 +74,20 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BOOST_ALL_NO_LIB;PCRE_STATIC;DOM_INCLUDE_LIBXML;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BOOST_LIB_DIAGNOSTIC;PCRE_STATIC;DOM_INCLUDE_LIBXML;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <Optimization>Full</Optimization>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libcollada14dom22-s.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcre.lib;pcrecpp.lib;minizip.lib;libboost_filesystem.lib;libboost_system.lib;ComCtl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcollada14dom22-s.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcre.lib;pcrecpp.lib;minizip.lib;ComCtl32.lib;libboost_filesystem.lib;libboost_system.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)VandaEngine1Win32.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost\lib\vc12;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc12;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc12;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +112,9 @@
     <ClCompile Include="GraphicsEngine\Base.cpp" />
     <ClCompile Include="GraphicsEngine\Bloom.cpp" />
     <ClCompile Include="GraphicsEngine\Camera.cpp" />
+    <ClCompile Include="GraphicsEngine\CHeightClass.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainTexture.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainVBOCull.cpp" />
     <ClCompile Include="GraphicsEngine\dds.cpp" />
     <ClCompile Include="Common\DecomposeMatrix.cpp" />
     <ClCompile Include="GraphicsEngine\DOF.cpp" />
@@ -119,6 +123,7 @@
     <ClCompile Include="GraphicsEngine\Fog.cpp" />
     <ClCompile Include="GraphicsEngine\Geometry.cpp" />
     <ClCompile Include="GraphicsEngine\Image.cpp" />
+    <ClCompile Include="GraphicsEngine\terrain.cpp" />
     <ClCompile Include="GUIEngine\GUI.cpp" />
     <ClCompile Include="GUIEngine\GUIBackground.cpp" />
     <ClCompile Include="GUIEngine\GUIButton.cpp" />
@@ -178,6 +183,7 @@
     <ClCompile Include="GraphicsEngine\skin.cpp" />
     <ClCompile Include="GraphicsEngine\Sky.cpp" />
     <ClCompile Include="AudioEngine\StaticSound.cpp" />
+    <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -204,6 +210,9 @@
     <ClInclude Include="GraphicsEngine\Bloom.h" />
     <ClInclude Include="GraphicsEngine\Camera.h" />
     <ClInclude Include="GraphicsEngine\Cg.h" />
+    <ClInclude Include="GraphicsEngine\CHeightClass.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainTexture.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainVBOCull.h" />
     <ClInclude Include="GraphicsEngine\dds.h" />
     <ClInclude Include="Common\DecomposeMatrix.h" />
     <ClInclude Include="Common\Defines.h" />
@@ -214,6 +223,7 @@
     <ClInclude Include="GraphicsEngine\geometry.h" />
     <ClInclude Include="GraphicsEngine\Image.h" />
     <ClInclude Include="GraphicsEngine\imageLib.h" />
+    <ClInclude Include="GraphicsEngine\terrain.h" />
     <ClInclude Include="GUIEngine\GUI.h" />
     <ClInclude Include="GUIEngine\GUIBackground.h" />
     <ClInclude Include="GUIEngine\GUIButton.h" />
@@ -227,7 +237,6 @@
     <ClInclude Include="physXEngine\Trigger.h" />
     <ClInclude Include="ResourceFile.h" />
     <ClInclude Include="sceneManagerEngine\LOD.h" />
-    <ClInclude Include="Common\LuaForCpp.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="GraphicsEngine\Material.h" />
     <ClInclude Include="GraphicsEngine\Matrix.h" />
@@ -283,6 +292,8 @@
     <ClInclude Include="GraphicsEngine\skin.h" />
     <ClInclude Include="GraphicsEngine\Sky.h" />
     <ClInclude Include="AudioEngine\StaticSound.h" />
+    <ClInclude Include="ScriptEngine\KeyboadAndMouseScript.h" />
+    <ClInclude Include="ScriptEngine\LuaForCpp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="physXEngine\Stream.h" />
     <ClInclude Include="GraphicsEngine\targa.h" />

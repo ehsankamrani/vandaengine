@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "scene.h"
@@ -306,11 +296,14 @@ CImage* CScene::GetImage( const CChar * name )
 {
 	if ( name == NULL )
 		return NULL;
-	for( CUInt i = 0; i < g_images.size(); i++ )
+	for (CUInt i = 0; i < g_images.size(); i++)
 	{
-		//if ( ICmp( g_images[i]->GetName(), name ) && ICmp( g_images[i]->GetDocURI(), DocURI ) )
-		if (ICmp(GetAfterPath(g_images[i]->GetName()), name))
-			return g_images[i];
+		if (g_images[i]->GetName())
+		{
+			//if ( ICmp( g_images[i]->GetName(), name ) && ICmp( g_images[i]->GetDocURI(), DocURI ) )
+			if (ICmp(GetAfterPath(g_images[i]->GetName()), name))
+				return g_images[i];
+		}
 	}
 	return NULL;
 }
@@ -707,15 +700,15 @@ CAnimSrc *CScene::ReadAnimationSource( domSourceRef source )
 	CAnimSrc * newSource = new CAnimSrc();
 
 	// Set the source name
-	Cpy( newSource->m_id,  source->getId() );
-	newSource->SetName( newSource->m_id ); 
+	newSource->m_id =  source->getId();
+	newSource->SetName( newSource->m_id.c_str() ); 
 	newSource->SetDocURI( source->getDocumentURI()->getURI()); 
 		
 	// Copy over the CFloat array data if any 
 	if (source->getFloat_array()) // for CFloat array
 	{
 		newSource->m_count = (CUInt) source->getFloat_array()->getCount();
-		newSource->m_array = new CFloat[newSource->m_count];
+		newSource->m_array.resize(newSource->m_count);
 
 		daeDoubleArray& floatArray = source->getFloat_array()->getValue();
 		
@@ -939,7 +932,7 @@ CNode * CScene::ReadNode( domNodeRef node, CNode * parentNode )
 		{
 			instanceCamera->m_parent = tempNode;
 			m_cameraInstances.push_back(instanceCamera);
-			g_cameraInstances.push_back(instanceCamera);
+			g_importedCameraInstances.push_back(instanceCamera);
 			//g_render.SetActiveInstanceCamera( instanceCamera );
 			//PrintInfo( "Camera added successfully\n", COLOR_WHITE );
 		}
@@ -990,6 +983,8 @@ CBool CScene::ReadNodeTransforms( CNode * tempNode, domNodeRef node )
 	{
 		for( CInt j = 0; j <=  m_numClips + 2; j++ )
 		{
+			tempNode->m_transforms.resize(m_numClips + 3);
+
 			// get the component type string
 			CTransform * transform = NULL;
 			CChar * sid = NULL;

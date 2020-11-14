@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "node.h"
 #include "Animation.h"
@@ -27,7 +18,7 @@ CVoid 	CNode::Update( 	CFloat time, CBool updateOrient )
 
 	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
 	{
-		if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX )
+		if (g_multipleView->IsPlayGameMode())
 		{
 			//CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
 			if (!(m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0)) //objects controlled by PhysX are updated in RenderModelControlledByPhysX()
@@ -44,10 +35,14 @@ CVoid 	CNode::Update( 	CFloat time, CBool updateOrient )
 	for(CUInt i=0; i< m_instanceControllers.size(); i++)
 	{
 		CInstanceGeometry * geometry = m_instanceControllers[i]->m_instanceGeometry;
-		geometry->m_abstractGeometry->ComputeAABB_Center();
 
+		if (g_render.GetScene()->m_animationClips[g_render.GetScene()->GetCurrentClipIndex()]->GetCalculateDynamicBoundingBox())
+		{
+			geometry->m_abstractGeometry->ComputeAABB_Center();
+		}
 		UpdateBoundingBox(geometry, g_currentInstancePrefab);
-		if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+
+		if (g_multipleView->IsPlayGameMode())
 		{
 			if (geometry->m_abstractGeometry->m_hasAnimation && geometry->m_hasPhysX)
 				UpdatePhysX(geometry);
@@ -75,77 +70,80 @@ CVoid CNode::UpdatePhysX( CInstanceGeometry* geometry )
 {
 	if( gPhysXscene )
 	{
-		for( CUInt j = 0; j < gPhysXscene->getNbActors(); j++ )
+		for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
 		{
-			CChar actorName[MAX_NAME_SIZE];
-			if( !gPhysXscene->getActors()[j]->getName() ) continue;
-			Cpy( actorName, gPhysXscene->getActors()[j]->getName() );
-			if( !Cmp(geometry->m_physXName, "\n" ) && Cmp( actorName, geometry->m_physXName ) )
+			if (!gPhysXscene->getActors()[j]->isSleeping())
 			{
-				//Scale, Rotation and Translation Matrices for Convex Hulls, Box, Sphere, and Cylinder
-				CMatrix ZUpRotationForSkins;
-				CMatrixLoadIdentity(ZUpRotationForSkins);
-				CNode* tempParentNode = geometry->m_node;
-				CBool foundTarget = CFalse;
+				CChar actorName[MAX_NAME_SIZE];
+				if (!gPhysXscene->getActors()[j]->getName()) continue;
+				Cpy(actorName, gPhysXscene->getActors()[j]->getName());
+				if (!Cmp(geometry->m_physXName, "\n") && Cmp(actorName, geometry->m_physXName))
+				{
+					//Scale, Rotation and Translation Matrices for Convex Hulls, Box, Sphere, and Cylinder
+					CMatrix ZUpRotationForSkins;
+					CMatrixLoadIdentity(ZUpRotationForSkins);
+					CNode* tempParentNode = geometry->m_node;
+					CBool foundTarget = CFalse;
 
-				CMatrix convexLocalToWorld;
-				const CMatrix *convex_ltow;
-				convex_ltow = /*geometry->m_node->GetLocalToWorldMatrix();*/&(geometry->m_localToWorldMatrix);
-				CMatrixCopy(*convex_ltow, convexLocalToWorld); 
-				CMatrix4x4Mult( convexLocalToWorld, ZUpRotationForSkins );
-				CMatrixCopy(ZUpRotationForSkins, convexLocalToWorld); 
+					CMatrix convexLocalToWorld;
+					const CMatrix *convex_ltow;
+					convex_ltow = /*geometry->m_node->GetLocalToWorldMatrix();*/&(geometry->m_localToWorldMatrix);
+					CMatrixCopy(*convex_ltow, convexLocalToWorld);
+					CMatrix4x4Mult(convexLocalToWorld, ZUpRotationForSkins);
+					CMatrixCopy(ZUpRotationForSkins, convexLocalToWorld);
 
-				//decomp_affine;
-				AffineParts *parts = CNew( AffineParts);
-				HMatrix A;
-				CUInt k = 0;
-				for( CUInt i = 0; i < 4; i++ )
-					for( CUInt j = 0; j < 4; j++ )
+					//decomp_affine;
+					AffineParts *parts = CNew(AffineParts);
+					HMatrix A;
+					CUInt k = 0;
+					for (CUInt i = 0; i < 4; i++)
+						for (CUInt j = 0; j < 4; j++)
+						{
+							A[j][i] = convexLocalToWorld[k];
+							k++;
+						}
+					decomp_affine(A, parts);
+					//rotation
+					CMatrix rotationMatrix;
+					CQuat qRotation(parts->q.x, parts->q.y, parts->q.z, parts->q.w);
+					CMatrixLoadIdentity(rotationMatrix);
+					CQuaternionToMatrix(&qRotation, rotationMatrix);
+
+					if (geometry->m_lodAlgorithm == eLOD_CAPSULE_METHOD1)
 					{
-						A[j][i] = convexLocalToWorld[k];
-						k++;
+						CVec4f rot(1.0, .0, 0.0, 90.0);
+						CMatrix4x4RotateAngleAxis(rotationMatrix, rot);
 					}
-				decomp_affine(A, parts);
-				//rotation
-				CMatrix rotationMatrix;
-				CQuat qRotation(parts->q.x, parts->q.y, parts->q.z, parts->q.w );
-				CMatrixLoadIdentity( rotationMatrix );
-				CQuaternionToMatrix( &qRotation, rotationMatrix );
+					else if (geometry->m_lodAlgorithm == eLOD_CAPSULE_METHOD3)//second method
+					{
+						CVec4f rot(0.0, 0.0, 1.0, 90.0);
+						CMatrix4x4RotateAngleAxis(rotationMatrix, rot);
+					}
 
-				if( geometry->m_lodAlgorithm == eLOD_CAPSULE_METHOD1 )
-				{
-					CVec4f rot( 1.0, .0, 0.0, 90.0 );
-					CMatrix4x4RotateAngleAxis( rotationMatrix, rot );
-				}
-				else if( geometry->m_lodAlgorithm == eLOD_CAPSULE_METHOD3 )//second method
-				{
-					CVec4f rot( 0.0, 0.0, 1.0, 90.0 );
-					CMatrix4x4RotateAngleAxis( rotationMatrix, rot );
-				}
+					NxVec3 row0(rotationMatrix[0], rotationMatrix[4], rotationMatrix[8]);
+					NxVec3 row1(rotationMatrix[1], rotationMatrix[5], rotationMatrix[9]);
+					NxVec3 row2(rotationMatrix[2], rotationMatrix[6], rotationMatrix[10]);
+					NxMat33 mat33(row0, row1, row2);
+					//position
+					CFloat PosX, PosY, PosZ;
 
-				NxVec3 row0(rotationMatrix[0], rotationMatrix[4], rotationMatrix[8]);
-				NxVec3 row1(rotationMatrix[1], rotationMatrix[5], rotationMatrix[9]);
-				NxVec3 row2(rotationMatrix[2], rotationMatrix[6], rotationMatrix[10]);
-				NxMat33 mat33( row0, row1, row2 );
-				//position
-				CFloat PosX, PosY, PosZ;
-
-				if( geometry->m_lodAlgorithm == eLOD_CONVEX_HULL )
-				{
-					PosX = parts->t.x; PosY = parts->t.y, PosZ = parts->t.z;
+					if (geometry->m_lodAlgorithm == eLOD_CONVEX_HULL)
+					{
+						PosX = parts->t.x; PosY = parts->t.y, PosZ = parts->t.z;
+					}
+					else
+					{
+						PosX = (geometry->m_maxLocalToWorldAABB.x + geometry->m_minLocalToWorldAABB.x) / 2.f;
+						PosY = (geometry->m_maxLocalToWorldAABB.y + geometry->m_minLocalToWorldAABB.y) / 2.f;
+						PosZ = (geometry->m_maxLocalToWorldAABB.z + geometry->m_minLocalToWorldAABB.z) / 2.f;
+					}
+					NxVec3 globalPos(PosX, PosY, PosZ);
+					//remove decomposed data
+					CDelete(parts);
+					//////
+					gPhysXscene->getActors()[j]->moveGlobalPosition(globalPos);
+					gPhysXscene->getActors()[j]->moveGlobalOrientation(mat33);
 				}
-				else
-				{
-					PosX = (geometry->m_maxLocalToWorldAABB.x + geometry->m_minLocalToWorldAABB.x ) / 2.f;
-					PosY = (geometry->m_maxLocalToWorldAABB.y + geometry->m_minLocalToWorldAABB.y )/ 2.f;
-					PosZ = (geometry->m_maxLocalToWorldAABB.z + geometry->m_minLocalToWorldAABB.z )/ 2.f;
-				}
-				NxVec3 globalPos( PosX, PosY, PosZ );
-				//remove decomposed data
-				CDelete( parts );
-				//////
-				gPhysXscene->getActors()[j]->moveGlobalPosition( globalPos );
-				gPhysXscene->getActors()[j]->moveGlobalOrientation( mat33 );
 			}
 		}
 	}
@@ -384,12 +382,12 @@ CVoid CNode::BuildLWMatrix( CFloat time )
 			}
 
 			//make sure that we use correct values for execute action
-			CFloat currentTime = g_render.GetScene()->m_animationClips[clipIndex]->GetCurrentTime();
+			CFloat currentTime = g_render.GetScene()->m_animationClips[clipIndex]->GetCurrentAnimationTime();
 			if( j >= blendListCount )
 			{
-				if( g_render.GetScene()->m_animationClips[clipIndex]->GetCurrentTime() > g_render.GetScene()->m_animationClips[clipIndex]->GetEnd() )
+				if( g_render.GetScene()->m_animationClips[clipIndex]->GetCurrentAnimationTime() > g_render.GetScene()->m_animationClips[clipIndex]->GetEnd() )
 					currentTime = g_render.GetScene()->m_animationClips[clipIndex]->GetEnd();
-				else if( g_render.GetScene()->m_animationClips[clipIndex]->GetCurrentTime() < g_render.GetScene()->m_animationClips[clipIndex]->GetStart() )
+				else if( g_render.GetScene()->m_animationClips[clipIndex]->GetCurrentAnimationTime() < g_render.GetScene()->m_animationClips[clipIndex]->GetStart() )
 					currentTime = g_render.GetScene()->m_animationClips[clipIndex]->GetStart();
 
 			}
@@ -566,257 +564,174 @@ CVoid CNode::UpdateOrient( CFloat time )
 	return;  
 }
 
-CVoid CNode::RenderGrass(CBool sceneManager, CChar* parentTreeNameOfGeometries)
-{
-	// to concate to the camera which should be already set 	
-	g_render.PushMatrix();
-	g_render.MultMatrix(m_localToWorldMatrix);
-	g_render.SetCurrentLMMat( m_localToWorldMatrix ); 
-
-	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
-	{
-		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
-		geometry->m_currentInstanceGeometry = m_instanceGeometries[i]; //used for selection color
-		if( parentTreeNameOfGeometries )
-		{
-			for ( CUInt j = 0; j < m_instanceGeometries[i]->m_parentTree.size(); j++ )
-			{
-				if( Cmp( m_instanceGeometries[i]->m_parentTree[j]->GetName(), parentTreeNameOfGeometries ) && m_instanceGeometries[i]->m_renderCount == 0 )
-				{
-					if( sceneManager )
-					{
-						if( g_camera->m_cameraManager->IsBoxInFrustum( &m_instanceGeometries[i]->m_localToWorldVertex[0], 8 ) )
-						geometry->DrawGrass(this, m_instanceGeometries[i]);
-					}
-					else
-						geometry->DrawGrass(this, m_instanceGeometries[i]);
-					m_instanceGeometries[i]->m_renderCount++;
-					//m_numTris += geometry->GetTotalNumTris();
-				}
-			}
-		}
-	}
-	g_render.PopMatrix(); 
-
-    // Render All Children 
-	if (m_children)
-		m_children->RenderGrass(sceneManager, parentTreeNameOfGeometries);
-	// Render All Siblings 
-	if (m_next)
-		m_next->RenderGrass(sceneManager, parentTreeNameOfGeometries); 
-}
-
 CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 {
 	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-	if (g_fogBlurPass)
-		g_shaderType = g_render.m_fogBlurProgram;
-	else if (g_materialChannels != eCHANNELS_ALL)//render layers in editor (View | Layers menu). this piece of code is not available in Win32 project
-	{
-		switch (g_materialChannels)
+		if (g_fogBlurPass)
+			g_shaderType = g_render.m_fogBlurProgram;
+		else if (g_materialChannels != eCHANNELS_ALL)//render layers in editor (View | Layers menu). this piece of code is not available in Win32 project
 		{
-		case eCHANNELS_DIFFUSE:
-			g_shaderType = g_render.m_shaderColorMapLayerProgram;
-			break;
-		case eCHANNELS_NORMALMAP:
-			g_shaderType = g_render.m_shaderNormalMapLayerProgram;
-			break;
-		case eCHANNELS_DIRTMAP:
-			g_shaderType = g_render.m_shaderDirtMapLayerProgram;
-			break;
-		case eCHANNELS_GLOSSMAP:
-			g_shaderType = g_render.m_shaderGlossMapLayerProgram;
-			break;
-		case eCHANNELS_ALPHAMAP:
-			g_shaderType = g_render.m_shaderAlphaMapLayerProgram;
-			break;
-		case eCHANNELS_POSITION:
-			g_shaderType = g_render.m_shaderPositionLayerProgram;
-			break;
-		case eCHANNELS_NORMAL:
-			g_shaderType = g_render.m_shaderNormalLayerProgram;
-			break;
-		}
-
-	}
-	else
-		if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
-		{
-			if (g_currentInstanceLight && g_currentInstanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
+			switch (g_materialChannels)
 			{
-				if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
+			case eCHANNELS_DIFFUSE:
+				g_shaderType = g_render.m_shaderColorMapLayerProgram;
+				break;
+			case eCHANNELS_NORMALMAP:
+				g_shaderType = g_render.m_shaderNormalMapLayerProgram;
+				break;
+			case eCHANNELS_DIRTMAP:
+				g_shaderType = g_render.m_shaderDirtMapLayerProgram;
+				break;
+			case eCHANNELS_GLOSSMAP:
+				g_shaderType = g_render.m_shaderGlossMapLayerProgram;
+				break;
+			case eCHANNELS_ALPHAMAP:
+				g_shaderType = g_render.m_shaderAlphaMapLayerProgram;
+				break;
+			case eCHANNELS_POSITION:
+				g_shaderType = g_render.m_shaderPositionLayerProgram;
+				break;
+			case eCHANNELS_NORMAL:
+				g_shaderType = g_render.m_shaderNormalLayerProgram;
+				break;
+			}
+		}
+		else if (g_renderForWater)
+		{
+			g_shaderType = g_render.m_waterShaderProgram; //currently I support low quality water reflection
+		}
+		else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
+		{
+			if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
+			{
+				switch (g_shadowProperties.m_shadowType)
 				{
-					switch (g_shadowProperties.m_shadowType)
-					{
-					case eSHADOW_SINGLE_HL:
-						g_shaderType = g_render.m_shad_single_hl_spot_normal_prog;
-						break;
-					case eSHADOW_SINGLE:
-						g_shaderType = g_render.m_shad_single_spot_normal_prog;
-						break;
-					case eSHADOW_MULTI_LEAK:
-						g_shaderType = g_render.m_shad_multi_spot_normal_prog;
-						break;
-					case eSHADOW_MULTI_NOLEAK:
-						g_shaderType = g_render.m_shad_multi_noleak_spot_normal_prog;
-						break;
-					case eSHADOW_PCF:
-						g_shaderType = g_render.m_shad_pcf_spot_normal_prog;
-						break;
-					case eSHADOW_PCF_TRILIN:
-						g_shaderType = g_render.m_shad_pcf_trilin_spot_normal_prog;
-						break;
-					case eSHADOW_PCF_4TAP:
-						g_shaderType = g_render.m_shad_pcf_4tap_spot_normal_prog;
-						break;
-					case eSHADOW_PCF_8TAP:
-						g_shaderType = g_render.m_shad_pcf_8tap_spot_normal_prog;
-						break;
-					case eSHADOW_PCF_GAUSSIAN:
-						g_shaderType = g_render.m_shad_pcf_gaussian_spot_normal_prog;
-						break;
-					}
-				}
-				else
-				{
-					switch (g_shadowProperties.m_shadowType)
-					{
-					case eSHADOW_SINGLE_HL:
-						g_shaderType = g_render.m_shad_single_hl_spot_prog;
-						break;
-					case eSHADOW_SINGLE:
-						g_shaderType = g_render.m_shad_single_spot_prog;
-						break;
-					case eSHADOW_MULTI_LEAK:
-						g_shaderType = g_render.m_shad_multi_spot_prog;
-						break;
-					case eSHADOW_MULTI_NOLEAK:
-						g_shaderType = g_render.m_shad_multi_noleak_spot_prog;
-						break;
-					case eSHADOW_PCF:
-						g_shaderType = g_render.m_shad_pcf_spot_prog;
-						break;
-					case eSHADOW_PCF_TRILIN:
-						g_shaderType = g_render.m_shad_pcf_trilin_spot_prog;
-						break;
-					case eSHADOW_PCF_4TAP:
-						g_shaderType = g_render.m_shad_pcf_4tap_spot_prog;
-						break;
-					case eSHADOW_PCF_8TAP:
-						g_shaderType = g_render.m_shad_pcf_8tap_spot_prog;
-						break;
-					case eSHADOW_PCF_GAUSSIAN:
-						g_shaderType = g_render.m_shad_pcf_gaussian_spot_prog;
-						break;
-					}
+				case eSHADOW_SINGLE_HL:
+					g_shaderType = g_render.m_shad_single_hl_normal_prog;
+					break;
+				case eSHADOW_SINGLE:
+					g_shaderType = g_render.m_shad_single_normal_prog;
+					break;
+				case eSHADOW_MULTI_LEAK:
+					g_shaderType = g_render.m_shad_multi_normal_prog;
+					break;
+				case eSHADOW_MULTI_NOLEAK:
+					g_shaderType = g_render.m_shad_multi_noleak_normal_prog;
+					break;
+				case eSHADOW_PCF:
+					g_shaderType = g_render.m_shad_pcf_normal_prog;
+					break;
+				case eSHADOW_PCF_TRILIN:
+					g_shaderType = g_render.m_shad_pcf_trilin_normal_prog;
+					break;
+				case eSHADOW_PCF_4TAP:
+					g_shaderType = g_render.m_shad_pcf_4tap_normal_prog;
+					break;
+				case eSHADOW_PCF_8TAP:
+					g_shaderType = g_render.m_shad_pcf_8tap_normal_prog;
+					break;
+				case eSHADOW_PCF_GAUSSIAN:
+					g_shaderType = g_render.m_shad_pcf_gaussian_normal_prog;
+					break;
 				}
 			}
 			else
 			{
-				if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
+				switch (g_shadowProperties.m_shadowType)
 				{
-					switch (g_shadowProperties.m_shadowType)
-					{
-					case eSHADOW_SINGLE_HL:
-						g_shaderType = g_render.m_shad_single_hl_normal_prog;
-						break;
-					case eSHADOW_SINGLE:
-						g_shaderType = g_render.m_shad_single_normal_prog;
-						break;
-					case eSHADOW_MULTI_LEAK:
-						g_shaderType = g_render.m_shad_multi_normal_prog;
-						break;
-					case eSHADOW_MULTI_NOLEAK:
-						g_shaderType = g_render.m_shad_multi_noleak_normal_prog;
-						break;
-					case eSHADOW_PCF:
-						g_shaderType = g_render.m_shad_pcf_normal_prog;
-						break;
-					case eSHADOW_PCF_TRILIN:
-						g_shaderType = g_render.m_shad_pcf_trilin_normal_prog;
-						break;
-					case eSHADOW_PCF_4TAP:
-						g_shaderType = g_render.m_shad_pcf_4tap_normal_prog;
-						break;
-					case eSHADOW_PCF_8TAP:
-						g_shaderType = g_render.m_shad_pcf_8tap_normal_prog;
-						break;
-					case eSHADOW_PCF_GAUSSIAN:
-						g_shaderType = g_render.m_shad_pcf_gaussian_normal_prog;
-						break;
-					}
-				}
-				else
-				{
-					switch (g_shadowProperties.m_shadowType)
-					{
-					case eSHADOW_SINGLE_HL:
-						g_shaderType = g_render.m_shad_single_hl_prog;
-						break;
-					case eSHADOW_SINGLE:
-						g_shaderType = g_render.m_shad_single_prog;
-						break;
-					case eSHADOW_MULTI_LEAK:
-						g_shaderType = g_render.m_shad_multi_prog;
-						break;
-					case eSHADOW_MULTI_NOLEAK:
-						g_shaderType = g_render.m_shad_multi_noleak_prog;
-						break;
-					case eSHADOW_PCF:
-						g_shaderType = g_render.m_shad_pcf_prog;
-						break;
-					case eSHADOW_PCF_TRILIN:
-						g_shaderType = g_render.m_shad_pcf_trilin_prog;
-						break;
-					case eSHADOW_PCF_4TAP:
-						g_shaderType = g_render.m_shad_pcf_4tap_prog;
-						break;
-					case eSHADOW_PCF_8TAP:
-						g_shaderType = g_render.m_shad_pcf_8tap_prog;
-						break;
-					case eSHADOW_PCF_GAUSSIAN:
-						g_shaderType = g_render.m_shad_pcf_gaussian_prog;
-						break;
-					}
+				case eSHADOW_SINGLE_HL:
+					g_shaderType = g_render.m_shad_single_hl_prog;
+					break;
+				case eSHADOW_SINGLE:
+					g_shaderType = g_render.m_shad_single_prog;
+					break;
+				case eSHADOW_MULTI_LEAK:
+					g_shaderType = g_render.m_shad_multi_prog;
+					break;
+				case eSHADOW_MULTI_NOLEAK:
+					g_shaderType = g_render.m_shad_multi_noleak_prog;
+					break;
+				case eSHADOW_PCF:
+					g_shaderType = g_render.m_shad_pcf_prog;
+					break;
+				case eSHADOW_PCF_TRILIN:
+					g_shaderType = g_render.m_shad_pcf_trilin_prog;
+					break;
+				case eSHADOW_PCF_4TAP:
+					g_shaderType = g_render.m_shad_pcf_4tap_prog;
+					break;
+				case eSHADOW_PCF_8TAP:
+					g_shaderType = g_render.m_shad_pcf_8tap_prog;
+					break;
+				case eSHADOW_PCF_GAUSSIAN:
+					g_shaderType = g_render.m_shad_pcf_gaussian_prog;
+					break;
 				}
 			}
 		}
-		else 	if (g_currentInstanceLight && g_currentInstanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT && instanceGeometry->m_abstractGeometry->m_hasNormalMap)
-		{
-			g_shaderType = g_render.m_spot_normalShaderProgram;
-		}
-		else 	if (g_currentInstanceLight && g_currentInstanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
-		{
-			g_shaderType = g_render.m_spotShaderProgram;
-		}
-
 		else if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
 			g_shaderType = g_render.m_shader_normalProgram;
 		else
 			g_shaderType = g_render.m_shaderProgram;
 
 		glUseProgram(g_shaderType);
-		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 6); // depth-maps
+		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
 		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_multipleView->far_bound);
 		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_multipleView->m_dynamicShadowMap->depth_size, 1.0f / (float)g_multipleView->m_dynamicShadowMap->depth_size);
+		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
 		glUniformMatrix4fv(glGetUniformLocation(g_shaderType, "camera_inverse_matrix"), 1, CFalse, g_multipleView->cam_inverse_modelview);
 
-		glUniform1i(glGetUniformLocation(g_shaderType, "firstPass"), g_firstPass);
-		glUniform1i(glGetUniformLocation(g_shaderType, "character_shadow"), CFalse);
-		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
-		if (g_currentInstanceLight)
+		CInt num_point_lights = 0;
+		CInt num_spot_lights = 0;
+		CInt num_dir_lights = 0;
+		//I support up to NR_DIR_LIGHTS directional light, up to NR_POINT_LIGHTS point lights, and up to NR_SPOT_LIGHT spot lights for each object
+		if (g_engineLights.size() == 0 || g_editorMode == eMODE_PREFAB)
 		{
-			glUniform1f(glGetUniformLocation(g_shaderType, "light_radius"), g_currentInstanceLight->GetRadius());
-			if (g_currentInstanceLight->m_abstractLight->GetType() == eLIGHTTYPE_POINT)
-				glUniform1f(glGetUniformLocation(g_shaderType, "pointLight"), CTrue);
-			else
-				glUniform1f(glGetUniformLocation(g_shaderType, "pointLight"), CFalse);
+			glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), 0);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), 0);
+
 		}
 		else
 		{
-			glUniform1f(glGetUniformLocation(g_shaderType, "light_radius"), 1000000.0f);
-			glUniform1f(glGetUniformLocation(g_shaderType, "pointLight"), CTrue);
+			for (CUInt i = 0; i < g_currentInstancePrefab->GetTotalLights(); i++)
+			{
+				CInstanceLight *instanceLight = g_currentInstancePrefab->m_lights[i];
+				g_currentInstanceLight = instanceLight;
+
+				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+				{
+					if (Cmp(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName()))
+						glUniform1i(glGetUniformLocation(g_shaderType, "defaultDirLightIndex"), i);
+
+					num_dir_lights++;
+				}
+				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_POINT)
+				{
+					num_point_lights++;
+					if (num_point_lights == 1)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), g_currentInstanceLight->GetRadius());
+					else if (num_point_lights == 2)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), g_currentInstanceLight->GetRadius());
+					else if (num_point_lights == 3)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
+					else if (num_point_lights == 4)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
+				}
+
+				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
+				{
+					num_spot_lights++;
+					if (num_spot_lights == 1)
+						glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[0]"), g_currentInstanceLight->GetRadius());
+				}
+
+			}
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), num_dir_lights);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), num_point_lights);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), num_spot_lights);
 		}
 
 		if (g_fogBlurPass)
@@ -825,31 +740,33 @@ CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 			glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_multipleView->m_dof.m_focalRange);
 		}
 	}
+	else
+	{
+		glUseProgram(0);
+	}
 
 }
-CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot )
-{
-	if ((g_currentCameraType == eCAMERA_DEFAULT_FREE || g_currentCameraType == eCAMERA_COLLADA ) && g_editorMode == eMODE_VSCENE)
-		return;
 
-	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
+CVoid CNode::UpdateDynamicPhysicsObjects(CNode* sceneRoot)
+{
+	for (CUInt i = 0; i< m_instanceGeometries.size(); i++)
 	{
 		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
 		geometry->m_currentInstanceGeometry = m_instanceGeometries[i]; //used for selection color
-		if( !geometry->m_hasAnimation && m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0.0f )
+		if (!geometry->m_hasAnimation && m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0.0f )
 		{
-			if( gPhysXscene )
+			if (gPhysXscene)
 			{
-				for( CUInt j = 0; j < gPhysXscene->getNbActors(); j++ )
+				for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
 				{
 					CChar actorName[MAX_URI_SIZE];
-					if( !gPhysXscene->getActors()[j]->getName() ) continue;
-					Cpy( actorName, gPhysXscene->getActors()[j]->getName() );
-					if( !Cmp(m_instanceGeometries[i]->m_physXName, "\n" ) && Cmp( actorName, m_instanceGeometries[i]->m_physXName ) )
+					if (!gPhysXscene->getActors()[j]->getName()) continue;
+					Cpy(actorName, gPhysXscene->getActors()[j]->getName());
+					if (!Cmp(m_instanceGeometries[i]->m_physXName, "\n") && Cmp(actorName, m_instanceGeometries[i]->m_physXName))
 					{
-						if( m_instanceGeometries[i]->m_physXCount == 0 )
+						if (m_instanceGeometries[i]->m_physXCount == 0)
 						{
-							if( !gPhysXscene->getActors()[j]->isSleeping() )
+							if (!gPhysXscene->getActors()[j]->isSleeping())
 							{
 								GetScene()->SetUpdateBB(CTrue);
 
@@ -858,16 +775,16 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 								pos = gPhysXscene->getActors()[j]->getGlobalPosition();
 								gPhysXscene->getActors()[j]->getGlobalOrientationQuat().getWXYZ(rot);
 								CMatrix rotationMatrix;
-								CMatrixLoadIdentity( rotationMatrix );
+								CMatrixLoadIdentity(rotationMatrix);
 								CMatrix translationMatrix;
-								CMatrixLoadIdentity( translationMatrix );
-								CQuat q( rot[1], rot[2], rot[3],rot[0]);
-								CQuaternionToMatrix( &q, rotationMatrix ); 
-								CMatrix4x4Translate( translationMatrix, CVec4f( pos.x, pos.y, pos.z, 0.0f ) );
-								CMatrixLoadIdentity( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX );
+								CMatrixLoadIdentity(translationMatrix);
+								CQuat q(rot[1], rot[2], rot[3], rot[0]);
+								CQuaternionToMatrix(&q, rotationMatrix);
+								CMatrix4x4Translate(translationMatrix, CVec4f(pos.x, pos.y, pos.z, 0.0f));
+								CMatrixLoadIdentity(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX);
 
 								CMatrix4x4Mult(translationMatrix, m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX);
-								CMatrix4x4Mult( rotationMatrix, m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX );
+								CMatrix4x4Mult(rotationMatrix, m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX);
 								CMatrix4x4Mult(m_instanceGeometries[i]->m_localToWorldMatrix/*m_localToWorldMatrix*/, m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX);
 
 								CGeometry* tempGeometry = m_instanceGeometries[i]->m_abstractGeometry;
@@ -881,23 +798,23 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 								src[6].x = tempGeometry->m_minAABB.m_i; src[6].y = tempGeometry->m_maxAABB.m_j; src[6].z = tempGeometry->m_maxAABB.m_k;
 								src[7].x = tempGeometry->m_maxAABB.m_i; src[7].y = tempGeometry->m_maxAABB.m_j; src[7].z = tempGeometry->m_maxAABB.m_k;
 
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[0], m_instanceGeometries[i]->m_localToWorldVertex[0] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[1], m_instanceGeometries[i]->m_localToWorldVertex[1] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[2], m_instanceGeometries[i]->m_localToWorldVertex[2] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[3], m_instanceGeometries[i]->m_localToWorldVertex[3] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[4], m_instanceGeometries[i]->m_localToWorldVertex[4] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[5], m_instanceGeometries[i]->m_localToWorldVertex[5] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[6], m_instanceGeometries[i]->m_localToWorldVertex[6] );
-								CMatrixTransform( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[7], m_instanceGeometries[i]->m_localToWorldVertex[7] );
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[0], m_instanceGeometries[i]->m_localToWorldVertex[0]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[1], m_instanceGeometries[i]->m_localToWorldVertex[1]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[2], m_instanceGeometries[i]->m_localToWorldVertex[2]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[3], m_instanceGeometries[i]->m_localToWorldVertex[3]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[4], m_instanceGeometries[i]->m_localToWorldVertex[4]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[5], m_instanceGeometries[i]->m_localToWorldVertex[5]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[6], m_instanceGeometries[i]->m_localToWorldVertex[6]);
+								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[7], m_instanceGeometries[i]->m_localToWorldVertex[7]);
 
 								CVec3f m_minLocalToWorld;
 								CVec3f m_maxLoaclToWorld;
 								m_minLocalToWorld.x = m_minLocalToWorld.y = m_minLocalToWorld.z = 100000000.0f;
 								m_maxLoaclToWorld.x = m_maxLoaclToWorld.y = m_maxLoaclToWorld.z = -100000000.0f;
 
-								for( CUInt k = 0; k< 8; k++ )
+								for (CUInt k = 0; k< 8; k++)
 								{
-									if(  m_instanceGeometries[i]->m_localToWorldVertex[k].x > m_maxLoaclToWorld.x )
+									if (m_instanceGeometries[i]->m_localToWorldVertex[k].x > m_maxLoaclToWorld.x)
 										m_maxLoaclToWorld.x = m_instanceGeometries[i]->m_localToWorldVertex[k].x;
 									if (m_instanceGeometries[i]->m_localToWorldVertex[k].y > m_maxLoaclToWorld.y)
 										m_maxLoaclToWorld.y = m_instanceGeometries[i]->m_localToWorldVertex[k].y;
@@ -913,31 +830,51 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 								}
 								m_instanceGeometries[i]->m_minLocalToWorldAABBControlledByPhysX = m_minLocalToWorld;
 								m_instanceGeometries[i]->m_maxLocalToWorldAABBControlledByPhysX = m_maxLoaclToWorld;
-								m_instanceGeometries[i]->m_center = ( m_instanceGeometries[i]->m_minLocalToWorldAABBControlledByPhysX + m_instanceGeometries[i]->m_maxLocalToWorldAABBControlledByPhysX ) * 0.5f;
+								m_instanceGeometries[i]->m_center = (m_instanceGeometries[i]->m_minLocalToWorldAABBControlledByPhysX + m_instanceGeometries[i]->m_maxLocalToWorldAABBControlledByPhysX) * 0.5f;
 							}
 							m_instanceGeometries[i]->m_physXCount++;
 						}
 					}
- 				}
-			}
-			g_render.ModelViewMatrix();
-			g_render.PushMatrix();
-			g_render.MultMatrix( m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX );
-			EnableShader(m_instanceGeometries[i]);
-
-			if( sceneManager )
-			{
-				if( g_camera->m_cameraManager->IsBoxInFrustum( &m_instanceGeometries[i]->m_localToWorldVertex[0], 8 ) )
-				{
-					geometry->Draw(this, m_instanceGeometries[i]);
-					g_numVerts += geometry->m_vertexcount;
 				}
 			}
-			else 
+		}
+	}
+
+
+	// Update All Children 
+	if (m_children)
+		m_children->UpdateDynamicPhysicsObjects(sceneRoot);
+	// Update All Siblings 
+	if (m_next)
+		m_next->UpdateDynamicPhysicsObjects(sceneRoot);
+}
+
+CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot )
+{
+	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
+	{
+		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
+		geometry->m_currentInstanceGeometry = m_instanceGeometries[i]; //used for selection color
+		CBool renderPhysXForFreeCamera = CFalse;
+		if (!g_multipleView->IsPlayGameMode() && g_editorMode == eMODE_VSCENE)
+		{
+			if (!geometry->m_hasAnimation && m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0.0f)
 			{
-				if( g_renderShadow ) //render for shadow
+				renderPhysXForFreeCamera = CTrue;
+			}
+		}
+		if (!geometry->m_hasAnimation && m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0.0f &&!renderPhysXForFreeCamera)
+		{
+			if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForQuery()) || (g_editorMode == eMODE_VSCENE && g_renderShadow))
+			{
+				g_render.ModelViewMatrix();
+				g_render.PushMatrix();
+				g_render.MultMatrix(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX);
+				//EnableShader(m_instanceGeometries[i]);
+
+				if (sceneManager)
 				{
-					if( m_instanceGeometries[i]->m_distanceFromCamera <= g_shadowProperties.m_shadowFarClipPlane )
+					if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 					{
 						geometry->Draw(this, m_instanceGeometries[i]);
 						g_numVerts += geometry->m_vertexcount;
@@ -948,53 +885,42 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 					geometry->Draw(this, m_instanceGeometries[i]);
 					g_numVerts += geometry->m_vertexcount;
 				}
-			}
-			//PrintInfo(" %s Rendering Children \n", Name ); 
-			g_render.PopMatrix(); 
+				//PrintInfo(" %s Rendering Children \n", Name ); 
+				g_render.PopMatrix();
+			}  //if (g_currentInstancePrefab->GetRenderForQuery())
 		}
-		else if (m_instanceGeometries[i]->m_renderWithPhysX)// render without octree. Make sure that we don't render meshes controlled by PhysX
+		else if (m_instanceGeometries[i]->m_renderWithPhysX || renderPhysXForFreeCamera)// render without octree. Make sure that we don't render meshes controlled by PhysX
 		{
-			if (!m_instanceGeometries[i]->m_abstractGeometry->m_hasAnimation)
+			if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForQuery()) || (g_editorMode == eMODE_VSCENE && g_renderShadow))
 			{
-				g_render.ModelViewMatrix();
-				g_render.PushMatrix();
-				g_render.MultMatrix(m_localToWorldMatrix);
-				g_render.SetCurrentLMMat(m_localToWorldMatrix);
-
-				if (sceneManager  && !(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX))
+				if (!m_instanceGeometries[i]->m_abstractGeometry->m_hasAnimation)
 				{
-					if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
-					{
-						EnableShader(m_instanceGeometries[i]);
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+					g_render.MultMatrix(/*m_localToWorldMatrix*/m_instanceGeometries[i]->m_localToWorldMatrix);
+					g_render.SetCurrentLMMat(/*m_localToWorldMatrix*/m_instanceGeometries[i]->m_localToWorldMatrix);
 
-						geometry->Draw(this, m_instanceGeometries[i]);
-						g_numVerts += geometry->m_vertexcount;
-					}
-				}
-				else if (!(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX))
-				{
-					if (g_renderShadow) //render for shadow
+					if (sceneManager && (!(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX) || renderPhysXForFreeCamera))
 					{
-						if (m_instanceGeometries[i]->m_distanceFromCamera <= g_shadowProperties.m_shadowFarClipPlane)
+						if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 						{
-							EnableShader(m_instanceGeometries[i]);
+							//EnableShader(m_instanceGeometries[i]);
 
 							geometry->Draw(this, m_instanceGeometries[i]);
 							g_numVerts += geometry->m_vertexcount;
 						}
 					}
-					else
+					else if (!(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX) || renderPhysXForFreeCamera)
 					{
-						EnableShader(m_instanceGeometries[i]);
+						//EnableShader(m_instanceGeometries[i]);
 
 						geometry->Draw(this, m_instanceGeometries[i]);
 						g_numVerts += geometry->m_vertexcount;
 					}
+					g_render.PopMatrix();
 
 				}
-				g_render.PopMatrix();
-
-			}
+			} //if (g_currentInstancePrefab->GetRenderForQuery())
 		} //else
 
 	}
@@ -1060,7 +986,7 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 
 			if (geometry->m_hasAnimation)
 			{
-				EnableShader(m_instanceGeometries[i]);
+				//EnableShader(m_instanceGeometries[i]);
 
 				if (sceneManager)
 				{
@@ -1072,19 +998,8 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 				}
 				else
 				{
-					if (g_renderShadow) //render for shadow
-					{
-						if (m_instanceGeometries[i]->m_distanceFromCamera <= g_shadowProperties.m_shadowFarClipPlane)
-						{
-							geometry->Draw(this, m_instanceGeometries[i]);
-							g_numVerts += geometry->m_vertexcount;
-						}
-					}
-					else
-					{
-						geometry->Draw(this, m_instanceGeometries[i]);
-						g_numVerts += geometry->m_vertexcount;
-					}
+					geometry->Draw(this, m_instanceGeometries[i]);
+					g_numVerts += geometry->m_vertexcount;
 				}
 			}
 			glPopMatrix();
@@ -1101,7 +1016,7 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 
 			if (controller->GetRenderReady() == CTrue)
 			{
-				EnableShader(geometry->m_currentInstanceGeometry);
+				//EnableShader(geometry->m_currentInstanceGeometry);
 
 				g_render.ModelViewMatrix();
 				g_render.PushMatrix();
@@ -1118,19 +1033,8 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 				}
 				else
 				{
-					if (g_renderShadow) //render for shadow
-					{
-						if (m_instanceControllers[i]->m_instanceGeometry->m_distanceFromCamera <= g_shadowProperties.m_shadowFarClipPlane)
-						{
-							geometry->Draw(this, m_instanceControllers[i]);
-							g_numVerts += geometry->m_vertexcount;
-						}
-					}
-					else
-					{
-						geometry->Draw(this, m_instanceControllers[i]);
-						g_numVerts += geometry->m_vertexcount;
-					}
+					geometry->Draw(this, m_instanceControllers[i]);
+					g_numVerts += geometry->m_vertexcount;
 				}
 				glPopMatrix();
 			}
@@ -1148,9 +1052,26 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 
 }
 
-CVoid CNode::Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool renderController )
+CVoid CNode::ResetSkinData()
 {
+	for (CUInt i = 0; i < m_instanceGeometries.size(); i++)
+	{
+		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
+		geometry->SetUpdateSkin(CTrue);
+	}
+	for (CUInt i = 0; i < m_instanceControllers.size(); i++)
+	{
+		CGeometry * geometry = m_instanceControllers[i]->m_instanceGeometry->m_abstractGeometry;
+		geometry->SetUpdateSkin(CTrue);
+	}
+	if (m_children)
+		m_children->ResetSkinData();
+	if (m_next)
+		m_next->ResetSkinData();
+}
 
+CVoid CNode::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool renderController, CBool checkVisibility, CBool drawGeometry)
+{
 	//PrintInfo(" Rendering Node %s Type %d \n", Name, (CInt32)Type ); 
 	//if (g_render.GetShowHiearchy() )
 	//	DrawLineToChildren();
@@ -1164,9 +1085,13 @@ CVoid CNode::Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBoo
 	g_render.SetCurrentLMMat( m_localToWorldMatrix ); 
 	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
 	{
-		if (g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
-			if (m_instanceGeometries[i]->m_renderWithPhysX || m_instanceGeometries[i]->m_isTrigger)
+		if (g_multipleView->IsPlayGameMode())
+			if (m_instanceGeometries[i]->m_renderWithPhysX)
 				continue;
+		if (g_multipleView->IsPlayGameMode())
+			if (m_instanceGeometries[i]->m_isTrigger)
+				continue;
+
 		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
 		geometry->m_currentInstanceGeometry = m_instanceGeometries[i]; //used for selection color
 		if( parentTreeNameOfGeometries )
@@ -1175,19 +1100,42 @@ CVoid CNode::Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBoo
 			{
 				if( Cmp( m_instanceGeometries[i]->m_parentTree[j]->GetName(), parentTreeNameOfGeometries ) && m_instanceGeometries[i]->m_renderCount == 0 )
 				{
-					EnableShader(m_instanceGeometries[i]);
+					//if (!checkVisibility)
+					//	EnableShader(m_instanceGeometries[i]);
 					if( sceneManager )
 					{
-						if( g_camera->m_cameraManager->IsBoxInFrustum( &m_instanceGeometries[i]->m_localToWorldVertex[0], 8 ) )
+						if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 						{
-							geometry->Draw(this, m_instanceGeometries[i]);
-							g_numVerts += geometry->m_vertexcount;
+							if (checkVisibility)
+							{
+								if (g_currentInstancePrefab)
+								{
+									g_currentInstancePrefab->SetRenderForQuery(CTrue);
+								}
+							}
+							else
+							{
+								if (drawGeometry)
+									geometry->Draw(this, m_instanceGeometries[i]);
+								g_numVerts += geometry->m_vertexcount;
+							}
 						}
 					}
 					else
 					{
-						geometry->Draw(this, m_instanceGeometries[i]);
-						g_numVerts += geometry->m_vertexcount;
+						if (checkVisibility)
+						{
+							if (g_currentInstancePrefab)
+							{
+								g_currentInstancePrefab->SetRenderForQuery(CTrue);
+							}
+						}
+						else
+						{
+							if (drawGeometry)
+								geometry->Draw(this, m_instanceGeometries[i]);
+							g_numVerts += geometry->m_vertexcount;
+						}
 					}
 					m_instanceGeometries[i]->m_renderCount++; //make sure that we don't render any geometries more than once
 					break;
@@ -1199,33 +1147,44 @@ CVoid CNode::Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBoo
 		{
 			if (!m_instanceGeometries[i]->m_abstractGeometry->m_hasAnimation)
 			{
-				if (sceneManager  && !(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX && g_currentCameraType == eCAMERA_DEFAULT_PHYSX ) )
+				if (sceneManager  && !(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX && g_multipleView->IsPlayGameMode()))
 				{
 					if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 					{
-						EnableShader(m_instanceGeometries[i]);
+						//if (!checkVisibility)
+						//	EnableShader(m_instanceGeometries[i]);
 
-						geometry->Draw(this, m_instanceGeometries[i]);
-						g_numVerts += geometry->m_vertexcount;
+						if (checkVisibility)
+						{
+							if (g_currentInstancePrefab)
+							{
+								g_currentInstancePrefab->SetRenderForQuery(CTrue);
+							}
+						}
+						else
+						{
+							if (drawGeometry)
+								geometry->Draw(this, m_instanceGeometries[i]);
+							g_numVerts += geometry->m_vertexcount;
+						}
 					}
 				}
-				else if (!(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX && g_currentCameraType == eCAMERA_DEFAULT_PHYSX ))
+				else if (!(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX && g_multipleView->IsPlayGameMode()))
 				{
-					if (g_renderShadow) //render for shadow
-					{
-						if (m_instanceGeometries[i]->m_distanceFromCamera <= g_shadowProperties.m_shadowFarClipPlane)
-						{
-							EnableShader(m_instanceGeometries[i]);
+					//if (!checkVisibility)
+					//	EnableShader(m_instanceGeometries[i]);
 
-							geometry->Draw(this, m_instanceGeometries[i]);
-							g_numVerts += geometry->m_vertexcount;
+					if (checkVisibility)
+					{
+						if (g_currentInstancePrefab)
+						{
+							g_currentInstancePrefab->SetRenderForQuery(CTrue);
 						}
 					}
 					else
 					{
-						EnableShader(m_instanceGeometries[i]);
-
-						geometry->Draw(this, m_instanceGeometries[i]);
+						if (drawGeometry)
+							geometry->Draw(this, m_instanceGeometries[i]);
 						g_numVerts += geometry->m_vertexcount;
 					}
 				}
@@ -1284,10 +1243,10 @@ CVoid CNode::Render( CBool sceneManager, CChar* parentTreeNameOfGeometries, CBoo
 
     // Render All Children 
 	if (m_children)
-		m_children->Render(sceneManager,parentTreeNameOfGeometries, renderController );
+		m_children->Render(sceneManager, parentTreeNameOfGeometries, renderController, checkVisibility, drawGeometry);
 	// Render All Siblings 
 	if (m_next)
-		m_next->Render(sceneManager, parentTreeNameOfGeometries, renderController); 
+		m_next->Render(sceneManager, parentTreeNameOfGeometries, renderController, checkVisibility, drawGeometry);
 }
 
 CVoid CNode::RenderAABBWithLines(CBool animatedGeo)
@@ -1295,7 +1254,7 @@ CVoid CNode::RenderAABBWithLines(CBool animatedGeo)
 	for( CUInt i = 0; i < m_instanceGeometries.size(); i++ )
 	{
 		g_render.PushMatrix();
-		if (m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity && !((g_currentCameraType == eCAMERA_DEFAULT_FREE || g_currentCameraType == eCAMERA_COLLADA) && g_editorMode == eMODE_VSCENE))
+		if (m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity && g_multipleView->IsPlayGameMode() && g_editorMode == eMODE_VSCENE)
 			g_render.MultMatrix(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX); 
 		else
 			g_render.MultMatrix(m_instanceGeometries[i]->m_localToWorldMatrix); 
@@ -1380,7 +1339,7 @@ CVoid CNode::RenderSelectionMode(CNode* sceneRoot)
 	for( CUInt i = 0; i < m_instanceGeometries.size(); i++ )
 	{
 		g_render.PushMatrix();
-		if (m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0 && !((g_currentCameraType == eCAMERA_DEFAULT_FREE || g_currentCameraType == eCAMERA_COLLADA) && g_editorMode == eMODE_VSCENE))
+		if (m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0 && g_multipleView->IsPlayGameMode() && g_editorMode == eMODE_VSCENE)
 			g_render.MultMatrix(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX );
 		else
 		{

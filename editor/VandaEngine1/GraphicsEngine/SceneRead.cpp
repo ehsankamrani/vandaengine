@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 /** 
  * The code in this file is mostly concerned with loading the various libraries from a COLLADA file into
@@ -275,7 +265,7 @@ CImage *CScene::ReadImage( domImageRef lib )
 	CImage * image = GetImage(imageElement->getId());
 	
 	CBool foundTarget = CFalse;
-	if(image && IsInTextureList( GetAfterPath(image->m_fileName ) ) )
+	if(image && IsInTextureList( GetAfterPath(image->GetFileName() ) ) )
 		foundTarget = CTrue;
 
 	if( g_useOriginalPathOfDAETextures ) //save functions. We update the new textures while importing the scenes
@@ -285,14 +275,14 @@ CImage *CScene::ReadImage( domImageRef lib )
 			if( !foundTarget )
 			{
 				CChar temp[MAX_NAME_SIZE];
-				sprintf( temp, "\n%s%s%s", "Updating Image '", GetAfterPath(image->m_fileName), "' ..." );
+				sprintf( temp, "\n%s%s%s", "Updating Image '", GetAfterPath(image->GetFileName()), "' ..." );
 				PrintInfo( temp, COLOR_YELLOW );
 				image->Destroy();
 			}
 			else //texture is in list. We don't need to update it again
 			{
 				CChar temp[MAX_NAME_SIZE];
-				sprintf( temp, "\n%s%s%s", "Image '", GetAfterPath(image->m_fileName), "' already exists." );
+				sprintf( temp, "\n%s%s%s", "Image '", GetAfterPath(image->GetFileName()), "' already exists." );
 				PrintInfo( temp, COLOR_YELLOW );
 				return image;
 			}
@@ -303,7 +293,7 @@ CImage *CScene::ReadImage( domImageRef lib )
 		if ( image )	// image is found
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf( temp, "\n%s%s%s", "Image '", GetAfterPath(image->m_fileName), "' already exists." );
+			sprintf( temp, "\n%s%s%s", "Image '", GetAfterPath(image->GetFileName()), "' already exists." );
 			PrintInfo( temp, COLOR_YELLOW );
 			return image;
 		}
@@ -332,7 +322,7 @@ CImage *CScene::ReadImage( domImageRef lib )
 			// add the newImage to the runtime 
 			if(  ! (g_useOriginalPathOfDAETextures && image) ) //save functions. We update the new textures while importing the scenes
 			{
-				AddTextureToList(GetAfterPath( newImage->m_fileName ) );
+				AddTextureToList(GetAfterPath( newImage->GetFileName() ) );
 				m_images.push_back(newImage);
 				g_images.push_back(newImage);
 			}
@@ -351,11 +341,14 @@ CImage* CScene::GetImage( const CChar * name )
 {
 	if ( name == NULL )
 		return NULL;
-	for( CUInt i = 0; i < g_images.size(); i++ )
+	for (CUInt i = 0; i < g_images.size(); i++)
 	{
 		//if ( ICmp( g_images[i]->GetName(), name ) && ICmp( g_images[i]->GetDocURI(), DocURI ) )
-		if ( ICmp( GetAfterPath(g_images[i]->GetName()), name ) )
-			return g_images[i];
+		if (g_images[i]->GetName())
+		{
+			if (ICmp(GetAfterPath(g_images[i]->GetName()), name))
+				return g_images[i];
+		}
 	}
 	return NULL;
 }
@@ -768,15 +761,15 @@ CAnimSrc *CScene::ReadAnimationSource( domSourceRef source )
 	CAnimSrc * newSource = new CAnimSrc();
 
 	// Set the source name
-	Cpy( newSource->m_id,  source->getId() );
-	newSource->SetName( newSource->m_id ); 
+	newSource->m_id = source->getId();
+	newSource->SetName( newSource->m_id.c_str() ); 
 	newSource->SetDocURI( source->getDocumentURI()->getURI()); 
 		
 	// Copy over the CFloat array data if any 
 	if (source->getFloat_array()) // for CFloat array
 	{
 		newSource->m_count = (CUInt) source->getFloat_array()->getCount();
-		newSource->m_array = new CFloat[newSource->m_count];
+		newSource->m_array.resize(newSource->m_count);
 
 		daeDoubleArray& floatArray = source->getFloat_array()->getValue();
 		
@@ -789,7 +782,7 @@ CAnimSrc *CScene::ReadAnimationSource( domSourceRef source )
 	else if (source->getName_array())
 	{
 		PrintInfo( "\nWarning! Animation source : ' ", COLOR_YELLOW );  
-		PrintInfo( newSource->m_id, COLOR_YELLOW );
+		PrintInfo( (CString)newSource->m_id.c_str(), COLOR_YELLOW );
 		PrintInfo( " ' is not supported", COLOR_YELLOW );
 		numWarnings += 1;
 	}
@@ -1004,7 +997,7 @@ CNode * CScene::ReadNode( domNodeRef node, CNode * parentNode )
 		{
 			instanceCamera->m_parent = tempNode;
 			m_cameraInstances.push_back(instanceCamera);
-			g_cameraInstances.push_back(instanceCamera);
+			g_importedCameraInstances.push_back(instanceCamera);
 			PrintInfo( "\nCamera added successfully", COLOR_WHITE );
 		}
 	}
@@ -1055,6 +1048,7 @@ CBool CScene::ReadNodeTransforms( CNode * tempNode, domNodeRef node )
 	{
 		for( CInt j = 0; j <= m_numClips + 2; j++ ) //num_clips == default values, num_clips + 1 == sum //num_clips + 2 = end frames used for last argument of execute action
 		{
+			tempNode->m_transforms.resize(m_numClips + 3);
 			// get the component type string
 			CTransform * transform = NULL;
 			CChar * sid = NULL;

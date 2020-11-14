@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -14,8 +14,8 @@
 class CStaticSound
 {
 public:
-	CStaticSound(){ m_fStaticSoundVolume = 0.0f; SetIndex(); }
-	~CStaticSound(){ alSourceStop( m_source->GetSource());alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE); /*CDelete( m_buffer );*/ CDelete( m_source ); m_VSceneList.clear(); };
+	CStaticSound(){ m_fStaticSoundVolume = 0.0f; SetIndex(); m_source = NULL; m_buffer = NULL; }
+	~CStaticSound();
 
 public:
 	CChar m_name[MAX_NAME_SIZE];
@@ -48,7 +48,6 @@ public:
 	CVoid SetSoundBuffer( COpenALSoundBuffer* buffer ) { m_buffer = buffer; }
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CVoid SetIndex(CInt index) { m_nameIndex = index; }
-
 public:
 	CChar* GetName() { return m_name; }
 	CChar* GetPath() { return m_path; }
@@ -58,6 +57,7 @@ public:
 	CFloat GetVolume() { return m_fStaticSoundVolume; }
 	CFloat GetRolloff() { return m_fStaticSoundRolloff; }
 	CFloat GetMaxDistance() { return m_fStaticSoundMaxDistance; }
+
 	CFloat GetRefrenceDistance( ) { return m_fStaticSoundReferenceDistance; }
 	CBool GetLoop() { return m_loop; }
 	CBool GetPlay() { return m_play; }

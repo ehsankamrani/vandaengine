@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddGUIBackground.cpp : implementation file
@@ -167,7 +167,7 @@ BOOL CAddGUIBackground::OnInitDialog()
 	{
 		m_fPosX = g_width / 2;
 		m_fPosY = g_height / 2;
-		m_strPosX.Format("%f", m_fPosX); m_strPosY.Format("%f", m_fPosY);
+		m_strPosX.Format("%.3f", m_fPosX); m_strPosY.Format("%.3f", m_fPosY);
 
 		m_editPosX.SetWindowTextA(m_strPosX);
 		m_editPosY.SetWindowTextA(m_strPosY);
@@ -205,8 +205,8 @@ CVoid CAddGUIBackground::SetPosition(CVec2f pos)
 	m_fPosX = pos.x;
 	m_fPosY = pos.y;
 
-	m_strPosX.Format("%f", m_fPosX);
-	m_strPosY.Format("%f", m_fPosY);
+	m_strPosX.Format("%.3f", m_fPosX);
+	m_strPosY.Format("%.3f", m_fPosY);
 }
 
 CVoid CAddGUIBackground::SetImagePath(CChar* path)
@@ -222,7 +222,7 @@ CVoid CAddGUIBackground::SetUpdateImage(CBool state)
 CVoid CAddGUIBackground::SetSize(CFloat size)
 {
 	m_fPercentage = size;
-	m_strPercentage.Format("%f", m_fPercentage);
+	m_strPercentage.Format("%.3f", m_fPercentage);
 }
 
 CChar* CAddGUIBackground::GetName()
@@ -296,6 +296,12 @@ void CAddGUIBackground::OnBnClickedOk()
 		guiBackground->LoadBackgroundImage();
 		guiBackground->SetUpdateImage(CTrue);
 		guiBackground->SetPosition(pos);
+
+		if (!Cmp(g_currentPackageAndGUIName, "\n"))
+		{
+			guiBackground->SetPackageName(g_currentGUIPackageName);
+			guiBackground->SetGUIName(g_currentGUIName);
+		}
 
 		g_guiBackgrounds.push_back(guiBackground);
 		g_guiNames.push_back(m_strName.GetBuffer(m_strName.GetLength()));

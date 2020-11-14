@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #pragma once
 #include "..//VandaEngine1Dlg.h"
@@ -145,6 +135,10 @@ typedef daeSmartRef<domChannel> domChannelRef;
  */
 class CScene : public CBase 
 {
+
+private:
+	CAnimationStatus m_animationStatus; //Play or Pause
+
 public:
 	CScene();
 	~CScene();
@@ -159,11 +153,12 @@ public:
 	CAnimation* GetAnimation( const CChar* name, const CChar* DocURI);
 	CMaterial* GetMaterial( const CChar * name, const CChar * DocURI);
 	CGeometry* GetGeometry( const CChar * name, const CChar * DocURI);
-	CVoid Render(CBool sceneManager, CChar* parentTreeNameOfGeometries = NULL, CBool renderController = CFalse );
+	CVoid UpdateDynamicPhysicsObjects();
+	CVoid Render(CBool sceneManager, CChar* parentTreeNameOfGeometries = NULL, CBool renderController = CFalse, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue );
 	CVoid RenderAnimatedModels(CBool sceneManager, CBool renderController);
+	CVoid ResetSkinData();
 	CVoid RenderModelsControlledByPhysX(CBool sceneManager);
 	CVoid CalculateDistances();
-	CVoid RenderGrass(CBool sceneManager, CChar* parentTreeNameOfGeometries );
 	CVoid SetUpdateBB(CBool update);
 	CBool GetUpdateBB();
 	CVoid RenderAABBWithLines( CBool animatedGeo = CFalse);
@@ -177,14 +172,15 @@ public:
 	CVoid SetupNormalTexture();
 	CVoid SetupDirtTexture();
 	CVoid SetupGlossTexture();
-
 	CInt Triangulate(DAE * _dae);
 	CVoid CreateTrianglesFromPolylist( domMesh *thisMesh, domPolylist *thisPolylist );
 	CVoid CreateTrianglesFromPolygons( domMesh *thisMesh, domPolygons *thisPolygons );
 	CUInt GetMaxOffset( domInputLocalOffset_Array &input_array );
-
+	CVoid SetCalculateDynamicBoundingBox(CBool set) { m_calculateDynamicBoundingBox = set; }
+	CBool GetCalculateDynamicBoundingBox() { return m_calculateDynamicBoundingBox; }
+	CBool CastShadow() { return m_castShadow; }
 	//deprecate
-	CBool m_loopAnimationAtStartup, m_playAnimation;
+	CBool m_loopAnimationAtStartup, m_playAnimation, m_alwaysVisible, m_castShadow;
 	CBool m_updateBoundingBox;
 	//new way
 	std::vector<std::string>m_executeActionList;
@@ -194,10 +190,9 @@ public:
 	CBool ClearCycle(CInt id, CFloat delay);
 	CBool ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat weightTarget = 1.0f, CBool autoLock=CFalse);
 	CBool ReverseExecuteAction(CInt id );
-
+	CBool RemoveAction(CInt id);
 	CBool UpdateAnimationLists() { return m_updateAnimationLists; }
 	CBool m_hasAnimation; //Has this scene any animations?
-	CAnimationStatus m_animationStatus; //Play or Pause
 	CBool m_updateAnimation;
 	CBool m_updateAnimationLists;
 	CBool m_update;
@@ -208,6 +203,10 @@ public:
 	std::vector<std::map<std::string, CBool>> m_prefabList; //List of all prefabs created via the editor, save functions
 	std::vector<std::string>m_textureList; //list of textures of all of the groups of current scene, save functions
 	std::vector<std::string>m_animationSceneNames;
+
+	CAnimationStatus GetAnimationStatus() { return m_animationStatus; }
+	CVoid SetAnimationStatus(CAnimationStatus status) { m_animationStatus = status; }
+
 	inline CVoid AddTextureToList(std::string textureName) //save functions
 	{
 		m_textureList.push_back(textureName);
@@ -281,7 +280,6 @@ public:
 	}
 
 	CBool m_isTrigger;
-	CBool m_isGrass;
 	CUpAxis upAxis;
 	CBool m_isVisible;
 
@@ -398,382 +396,7 @@ public:
 		return CFalse;
 	}
 
-	CInt GeneratePhysX( CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CInstanceGeometry* m_instanceGeo, CBool loadFromFile = CFalse)
-	{
-		CGeometry* m_geo = m_instanceGeo->m_abstractGeometry;
-
-		if( m_geo->m_physx_points.size() == 0 )
-		{
-			CUInt initialVertexCount = 0;
-			CUInt totalVertexCount = 0;
-			//DeIndex Mesh
-			for( CUInt groupCount = 0; groupCount < m_geo->m_groups.size(); groupCount++ )
-			{
-				CPolyGroup* triangle = m_geo->m_groups[groupCount];
-				totalVertexCount += m_geo->m_groups[groupCount]->m_count * 3;
-				if( groupCount != 0 )
-					initialVertexCount += m_geo->m_groups[groupCount-1]->m_count * 3;
-
-				DeindexMesh( initialVertexCount, totalVertexCount, m_geo, triangle );
-			}
-		}
-		if( !loadFromFile)
-		{
-			if( m_instanceGeo->m_abstractGeometry->m_collapseMap.num == 0 && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH ) )
-			{
-				PrintInfo( "\nCalculating LOD..." );
-				m_instanceGeo->m_abstractGeometry->CalculateLODInfo(algorithm);
-			}
-			else
-			{
-				if( (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH ) && (m_instanceGeo->m_prevLodAlgorithm == eLOD_LENGTH_CURVATURE ||
-				m_instanceGeo->m_prevLodAlgorithm == eLOD_LENGTH ) )
-				{
-					if( m_instanceGeo->m_prevLodAlgorithm != algorithm ) //regenerate PhysX informations
-					{
-						PrintInfo( "\nRegenerating LOD..." );
-						m_instanceGeo->m_abstractGeometry->CalculateLODInfo(algorithm);
-					}
-
-				}
-
-			}
-		}
-		//Generate PhysX mesh////////////////
-		std::vector<CFloat> vertices_temp;
-		std::vector<CInt> triangles_temp;
-		CInt num_verts;
-		if( algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH )
-		{
-			num_verts = CInt( CFloat(m_geo->m_physx_points.size() ) * (CFloat)((CFloat)percentage / 100.0f ) );
-			if( num_verts < 3 ) num_verts = 3;
-			m_geo->RegenerateIndex(num_verts, triangles_temp );
-		}
-		else
-		{
-			num_verts = CInt( m_geo->m_physx_points.size() );
-		}
-		//Scale and Rotation and Translation Matrices for Convex Hulls
-		CMatrix ZUpRotationForSkins;
-		CMatrixLoadIdentity(ZUpRotationForSkins);
-
-		CNode* tempParentNode = m_instanceGeo->m_node;
-		CBool foundTarget = CFalse;
-
-		CMatrix convexLocalToWorld;
-		const CMatrix *convex_ltow;
-		convex_ltow = m_instanceGeo->m_node->GetLocalToWorldMatrix();
-		CMatrixCopy(*convex_ltow, convexLocalToWorld); 
-		CMatrix4x4Mult( convexLocalToWorld, ZUpRotationForSkins );
-		CMatrixCopy(ZUpRotationForSkins, convexLocalToWorld); 
-
-		//decomp_affine;
-		AffineParts *parts = CNew( AffineParts);
-		HMatrix A;
-		CUInt k = 0;
-		for( CUInt i = 0; i < 4; i++ )
-			for( CUInt j = 0; j < 4; j++ )
-			{
-				A[j][i] = convexLocalToWorld[k];
-				k++;
-			}
-		decomp_affine(A, parts);
-		//rotation
-		CMatrix convexRotationMatrix;
-		CQuat convexQRotation(parts->q.x, parts->q.y, parts->q.z, parts->q.w );
-		CMatrixLoadIdentity( convexRotationMatrix );
-		CQuaternionToMatrix( &convexQRotation, convexRotationMatrix );
-
-		//////////////////////////SHEARING//////////////////////////////
-		CMatrix finalRS;
-		CMatrixLoadIdentity( finalRS );
-		//rotation scale
-		CMatrix convexRotationScaleMatrix;
-		CQuat convexQRotationScale( parts->u.x, parts->u.y, parts->u.z, parts->u.w );
-		CMatrixLoadIdentity( convexRotationScaleMatrix );
-		CQuaternionToMatrix( &convexQRotationScale, convexRotationScaleMatrix );
-		//transpose of rotation scale
-		CMatrix tConvexRotationScaleMatrix;
-		CMatrixLoadIdentity( tConvexRotationScaleMatrix );
-		CMatrixTranspose( convexRotationScaleMatrix, tConvexRotationScaleMatrix );
-		//scale factor
-		CMatrix convexScaleMatrix;
-		CVec4f convexScaleFactor( parts->f * parts->k.x, parts->f * parts->k.y, parts->f * parts->k.z, parts->f * parts->k.w );
-		CMatrixLoadIdentity( convexScaleMatrix );
-		CMatrix4x4Scale( convexScaleMatrix, convexScaleFactor );
-
-		//Compute UK(Ut) for possible shearing
-		CMatrix4x4Mult( convexRotationScaleMatrix , finalRS );
-		CMatrix4x4Mult( convexScaleMatrix , finalRS );
-		CMatrix4x4Mult( tConvexRotationScaleMatrix , finalRS );
-		///////////////////////////END OF SHEARING//////////////////////
-
-		CDelete( parts );
-
-		CVec3f convexPosition( convexLocalToWorld[12], convexLocalToWorld[13], convexLocalToWorld[14] );
-
-		NxVec3 NxConvexRow0( convexRotationMatrix[0], convexRotationMatrix[4], convexRotationMatrix[8] );
-		NxVec3 NxConvexRow1( convexRotationMatrix[1], convexRotationMatrix[5], convexRotationMatrix[9] );
-		NxVec3 NxConvexRow2( convexRotationMatrix[2], convexRotationMatrix[6], convexRotationMatrix[10] );
-		NxMat33 NxConvexMat33Rotation( NxConvexRow0, NxConvexRow1, NxConvexRow2 );
-		////////////////
-		CMatrix PhysXMatrix;
-		CMatrixLoadIdentity( PhysXMatrix );
-		tempParentNode = m_instanceGeo->m_node;
-		foundTarget = CFalse;
-		for( CUInt i = 0; i < 16; i++ )
-		{
-			PhysXMatrix[i] = m_instanceGeo->m_localToWorldMatrix[i];
-		}
-		for( CUInt i = 0; i < m_geo->m_physx_points.size(); i++ )
-		{
-			CVec3f v = *(m_geo->m_physx_points[i]);
-
-			if( algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH )
-			{
-				CVec3f tv = *(m_geo->m_physx_points[i]);
-				CMatrixTransform(PhysXMatrix, v,  tv);
-				vertices_temp.push_back(tv.x);
-				vertices_temp.push_back(tv.y);
-				vertices_temp.push_back(tv.z);
-			}
-			else
-			{
-				CVec3f tv = *(m_geo->m_physx_points[i]);
-				CMatrixTransform(finalRS, v,  tv);
-
-				vertices_temp.push_back(tv.x);
-				vertices_temp.push_back(tv.y);
-				vertices_temp.push_back(tv.z);
-			}
-		}
-		CFloat* vertices = NULL;
-		CInt* triangles = NULL;
-		if( vertices_temp.size() > 0)
-			vertices = &vertices_temp[0];
-		if( triangles_temp.size() > 0 )
-			triangles = &triangles_temp[0];
-			CBool failed = CFalse;
-		if( vertices != NULL && triangles != NULL && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH ) )
-		{
-			if( !g_multipleView->m_nx->CreateTriangleMesh( (CInt)(vertices_temp.size()/3), (CInt)(triangles_temp.size()/3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName ) )
-				failed = CTrue;
-			else
-				sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-
-		}
-		else if( vertices != NULL && algorithm == eLOD_CONVEX_HULL )
-		{
-			if( !g_multipleView->m_nx->CreateConvexMesh( (CInt)(vertices_temp.size()/3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger,  m_instanceGeo->m_abstractGeometry->m_hasAnimation ) )
-				failed = CTrue;
-			else
-				sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-		}
-		////////////////////////////////////////
-		if( algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH || algorithm == eLOD_CONVEX_HULL )
-		{
-			vertices_temp.clear();
-			triangles_temp.clear();
-			vertices = NULL;
-			triangles = NULL;
-
-			if( !failed )
-			{
-				m_instanceGeo->m_lodAlgorithm = algorithm;
-				if( algorithm != eLOD_CONVEX_HULL )
-					m_instanceGeo->m_prevLodAlgorithm = algorithm;	
-				m_instanceGeo->m_hasPhysX = CTrue;
-				m_instanceGeo->m_physXDensity = density;
-				m_instanceGeo->m_physXPercentage = percentage;
-				m_instanceGeo->m_isTrigger = isTrigger;
-				m_instanceGeo->m_isInvisible = isInvisible;
-
-				return m_instanceGeo->m_nameIndex;
-			}
-			else
-				return -1;
-		}
-		else if( algorithm == eLOD_BOX || algorithm == eLOD_TRIGGER)
-		{
-			CFloat DimX, DimY, DimZ;
-			CFloat PosX, PosY, PosZ;
-			PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x ) / 2.f;
-			PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y )/ 2.f;
-			PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z )/ 2.f;
-
-			//scale: For all of vertexes of original mesh, multiply the SR matrix by each vertex and find the bouding box
-			CVec3f m_minAABB;
-			CVec3f m_maxAABB;
-			m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
-			m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
-
-			for ( CUInt i = 0; i < vertices_temp.size()/3; i++ )
-			{
-				if( vertices_temp[i * 3] > m_maxAABB.x )
-					m_maxAABB.x =  vertices_temp[i * 3];
-				if( vertices_temp[(i*3)+1] > m_maxAABB.y )
-					m_maxAABB.y = vertices_temp[(i*3)+1];
-				if( vertices_temp[(i*3)+2]  > m_maxAABB.z)
-					m_maxAABB.z =  vertices_temp[(i*3)+2];
-
-				if( vertices_temp[i * 3] < m_minAABB.x )
-					m_minAABB.x =  vertices_temp[i * 3];
-				if( vertices_temp[(i*3)+1] < m_minAABB.y )
-					m_minAABB.y = vertices_temp[(i*3)+1];
-				if( vertices_temp[(i*3)+2]  < m_minAABB.z)
-					m_minAABB.z =  vertices_temp[(i*3)+2];
-			}
-
-
-			CVec3f min( m_minAABB.x, m_minAABB.y, m_minAABB.z );
-			CVec3f max( m_maxAABB.x, m_maxAABB.y, m_maxAABB.z );
-
-			DimX = fabs(max.x - min.x ) / 2.f;
-			DimY = fabs(max.y - min.y )/ 2.f;
-			DimZ = fabs(max.z - min.z )/ 2.f;
-			////////////////
-			if( algorithm == eLOD_BOX )
-				g_multipleView->m_nx->CreateBox(  NxVec3(PosX,PosY,PosZ), NxVec3( DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-			else
-				g_multipleView->m_nx->CreateTriggerBox(  NxVec3(PosX,PosY,PosZ), NxVec3( DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-			sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-			m_instanceGeo->m_lodAlgorithm = algorithm;	
-			m_instanceGeo->m_hasPhysX = CTrue;
-			m_instanceGeo->m_physXDensity = density;
-			m_instanceGeo->m_physXPercentage = percentage;
-			m_instanceGeo->m_isTrigger = isTrigger;
-			m_instanceGeo->m_isInvisible = isInvisible;
-
-			vertices_temp.clear();
-			triangles_temp.clear();
-			vertices = NULL;
-			triangles = NULL;
-
-			return m_instanceGeo->m_nameIndex;
-		}
-		else if( algorithm == eLOD_SPHERE)
-		{
-			CFloat PosX, PosY, PosZ;
-			PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x ) / 2.f;
-			PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y )/ 2.f;
-			PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z )/ 2.f;
-
-			CFloat radius = 0.0f;
-			for ( CUInt i = 0; i < vertices_temp.size()/3; i++ )
-			{
-				CVec3f cPos(0,0,0);
-				CVec3f vPos;
-				vPos.x = vertices_temp[i * 3]; vPos.y = vertices_temp[(i*3)+1]; vPos.z = vertices_temp[(i*3)+2] ;
-				CFloat length = (vPos - cPos).Size();
-				if( radius < length )
-					radius = length;
-			}
-			g_multipleView->m_nx->CreateSphere( NxVec3( PosX, PosY, PosZ ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-			sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-			m_instanceGeo->m_lodAlgorithm = algorithm;	
-			m_instanceGeo->m_hasPhysX = CTrue;
-			m_instanceGeo->m_physXDensity = density;
-			m_instanceGeo->m_physXPercentage = percentage;
-			m_instanceGeo->m_isTrigger = isTrigger;
-			m_instanceGeo->m_isInvisible = isInvisible;
-
-			vertices_temp.clear();
-			triangles_temp.clear();
-			vertices = NULL;
-			triangles = NULL;
-
-			return m_instanceGeo->m_nameIndex;
-		}
-		else if( algorithm == eLOD_CAPSULE_METHOD1 || algorithm == eLOD_CAPSULE_METHOD2 || algorithm == eLOD_CAPSULE_METHOD3 )
-		{
-			//For all of vertexes of original mesh, find the bouding box
-			CVec3f m_minAABB;
-			CVec3f m_maxAABB;
-			m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
-			m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
-
-			for ( CUInt i = 0; i < vertices_temp.size()/3; i++ )
-			{
-				if( vertices_temp[i * 3] > m_maxAABB.x )
-					m_maxAABB.x =  vertices_temp[i * 3];
-				if( vertices_temp[(i*3)+1] > m_maxAABB.y )
-					m_maxAABB.y = vertices_temp[(i*3)+1];
-				if( vertices_temp[(i*3)+2]  > m_maxAABB.z)
-					m_maxAABB.z =  vertices_temp[(i*3)+2];
-
-				if( vertices_temp[i * 3] < m_minAABB.x )
-					m_minAABB.x =  vertices_temp[i * 3];
-				if( vertices_temp[(i*3)+1] < m_minAABB.y )
-					m_minAABB.y = vertices_temp[(i*3)+1];
-				if( vertices_temp[(i*3)+2]  < m_minAABB.z)
-					m_minAABB.z =  vertices_temp[(i*3)+2];
-			}
-
-
-			CFloat radius, height, PosX, PosY, PosZ;
-			if( algorithm == eLOD_CAPSULE_METHOD1 )
-			{
-				CVec4f rot( 1.0, .0, 0.0, 90.0 );
-				CMatrix4x4RotateAngleAxis( convexRotationMatrix, rot );
-
-				radius = fabs(m_maxAABB.x - m_minAABB.x ) / 2.f;
-				if( radius < fabs(m_maxAABB.y - m_minAABB.y )/ 2.f )
-					radius = fabs(m_maxAABB.y - m_minAABB.y )/ 2.f;
-
-				height = fabs( fabs(m_maxAABB.z - m_minAABB.z ) - radius );
-			}
-			else if( algorithm == eLOD_CAPSULE_METHOD2 )//second method
-			{
-				radius = fabs(m_maxAABB.x - m_minAABB.x ) / 2.f;
-				if( radius < fabs(m_maxAABB.z - m_minAABB.z )/ 2.f )
-					radius = fabs(m_maxAABB.z - m_minAABB.z )/ 2.f;
-
-				height = fabs( fabs(m_maxAABB.y - m_minAABB.y ) - radius );
-			}
-			else if( algorithm == eLOD_CAPSULE_METHOD3 )//second method
-			{
-				CVec4f rot( 0.0, 0.0, 1.0, 90.0 );
-				CMatrix4x4RotateAngleAxis( convexRotationMatrix, rot );
-
-				radius = fabs(m_maxAABB.y - m_minAABB.y ) / 2.f;
-				if( radius < fabs(m_maxAABB.z - m_minAABB.z )/ 2.f )
-					radius = fabs(m_maxAABB.z - m_minAABB.z )/ 2.f;
-
-				height = fabs( fabs(m_maxAABB.x - m_minAABB.x ) - radius );
-			}
-			NxVec3 NxCapsuleRow0( convexRotationMatrix[0], convexRotationMatrix[4], convexRotationMatrix[8] );
-			NxVec3 NxCapsuleRow1( convexRotationMatrix[1], convexRotationMatrix[5], convexRotationMatrix[9] );
-			NxVec3 NxCapsuleRow2( convexRotationMatrix[2], convexRotationMatrix[6], convexRotationMatrix[10] );
-			NxMat33 NxCapsuleMat33Rotation( NxCapsuleRow0, NxCapsuleRow1, NxCapsuleRow2 );
-
-			PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x ) / 2.f;
-			PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y )/ 2.f;
-			PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z )/ 2.f;
-
-			g_multipleView->m_nx->CreateCapsule( NxVec3( PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-			sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-			m_instanceGeo->m_lodAlgorithm = algorithm;	
-			m_instanceGeo->m_hasPhysX = CTrue;
-			m_instanceGeo->m_physXDensity = density;
-			m_instanceGeo->m_physXPercentage = percentage;
-			m_instanceGeo->m_isTrigger = isTrigger;
-			m_instanceGeo->m_isInvisible = isInvisible;
-
-			vertices_temp.clear();
-			triangles_temp.clear();
-			vertices = NULL;
-			triangles = NULL;
-
-			return m_instanceGeo->m_nameIndex;
-		}
-		vertices_temp.clear();
-		triangles_temp.clear();
-		vertices = NULL;
-		triangles = NULL;
-		
-		return -1;
-	}
-
+	CInt GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CInstanceGeometry* m_instanceGeo, CBool loadFromFile = CFalse, CInstancePrefab* prefab = NULL);
 
 	CInt GeneratePhysX( CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible )
 	{
@@ -1580,7 +1203,7 @@ public:
 							}
 							else
 							{
-								MessageBox( NULL, "In order to set dirt map, you must export UV set 2 for COLLADA model", "VandaEngine Error", MB_OK | MB_ICONERROR);
+								//MessageBox( NULL, "In order to set dirt map, you must export UV set 2 for COLLADA model", "VandaEngine Error", MB_OK | MB_ICONERROR);
 								return CFalse;
 							}
 						}
@@ -1603,7 +1226,10 @@ public:
 
 							}
 							else
-								MessageBox( NULL, "In order to use dirt map, you must export UV set 2 for COLLADA model", "VandaEngine Error", MB_OK | MB_ICONERROR);
+							{
+								//MessageBox(NULL, "In order to use dirt map, you must export UV set 2 for COLLADA model", "VandaEngine Error", MB_OK | MB_ICONERROR);
+								return CFalse;
+							}
 						}
 					}
 				}
@@ -1744,7 +1370,7 @@ public:
 				{
 					if ( CUInt( m_geo->m_groups.size() ) == numGroups )
 					{
-					m_geo->RemoveDiffuse();
+						m_geo->RemoveDiffuse();
 					}
 					else
 					{
@@ -2084,6 +1710,7 @@ public:
 	CInt GetClipIndexForStartup();
 	CVoid SetClipIndexForStartup( CInt index );
 	CVoid SetClipIndex( CInt index, CBool loopAnimation = CTrue );
+	CVoid SetCurrentClipIndex(CInt index);
 	CVoid SetNextAnimation();
 	CVoid SetPrevAnimation();
 	CVoid SetCurrentClipIndex();
@@ -2091,6 +1718,11 @@ public:
 	CInt GetNumClips();
 	CVoid SetNumClips(CInt clips);
 	inline CVoid SetLoadAnimation(CBool load) { m_loadAnimation = load; }
+	CFloat GetLastKeyTime() { return m_lastKeyTime; }
+	CVoid SetLastKeyTime(CFloat time) { m_lastKeyTime = time; }
+	CFloat GetFirstKeyTime() { return m_firstKeyTime; }
+	CVoid SetFirstKeyTime(CFloat time) { m_firstKeyTime = time; }
+
 private:
 	CBool m_loadAnimation;
 	//CBool m_loadDefaultCamera;
@@ -2102,4 +1734,5 @@ private:
 	CInt m_numClips;
 	CInt m_currentClipIndex;
 	CInt m_clipIndexForStartup;
+	CBool m_calculateDynamicBoundingBox;
 };

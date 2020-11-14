@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 
@@ -48,7 +48,7 @@ END_MESSAGE_MAP()
 
 void CGUIDlg::OnBnClickedInsert()
 {
-	if (g_editorMode == eMODE_VSCENE && g_currentCameraType == eCAMERA_DEFAULT_PHYSX)
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode())
 	{
 		if (MessageBox("You can not insert GUIs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 		{

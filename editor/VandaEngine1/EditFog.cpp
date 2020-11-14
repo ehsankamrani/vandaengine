@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditFog.cpp : implementation file
@@ -76,7 +76,7 @@ BOOL CEditFog::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_strFogDensity.Format( "%f", g_fogProperties.m_fogDensity);
+	m_strFogDensity.Format( "%.3f", g_fogProperties.m_fogDensity);
 	m_editBoxFogDensity.SetWindowTextA( m_strFogDensity );
 
 	if( g_fogProperties.m_enable )

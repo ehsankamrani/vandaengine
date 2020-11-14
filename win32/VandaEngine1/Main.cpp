@@ -1,10 +1,15 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "main.h"
 #include "GraphicsEngine/Animation.h"
-
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <iostream>
+#include <sstream>
+#include "graphicsEngine\\imagelib.h"
+#include <thread>
 //Vanda C Functions to be used in Lua scripts
 CGeometry* GetGeometryFromScenes(const CChar * name, const CChar * DocURI)
 {
@@ -28,10 +33,10 @@ CInt PlaySoundLoop(lua_State *L)
 		{
 			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
 			{
-				g_engineStaticSounds[i]->m_source->SetLooping( CTrue );
+				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CTrue);
 				g_engineStaticSounds[i]->SetLoop( CTrue );
 				g_engineStaticSounds[i]->SetPlay(CTrue);
-				g_soundSystem->PlayALSound( *(g_engineStaticSounds[i]->m_source) );
+				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				break;
 			}
 		}
@@ -50,10 +55,10 @@ CInt PlaySoundOnce(lua_State *L)
 		{
 			if (Cmp(g_engineStaticSounds[i]->GetName(), lua_tostring(L, n)))
 			{
-				g_engineStaticSounds[i]->m_source->SetLooping(CFalse);
+				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CFalse);
 				g_engineStaticSounds[i]->SetLoop(CFalse);
 				g_engineStaticSounds[i]->SetPlay(CTrue);
-				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->m_source));
+				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				break;
 			}
 		}
@@ -73,7 +78,7 @@ CInt PauseSound(lua_State *L)
 			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
-				g_soundSystem->PauseALSound( *(g_engineStaticSounds[i]->m_source) );
+				g_soundSystem->PauseALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				break;
 			}
 		}
@@ -92,7 +97,7 @@ CInt StopSound(lua_State *L)
 			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
-				g_soundSystem->StopALSound( *(g_engineStaticSounds[i]->m_source) );
+				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				break;
 			}
 		}
@@ -102,6 +107,9 @@ CInt StopSound(lua_State *L)
 
 CInt BlendCycle(lua_State *L)
 {
+	//if (g_testScript)
+	//	return 0;
+
 	int argc = lua_gettop(L);
 	if (argc < 4)
 	{
@@ -109,68 +117,82 @@ CInt BlendCycle(lua_State *L)
 		return 0;
 	}
 	CScene* scene = NULL;
-
+	CBool foundPrefabInstance = CFalse;
 	//find the scene
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1));
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	for (CUInt i = 0; i < g_scene.size(); i++)
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
-		Cpy(prefabName, g_scene[i]->GetDocURI());
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
 		StringToUpper(prefabName);
-
-		CChar sceneName[MAX_NAME_SIZE];
-		Cpy(sceneName, g_scene[i]->GetName());
-		StringToUpper(sceneName);
-
 		if (Cmp(prefabName, luaToString))
 		{
-			g_scene[i]->m_animationStatus = eANIM_PLAY;
-			scene = g_scene[i];
-			break;
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = i;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+					scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+				}
+			}
 		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
 	}
 
 	if (!scene)
 	{
 		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the prefab instance '", luaToString, "'");
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
 
-	CChar luaToString2[MAX_NAME_SIZE];
-	Cpy(luaToString2, lua_tostring(L, 2));
-	StringToUpper(luaToString2);
-	CBool foundTarget = CFalse;
-	CInt index;
-	for (CInt i = 0; i < scene->GetNumClips(); i++)
-	{
-		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, scene->m_animationClips[i]->GetName());
-		StringToUpper(animationName);
-		if (Cmp(luaToString2, animationName))
-		{
-			index = i;
-			foundTarget = CTrue;
-			break;
-		}
-	}
-	if (!foundTarget)
-	{
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
-		//PrintInfo(temp, COLOR_RED);
-		return 0;
-	}
-	scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
 	return 0;
 }
 
 CInt ClearCycle(lua_State *L)
 {
+	//if (g_testScript)
+	//	return 0;
+
 	int argc = lua_gettop(L);
 	if (argc < 3)
 	{
@@ -178,144 +200,173 @@ CInt ClearCycle(lua_State *L)
 		return 0;
 	}
 	CScene* scene = NULL;
-
+	CBool foundPrefabInstance = CFalse;
 	//find the scene
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1));
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	for (CUInt i = 0; i < g_scene.size(); i++)
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
-		Cpy(prefabName, g_scene[i]->GetDocURI());
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
 		StringToUpper(prefabName);
-
-		CChar sceneName[MAX_NAME_SIZE];
-		Cpy(sceneName, g_scene[i]->GetName());
-		StringToUpper(sceneName);
-
 		if (Cmp(prefabName, luaToString))
 		{
-			g_scene[i]->m_animationStatus = eANIM_PLAY;
-			scene = g_scene[i];
-			break;
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = i;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+				}
+			}
 		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
 	}
 
 	if (!scene)
 	{
 		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the prefab instance '", luaToString, "'");
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
 
-	CChar luaToString2[MAX_NAME_SIZE];
-	Cpy(luaToString2, lua_tostring(L, 2));
-	StringToUpper(luaToString2);
-	CBool foundTarget = CFalse;
-	CInt index;
-	for (CInt i = 0; i < scene->GetNumClips(); i++)
-	{
-		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, scene->m_animationClips[i]->GetName());
-		StringToUpper(animationName);
-		if (Cmp(luaToString2, animationName))
-		{
-			index = i;
-			g_scene[i]->m_animationStatus = eANIM_PLAY;
-			foundTarget = CTrue;
-			break;
-		}
-	}
-	if (!foundTarget)
-	{
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString3, "'");
-		//PrintInfo(temp, COLOR_RED);
-		return 0;
-	}
-	scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
 	return 0;
 }
 
 CInt ExecuteAction(lua_State *L)
 {
+	//if (g_testScript)
+	//	return 0;
+
 	int argc = lua_gettop(L);
 	if (argc < 4)
 	{
-		//PrintInfo("\nPlease specify at least 4 arguments for ExecuteAction()", COLOR_RED);
+		//PrintInfo("\nPlease specify 4 arguments for ExecuteAction()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
-
+	CBool foundPrefabInstance = CFalse;
 	//find the scene
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1));
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	for (CUInt i = 0; i < g_scene.size(); i++)
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
-		Cpy(prefabName, g_scene[i]->GetDocURI());
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
 		StringToUpper(prefabName);
-
-		CChar sceneName[MAX_NAME_SIZE];
-		Cpy(sceneName, g_scene[i]->GetName());
-		StringToUpper(sceneName);
-
 		if (Cmp(prefabName, luaToString))
 		{
-			g_scene[i]->m_animationStatus = eANIM_PLAY;
-			scene = g_scene[i];
-			break;
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = i;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					CFloat weight = 1.0f;
+					CBool lock = CFalse;
+					if (argc > 4)
+						weight = lua_tonumber(L, 5);
+					if (argc > 5)
+						lock = (CBool)lua_toboolean(L, 6);
+					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+				}
+			}
 		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
 	}
 
 	if (!scene)
 	{
 		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the prefab instance '", luaToString, "'");
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
 
-	CChar luaToString2[MAX_NAME_SIZE];
-	Cpy(luaToString2, lua_tostring(L, 2));
-	StringToUpper(luaToString2);
-	CBool foundTarget = CFalse;
-	CInt index;
-	for (CInt i = 0; i < scene->GetNumClips(); i++)
-	{
-		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, scene->m_animationClips[i]->GetName());
-		StringToUpper(animationName);
-		if (Cmp(luaToString2, animationName))
-		{
-			index = i;
-			foundTarget = CTrue;
-			break;
-		}
-	}
-	if (!foundTarget)
-	{
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
-		//PrintInfo(temp, COLOR_RED);
-		return 0;
-	}
-	CFloat weight = 1.0f;
-	CBool lock = CFalse;
-	if (argc > 4)
-		weight = lua_tonumber(L, 5);
-	if (argc > 5)
-		lock = (CBool)lua_toboolean(L, 6);
-	scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 	return 0;
 }
 
 CInt ReverseExecuteAction(lua_State *L)
 {
+	//if (g_testScript)
+	//	return 0;
+
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
@@ -323,63 +374,371 @@ CInt ReverseExecuteAction(lua_State *L)
 		return 0;
 	}
 	CScene* scene = NULL;
-
+	CBool foundPrefabInstance = CFalse;
 	//find the scene
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1));
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	for (CUInt i = 0; i < g_scene.size(); i++)
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
-		Cpy(prefabName, g_scene[i]->GetDocURI());
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
 		StringToUpper(prefabName);
-
-		CChar sceneName[MAX_NAME_SIZE];
-		Cpy(sceneName, g_scene[i]->GetName());
-		StringToUpper(sceneName);
-
 		if (Cmp(prefabName, luaToString))
 		{
-			g_scene[i]->m_animationStatus = eANIM_PLAY;
-			scene = g_scene[i];
-			break;
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j)/* && g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = i;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					scene->ReverseExecuteAction(index);
+				}
+			}
 		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
 	}
 
 	if (!scene)
 	{
 		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the prefab instance '", luaToString, "'");
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
 
-	CChar luaToString2[MAX_NAME_SIZE];
-	Cpy(luaToString2, lua_tostring(L, 2));
-	StringToUpper(luaToString2);
-	CBool foundTarget = CFalse;
-	CInt index;
-	for (CInt i = 0; i < scene->GetNumClips(); i++)
+	return 0;
+}
+
+//First argument: prefab instance name
+//Second argument: animation clip name
+CInt RemoveAction(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
 	{
-		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, scene->m_animationClips[i]->GetName());
-		StringToUpper(animationName);
-		if (Cmp(luaToString2, animationName))
+		//PrintInfo("\nPlease specify 2 arguments for RemoveAction()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
 		{
-			index = i;
-			foundTarget = CTrue;
-			break;
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = i;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					scene->RemoveAction(index);
+				}
+			}
 		}
 	}
-	if (!foundTarget)
+	if (!foundPrefabInstance)
 	{
 		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
-	scene->ReverseExecuteAction(index);
+
+	if (!scene)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+//First Argument: Prefab Instance Name
+//Second Argument: Animation Clip Name
+CInt GetAnimationClipDuration(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetAnimationClipDuration()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = i;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					lua_pushnumber(L, scene->m_animationClips[index]->GetDuration());
+					return 1;
+				}
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+
+CInt SetPrefabInstanceVisible(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for SetVisible()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetVisible(CTrue);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt SetPrefabInstanceInvisible(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for SetInvisible()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetVisible(CFalse);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt PauseAnimations(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for PauseAnimations()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j)/* && g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PAUSE);
+				}
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	if (!scene)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
 	return 0;
 }
 
@@ -400,40 +759,327 @@ CInt LoadVScene(lua_State *L)
 	return 0;
 }
 
-CInt ActivateCamera( lua_State* L )
+CInt SetCurrentVSceneAsMenu(lua_State* L)
 {
+	//if (g_testScript)
+	//	return 0;
+
 	int argc = lua_gettop(L);
-
-	//find the scene
-	CChar luaToString[MAX_NAME_SIZE];
-	Cpy( luaToString, lua_tostring(L, 1) );
-	StringToUpper( luaToString );
-
-	if( Cmp( "DEFAULT_PHYSX", luaToString ) )
+	if (argc < 3)
 	{
-		g_render.SetActiveInstanceCamera( NULL );
-		g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+		//PrintInfo("\nPlease specify 3 arguments for SetCurrentVSceneAsMenu()", COLOR_RED);
+		return 0;
 	}
-	else if( Cmp( "DEFAULT_FREE", luaToString ) )
+	CBool menu = CFalse;
+	menu = (CBool)lua_toboolean(L, 1); //true or false
+	g_currentVSceneProperties.m_isMenu = menu;
+
+	CBool pause;
+	pause = (CBool)lua_toboolean(L, 2); //true or false
+	g_currentVSceneProperties.m_isPause = pause;
+	if (!g_currentVSceneProperties.m_isPause)
 	{
-		g_render.SetActiveInstanceCamera( g_render.GetDefaultInstanceCamera() );
-		g_currentCameraType = eCAMERA_DEFAULT_FREE;
+		g_timer->GetElapsedSeconds(CTrue);
+
+		if (g_main->m_tempAllPlayingSoundSources.size() != 0)
+		{
+			for (CUInt i = 0; i < g_main->m_tempAllPlayingSoundSources.size(); i++)
+			{
+				//resume matched resource sounds
+				for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+				{
+					if (g_resourceFiles[j]->GetSoundSource())
+					{
+						if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_resourceFiles[j]->GetSoundSource()->GetName()))
+							g_soundSystem->PlayALSound(*(g_resourceFiles[j]->GetSoundSource()->GetSoundSource()));
+					}
+				}
+
+				//resume matched static sounds
+				for (CUInt j = 0; j < g_engineStaticSounds.size(); j++)
+				{
+					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_engineStaticSounds[j]->GetName()))
+						g_soundSystem->PlayALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+				}
+
+				//resume matched main character sounds
+				if (g_mainCharacter)
+				{
+					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_walkSound->GetName()))
+						g_soundSystem->PlayALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
+
+					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_runSound->GetName()))
+						g_soundSystem->PlayALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
+
+					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_jumpSound->GetName()))
+						g_soundSystem->PlayALSound(*(g_mainCharacter->m_jumpSound->GetSoundSource()));
+				}
+
+				//resume matched ambient sound
+				if (g_databaseVariables.m_insertAmbientSound)
+				{
+					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_main->m_ambientSound->GetName()))
+						g_soundSystem->PlayALSound(*(g_main->m_ambientSound->GetSoundSource()));
+				}
+
+			}
+		}
+
 	}
 	else
 	{
-		for( CUInt i = 0; i < g_cameraInstances.size(); i++ )
+		//resource sounds
+		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
 		{
-			CChar camera[MAX_NAME_SIZE];
-			Cpy( camera, g_cameraInstances[i]->m_abstractCamera->GetName() );
-			StringToUpper( camera );
-
-			if( Cmp( camera, luaToString ) )
+			if (g_resourceFiles[i]->GetSoundSource())
 			{
-				g_render.SetActiveInstanceCamera(  g_cameraInstances[i] );
-				g_currentCameraType = eCAMERA_COLLADA;
-				break;
+				ALint state;
+				alGetSourcei(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
+				if (state == AL_PLAYING)
+				{
+					g_main->m_tempAllPlayingSoundSources.push_back(g_resourceFiles[i]->GetSoundSource()->GetName());
+				}
 			}
 		}
+
+		//static 3D sounds
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			ALint state;
+			alGetSourcei(g_engineStaticSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
+			if (state == AL_PLAYING)
+			{
+				g_main->m_tempAllPlayingSoundSources.push_back(g_engineStaticSounds[i]->GetName());
+			}
+		}
+
+		//ambient sound
+		if (g_databaseVariables.m_insertAmbientSound)
+		{
+			ALint state;
+			alGetSourcei(g_main->m_ambientSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
+			if (state == AL_PLAYING)
+			{
+				g_main->m_tempAllPlayingSoundSources.push_back(g_main->m_ambientSound->GetName());
+			}
+		}
+
+		//main character sounds
+		if (g_mainCharacter)
+		{
+			ALint state1;
+			alGetSourcei(g_mainCharacter->m_jumpSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state1);
+			if (state1 == AL_PLAYING)
+			{
+				g_main->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_jumpSound->GetName());
+			}
+			ALint state2;
+			alGetSourcei(g_mainCharacter->m_walkSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state2);
+			if (state2 == AL_PLAYING)
+			{
+				g_main->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_walkSound->GetName());
+			}
+			ALint state3;
+			alGetSourcei(g_mainCharacter->m_runSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state3);
+			if (state3 == AL_PLAYING)
+			{
+				g_main->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_runSound->GetName());
+			}
+		}
+	}
+
+	if (g_currentVSceneProperties.m_isMenu)
+	{
+		CInt size;
+		size = lua_tointeger(L, 3);
+		g_currentVSceneProperties.m_cursorSize = size;
+		g_main->m_mousePosition.x = (CFloat)g_width / 2.f;
+		g_main->m_mousePosition.y = (CFloat)g_height / 2.f;
+	}
+
+	return 0;
+}
+
+CInt ExitGame(lua_State *L)
+{
+	g_main->SetExitGame(CTrue);
+	return 0;
+}
+
+CInt ActivateThirdPersonCamera(lua_State *L)
+{
+	if (g_mainCharacter)
+	{
+		g_render.SetActiveInstanceCamera(NULL);
+		g_currentCameraType = eCAMERA_PHYSX;
+		g_mainCharacter->SetCameraType(ePHYSX_CAMERA_THIRD_PERSON);
+		//PrintInfo("\nDefault third person PhysX camera was activated.", COLOR_YELLOW);
+		return 0;
+	}
+	else
+	{
+		//PrintInfo("\nCouldn't find main character", COLOR_RED);
+		return 0;
+	}
+}
+
+CInt ActivateFirstPersonCamera(lua_State *L)
+{
+	if (g_mainCharacter)
+	{
+		g_render.SetActiveInstanceCamera(NULL);
+		g_currentCameraType = eCAMERA_PHYSX;
+		g_mainCharacter->SetCameraType(ePHYSX_CAMERA_FIRST_PERSON);
+		//PrintInfo("\nDefault first person PhysX camera was activated.", COLOR_YELLOW);
+		return 0;
+	}
+	else
+	{
+		//PrintInfo("\nCouldn't find main character", COLOR_RED);
+		return 0;
+	}
+}
+
+//First Argument: Imported Camera Name
+//Second Argument: End Time. Should Be Positive Value. Arbitrary Argument
+CInt ActivateImportedCamera(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify at least 1 argument for ActivateImportedCamera()", COLOR_RED);
+		return 0;
+	}
+
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundTarget = CFalse;
+	for (CUInt i = 0; i < g_importedCameraInstances.size(); i++)
+	{
+		CChar camera[MAX_NAME_SIZE];
+		Cpy(camera, g_importedCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(camera);
+
+		if (Cmp(camera, luaToString))
+		{
+			CFloat end_time = 0.0f;
+			CBool enableTimer = CFalse;
+			if (argc > 1)
+			{
+				end_time = (CFloat)lua_tonumber(L, 2);
+				if (end_time <= 0.0f)
+				{
+					enableTimer = CFalse;
+					end_time = 0.0f;
+				}
+				else
+				{
+					enableTimer = CTrue;
+				}
+			}
+
+			g_render.SetActiveInstanceCamera(g_importedCameraInstances[i]);
+			g_importedCameraInstances[i]->SetIsTimerEnabled(enableTimer);
+			g_importedCameraInstances[i]->SetEndTime(end_time);
+			g_currentCameraType = eCAMERA_COLLADA;
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nCamera '", g_importedCameraInstances[i]->m_abstractCamera->GetName(), "' was activated.");
+			//PrintInfo(temp, COLOR_RED);
+
+			foundTarget = CTrue;
+			break;
+		}
+	}
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nCoudn't find camera '", luaToString, "' to be activated.");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+//First Argument: Engine Camera Name
+//Second Argument: End Time. Should Be Positive Value. Arbitrary Argument
+
+CInt ActivateEngineCamera(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify at least 1 argument for ActivateEngineCamera()", COLOR_RED);
+		return 0;
+	}
+
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundTarget = CFalse;
+	CInt index = -1;
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar camera[MAX_NAME_SIZE];
+		Cpy(camera, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(camera);
+
+		if (Cmp(camera, luaToString))
+		{
+			CFloat end_time = 0.0f;
+			CBool enableTimer = CFalse;
+			if (argc > 1)
+			{
+				end_time = (CFloat)lua_tonumber(L, 2);
+				if (end_time <= 0.0f)
+				{
+					enableTimer = CFalse;
+					end_time = 0.0f;
+				}
+				else
+				{
+					enableTimer = CTrue;
+				}
+			}
+
+			g_render.SetActiveInstanceCamera(g_engineCameraInstances[i]);
+			g_engineCameraInstances[i]->SetActive(CTrue);
+			g_engineCameraInstances[i]->SetIsTimerEnabled(enableTimer);
+			g_engineCameraInstances[i]->SetEndTime(end_time);
+			g_currentCameraType = eCAMERA_ENGINE;
+			index = i;
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nCamera '", g_engineCameraInstances[i]->m_abstractCamera->GetName(), "' was activated.");
+			//PrintInfo(temp, COLOR_RED);
+
+			foundTarget = CTrue;
+			break;
+		}
+	}
+	if (foundTarget)
+	{
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			if (i != index)
+				g_engineCameraInstances[i]->SetActive(CFalse);
+		}
+	}
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nCoudn't find camera '", luaToString, "' to be activated.");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
 	}
 	return 0;
 }
@@ -525,7 +1171,18 @@ CInt LoadResource(lua_State *L)
 		}
 	}
 
-	return 1;
+	return 0;
+}
+
+CInt DeleteAllResources(lua_State* L)
+{
+	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+		CDelete(g_resourceFiles[j]);
+	g_resourceFiles.clear();
+
+	if (g_main && g_main->GetCursorIcon())
+		g_main->GetCursorIcon()->SetVisible(CFalse);
+	return 0;
 }
 
 CInt PlayResourceSoundLoop(lua_State *L)
@@ -569,7 +1226,7 @@ CInt PlayResourceSoundLoop(lua_State *L)
 		}
 	}
 
-	return 1;
+	return 0;
 }
 
 CInt PlayResourceSoundOnce(lua_State *L)
@@ -615,7 +1272,7 @@ CInt PlayResourceSoundOnce(lua_State *L)
 		}
 	}
 
-	return 1;
+	return 0;
 }
 
 CInt StopResourceSound(lua_State *L)
@@ -659,7 +1316,7 @@ CInt StopResourceSound(lua_State *L)
 		}
 	}
 
-	return 1;
+	return 0;
 }
 
 CInt PauseResourceSound(lua_State *L)
@@ -703,7 +1360,7 @@ CInt PauseResourceSound(lua_State *L)
 		}
 	}
 
-	return 1;
+	return 0;
 }
 
 CInt StopAllResourceSounds(lua_State *L)
@@ -716,332 +1373,7 @@ CInt StopAllResourceSounds(lua_State *L)
 		}
 	}
 
-	return 1;
-}
-
-CInt LoadGUI(lua_State *L)
-{
-	int argc = lua_gettop(L);
-	if (argc < 2)
-	{
-		MessageBoxA(NULL, "Vanda Engine 1 Error", "Please specify 2 arguments for LoadGUI()", MB_OK | MB_ICONERROR);
-		return 0;
-	}
-
-	//find the scene
-	CChar luaToString1[MAX_NAME_SIZE];
-	Cpy(luaToString1, lua_tostring(L, 1));
-	StringToUpper(luaToString1); //package name
-
-	CChar luaToString2[MAX_NAME_SIZE];
-	Cpy(luaToString2, lua_tostring(L, 2));
-	StringToUpper(luaToString2);
-
-	CChar packagePath[MAX_URI_SIZE];
-	CChar packageName[MAX_NAME_SIZE];
-	CChar guiName[MAX_NAME_SIZE];
-	CChar guiAndPackageName[MAX_NAME_SIZE];
-	CChar guiInstanceName[MAX_NAME_SIZE];
-	CChar guiPath[MAX_URI_SIZE];
-
-	Cpy(packageName, luaToString1);
-	Cpy(guiName, luaToString2);
-	Cpy(guiAndPackageName, luaToString1);
-	Append(guiAndPackageName, "_");
-	Append(guiAndPackageName, luaToString2);
-
-	Cpy(guiInstanceName, "gui_");
-	Append(guiInstanceName, luaToString1);
-	Append(guiInstanceName, "_");
-	Append(guiInstanceName, luaToString2);
-
-	Cpy(packagePath, "Assets/GUIs/");
-	Append(packagePath, luaToString1);
-	Append(packagePath, "/");
-
-	Cpy(guiPath, packagePath);
-	Append(guiPath, luaToString2);
-	Append(guiPath, "/");
-	Append(guiPath, guiAndPackageName);
-	Append(guiPath, ".gui");
-
-	for (CUInt i = 0; i < g_guis.size(); i++)
-	{
-		if (Cmp(g_guis[i]->GetName(), guiInstanceName))
-		{
-			MessageBoxA(NULL, "You have already added an instance of this GUI.", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
-			return 0;
-		}
-	}
-
-	CGUI* new_gui = CNew(CGUI);
-
-	FILE *filePtr = fopen(guiPath, "rb");
-	if (filePtr)
-	{
-		CUInt numberOfGUIButtons;
-		CUInt numberOfGUIBackgrounds;
-		CUInt numberOfGUITexts;
-
-		fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
-
-		for (CUInt i = 0; i < numberOfGUIButtons; i++)
-		{
-			CChar name[MAX_NAME_SIZE];
-			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CChar packageName[MAX_NAME_SIZE];
-			fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CChar guiName[MAX_NAME_SIZE];
-			fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CVec2f pos;
-			fread(&pos, sizeof(CVec2f), 1, filePtr);
-			pos.x *= (CFloat)g_width;
-			pos.y *= (CFloat)g_height;
-
-			CInt size;
-			fread(&size, sizeof(CInt), 1, filePtr);
-
-			CChar mainImagePath[MAX_NAME_SIZE];
-			fread(mainImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//disable image
-			CBool hasDisableImage;
-			fread(&hasDisableImage, sizeof(CBool), 1, filePtr);
-
-			CChar disableImagePath[MAX_NAME_SIZE];
-			if (hasDisableImage)
-				fread(disableImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//hover image
-			CBool hasHoverImage;
-			fread(&hasHoverImage, sizeof(CBool), 1, filePtr);
-
-			CChar hoverImagePath[MAX_NAME_SIZE];
-			if (hasHoverImage)
-				fread(hoverImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//left click image
-			CBool hasLeftClickImage;
-			fread(&hasLeftClickImage, sizeof(CBool), 1, filePtr);
-
-			CChar leftClickImagePath[MAX_NAME_SIZE];
-			if (hasLeftClickImage)
-				fread(leftClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//right click image
-			CBool hasRightClickImage;
-			fread(&hasRightClickImage, sizeof(CBool), 1, filePtr);
-
-			CChar rightClickImagePath[MAX_NAME_SIZE];
-			if (hasRightClickImage)
-				fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//left click script
-			CBool hasLeftClickScript;
-			fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
-
-			CChar leftClickScriptPath[MAX_NAME_SIZE];
-			if (hasLeftClickScript)
-				fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//right click script
-			CBool hasRightClickScript;
-			fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-			CChar rightClickScriptPath[MAX_NAME_SIZE];
-			if (hasRightClickScript)
-				fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//hover script
-			CBool hasHoverScript;
-			fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-			CChar hoverScriptPath[MAX_NAME_SIZE];
-			if (hasHoverScript)
-				fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CGUIButton* guiButton = CNew(CGUIButton);
-
-			guiButton->SetName(name);
-			guiButton->SetPackageName(packageName);
-			guiButton->SetGUIName(guiName);
-			guiButton->SetSize(size);
-			guiButton->SetMainImagePath(mainImagePath);
-			guiButton->LoadMainImage();
-			guiButton->SetPosition(pos);
-			if (hasDisableImage)
-			{
-				guiButton->SetDisableImagePath(disableImagePath);
-				guiButton->SetHasDisableImage(CTrue);
-				guiButton->LoadDisableImage();
-			}
-			else
-			{
-				guiButton->SetHasDisableImage(CFalse);
-			}
-			if (hasHoverImage)
-			{
-				guiButton->SetHoverImagePath(hoverImagePath);
-				guiButton->SetHasHoverImage(CTrue);
-				guiButton->LoadHoverImage();
-			}
-			else
-			{
-				guiButton->SetHasHoverImage(CFalse);
-			}
-			if (hasLeftClickImage)
-			{
-				guiButton->SetLeftClickImagePath(leftClickImagePath);
-				guiButton->SetHasLeftClickImage(CTrue);
-				guiButton->LoadLeftClickImage();
-			}
-			else
-			{
-				guiButton->SetHasLeftClickImage(CFalse);
-			}
-			if (hasRightClickImage)
-			{
-				guiButton->SetRightClickImagePath(rightClickImagePath);
-				guiButton->SetHasRightClickImage(CTrue);
-				guiButton->LoadRightClickImage();
-			}
-			else
-			{
-				guiButton->SetHasRightClickImage(CFalse);
-			}
-			if (hasLeftClickScript)
-			{
-				guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-				guiButton->SetHasLeftClickScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasLeftClickScript(CFalse);
-			}
-			if (hasRightClickScript)
-			{
-				guiButton->SetRightClickScriptPath(rightClickScriptPath);
-				guiButton->SetHasRightClickScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasRightClickScript(CFalse);
-			}
-			if (hasHoverScript)
-			{
-				guiButton->SetHoverScriptPath(hoverScriptPath);
-				guiButton->SetHasHoverScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasHoverScript(CFalse);
-			}
-			new_gui->AddGUIButton(guiButton);
-		}
-
-		fread(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
-
-		for (CUInt i = 0; i < numberOfGUIBackgrounds; i++)
-		{
-			CChar name[MAX_NAME_SIZE];
-			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CChar packageName[MAX_NAME_SIZE];
-			fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CChar guiName[MAX_NAME_SIZE];
-			fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CVec2f pos;
-			fread(&pos, sizeof(CVec2f), 1, filePtr);
-			pos.x *= (CFloat)g_width;
-			pos.y *= (CFloat)g_height;
-
-			CInt size;
-			fread(&size, sizeof(CInt), 1, filePtr);
-
-			CChar imagePath[MAX_NAME_SIZE];
-			fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CGUIBackground* guiBackground = CNew(CGUIBackground);
-			guiBackground->SetName(name);
-			guiBackground->SetPackageName(packageName);
-			guiBackground->SetGUIName(guiName);
-			guiBackground->SetSize(size);
-			guiBackground->SetImagePath(imagePath);
-			guiBackground->LoadBackgroundImage();
-			guiBackground->SetPosition(pos);
-
-			new_gui->AddGUIBackground(guiBackground);
-		}
-
-		fread(&numberOfGUITexts, sizeof(CUInt), 1, filePtr);
-
-		for (CUInt i = 0; i < numberOfGUITexts; i++)
-		{
-			CChar name[MAX_NAME_SIZE];
-			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CChar packageName[MAX_NAME_SIZE];
-			fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CChar guiName[MAX_NAME_SIZE];
-			fread(guiName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			CVec2f pos;
-			fread(&pos, sizeof(CVec2f), 1, filePtr);
-			pos.x *= (CFloat)g_width;
-			pos.y *= (CFloat)g_height;
-
-			CInt size;
-			fread(&size, sizeof(CInt), 1, filePtr);
-
-			CChar text[MAX_URI_SIZE];
-			fread(text, sizeof(CChar), MAX_URI_SIZE, filePtr);
-
-			CVec3f color;
-			fread(&color, sizeof(CVec3f), 1, filePtr);
-
-			CFontType font;
-			fread(&font, sizeof(CFontType), 1, filePtr);
-
-			CGUIText* guiText = CNew(CGUIText);
-			guiText->SetName(name);
-			guiText->SetPackageName(packageName);
-			guiText->SetGUIName(guiName);
-			guiText->SetPosition(pos);
-			guiText->SetSize(size);
-			guiText->SetColor(color);
-			guiText->SetText(text);
-			guiText->SetType(font);
-			if (!guiText->SetFont())
-			{
-				CDelete(guiText);
-			}
-
-			new_gui->AddGUIText(guiText);
-		}
-		new_gui->SetName(guiInstanceName);
-		new_gui->SetVisible(CFalse);
-		new_gui->SetLoadedFromScript(CTrue);
-
-		g_guis.push_back(new_gui);
-
-		fclose(filePtr);
-	}
-	else
-	{
-		CChar path[MAX_URI_SIZE];
-		sprintf(path, "\nCouldn't open the file ' %s '", guiPath);
-		MessageBoxA(NULL, "Vanda Engine 1 Error", path, MB_OK | MB_ICONERROR);
-		CDelete(new_gui);
-		return 0;
-	}
-
-	return 1;
+	return 0;
 }
 
 CInt ShowGUI(lua_State *L)
@@ -1079,7 +1411,7 @@ CInt ShowGUI(lua_State *L)
 		MessageBoxA(NULL, "Vanda Engine 1 Error", temp, MB_OK | MB_ICONERROR);
 	}
 
-	return 1;
+	return 0;
 }
 
 CInt HideGUI(lua_State* L)
@@ -1117,15 +1449,15 @@ CInt HideGUI(lua_State* L)
 		MessageBoxA(NULL, "Vanda Engine 1 Error", temp, MB_OK | MB_ICONERROR);
 	}
 
-	return 1;
+	return 0;
 }
 
-CInt ShowIcon(lua_State *L)
+CInt ShowCursorIcon(lua_State *L)
 {
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		MessageBoxA(NULL, "Vanda Engine 1 Error", "Please specify 2 arguments for ShowIcon()", MB_OK | MB_ICONERROR);
+		MessageBoxA(NULL, "Vanda Engine 1 Error", "Please specify 2 arguments for ShowCursorIcon()", MB_OK | MB_ICONERROR);
 		return 0;
 	}
 
@@ -1144,10 +1476,10 @@ CInt ShowIcon(lua_State *L)
 
 			if (Cmp(string, luaToString))
 			{
-				g_main->m_icon->SetVisible(CTrue);
-				g_main->m_icon->SetName(string);
-				g_main->m_icon->SetImage(g_resourceFiles[i]->GetImage());
-				g_main->m_icon->SetSize(lua_tonumber(L, 2));
+				g_main->GetCursorIcon()->SetVisible(CTrue);
+				g_main->GetCursorIcon()->SetName(string);
+				g_main->GetCursorIcon()->SetImage(g_resourceFiles[i]->GetImage());
+				g_main->GetCursorIcon()->SetSize(lua_tonumber(L, 2));
 
 				foundTarget = CTrue;
 				break;
@@ -1161,15 +1493,15 @@ CInt ShowIcon(lua_State *L)
 		MessageBoxA(NULL, "Vanda Engine Error", temp, MB_OK | MB_ICONERROR);
 	}
 
-	return 1;
+	return 0;
 }
 
-CInt HideIcon(lua_State *L)
+CInt HideCursorIcon(lua_State *L)
 {
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		MessageBoxA(NULL, "Vanda Engine Error", "Please specify 1 argument for ShowIcon()", MB_OK | MB_ICONERROR);
+		MessageBoxA(NULL, "Vanda Engine Error", "Please specify 1 argument for HideCursorIcon()", MB_OK | MB_ICONERROR);
 		return 0;
 	}
 
@@ -1188,7 +1520,7 @@ CInt HideIcon(lua_State *L)
 
 			if (Cmp(string, luaToString))
 			{
-				g_main->m_icon->SetVisible(CFalse);
+				g_main->GetCursorIcon()->SetVisible(CFalse);
 				foundTarget = CTrue;
 				break;
 			}
@@ -1201,8 +1533,48 @@ CInt HideIcon(lua_State *L)
 		MessageBoxA(NULL, "Vanda Engine Error", temp, MB_OK | MB_ICONERROR);
 	}
 
-	return 1;
+	return 0;
 }
+
+CInt AttachScriptToKey(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for AttachScriptToKey()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString1[MAX_NAME_SIZE];
+	Cpy(luaToString1, lua_tostring(L, 1));
+	StringToUpper(luaToString1); //keyboard or mouse key code
+
+	CChar luaToString2[MAX_NAME_SIZE];
+	Cpy(luaToString2, lua_tostring(L, 2));
+	StringToUpper(luaToString2); //Lua resource file directory
+
+	CChar luaToString3[MAX_NAME_SIZE];
+	Cpy(luaToString3, lua_tostring(L, 3));
+	StringToUpper(luaToString3); //Lua resource file name
+
+
+	CChar fileName[MAX_NAME_SIZE];
+	Cpy(fileName, "Assets/Resources/");
+
+	Append(fileName, luaToString2);
+	Append(fileName, "/");
+	Append(fileName, luaToString3);
+
+	if (Cmp("ESCAPE", luaToString1))
+		g_main->m_keyboadAndMouseScript.SetEscapeScriptFile(fileName);
+	return 0;
+}
+
+CBool CMain::firstIdle = CTrue;
+CChar CMain::currentIdleName[MAX_NAME_SIZE];
 
 CMain::CMain()
 {
@@ -1216,11 +1588,16 @@ CMain::CMain()
 	Cpy(g_currentZipFileName, "\n");
 	m_characterRotationTransition = CFalse;
 	m_previousCharacterRotation = 0.0f;
-	m_firstIdleCounter = 0;
 	m_idleCounter = 0.0f;
 	m_previousRightButtonDown = CFalse;
 	m_previousLeftButtonDown = CFalse;
-	m_icon = CNew(CIcon);
+	m_cursorIcon = CNew(CIcon);
+	Cpy(m_previousCharacterAnimationType, "\n");
+	m_menuCursorImg = NULL;
+	m_publishDebug = CFalse;
+	m_exitGame = CFalse;
+	m_mousePosition.x = (CFloat)g_width / 2.f;
+	m_mousePosition.y = (CFloat)g_height / 2.f;
 }
 
 CMain::~CMain()
@@ -1231,8 +1608,8 @@ CMain::~CMain()
 	distance_vector.clear();
 	sorted_prefabs.clear();
 
-	CDelete(m_icon);
-
+	CDelete(m_cursorIcon);
+	DeleteMenuCursorTexture();
 }
 
 void CMain::RemoveSelectedScene(CChar* szBuffer, CChar* sceneId)
@@ -1289,22 +1666,22 @@ void CMain::RemoveSelectedScene(CChar* szBuffer, CChar* sceneId)
 											CGeometry* m_geo = g_scene[m]->m_instanceGeometries[n]->m_abstractGeometry;
 											for (CUInt o = 0; o < m_geo->m_groups.size(); o++)
 											{
-												if (m_geo->m_groups[o]->m_hasDiffuse && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_diffuseImg->m_fileName)))
+												if (m_geo->m_groups[o]->m_hasDiffuse && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_diffuseImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
 												}
-												else if (m_geo->m_groups[o]->m_hasNormalMap && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_normalMapImg->m_fileName)))
+												else if (m_geo->m_groups[o]->m_hasNormalMap && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_normalMapImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
 												}
-												else if (m_geo->m_groups[o]->m_hasGlossMap && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_glossMapImg->m_fileName)))
+												else if (m_geo->m_groups[o]->m_hasGlossMap && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_glossMapImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
 												}
-												else if (m_geo->m_groups[o]->m_hasDirtMap && Cmp(GetAfterPath(currentImage->m_fileName), GetAfterPath(m_geo->m_groups[o]->m_dirtMapImg->m_fileName)))
+												else if (m_geo->m_groups[o]->m_hasDirtMap && Cmp(GetAfterPath(currentImage->GetFileName()), GetAfterPath(m_geo->m_groups[o]->m_dirtMapImg->GetFileName())))
 												{
 													foundTarget = CTrue;
 													break;
@@ -1321,7 +1698,7 @@ void CMain::RemoveSelectedScene(CChar* szBuffer, CChar* sceneId)
 								{
 									for (CUInt p = 0; p < g_images.size(); p++)
 									{
-										if (Cmp(GetAfterPath(g_images[p]->m_fileName), GetAfterPath(currentImage->m_fileName)))
+										if (Cmp(GetAfterPath(g_images[p]->GetFileName()), GetAfterPath(currentImage->GetFileName())))
 										{
 											CDelete(currentImage);
 											g_images.erase(g_images.begin() + p);
@@ -1450,25 +1827,41 @@ CBool CMain::Init()
 	lua_register(g_lua, "PlaySoundOnce", PlaySoundOnce);
 	lua_register(g_lua, "PauseSound", PauseSound);
 	lua_register(g_lua, "StopSound", StopSound);
+
 	lua_register(g_lua, "BlendCycle", BlendCycle);
 	lua_register(g_lua, "ClearCycle", ClearCycle);
 	lua_register(g_lua, "ExecuteAction", ExecuteAction);
 	lua_register(g_lua, "ReverseExecuteAction", ReverseExecuteAction);
+	lua_register(g_lua, "RemoveAction", RemoveAction);
+	lua_register(g_lua, "GetAnimationClipDuration", GetAnimationClipDuration);
+	lua_register(g_lua, "PauseAnimations", PauseAnimations);
+
 	lua_register(g_lua, "LoadVScene", LoadVScene);
-	lua_register(g_lua, "ActivateCamera", ActivateCamera);
+	lua_register(g_lua, "ExitGame", ExitGame);
+	lua_register(g_lua, "SetCurrentVSceneAsMenu", SetCurrentVSceneAsMenu);
+
+	lua_register(g_lua, "ActivateThirdPersonCamera", ActivateThirdPersonCamera);
+	lua_register(g_lua, "ActivateFirstPersonCamera", ActivateFirstPersonCamera);
+	lua_register(g_lua, "ActivateImportedCamera", ActivateImportedCamera);
+	lua_register(g_lua, "ActivateEngineCamera", ActivateEngineCamera);
 
 	lua_register(g_lua, "LoadResource", LoadResource);
+	lua_register(g_lua, "DeleteAllResources", DeleteAllResources);
 	lua_register(g_lua, "PlayResourceSoundLoop", PlayResourceSoundLoop);
 	lua_register(g_lua, "PlayResourceSoundOnce", PlayResourceSoundOnce);
 	lua_register(g_lua, "StopResourceSound", StopResourceSound);
 	lua_register(g_lua, "PauseResourceSound", PauseResourceSound);
 	lua_register(g_lua, "StopAllResourceSounds", StopAllResourceSounds);
+	lua_register(g_lua, "ShowCursorIcon", ShowCursorIcon);
+	lua_register(g_lua, "HideCursorIcon", HideCursorIcon);
+	lua_register(g_lua, "AttachScriptToKey", AttachScriptToKey);
 
-	lua_register(g_lua, "LoadGUI", LoadGUI);
 	lua_register(g_lua, "ShowGUI", ShowGUI);
 	lua_register(g_lua, "HideGUI", HideGUI);
-	lua_register(g_lua, "ShowIcon", ShowIcon);
-	lua_register(g_lua, "HideIcon", HideIcon);
+
+	lua_register(g_lua, "SetPrefabInstanceVisible", SetPrefabInstanceVisible);
+	lua_register(g_lua, "SetPrefabInstanceInvisible", SetPrefabInstanceInvisible);
+
 
 	////////////////////////////////
 
@@ -1540,10 +1933,21 @@ CBool CMain::Init()
 	}
 
 	g_render.Init();
+	if (!g_render.m_shaderAvailable)
+	{
+		MessageBoxA(NULL, "Couldn't initialize shaders", "Error", MB_OK | MB_ICONERROR);
+		return false;
+	}
 	g_camera = new CUpdateCamera();
 
-	//ilInit();
-	//iluInit();
+	if (!g_render.SupportForFBOs() || !g_render.SupportForVBOs())
+	{
+		MessageBoxA(NULL, "Your implementation doesn't support FBO or VBO.\nUpdating the driver of your graphics card may solve the issue", "Error", MB_OK | MB_ICONERROR);
+		return false;
+	}
+
+	ilInit();
+	iluInit();
 	if(GLEW_ARB_color_buffer_float)
 	{
 		glClampColorARB( GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE );
@@ -1580,6 +1984,7 @@ CBool CMain::Init()
 		g_render.m_useWaterReflection = CFalse;
 	}
 	g_octree = CNew( COctree );
+
 	return CTrue;
 }
 
@@ -1654,6 +2059,7 @@ CVoid CMain::Release()
 
 	CDelete( m_dynamicShadowMap );
 	CDelete( g_skyDome );
+	CDelete(g_terrain);
 	CDelete(g_startup);
 
 	for( std::vector<CInstanceLight*>::iterator it = g_engineLights.begin(); it != g_engineLights.end(); it++ )
@@ -1663,6 +2069,12 @@ CVoid CMain::Release()
 	}
 	g_engineLights.clear();
 
+	for (std::vector<CInstanceCamera*>::iterator it = g_engineCameraInstances.begin(); it != g_engineCameraInstances.end(); it++)
+	{
+		CDelete((*it)->m_abstractCamera);
+		CDelete(*it);
+	}
+	g_engineCameraInstances.clear();
 
 	for( std::vector<CWater*>::iterator it = g_engineWaters.begin(); it != g_engineWaters.end(); it++ )
 	{
@@ -1670,9 +2082,9 @@ CVoid CMain::Release()
 	}
 	g_engineWaters.clear();
 
-	for( std::vector<CStaticSound*>::iterator it = g_engineStaticSounds.begin(); it != g_engineStaticSounds.end(); it++ )
+	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
-		CDelete( *it );
+		CDelete(g_engineStaticSounds[i]);
 	}
 	g_engineStaticSounds.clear();
 
@@ -1698,6 +2110,14 @@ CVoid CMain::Release()
 	}
 	if( g_waterImages.size() > 0 )
 		g_waterImages.clear();
+
+	//Delete Resource Files
+	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+		CDelete(g_resourceFiles[j]);
+	g_resourceFiles.clear();
+
+	if (g_main && g_main->GetCursorIcon())
+		g_main->GetCursorIcon()->SetVisible(CFalse);
 
 	//Release Audio
 	CDelete( m_ambientSound );
@@ -1727,10 +2147,62 @@ CVoid CMain::ResetTimer()
 	m_totalElapsedTime = 0;
 }
 
+CVoid CMain::CalculateDistnces(CBool force)
+{
+	//calculate the distance of instance prefabs from camera
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		if (!force)
+		{
+			if (!m_calculateDistance && !g_instancePrefab[i]->GetIsAnimated() && !g_instancePrefab[i]->GetIsControlledByPhysX()) continue;
+			if (!g_instancePrefab[i]->GetVisible2()) continue;
+		}
+		//CScene* scene = NULL;
+
+		//CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+		//for (CUInt j = 0; j < 3; j++)
+		//{
+		//	if (prefab && prefab->GetHasLod(j))
+		//	{
+		//		scene = g_instancePrefab[i]->GetScene(j);
+		//		if (scene)
+		//			scene->CalculateDistances();
+		//	}
+		//}
+		g_instancePrefab[i]->CalculateDistance();
+	}
+	if (m_calculateDistance || force)
+	{
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			g_engineLights[i]->CalculateDistance();
+		}
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			g_engineWaters[i]->CalculateDistance();
+		}
+	}
+}
+
 CBool CMain::Render()
 {
+	if (g_clickedOpen)
+		return CTrue;
 	g_numVerts = 0; //debug info
-	UpdateAnimations();
+
+	if (GetExitGame()) return CFalse; //exit game 
+
+	if (!g_currentVSceneProperties.m_isPause)
+	{
+		elapsedTime = g_timer->GetElapsedSeconds();
+		g_elapsedTime = elapsedTime;
+		m_totalElapsedTime += elapsedTime;
+
+		//use multithreading for animations
+		/*std::thread t1(&CMain::*/UpdateAnimations();/*, this, false)*/;
+		//t1.join();
+		UpdateDynamicPhysicsObjects();
+	}
 
 	if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
 		g_render.BindFBO(m_mFboID);
@@ -1747,22 +2219,19 @@ CBool CMain::Render()
 		glDrawBuffer( GL_BACK );
 	m_cameraTypeOfPreviousFrame = m_cameraType;
 
-	elapsedTime = g_timer->GetElapsedSeconds();
-	g_elapsedTime = elapsedTime;
-	m_totalElapsedTime += elapsedTime;
 
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
+	if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	{
 		CInstanceCamera *instanceCamera = g_render.GetDefaultInstanceCamera();
 		if (instanceCamera)
 		{
-			m_cameraType = eCAMERA_DEFAULT_FREE;
-			SetInstanceCamera(instanceCamera, g_width / 2., g_height / 2.);
+			m_cameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
+			SetInstanceCamera(instanceCamera, g_width / 2.f, g_height / 2.f, instanceCamera->m_abstractCamera->GetAngle(), g_cameraProperties.m_freePerspectiveNCP, g_cameraProperties.m_freePerspectiveFCP);
 			m_lockInput = CFalse;
 		}
 		else
 		{
-			g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+			g_currentCameraType = eCAMERA_PHYSX;
 		}
 	}
 	CInstanceCamera *instanceCamera = g_render.GetActiveInstanceCamera();
@@ -1770,22 +2239,90 @@ CBool CMain::Render()
 	{
 		if( instanceCamera )		
 		{
-			m_cameraType = eCAMERA_COLLADA;
+			CBool enableColladaCamera = CTrue;
+			if (instanceCamera->IsTimerEnabled())
+			{
+				if (!instanceCamera->IncreaseElapsedSeconds(elapsedTime))
+					enableColladaCamera = CFalse;
+			}
+			if (enableColladaCamera)
+			{
+				m_cameraType = eCAMERA_COLLADA;
 
-			m_lockInput = CTrue;
-			SetInstanceCamera(instanceCamera, g_width / 2., g_height / 2.);
+				m_lockInput = CTrue;
+				CFloat m_fov, m_zNear, m_zFar;
+
+				if (g_cameraProperties.m_readDAECameraFOVFromFile)
+					m_fov = instanceCamera->m_abstractCamera->GetYFov();
+				else
+					m_fov = g_cameraProperties.m_daeCameraFOV;
+
+				if (g_cameraProperties.m_readDAECameraNCPFromFile)
+					m_zNear = instanceCamera->m_abstractCamera->GetZNear();
+				else
+					m_zNear = g_cameraProperties.m_daeCameraNCP;
+
+				if (g_cameraProperties.m_readDAECameraFCPFromFile)
+					m_zFar = instanceCamera->m_abstractCamera->GetZFar();
+				else
+					m_zFar = g_cameraProperties.m_daeCameraFCP;
+
+
+				SetInstanceCamera(instanceCamera, g_width / 2.f, g_height / 2.f, m_fov, m_zNear, m_zFar);
+			}
+			else
+			{
+				g_currentCameraType = eCAMERA_PHYSX;
+				g_render.SetActiveInstanceCamera(NULL);
+			}
 		}
 		else
 		{
-			g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+			g_currentCameraType = eCAMERA_PHYSX;
 		}
 	}
-	if( g_currentCameraType == eCAMERA_DEFAULT_PHYSX )
+	if (g_currentCameraType == eCAMERA_ENGINE)
 	{
-		m_cameraType = eCAMERA_DEFAULT_PHYSX;
+		CBool foundTarget = CFalse;
+		for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+		{
+			if (g_engineCameraInstances[c]->IsActive())
+			{
+				if (g_engineCameraInstances[c]->IsTimerEnabled())
+				{
+					if (g_engineCameraInstances[c]->IncreaseElapsedSeconds(elapsedTime))
+					{
+						SetInstanceCamera(g_engineCameraInstances[c], g_width / 2.f, g_height / 2.f, g_engineCameraInstances[c]->m_abstractCamera->GetAngle(), g_engineCameraInstances[c]->GetNCP(), g_engineCameraInstances[c]->GetFCP());
+						g_render.SetActiveInstanceCamera(g_engineCameraInstances[c]);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+				else
+				{
+					SetInstanceCamera(g_engineCameraInstances[c], g_width / 2.f, g_height / 2.f, g_engineCameraInstances[c]->m_abstractCamera->GetAngle(), g_engineCameraInstances[c]->GetNCP(), g_engineCameraInstances[c]->GetFCP());
+					g_render.SetActiveInstanceCamera(g_engineCameraInstances[c]);
+					foundTarget = CTrue;
+					break;
+				}
+				if (!foundTarget)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+					g_render.SetActiveInstanceCamera(NULL);
+					g_currentCameraType = eCAMERA_PHYSX;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+			g_currentCameraType = eCAMERA_PHYSX;
+	}
+	if (g_currentCameraType == eCAMERA_PHYSX)
+	{
+		m_cameraType = eCAMERA_PHYSX;
 
 		m_lockInput = CFalse;
-		g_camera->m_cameraManager->SetPerspective( g_camera->m_cameraManager->GetAngle(), g_width , g_height , 0.01, 1000. );
+		g_camera->m_cameraManager->SetPerspective(g_camera->m_cameraManager->GetAngle(), g_width, g_height, g_cameraProperties.m_playModePerspectiveNCP, g_cameraProperties.m_playModePerspectiveFCP);
 		if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 		{
 			//shadow
@@ -1805,6 +2342,7 @@ CBool CMain::Render()
 			g_camera->m_perspectiveCameraDir,
 			g_camera->m_perspectiveCurrentCameraTilt );
 	}
+
 	//if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	//{
 		//shadow
@@ -1813,28 +2351,10 @@ CBool CMain::Render()
 		g_camera->m_cameraManager->GetInverseMatrix( cam_inverse_modelview );
 		//////////////
 	//}
-	//shadow
-	const float bias[16] = {	0.5f, 0.0f, 0.0f, 0.0f, 
-								0.0f, 0.5f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.5f, 0.0f,
-								0.5f, 0.5f, 0.5f, 1.0f	};
-	if( !g_useOldRenderingStyle && g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
-	{
-		float light_dir[4] = {g_defaultDirectionalLight.x,  g_defaultDirectionalLight.y, g_defaultDirectionalLight.z, 1.0f};
-		if (!instanceCamera)
-		{
-			cam_pos[0] = g_camera->m_perspectiveCameraPos.x;
-			cam_pos[1] = g_camera->m_perspectiveCameraPos.y + g_physXProperties.m_fCapsuleHeight;
-			cam_pos[2] = g_camera->m_perspectiveCameraPos.z;
-
-			cam_dir[0] = g_camera->m_perspectiveCharacterPos.x - cam_pos[0];
-			cam_dir[1] = g_camera->m_perspectiveCharacterPos.y + (g_physXProperties.m_fCapsuleHeight / 2.f) + g_camera->m_perspectiveCurrentCameraTilt - cam_pos[1];
-			cam_dir[2] = g_camera->m_perspectiveCharacterPos.z - cam_pos[2];
-		}
-		if (!Cmp(g_shadowProperties.m_directionalLightName, "\n") && g_shadowProperties.m_enable && g_render.UsingShadowShader())
-			m_dynamicShadowMap->MakeShadowMap( cam_pos, cam_dir, light_dir ); 
-	}
 	g_camera->m_cameraManager->UpdateFrustum();
+	g_octree->ResetOctreeGeoCount();
+	g_octree->Render(CTrue);
+	g_octree->ResetOctreeGeoCount();
 
 	m_calculateDistance = CFalse;
 	if ( m_cameraType != m_cameraTypeOfPreviousFrame )
@@ -1857,23 +2377,32 @@ CBool CMain::Render()
 			m_calculateDistance = CTrue;
 		}
 	}
+
 	UpdatePrefabInstanceBB();
 
-	if (m_calculateDistance)
-	{
-		for( CUInt i = 0; i < g_scene.size(); i++ )
-		{
-			g_scene[i]->CalculateDistances();
-		}
-		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-		{
-			g_instancePrefab[i]->CalculateDistance();
-		}
-		for (CUInt i = 0; i < g_engineLights.size(); i++)
-		{
-			g_engineLights[i]->CalculateDistance();
-		}
+	CalculateDistnces();
 
+	//shadow
+	const float bias[16] = { 0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.5f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f };
+
+	if (!g_useOldRenderingStyle && g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
+	{
+		float light_dir[4] = { g_defaultDirectionalLight.x, g_defaultDirectionalLight.y, g_defaultDirectionalLight.z, 1.0f };
+		if (!instanceCamera)
+		{
+			cam_pos[0] = g_camera->m_perspectiveCameraPos.x;
+			cam_pos[1] = g_camera->m_perspectiveCameraPos.y + g_physXProperties.m_fCapsuleHeight;
+			cam_pos[2] = g_camera->m_perspectiveCameraPos.z;
+
+			cam_dir[0] = g_camera->m_perspectiveCharacterPos.x - cam_pos[0];
+			cam_dir[1] = g_camera->m_perspectiveCharacterPos.y + (g_physXProperties.m_fCapsuleHeight / 2.f) + g_camera->m_perspectiveCurrentCameraTilt - cam_pos[1];
+			cam_dir[2] = g_camera->m_perspectiveCharacterPos.z - cam_pos[2];
+		}
+		if (!Cmp(g_shadowProperties.m_directionalLightName, "\n") && g_shadowProperties.m_enable && g_render.UsingShadowShader())
+			m_dynamicShadowMap->MakeShadowMap(cam_pos, cam_dir, light_dir);
 	}
 
 	//audio
@@ -1902,16 +2431,19 @@ CBool CMain::Render()
 	{
 		for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
 		{
-			CVec3f waterPoints[4];
-			waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x;waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y;waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
-			waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x;waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y;waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
-			waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x;waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y;waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
-			waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x;waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y;waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
+			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
 
-			if( g_camera->m_cameraManager->IsBoxInFrustum( waterPoints, 4 ) )
+			if (CTrue/*g_currentCameraType == eCAMERA_PHYSX*/)
 			{
-				g_engineWaters[i]->CreateReflectionTexture(g_waterTextureSize );
-				//g_engineWaters[i]->CreateRefractionDepthTexture(g_waterTextureSize );
+				if (g_engineWaters[i]->GetVisible() && g_engineWaters[i]->GetQueryVisible())
+				{
+					g_engineWaters[i]->CreateReflectionTexture(g_waterTextureSize);
+					//g_engineWaters[i]->CreateRefractionDepthTexture(g_waterTextureSize );
+				}
+			}
+			else
+			{
+				g_engineWaters[i]->CreateReflectionTexture(g_waterTextureSize);
 			}
 		}
 	}
@@ -1936,6 +2468,38 @@ CBool CMain::Render()
 	else
 		glDisable( GL_MULTISAMPLE );
 
+	//Pause Sounds
+	if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
+	{
+		if (g_mainCharacter)
+		{
+			g_soundSystem->PauseALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
+			g_soundSystem->PauseALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
+			g_soundSystem->PauseALSound(*(g_mainCharacter->m_jumpSound->GetSoundSource()));
+		}
+		//resource sounds
+		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+		{
+			if (g_resourceFiles[i]->GetSoundSource())
+			{
+				g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+
+		//static 3D sounds
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			g_soundSystem->PauseALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
+		}
+
+		//ambient sound
+		if (g_databaseVariables.m_insertAmbientSound)
+		{
+			g_soundSystem->PauseALSound(*(g_main->m_ambientSound->GetSoundSource()));
+		}
+
+	}
+
 	if( !m_loadScene )
 		if(!ProcessInputs() )
 			return CFalse;
@@ -1947,24 +2511,29 @@ CBool CMain::Render()
 	{
  		for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
 		{
-			CVec3f waterPoints[4];
-			waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x;waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y;waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
-			waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x;waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y;waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
-			waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x;waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y;waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
-			waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x;waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y;waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
+			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
 
-			if( g_camera->m_cameraManager->IsBoxInFrustum( waterPoints, 4 ) )
+			if (CTrue/*g_currentCameraType == eCAMERA_PHYSX*/)
 			{
-				glUseProgram( g_render.m_waterProgram );
-				g_engineWaters[i]->RenderWater(cameraPos, elapsedTime );
-				glUseProgram( 0 );
+				if (g_engineWaters[i]->GetVisible() && g_engineWaters[i]->GetQueryVisible())
+				{
+					glUseProgram(g_render.m_waterProgram);
+					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
+					glUseProgram(0);
+				}
+			}
+			else
+			{
+				glUseProgram(g_render.m_waterProgram);
+				g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
+				glUseProgram(0);
 			}
 		}
 	}
 
 	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	{
-		glActiveTexture(GL_TEXTURE6 );
+		glActiveTexture(GL_TEXTURE7 );
 		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, m_dynamicShadowMap->depth_tex_ar);
 		if( g_shadowProperties.m_shadowType > 3 || g_shadowProperties.m_shadowType == 0 /* 0 is debug state*/)
 			glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
@@ -2015,11 +2584,14 @@ CBool CMain::Render()
 	if (!g_render.UsingShader())
 		glEnable( GL_LIGHTING );
 
+	RenderQueries();
+
 	ManageLODs();
-	EngineLightPass();
-	//COLLADALightPass();
-	DefaultLightPass();
-	FixedFunctionLightPass();
+
+	Draw3DObjects();
+
+	if (g_databaseVariables.m_insertAndShowTerrain)
+		RenderTerrain();
 
 	if (g_databaseVariables.m_showBoundingBox)
 	{
@@ -2031,6 +2603,10 @@ CBool CMain::Render()
 			CVector max(g_instancePrefab[i]->GetMaxAABB().x, g_instancePrefab[i]->GetMaxAABB().y, g_instancePrefab[i]->GetMaxAABB().z);
 			g_glUtil.DrawCWBoxWithLines(min, max, lineColor);
 		}
+	}
+	if (g_databaseVariables.m_showOctree)
+	{
+		g_octree->Render(CFalse, CFalse);
 	}
 
 	if (!g_useOldRenderingStyle &&  g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
@@ -2056,10 +2632,19 @@ CBool CMain::Render()
 		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		g_fogBlurPass = CTrue;
-		g_octree->Render();
+
+		//g_octree->Render();
+		g_main->RenderBakedOctree3DModels();
+		if (g_databaseVariables.m_showBoundingBox)
+		{
+			g_octree->Render(CFalse, CFalse);
+		}
+
 		Render3DAnimatedModels( CTrue);
 		Render3DModelsControlledByPhysX();
 		RenderCharacter(CFalse);
+		if (g_databaseVariables.m_insertAndShowTerrain)
+			RenderTerrain();
 
 		//render water
 		if ( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
@@ -2105,6 +2690,7 @@ CBool CMain::Render()
 		g_octree->SetName( "octree_root" );
 		g_octree->SetLevel(0);
 		g_octree->AttachGeometriesToNode();
+		g_octree->AttachLightsToGeometries();
 		g_updateOctree = CFalse;
 		g_main->RenderQueries(CTrue);
 	}
@@ -2295,6 +2881,8 @@ CBool CMain::Render()
 			glPushAttrib( GL_CURRENT_BIT );
 			g_bloom->CreateRuntimeTexture( g_width, g_height, m_textureTarget[0]  );
 
+			glEnable(GL_TEXTURE_2D);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glColor4f( g_bloomProperties.m_bloomColor[0], g_bloomProperties.m_bloomColor[1], g_bloomProperties.m_bloomColor[2], g_bloomProperties.m_bloomIntensity );
 			glBindTexture( GL_TEXTURE_2D, g_bloom->m_bloomTexture );
@@ -2317,9 +2905,29 @@ CBool CMain::Render()
 	{
 		DrawGUI();
 	}
-	RenderQueries();
+
+	ResetData();
 
 	return CTrue;
+}
+
+CVoid CMain::ResetData()
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetRenderForQuery(CFalse);
+		g_instancePrefab[i]->SetRealTimeSceneCheckIsInFrustom(CTrue);
+		for (CUInt j = 0; j < 3; j++)
+		{
+			if (g_instancePrefab[i]->GetPrefab() && g_instancePrefab[i]->GetPrefab()->GetHasLod(j))
+			{
+				CScene* scene = g_instancePrefab[i]->GetScene(j);
+				if (!scene) continue;
+				scene->ResetSkinData();
+			}
+		}
+	}
+	g_currentInstancePrefab = NULL;
 }
 
 CVoid CMain::DrawGrid(CVoid)
@@ -2362,7 +2970,7 @@ CVoid CMain::DrawGrid(CVoid)
 
 CBool CMain::GetJumpCurrentEndDuration(CFloat& duration)
 {
-	if (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON && g_currentCameraType == eCAMERA_DEFAULT_PHYSX) return CFalse;
+	if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON /*&& g_currentCameraType == eCAMERA_PHYSX*/) return CFalse;
 
 	if (!g_mainCharacter)
 		return CFalse;
@@ -2406,94 +3014,18 @@ CBool CMain::GetJumpCurrentEndDuration(CFloat& duration)
 	{
 		return CFalse;
 	}
-	duration = scene->m_animationClips[index]->GetEnd() - scene->m_animationClips[index]->GetCurrentTime();
-	return CTrue;
-}
-
-CBool CMain::UpdateCharacterBlendCycleTimer()
-{
-	if (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON && g_currentCameraType == eCAMERA_DEFAULT_PHYSX) return CFalse;
-
-	if (!g_mainCharacter)
-		return CFalse;
-	g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
-	if (!g_currentInstancePrefab)
-		return CFalse;
-	CScene* scene = NULL;
-
-	CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-	for (CUInt j = 0; j < 3; j++)
-	{
-		if (prefab && prefab->GetHasLod(j) && g_currentInstancePrefab->GetSceneVisible(j))
-		{
-			scene = g_currentInstancePrefab->GetScene(j);
-			break;
-		}
-	}
-	if (!scene) return CFalse;
-
-	if (!g_currentInstancePrefab->GetVisible()) return CFalse;
-
-	CInt index = -1;
-
-	for (CUInt i = 0; i < scene->m_blendCycleList.size(); i++)
-	{
-		CChar blendCycleName[MAX_NAME_SIZE];
-		Cpy(blendCycleName, scene->m_blendCycleList[i].c_str());
-		StringToUpper(blendCycleName);
-
-		std::vector<std::string> idleName = g_mainCharacter->GetIdleName();
-		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, idleName[0].c_str());
-		StringToUpper(animationName);
-
-		StringToUpper((CChar*)idleName[0].c_str());
-		if (Cmp(animationName, blendCycleName))
-		{
-			index = i;
-		}
-
-		CInt clipIndex = 0;
-		//Find the animation clip 
-		for (CInt ac = 0; ac < scene->GetNumClips(); ac++)
-		{
-			CChar animationName2[MAX_NAME_SIZE];
-			Cpy(animationName2, scene->m_animationClips[ac]->GetName());
-			StringToUpper(animationName2);
-
-			if (Cmp(animationName2, blendCycleName))
-			{
-				clipIndex = ac;
-				break;
-			}
-			if (index != -1 && Cmp(animationName, animationName2))
-			{
-				index = ac;
-			}
-
-
-		}
-
-		if (scene->m_animationClips[clipIndex]->GetCurrentTime() > scene->m_animationClips[clipIndex]->GetEnd())
-		{
-			scene->m_animationClips[clipIndex]->SetCurrentTime(scene->m_animationClips[clipIndex]->GetCurrentTime() - scene->m_animationClips[clipIndex]->GetEnd() + scene->m_animationClips[clipIndex]->GetStart());
-			if (index != -1 && clipIndex == index)
-			{
-				m_firstIdleCounter++;
-			}
-		}
-	}
-	if (index == -1)
-	{
-		m_firstIdleCounter = 0;
-	}
-
+	duration = scene->m_animationClips[index]->GetEnd() - scene->m_animationClips[index]->GetCurrentAnimationTime();
 	return CTrue;
 }
 
 CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName)
 {
-	if (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON) return CFalse;
+	if (Cmp(m_previousCharacterAnimationType, animationType))
+		return CFalse;
+	else
+		Cpy(m_previousCharacterAnimationType, animationType);
+
+	if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON) return CFalse;
 
 	if (!g_mainCharacter)
 		return CFalse;
@@ -2502,10 +3034,22 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		return CFalse;
 	if (!g_currentInstancePrefab->GetVisible()) return CFalse;
 
-	std::vector<std::string> idleName = g_mainCharacter->GetIdleName();
-	std::vector<std::string> walkName = g_mainCharacter->GetWalkName();
-	std::vector<std::string> jumpName = g_mainCharacter->GetJumpName();
-	std::vector<std::string> runName = g_mainCharacter->GetRunName();
+	std::vector<std::string> idleName;
+	std::vector<std::string> walkName;
+	std::vector<std::string> jumpName;
+	std::vector<std::string> runName;
+
+	for (CUInt i = 0; i < g_mainCharacter->GetIdleName().size(); i++)
+		idleName.push_back(g_mainCharacter->GetIdleName()[i]);
+
+	for (CUInt i = 0; i < g_mainCharacter->GetWalkName().size(); i++)
+		walkName.push_back(g_mainCharacter->GetWalkName()[i]);
+
+	for (CUInt i = 0; i < g_mainCharacter->GetJumpName().size(); i++)
+		jumpName.push_back(g_mainCharacter->GetJumpName()[i]);
+
+	for (CUInt i = 0; i < g_mainCharacter->GetRunName().size(); i++)
+		runName.push_back(g_mainCharacter->GetRunName()[i]);
 
 	CScene* scene = NULL;
 
@@ -2522,87 +3066,52 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 
 	CBool foundTarget = CFalse;
 	CUInt index = -1;
-	if (IdleAnimationName)
-		StringToUpper(IdleAnimationName);
-	if (Cmp(animationType, "idle"))
+
+	if (Cmp(animationType, "idle") || Cmp(animationType, "more_idle"))
 	{
-		if (IdleAnimationName)
-		{
-			for (CInt j = 0; j < scene->GetNumClips(); j++)
-			{
-				CChar animationName[MAX_NAME_SIZE];
-				Cpy(animationName, scene->m_animationClips[j]->GetName());
-				StringToUpper((CChar*)animationName);
-				for (CUInt k = 0; k < idleName.size(); k++)
-				{
-					StringToUpper((CChar*)idleName[k].c_str());
-
-					if (Cmp(idleName[k].c_str(), animationName))
-					{
-						if (scene->m_animationClips[j]->GetAnimationStatus() == eANIM_BLEND_CYCLE)
-						{
-							if (k == 0 && m_firstIdleCounter >= 1)
-							{
-								continue;
-							}
-							if (scene->m_animationClips[j]->GetCurrentTime() < scene->m_animationClips[j]->GetEnd())
-							{
-								return CFalse;
-							}
-						}
-					}
-				}
-			}
-		}
-
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
-			CChar animationName[MAX_NAME_SIZE];
-			Cpy(animationName, scene->m_animationClips[i]->GetName());
-			StringToUpper(animationName);
-			for (CUInt j = 0; j < idleName.size(); j++)
+			if (IdleAnimationName)
 			{
-				StringToUpper((CChar*)idleName[j].c_str());
-
-				if (IdleAnimationName)
-					if (!Cmp(IdleAnimationName, idleName[j].c_str()))
-						continue;
-
-				if (Cmp(idleName[j].c_str(), animationName))
+				if (Cmp(IdleAnimationName, scene->m_animationClips[i]->GetName()))
 				{
 					index = i;
 					foundTarget = CTrue;
 					break;
 				}
 			}
-			if (foundTarget)
+			else if (Cmp(idleName[0].c_str(), scene->m_animationClips[i]->GetName()))
+			{
+				index = i;
+				foundTarget = CTrue;
 				break;
+			}
 		}
 		if (!foundTarget)
 		{
 			return CFalse;
 		}
-		scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_idleDelayIn);
 
-		for (CInt i = 0; i < scene->GetNumClips(); i++)
+		if (index != -1)
 		{
-			if (i != index)
-			{
-				scene->ClearCycle(i, g_characterBlendingProperties.m_idleDelayIn);
+			scene->SetClipIndex(index);
+			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_idleDelayIn);
 
+			for (CInt i = 0; i < scene->GetNumClips(); i++)
+			{
+				if (i != index)
+				{
+					//make sure we clear animations
+					scene->ClearCycle(i, g_characterBlendingProperties.m_idleDelayIn);
+				}
 			}
 		}
-
 	}
 	else if (Cmp(animationType, "walk"))
 	{
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
-			CChar animationName[MAX_NAME_SIZE];
-			Cpy(animationName, scene->m_animationClips[i]->GetName());
-			StringToUpper(animationName);
-			StringToUpper((CChar*)walkName[0].c_str());
-			if (Cmp(walkName[0].c_str(), animationName))
+			if (Cmp(walkName[0].c_str(), scene->m_animationClips[i]->GetName()))
 			{
 				index = i;
 				foundTarget = CTrue;
@@ -2613,26 +3122,27 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		{
 			return CFalse;
 		}
-		scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_walkDelayIn);
 
-		for (CInt i = 0; i < scene->GetNumClips(); i++)
+		if (index != -1)
 		{
-			if (i != index)
+			scene->SetClipIndex(index);
+			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_walkDelayIn);
+
+			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
-				scene->ClearCycle(i, g_characterBlendingProperties.m_walkDelayIn);
+				if (i != index)
+				{
+					//make sure we clear animations
+					scene->ClearCycle(i, g_characterBlendingProperties.m_walkDelayIn);
+				}
 			}
 		}
-
 	}
 	else if (Cmp(animationType, "run"))
 	{
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
-			CChar animationName[MAX_NAME_SIZE];
-			Cpy(animationName, scene->m_animationClips[i]->GetName());
-			StringToUpper(animationName);
-			StringToUpper((CChar*)runName[0].c_str());
-			if (Cmp(runName[0].c_str(), animationName))
+			if (Cmp(runName[0].c_str(), scene->m_animationClips[i]->GetName()))
 			{
 				index = i;
 				foundTarget = CTrue;
@@ -2643,12 +3153,19 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		{
 			return CFalse;
 		}
-		scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_runDelayIn);
-		for (CInt i = 0; i < scene->GetNumClips(); i++)
+
+		if (index != -1)
 		{
-			if (i != index)
+			scene->SetClipIndex(index);
+			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_runDelayIn);
+
+			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
-				scene->ClearCycle(i, g_characterBlendingProperties.m_runDelayIn);
+				if (i != index)
+				{
+					//make sure we clear animations
+					scene->ClearCycle(i, g_characterBlendingProperties.m_runDelayIn);
+				}
 			}
 		}
 
@@ -2657,11 +3174,7 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 	{
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
-			CChar animationName[MAX_NAME_SIZE];
-			Cpy(animationName, scene->m_animationClips[i]->GetName());
-			StringToUpper(animationName);
-			StringToUpper((CChar*)jumpName[0].c_str());
-			if (Cmp(jumpName[0].c_str(), animationName))
+			if (Cmp(jumpName[0].c_str(), scene->m_animationClips[i]->GetName()))
 			{
 				index = i;
 				foundTarget = CTrue;
@@ -2672,25 +3185,37 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		{
 			return CFalse;
 		}
-		scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut);
 
-		for (CInt i = 0; i < scene->GetNumClips(); i++)
+		if (index != -1)
 		{
-			if (i != index)
+			scene->SetClipIndex(index);
+			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut);
+
+			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
-				scene->ClearCycle(i, g_characterBlendingProperties.m_jumpDelayIn);
+				if (i != index)
+				{
+					//make sure we clear animations
+					scene->ClearCycle(i, g_characterBlendingProperties.m_jumpDelayIn);
+				}
 			}
 		}
 
 	}
-	else //reset
+	else if (Cmp(animationType, ""))
+	//reset
 	{
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
+			//make sure we clear animations
 			scene->ClearCycle(i, 0.0f);
 			scene->m_animationClips[i]->SetCurrentTime(0.0f);
 		}
 	}
+	idleName.clear();
+	walkName.clear();
+	jumpName.clear();
+	runName.clear();
 
 	return CTrue;
 
@@ -2740,64 +3265,251 @@ CBool CMain::IsJumping(CBool &isInList)
 
 CBool CMain::ProcessInputs()
 {
-	g_input.Update();
+	if (m_loadScene) return CTrue;
 
 	static CUInt cameraIndex = 0;
 	static CBool pKeyDown = CFalse;
 	static CBool oKeyDown = CFalse;
-
-	if( g_input.KeyDown( DIK_P ) && !pKeyDown && g_cameraInstances.size() > 0 )
+	CBool inputUpdated = CFalse;
+	if (m_publishDebug)
 	{
-		pKeyDown = CTrue;
-		cameraIndex++;
-		if( cameraIndex > g_cameraInstances.size() - 1)
-			cameraIndex = 0;
-		g_render.SetActiveInstanceCamera( g_cameraInstances[cameraIndex] );
-		g_currentCameraType = eCAMERA_COLLADA;
+		g_input.Update();
+		inputUpdated = CTrue;
+		if (g_input.KeyDown(DIK_P) && !pKeyDown && g_importedCameraInstances.size() > 0)
+		{
+			pKeyDown = CTrue;
+			cameraIndex++;
+			if (cameraIndex > g_importedCameraInstances.size() - 1)
+				cameraIndex = 0;
+			g_render.SetActiveInstanceCamera(g_importedCameraInstances[cameraIndex]);
+			g_currentCameraType = eCAMERA_COLLADA;
+		}
+		if (g_input.KeyUp(DIK_P))
+			pKeyDown = CFalse;
+
+		if (g_input.KeyDown(DIK_O) && !oKeyDown && g_importedCameraInstances.size() > 0)
+		{
+			oKeyDown = CTrue;
+			if (cameraIndex > 0)
+				cameraIndex--;
+			else
+				cameraIndex = g_importedCameraInstances.size() - 1;
+
+			g_render.SetActiveInstanceCamera(g_importedCameraInstances[cameraIndex]);
+			g_currentCameraType = eCAMERA_COLLADA;
+
+		}
+		if (g_input.KeyUp(DIK_O))
+			oKeyDown = CFalse;
+
+		if (g_input.KeyDown(DIK_I))
+		{
+			g_render.SetActiveInstanceCamera(NULL);
+			g_currentCameraType = eCAMERA_PHYSX;
+		}
+		if (g_input.KeyDown(DIK_U))
+		{
+			g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
+		}
+
+		static CBool f1KeyDown = CFalse;
+		if (g_input.KeyDown(DIK_F1) && !f1KeyDown)
+		{
+			f1KeyDown = CTrue;
+			m_showHelpInfo = !m_showHelpInfo;
+		}
+		if (g_input.KeyUp(DIK_F1))
+			f1KeyDown = CFalse;
+
+		static CBool gKeyDown = CFalse;
+		static CBool vKeyDown = CFalse;
+
+		//physics
+		if (g_input.KeyDown(DIK_V) && !vKeyDown)
+		{
+			vKeyDown = CTrue;
+			g_physXProperties.m_bDebugMode = !g_physXProperties.m_bDebugMode;
+		}
+		if (g_input.KeyUp(DIK_V))
+			vKeyDown = CFalse;
+
+		//bounding box
+		static CBool bKeyDown = CFalse;
+
+		if (g_input.KeyDown(DIK_B) && !bKeyDown)
+		{
+			bKeyDown = CTrue;
+			g_databaseVariables.m_showBoundingBox = !g_databaseVariables.m_showBoundingBox;
+		}
+		if (g_input.KeyUp(DIK_B))
+			bKeyDown = CFalse;
+
+		//octree
+		static CBool nKeyDown = CFalse;
+
+		if (g_input.KeyDown(DIK_N) && !nKeyDown)
+		{
+			nKeyDown = CTrue;
+			g_databaseVariables.m_showOctree = !g_databaseVariables.m_showOctree;
+		}
+		if (g_input.KeyUp(DIK_N))
+			nKeyDown = CFalse;
+
+		//gravity
+		if (g_input.KeyDown(DIK_G) && !gKeyDown)
+		{
+			gKeyDown = CTrue;
+			g_physXProperties.m_bApplyGravity = !g_physXProperties.m_bApplyGravity;
+			if (g_physXProperties.m_bApplyGravity)
+				g_nx->gDefaultGravity = NxVec3(g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ);
+			else
+				g_nx->gDefaultGravity = NxVec3(0.0f);
+
+		}
+		if (g_input.KeyUp(DIK_G))
+			gKeyDown = CFalse;
+
 	}
-	if( g_input.KeyUp( DIK_P  ) )
-		pKeyDown = CFalse;
 
-	if( g_input.KeyDown( DIK_O ) && !oKeyDown && g_cameraInstances.size() > 0 )
+	if (m_lockInput)
 	{
-		oKeyDown = CTrue;
-		if( cameraIndex > 0 )
-			cameraIndex--;
+		ApplyForce(IDLE, elapsedTime);
+		EnableIdleAnimations();
+		return CTrue;
+	}
+
+	if (!inputUpdated)
+		g_input.Update();
+
+	static CBool bEscapeDown = CFalse;
+
+	if (g_input.KeyDown(DIK_ESCAPE) && !bEscapeDown)
+	{
+		bEscapeDown = CTrue;
+		if (m_keyboadAndMouseScript.GetHasEscapeScript())
+			LuaLoadAndExecute(g_lua, m_keyboadAndMouseScript.GetEscapeScriptFile());
 		else
-			cameraIndex = g_cameraInstances.size() - 1;
-
-		g_render.SetActiveInstanceCamera( g_cameraInstances[cameraIndex] );
-		g_currentCameraType = eCAMERA_COLLADA;
-
+			return CFalse;
 	}
-	if( g_input.KeyUp( DIK_O  ) )
-		oKeyDown = CFalse;
+	if (g_input.KeyUp(DIK_ESCAPE))
+		bEscapeDown = CFalse;
 
-	if( g_input.KeyDown( DIK_I ) )
+	if (g_currentVSceneProperties.m_isMenu)
 	{
-		g_render.SetActiveInstanceCamera(NULL);
-		g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+		CInt dx, dy;
+		g_input.GetMouseMovement(dx, dy);
+		if (g_main->m_prevLoadScene)
+		{
+			dx = dy = 0;
+			g_main->m_prevLoadScene = CFalse;
+		}
+		if (g_input.ButtonDown(0))
+		{
+			if (!m_previousLeftButtonDown)
+			{
+				CUInt index = GetSelectedGUI();
+				for (CUInt i = 0; i < g_guis.size(); i++)
+				{
+					for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
+					{
+						if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
+						{
+							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_DISABLE)
+							{
+								if (g_guis[i]->m_guiButtons[k]->GetHasLeftClickImage())
+								{
+									g_timer->GetElapsedSeconds2(CTrue);
+									g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_LEFT_CLICK);
+								}
+							}
+						}
+					}
+				}
+			}
+			m_previousLeftButtonDown = CTrue;
+		}
+		else
+		{
+			m_previousLeftButtonDown = CFalse;
+		}
+
+		if (g_input.ButtonDown(1))
+		{
+			if (!m_previousRightButtonDown)
+			{
+				CUInt index = GetSelectedGUI();
+				for (CUInt i = 0; i < g_guis.size(); i++)
+				{
+					for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
+					{
+						if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
+						{
+							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_DISABLE)
+							{
+								if (g_guis[i]->m_guiButtons[k]->GetHasRightClickImage())
+								{
+									g_timer->GetElapsedSeconds2(CTrue);
+									g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_RIGHT_CLICK);
+								}
+							}
+						}
+					}
+				}
+			}
+			m_previousRightButtonDown = CTrue;
+		}
+		else
+		{
+			m_previousRightButtonDown = CFalse;
+		}
+		if (dx != 0 || dy != 0)
+		{
+			//mouse moved
+			CUInt index = GetSelectedGUI();
+			for (CUInt i = 0; i < g_guis.size(); i++)
+			{
+				for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
+				{
+					if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
+					{
+						if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() == eBUTTON_IMAGE_MAIN && g_guis[i]->m_guiButtons[k]->GetHasHoverImage())
+						{
+							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
+							{
+								if (g_guis[i]->m_guiButtons[k]->GetHasHoverScript())
+								{
+									LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
+								}
+							}
+
+							g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
+						}
+					}
+					else
+					{
+						g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_MAIN);
+					}
+				}
+			}
+
+		}
+
+		g_main->m_mousePosition.x += dx;
+		if (g_main->m_mousePosition.x < 1.0f) g_main->m_mousePosition.x = 1.0f;
+		else if (g_main->m_mousePosition.x > g_width) g_main->m_mousePosition.x = g_width;
+
+		g_main->m_mousePosition.y += dy;
+		if (g_main->m_mousePosition.y < 0.0f) g_main->m_mousePosition.y = 0.0f;
+		else if (g_main->m_mousePosition.y > g_height) g_main->m_mousePosition.y = g_height;
+
+		ApplyForce(IDLE, elapsedTime);
+		EnableIdleAnimations();
+
+		return CTrue;
 	}
-	if( g_input.KeyDown( DIK_U ) )
-	{
-		g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
-		g_currentCameraType = eCAMERA_DEFAULT_FREE;
-	}
 
-	static CBool f1KeyDown = CFalse;
-	if( g_input.KeyDown( DIK_F1 ) && !f1KeyDown )
-	{
-		f1KeyDown = CTrue;
-		m_showHelpInfo = !m_showHelpInfo;
-	}
-	if( g_input.KeyUp( DIK_F1 ) )
-		f1KeyDown = CFalse;
-
-	if( g_input.KeyDown( DIK_ESCAPE ) )
-		return CFalse;
-
-
-	if( g_currentCameraType == eCAMERA_DEFAULT_PHYSX )
+	if( g_currentCameraType == eCAMERA_PHYSX )
 	{
 		CBool forceApplied = false;
 		CBool move = CFalse;
@@ -3045,7 +3757,6 @@ CBool CMain::ProcessInputs()
 		//	forceApplied = true;
 		//}
 
-		static CBool firstIdle = CTrue;
 		if (!forceApplied || !move)
 		{
 			if (!forceApplied)
@@ -3062,36 +3773,93 @@ CBool CMain::ProcessInputs()
 					if (GetJumpCurrentEndDuration(duration) && duration <= g_characterBlendingProperties.m_jumpDelayOut)
 						idle = CTrue;
 				}
+				//Fix Bug: if we don't have any active animation:
+				CInt index = 0;
+				for (CUInt i = 0; i < g_mainCharacter->GetInstancePrefab()->GetScene(0)->m_animationClips.size(); i++)
+				{
+					if (g_mainCharacter->GetInstancePrefab()->GetScene(0)->m_animationClips[i]->GetAnimationStatus() == eANIM_NONE)
+					{
+						index++;
+					}
+				}
+				if (index == g_mainCharacter->GetInstancePrefab()->GetScene(0)->m_animationClips.size())
+				{
+					Cpy(m_previousCharacterAnimationType, "");
+					idle = CTrue;
+				}
+
 				if (idle)
 				{
-					g_main->m_soundSystem->StopALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
-					g_main->m_soundSystem->StopALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
+					if (!Cmp(m_previousCharacterAnimationType, "idle") && !Cmp(m_previousCharacterAnimationType, "more_idle"))
+					{
+						g_main->m_soundSystem->StopALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
+						g_main->m_soundSystem->StopALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
+					}
 
 					std::vector<std::string> idleName = g_mainCharacter->GetIdleName();
+
+					if (!Cmp(m_previousCharacterAnimationType, "idle") && !Cmp(m_previousCharacterAnimationType, "more_idle"))
+					{
+						if (ManageCharacterBlends("idle"))
+						{
+							Cpy(currentIdleName, (CChar*)idleName[0].c_str());
+							m_idleCounter = 0.0f;
+							firstIdle = CTrue;
+						}
+					}
 					if (firstIdle)
 						m_idleCounter += elapsedTime;
+					else if (idleName.size() > 1)
+					{
+						g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
+						CScene* scene = NULL;
+						CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+						for (CUInt j = 0; j < 3; j++)
+						{
+							if (prefab && prefab->GetHasLod(j) && g_currentInstancePrefab->GetSceneVisible(j))
+							{
+								scene = g_currentInstancePrefab->GetScene(j);
+								break;
+							}
+						}
 
+						for (CInt j = 0; j < scene->GetNumClips(); j++)
+						{
+							if (Cmp(currentIdleName, scene->m_animationClips[j]->GetName()))
+							{
+								if (m_idleCounter < scene->m_animationClips[j]->GetEnd())
+								{
+									m_idleCounter += elapsedTime;
+								}
+								else
+								{
+									if (ManageCharacterBlends("idle"))
+									{
+										Cpy(currentIdleName, (CChar*)idleName[0].c_str());
+										m_idleCounter = 0.0f;
+										firstIdle = CTrue;
+									}
+								}
+							}
+						}
+					}
 					if (idleName.size() > 1 && m_idleCounter >= g_mainCharacter->GetIdleDelayForRandomPlay() && firstIdle)
 					{
 						CInt index = rand() % idleName.size();
 						if (index == 0 && idleName.size() > 1)
 							index = 1;
-						if (ManageCharacterBlends("idle", (CChar*)idleName[index].c_str()))
+						if (ManageCharacterBlends("more_idle", (CChar*)idleName[index].c_str()))
 						{
+							Cpy(currentIdleName, (CChar*)idleName[index].c_str());
 							m_idleCounter = 0.0f;
 							firstIdle = CFalse;
 						}
-					}
-					else if (ManageCharacterBlends("idle", (CChar*)idleName[0].c_str()))
-					{
-						firstIdle = CTrue;
 					}
 				}
 			}
 		}
 		if (forceApplied)
 			m_idleCounter = 0.0f;
-		UpdateCharacterBlendCycleTimer();
 
 		if (g_physXProperties.m_bApplyGravity && g_physXProperties.m_bJumping)
 			if( g_input.KeyDown( DIK_SPACE ) )
@@ -3114,68 +3882,19 @@ CBool CMain::ProcessInputs()
 					}
 				}
 
-		//Manage gravity
-		//static CBool gKeyDown = CFalse;
-		//CFloat gravity = 0.0f;
-		//static CBool pKeyDown = CFalse;
-
-		//if( g_input.KeyDown( DIK_P ) && !pKeyDown )
-		//{
-		//	pKeyDown = CTrue;
-		//	g_physXProperties.m_bDebugMode = ! g_physXProperties.m_bDebugMode;
-		//}
-		//if( g_input.KeyUp( DIK_P ) )
-		//	pKeyDown = CFalse;
-
-		//static CBool bKeyDown = CFalse;
-
-		//if( g_input.KeyDown( DIK_B ) && !bKeyDown )
-		//{
-		//	bKeyDown = CTrue;
-		//	g_databaseVariables.m_showBoundingBox = ! g_databaseVariables.m_showBoundingBox;
-		//}
-		//if( g_input.KeyUp( DIK_B  ) )
-		//	bKeyDown = CFalse;
-
-		//if( g_input.KeyDown( DIK_G ) && !gKeyDown )
-		//{
-		//	gKeyDown = CTrue;
-		//	g_physXProperties.m_bApplyGravity = !g_physXProperties.m_bApplyGravity;
-		//	if( g_physXProperties.m_bApplyGravity )
-		//		g_nx->gDefaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
-		//	else
-		//		g_nx->gDefaultGravity = NxVec3(0.0f);
-
-		//}
-		//if( g_input.KeyUp( DIK_G ) )
-		//	gKeyDown = CFalse;
-
 		CInt dx, dy;
 		g_input.GetMouseMovement( dx, dy );
+		if (g_main->m_prevLoadScene)
+		{
+			dx = dy = 0;
+			g_main->m_prevLoadScene = CFalse;
+		}
+
+		if (dx != 0 || dy != 0)
+			m_calculateDistance = CTrue;
 
 		if (g_input.ButtonDown(0))
 		{
-			if (!m_previousLeftButtonDown)
-			{
-				CUInt index = GetSelectedGUI();
-				for (CUInt i = 0; i < g_guis.size(); i++)
-				{
-					for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
-					{
-						if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
-						{
-							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_DISABLE)
-							{
-								if (g_guis[i]->m_guiButtons[k]->GetHasLeftClickImage())
-								{
-									g_timer->GetElapsedSeconds2(CTrue);
-									g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_LEFT_CLICK);
-								}
-							}
-						}
-					}
-				}
-			}
 			m_previousLeftButtonDown = CTrue;
 		}
 		else
@@ -3185,63 +3904,11 @@ CBool CMain::ProcessInputs()
 
 		if (g_input.ButtonDown(1))
 		{
-			if (!m_previousRightButtonDown)
-			{
-				CUInt index = GetSelectedGUI();
-				for (CUInt i = 0; i < g_guis.size(); i++)
-				{
-					for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
-					{
-						if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
-						{
-							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_DISABLE)
-							{
-								if (g_guis[i]->m_guiButtons[k]->GetHasRightClickImage())
-								{
-									g_timer->GetElapsedSeconds2(CTrue);
-									g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_RIGHT_CLICK);
-								}
-							}
-						}
-					}
-				}
-			}
 			m_previousRightButtonDown = CTrue;
 		}
 		else
 		{
 			m_previousRightButtonDown = CFalse;
-		}
-		if (dx != 0 || dy != 0)
-		{
-			//mouse moved
-			CUInt index = GetSelectedGUI();
-			for (CUInt i = 0; i < g_guis.size(); i++)
-			{
-				for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
-				{
-					if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
-					{
-						if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() == eBUTTON_IMAGE_MAIN && g_guis[i]->m_guiButtons[k]->GetHasHoverImage())
-						{
-							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
-							{
-								if (g_guis[i]->m_guiButtons[k]->GetHasHoverScript())
-								{
-									LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
-								}
-							}
-
-							g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
-						}
-					}
-					else
-					{
-						g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_MAIN);
-					}
-				}
-			}
-
 		}
 
 		g_main->m_mousePosition.x += dx;
@@ -3290,30 +3957,81 @@ CBool CMain::ProcessInputs()
 
 		}
 	}
-	else if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
+	else if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	{
+		ApplyForce(IDLE, elapsedTime);
+
 		CInt dx, dy;
 		g_input.GetMouseMovement( dx, dy );
+		if (g_main->m_prevLoadScene)
+		{
+			dx = dy = 0;
+			g_main->m_prevLoadScene = CFalse;
+		}
+
+		if (dx != 0 || dy != 0)
+			m_calculateDistance = CTrue;
 
 		if( g_input.ButtonDown(1) )
 		{
-			g_render.GetDefaultInstanceCamera()->ZoomTransform( dy * 0.04 );
+			if (dy > 0)
+				g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomOut(elapsedTime * 50.0f);
+			else if (dy < 0)
+				g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomIn(elapsedTime * 50.0f);
 		}
 		else
 		{
 			g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)dx * 0.2f, -(CFloat)dy * 0.2f );
 		}
 
+		//default speed
+		if ((g_input.KeyDown(DIK_LCONTROL) || g_input.KeyDown(DIK_RCONTROL)) &&
+			(g_input.KeyDown(DIK_LSHIFT) || g_input.KeyDown(DIK_RSHIFT)))
+		{
+			if (fabs(g_camera->m_cameraSpeed - DEFAULT_CAMERA_SPEED) > EPSILON)
+			{
+				g_camera->m_cameraSpeed = DEFAULT_CAMERA_SPEED;
+			}
+		}
+		//default zoom
+		if ((g_input.KeyDown(DIK_LCONTROL) || g_input.KeyDown(DIK_RCONTROL)) &&
+			g_input.KeyDown(DIK_Z))
+		{
+			if (fabs(g_render.GetDefaultInstanceCamera()->m_abstractCamera->GetAngle() - DEFAULT_CAMERA_ANGLE) > EPSILON)
+			{
+				g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+			}
+		}
+
 		if (g_input.KeyDown( DIK_S ))
 		{
-			// UI code to move the camera closer
-			g_render.GetDefaultInstanceCamera()->MoveTransform(elapsedTime * g_camera->m_cameraSpeed, 0.0f, 0.0f);
+			//Decrease Speed?
+			if (g_input.KeyDown(DIK_LCONTROL) || g_input.KeyDown(DIK_RCONTROL))
+			{
+				g_camera->m_cameraSpeed -= 5.0f;
+				if (g_camera->m_cameraSpeed < EPSILON)
+				{
+					g_camera->m_cameraSpeed += 5.0f;
+				}
+			}
+			else
+			{
+				// UI code to move the camera closer
+				g_render.GetDefaultInstanceCamera()->MoveTransform(elapsedTime * g_camera->m_cameraSpeed, 0.0f, 0.0f);
+			}
 		}
 
 		if (g_input.KeyDown( DIK_W ))
 		{
-			// UI code to move the camera farther away
-			g_render.GetDefaultInstanceCamera()->MoveTransform(-elapsedTime* g_camera->m_cameraSpeed, 0.0f, 0.0f);
+			if (g_input.KeyDown(DIK_LCONTROL) || g_input.KeyDown(DIK_RCONTROL))
+			{
+				g_camera->m_cameraSpeed += 5.0f;
+			}
+			else
+			{
+				// UI code to move the camera farther away
+				g_render.GetDefaultInstanceCamera()->MoveTransform(-elapsedTime* g_camera->m_cameraSpeed, 0.0f, 0.0f);
+			}
 		}
 
 		if (g_input.KeyDown( DIK_Q ))
@@ -3340,7 +4058,113 @@ CBool CMain::ProcessInputs()
 			g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, elapsedTime* g_camera->m_cameraSpeed, 0.0f);
 		}
 	}
+	else if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX || g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+	{
+		ApplyForce(IDLE, elapsedTime);
+		EnableIdleAnimations(); //for now I enable idle animations for main character everytime PhysX camera is not active
+	}
 	return CTrue;
+}
+
+CVoid CMain::EnableIdleAnimations()
+{
+	if (g_mainCharacter)
+	{
+		CBool idle = CFalse;
+		if (!g_nx->gJump)
+			idle = CTrue;
+		CBool jumping = CFalse;
+		if (IsJumping(jumping) && jumping)
+		{
+			CFloat duration = 1.0f;
+			if (GetJumpCurrentEndDuration(duration) && duration <= g_characterBlendingProperties.m_jumpDelayOut)
+				idle = CTrue;
+		}
+		//Fix Bug: if we don't have any active animation:
+		CInt index = 0;
+		for (CUInt i = 0; i < g_mainCharacter->GetInstancePrefab()->GetScene(0)->m_animationClips.size(); i++)
+		{
+			if (g_mainCharacter->GetInstancePrefab()->GetScene(0)->m_animationClips[i]->GetAnimationStatus() == eANIM_NONE)
+			{
+				index++;
+			}
+		}
+		if (index == g_mainCharacter->GetInstancePrefab()->GetScene(0)->m_animationClips.size())
+		{
+			Cpy(m_previousCharacterAnimationType, "");
+			idle = CTrue;
+		}
+
+		if (idle)
+		{
+			if (!Cmp(m_previousCharacterAnimationType, "idle") && !Cmp(m_previousCharacterAnimationType, "more_idle"))
+			{
+				g_main->m_soundSystem->StopALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
+				g_main->m_soundSystem->StopALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
+			}
+
+			std::vector<std::string> idleName = g_mainCharacter->GetIdleName();
+
+			if (!Cmp(m_previousCharacterAnimationType, "idle") && !Cmp(m_previousCharacterAnimationType, "more_idle"))
+			{
+				if (ManageCharacterBlends("idle"))
+				{
+					Cpy(currentIdleName, (CChar*)idleName[0].c_str());
+					m_idleCounter = 0.0f;
+					firstIdle = CTrue;
+				}
+			}
+			if (firstIdle)
+				m_idleCounter += elapsedTime;
+			else if (idleName.size() > 1)
+			{
+				g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
+				CScene* scene = NULL;
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) && g_currentInstancePrefab->GetSceneVisible(j))
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						break;
+					}
+				}
+
+				for (CInt j = 0; j < scene->GetNumClips(); j++)
+				{
+					if (Cmp(currentIdleName, scene->m_animationClips[j]->GetName()))
+					{
+						if (m_idleCounter < scene->m_animationClips[j]->GetEnd())
+						{
+							m_idleCounter += elapsedTime;
+						}
+						else
+						{
+							if (ManageCharacterBlends("idle"))
+							{
+								Cpy(currentIdleName, (CChar*)idleName[0].c_str());
+								m_idleCounter = 0.0f;
+								firstIdle = CTrue;
+							}
+						}
+					}
+				}
+			}
+			if (idleName.size() > 1 && m_idleCounter >= g_mainCharacter->GetIdleDelayForRandomPlay() && firstIdle)
+			{
+				CInt index = rand() % idleName.size();
+				if (index == 0 && idleName.size() > 1)
+					index = 1;
+				if (ManageCharacterBlends("more_idle", (CChar*)idleName[index].c_str()))
+				{
+					Cpy(currentIdleName, (CChar*)idleName[index].c_str());
+					m_idleCounter = 0.0f;
+					firstIdle = CFalse;
+				}
+			}
+		}
+	}
+
 }
 
 CVoid CMain::ApplyForce( CInt direction, CFloat elapsedTime )
@@ -3356,6 +4180,10 @@ CBool CMain::Reset()
 	g_fogProperties.Reset();
 	g_bloomProperties.Reset();
 	g_lightProperties.Reset();
+	g_currentVSceneProperties.Reset();
+	g_instancePrefabLODPercent.Reset();
+	g_prefabProperties.Reset();
+	g_cameraProperties.Reset();
 	g_characterBlendingProperties.Reset();
 	g_shadowProperties.Reset();
 	g_physXProperties.Reset();
@@ -3427,9 +4255,9 @@ CBool CMain::Reset()
 	g_octree->ResetState();
 	g_render.SetScene( NULL );
 
-	if( g_currentCameraType != eCAMERA_DEFAULT_PHYSX )
+	if( g_currentCameraType != eCAMERA_PHYSX )
 	{
-		g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
+		g_currentCameraType = eCAMERA_PHYSX;
 		g_render.SetActiveInstanceCamera(NULL);
 		g_main->m_lockInput = CFalse;
 	}
@@ -3449,11 +4277,11 @@ CBool CMain::Reset()
 	if( g_engineWaters.size() > 0 )
 		g_engineWaters.clear();
 
-	for( std::vector<CStaticSound*>::iterator it = g_engineStaticSounds.begin(); it != g_engineStaticSounds.end(); it++ )
+	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
-		CDelete( *it );
+		CDelete(g_engineStaticSounds[i]);
 	}
-	if( g_engineStaticSounds.size() > 0 )
+	if (g_engineStaticSounds.size() > 0)
 		g_engineStaticSounds.clear();
 
 	//clear the scene
@@ -3475,6 +4303,13 @@ CBool CMain::Reset()
 	if( g_engineLights.size() > 0 )
 		g_engineLights.clear();
 
+	for (std::vector<CInstanceCamera*>::iterator it = g_engineCameraInstances.begin(); it != g_engineCameraInstances.end(); it++)
+	{
+		CDelete((*it)->m_abstractCamera);
+		CDelete(*it);
+	}
+	if (g_engineCameraInstances.size() > 0)
+		g_engineCameraInstances.clear();
 
 	for( std::vector<CImage*>::iterator it = g_images.begin(); it != g_images.end(); it++ )
 	{
@@ -3497,7 +4332,17 @@ CBool CMain::Reset()
 	}
 	g_soundBuffers.clear();
 
+	//Delete Resource Files
+	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+		CDelete(g_resourceFiles[j]);
+	g_resourceFiles.clear();
+
+	if (g_main && g_main->GetCursorIcon())
+		g_main->GetCursorIcon()->SetVisible(CFalse);
+
 	CDelete( g_skyDome );
+
+	CDelete(g_terrain);
 
 	CDelete(g_startup);
 
@@ -3521,7 +4366,7 @@ CBool CMain::Reset()
 	Cpy(g_currentInstancePrefabName, "\n");
 
 	g_currentInstancePrefab = NULL;
-
+	g_maxInstancePrefabRadius = -1.0f;
 	g_clickedNew = CFalse;
 
 	return CTrue;
@@ -3579,6 +4424,8 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		CFogProperties fogProperties;
 		CBloomProperties bloomProperties;
 		CLightProperties lightProperties;
+		CLODProperties lodProperties;
+		CCameraProperties cameraProperties;
 		CPathProperties pathProperties;
 		CCharacterBlendingProperties characterBlendingProperties;
 		fread(&physXProperties, sizeof(CPhysXProperties), 1, filePtr);
@@ -3586,6 +4433,9 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		fread(&fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fread(&bloomProperties, sizeof(CBloomProperties), 1, filePtr);
 		fread(&lightProperties, sizeof(CLightProperties), 1, filePtr);
+		fread(&lodProperties, sizeof(CLODProperties), 1, filePtr);
+		fread(&cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+
 		//fread(&characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fread(&pathProperties, sizeof(CPathProperties), 1, filePtr);
 		CBool demo;
@@ -3609,12 +4459,14 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		NxExtendedVec3 characterPos;
 		CVec3f cameraInstancePos;
 		CVec2f cameraInstancePanTilt;
+		CFloat cameraInstanceZoom;
 		fread(&insertPhysXScene, sizeof(CBool), 1, filePtr);
 		fread(strPhysXSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 
 		fread(&cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+		fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 
 		CChar tempSceneName[MAX_NAME_SIZE];
 
@@ -3624,7 +4476,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		for (CInt i = 0; i < tempSceneSize; i++)
 		{
 			CInt clipIndex;
-			CBool playAnimation, loopAnimation, isVisible;
+			CBool playAnimation, loopAnimation, isVisible, isAlwaysVisible, castShadow;
 			CInt tempSceneAnimationListSize;
 
 			fread(tempSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -3632,6 +4484,8 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 			fread(&playAnimation, 1, sizeof(CBool), filePtr);
 			fread(&loopAnimation, 1, sizeof(CBool), filePtr);
 			fread(&isVisible, 1, sizeof(CBool), filePtr);
+			fread(&isAlwaysVisible, 1, sizeof(CBool), filePtr);
+			fread(&castShadow, 1, sizeof(CBool), filePtr);
 
 			fread(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
 
@@ -3664,19 +4518,46 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 
 			for (CUInt j = 0; j < tempScene->m_animationSceneNames.size(); j++)
 			{
-				CScene * animScene = new CScene();
 				CChar sceneName[MAX_NAME_SIZE];
 				Cpy(sceneName, tempScene->m_animationSceneNames[j].c_str());
 				CChar * nameOnly = GetAfterPath(sceneName);
-
+				GetWithoutDot(nameOnly);
+				Append(nameOnly, ".vac");
+				//save functions. it should be copied in WIN32 Project as well
 				CChar name[MAX_NAME_SIZE];
 				sprintf(name, "%s%s%s%s", packagePath, g_currentPrefabName, "/External Scenes/", nameOnly);
 
 				CChar clipName[MAX_NAME_SIZE];
 				Cpy(clipName, GetAfterPath(sceneName));
 				GetWithoutDot(clipName);
-				animScene->Load(name, clipName, j, tempScene);
-				CDelete(animScene);
+
+				//Load 
+				std::ifstream ifs(name, ios_base::binary);
+				boost::archive::binary_iarchive ia(ifs);
+				CAnimationClip* p;
+				ia >> p;
+				for (CUInt l = 0; l < p->m_animations.size(); l++)
+				{
+					if (!tempScene->GetAnimation(p->m_animations[l]->GetName(), p->m_animations[l]->GetDocURI()))
+					{
+						tempScene->m_animations.push_back(p->m_animations[l]);
+
+						if (p->m_animations[l]->GetChannelSize() > 0)
+						{
+							p->m_animations[l]->GenerateKeys();
+						}
+						if (p->m_animations[l]->GetEndTime() > tempScene->GetLastKeyTime())
+							tempScene->SetLastKeyTime(p->m_animations[l]->GetEndTime());
+
+					}
+				}
+				p->SetAnimationStatus(eANIM_NONE);
+				p->SetCurrentTime(0.0f);
+				p->SetCurrentTime2(0.0f);
+				p->SetCurrentWeight(0.0f);
+				tempScene->m_animationClips.push_back(p);
+
+				tempScene->m_hasAnimation = CTrue;
 			}
 			if (tempScene->m_animationSceneNames.size())
 				tempScene->SetNumClips(tempScene->m_animationSceneNames.size());
@@ -3690,16 +4571,21 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				tempScene->SetClipIndexForStartup(clipIndex);
 				tempScene->m_playAnimation = playAnimation;
 				tempScene->m_isVisible = isVisible;
+				tempScene->m_alwaysVisible = isAlwaysVisible;
+				tempScene->m_loopAnimationAtStartup = loopAnimation;
+				tempScene->m_castShadow = castShadow;
 				if (tempScene->m_playAnimation)
 				{
-					tempScene->m_animationStatus = eANIM_PLAY;
+					tempScene->SetAnimationStatus(eANIM_PLAY);
 					tempScene->SetClipIndex(clipIndex, loopAnimation);
-					if (tempScene->GetNumClips())
+					if (tempScene->m_loopAnimationAtStartup)
 						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+					else
+						tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
 				}
 				else
 				{
-					tempScene->m_animationStatus = eANIM_PAUSE;
+					tempScene->SetAnimationStatus(eANIM_PAUSE);
 				}
 				//save functions/////////////////////////////////
 				g_currentScene = tempScene; //mark the current scene. Save functions
@@ -3754,15 +4640,6 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 					MessageBoxA(NULL, "\nCouldn't create the triggers. In order to create triggers from COLLADA files, you should remove current external PhysX scene.", "Error", MB_OK);
 				}
 
-			}
-			else if (CmpIn(tempScene->GetName(), "grass") )
-			{
-				tempScene->m_isGrass = CTrue;
-				for (CUInt j = 0; j < (CUInt)tempGeoSize; j++)
-				{
-					if (tempScene->m_geometries.size() >= j + 1)
-						tempScene->m_geometries[j]->SetDiffuse("grass_color");
-				}
 			}
 
 			for (CUInt j = 0; j < (CUInt)tempGeoSize; j++)
@@ -3849,7 +4726,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				fread(&m_groupSize, sizeof(CUInt), 1, filePtr);
 				//store group info
 
-				if (sceneLoaded && !tempScene->m_isGrass)
+				if (sceneLoaded)
 				{
 					if (m_hasDirtMap && tempScene->m_geometries.size() >= j + 1)
 					{
@@ -3918,6 +4795,30 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 						fread(m_strGroupDiffuseMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						if (m_hasGroupDiffuse && tempScene->m_geometries.size() >= j + 1)
 							tempScene->m_geometries[j]->m_groups[k]->SetDiffuse(m_strGroupDiffuseMap);
+
+						//Material Colors
+						CFloat ambient[4]; CFloat diffuse[4]; CFloat specular[4]; CFloat emission[4];
+						CFloat shininess, transparency;
+
+						fread(ambient, sizeof(CFloat), 4, filePtr);
+						fread(diffuse, sizeof(CFloat), 4, filePtr);
+						fread(specular, sizeof(CFloat), 4, filePtr);
+						fread(emission, sizeof(CFloat), 4, filePtr);
+						fread(&shininess, sizeof(CFloat), 1, filePtr);
+						fread(&transparency, sizeof(CFloat), 1, filePtr);
+
+						if (tempScene->m_geometries.size() >= j + 1)
+						{
+							tempScene->m_geometries[j]->m_groups[k]->SetReadMaterialColorFromGameEngine();
+							tempScene->m_geometries[j]->m_groups[k]->SetAmbient(ambient);
+							tempScene->m_geometries[j]->m_groups[k]->SetDiffuse(diffuse);
+							tempScene->m_geometries[j]->m_groups[k]->SetSpecular(specular);
+							tempScene->m_geometries[j]->m_groups[k]->SetEmission(emission);
+							tempScene->m_geometries[j]->m_groups[k]->SetShininess(shininess);
+							tempScene->m_geometries[j]->m_groups[k]->SetTransparency(transparency);
+						}
+						//////////////////
+
 					}
 				}
 			} //for all of the geos
@@ -4013,13 +4914,13 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				} //if has PhysX
 			}
 		} // for all of the scenes
-		if (g_currentCameraType == eCAMERA_DEFAULT_FREE)
-		{
-			g_nx->gControllers->reportSceneChanged();
-			gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
-			gPhysXscene->flushStream();
-			gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
-		}
+		//if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+		//{
+			//g_nx->gControllers->reportSceneChanged();
+			//gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+			//gPhysXscene->flushStream();
+			//gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+		//}
 
 		fclose(filePtr);
 	}
@@ -4029,7 +4930,6 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 CBool CMain::Load(CChar* pathName)
 {
 	g_clickedOpen = CTrue;
-
 	Cpy(g_currentVSceneName, GetAfterPath(pathName));
 
 	FILE *filePtr;
@@ -4042,6 +4942,7 @@ CBool CMain::Load(CChar* pathName)
 		MessageBoxA(NULL, temp, "Error", MB_OK);
 		return CFalse;
 	}
+
 	CChar engineName[MAX_NAME_SIZE];
 	fread(&engineName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 	if (!CmpIn(engineName, "VandaEngine"))
@@ -4097,10 +4998,17 @@ CBool CMain::Load(CChar* pathName)
 
 	fread(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
 	ResetPhysX(); //reset the physX based on the g_physXProperties information
+	//temprary disable gravity to avoid falling objects while laoding the scene:
+	gPhysXscene->setGravity(NxVec3(0.0f, 0.0f, 0.0f));
+
 	fread(&g_dofProperties, sizeof(CDOFProperties), 1, filePtr);
 	fread(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
 	fread(&g_bloomProperties, sizeof(CBloomProperties), 1, filePtr);
 	fread(&g_lightProperties, sizeof(CLightProperties), 1, filePtr);
+	fread(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
+	fread(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+	fread(&g_currentVSceneProperties, sizeof(CCurrentVSceneProperties), 1, filePtr);
+
 	//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 	fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 	CBool demo;
@@ -4113,6 +5021,10 @@ CBool CMain::Load(CChar* pathName)
 
 	CChar bannerName[MAX_NAME_SIZE];
 	fread(&bannerName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+	CChar cursorName[MAX_NAME_SIZE];
+	fread(&cursorName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
 	fread(&g_extraTexturesNamingConventions, sizeof(CExtraTexturesNamingConventions), 1, filePtr);
 	fread(&g_useGlobalAmbientColor, sizeof(CBool), 1, filePtr);
 	fread(&g_globalAmbientColor, sizeof(CColor4f), 1, filePtr);
@@ -4127,7 +5039,7 @@ CBool CMain::Load(CChar* pathName)
 	NxExtendedVec3 characterPos;
 	CVec3f cameraInstancePos;
 	CVec2f cameraInstancePanTilt;
-
+	CFloat cameraInstanceZoom;
 	fread(&insertPhysXScene, sizeof(CBool), 1, filePtr);
 	fread(strPhysXSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 	fread(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
@@ -4138,8 +5050,14 @@ CBool CMain::Load(CChar* pathName)
 
 	fread(&cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 	fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
+	fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
+
 	g_render.GetDefaultInstanceCamera()->MoveTransform2(cameraInstancePos.x, cameraInstancePos.y, cameraInstancePos.z);
 	g_render.GetDefaultInstanceCamera()->SetPanAndTilt2(cameraInstancePanTilt.x, cameraInstancePanTilt.y);
+	g_render.GetDefaultInstanceCamera()->ZoomTransform2(0.0f);
+	g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(cameraInstanceZoom);
+	g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+	g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
 
 	///////////////////////////////////
 
@@ -4205,16 +5123,28 @@ CBool CMain::Load(CChar* pathName)
 			new_instance_prefab->SetPrefab(new_prefab);
 			new_instance_prefab->SetNameIndex(); //for selection only
 			new_instance_prefab->GenQueryIndex();
+			new_instance_prefab->SetWater(NULL);
 			g_instancePrefab.push_back(new_instance_prefab);
 			Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 			InsertPrefab(new_prefab);
 			new_instance_prefab->UpdateBoundingBox();
 			new_instance_prefab->CalculateDistance();
+			new_instance_prefab->UpdateIsStaticOrAnimated();
 
 			CChar tempInstanceName[MAX_NAME_SIZE];
 			sprintf(tempInstanceName, "%s%s%s", "\nPrefab Instance ' ", new_instance_prefab->GetName(), " ' created successfully");
 		}
 	}
+
+	for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+	{
+		if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+		{
+			if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+				g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+		}
+	}
+
 	g_updateOctree = CTrue;
 
 	CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
@@ -4250,6 +5180,28 @@ CBool CMain::Load(CChar* pathName)
 
 		new_gui->SetVisible(isVisible);
 
+		CChar guiPath[MAX_NAME_SIZE];
+		CChar guiAndPackageName[MAX_NAME_SIZE];
+
+		Cpy(guiAndPackageName, packageName);
+		Append(guiAndPackageName, "_");
+		Append(guiAndPackageName, guiName);
+
+		Cpy(guiPath, "Assets/GUIs/");
+		Append(guiPath, packageName);
+		Append(guiPath, "/");
+		Append(guiPath, guiName);
+		Append(guiPath, "/");
+		Append(guiPath, guiAndPackageName);
+		Append(guiPath, ".gui");
+
+		FILE *filePtr;
+		filePtr = fopen(guiPath, "rb");
+		if (!filePtr)
+		{
+			MessageBoxA(NULL, "Couldn't open the GUI file to load data", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return CFalse;
+		}
 		CUInt numButtons;
 		fread(&numButtons, sizeof(CUInt), 1, filePtr);
 
@@ -4539,7 +5491,7 @@ CBool CMain::Load(CChar* pathName)
 			new_gui->AddGUIText(guiText);
 
 		}
-
+		fclose(filePtr);
 		g_guis.push_back(new_gui);
 
 	}
@@ -4586,6 +5538,104 @@ CBool CMain::Load(CChar* pathName)
 	else
 		g_databaseVariables.m_insertAndShowSky = CFalse;
 
+	//Load terrain here
+	CBool showTerrain;
+
+	fread(&showTerrain, sizeof(CBool), 1, filePtr);
+	if (showTerrain)
+	{
+		CChar name[MAX_NAME_SIZE], heightMapPath[MAX_NAME_SIZE], bottomTexturePath[MAX_NAME_SIZE], bottomNormalMapPath[MAX_NAME_SIZE],
+			slopeTexturePath[MAX_NAME_SIZE], slopeNormalMapPath[MAX_NAME_SIZE], topTexturePath[MAX_NAME_SIZE], topNormalPath[MAX_NAME_SIZE];
+
+		CChar* temp_heightMapPath; CChar* temp_bottomTexturePath; CChar* temp_bottomNormalMapPath;
+		CChar* temp_slopeTexturePath; CChar* temp_slopeNormalMapPath; CChar* temp_topTexturePath; CChar* temp_topNormalPath;
+
+		CChar final_heightMapPath[MAX_NAME_SIZE], final_bottomTexturePath[MAX_NAME_SIZE], final_bottomNormalMapPath[MAX_NAME_SIZE],
+			final_slopeTexturePath[MAX_NAME_SIZE], final_slopeNormalMapPath[MAX_NAME_SIZE], final_topTexturePath[MAX_NAME_SIZE], final_topNormalPath[MAX_NAME_SIZE];
+
+		CFloat shininess, scaleHeight, scaleWidth, slopeFactor, startHeight;
+		CInt smooth;
+		CBool flatten;
+		CFloat ambientColor[4], diffuseColor[4], specularColor[4];
+
+		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(heightMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(bottomTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(bottomNormalMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(slopeTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(slopeNormalMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(topTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(topNormalPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(&shininess, sizeof(CFloat), 1, filePtr);
+		fread(&smooth, sizeof(CInt), 1, filePtr);
+		fread(&scaleHeight, sizeof(CFloat), 1, filePtr);
+		fread(&scaleWidth, sizeof(CFloat), 1, filePtr);
+		fread(&slopeFactor, sizeof(CFloat), 1, filePtr);
+		fread(&startHeight, sizeof(CFloat), 1, filePtr);
+		fread(&flatten, sizeof(CBool), 1, filePtr);
+		fread(ambientColor, sizeof(CFloat), 4, filePtr);
+		fread(diffuseColor, sizeof(CFloat), 4, filePtr);
+		fread(specularColor, sizeof(CFloat), 4, filePtr);
+
+		temp_heightMapPath = GetAfterPath(heightMapPath);
+		sprintf(final_heightMapPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_heightMapPath);
+
+		temp_bottomTexturePath = GetAfterPath(bottomTexturePath);
+		sprintf(final_bottomTexturePath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_bottomTexturePath);
+
+		temp_bottomNormalMapPath = GetAfterPath(bottomNormalMapPath);
+		sprintf(final_bottomNormalMapPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_bottomNormalMapPath);
+
+		temp_slopeTexturePath = GetAfterPath(slopeTexturePath);
+		sprintf(final_slopeTexturePath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_slopeTexturePath);
+
+		temp_slopeNormalMapPath = GetAfterPath(slopeNormalMapPath);
+		sprintf(final_slopeNormalMapPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_slopeNormalMapPath);
+
+		temp_topTexturePath = GetAfterPath(topTexturePath);
+		sprintf(final_topTexturePath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_topTexturePath);
+
+		temp_topNormalPath = GetAfterPath(topNormalPath);
+		sprintf(final_topNormalPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/", temp_topNormalPath);
+
+		CChar physicsPath[MAX_NAME_SIZE];
+		sprintf(physicsPath, "%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Terrain/");
+
+		g_terrain = CNew(CTerrain);
+		g_terrain->SetCookPhysicsTriangles(CFalse);
+		g_terrain->SetPhysicsPath(physicsPath);
+		g_terrain->SetName(name);
+
+		g_terrain->SetHeightMapPath(final_heightMapPath);
+
+		g_terrain->SetBottomTexturePath(final_bottomTexturePath);
+		g_terrain->SetBottomNormalMapPath(final_bottomNormalMapPath);
+
+		g_terrain->SetSlopeTexturePath(final_slopeTexturePath);
+		g_terrain->SetSlopeNormalMapPath(final_slopeNormalMapPath);
+
+		g_terrain->SetTopTexturePath(final_topTexturePath);
+		g_terrain->SetTopNormalMapPath(final_topNormalPath);
+
+		g_terrain->SetShininess(shininess);
+		g_terrain->SetSmooth(smooth);
+		g_terrain->SetScaleHeight(scaleHeight);
+		g_terrain->SetScaleWidth(scaleWidth);
+		g_terrain->SetSlopeFactor(slopeFactor);
+		g_terrain->SetTopStartHeight(startHeight);
+		g_terrain->SetFlatten(flatten);
+
+		g_terrain->SetAmbientColor(ambientColor);
+		g_terrain->SetDiffuseColor(diffuseColor);
+		g_terrain->SetSpecularColor(specularColor);
+
+		g_terrain->Initialize();
+		g_databaseVariables.m_insertAndShowTerrain = CTrue;
+	}
+	else
+		g_databaseVariables.m_insertAndShowTerrain = CFalse;
+
+	//Load water here
 	CInt tempWaterCount, tempInstancePrefabWaterCount;
 	CChar strNormalMap[MAX_NAME_SIZE];
 	CChar strDuDvMap[MAX_NAME_SIZE];
@@ -4593,6 +5643,7 @@ CBool CMain::Load(CChar* pathName)
 	CFloat waterPos[3];
 	CFloat waterLightPos[3];
 	CFloat waterHeight, waterSpeed, waterScale, waterUV;
+	CBool waterVisible;
 
 	fread(&tempWaterCount, sizeof(CInt), 1, filePtr);
 	for (CInt i = 0; i < tempWaterCount; i++)
@@ -4609,6 +5660,7 @@ CBool CMain::Load(CChar* pathName)
 		fread(&waterSpeed, sizeof(CFloat), 1, filePtr);
 		fread(&waterScale, sizeof(CFloat), 1, filePtr);
 		fread(&waterUV, sizeof(CFloat), 1, filePtr);
+		fread(&waterVisible, sizeof(CBool), 1, filePtr);
 
 		fread(&tempInstancePrefabWaterCount, sizeof(CInt), 1, filePtr);
 		for (CInt j = 0; j < tempInstancePrefabWaterCount; j++)
@@ -4619,7 +5671,11 @@ CBool CMain::Load(CChar* pathName)
 			for (CUInt k = 0; k < g_instancePrefab.size(); k++)
 			{
 				if (Cmp(g_instancePrefab[k]->GetName(), instanceName))
+				{
 					water->m_instancePrefab.push_back(g_instancePrefab[k]);
+					g_instancePrefab[k]->SetWater(water);
+					g_instancePrefab[k]->UpdateBoundingBoxForWater(waterHeight);
+				}
 			}
 		}
 		CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
@@ -4646,6 +5702,7 @@ CBool CMain::Load(CChar* pathName)
 		water->SetScale(waterScale);
 		water->SetUV(waterUV);
 		water->SetPos(waterPos);
+		water->SetVisible(waterVisible);
 		water->SetLightPos(waterLightPos);
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID);
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID);
@@ -4709,6 +5766,50 @@ CBool CMain::Load(CChar* pathName)
 		g_engineLights.push_back(instance_light);
 
 	}
+
+	//Engine Cameras
+	CInt tempCameraCount;
+	fread(&tempCameraCount, sizeof(CInt), 1, filePtr);
+
+	for (CInt i = 0; i < tempCameraCount; i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		CFloat pos[3], pan, tilt, fov, ncp, fcp;
+
+		fread(cameraName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(pos, sizeof(CFloat), 3, filePtr);
+		fread(&pan, sizeof(CFloat), 1, filePtr);
+		fread(&tilt, sizeof(CFloat), 1, filePtr);
+		fread(&fov, sizeof(CFloat), 1, filePtr);
+		fread(&ncp, sizeof(CFloat), 1, filePtr);
+		fread(&fcp, sizeof(CFloat), 1, filePtr);
+
+		CInstanceCamera* instance_camera = new CInstanceCamera();
+		CCamera* abstract_camera = new CCamera();
+		CNode* parent = CNew(CNode);
+		instance_camera->m_parent = parent;
+		instance_camera->m_abstractCamera = abstract_camera;
+		abstract_camera->SetName(cameraName);
+
+		CVec3f vec_pos(pos[0], pos[1], pos[2]);
+		instance_camera->SetPos(vec_pos);
+		instance_camera->SetPan(pan);
+		instance_camera->SetTilt(tilt);
+		instance_camera->m_abstractCamera->SetAngle(fov);
+		instance_camera->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+		instance_camera->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+		instance_camera->SetNCP(ncp);
+		instance_camera->SetFCP(fcp);
+
+		instance_camera->SetIndex();
+
+		instance_camera->MoveTransform2(vec_pos.x, vec_pos.y, vec_pos.z);
+		instance_camera->SetPanAndTilt2(pan, tilt);
+		instance_camera->ZoomTransform2(0.0f);
+
+		g_engineCameraInstances.push_back(instance_camera);
+	}
+
 	//static sounds
 	CInt tempStaticSoundCount;
 	fread(&tempStaticSoundCount, sizeof(CInt), 1, filePtr);
@@ -4887,9 +5988,6 @@ CBool CMain::Load(CChar* pathName)
 		CChar trimmed_enter_script[MAX_NAME_SIZE];
 		CChar trimmed_exit_script[MAX_NAME_SIZE];
 
-		sprintf(trimmed_enter_script, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/", GetAfterPath(m_enterScript));
-		sprintf(trimmed_exit_script, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/", GetAfterPath(m_exitScript));
-
 		//read prefab data
 
 		CTrigger* new_trigger = CNew(CTrigger);
@@ -4915,6 +6013,7 @@ CBool CMain::Load(CChar* pathName)
 		new_instance_prefab->SetName(instance_name);
 		new_instance_prefab->SetNameIndex(); //for selection only
 		new_instance_prefab->GenQueryIndex();
+		new_instance_prefab->SetWater(NULL);
 		g_instancePrefab.push_back(new_instance_prefab);
 		Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 		InsertPrefab(new_prefab);
@@ -4927,6 +6026,10 @@ CBool CMain::Load(CChar* pathName)
 		new_trigger->GetInstancePrefab()->SetScale(scaling);
 		new_trigger->GetInstancePrefab()->UpdateBoundingBox();
 		new_trigger->GetInstancePrefab()->CalculateDistance();
+		//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
+
+		sprintf(trimmed_enter_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", new_trigger->GetInstancePrefab()->GetName(), GetAfterPath(m_enterScript));
+		sprintf(trimmed_exit_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", new_trigger->GetInstancePrefab()->GetName(), GetAfterPath(m_exitScript));
 
 		CScene* scene = new_trigger->GetInstancePrefab()->GetScene(0);
 		for (CUInt i = 0; i < scene->m_instanceGeometries.size(); i++)
@@ -4959,7 +6062,7 @@ CBool CMain::Load(CChar* pathName)
 		if (!g_mainCharacter)
 			g_mainCharacter = CNew(CMainCharacter);
 
-		CCharacterType type;
+		CPhysXCameraType type;
 		CChar name[MAX_NAME_SIZE];
 		CChar packageName[MAX_NAME_SIZE];
 		CChar prefabName[MAX_NAME_SIZE];
@@ -4971,7 +6074,7 @@ CBool CMain::Load(CChar* pathName)
 		g_mainCharacter->SetName(name);
 		g_mainCharacter->SetPackageName(packageName);
 		g_mainCharacter->SetPrefabName(prefabName);
-		g_mainCharacter->SetType(type);
+		g_mainCharacter->SetCameraType(type);
 
 		CChar instance_name[MAX_NAME_SIZE];
 		CVec3f translation;
@@ -5036,9 +6139,19 @@ CBool CMain::Load(CChar* pathName)
 		new_instance_prefab->SetName(instance_name);
 		new_instance_prefab->SetNameIndex(); //for selection only
 		new_instance_prefab->GenQueryIndex();
+		new_instance_prefab->SetWater(NULL);
 		g_instancePrefab.push_back(new_instance_prefab);
 		Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 		InsertPrefab(new_prefab);
+
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
 
 		g_instancePrefab[g_instancePrefab.size() - 1]->SetName("VANDA_MAIN_CHARACTER");
 
@@ -5049,6 +6162,11 @@ CBool CMain::Load(CChar* pathName)
 		g_mainCharacter->GetInstancePrefab()->SetScale(scaling);
 		g_mainCharacter->GetInstancePrefab()->UpdateBoundingBox();
 		g_mainCharacter->GetInstancePrefab()->CalculateDistance();
+		//g_mainCharacter->GetInstancePrefab()->UpdateIsStaticOrAnimated();
+		g_mainCharacter->SetCurrentRotation(rotation.y);
+		g_mainCharacter->SetPosition(translation);
+		g_camera->m_perspectiveCameraYaw = NxMath::degToRad(rotation.y) + NxMath::degToRad(180.f);
+
 
 		g_main->RenderCharacter(CFalse);
 		//save main actions
@@ -5154,50 +6272,101 @@ CBool CMain::Load(CChar* pathName)
 		g_databaseVariables.m_insertStartup = CFalse;
 	}
 
-
-	//generate physX colliders
-	for (CUInt i = 0; i < g_scene.size(); i++)
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
-		g_render.SetScene(g_scene[i]);
-		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+		CScene* scene = NULL;
+		for (CUInt j = 0; j < 3; j++)
 		{
-			if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
+			if (prefab && prefab->GetHasLod(j))
 			{
-				g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
+				scene = g_instancePrefab[i]->GetScene(j);
+				if (scene)
+				{
+					g_render.SetScene(scene);
+					g_render.GetScene()->Update(0.001f, CTrue);
+					g_instancePrefab[i]->SetSceneVisible(j, CTrue);
+				}
 			}
 		}
-		g_render.GetScene()->m_update = CFalse;
+		g_instancePrefab[i]->UpdateBoundingBox(CTrue);//init
+		g_instancePrefab[i]->UpdateIsStaticOrAnimated();//init
 	}
+
+	//generate physX colliders
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_currentInstancePrefab = g_instancePrefab[i];
+
+		CScene* scene = NULL;
+
+		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+		for (CUInt j = 0; j < 3; j++)
+		{
+			if (prefab && prefab->GetHasLod(j))
+			{
+				scene = g_instancePrefab[i]->GetScene(j);
+				if (scene)
+				{
+					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+					{
+						if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
+						{
+							scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+						}
+						else if (scene->m_instanceGeometries[k]->m_hasPhysX)
+						{
+							scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, NULL);
+						}
+					}
+					scene->m_update = CFalse;
+				}
+			}
+		}
+	}
+
 	if (g_physXProperties.m_bGroundPlane)
 	{
 		NxVec3 rot0(0, 0, 0);
 		NxVec3 rot1(0, 0, 0);
 		NxVec3 rot2(0, 0, 0);
 		NxMat33 rot(rot0, rot1, rot2);
-		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1f, 2000.0f), 0, rot, NULL, CFalse, CFalse);
 	}
 
-	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE )
+	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	//{
-	g_nx->gControllers->reportSceneChanged();
-	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
-	gPhysXscene->flushStream();
-	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
+	//g_nx->gControllers->reportSceneChanged();
+	//gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+	//gPhysXscene->flushStream();
+	//gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
 	//}
 	g_selectedName = -1;
 
 	fclose( filePtr );
 
+	//if (g_currentVSceneProperties.m_isMenu)
+	//{
+		//Load Cursor Icon
+		CChar cursorPath[MAX_NAME_SIZE];
+		CChar* tempCursorPath = GetAfterPath(cursorName);
+		//Copy this to Win32 Project as well
+		sprintf(cursorPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Cursor/", tempCursorPath);
+		GenerateMenuCursorTexture(cursorPath);
+	//}
+
 	//m_particleSystem = CNew( CParticleSystem( 1000, "p1" ) );
 	m_dof.InitFBOs( g_width, g_height );
-	ResetTimer();
-	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-	{
-		g_instancePrefab[i]->UpdateBoundingBox(CTrue);
-	}
 
 	RenderQueries(CTrue);
+	CalculateDistnces();
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetLightCooked(CFalse);
+	}
+	ResetTimer();
 
 	g_clickedOpen = CFalse;
 	return CTrue;
@@ -5480,7 +6649,7 @@ CBool CMain::InitFBOs( CInt channels, CInt type )
 }
 
 
-CVoid CMain::SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sHeight )
+CVoid CMain::SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar)
 {
 	//previous position of the perspective camera (used while instanced camera is enabled)
 	g_camera->m_perspectiveCameraPosOfPreviousFrame = g_camera->m_perspectiveCameraPos;
@@ -5488,10 +6657,10 @@ CVoid CMain::SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sH
 	// Get the camera from the instance and set the projection matrix from it
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(inst->m_abstractCamera->GetYFov(),
+	gluPerspective(fov,
 					( sWidth / sHeight ),
-					/*inst->m_abstractCamera->GetZNear()*/0.1,
-					/*inst->m_abstractCamera->GetZFar()*/10000);
+					zNear,
+					zFar);
 
 	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	{
@@ -5508,17 +6677,17 @@ CVoid CMain::SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sH
 	CMatrixCopy(*ltow, mat); 
 	//CMatrix3x4Invert( mat, mat);
 	//LoadMatrix( mat );
-	CVec3f at(0,0,-1),pos( 0,0,0), tAt, tPos;
-	CMatrixTransform( mat, at, tAt );
-	CMatrixTransform( mat, pos, tPos );
-	g_camera->m_perspectiveCameraPos.x = tPos.x;
-	g_camera->m_perspectiveCameraPos.y = tPos.y;
-	g_camera->m_perspectiveCameraPos.z = tPos.z;
+	CVec3f at(0,0,-1),pos( 0,0,0);
+	CMatrixTransform( mat, at, free_dae_cam_at );
+	CMatrixTransform( mat, pos, free_dae_cam_pos );
+	g_camera->m_perspectiveCameraPos.x = free_dae_cam_pos.x;
+	g_camera->m_perspectiveCameraPos.y = free_dae_cam_pos.y;
+	g_camera->m_perspectiveCameraPos.z = free_dae_cam_pos.z;
 
 	//it's used for OpenAL
-	g_camera->m_perspectiveCameraDir.x = -(tAt.x - tPos.x);
-	g_camera->m_perspectiveCameraDir.y = tAt.y - tPos.y;
-	g_camera->m_perspectiveCameraDir.z = -(tAt.z - tPos.z);
+	g_camera->m_perspectiveCameraDir.x = -(free_dae_cam_at.x - free_dae_cam_pos.x);
+	g_camera->m_perspectiveCameraDir.y = free_dae_cam_at.y - free_dae_cam_pos.y;
+	g_camera->m_perspectiveCameraDir.z = -(free_dae_cam_at.z - free_dae_cam_pos.z);
 
 	//shadow 
 	cam_pos[0] = g_camera->m_perspectiveCameraPos.x;
@@ -5531,7 +6700,7 @@ CVoid CMain::SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sH
 
 	g_render.ModelViewMatrix();
 	g_render.IdentityMatrix();
-	gluLookAt( tPos.x , tPos.y, tPos.z, tAt.x, tAt.y, tAt.z, 0.0, 1.0, 0.0 );
+	gluLookAt(free_dae_cam_pos.x, free_dae_cam_pos.y, free_dae_cam_pos.z, free_dae_cam_at.x, free_dae_cam_at.y, free_dae_cam_at.z, 0.0, 1.0, 0.0);
 	//if( g_shadowProperties.m_enable && g_render.UsingShadowShader()  && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	//{
 		// store the inverse of the resulting modelview matrix for the shadow computation
@@ -5540,11 +6709,57 @@ CVoid CMain::SetInstanceCamera( CInstanceCamera * inst, CFloat sWidth, CFloat sH
 	//}
 }
 
+CVoid CMain::UpdateDynamicPhysicsObjects()
+{
+	//3D Model data
+	CBool foundDynamicPhysX = CFalse;
+	if (gPhysXscene)
+	{
+		for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
+		{
+			if (!gPhysXscene->getActors()[j]->isSleeping())
+				foundDynamicPhysX = CTrue;
+		}
+	}
+
+	if (foundDynamicPhysX)
+	{
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			if (!g_instancePrefab[i]->GetIsControlledByPhysX()) continue;
+
+			g_currentInstancePrefab = g_instancePrefab[i];
+
+			CScene* scene = NULL;
+
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j))
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					if (!scene) continue;
+					break;
+				}
+			}
+			g_render.SetScene(scene);
+
+			if (g_render.GetScene()->m_update)
+			{
+				g_render.GetScene()->Update();
+				g_render.GetScene()->m_update = CFalse;
+			}
+			g_render.GetScene()->UpdateDynamicPhysicsObjects();
+		}
+	}
+}
+
 CVoid CMain::UpdateAnimations(CBool init)
 {
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
+		if (!g_instancePrefab[i]->GetIsAnimated() && !g_instancePrefab[i]->GetIsControlledByPhysX()) continue;
 		g_currentInstancePrefab = g_instancePrefab[i];
 
 		CScene* scene = NULL;
@@ -5552,65 +6767,43 @@ CVoid CMain::UpdateAnimations(CBool init)
 		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) && (g_instancePrefab[i]->GetSceneVisible(j) || init))
+			if (prefab && prefab->GetHasLod(j) /*&& (g_instancePrefab[i]->GetSceneVisible(j) || init)*/)
 			{
 				scene = g_instancePrefab[i]->GetScene(j);
-				break;
-			}
-		}
-		if (!scene)
-		{
-			for (CUInt j = 0; j < 3; j++)
-			{
-				if (prefab && prefab->GetHasLod(j))
+				if (!scene) continue;
+				g_render.SetScene(scene);
+				if (!g_render.GetScene()->m_isTrigger)
 				{
-					for (CUInt k = 0; k < g_instancePrefab[i]->GetScene(j)->m_cameraInstances.size(); k++)
+					if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
 					{
-						if (Cmp(g_instancePrefab[i]->GetScene(j)->m_cameraInstances[k]->m_abstractCamera->GetName(), g_render.GetActiveInstanceCamera()->m_abstractCamera->GetName()))
+						if (g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists())
 						{
-							scene = g_instancePrefab[i]->GetScene(j);
-							break;
+							g_render.GetScene()->Update(elapsedTime);
+							g_render.GetScene()->m_updateAnimation = CFalse;
+							g_render.GetScene()->m_update = CFalse;
+							g_render.GetScene()->SetUpdateBB(CTrue);
+						} //if
+						else if (init)
+						{
+							g_render.GetScene()->Update(0.0f);
+							g_render.GetScene()->m_updateAnimation = CFalse;
+							g_render.GetScene()->m_update = CFalse;
 						}
-					}
-				}
+						else if (g_render.GetScene()->m_update)
+						{
+							g_render.GetScene()->Update();
+							g_render.GetScene()->m_update = CFalse;
+						} //else
+
+					} //if
+					else if (g_render.GetScene()->m_update)
+					{
+						g_render.GetScene()->Update();
+						g_render.GetScene()->m_update = CFalse;
+					} //else
+				} //if
 			}
 		}
-		if (!scene) continue;
-		if (!scene->m_isVisible && !init) continue;
-		g_render.SetScene(scene);
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
-		{
-			if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
-			{
-				if (g_render.GetScene()->m_animationStatus == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists())
-				{
-					if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
-						g_render.GetScene()->Update(elapsedTime, CFalse, CTrue, CFalse);
-					else
-						g_render.GetScene()->Update(elapsedTime);
-					g_render.GetScene()->m_updateAnimation = CFalse;
-					g_render.GetScene()->m_update = CFalse;
-					g_render.GetScene()->SetUpdateBB(CTrue);
-				} //if
-				else if (init)
-				{
-					g_render.GetScene()->Update(0.0f);
-					g_render.GetScene()->m_updateAnimation = CFalse;
-					g_render.GetScene()->m_update = CFalse;
-				}
-				else if (g_render.GetScene()->m_update)
-				{
-					g_render.GetScene()->Update();
-					g_render.GetScene()->m_update = CFalse;
-				} //else
-
-			} //if
-			else if (g_render.GetScene()->m_update)
-			{
-				g_render.GetScene()->Update();
-				g_render.GetScene()->m_update = CFalse;
-			} //else
-		} //if
 	} //for
 }
 CVoid CMain::Render3DModelsControlledByPhysX(CBool sceneManager)
@@ -5619,7 +6812,10 @@ CVoid CMain::Render3DModelsControlledByPhysX(CBool sceneManager)
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
+		if (!g_instancePrefab[i]->GetIsControlledByPhysX()) continue;
+
 		g_currentInstancePrefab = g_instancePrefab[i];
+
 		//if (m_bQuery)
 		//{
 		//	if (g_instancePrefab[i]->GetResult() == 0)
@@ -5628,13 +6824,22 @@ CVoid CMain::Render3DModelsControlledByPhysX(CBool sceneManager)
 		//			continue;
 		//	}
 		//}
+		CBool foundPhysX = CFalse;
+		if (gPhysXscene)
+		{
+			for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
+			{
+				if (!gPhysXscene->getActors()[j]->isSleeping())
+					foundPhysX = CTrue;
+			}
+		}
 
 		CScene* scene = NULL;
 
 		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) && g_instancePrefab[i]->GetSceneVisible(j))
+			if (prefab && prefab->GetHasLod(j) && (g_instancePrefab[i]->GetSceneVisible(j) || foundPhysX))
 			{
 				scene = g_instancePrefab[i]->GetScene(j);
 				break;
@@ -5643,13 +6848,14 @@ CVoid CMain::Render3DModelsControlledByPhysX(CBool sceneManager)
 		if (!scene) continue;
 		g_render.SetScene(scene);
 
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+		if (!g_render.GetScene()->m_isTrigger)
 		{
 			if (g_render.GetScene()->m_update)
 			{
 				g_render.GetScene()->Update();
 				g_render.GetScene()->m_update = CFalse;
 			}
+			g_currentInstancePrefab->SetLight();
 			g_render.GetScene()->RenderModelsControlledByPhysX(sceneManager);
 
 			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
@@ -5668,6 +6874,31 @@ CVoid CMain::Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneM
 	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
 	{
 		if (!water->m_instancePrefab[i]->GetVisible()) continue;
+		if (!water->m_instancePrefab[i]->GetIsControlledByPhysX()) continue;
+		g_currentInstancePrefab = water->m_instancePrefab[i];
+
+		CVec3f src[8];
+		CVec3f maxAABB = water->m_instancePrefab[i]->GetInverseMaxAABB();
+		CVec3f minAABB = water->m_instancePrefab[i]->GetInverseMinAABB();
+		src[0].x = minAABB.x; src[0].y = minAABB.y; src[0].z = minAABB.z;
+		src[1].x = maxAABB.x; src[1].y = minAABB.y; src[1].z = maxAABB.z;
+		src[2].x = maxAABB.x; src[2].y = minAABB.y; src[2].z = minAABB.z;
+		src[3].x = minAABB.x; src[3].y = minAABB.y; src[3].z = maxAABB.z;
+		src[4].x = maxAABB.x; src[4].y = maxAABB.y; src[4].z = minAABB.z;
+		src[5].x = minAABB.x; src[5].y = maxAABB.y; src[5].z = minAABB.z;
+		src[6].x = minAABB.x; src[6].y = maxAABB.y; src[6].z = maxAABB.z;
+		src[7].x = maxAABB.x; src[7].y = maxAABB.y; src[7].z = maxAABB.z;
+
+		if (!g_camera->m_cameraManager->IsBoxInFrustum(&src[0], 8))
+		{
+			g_currentInstancePrefab->SetRenderForWaterQuery(CFalse);
+			continue;
+		}
+		else
+		{
+			g_currentInstancePrefab->SetRenderForWaterQuery(CTrue);
+		}
+
 		g_currentInstancePrefab = water->m_instancePrefab[i];
 
 		CScene* scene = NULL;
@@ -5684,13 +6915,14 @@ CVoid CMain::Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneM
 		if (!scene) continue;
 		g_render.SetScene(scene);
 
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+		if (!g_render.GetScene()->m_isTrigger)
 		{
 			if (g_render.GetScene()->m_update)
 			{
 				g_render.GetScene()->Update();
 				g_render.GetScene()->m_update = CFalse;
 			}
+			g_currentInstancePrefab->SetLight();
 			g_render.GetScene()->RenderModelsControlledByPhysX(sceneManager);
 
 			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
@@ -5705,7 +6937,7 @@ CVoid CMain::Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneM
 
 CVoid CMain::RenderCharacter(CBool sceneManager)
 {
-	if (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON) return;
+	if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON) return;
 
 	if (!g_databaseVariables.m_insertCharacter)
 		return;
@@ -5717,9 +6949,11 @@ CVoid CMain::RenderCharacter(CBool sceneManager)
 	g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
 
 	if (!g_currentInstancePrefab->GetVisible()) return;
+	g_currentInstancePrefab->SetLight();
+
 	static CFloat lerpFactor = 0.0f;
 
-	CFloat y = (CFloat)g_nx->gCharacterPos.y - (g_physXProperties.m_fCapsuleHeight * 0.5f);
+	CFloat y = (CFloat)g_nx->gCharacterPos.y - (g_physXProperties.m_fCapsuleHeight * 0.5f) - g_physXProperties.m_fCapsuleRadius - g_physXProperties.m_fCharacterSkinWidth;
 
 	CVec3f trans(g_nx->gCharacterPos.x, y, g_nx->gCharacterPos.z);
 
@@ -5794,29 +7028,29 @@ CVoid CMain::RenderCharacter(CBool sceneManager)
 	if (!scene) return;
 
 	g_render.SetScene(scene);
-	if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+	if (!g_render.GetScene()->m_isTrigger)
 	{
-		if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
-		{
-			if (g_render.GetScene()->m_animationStatus == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
-			{
-				g_render.GetScene()->Update(elapsedTime);
-				g_render.GetScene()->m_updateAnimation = CFalse;
-				g_render.GetScene()->m_update = CFalse;
-				g_render.GetScene()->SetUpdateBB(CTrue);
-			}
-			else if (g_render.GetScene()->m_update)
-			{
-				g_render.GetScene()->Update();
-				g_render.GetScene()->m_update = CFalse;
-			}
+		//if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
+		//{
+		//	if (g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
+		//	{
+		//		g_render.GetScene()->Update(elapsedTime);
+		//		g_render.GetScene()->m_updateAnimation = CFalse;
+		//		g_render.GetScene()->m_update = CFalse;
+		//		g_render.GetScene()->SetUpdateBB(CTrue);
+		//	}
+		//	else if (g_render.GetScene()->m_update)
+		//	{
+		//		g_render.GetScene()->Update();
+		//		g_render.GetScene()->m_update = CFalse;
+		//	}
 
-		}
-		else if (g_render.GetScene()->m_update)
-		{
-			g_render.GetScene()->Update();
-			g_render.GetScene()->m_update = CFalse;
-		}
+		//}
+		//else if (g_render.GetScene()->m_update)
+		//{
+		//	g_render.GetScene()->Update();
+		//	g_render.GetScene()->m_update = CFalse;
+		//}
 		if (g_currentInstancePrefab)
 		{
 			g_render.ModelViewMatrix();
@@ -5825,7 +7059,7 @@ CVoid CMain::RenderCharacter(CBool sceneManager)
 		}
 		//disable self shadow to prevent artifacts
 		CBool useShadow = g_render.m_useDynamicShadowMap;
-		g_render.m_useDynamicShadowMap = CFalse;
+		//g_render.m_useDynamicShadowMap = CFalse;
 		g_render.GetScene()->RenderAnimatedModels(sceneManager, CTrue); //render controller
 		g_render.m_useDynamicShadowMap = useShadow;
 
@@ -5849,8 +7083,12 @@ CVoid CMain::Render3DAnimatedModels(CBool sceneManager)
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
+		if (!g_instancePrefab[i]->GetIsAnimated()) continue;
+
 		g_currentInstancePrefab = g_instancePrefab[i];
 		if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
+			continue;
+		if (!g_currentInstancePrefab->GetRenderForQuery())
 			continue;
 
 		//if (m_bQuery)
@@ -5876,29 +7114,10 @@ CVoid CMain::Render3DAnimatedModels(CBool sceneManager)
 		if (!scene) continue;
 
 		g_render.SetScene(scene);
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+		if (!g_render.GetScene()->m_isTrigger)
 		{
-			if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
-			{
-				if (g_render.GetScene()->m_animationStatus == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
-				{
-					g_render.GetScene()->Update(elapsedTime);
-					g_render.GetScene()->m_updateAnimation = CFalse;
-					g_render.GetScene()->m_update = CFalse;
-					g_render.GetScene()->SetUpdateBB(CTrue);
-				}
-				else if (g_render.GetScene()->m_update)
-				{
-					g_render.GetScene()->Update();
-					g_render.GetScene()->m_update = CFalse;
-				}
+			g_currentInstancePrefab->SetLight();
 
-			}
-			else if (g_render.GetScene()->m_update)
-			{
-				g_render.GetScene()->Update();
-				g_render.GetScene()->m_update = CFalse;
-			}
 			if (g_currentInstancePrefab)
 			{
 				g_render.ModelViewMatrix();
@@ -5926,7 +7145,31 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
 	{
 		if (!water->m_instancePrefab[i]->GetVisible()) continue;
+		if (!water->m_instancePrefab[i]->GetIsAnimated()) continue;
 		g_currentInstancePrefab = water->m_instancePrefab[i];
+
+		CVec3f src[8];
+		CVec3f maxAABB = water->m_instancePrefab[i]->GetInverseMaxAABB();
+		CVec3f minAABB = water->m_instancePrefab[i]->GetInverseMinAABB();
+		src[0].x = minAABB.x; src[0].y = minAABB.y; src[0].z = minAABB.z;
+		src[1].x = maxAABB.x; src[1].y = minAABB.y; src[1].z = maxAABB.z;
+		src[2].x = maxAABB.x; src[2].y = minAABB.y; src[2].z = minAABB.z;
+		src[3].x = minAABB.x; src[3].y = minAABB.y; src[3].z = maxAABB.z;
+		src[4].x = maxAABB.x; src[4].y = maxAABB.y; src[4].z = minAABB.z;
+		src[5].x = minAABB.x; src[5].y = maxAABB.y; src[5].z = minAABB.z;
+		src[6].x = minAABB.x; src[6].y = maxAABB.y; src[6].z = maxAABB.z;
+		src[7].x = maxAABB.x; src[7].y = maxAABB.y; src[7].z = maxAABB.z;
+
+		if (!g_camera->m_cameraManager->IsBoxInFrustum(&src[0], 8))
+		{
+			g_currentInstancePrefab->SetRenderForWaterQuery(CFalse);
+			continue;
+		}
+		else
+		{
+			g_currentInstancePrefab->SetRenderForWaterQuery(CTrue);
+		}
+
 
 		CScene* scene = NULL;
 
@@ -5942,29 +7185,36 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 		if (!scene) continue;
 
 		g_render.SetScene(scene);
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+		if (!g_render.GetScene()->m_isTrigger)
 		{
-			if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
+			CBool update = CTrue;
+			if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
+				update = CFalse;
+			if (update)
 			{
-				if (g_render.GetScene()->m_animationStatus == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
+				if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
 				{
-					g_render.GetScene()->Update(elapsedTime);
-					g_render.GetScene()->m_updateAnimation = CFalse;
-					g_render.GetScene()->m_update = CFalse;
-					g_render.GetScene()->SetUpdateBB(CTrue);
+					if (g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
+					{
+						g_render.GetScene()->Update(elapsedTime);
+						g_render.GetScene()->m_updateAnimation = CFalse;
+						g_render.GetScene()->m_update = CFalse;
+						g_render.GetScene()->SetUpdateBB(CTrue);
+					}
+					else if (g_render.GetScene()->m_update)
+					{
+						g_render.GetScene()->Update();
+						g_render.GetScene()->m_update = CFalse;
+					}
+
 				}
 				else if (g_render.GetScene()->m_update)
 				{
 					g_render.GetScene()->Update();
 					g_render.GetScene()->m_update = CFalse;
 				}
-
 			}
-			else if (g_render.GetScene()->m_update)
-			{
-				g_render.GetScene()->Update();
-				g_render.GetScene()->m_update = CFalse;
-			}
+			g_currentInstancePrefab->SetLight();
 			if (g_currentInstancePrefab)
 			{
 				g_render.ModelViewMatrix();
@@ -5986,14 +7236,146 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 	}
 }
 
+CVoid CMain::RenderTerrain()
+{
+	if (!g_terrain) return;
+	if (g_engineLights.size() == 0)
+		SetDefaultLight();
+
+	// Display the terrain mesh.
+	if (g_terrain->GetTerrainTexture())
+		g_terrain->GetTerrainTexture()->enableTextures();
+
+	if (g_options.m_enableShader && g_render.UsingShader())
+	{
+		if (g_fogBlurPass)
+			g_shaderType = g_render.m_fogBlurProgram;
+		else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
+		{
+			if (false/*m_hasNormalMap*/) //currently no normal map
+			{
+				//switch (g_shadowProperties.m_shadowType)
+				//{
+				//case eSHADOW_SINGLE_HL:
+				//	g_shaderType = g_render.m_terrain_shad_single_hl_normal_prog;
+				//	break;
+				//case eSHADOW_SINGLE:
+				//	g_shaderType = g_render.m_terrain_shad_single_normal_prog;
+				//	break;
+				//case eSHADOW_MULTI_LEAK:
+				//	g_shaderType = g_render.m_terrain_shad_multi_normal_prog;
+				//	break;
+				//case eSHADOW_MULTI_NOLEAK:
+				//	g_shaderType = g_render.m_terrain_shad_multi_noleak_normal_prog;
+				//	break;
+				//case eSHADOW_PCF:
+				//	g_shaderType = g_render.m_terrain_shad_pcf_normal_prog;
+				//	break;
+				//case eSHADOW_PCF_TRILIN:
+				//	g_shaderType = g_render.m_terrain_shad_pcf_trilin_normal_prog;
+				//	break;
+				//case eSHADOW_PCF_4TAP:
+				//	g_shaderType = g_render.m_terrain_shad_pcf_4tap_normal_prog;
+				//	break;
+				//case eSHADOW_PCF_8TAP:
+				//	g_shaderType = g_render.m_terrain_shad_pcf_8tap_normal_prog;
+				//	break;
+				//case eSHADOW_PCF_GAUSSIAN:
+				//	g_shaderType = g_render.m_terrain_shad_pcf_gaussian_normal_prog;
+				//	break;
+				//}
+			}
+			else
+			{
+				switch (g_shadowProperties.m_shadowType)
+				{
+				case eSHADOW_SINGLE_HL:
+					g_shaderType = g_render.m_shad_single_hl_prog;
+					break;
+				case eSHADOW_SINGLE:
+					g_shaderType = g_render.m_terrain_shad_single_prog;
+					break;
+				case eSHADOW_MULTI_LEAK:
+					g_shaderType = g_render.m_terrain_shad_multi_prog;
+					break;
+				case eSHADOW_MULTI_NOLEAK:
+					g_shaderType = g_render.m_terrain_shad_multi_noleak_prog;
+					break;
+				case eSHADOW_PCF:
+					g_shaderType = g_render.m_terrain_shad_pcf_prog;
+					break;
+				case eSHADOW_PCF_TRILIN:
+					g_shaderType = g_render.m_terrain_shad_pcf_trilin_prog;
+					break;
+				case eSHADOW_PCF_4TAP:
+					g_shaderType = g_render.m_terrain_shad_pcf_4tap_prog;
+					break;
+				case eSHADOW_PCF_8TAP:
+					g_shaderType = g_render.m_terrain_shad_pcf_8tap_prog;
+					break;
+				case eSHADOW_PCF_GAUSSIAN:
+					g_shaderType = g_render.m_terrain_shad_pcf_gaussian_prog;
+					break;
+				}
+			}
+		}
+		else
+			g_shaderType = g_render.m_terrainProgram;
+
+		if (g_fogBlurPass)
+		{
+			glUseProgram(g_shaderType);
+			glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
+			glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
+			CBool useFog;
+			if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+				useFog = CFalse;
+			else
+				useFog = CTrue;
+
+			if (g_fogProperties.m_enable && useFog)
+				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
+			else
+				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
+		}
+		else
+		{
+			glUseProgram(g_shaderType);
+			glUniform1i(glGetUniformLocation(g_shaderType, "image1"), 0);
+			glUniform1i(glGetUniformLocation(g_shaderType, "image2"), 1);
+			glUniform1i(glGetUniformLocation(g_shaderType, "image3"), 2);
+			glUniform1i(glGetUniformLocation(g_shaderType, "shadowMap"), 3);
+			glUniform1i(glGetUniformLocation(g_shaderType, "image1Normal"), 4);
+			glUniform1i(glGetUniformLocation(g_shaderType, "image2Normal"), 5);
+			glUniform1i(glGetUniformLocation(g_shaderType, "image3Normal"), 6);
+
+			glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
+			glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
+			glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
+			glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
+		}
+	}
+	else
+	{
+		glUseProgram(0);
+	}
+
+	if (g_terrain->GetTerrain())
+		g_terrain->GetTerrain()->draw(CFalse);
+	if (g_terrain->GetTerrainTexture())
+		g_terrain->GetTerrainTexture()->disableTextures();
+}
+
+
 CVoid CMain::RenderQueries(CBool init)
 {
 	if (m_bQuery || init)
 	{
+		COpenGLUtility m_glUtil;
 		m_renderQuery = CTrue;
 		glDepthFunc(GL_LEQUAL);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		//glDepthMask(GL_FALSE);
+		glDepthMask(GL_FALSE);
 		if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
 			g_render.BindFBO(m_mFboID);
 		else if (!g_useOldRenderingStyle && !g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
@@ -6003,7 +7385,7 @@ CVoid CMain::RenderQueries(CBool init)
 		g_render.m_useShader = CFalse;
 		glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT);
 		glDisable(GL_LIGHTING);
-		//glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 		for (CUInt i = 0; i < 8; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + (GLenum)i);
@@ -6012,89 +7394,114 @@ CVoid CMain::RenderQueries(CBool init)
 		}
 
 		g_render.ModelViewMatrix();
-		//for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-		//{
-		//	if (!g_instancePrefab[i]->GetVisible()) continue;
-		//	g_currentInstancePrefab = g_instancePrefab[i];
 
-		//	glBeginQuery(GL_SAMPLES_PASSED, g_instancePrefab[i]->GetQueryIndex());
-		//	COpenGLUtility glUtil;
-		//	CVector min(g_instancePrefab[i]->GetMinAABB().x, g_instancePrefab[i]->GetMinAABB().y, g_instancePrefab[i]->GetMinAABB().z);
-		//	CVector max(g_instancePrefab[i]->GetMaxAABB().x, g_instancePrefab[i]->GetMaxAABB().y, g_instancePrefab[i]->GetMaxAABB().z);
-		//	Point p(g_instancePrefab[i]->GetCenter().x, g_instancePrefab[i]->GetCenter().y, g_instancePrefab[i]->GetCenter().z);
-		//	if (g_camera->m_cameraManager->IsSphereInFrustum(p, g_instancePrefab[i]->GetRadius()))
-		//		glUtil.DrawCCWBox(min, max, CFalse, CFalse);
-		//	glEndQuery(GL_SAMPLES_PASSED);
-		//}
-		if (m_calculateDistance || init)
+		//render Bounding Boxes for 3d objects here
+		//Results are used in ManageLOD() functions to determine the LOD level
+		g_render.ModelViewMatrix();
+		glDisable(GL_CULL_FACE);
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
-			distance_vector.clear();
-			sorted_prefabs.clear();
+			if (g_instancePrefab[i]->GetIsTrigger() || Cmp(g_instancePrefab[i]->GetName(), "VANDA_MAIN_CHARACTER") || !g_instancePrefab[i]->GetRenderForQuery() || !g_instancePrefab[i]->GetVisible())
+				continue;
 
-			CFloat distance;
-			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			g_currentInstancePrefab = g_instancePrefab[i];
+			glBeginQuery(GL_SAMPLES_PASSED, g_instancePrefab[i]->GetQueryIndex());
+
+			CVec3f ObjectCenter = (g_currentInstancePrefab->GetMinAABB() + g_currentInstancePrefab->GetMaxAABB()) * 0.5f;
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			if (g_currentCameraType == eCAMERA_PHYSX)
 			{
-				if (g_instancePrefab[i]->GetIsTrigger() || Cmp(g_instancePrefab[i]->GetName(), "VANDA_MAIN_CHARACTER"))
-					continue;
-
-				distance = g_instancePrefab[i]->GetDistanceFromCamera();
-				distance_vector.push_back(distance);
+				gluLookAt(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z,
+				ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
 			}
-			std::sort(distance_vector.begin(), distance_vector.end());
-			for (CUInt i = 0; i < distance_vector.size(); i++)
+			else
 			{
-				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-				{
-					if (g_instancePrefab[i]->GetIsTrigger() || Cmp(g_instancePrefab[i]->GetName(), "VANDA_MAIN_CHARACTER"))
-						continue;
-
-					if (distance_vector[i] == g_instancePrefab[j]->GetDistanceFromCamera())
-					{
-						sorted_prefabs.push_back(g_instancePrefab[j]);
-						break;
-					}
-				}
+				gluLookAt(free_dae_cam_pos.x, free_dae_cam_pos.y, free_dae_cam_pos.z,
+					ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
 			}
-		}
-		for (CUInt i = 0; i < sorted_prefabs.size(); i++)
-		{
-			if (!sorted_prefabs[i]->GetVisible()) continue;
-			g_currentInstancePrefab = sorted_prefabs[i];
-
-			glBeginQuery(GL_SAMPLES_PASSED, sorted_prefabs[i]->GetQueryIndex());
-
-			CScene* scene = NULL;
-
-			CPrefab* prefab = sorted_prefabs[i]->GetPrefab();
-			if (prefab && prefab->GetHasLod(0))
-				scene = sorted_prefabs[i]->GetScene(0);
-			if (!scene) continue;
-			g_render.SetScene(scene);
-			if (g_render.GetScene() && !g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
-			{
-				if (g_render.GetScene()->m_update)
-				{
-					g_render.GetScene()->Update();
-					g_render.GetScene()->m_update = CFalse;
-				}
-			}
-			g_render.GetScene()->Render(CTrue);
-			if (g_currentInstancePrefab)
-			{
-				g_render.PushMatrix();
-				g_render.MultMatrix(*(sorted_prefabs[i]->GetInstanceMatrix()));
-			}
-			g_render.GetScene()->RenderAnimatedModels(CTrue, CTrue); //render controller
-			if (g_currentInstancePrefab)
-			{
-				g_render.PopMatrix();
-			}
-			g_render.GetScene()->RenderAnimatedModels(CTrue, CFalse); //render animated models
-			g_render.GetScene()->RenderModelsControlledByPhysX(CTrue);
+			m_glUtil.DrawSimpleBox(g_currentInstancePrefab->GetMinAABB(), g_currentInstancePrefab->GetMaxAABB());
+			g_render.PopMatrix();
 			glEndQuery(GL_SAMPLES_PASSED);
 		}
+
 		g_render.m_useShader = CTrue;
-		glDisable(GL_CULL_FACE);
+		//end of rendering Object's bounding boxes 
+		if (g_engineWaters.size() > 0)
+		{
+			//set all the lights here
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				CVec3f waterPoints[4];
+				waterPoints[0].x = g_engineWaters[j]->m_sidePoint[0].x; waterPoints[0].y = g_engineWaters[j]->m_sidePoint[0].y; waterPoints[0].z = g_engineWaters[j]->m_sidePoint[0].z;
+				waterPoints[1].x = g_engineWaters[j]->m_sidePoint[1].x; waterPoints[1].y = g_engineWaters[j]->m_sidePoint[1].y; waterPoints[1].z = g_engineWaters[j]->m_sidePoint[1].z;
+				waterPoints[2].x = g_engineWaters[j]->m_sidePoint[2].x; waterPoints[2].y = g_engineWaters[j]->m_sidePoint[2].y; waterPoints[2].z = g_engineWaters[j]->m_sidePoint[2].z;
+				waterPoints[3].x = g_engineWaters[j]->m_sidePoint[3].x; waterPoints[3].y = g_engineWaters[j]->m_sidePoint[3].y; waterPoints[3].z = g_engineWaters[j]->m_sidePoint[3].z;
+
+				if (g_camera->m_cameraManager->IsBoxInFrustum(waterPoints, 4))
+				{
+					g_engineWaters[j]->SetOutsideFrustom(CFalse);
+					glBeginQuery(GL_SAMPLES_PASSED, g_engineWaters[j]->GetQueryIndex());
+
+					CVec3f WaterCenter(g_engineWaters[j]->m_fWaterCPos[0], g_engineWaters[j]->m_fWaterCPos[1], g_engineWaters[j]->m_fWaterCPos[2]);
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+					g_render.IdentityMatrix();
+					if (g_currentCameraType == eCAMERA_PHYSX)
+					{
+						gluLookAt(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z,
+						WaterCenter.x, WaterCenter.y, WaterCenter.z, 0.0f, 1.0f, 0.0f);
+					}
+					else
+					{
+						gluLookAt(free_dae_cam_pos.x, free_dae_cam_pos.y, free_dae_cam_pos.z,
+							WaterCenter.x, WaterCenter.y, WaterCenter.z, 0.0f, 1.0f, 0.0f);
+					}
+					COpenGLUtility glUtil;
+					glUtil.DrawSquare(g_engineWaters[j]->m_sidePoint[0], g_engineWaters[j]->m_sidePoint[1], g_engineWaters[j]->m_sidePoint[2], g_engineWaters[j]->m_sidePoint[3]);
+					g_render.PopMatrix();
+					glEndQuery(GL_SAMPLES_PASSED);
+
+					for (CUInt k = 0; k < g_engineWaters[j]->m_instancePrefab.size(); k++)
+					{
+						g_currentInstancePrefab = g_engineWaters[j]->m_instancePrefab[k];
+
+						//to determine the LOD level of water, look at object, even if it's not inside the camera.
+						//if we have already rendered the object query, skip it
+						if (!g_currentInstancePrefab->GetRenderForWaterQuery() || g_currentInstancePrefab->GetRenderForQuery() || !g_currentInstancePrefab->GetVisible() || g_currentInstancePrefab->GetIsTrigger() || Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
+							continue;
+						glBeginQuery(GL_SAMPLES_PASSED, g_currentInstancePrefab->GetQueryIndex());
+
+						CVec3f ObjectCenter = (g_currentInstancePrefab->GetMinAABB() + g_currentInstancePrefab->GetMaxAABB()) * 0.5f;
+						g_render.ModelViewMatrix();
+						g_render.PushMatrix();
+						g_render.IdentityMatrix();
+						if (g_currentCameraType == eCAMERA_PHYSX)
+						{
+							gluLookAt(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z,
+							ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
+						}
+						else
+						{
+							gluLookAt(free_dae_cam_pos.x, free_dae_cam_pos.y, free_dae_cam_pos.z,
+								ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
+
+						}
+						m_glUtil.DrawSimpleBox(g_currentInstancePrefab->GetMinAABB(), g_currentInstancePrefab->GetMaxAABB());
+						g_render.PopMatrix();
+						glEndQuery(GL_SAMPLES_PASSED);
+					}
+
+				}
+				else
+				{
+					g_engineWaters[j]->SetOutsideFrustom(CTrue);
+				}
+
+			}
+		}
+
 		glDepthMask(GL_FALSE);
 
 		if ( g_engineLights.size() > 0)
@@ -6102,10 +7509,13 @@ CVoid CMain::RenderQueries(CBool init)
 			//set all the lights here
 			for (CUInt j = 0; j < g_engineLights.size(); j++)
 			{
-				if (Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[j]->m_abstractLight->GetName()))
-					continue;
-
 				CInstanceLight *instanceLight = g_engineLights[j];
+
+				if (g_engineLights[j]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+				{
+					//Cpy(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName());
+					g_engineLights[j]->SetRunTimeVisible(CTrue);
+				}
 
 				CVec3f  Position;
 				if (instanceLight->m_parent)
@@ -6119,33 +7529,100 @@ CVoid CMain::RenderQueries(CBool init)
 					Position.y = instanceLight->m_abstractLight->GetPosition()[1];
 					Position.z = instanceLight->m_abstractLight->GetPosition()[2];
 				}
-				glBeginQuery(GL_SAMPLES_PASSED, instanceLight->GetQueryIndex());
-				CFloat color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-				CFloat pos[3]; pos[0] = Position.x; pos[1] = Position.y; pos[2] = Position.z;
-				g_render.DrawSolidSphere(instanceLight->GetRadius(), 10, 10, pos, color);
-				glEndQuery(GL_SAMPLES_PASSED);
+
+				if (g_camera->m_cameraManager->IsSphereInFrustum(Position.x, Position.y, Position.z, (CFloat)instanceLight->GetRadius()))
+				{
+					g_engineLights[j]->SetRunTimeVisible(CTrue);
+				}
+				else
+				{
+					g_engineLights[j]->SetRunTimeVisible(CFalse);
+				}
+				//glBeginQuery(GL_SAMPLES_PASSED, instanceLight->GetQueryIndex());
+				//CFloat color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+				//CFloat pos[3]; pos[0] = Position.x; pos[1] = Position.y; pos[2] = Position.z;
+				//g_render.DrawSolidSphere(instanceLight->GetRadius(), 10, 10, pos, color);
+				//glEndQuery(GL_SAMPLES_PASSED);
 			}
 		}
 		glDepthMask(CTrue);
-
+		glEnable(GL_CULL_FACE);
 		glPopAttrib();
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		//glDepthMask(GL_TRUE);
 		m_renderQuery = CFalse;
 		g_render.BindFBO(0);
+	}
+}
+
+CVoid CMain::RenderBakedOctree3DModels()
+{
+	//3D Model data
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		//if it's not visible, skip
+		if (!g_instancePrefab[i]->GetVisible()) continue;
+		g_currentInstancePrefab = g_instancePrefab[i];
+
+		//if it's not in view frustom, skip
+		if (!g_instancePrefab[i]->GetRenderForQuery())
+			continue;
+
+		//if it's 3rd person character, skip
+		if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
+			continue;
+
+
+		CScene* scene = NULL;
+
+		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+		for (CUInt j = 0; j < 3; j++)
+		{
+			if (prefab && prefab->GetHasLod(j))
+			{
+				if (g_instancePrefab[i]->GetSceneVisible(j))
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					break;
+				}
+			}
+		}
+		if (!scene) continue;
+		g_render.SetScene(scene);
+
+		if (!g_render.GetScene()->m_isTrigger)
+		{
+			if (g_render.GetScene()->m_update)
+			{
+				g_render.GetScene()->Update();
+				g_render.GetScene()->m_update = CFalse;
+			}
+			g_currentInstancePrefab->SetLight();
+			g_render.GetScene()->Render(g_currentInstancePrefab->GetRealTimeSceneCheckIsInFrustom());
+
+			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+			{
+				glUseProgram(0);
+			}
+
+		}
 
 	}
 }
 
-CVoid CMain::Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries)
+CVoid CMain::Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility, CBool drawGeometry)
 {
 	//3D Model data
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
-
 		if (!g_instancePrefab[i]->GetVisible()) continue;
 		g_currentInstancePrefab = g_instancePrefab[i];
+
+		if (!checkVisibility)
+			if (!g_instancePrefab[i]->GetRenderForQuery())
+				continue;
+
 		if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
 			continue;
 
@@ -6163,23 +7640,39 @@ CVoid CMain::Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometrie
 		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) && g_instancePrefab[i]->GetSceneVisible(j))
+			if (prefab && prefab->GetHasLod(j) )
 			{
-				scene = g_instancePrefab[i]->GetScene(j);
-				break;
+				if (checkVisibility)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+					break;
+				}
+				else
+				{
+					if (g_instancePrefab[i]->GetSceneVisible(j))
+					{
+						scene = g_instancePrefab[i]->GetScene(j);
+						break;
+					}
+				}
 			}
 		}
 		if (!scene) continue;
 		g_render.SetScene(scene);
+		if (checkVisibility && g_currentInstancePrefab)
+		{
+			g_currentInstancePrefab->SetRealTimeSceneCheckIsInFrustom(sceneManager);
+		}
 
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+		if (!g_render.GetScene()->m_isTrigger)
 		{
 			if (g_render.GetScene()->m_update)
 			{
 				g_render.GetScene()->Update();
 				g_render.GetScene()->m_update = CFalse;
 			}
-			g_render.GetScene()->Render(sceneManager, parentTreeNameOfGeometries);
+			g_currentInstancePrefab->SetLight();
+			g_render.GetScene()->Render(sceneManager, parentTreeNameOfGeometries, checkVisibility, drawGeometry);
 
 			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 			{
@@ -6188,55 +7681,6 @@ CVoid CMain::Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometrie
 		}
 	}
 
-	////render grass
-	//for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-	//{
-	//	if (!g_instancePrefab[i]->GetVisible()) continue;
-	//	g_currentInstancePrefab = g_instancePrefab[i];
-	//	GLint resultAvailable = GL_FALSE, result;
-	//	glGetQueryObjectiv(g_instancePrefab[i]->GetQueryIndex(), GL_QUERY_RESULT_AVAILABLE, &resultAvailable);
-	//	if (resultAvailable == GL_TRUE)
-	//	{
-			//glGetQueryObjectiv(g_instancePrefab[i]->GetQueryIndex(), GL_QUERY_RESULT, &result);
-			//if (result == 0)
-			//{
-			//	if (g_instancePrefab[i]->GetDistanceFromCamera() - g_instancePrefab[i]->GetRadius() > (g_instancePrefab[i]->GetRadius() + 20.0f))
-			//		continue;
-			//}
-	//	}
-
-	//	CScene* scene = NULL;
-
-	//	CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-	//	for (CUInt j = 0; j < 3; j++)
-	//	{
-	//		if (prefab && prefab->GetHasLod(j) && g_instancePrefab[i]->GetSceneVisible(j))
-	//		{
-	//			scene = g_instancePrefab[i]->GetScene(j);
-	//			break;
-	//		}
-	//	}
-	//	if (!scene) continue;
-	//	if (!scene->m_isVisible) continue;
-	//	g_render.SetScene(scene);
-
-	//	if (g_render.GetScene()->m_isGrass)
-	//	{
-	//		if (g_render.GetScene()->m_update)
-	//		{
-	//			g_render.GetScene()->Update();
-	//			g_render.GetScene()->m_update = CFalse;
-	//		}
-	//		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-	//			glUseProgram(g_render.m_grassProgram);
-	//		g_render.GetScene()->RenderGrass(sceneManager, parentTreeNameOfGeometries);
-	//		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-	//			glUseProgram(0);
-	//		//if( g_databaseVariables.m_showBoundingBox )
-	//		//	g_render.GetScene()->RenderAABBWithLines();
-	//	}
-	//}
-
 }
 CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* parentTreeNameOfGeometries)
 {
@@ -6244,6 +7688,29 @@ CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* pa
 	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
 	{
 		if (!water->m_instancePrefab[i]->GetVisible()) continue;
+		g_currentInstancePrefab = water->m_instancePrefab[i];
+
+		CVec3f src[8];
+		CVec3f maxAABB = water->m_instancePrefab[i]->GetInverseMaxAABB();
+		CVec3f minAABB = water->m_instancePrefab[i]->GetInverseMinAABB();
+		src[0].x = minAABB.x; src[0].y = minAABB.y; src[0].z = minAABB.z;
+		src[1].x = maxAABB.x; src[1].y = minAABB.y; src[1].z = maxAABB.z;
+		src[2].x = maxAABB.x; src[2].y = minAABB.y; src[2].z = minAABB.z;
+		src[3].x = minAABB.x; src[3].y = minAABB.y; src[3].z = maxAABB.z;
+		src[4].x = maxAABB.x; src[4].y = maxAABB.y; src[4].z = minAABB.z;
+		src[5].x = minAABB.x; src[5].y = maxAABB.y; src[5].z = minAABB.z;
+		src[6].x = minAABB.x; src[6].y = maxAABB.y; src[6].z = maxAABB.z;
+		src[7].x = maxAABB.x; src[7].y = maxAABB.y; src[7].z = maxAABB.z;
+
+		if (!g_camera->m_cameraManager->IsBoxInFrustum(&src[0], 8))
+		{
+			g_currentInstancePrefab->SetRenderForWaterQuery(CFalse);
+			continue;
+		}
+		else
+		{
+			g_currentInstancePrefab->SetRenderForWaterQuery(CTrue);
+		}
 
 		CScene* scene = NULL;
 
@@ -6259,13 +7726,14 @@ CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* pa
 		if (!scene) continue;
 		g_render.SetScene(scene);
 
-		if (!g_render.GetScene()->m_isTrigger && !g_render.GetScene()->m_isGrass)
+		if (!g_render.GetScene()->m_isTrigger)
 		{
 			if (g_render.GetScene()->m_update)
 			{
 				g_render.GetScene()->Update();
 				g_render.GetScene()->m_update = CFalse;
 			}
+			g_currentInstancePrefab->SetLight();
 			g_render.GetScene()->Render(sceneManager, parentTreeNameOfGeometries);
 
 			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
@@ -6278,45 +7746,6 @@ CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* pa
 			//}
 		}
 	}
-
-	//render grass
-	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
-	{
-		if (!water->m_instancePrefab[i]->GetVisible()) continue;
-		g_currentInstancePrefab = water->m_instancePrefab[i];
-
-		CScene* scene = NULL;
-
-		CPrefab* prefab = water->m_instancePrefab[i]->GetPrefab();
-		for (CUInt j = 0; j < 3; j++)
-		{
-			if (prefab && prefab->GetHasLod(j) && water->m_instancePrefab[i]->GetSceneVisible(j))
-			{
-				scene = water->m_instancePrefab[i]->GetScene(j);
-				break;
-			}
-		}
-		if (!scene) continue;
-		if (!scene->m_isVisible) continue;
-		g_render.SetScene(scene);
-
-		if (g_render.GetScene()->m_isGrass)
-		{
-			if (g_render.GetScene()->m_update)
-			{
-				g_render.GetScene()->Update();
-				g_render.GetScene()->m_update = CFalse;
-			}
-			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-				glUseProgram(g_render.m_grassProgram);
-			g_render.GetScene()->RenderGrass(sceneManager, parentTreeNameOfGeometries);
-			if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-				glUseProgram(0);
-			//if( g_databaseVariables.m_showBoundingBox )
-			//	g_render.GetScene()->RenderAABBWithLines();
-		}
-	}
-
 }
 
 CVoid CMain::DrawGUI()
@@ -6325,7 +7754,7 @@ CVoid CMain::DrawGUI()
 
 	g_font->StartRendering();
 	//g_font->Print( "Vanda Engine 1", 10.0f, 980.0f, 0.0f, 1.0f, 1.0f, 1.0f );
-	//g_font->Print( "Copyright (C) 2018 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
+	//g_font->Print( "Copyright (C) 2020 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "http://www.vandaengine.org", 10.0f, 920.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "Press F4 for help...", 10.0f, 890.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 
@@ -6344,8 +7773,15 @@ CVoid CMain::DrawGUI()
 		//g_font->Print( "Right mouse button: Zoom in / Zoom out.\n", 10.0f, 530.0f, 0.0f, 1.0f, 1.0f, 0.5f );
 		//g_font->Print( "P key: Enable / Disable physics debug mode.\n", 10.0f, 500.0f, 0.0f, 1.0f, 1.0f, 0.5f );
 
-		if (g_databaseVariables.m_showStatistics)
+		if (/*g_databaseVariables.m_showStatistics*/true)
 		{
+			CInt m_numSamples;
+			if (g_window.m_windowGL.multiSampling)
+				m_numSamples = g_width * g_height *  g_options.m_numSamples;
+			else
+				m_numSamples = g_width * g_height;
+			CFloat percentage;
+
 			static int m_numVerts = 0;
 			static int m_fps = 0;
 
@@ -6359,7 +7795,7 @@ CVoid CMain::DrawGUI()
 				m_fps = fps;
 			}
 			
-			sprintf(temp, "FPS : %f", g_main->m_mousePosition.y/*m_fps*/);
+			sprintf(temp, "FPS : %i", m_fps);
 			g_font->Print("---Statistics---", 10.0f, 990.0, 0.0f, 0.85f, 0.67f, 0.0f);
 			g_font->Print(temp, 10.0f, 960.0, 0.0f, 0.85f, 0.67f, 0.0f);
 			sprintf(temp, "Rendered Vertexes : %i", m_numVerts);
@@ -6367,25 +7803,76 @@ CVoid CMain::DrawGUI()
 			sprintf(temp, "Rendered Triangles : %i", m_numVerts / 3);
 			g_font->Print(temp, 10.0f, 900, 0.0f, 0.85f, 0.67f, 0.0f);
 			g_font->Print("Object -------------------- Samples", 10.0f, 870, 0.0f, 0.85f, 0.67f, 0.0f);
-			for (CUInt i = 0; i < sorted_prefabs.size(); i++)
+			CInt index = 0;
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 			{
-				if (i <= 20)
+				if (g_instancePrefab[i]->GetIsTrigger() || Cmp(g_instancePrefab[i]->GetName(), "VANDA_MAIN_CHARACTER") || !g_instancePrefab[i]->GetVisible())
+					continue;
+
+				CBool renderForWater = CFalse;
+				if (g_instancePrefab[i]->GetWater())
+				{
+					if (!g_instancePrefab[i]->GetWater()->GetOutsideFrustom())
+					{
+						if (g_instancePrefab[i]->GetRenderForWaterQuery())
+						{
+							renderForWater = CTrue;
+						}
+					}
+				}
+				if (!g_instancePrefab[i]->GetRenderForQuery() && !renderForWater)
+					continue;
+
+				percentage = ((CFloat)g_instancePrefab[i]->GetResult() / (CFloat)m_numSamples) * 100.0f;
+
+				if (index <= 20)
 				{
 					char temp[MAX_NAME_SIZE];
-					sprintf(temp, "%s : %i", sorted_prefabs[i]->GetName(), sorted_prefabs[i]->GetResult());
-					g_font->Print(temp, 10.0f, 870.0f - (i + 1) * 30, 0.0f, 0.85f, 0.67f, 0.0f);
+					sprintf(temp, "%s LOD Percentage: %.2f", g_instancePrefab[i]->GetName(), percentage);
+					g_font->Print(temp, 10.0f, 870.0f - (index + 1) * 30, 0.0f, 0.85f, 0.67f, 0.0f);
+				}
+				else
+				{
+					break;
+				}
+				index++;
+			}
+			for (CUInt i = 0; i < g_engineLights.size(); i++)
+			{
+				char temp[200];
+				if (g_engineLights[i]->GetRunTimeVisible())
+					sprintf(temp, "%s : %s", g_engineLights[i]->m_abstractLight->GetName(), "Visible"/*g_engineLights[i]->GetLODPercent()*/);
+				else
+					sprintf(temp, "%s : %s", g_engineLights[i]->m_abstractLight->GetName(), "Invisible"/*g_engineLights[i]->GetLODPercent()*/);
+				g_font->Print(temp, 10.0f, 870.0f - (index + i + 1) * 30, 0.0f, g_engineLights[i]->m_abstractLight->GetDiffuse()[0], g_engineLights[i]->m_abstractLight->GetDiffuse()[1], g_engineLights[i]->m_abstractLight->GetDiffuse()[2]);
+			}
+
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				if (g_engineWaters[i]->GetOutsideFrustom()) continue;
+				if (CTrue/*g_currentCameraType == eCAMERA_PHYSX*/)
+					if (!g_engineWaters[i]->GetVisible())
+						continue;
+				percentage = ((CFloat)g_engineWaters[i]->GetResult() / (CFloat)m_numSamples) * 100.0f;
+
+				char temp[200];
+				sprintf(temp, "%s LOD Percentage: %.2f", g_engineWaters[i]->GetName(), percentage);
+				g_font->Print(temp, 10.0f, 870.0f - (index + g_engineLights.size() + i + 1) * 30, 0.0f, 0.65f, 0.5f, 0.65f);
+			}
+
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				if (i <= 25)
+				{
+					char temp[200];
+					sprintf(temp, "%s Distance: %.2f", g_instancePrefab[i]->GetName(), g_instancePrefab[i]->GetDistanceFromCamera());
+					g_font->Print(temp, 140.0, 1020.0 - (i + 1) * 30, 0.0f, 0.85f, 0.85f, 0.0f);
 				}
 				else
 				{
 					break;
 				}
 			}
-			//for (CUInt i = 0; i < g_engineLights.size(); i++)
-			//{
-			//	char temp[200];
-			//	sprintf(temp, "%s : %i", g_engineLights[i]->m_abstractLight->GetName(), g_engineLights[i]->GetVisible());
-			//	g_font->Print(temp, 10.0f, 910.0f - (g_instancePrefab.size() + i + 1) * 30, 0.0f, 0.65f, 0.5f, 0.5f);
-			//}
 
 		}
 	}
@@ -6414,8 +7901,55 @@ CVoid CMain::DrawGUI()
 		}
 	}
 
+	//Draw Cursor
+	if (g_currentVSceneProperties.m_isMenu && !g_main->GetCursorIcon()->GetVisible())
+	{
+		CFloat cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_width) / 100.0f;
+		CFloat halfCursorSize = cursorSize / 2.0f;
+		glUseProgram(0);
+		glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.5f);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glViewport(0, 0, g_width, g_height);
+		g_render.ProjectionMatrix();
+		g_render.PushMatrix();
+		g_render.IdentityMatrix();
+		gluOrtho2D(0.0, g_width, 0.0, g_height);
+		g_render.ModelViewMatrix();
+		g_render.PushMatrix();
+		g_render.IdentityMatrix();
+		glActiveTextureARB(GL_TEXTURE0_ARB);
+		glEnable(GL_TEXTURE_2D);
+		if (m_menuCursorImg)
+		{
+			glBindTexture(GL_TEXTURE_2D, m_menuCursorImg->GetId());
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		}
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(g_main->m_mousePosition.x - halfCursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize - cursorSize);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(g_main->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize - cursorSize);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(g_main->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(g_main->m_mousePosition.x - halfCursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize);
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		g_render.ProjectionMatrix();
+		g_render.PopMatrix();
+
+		g_render.ModelViewMatrix();
+		g_render.PopMatrix();
+		glPopAttrib(); //viewport
+	}
+
 	CVec2f pos(g_main->m_mousePosition.x, g_height - g_main->m_mousePosition.y);
-	m_icon->Render(pos);
+	m_cursorIcon->Render(pos);
 }
 
 void CMain::ResetPhysX(CBool releaseActors)
@@ -6451,6 +7985,7 @@ void CMain::ResetPhysX(CBool releaseActors)
 	g_nx->gDefaultGravity.y = g_physXProperties.m_fGravityY;
 	g_nx->gDefaultGravity.z = g_physXProperties.m_fGravityZ;
 	gPhysicsSDK->setParameter( NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth );
+	gPhysXscene->setGravity(NxVec3(g_nx->gDefaultGravity.x, g_nx->gDefaultGravity.y, g_nx->gDefaultGravity.z));
 
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
@@ -6473,12 +8008,13 @@ void CMain::ResetPhysX(CBool releaseActors)
 	g_nx->gCharacterWalkSpeed = g_physXProperties.m_fCharacterWalkSpeed;
 	g_nx->gCharacterRunSpeed = g_physXProperties.m_fCharacterRunSpeed;
 
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE || g_currentCameraType == eCAMERA_COLLADA )
+	if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX || g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
 	{
 		if( gPhysXscene )
 		{
 		  // Run collision and dynamics for delta time since the last frame
-			gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
+			g_nx->gControllers->reportSceneChanged();
+			gPhysXscene->simulate(1.0f / 60.0f /*elapsedTime*/);
 			gPhysXscene->flushStream();
 			gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 		}
@@ -6528,23 +8064,40 @@ CVoid CMain::ManageLODs()
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
-			if (g_instancePrefab[i]->GetIsTrigger() || Cmp(g_instancePrefab[i]->GetName(), "VANDA_MAIN_CHARACTER"))
+			if (g_instancePrefab[i]->GetIsTrigger() || Cmp(g_instancePrefab[i]->GetName(), "VANDA_MAIN_CHARACTER") || !g_instancePrefab[i]->GetVisible())
 				continue;
+
+			CBool renderForWater = CFalse;
+			if (g_instancePrefab[i]->GetWater())
+			{
+				if (!g_instancePrefab[i]->GetWater()->GetOutsideFrustom())
+				{
+					if (g_instancePrefab[i]->GetRenderForWaterQuery())
+					{
+						renderForWater = CTrue;
+					}
+				}
+			}
+
+			if (!g_instancePrefab[i]->GetRenderForQuery() && !renderForWater)
+				continue;
+
 			GLint result;
 			glGetQueryObjectiv(g_instancePrefab[i]->GetQueryIndex(), GL_QUERY_RESULT, &result);
 			g_instancePrefab[i]->SetResult(result);
+			CFloat percentage;
+			percentage = ((CFloat)g_instancePrefab[i]->GetResult() / (CFloat)m_numSamples) * 100.0f;
 
-			if (result == 0)
+			if (result == 0 && g_instancePrefab[i]->GetDistanceFromCamera() > g_instancePrefab[i]->GetRadius() + g_instancePrefabLODPercent.m_lod1)
 			{
 				g_instancePrefab[i]->SetSceneVisible(0, CFalse);
 				g_instancePrefab[i]->SetSceneVisible(1, CFalse);
 				g_instancePrefab[i]->SetSceneVisible(2, CFalse);
+
 				continue;
 			}
 
-			CFloat percentage;
-			percentage = ((CFloat)result / (CFloat)m_numSamples) * 100.0f;
-			if (percentage >= 12.0f || (g_instancePrefab[i]->GetDistanceFromCamera() - g_instancePrefab[i]->GetRadius() <= (g_instancePrefab[i]->GetRadius() + 20.0f)))
+			if (percentage >= g_instancePrefabLODPercent.m_lod1 || (g_instancePrefab[i]->GetDistanceFromCamera() <= (g_instancePrefab[i]->GetRadius() + g_instancePrefabLODPercent.m_lod1MinObjectCameraDistance)))
 			{
 				if (g_instancePrefab[i]->GetElapsedTime() >= 0.01f)
 				{
@@ -6554,7 +8107,7 @@ CVoid CMain::ManageLODs()
 						{
 							if (g_instancePrefab[i]->GetScene(0))
 							{
-								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentTime());
+								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentAnimationTime());
 								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentDelayInTime());
 								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentDelayOutTime());
 								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentWeight());
@@ -6567,7 +8120,7 @@ CVoid CMain::ManageLODs()
 						{
 							if (g_instancePrefab[i]->GetScene(0))
 							{
-								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentTime());
+								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentAnimationTime());
 								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentDelayInTime());
 								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentDelayOutTime());
 								g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentWeight());
@@ -6581,7 +8134,7 @@ CVoid CMain::ManageLODs()
 					g_instancePrefab[i]->ResetElapsedTime();
 				}
 			}
-			else if (percentage >= 1.5f && percentage < 10.0f)
+			else if (percentage >= g_instancePrefabLODPercent.m_lod2.x && percentage < g_instancePrefabLODPercent.m_lod2.y)
 			{
 				if (g_instancePrefab[i]->GetElapsedTime() >= 0.01f)
 				{
@@ -6591,7 +8144,7 @@ CVoid CMain::ManageLODs()
 						{
 							if (g_instancePrefab[i]->GetScene(1))
 							{
-								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentTime());
+								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentAnimationTime());
 								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentDelayInTime());
 								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentDelayOutTime());
 								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentWeight());
@@ -6604,7 +8157,7 @@ CVoid CMain::ManageLODs()
 						{
 							if (g_instancePrefab[i]->GetScene(1))
 							{
-								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentTime());
+								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentAnimationTime());
 								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentDelayInTime());
 								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentDelayOutTime());
 								g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->GetCurrentWeight());
@@ -6621,7 +8174,7 @@ CVoid CMain::ManageLODs()
 					}
 				}
 			}
-			else if (percentage > 0.003f && percentage < 1.4f)
+			else if (percentage > g_instancePrefabLODPercent.m_lod3.x && percentage < g_instancePrefabLODPercent.m_lod3.y)
 			{
 				if (g_instancePrefab[i]->GetElapsedTime() >= 0.01f)
 				{
@@ -6659,7 +8212,7 @@ CVoid CMain::ManageLODs()
 								{
 									if (g_instancePrefab[i]->GetScene(2))
 									{
-										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentTime());
+										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentAnimationTime());
 										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentDelayInTime());
 										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentDelayOutTime());
 										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->GetCurrentWeight());
@@ -6683,7 +8236,7 @@ CVoid CMain::ManageLODs()
 								{
 									if (g_instancePrefab[i]->GetScene(1))
 									{
-										g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentTime());
+										g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentAnimationTime());
 										g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentDelayInTime());
 										g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentDelayOutTime());
 										g_instancePrefab[i]->GetScene(1)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentWeight());
@@ -6700,405 +8253,111 @@ CVoid CMain::ManageLODs()
 
 				}
 			}
+			//Make sure objects are always visible in free camera
 
 			g_instancePrefab[i]->SetElapsedTime(g_elapsedTime);
+
+			//Make sure objects are always visible in free camera
+			if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+			{
+				if (!g_instancePrefab[i]->GetSceneVisible(0) && !g_instancePrefab[i]->GetSceneVisible(1) && !g_instancePrefab[i]->GetSceneVisible(2))
+				{
+					for (CUInt j = 2; j >= 0; j--)
+					{
+						if (g_instancePrefab[i]->GetPrefab() && g_instancePrefab[i]->GetPrefab()->GetHasLod(j))
+						{
+							CScene* scene = g_instancePrefab[i]->GetScene(j);
+							if (!scene) continue;
+
+							g_instancePrefab[i]->SetSceneVisible(j, CTrue);
+							break;
+						}
+					}
+				}
+			}
+
 		}
 
-		for (CUInt i = 0; i < g_engineLights.size(); i++)
-		{
-			if (Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[i]->m_abstractLight->GetName()))
-				continue;
+		//for (CUInt i = 0; i < g_engineLights.size(); i++)
+		//{
+		//	if (Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[i]->m_abstractLight->GetName()))
+		//		continue;
 
+		//	if (g_engineLights[i]->GetRunTimeVisible())
+		//	{
+		//		GLint result;
+		//		glGetQueryObjectiv(g_engineLights[i]->GetQueryIndex(), GL_QUERY_RESULT, &result);
+		//		CFloat percentage;
+		//		percentage = ((CFloat)result / (CFloat)m_numSamples) * 100.0f;
+
+		//		g_engineLights[i]->SetLODPercent(percentage);
+		//	}
+		//	else
+		//	{
+		//		g_engineLights[i]->SetLODPercent(0.0f);
+		//	}
+		//}
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
 			GLint result;
-			glGetQueryObjectiv(g_engineLights[i]->GetQueryIndex(), GL_QUERY_RESULT, &result);
-
-			if (result == 0 && g_engineLights[i]->GetDistanceFromCamera() > g_engineLights[i]->GetRadius())
-				g_engineLights[i]->SetVisible(CFalse);
+			glGetQueryObjectiv(g_engineWaters[i]->GetQueryIndex(), GL_QUERY_RESULT, &result);
+			g_engineWaters[i]->SetResult(result);
+			if (result == 0)
+				g_engineWaters[i]->SetQueryVisible(CFalse);
 			else
-				g_engineLights[i]->SetVisible(CTrue);
+				g_engineWaters[i]->SetQueryVisible(CTrue);
 		}
 
 	}
 }
 
-CVoid CMain::EngineLightPass()
+CVoid CMain::Draw3DObjects()
 {
-	if( !g_useOldRenderingStyle && g_options.m_enableFBO && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader && g_engineLights.size() > 0 )
+	if (!g_useOldRenderingStyle && g_options.m_enableFBO && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-		//set all the lights here
-		for( CUInt j = 0; j < g_engineLights.size(); j++ )
-		{
-			CInstanceLight *instanceLight = g_engineLights[j];
-			g_currentInstanceLight = instanceLight;
+		if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
+			g_render.BindForWriting(m_mFboID);
+		else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
+			g_render.BindForWriting(m_fboID);
 
-			CVec3f  Position;
-			if( instanceLight->m_parent )
-			{
-				float *matrix = (float *)instanceLight->m_parent->GetLocalToWorldMatrix();
-				Position.x = matrix[12]; Position.y = matrix[13]; Position.z =  matrix[14]; 
-			}
-			else
-			{
-				Position.x = instanceLight->m_abstractLight->GetPosition()[0];
-				Position.y = instanceLight->m_abstractLight->GetPosition()[1];
-				Position.z = instanceLight->m_abstractLight->GetPosition()[2];
-			}
-			CBool visible = CFalse;
-			if (Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[j]->m_abstractLight->GetName()))
-				visible = CTrue;
-			else
-				visible = instanceLight->GetVisible();
+		if (g_engineLights.size() == 0)
+			SetDefaultLight();
 
-			if( g_camera->m_cameraManager->IsSphereInFrustum( Position.x, Position.y, Position.z, (CFloat)instanceLight->GetRadius() ) && visible)
-			{
-				if( Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[j]->m_abstractLight->GetName() ) )
-				{
-					g_firstPass = CTrue;
-				//	GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
-				//	GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT};
-				//	glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
-				}
-				else
-				{
-					g_firstPass = CFalse;
-				}
-				glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
+		g_main->RenderBakedOctree3DModels();
+		g_main->Render3DAnimatedModels(CTrue);
+		g_main->Render3DModelsControlledByPhysX();
+		g_main->RenderCharacter(CFalse);
 
-				if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-				{
-					if( g_numLights % 2 == 0 )
-						g_render.BindForWriting( m_mFboID );
-					else
-						g_render.BindForWriting( m_mFboID2 );
-				}
-				else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-				{
-					if( g_numLights % 2 == 0 )
-						g_render.BindForWriting( m_fboID );
-					else
-						g_render.BindForWriting( m_fboID2 );
-				}
-				if( g_numLights != 0 )
-				{
-					glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-					glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-				}
-				glViewport( 0, 0, g_width, g_height );
-
-				if( g_numLights < 8 ) // 8 lights are supported
-				{
-					CBool defaultLight;
-					if( Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[j]->m_abstractLight->GetName() ) || ( Cmp(g_shadowProperties.m_directionalLightName, "\n" ) && g_engineLights[j]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL ))
-						defaultLight = CTrue;
-					else
-						defaultLight = CFalse;
-					if( g_render.SetInstanceLight(g_engineLights[j],0, defaultLight) )
-					{
-						if( defaultLight )
-							Cpy( g_shadowProperties.m_directionalLightName, g_engineLights[j]->m_abstractLight->GetName() );
-						g_octree->Render();
-						Render3DAnimatedModels( CTrue);
-						Render3DModelsControlledByPhysX();
-						RenderCharacter(CFalse);
-
-						BlendLights(g_numLights);
-						++g_numLights;
-						g_octree->ResetOctreeGeoCount();
-					}
-				}
-			}
-		}
-		if( g_numLights > 1 && (g_numLights % 2 == 0) )
-		{
-			if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-				g_render.BindForReading( m_mFboID2 );
-			else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-				g_render.BindForReading( m_fboID2 );
-
-			glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-			if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-				g_render.BindForWriting( m_mFboID );
-			else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-				g_render.BindForWriting( m_fboID );
-
-			glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-			if ( g_render.UsingFBOs() && g_options.m_enableFBO )
-			{
-				glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-				glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
-			}	
-		}
+		++g_numLights;
+		//g_octree->ResetOctreeGeoCount();
 	} //if !g_useOldRenderingStyle
-	else if( g_engineLights.size() > 0 && ( g_useOldRenderingStyle || !g_options.m_enableFBO ) && g_render.UsingShader() && g_render.m_useShader )//old rendering style
-	{
-		glDrawBuffer( GL_BACK );
-		//set all the lights here
-		for( CUInt j = 0; j < g_engineLights.size(); j++ )
-		{
-			if( j == 0 )
-			if( g_numLights < 1 ) // 1 light is supported
-			{
-				if( g_render.SetInstanceLight(g_engineLights[j],0, CTrue) )
-				{
-					g_octree->Render();
-					Render3DAnimatedModels( CTrue);
-					Render3DModelsControlledByPhysX();
-					RenderCharacter(CFalse);
-
-					g_octree->ResetOctreeGeoCount();
-					++g_numLights;
-					break;
-				}
-			}
-		}
-	}
-	else
-	{
-		for( CUInt j = 0; j < g_engineLights.size(); j++ )
-		{
-			if( g_numLights < 8 ) // 8 lights is supported
-			{
-				if( g_render.SetInstanceLight(g_engineLights[j],g_numLights, CTrue) )
-				{
-					++g_numLights;
-				}
-			}
-		}
-	}
 }
 
-CVoid CMain::COLLADALightPass()
+CVoid CMain::SetDefaultLight()
 {
-	if( !g_useOldRenderingStyle && g_options.m_enableFBO && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
-	{
-		//COLLADA Lights. Not recommended
-		for( CUInt i = 0 ; i < g_scene.size(); i++ )
-		{ 
-			g_render.SetScene( g_scene[i] );
-			
-			//set all the lights here
-			for( CUInt j = 0; j < g_render.GetScene()->GetLightInstanceCount(); j++ )
-			{
-				CInstanceLight *instanceLight = g_render.GetScene()->GetLightInstances(j);
-				if( instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_AMBIENT )
-					continue;
+	glEnable(GL_LIGHT0);	 //just for per vertex lighting 	
 
-				g_currentInstanceLight = instanceLight;
+	//This is the properties of the camera light
+	GLfloat light_pos0[4] = { g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z, 1.0f };
 
-				CVec3f  Position;
-				if( instanceLight->m_parent )
-				{
-					float *matrix = (float *)instanceLight->m_parent->GetLocalToWorldMatrix();
-					Position.x = matrix[12]; Position.y = matrix[13]; Position.z =  matrix[14]; 
-				}
-				else
-				{
-					Position.x = instanceLight->m_abstractLight->GetPosition()[0];
-					Position.y = instanceLight->m_abstractLight->GetPosition()[1];
-					Position.z = instanceLight->m_abstractLight->GetPosition()[2];
-				}
+	GLfloat light_ambient0[4] = { 0.5f, 0.5f, 0.5f, 0.0f };
+	GLfloat light_diffuse0[4] = { 0.6f, 0.6f, 0.6f, 1.0f };
+	GLfloat light_specular0[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat light_shininess0 = 100.0f;
 
-				if( g_camera->m_cameraManager->IsSphereInFrustum( Position.x, Position.y, Position.z, (CFloat)instanceLight->GetRadius() ) )
-				{
-					if( Cmp(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName() ) )
-					{
-						g_firstPass = CTrue;
-					//	GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
-					//	GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT};
-					//	glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
-					}
-					else
-					{
-						g_firstPass = CFalse;
-					}
-					glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
-
-					if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-					{
-						if( g_numLights % 2 == 0 )
-							g_render.BindForWriting( m_mFboID );
-						else
-							g_render.BindForWriting( m_mFboID2 );
-					}
-					else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-					{
-						if( g_numLights % 2 == 0 )
-							g_render.BindForWriting( m_fboID );
-						else
-							g_render.BindForWriting( m_fboID2 );
-					}
-					if( g_numLights != 0 ) //clear m_fboID2 or m_mFboID2
-					{
-						glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-						glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-					}
-					glViewport( 0, 0, g_width, g_height );
-
-					if( g_numLights < 8 ) // 8 lights are supported
-					{
-						if( instanceLight )
-						{
-							CBool defaultLight;
-							if( Cmp(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName() ) || ( Cmp(g_shadowProperties.m_directionalLightName, "\n" ) && instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL ))
-								defaultLight = CTrue;
-							else
-								defaultLight = CFalse;
-							if( g_render.SetInstanceLight(instanceLight,0, defaultLight) )
-							{
-								if( defaultLight )
-									Cpy( g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName() );
-								g_octree->Render();
-								Render3DAnimatedModels( CTrue);
-								Render3DModelsControlledByPhysX();
-								RenderCharacter(CFalse);
-
-								BlendLights(g_numLights);
-
-								++g_numLights;
-								g_octree->ResetOctreeGeoCount();
-								g_render.SetScene( g_scene[i] );
-							}
-						}
-					}
-				}
-			}
-		}
-		if( g_numLights > 1 && (g_numLights % 2 == 0) )
-		{
-			if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-				g_render.BindForReading( m_mFboID2 );
-			else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-				g_render.BindForReading( m_fboID2 );
-
-			glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-			if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-				g_render.BindForWriting( m_mFboID );
-			else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-				g_render.BindForWriting( m_fboID );
-
-			glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-			if ( g_render.UsingFBOs() && g_options.m_enableFBO )
-			{
-				glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-				glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
-			}
-		}
-	} //if !g_useOldRenderingStyle
-	else if( ( g_useOldRenderingStyle || !g_options.m_enableFBO ) && g_render.UsingShader() && g_render.m_useShader )//old rendering style
-	{
-		for( CUInt i = 0 ; i < g_scene.size(); i++ )
-		{
-			g_render.SetScene( g_scene[i] );
-			
-			//set all the lights here
-			for( CUInt j = 0; j < g_render.GetScene()->GetLightInstanceCount(); j++ )
-			{
-				if( j == 0 )
-				{
-					if( g_numLights < 1 ) // 1 lights is supported
-					{
-						CInstanceLight *instanceLight = g_render.GetScene()->GetLightInstances(j);
-						if( instanceLight )
-						{
-							if( g_render.SetInstanceLight(instanceLight,0, CTrue) )
-							{
-								g_octree->Render();
-								Render3DAnimatedModels( CTrue);
-								Render3DModelsControlledByPhysX();
-								RenderCharacter(CFalse);
-
-								g_octree->ResetOctreeGeoCount();
-								++g_numLights;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		for( CUInt i = 0 ; i < g_scene.size(); i++ )
-		{
-			g_render.SetScene( g_scene[i] );
-			
-			//set all the lights here
-			for( CUInt j = 0; j < g_render.GetScene()->GetLightInstanceCount(); j++ )
-			{
-				if( g_numLights < 8 ) // 8 lights is supported
-				{
-					CInstanceLight *instanceLight = g_render.GetScene()->GetLightInstances(j);
-					if( instanceLight )
-					{
-						if( g_render.SetInstanceLight(instanceLight,g_numLights, CTrue) )
-						{
-							++g_numLights;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-CVoid CMain::FixedFunctionLightPass()
-{
-	if( !g_render.UsingShader() || !g_render.m_useShader || !g_options.m_enableShader)
-	{
-		g_octree->Render();
-		Render3DAnimatedModels( CTrue);
-		Render3DModelsControlledByPhysX();
-		RenderCharacter(CFalse);
-
-
-	}
-}
-
-CVoid CMain::DefaultLightPass()
-{
-	if( g_numLights == 0 )
-	{
-		if (!g_render.UsingShader())
-			glEnable(GL_LIGHT0);	 //just for per vertex lighting 	
-
-		////This is the properties of the camera light
-		GLfloat light_pos0[4] = {g_camera->m_perspectiveCameraPos.x,g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z, 1.0f };
-		////g_defaultDirectionalLight.x = light_pos0[0]; g_defaultDirectionalLight.y = light_pos0[1]; g_defaultDirectionalLight.z = light_pos0[2]; g_defaultDirectionalLight.w = 0.0f;
-
-		//GLfloat light_ambient0[4] = { 0.5f, 0.5f, 0.5f, 0.0f };
-		//GLfloat light_diffuse0[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
-		//GLfloat light_specular0[4] = { 0.6f, 0.6f, 0.6f, 1.0f };
-		//GLfloat light_shininess0 = 5.0f;
-
-		GLfloat light_ambient0[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		GLfloat light_diffuse0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		GLfloat light_specular0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		GLfloat light_shininess0 = 5.0f;
-
-		glLightfv( GL_LIGHT0, GL_POSITION, light_pos0  );
-		glLightfv( GL_LIGHT0, GL_AMBIENT , light_ambient0 );
-		glLightfv( GL_LIGHT0, GL_DIFFUSE , light_diffuse0 );
-		glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular0 );
-		glLightf ( GL_LIGHT0, GL_SHININESS, light_shininess0 );
-		glLightf ( GL_LIGHT0, GL_SPOT_CUTOFF,(GLfloat)180.0f );
-		glLightf ( GL_LIGHT0, GL_CONSTANT_ATTENUATION , (GLfloat)1.0f );
-		glLightf ( GL_LIGHT0, GL_LINEAR_ATTENUATION,	(GLfloat)0.0f );
-		glLightf ( GL_LIGHT0, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f );
+	glLightfv( GL_LIGHT0, GL_POSITION, light_pos0  );
+	glLightfv( GL_LIGHT0, GL_AMBIENT , light_ambient0 );
+	glLightfv( GL_LIGHT0, GL_DIFFUSE , light_diffuse0 );
+	glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular0 );
+	glLightf ( GL_LIGHT0, GL_SHININESS, light_shininess0 );
+	glLightf ( GL_LIGHT0, GL_SPOT_CUTOFF,(GLfloat)180.0f );
+	glLightf ( GL_LIGHT0, GL_CONSTANT_ATTENUATION , (GLfloat)1.0f );
+	glLightf ( GL_LIGHT0, GL_LINEAR_ATTENUATION,	(GLfloat)0.0f );
+	glLightf ( GL_LIGHT0, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f );
 		
-		g_octree->Render();
-		Render3DAnimatedModels( CTrue);
-		Render3DModelsControlledByPhysX();
-		RenderCharacter(CFalse);
-
-		if( g_options.m_enableShader  && g_render.UsingShader()  && g_render.m_useShader)
-			g_octree->ResetOctreeGeoCount();
-
-		g_numLights++;
-	}
+	g_numLights++;
 }
 
 CVoid CMain::BlendFogWithScene()
@@ -7130,8 +8389,6 @@ CVoid CMain::BlendFogWithScene()
 	glUseProgram(g_render.m_blendTexturesProgram);
 	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "tex_unit_0"), 0 );
 	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "tex_unit_1"), 1 );
-	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "blendLights"), CFalse );
-
 
 	glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
 	gluOrtho2D(0, g_width, 0, g_height);
@@ -7171,88 +8428,6 @@ CVoid CMain::BlendFogWithScene()
 
 }
 
-CVoid CMain::BlendLights(CUInt lightIndex)
-{
-	if( lightIndex == 0 ) return;
-	if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-	{
-		g_render.BindForReading( m_mFboID );
-		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		g_render.BindForWriting( m_fboID );
-		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-		g_render.BindForReading( m_mFboID2 );
-		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		g_render.BindForWriting( m_fboID2 );
-		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-	}
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glBindTexture(GL_TEXTURE_2D, m_textureTarget[0]);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glBindTexture(GL_TEXTURE_2D, m_textureTargetSwapLights);
-
-	g_render.BindForWriting( m_fboIDSum );
-
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(g_render.m_blendTexturesProgram);
-	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "tex_unit_0"), 0 );
-	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "tex_unit_1"), 1 );
-	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "blendLights"), CTrue );
-
-
-	glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
-	gluOrtho2D(0, g_width, 0, g_height);
-	glMatrixMode(GL_MODELVIEW); glPushMatrix();	glLoadIdentity();
-	glBegin(GL_QUADS);
-	glTexCoord2i(0,	0);	glVertex2i(0, 0); 
-	glTexCoord2i(1, 0);	glVertex2i(g_width, 0);
-	glTexCoord2i(1, 1);	glVertex2i(g_width, g_height);
-	glTexCoord2i(0, 1);	glVertex2i(0, g_height);
-	glEnd();
-	glFlush();
-
-	glMatrixMode(GL_PROJECTION); glPopMatrix();
-	glMatrixMode(GL_MODELVIEW); glPopMatrix();
-	//glActiveTextureARB(GL_TEXTURE0_ARB);
-	//glBindTexture(GL_TEXTURE_2D, 0);
-	//glActiveTextureARB(GL_TEXTURE1_ARB);
-	//glBindTexture(GL_TEXTURE_2D, 0);
-	glUseProgram(0);
-	g_render.BindFBO(0);
-
-	//copy light sum to the default FBO
-	g_render.BindForReading( m_fboIDSum );
-	glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-	if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
-	{
-		if( lightIndex % 2  == 0 )
-		{
-			g_render.BindForWriting( m_mFboID );
-		}
-		else
-		{
-			g_render.BindForWriting( m_mFboID2 );
-		}
-	}
-	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-	{
-		if( lightIndex % 2  == 0 )
-			g_render.BindForWriting( m_fboID );
-		else
-			g_render.BindForWriting( m_fboID2 );
-	}
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-	if ( g_render.UsingFBOs() && g_options.m_enableFBO )
-		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-}
-
 CVoid CMain::ResetPhysXCounts()
 {
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
@@ -7277,7 +8452,66 @@ CVoid CMain::UpdatePrefabInstanceBB()
 {
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
-		if (!g_instancePrefab[i]->GetVisible()) continue;
+		CBool foundDynamicActorTarget = CFalse;
+
+		if (!g_instancePrefab[i]->GetVisible())
+		{
+			if (g_instancePrefab[i]->GetIsControlledByPhysX())
+			{
+				for (CUInt s = 0; s < 3; s++)
+				{
+					if (g_instancePrefab[i]->GetPrefab()->GetHasLod(s))
+					{
+						CScene* scene = g_instancePrefab[i]->GetScene(s);
+						if (!scene) continue;
+						if (!scene->m_isTrigger)
+						{
+							for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+							{
+								if (scene->m_instanceGeometries[j]->GetHasPhysXActor() && scene->m_instanceGeometries[j]->GetPhysXActorDensity() > 0.0f)
+								{
+									for (CUInt k = 0; k < gPhysXscene->getNbActors(); k++)
+									{
+										//Start Of Load/Unload PhysX Actors
+										if (gPhysXscene->getActors()[k]->isDynamic() && !gPhysXscene->getActors()[k]->isSleeping())
+										{
+											CChar actorName[MAX_NAME_SIZE];
+											if (!gPhysXscene->getActors()[k]->getName()) continue; //main character
+											Cpy(actorName, gPhysXscene->getActors()[k]->getName());
+											if (Cmp(scene->m_instanceGeometries[j]->GetPhysXActorName(), actorName))
+											{
+												foundDynamicActorTarget = CTrue;
+											}
+										}
+										if (foundDynamicActorTarget)
+											break;
+									}
+								}
+								if (foundDynamicActorTarget)
+									break;
+							}
+						}
+					}
+					if (foundDynamicActorTarget)
+						break;
+				}
+			}
+		}
+
+		if (!foundDynamicActorTarget && !g_instancePrefab[i]->GetVisible()) continue;
+
+		if (g_instancePrefab[i]->GetIsAnimated() || g_instancePrefab[i]->GetIsControlledByPhysX())
+		{
+			if (g_camera->m_cameraManager->IsBoxInFrustum(&g_instancePrefab[i]->m_boundingBox[0], 8))
+			{
+				g_instancePrefab[i]->SetRenderForQuery(CTrue);
+			}
+			else
+			{
+				g_instancePrefab[i]->SetRenderForQuery(CFalse);
+			}
+		}
+
 		g_currentInstancePrefab = g_instancePrefab[i];
 		CBool foundTarget = CFalse;
 		CScene* scene = NULL;
@@ -7299,6 +8533,7 @@ CVoid CMain::UpdatePrefabInstanceBB()
 				}
 			}
 		}
+
 		if (foundTarget)
 			continue;
 	}
@@ -7385,4 +8620,23 @@ CUInt CMain::GetSelectedGUI()
 	glPopAttrib();
 
 	return m_guiSelectedName;
+}
+
+void CMain::GenerateMenuCursorTexture(char* fileName)
+{
+	DeleteMenuCursorTexture();
+
+	m_menuCursorImg = CNew(CImage);
+
+	Cpy(m_strMenuCursorImg, fileName);
+
+	if (!CTexture::LoadDDSTexture(m_menuCursorImg, m_strMenuCursorImg, NULL))
+		MessageBox(NULL, _T("GenerateMenuCursorTexture>Couldn't load the cursor image"), _T("VandaEngine Error"), MB_OK);
+
+	m_menuCursorImg->SetFileName(GetAfterPath(m_strMenuCursorImg));
+}
+
+void CMain::DeleteMenuCursorTexture()
+{
+	CDelete(m_menuCursorImg);
 }

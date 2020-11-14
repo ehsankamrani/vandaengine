@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #pragma once
 
@@ -142,6 +132,9 @@ typedef daeSmartRef<domChannel> domChannelRef;
 
 class CScene : public CBase 
 {
+private:
+	CAnimationStatus m_animationStatus; //Play or Pause
+
 public:
 	CScene();
 	~CScene();
@@ -154,11 +147,12 @@ public:
 	CAnimation* GetAnimation( const CChar* name, const CChar* DocURI);
 	CMaterial* GetMaterial( const CChar * name, const CChar * DocURI);
 	CGeometry* GetGeometry( const CChar * name, const CChar * DocURI);
-	CVoid Render(CBool sceneManager, CChar* parentTreeNameOfGeometries = NULL );
+	CVoid UpdateDynamicPhysicsObjects();
+	CVoid Render(CBool sceneManager, CChar* parentTreeNameOfGeometries = NULL, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue);
 	CVoid CalculateDistances();
 	CVoid RenderAnimatedModels(CBool sceneManager, CBool renderController);
+	CVoid ResetSkinData();
 	CVoid RenderModelsControlledByPhysX(CBool sceneManager);
-	CVoid RenderGrass(CBool sceneManager, CChar* parentTreeNameOfGeometries );
 	CVoid SetUpdateBB(CBool update);
 	CBool GetUpdateBB();
 	CVoid RenderAABBWithLines( CBool animatedGeo = CFalse);
@@ -168,29 +162,32 @@ public:
 	CVoid Update( CFloat elapsedTime = 0.0f, CBool initialUpdate = CFalse, CBool updateOrient = CTrue, CBool resetTimer = CTrue );
 	CVoid UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer);
 	CVoid UpdateExecuteActionList(CFloat elapsedTime, CBool &updateExecuteActionList);
-
+	CBool CastShadow() { return m_castShadow; }
 	//deprecate
-	CBool m_loopAnimation, m_playAnimation;
+	CBool m_loopAnimationAtStartup, m_playAnimation, m_alwaysVisible, m_castShadow;
 	CBool m_updateBoundingBox;
 	//new way
 	std::vector<std::string>m_executeActionList;
 	std::vector<std::string>m_blendCycleList;
+
+	CAnimationStatus GetAnimationStatus() { return m_animationStatus; }
+	CVoid SetAnimationStatus(CAnimationStatus status) { m_animationStatus = status; }
+
 	//new way
 	CBool BlendCycle(CInt id, CFloat weight, CFloat delay);
 	CBool ClearCycle(CInt id, CFloat delay);
 	CBool ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat weightTarget = 1.0f, CBool autoLock=CFalse);
 	CBool ReverseExecuteAction(CInt id );
+	CBool RemoveAction(CInt id);
 	CBool UpdateAnimationLists() { return m_updateAnimationLists; }
 
 	CBool m_hasAnimation; //Has this scene any animations?
-	CAnimationStatus m_animationStatus; //Play or Pause
 	CBool m_updateAnimation;
 	CBool m_updateAnimationLists;
 	CBool m_update;
 	std::vector<std::string>m_animationSceneNames;
 
 	CBool m_isTrigger;
-	CBool m_isGrass;
 	CUpAxis upAxis;
 	CBool m_isVisible;
 
@@ -215,7 +212,7 @@ public:
 		else 
 			return (NULL);
 	}
-	CInt GeneratePhysX( CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CInstanceGeometry* m_instanceGeo, CBool loadFromFile = CFalse)
+	CInt GeneratePhysX( CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CInstanceGeometry* m_instanceGeo, CBool loadFromFile = CFalse, CInstancePrefab* prefab = NULL)
 	{
 		CGeometry* m_geo = m_instanceGeo->m_abstractGeometry;
 
@@ -279,8 +276,11 @@ public:
 
 		CMatrix convexLocalToWorld;
 		const CMatrix *convex_ltow;
-		convex_ltow = m_instanceGeo->m_node->GetLocalToWorldMatrix();
-		CMatrixCopy(*convex_ltow, convexLocalToWorld); 
+		if (prefab)
+			convex_ltow = prefab->GetInstanceMatrix();
+		else
+			convex_ltow = m_instanceGeo->m_node->GetLocalToWorldMatrix();
+		CMatrixCopy(*convex_ltow, convexLocalToWorld);
 		CMatrix4x4Mult( convexLocalToWorld, ZUpRotationForSkins );
 		CMatrixCopy(ZUpRotationForSkins, convexLocalToWorld); 
 
@@ -798,6 +798,8 @@ private:
 	CVoid CreateTrianglesFromPolylist( domMesh *thisMesh, domPolylist *thisPolylist );
 	CVoid CreateTrianglesFromPolygons( domMesh *thisMesh, domPolygons *thisPolygons );
 	CUInt GetMaxOffset( domInputLocalOffset_Array &input_array );
+	CVoid SetCalculateDynamicBoundingBox(CBool set) { m_calculateDynamicBoundingBox = set; }
+	CBool GetCalculateDynamicBoundingBox() { return m_calculateDynamicBoundingBox; }
 
 public:
     CVoid CalculateTangentArray(CGeometry* newGeo);
@@ -808,9 +810,14 @@ public:
 	CInt GetClipIndexForStartup();
 	CVoid SetClipIndexForStartup( CInt index );
 	CVoid SetClipIndex( CInt index, CBool loopAnimation = CTrue );
+	CVoid SetCurrentClipIndex(CInt index);
 	CInt GetNumClips();
 	CVoid SetNumClips(CInt clips);
 	inline CVoid SetLoadAnimation(CBool load) { m_loadAnimation = load; }
+	CFloat GetLastKeyTime() { return m_lastKeyTime; }
+	CVoid SetLastKeyTime(CFloat time) { m_lastKeyTime = time; }
+	CFloat GetFirstKeyTime() { return m_firstKeyTime; }
+	CVoid SetFirstKeyTime(CFloat time) { m_firstKeyTime = time; }
 
 private:
 	CBool m_loadAnimation;
@@ -824,4 +831,5 @@ private:
 
 	CInt m_currentClipIndex;
 	CInt m_clipIndexForStartup;
+	CBool m_calculateDynamicBoundingBox;
 };

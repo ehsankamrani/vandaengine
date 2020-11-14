@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -69,14 +69,14 @@ public:
 	CVoid SetPitch( CFloat pitch )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", pitch );
+		sprintf( temp, "%.3f", pitch );
 		m_strAmbientSoundPitch = temp;
 	}
 
 	CVoid SetVolume( CFloat volume )
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "%f", volume );
+		sprintf( temp, "%.3f", volume );
 		m_strAmbientSoundVolume = temp;
 	}
 	//#######################

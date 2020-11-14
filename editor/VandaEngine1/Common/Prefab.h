@@ -5,6 +5,8 @@
 #include <map>
 class CScene;
 class CPrefab;
+class CWater;
+class CInstanceLight;
 
 struct CVLOD
 {
@@ -21,6 +23,10 @@ public:
 	CInstancePrefab();
 	~CInstancePrefab();
 	CVoid GenQueryIndex();
+	CVoid GenWaterQueryIndex();
+	CVoid DeleteWaterQueryIndex();
+	CVec3f m_boundingBox[8];
+	CInstanceLight* m_lights[8];
 private:
 	CChar m_name[MAX_NAME_SIZE];
 	CPrefab* m_prefab;
@@ -33,8 +39,12 @@ private:
 	CUInt m_nameIndex;
 	CVec3f m_minAABB;
 	CVec3f m_maxAABB;
+	CVec3f m_inverseMinAABB;
+	CVec3f m_inverseMaxAABB;
 	CMatrix m_instanceMatrix;
+	CMatrix m_inverseInstanceMatrix;
 	GLuint m_queryIndex;
+	GLuint m_waterQueryIndex;
 	CFloat m_elapsedTime;
 	CVec3f m_center;
 	CFloat m_distanceFromCamera;
@@ -42,7 +52,21 @@ private:
 	GLint m_result;
 	CChar m_enterScript[MAX_NAME_SIZE];
 	CChar m_exitScript[MAX_NAME_SIZE];
+	CChar m_tempScriptPath[MAX_NAME_SIZE];
+	CChar m_tempCurrentScriptPath[MAX_NAME_SIZE];
 	CBool m_isTrigger;
+	CBool m_renderForQuery;
+	CBool m_renderForWaterQuery;
+	CBool m_realTimeSceneCheckIsInFrustom;
+	CWater* m_water;
+	CBool m_isControlledByPhysX;
+	CBool m_isAnimated;
+	CBool m_isStatic;
+	CUInt m_totalLights;
+	CUInt m_totalVisibleLights;
+	CBool m_lightCooked;
+	CBool m_castShadow;
+
 public:
 	CVoid SetName(CChar* name);
 	CVoid SetNameIndex();
@@ -58,14 +82,29 @@ public:
 	CVoid SetEnterScript(CChar* enter);
 	CVoid SetExitScript(CChar* exit);
 	CVoid SetIsTrigger(CBool isTrigger);
-
+	CVoid SetRenderForQuery(CBool query);
+	CVoid SetRenderForWaterQuery(CBool query);
+	CVoid SetRealTimeSceneCheckIsInFrustom(CBool check);
+	CVoid SetWater(CWater* water);
+	CVoid SetLight();
+	CBool GetLightcooked() { return m_lightCooked; }
+	CVoid SetLightCooked(CBool set) { m_lightCooked = set; }
+	inline CFloat squared(float v);
+	CBool DoesLightIntersectsPrefab(CVec3f C1, CVec3f C2, CVec3f S, float R);
+	CBool CastShadow() { return m_castShadow; }
 	CVoid ResetElapsedTime();
 	CScene* GetScene(CUInt index);
 	CVec3f GetMinAABB();
 	CVec3f GetMaxAABB();
+	CVec3f GetInverseMinAABB();
+	CVec3f GetInverseMaxAABB();
 	GLuint GetQueryIndex();
+	GLuint GetWaterQueryIndex();
 	GLint GetResult();
-
+	CBool GetRenderForQuery();
+	CBool GetRenderForWaterQuery();
+	CWater* GetWater();
+	CUInt GetTotalLights() { return m_totalVisibleLights; }
 	CChar* GetName();
 	CUInt GetNameIndex();
 	CPrefab* GetPrefab();
@@ -73,19 +112,33 @@ public:
 	CVec4f GetRotate();
 	CVec3f GetScale();
 	CBool GetVisible();
+	CBool GetVisible2() { return m_isVisible; }
 	CFloat GetElapsedTime();
 	CBool GetSceneVisible(CUInt index);
 	CFloat GetDistanceFromCamera();
 	inline CMatrix *GetInstanceMatrix(){ return &m_instanceMatrix; }
 	CBool GetIsTrigger();
+	CBool GetRealTimeSceneCheckIsInFrustom();
+	CBool GetIsControlledByPhysX() { return m_isControlledByPhysX; }
+	CBool GetIsAnimated() { return m_isAnimated; }
+	CBool GetIsStatic() { return m_isStatic; }
 
 	CVoid UpdateBoundingBox(CBool init = CTrue);
+	CVoid UpdateBoundingBoxForWater(CFloat height);
 	CVoid UpdateArrow(CBool readFromEditor = CFalse);
 	CVoid CalculateDistance();
 	CFloat GetRadius();
 	CVec3f GetCenter();
 	CChar* GetEnterScript();
 	CChar* GetExitScript();
+	CVoid UpdateIsStaticOrAnimated();
+
+	CVoid SetTempScriptPath(CChar* path) { Cpy(m_tempScriptPath, path); }
+	CVoid SetTempCurrentScriptPath(CChar* path) { Cpy(m_tempCurrentScriptPath, path); }
+
+	CChar* GetTempScriptPath() { return m_tempScriptPath; }
+	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
+
 };
 
 class CPrefab

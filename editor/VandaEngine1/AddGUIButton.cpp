@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddGUI.cpp : implementation file
@@ -988,6 +988,22 @@ void CAddGUIButton::OnBnClickedOk()
 		return;
 	}
 
+	if (!m_strLeftClickScriptPath.IsEmpty() && m_strLeftClickImgPath.IsEmpty())
+	{
+		MessageBox("Please specify left click image", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (!m_strRightClickScriptPath.IsEmpty() && m_strRightClickImgPath.IsEmpty())
+	{
+		MessageBox("Please specify right click image", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (!m_strHoverScriptPath.IsEmpty() && m_strHoverImgPath.IsEmpty())
+	{
+		MessageBox("Please specify hover image", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	for (std::vector<std::string>::iterator it = g_guiNames.begin(); it != g_guiNames.end(); it++)
 	{
 		if (!m_create)
@@ -1138,6 +1154,12 @@ void CAddGUIButton::OnBnClickedOk()
 		guiButton->SetUpdateRightClickScript(CTrue);
 		guiButton->SetUpdateHoverScript(CTrue);
 
+		if (!Cmp(g_currentPackageAndGUIName, "\n"))
+		{
+			guiButton->SetPackageName(g_currentGUIPackageName);
+			guiButton->SetGUIName(g_currentGUIName);
+		}
+
 		g_guiButtons.push_back(guiButton);
 		g_guiNames.push_back(m_strName.GetBuffer(m_strName.GetLength()));
 
@@ -1160,14 +1182,14 @@ CVoid CAddGUIButton::SetPosition(CVec2f pos)
 	m_fPosX = pos.x;
 	m_fPosY = pos.y;
 
-	m_strPosX.Format("%f", m_fPosX);
-	m_strPosY.Format("%f", m_fPosY);
+	m_strPosX.Format("%.3f", m_fPosX);
+	m_strPosY.Format("%.3f", m_fPosY);
 }
 
 CVoid CAddGUIButton::SetSize(CFloat size)
 {
 	m_fSize = size;
-	m_strSize.Format("%f", m_fSize);
+	m_strSize.Format("%.3f", m_fSize);
 }
 
 CVoid CAddGUIButton::SetMainImagePath(CChar* path)
@@ -1274,7 +1296,7 @@ BOOL CAddGUIButton::OnInitDialog()
 	{
 		m_fPosX = g_width / 2;
 		m_fPosY = g_height / 2;
-		m_strPosX.Format("%f", m_fPosX); m_strPosY.Format("%f", m_fPosY);
+		m_strPosX.Format("%.3f", m_fPosX); m_strPosY.Format("%.3f", m_fPosY);
 		m_editPosX.SetWindowTextA(m_strPosX);
 		m_editPosY.SetWindowTextA(m_strPosY);
 

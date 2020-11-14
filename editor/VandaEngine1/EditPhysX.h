@@ -16,6 +16,15 @@ public:
 // Dialog Data
 	enum { IDD = IDD_DIALOG_EDIT_PHYSX };
 
+private:
+	//These are used for cancel click
+	CString init_strPhysX;
+	CPhysXAlgorithm init_algorithm;
+	CFloat init_density;
+	CInt init_percentage;
+	CBool init_trigger;
+	CBool init_invisible;
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
@@ -46,4 +55,6 @@ public:
 	afx_msg void OnEnChangeEditPhysxPercentage();
 	afx_msg void OnEnChangeEditPhysxDensity();
 	CButton m_checkBoxInvisible;
+	afx_msg void OnEnChangeEditPhysx();
+	afx_msg void OnBnClickedCancel();
 };

@@ -14,9 +14,17 @@ public:
 	inline CVoid SetUpdateScript(CBool state) { m_updateScript = state; }
 	inline CBool GetUpdateScript() { return m_updateScript; }
 
+	CVoid SetTempScriptPath(CChar* path) { Cpy(m_tempScriptPath, path); }
+	CVoid SetTempCurrentScriptPath(CChar* path) { Cpy(m_tempCurrentScriptPath, path); }
+
+	CChar* GetTempScriptPath() { return m_tempScriptPath; }
+	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
+
 private:
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_scriptPath[MAX_URI_SIZE];
+	CChar m_tempScriptPath[MAX_NAME_SIZE];
+	CChar m_tempCurrentScriptPath[MAX_NAME_SIZE];
 	CBool m_updateScript;
 };
 

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddWaterAttachment.cpp : implementation file
@@ -132,6 +132,8 @@ void CWaterAttachment::OnBnClickedAttach()
 				else
 				{
 					tempWater->SetInstancePrefab(g_instancePrefab[i]);
+					g_instancePrefab[i]->SetWater(tempWater);
+					g_instancePrefab[i]->UpdateBoundingBoxForWater(tempWater->GetHeight());
 					PrintInfo("\nPrefab Instance successfully attached to the water ");
 				}
 				break;
@@ -186,6 +188,7 @@ void CWaterAttachment::OnBnClickedDetach()
 					if (Cmp(tempWater->m_instancePrefab[k]->GetName(), g_instancePrefab[i]->GetName()))
 					{
 						foundTarget = CTrue;
+						tempWater->m_instancePrefab[k]->SetWater(NULL);
 						tempWater->m_instancePrefab.erase(tempWater->m_instancePrefab.begin() + k);
 						PrintInfo("\nPrefab instance removed from selected water.", COLOR_YELLOW);
 						break;

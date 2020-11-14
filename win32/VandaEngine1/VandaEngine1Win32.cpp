@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 /******************************************************
@@ -46,6 +46,9 @@ std::vector<CScene*> g_scene;
 std::vector<CPrefab*> g_prefab;
 std::vector<CGeometry *> g_geometries;
 std::vector<CInstancePrefab*>g_instancePrefab;
+CLODProperties g_instancePrefabLODPercent;
+CPrefabProperties g_prefabProperties;
+CCameraProperties g_cameraProperties;
 
 std::vector<CGUIButton*> g_guiButtons;
 std::vector<CGUIBackground*> g_guiBackgrounds;
@@ -62,12 +65,13 @@ CBool g_useOldRenderingStyle = CFalse;
 CUpdateCamera *g_camera = NULL;
 CStartUp* g_startup = NULL;
 CSkyDome *g_skyDome = NULL;
+CTerrain *g_terrain = NULL;
 CBool g_renderShadow = CFalse;
-
+CFloat g_maxInstancePrefabRadius = -1.0f;
 CBool g_clickedOpen = CFalse;
 CBool g_clickedNew = CFalse;
-CCameraType g_currentCameraType = eCAMERA_DEFAULT_PHYSX;
-
+CCameraType g_currentCameraType = eCAMERA_PHYSX;
+CBool g_renderForWater = CFalse;
 CBloom* g_bloom = NULL;
 COctree* g_octree = NULL;
 CBool g_updateOctree = CTrue;
@@ -76,7 +80,8 @@ CBool g_useGlobalAmbientColor;
 CColor4f g_globalAmbientColor;
 CLuaState g_lua;
 COpenALSystem* g_soundSystem = NULL;
-std::vector<CInstanceCamera*> g_cameraInstances;
+std::vector<CInstanceCamera*> g_importedCameraInstances;
+std::vector<CInstanceCamera*> g_engineCameraInstances;
 std::vector<CResourceFile*> g_resourceFiles;
 GLuint g_shaderType;
 //shadow
@@ -87,8 +92,8 @@ CInt g_totalLights = 0;
 CFloat g_elapsedTime;
 
 bool g_fullScreen = true;             //Use Fullscreen
-int g_width = 1024;                   //default g_width of our screen
-int g_height = 768;                   //default Height of our screen
+int g_width;                   //default g_width of our screen
+int g_height;                   //default Height of our screen
 int g_bits = 32;                      //Color Bits
 bool g_renderScene = false;
 bool g_loading = CTrue;
@@ -98,6 +103,7 @@ CNovodex* g_nx = NULL;
 CFont* g_font = NULL;
 
 CImage* m_loadingImg;
+
 CChar m_strLoadingImg[MAX_NAME_SIZE];
 
 CDatabaseVariables g_databaseVariables;
@@ -105,6 +111,7 @@ CShadowProperties g_shadowProperties;
 CPhysXProperties g_physXProperties;
 CDOFProperties g_dofProperties;
 CLightProperties g_lightProperties;
+CCurrentVSceneProperties g_currentVSceneProperties;
 CCharacterBlendingProperties g_characterBlendingProperties;
 CFogProperties g_fogProperties;
 CBloomProperties g_bloomProperties;
@@ -141,15 +148,15 @@ void DeleteLoadingTexture()
 
 void ShowLoadingScene()
 {
-	glPushAttrib( GL_ENABLE_BIT );
+	glViewport(0, 0, g_width, g_height);
+	glPushAttrib(GL_ENABLE_BIT);
 	glUseProgram(0);
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable( GL_DEPTH_TEST );
-	glViewport( 0, 0, g_width, g_height );
 	glMatrixMode( GL_PROJECTION );
 	glPushMatrix();
 	glLoadIdentity();
-	gluOrtho2D( 0, 1, 0, 1 );
+	gluOrtho2D(0, g_width, 0, g_height);
 	glMatrixMode( GL_MODELVIEW );
 	glPushMatrix();
 	glLoadIdentity();
@@ -159,15 +166,16 @@ void ShowLoadingScene()
 	glTexCoord2f( 0.0f, 0.0f );
 	glVertex2f( 0.0f, 0.0f );
 	glTexCoord2f( 1.0f, 0.0f );
-	glVertex2f( 1.0f, 0.0f );
+	glVertex2f(g_width, 0.0f);
 	glTexCoord2f( 1.0f, 1.0f );
-	glVertex2f( 1.0f, 1.0f );
+	glVertex2f(g_width, g_height);
 	glTexCoord2f( 0.0f, 1.0f );
-	glVertex2f( 0.0f, 1.0f );
+	glVertex2f(0.0f, g_height);
 	glEnd();
 
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
+
 	glMatrixMode( GL_MODELVIEW );
 	glPopMatrix();
 
@@ -195,105 +203,151 @@ GLvoid CleanUp()
 int Initialize()
 {
 	g_main = CNew( CMain );
-	g_main->Init();
+	if (!g_main->Init())
+		return 0;
 	return 1;
 }
 
 bool Render()
 {
+	static int loop = 0;
 	if( g_loading ) 
 	{
-		CChar temp[MAX_NAME_SIZE];
-		CChar afterPath[MAX_NAME_SIZE];
-		CChar finalPath[MAX_NAME_SIZE];
+		static int load_fix = 0;
+		static CChar temp[MAX_NAME_SIZE];
 
-		if( !g_render.ParsePublishFile( "Assets/Save/publish.txt" ) )
+		if (load_fix == 0)
 		{
-			MessageBox( NULL, _T("Couldn't load the publish file\nLoading 'Assets/save/VandaEngineDemo.vin'..."), _T("VandaEngineError"), MB_OK | MB_ICONERROR );
-			Cpy( temp, "Assets/Save/VandaEngineDemo.vin" );
+			CChar afterPath[MAX_NAME_SIZE];
+			CChar finalPath[MAX_NAME_SIZE];
+
+			if (!g_render.ParsePublishFile("Assets/Save/publish.txt"))
+			{
+				MessageBox(NULL, _T("Couldn't load the publish file\nLoading 'Assets/save/VandaEngineDemo.vin'..."), _T("VandaEngineError"), MB_OK | MB_ICONERROR);
+				Cpy(temp, "Assets/Save/VandaEngineDemo.vin");
+			}
+			else
+			{
+				Cpy(finalPath, g_render.m_savedFile.c_str());
+				CChar* afterPathTemp = GetAfterPath(finalPath);
+				Cpy(afterPath, afterPathTemp);
+				Append(afterPath, ".vin");
+				Append(finalPath, "/");
+				Append(finalPath, afterPath);
+				Cpy(temp, finalPath);
+			}
+			//Find the name of loading banner
+			CChar currentSceneNameWithoutDot[MAX_NAME_SIZE];
+			Cpy(currentSceneNameWithoutDot, afterPath);
+			GetWithoutDot(currentSceneNameWithoutDot);
+
+			CChar bannerPath[MAX_NAME_SIZE];
+			sprintf(bannerPath, "%s%s%s", "assets/vscenes/", currentSceneNameWithoutDot, "/Banner/");
+
+			HANDLE hFind;
+			WIN32_FIND_DATAA data;
+			CChar bannerTempPath[MAX_NAME_SIZE];
+			sprintf(bannerTempPath, "%s%s", bannerPath, "*.*");
+			hFind = FindFirstFileA(bannerTempPath, &data);
+			CChar bannerNameAndPath[MAX_NAME_SIZE];
+			do
+			{
+				sprintf(bannerNameAndPath, "%s%s", bannerPath, data.cFileName);
+				if (!Cmp(data.cFileName, ".") && !Cmp(data.cFileName, ".."))
+					break;
+			} while (FindNextFileA(hFind, &data));
+			FindClose(hFind);
+			GenerateLoadingTexture(bannerNameAndPath);
+			load_fix++;
 		}
+		if (load_fix < 30) //almost 1 second
+			ShowLoadingScene();
 		else
 		{
-			Cpy( finalPath, g_render.m_savedFile.c_str() );
-			CChar* afterPathTemp = GetAfterPath(finalPath);
-			Cpy( afterPath, afterPathTemp );
-			Append( afterPath, ".vin" );
-			Append( finalPath, "/" );
-			Append( finalPath, afterPath );
-			Cpy( temp, finalPath);
-		}
-		//Find the name of loading banner
-		CChar currentSceneNameWithoutDot[MAX_NAME_SIZE];
-		Cpy( currentSceneNameWithoutDot, afterPath );
-		GetWithoutDot( currentSceneNameWithoutDot );
-
-		CChar bannerPath[MAX_NAME_SIZE];
-		sprintf( bannerPath, "%s%s%s", "assets/vscenes/", currentSceneNameWithoutDot, "/Banner/" );
-
-		HANDLE hFind;
-		WIN32_FIND_DATAA data;
-		CChar bannerTempPath[MAX_NAME_SIZE];
-		sprintf( bannerTempPath, "%s%s", bannerPath, "*.*" );
-		hFind = FindFirstFileA( bannerTempPath, &data );
-		CChar bannerNameAndPath[MAX_NAME_SIZE];
-		do
-		{
-		sprintf( bannerNameAndPath, "%s%s", bannerPath, data.cFileName );
-		if( !Cmp(data.cFileName, "." ) && !Cmp(data.cFileName, ".." ) )
-			break;
-		}while (FindNextFileA( hFind, &data));
-		FindClose(hFind);
-		GenerateLoadingTexture( bannerNameAndPath );
-
-		ShowLoadingScene();
-		SwapBuffers(g_window.m_windowGL.hDC);
-
-		g_main->Load( temp );
-		g_loading = CFalse;
-		SwapBuffers(g_window.m_windowGL.hDC);
-		DeleteLoadingTexture();
+			if (loop == 0)
+			{
+				g_main->m_loadScene = CTrue; //lock input
+				g_main->m_prevLoadScene = CTrue;
+				g_main->Load(temp);
+				DeleteLoadingTexture();
+				g_main->ResetTimer();
+			}
+			if (loop < 10)
+			{
+				g_main->Render();
+				g_main->ResetPhysXCounts();
+				SwapBuffers(g_window.m_windowGL.hDC);
+				loop++;
+				return CTrue;
+			}
+			else
+			{
+				g_loading = CFalse;
+				gPhysXscene->setGravity(NxVec3(g_nx->gDefaultGravity.x, g_nx->gDefaultGravity.y, g_nx->gDefaultGravity.z));
+				g_main->m_loadScene = CFalse; //unlock input
+				loop = 0;
+			}
+ 		}
+		load_fix++;
 	}
 	else if( g_loadSceneViaScript )
 	{
-		g_main->m_loadScene = CTrue;
-
-		//find the scene
-		GetWithoutDot(g_currentVSceneNameViaScript);
-
-		CChar bannerPath[MAX_NAME_SIZE];
-		sprintf( bannerPath, "%s%s%s", "assets/vscenes/", g_currentVSceneNameViaScript, "/Banner/" );
-
-		HANDLE hFind;
-		WIN32_FIND_DATAA data;
-		CChar bannerTempPath[MAX_NAME_SIZE];
-		sprintf( bannerTempPath, "%s%s", bannerPath, "*.*" );
-		hFind = FindFirstFileA( bannerTempPath, &data );
-		CChar bannerNameAndPath[MAX_NAME_SIZE];
-		do
+		if (loop == 0)
 		{
-		sprintf( bannerNameAndPath, "%s%s", bannerPath, data.cFileName );
-		if( !Cmp(data.cFileName, "." ) && !Cmp(data.cFileName, ".." ) )
-			break;
-		}while (FindNextFileA( hFind, &data));
-		FindClose(hFind);
-		GenerateLoadingTexture( bannerNameAndPath );
+			g_main->m_loadScene = CTrue;
+			g_main->m_prevLoadScene = CTrue;
+			//find the scene
+			GetWithoutDot(g_currentVSceneNameViaScript);
 
-		glUseProgram(0);
-		glDrawBuffer( GL_BACK );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		ShowLoadingScene();
-		glFlush();
-		SwapBuffers( g_window.m_windowGL.hDC );
-		g_main->Reset();
+			CChar bannerPath[MAX_NAME_SIZE];
+			sprintf(bannerPath, "%s%s%s", "assets/vscenes/", g_currentVSceneNameViaScript, "/Banner/");
 
-		CChar RTIPath[MAX_NAME_SIZE];
-		sprintf( RTIPath, "%s%s%s%s%s", "Assets\\VScenes\\", g_currentVSceneNameViaScript, "\\", g_currentVSceneNameViaScript, ".vin" );
-		g_main->Load(RTIPath);
-		g_main->m_loadScene = CFalse;
-		g_loadSceneViaScript = CFalse;
+			HANDLE hFind;
+			WIN32_FIND_DATAA data;
+			CChar bannerTempPath[MAX_NAME_SIZE];
+			sprintf(bannerTempPath, "%s%s", bannerPath, "*.*");
+			hFind = FindFirstFileA(bannerTempPath, &data);
+			CChar bannerNameAndPath[MAX_NAME_SIZE];
+			do
+			{
+				sprintf(bannerNameAndPath, "%s%s", bannerPath, data.cFileName);
+				if (!Cmp(data.cFileName, ".") && !Cmp(data.cFileName, ".."))
+					break;
+			} while (FindNextFileA(hFind, &data));
+			FindClose(hFind);
+			GenerateLoadingTexture(bannerNameAndPath);
 
-		SwapBuffers(g_window.m_windowGL.hDC);
-		DeleteLoadingTexture();
+			glUseProgram(0);
+			glDrawBuffer(GL_BACK);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			ShowLoadingScene();
+			glFlush();
+			SwapBuffers(g_window.m_windowGL.hDC);
+			g_main->Reset();
+
+			CChar RTIPath[MAX_NAME_SIZE];
+			sprintf(RTIPath, "%s%s%s%s%s", "Assets\\VScenes\\", g_currentVSceneNameViaScript, "\\", g_currentVSceneNameViaScript, ".vin");
+			g_main->Load(RTIPath);
+
+			DeleteLoadingTexture();
+			g_main->ResetTimer();
+			gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
+		}
+		if (loop < 10)
+		{
+			g_main->Render();
+			g_main->ResetPhysXCounts();
+			SwapBuffers(g_window.m_windowGL.hDC);
+			loop++;
+			return CTrue;
+		}
+		else
+		{
+			g_loadSceneViaScript = CFalse;
+			gPhysXscene->setGravity(NxVec3(g_nx->gDefaultGravity.x, g_nx->gDefaultGravity.y, g_nx->gDefaultGravity.z));
+			g_main->m_loadScene = CFalse;
+			loop = 0;
+		}
 	}
 	else
 	{

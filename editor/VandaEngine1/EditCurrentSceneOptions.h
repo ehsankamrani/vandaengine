@@ -15,6 +15,9 @@ public:
 // Dialog Data
 	enum { IDD = IDD_DIALOG_CURRENT_SCENE_OPTIONS };
 
+private:
+	CString m_strCursorImage;
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
@@ -23,8 +26,17 @@ public:
 	CEdit m_editBoxBanner;
 	afx_msg void OnBnClickedBtnLoadingBanner();
 	CString m_strBanner;
+	CString m_strCursorSize;
+	CInt m_cursorSize;
 	CBool setBanner;
 
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+	CButton m_checkboxSetMenu;
+	CEdit m_editBoxCursorIcon;
+	afx_msg void OnBnClickedBtnLoadingCursorIcon();
+	afx_msg void OnBnClickedCheckboxSetasmenu();
+	CButton m_btnCursorIcon;
+	CEdit m_editBoxCursorSize;
+	afx_msg void OnEnChangeEditCursorPercent();
 };

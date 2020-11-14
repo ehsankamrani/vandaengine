@@ -2,6 +2,9 @@
 #include "Utility.h"
 #include "Prefab.h"
 #include "../GraphicsEngine/scene.h"
+#include "../GraphicsEngine/Water.h"
+#include "../GraphicsEngine/Light.h"
+#include "../GraphicsEngine/animation.h"
 CPrefab::CPrefab()
 {
 	Cpy(m_name, "\n");
@@ -113,7 +116,7 @@ CInstancePrefab::CInstancePrefab()
 	m_isSceneVisible[0] = CTrue;
 	m_isSceneVisible[1] = CFalse;
 	m_isSceneVisible[2] = CFalse;
-
+	m_water = NULL;
 	for (CUInt i = 0; i < 3; i++)
 		m_scene[i] = NULL;
 	m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
@@ -136,16 +139,192 @@ CInstancePrefab::CInstancePrefab()
 	m_prefab = NULL;
 	Cpy(m_enterScript, "\n");
 	Cpy(m_exitScript, "\n");
+	m_renderForQuery = CFalse;
+	m_realTimeSceneCheckIsInFrustom = CTrue; //by default sences are checked to see if they are in frustom
+	m_isControlledByPhysX = CFalse;
+	m_isAnimated = CFalse;
+	m_isStatic = CFalse;
+	for (CUInt i = 0; i < 8; i++)
+		m_lights[i] = NULL;
+	m_lightCooked = CFalse;
+	m_castShadow = CTrue;
 }
 
 CInstancePrefab::~CInstancePrefab()
 {
 	glDeleteQueries(1, &m_queryIndex);
+	glDeleteQueries(1, &m_waterQueryIndex);
+}
+
+CVoid CInstancePrefab::SetWater(CWater* water)
+{
+	m_water = water;
+}
+
+inline CFloat CInstancePrefab::squared(CFloat v) { return v * v; }
+CBool CInstancePrefab::DoesLightIntersectsPrefab(CVec3f C1, CVec3f C2, CVec3f S, CFloat R)
+{
+	CFloat dist_squared = R * R;
+	/* assume C1 and C2 are element-wise sorted, if not, do that now */
+	if (S.x < C1.x) dist_squared -= squared(S.x - C1.x);
+	else if (S.x > C2.x) dist_squared -= squared(S.x - C2.x);
+	if (S.y < C1.y) dist_squared -= squared(S.y - C1.y);
+	else if (S.y > C2.y) dist_squared -= squared(S.y - C2.y);
+	if (S.z< C1.z) dist_squared -= squared(S.z - C1.z);
+	else if (S.z > C2.z) dist_squared -= squared(S.z - C2.z);
+	return dist_squared > 0;
+}
+
+CVoid CInstancePrefab::SetLight()
+{
+	if (!GetVisible()) return;
+	m_totalVisibleLights = 0;
+	if (!GetIsAnimated() && !GetIsControlledByPhysX() && m_lightCooked)
+	{
+		if (g_engineLights.size() == 0)
+		{
+			m_totalLights = 1.0f; //default point light attached to the camera
+			return;
+		}
+
+		for (CUInt j = 0; j < m_totalLights; j++)
+		{
+			if (m_lights[j])
+			{
+				CBool isDirectional = CFalse;
+				CBool isDefaultDirectional = CFalse;
+				if (m_lights[j]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+					isDirectional = CTrue;
+				else if (!m_lights[j]->GetRunTimeVisible()) //it's point or spot light
+					continue;
+
+				if (isDirectional && Cmp(g_shadowProperties.m_directionalLightName, m_lights[j]->m_abstractLight->GetName()))
+					isDefaultDirectional = CTrue;
+
+				g_render.SetInstanceLight(m_lights[j], m_totalVisibleLights, isDefaultDirectional);
+				m_totalVisibleLights++;
+			}
+		}
+		return;
+	}
+	CBool skipCheck = CFalse;
+	if (!GetIsAnimated() && !GetIsControlledByPhysX())
+		skipCheck = CTrue;
+
+	if (g_engineLights.size() == 0)
+	{
+		m_totalLights = 1.0f; //default point light attached to the camera
+		return;
+	}
+	for (CUInt i = 0; i < 8; i++)
+	{
+		m_lights[i] = NULL;
+		m_totalLights = 0;
+	}
+	CInt directional_light_index = 0;
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+		{
+			m_lights[directional_light_index] = g_engineLights[i];
+			directional_light_index++;
+			if (directional_light_index >= NR_DIR_LIGHTS)
+				break;
+		}
+	}
+	CInt point_light_index = 0;
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_POINT)
+		{
+			if (DoesLightIntersectsPrefab(m_minAABB, m_maxAABB, g_engineLights[i]->GetPosition(), g_engineLights[i]->GetRadius()))
+			{
+				if (skipCheck)
+				{
+					m_lights[point_light_index + directional_light_index] = g_engineLights[i];
+					point_light_index++;
+					if (point_light_index >= NR_POINT_LIGHTS)
+						break;
+				}
+				else if (g_engineLights[i]->GetRunTimeVisible())
+				{
+					m_lights[point_light_index + directional_light_index] = g_engineLights[i];
+					point_light_index++;
+					if (point_light_index >= NR_POINT_LIGHTS)
+						break;
+				}
+			}
+		}
+	}
+	CInt spot_light_index = 0;
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
+		{
+			if (DoesLightIntersectsPrefab(m_minAABB, m_maxAABB, g_engineLights[i]->GetPosition(), g_engineLights[i]->GetRadius()))
+			{
+				if (skipCheck)
+				{
+					m_lights[spot_light_index + point_light_index + directional_light_index] = g_engineLights[i];
+					spot_light_index++;
+					if (spot_light_index >= NR_SPOT_LIGHTS)
+						break;
+				}
+				else if (g_engineLights[i]->GetRunTimeVisible())
+				{
+					m_lights[spot_light_index + point_light_index + directional_light_index] = g_engineLights[i];
+					spot_light_index++;
+					if (spot_light_index >= NR_SPOT_LIGHTS)
+						break;
+				}
+			}
+		}
+	}
+
+	m_totalLights = directional_light_index + point_light_index + spot_light_index;
+	//set all lights here
+	for (CUInt j = 0; j < m_totalLights; j++)
+	{
+		if (m_lights[j])
+		{
+			CBool isDirectional = CFalse;
+			CBool isDefaultDirectional = CFalse;
+			if (m_lights[j]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+				isDirectional = CTrue;
+
+			if (isDirectional && Cmp(g_shadowProperties.m_directionalLightName, m_lights[j]->m_abstractLight->GetName()))
+				isDefaultDirectional = CTrue;
+
+			g_render.SetInstanceLight(m_lights[j], j, isDefaultDirectional);
+		}
+	}
+	m_totalVisibleLights = m_totalLights;
+	m_lightCooked = CTrue;
+}
+
+CWater* CInstancePrefab::GetWater()
+{
+	return m_water;
 }
 
 CVoid CInstancePrefab::GenQueryIndex()
 {
 	glGenQueries(1, &m_queryIndex);
+}
+
+CVoid CInstancePrefab::GenWaterQueryIndex()
+{
+	glGenQueries(1, &m_waterQueryIndex);
+}
+
+CVoid CInstancePrefab::DeleteWaterQueryIndex()
+{
+	glDeleteQueries(1, &m_waterQueryIndex);
+}
+
+CVoid CInstancePrefab::SetRealTimeSceneCheckIsInFrustom(CBool check)
+{
+	m_realTimeSceneCheckIsInFrustom = check;
 }
 
 CVoid CInstancePrefab::SetElapsedTime(CFloat delta)
@@ -312,6 +491,9 @@ CVoid CInstancePrefab::SetScale(CVec3f scale)
 CVoid CInstancePrefab::SetVisible(CBool isVisible)
 {
 	m_isVisible = isVisible;
+	UpdateBoundingBox();
+	CalculateDistance();
+	UpdateIsStaticOrAnimated();
 }
 
 CVoid CInstancePrefab::SetSceneVisible(CUInt index, CBool status)
@@ -324,14 +506,87 @@ CVoid CInstancePrefab::SetIsTrigger(CBool isTrigger)
 	m_isTrigger = isTrigger;
 }
 
+CVoid CInstancePrefab::SetRenderForQuery(CBool query)
+{
+	m_renderForQuery = query;
+}
+
+CBool CInstancePrefab::GetRenderForQuery()
+{
+	return m_renderForQuery;
+}
+
+CVoid CInstancePrefab::SetRenderForWaterQuery(CBool query)
+{
+	m_renderForWaterQuery = query;
+}
+
+CBool CInstancePrefab::GetRenderForWaterQuery()
+{
+	return m_renderForWaterQuery;
+}
+
 CBool CInstancePrefab::GetVisible()
 {
-	return m_isVisible;
+	CBool RunTimeVisible = CFalse;
+
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+	{
+		//if (GetDistanceFromCamera() < g_cameraProperties.m_freePerspectiveFCP + GetRadius()) RunTimeVisible = CTrue;
+		if (m_isVisible)
+			return CTrue;
+		else
+			return CFalse;
+	}
+	else if (g_currentCameraType == eCAMERA_COLLADA)
+	{
+		for (CUInt i = 0; i < g_importedCameraInstances.size(); i++)
+		{
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (GetPrefab() && GetPrefab()->GetHasLod(j))
+				{
+					CScene* scene = GetScene(j);
+					if (!scene) continue;
+
+					if (g_importedCameraInstances[i]->m_parent->GetScene() == scene)
+						return CTrue;
+				}
+			}
+
+		}
+	}
+
+	for (CUInt j = 2; j >= 0; j--)
+	{
+		if (GetPrefab() && GetPrefab()->GetHasLod(j))
+		{
+			CScene* scene = GetScene(j);
+			if (!scene) continue;
+
+			if (scene->m_alwaysVisible)
+				RunTimeVisible = CTrue;
+
+			break;
+		}
+	}
+	if (!RunTimeVisible)
+		if (GetDistanceFromCamera() < g_instancePrefabLODPercent.m_lod4ObjectCameraDistance + GetRadius()) RunTimeVisible = CTrue;
+
+	if (m_isVisible && RunTimeVisible)
+		return CTrue;
+	else
+		return CFalse;
 }
 
 CBool CInstancePrefab::GetIsTrigger()
 {
 	return m_isTrigger;
+}
+
+CBool CInstancePrefab::GetRealTimeSceneCheckIsInFrustom()
+{
+	return m_realTimeSceneCheckIsInFrustom;
 }
 
 CBool CInstancePrefab::GetSceneVisible(CUInt index)
@@ -364,9 +619,24 @@ CVec3f CInstancePrefab::GetMaxAABB()
 	return m_maxAABB;
 }
 
+CVec3f CInstancePrefab::GetInverseMinAABB()
+{
+	return m_inverseMinAABB;
+}
+
+CVec3f CInstancePrefab::GetInverseMaxAABB()
+{
+	return m_inverseMaxAABB;
+}
+
 GLuint CInstancePrefab::GetQueryIndex()
 {
 	return m_queryIndex;
+}
+
+GLuint CInstancePrefab::GetWaterQueryIndex()
+{
+	return m_waterQueryIndex;
 }
 
 GLint CInstancePrefab::GetResult()
@@ -381,11 +651,33 @@ CVoid CInstancePrefab::SetResult(GLint result)
 
 CVoid CInstancePrefab::CalculateDistance()
 {
-	CFloat x = g_camera->m_perspectiveCameraPos.x - m_center.x;
-	CFloat y = g_camera->m_perspectiveCameraPos.y - m_center.y;
-	CFloat z = g_camera->m_perspectiveCameraPos.z - m_center.z;
+	if (g_camera)
+	{
+		CFloat x = g_camera->m_perspectiveCameraPos.x - m_center.x;
+		CFloat y = g_camera->m_perspectiveCameraPos.y - m_center.y;
+		CFloat z = g_camera->m_perspectiveCameraPos.z - m_center.z;
 
-	m_distanceFromCamera = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+		m_distanceFromCamera = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+	}
+}
+
+CVoid CInstancePrefab::UpdateBoundingBoxForWater(CFloat height)
+{
+	//Inverse Matrix:Begin//
+	CVec4f transInverse(0.0f, height * 2.0f, 0.0f, 1.0f);
+	//CVec4f rotInverse(0.0f, 0.0f, 0.0f, 0.0f);
+	CVec4f scaleInverse(1.0f, -1.0f, 1.0f, 1.0f);
+
+	CMatrixLoadIdentity(m_inverseInstanceMatrix);
+	CMatrix4x4Translate(m_inverseInstanceMatrix, transInverse);
+	//CMatrix4x4RotateAngleAxis(m_inverseInstanceMatrix, rotInverse);
+	CMatrix4x4Scale(m_inverseInstanceMatrix, scaleInverse);
+
+	CVec3f m_inverseMinAABBResult, m_inverseMaxAABBResult;
+	CMatrixTransform(m_inverseInstanceMatrix, m_minAABB, m_inverseMinAABB);
+	CMatrixTransform(m_inverseInstanceMatrix, m_maxAABB, m_inverseMaxAABB);
+
+	//Inverse Matrix:End//
 }
 
 CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
@@ -414,29 +706,33 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 			CScene* scene = GetScene(i);
 			if (init)
 			{
-				if (scene->m_controllers.size() == 0)
+				if (scene)
 				{
-					scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
+					if (scene->m_controllers.size() == 0)
+					{
+						scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
+					}
+					g_render.SetScene(scene);
+					scene->Update(0.00001);
 				}
-				g_render.SetScene(scene);
-				scene->Update(0.00001, CTrue);
 			}
 		}
 	}
 	CPrefab* prefab = GetPrefab();
 	CScene* scene = NULL;
-	if (prefab && prefab->GetHasLod(0))
+	if (prefab  && prefab->GetHasLod(0))
 		scene = GetScene(0); //I assume that all scenes use the same bounding box
 	if (!scene) return;
-
 	std::vector <CInstanceGeometry*> geo_physx;
+
 	for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
 	{
 		CGeometry * geometry = scene->m_instanceGeometries[j]->m_abstractGeometry;
 
-		if (!geometry->m_hasAnimation && scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0)
+		if ((/*g_currentCameraType == eCAMERA_PHYSX &&*/ !geometry->m_hasAnimation && scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0) && !init)
 		{
 			geo_physx.push_back(scene->m_instanceGeometries[j]);
+
 			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.x < m_minAABB.x)
 				m_minAABB.x = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.x;
 			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.y < m_minAABB.y)
@@ -469,6 +765,13 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 		}
 	}
 
+	if (scene->m_instanceGeometries.size() == 0)
+	{
+		m_minAABB.x = m_maxAABB.x = 0.0f;
+		m_minAABB.y = m_maxAABB.y = 0.0f;
+		m_minAABB.z = m_maxAABB.z = 0.0f;
+	}
+
 	m_center = (m_minAABB + m_maxAABB) * 0.5f;
 	CFloat x, y, z;
 	x = fabs(m_maxAABB.x - m_minAABB.x) / 2.f;
@@ -476,46 +779,60 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 	z = fabs(m_maxAABB.z - m_minAABB.z) / 2.f;
 	m_radius = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
 
-	if (geo_physx.size())
-	{
-		if (prefab->GetHasLod(1))
-			scene = GetScene(1);
-		for (CUInt i = 0; i < geo_physx.size(); i++)
-		{
-			for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
-			{
-				if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
-				{
-					scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
-					CMatrix m;
-					CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
-					scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
-					g_render.SetScene(scene);
-					scene->Update(0.0f, CFalse, CFalse);
-				}
-			}
-		}
+	m_boundingBox[0].x = m_minAABB.x; m_boundingBox[0].y = m_minAABB.y; m_boundingBox[0].z = m_minAABB.z;
+	m_boundingBox[1].x = m_maxAABB.x; m_boundingBox[1].y = m_minAABB.y; m_boundingBox[1].z = m_maxAABB.z;
+	m_boundingBox[2].x = m_maxAABB.x; m_boundingBox[2].y = m_minAABB.y; m_boundingBox[2].z = m_minAABB.z;
+	m_boundingBox[3].x = m_minAABB.x; m_boundingBox[3].y = m_minAABB.y; m_boundingBox[3].z = m_maxAABB.z;
+	m_boundingBox[4].x = m_maxAABB.x; m_boundingBox[4].y = m_maxAABB.y; m_boundingBox[4].z = m_minAABB.z;
+	m_boundingBox[5].x = m_minAABB.x; m_boundingBox[5].y = m_maxAABB.y; m_boundingBox[5].z = m_minAABB.z;
+	m_boundingBox[6].x = m_minAABB.x; m_boundingBox[6].y = m_maxAABB.y; m_boundingBox[6].z = m_maxAABB.z;
+	m_boundingBox[7].x = m_maxAABB.x; m_boundingBox[7].y = m_maxAABB.y; m_boundingBox[7].z = m_maxAABB.z;
 
-		if (prefab->GetHasLod(2))
-			scene = GetScene(2);
-		for (CUInt i = 0; i < geo_physx.size(); i++)
+	if (CTrue/*g_currentCameraType == eCAMERA_PHYSX*/)
+	{
+		if (geo_physx.size())
 		{
-			for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+			if (prefab->GetHasLod(1))
+				scene = GetScene(1);
+			for (CUInt i = 0; i < geo_physx.size(); i++)
 			{
-				if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
 				{
-					scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
-					CMatrix m;
-					CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
-					scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
-					g_render.SetScene(scene);
-					scene->Update(0.0f, CFalse, CFalse);
+					if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
+					{
+						scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
+						CMatrix m;
+						CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
+						scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
+						g_render.SetScene(scene);
+						scene->Update(0.0f, CFalse);
+					}
 				}
 			}
+
+			if (prefab->GetHasLod(2))
+				scene = GetScene(2);
+			for (CUInt i = 0; i < geo_physx.size(); i++)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
+					{
+						scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
+						CMatrix m;
+						CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
+						scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
+						g_render.SetScene(scene);
+						scene->Update(0.0f, CFalse);
+					}
+				}
+			}
+
 		}
 	}
+	if (m_water)
+		UpdateBoundingBoxForWater(m_water->GetHeight());
 	geo_physx.clear();
-
 }
 
 CFloat CInstancePrefab::GetRadius()
@@ -546,6 +863,32 @@ CChar* CInstancePrefab::GetExitScript()
 CVec3f CInstancePrefab::GetCenter()
 {
 	return m_center;
+}
+
+CVoid CInstancePrefab::UpdateIsStaticOrAnimated()
+{
+	if (m_prefab == NULL) return;
+	for (CUInt i = 0; i < 3; i++)
+	{
+		if (GetPrefab()->GetHasLod(i))
+		{
+			CScene* scene = GetScene(i);
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor() && scene->m_instanceGeometries[j]->GetPhysXActorDensity() > 0.0f)
+						m_isControlledByPhysX = CTrue;
+					if (scene->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
+						m_isAnimated = CTrue;
+
+				}
+			}
+		}
+	}
+	if (!m_isControlledByPhysX && !m_isAnimated)
+		m_isStatic = CTrue;
 }
 
 CVLOD::CVLOD()

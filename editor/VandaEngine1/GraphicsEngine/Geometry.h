@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 #include <iostream>
 #include "base.h"
@@ -108,7 +99,9 @@ public:
 	CInt m_physXCount;
 	CBool m_renderWithPhysX;
 	CNode* m_node; //instance geometry is attached to this node
-
+	CChar* GetPhysXActorName() { return m_physXName; }
+	CFloat GetPhysXActorDensity() { return m_physXDensity; }
+	CBool GetHasPhysXActor() { return m_hasPhysX; }
 };
 
 class CInstanceController : public CInstance
@@ -366,6 +359,45 @@ public:
 	CChar m_strNormalMap[MAX_NAME_SIZE];
 	CChar m_strOriginalNormalMapPath[MAX_NAME_SIZE]; //save functions
 	CFloat m_parallaxMapBias, m_parallaxMapScale;
+	//Material Colors
+	CFloat m_fAmbientColor[4];
+	CFloat m_fDiffuseColor[4];
+	CFloat m_fSpecularColor[4];
+	CFloat m_fEmissionColor[4];
+	CFloat m_fShininess, m_fTransparency;
+
+	CFloat* GetAmbient() { return m_fAmbientColor; }
+	CFloat* GetDiffuse() { return m_fDiffuseColor; }
+	CFloat* GetSpecular() { return m_fSpecularColor; }
+	CFloat* GetEmission() { return m_fEmissionColor; }
+	CFloat GetShininess() { return m_fShininess; }
+	CFloat GetTransparency() { return m_fTransparency; }
+
+
+	CVoid SetAmbient(CFloat* ambient)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fAmbientColor[i] = ambient[i];
+	}
+	CVoid SetDiffuse(CFloat* diffuse)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fDiffuseColor[i] = diffuse[i];
+	}
+	CVoid SetSpecular(CFloat* specular)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fSpecularColor[i] = specular[i];
+	}
+	CVoid SetEmission(CFloat* emission)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fEmissionColor[i] = emission[i];
+	}
+	CVoid SetShininess(CFloat shininess) { m_fShininess = shininess; }
+	CVoid SetTransparency(CFloat transparency) { m_fTransparency = transparency; }
+	//////////////////
+
 	CImage *m_normalMapImg;
 	CBool SetNormalMap( CString path, CFloat bias, CFloat scale, CBool test = CFalse );
 	CBool m_hasNormalMap;
@@ -429,6 +461,7 @@ public:
 		m_updateGlossMap = CFalse;
 	}
 
+	CBool m_setMatFromCollada;
 
 public:
 
@@ -476,6 +509,8 @@ public:
 		m_parallaxMapBias = -0.03;
 		m_parallaxMapScale = 0.06;
 
+		m_setMatFromCollada = CTrue;
+
 	}
 	~CPolyGroup()
 	{
@@ -484,6 +519,7 @@ public:
 		DeletePolygonData(); 
 		m_images.clear();
 	}
+	CVoid EnableShader();
 
 protected:
 	friend class CScene; 
@@ -515,7 +551,7 @@ protected:
 		DeletePolygonData(); 		
 	}
 
-	CVoid SetMaterial( CMaterial * mat, CChar * matName )
+	CVoid SetMaterialFromCOLLADA( CMaterial * mat, CChar * matName )
 	{
 		m_material = mat; 
 		Cpy( m_materialName, matName ); 
@@ -532,7 +568,9 @@ protected:
 				CJoint * joints, CInt nbrBindPoints, CInt nbrJoints, CInstance * instance);
 	CVoid RenderSkinnedCg( CVec3f * bindPos, CVec3f * bindNorms, 
 				CJoint * joints, CInt nbrBindPoints, CInt nbrJoints );
-	/*cfxMaterial* */ CVoid SetupMaterialForDraw(CNode *parentNode, CInstance * instance, CGeometryColor color, CBool hasDiffuse );
+	/*cfxMaterial* */ CVoid SetupMaterialForDrawFromCOLLADA(CNode *parentNode, CInstance * instance, CGeometryColor color, CBool hasDiffuse );
+	CVoid SetupMaterialForDrawFromGameEngine(CGeometryColor color);
+	CVoid SaveMaterialValues(CMaterial * mat);
 	CBool SetupDiffuseTexture(CNode *parentNode, CInstance * instance);
 	CBool SetupNormalTexture(CNode *parentNode, CInstance * instance);
 	CBool SetupDirtTexture(CNode *parentNode, CInstance * instance);
@@ -557,6 +595,8 @@ public:
 	virtual CVoid Render() = 0;
 	virtual CVoid SetVBOs() = 0;
 
+	CVoid SetReadMaterialColorFromCOLLADA() { m_setMatFromCollada = CTrue; }
+	CVoid SetReadMaterialColorFromGameEngine(){ m_setMatFromCollada = CFalse; }
 	//---------------------- End External interfaces -----------------------------//
 
 };
@@ -666,6 +706,45 @@ public:
 	CChar m_strDiffuse[MAX_NAME_SIZE];
 	CFloat m_parallaxMapBias, m_parallaxMapScale;
 
+	//Material Colors
+	CFloat m_fAmbientColor[4];
+	CFloat m_fDiffuseColor[4];
+	CFloat m_fSpecularColor[4];
+	CFloat m_fEmissionColor[4];
+	CFloat m_fShininess, m_fTransparency;
+
+	CFloat* GetAmbient() { return m_fAmbientColor; }
+	CFloat* GetDiffuse() { return m_fDiffuseColor; }
+	CFloat* GetSpecular() { return m_fSpecularColor; }
+	CFloat* GetEmission() { return m_fEmissionColor; }
+	CFloat GetShininess() { return m_fShininess; }
+	CFloat GetTransparency() { return m_fTransparency; }
+
+
+	CVoid SetAmbient(CFloat* ambient)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fAmbientColor[i] = ambient[i];
+	}
+	CVoid SetDiffuse(CFloat* diffuse)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fDiffuseColor[i] = diffuse[i];
+	}
+	CVoid SetSpecular(CFloat* specular)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fSpecularColor[i] = specular[i];
+	}
+	CVoid SetEmission(CFloat* emission)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fEmissionColor[i] = emission[i];
+	}
+	CVoid SetShininess(CFloat shininess) { m_fShininess = shininess; }
+	CVoid SetTransparency(CFloat transparency) { m_fTransparency = transparency; }
+	//////////////////
+
 	std::vector<CImage*>m_images; //this points to all the *map pointers( see bellow )
 
 	CImage *m_normalMapImg;
@@ -684,6 +763,7 @@ public:
 	CVoid SetSkins(CInt nbrJoints );
 
 	std::vector<CPolyGroup *> m_groups;
+	CBool m_updateSkin;
 
 	CGeometry()
 	{
@@ -734,11 +814,19 @@ public:
 
 		m_parallaxMapBias = -0.03;
 		m_parallaxMapScale = 0.06;
+
+		m_minAABB.m_i = m_minAABB.m_j = m_minAABB.m_k = 100000000.0f;
+		m_maxAABB.m_i = m_maxAABB.m_j = m_maxAABB.m_k = -100000000.0f;
+
+		m_updateSkin = CTrue;
 		//m_normalMapImg = new CImage();
 		//m_dirtMapImg = new CImage();
 		//m_glossMapImg = new CImage();
 	}
 	~CGeometry();
+
+	CVoid SetUpdateSkin(CBool set) { m_updateSkin = set; }
+	CBool GetUpdateSkin() { return m_updateSkin; }
 
 	CImage* GetImage( const CChar * name );
 	CVoid SetDiffuse( CString path );
@@ -830,9 +918,6 @@ protected:
 
 	CVoid ComputeAABB_Center()
 	{
-		m_minAABB.m_i = m_minAABB.m_j = m_minAABB.m_k = 100000000.0f;
-		m_maxAABB.m_i = m_maxAABB.m_j = m_maxAABB.m_k = -100000000.0f;
-
 		for ( CUInt i = 0; i < m_vertexcount; i++ )
 		{
 			if( m_points[i].x > m_maxAABB.m_i )
@@ -1053,32 +1138,7 @@ protected:
 		}
 	}
 
-	CVoid DrawGrass(CNode *parentNode, CInstance * instance)
-	{
-		SetGrassRender();
-		CBool selected = CFalse;
-		for (CUInt i = 0; i < m_instanceGeometries.size(); i++ )
-		{
-			if( g_selectedName == m_instanceGeometries[i]->m_nameIndex )
-			{
-				selected = CTrue;
-				break;
-			}
-		}
-		for (CUInt i = 0; i < m_groups.size(); i++ )
-		{
-			if( selected )
-				m_groups[i]->Draw(parentNode, instance, eCOLOR_WHITE, m_hasDiffuse ); 
-			else
-				m_groups[i]->Draw(parentNode, instance, eCOLOR_MATERIAL, m_hasDiffuse); 
-			//TotalNumTris++;
-		}			
-		ResetGrassStates();
-	};
-
 	CVoid DrawSelectionMode(CNode *parentNode, CInstance * instance);
-	CVoid SetGrassRender();
-	CVoid ResetGrassStates();
 
 	CVoid SetRender();
 	CVoid ResetStates();

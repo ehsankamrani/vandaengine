@@ -41,6 +41,8 @@ BEGIN_MESSAGE_MAP(CEditPhysX, CDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO_PHYSX, &CEditPhysX::OnCbnSelchangeComboPhysx)
 	ON_EN_CHANGE(IDC_EDIT_PHYSX_PERCENTAGE, &CEditPhysX::OnEnChangeEditPhysxPercentage)
 	ON_EN_CHANGE(IDC_EDIT_PHYSX_DENSITY, &CEditPhysX::OnEnChangeEditPhysxDensity)
+	ON_EN_CHANGE(IDC_EDIT_PHYSX, &CEditPhysX::OnEnChangeEditPhysx)
+	ON_BN_CLICKED(IDCANCEL, &CEditPhysX::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -52,7 +54,7 @@ CVoid CEditPhysX::SetPhysX( CInstanceGeometry* instanceGeo )
 	{
 		m_strPhysX = instanceGeo->m_physXName;
 		m_fDensity = instanceGeo->m_physXDensity;
-		m_strDensity.Format( "%f",m_fDensity );
+		m_strDensity.Format( "%.3f",m_fDensity );
 
 		m_iPercentage = instanceGeo->m_physXPercentage;
 		m_strPercentage.Format( "%d", m_iPercentage );
@@ -129,6 +131,12 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 		MessageBoxA( "You can't assign a dynamic actor to an animated instanced geometry. Please set density to 0 and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
 	}
+	if (g_scene.size() > 1 && m_fDensity > 0.0f)
+	{
+		MessageBoxA("We don't support dynamic PhysX actor for multiple LODs. Please remove LOD 2 and LOD 3 and try again", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if( (algorithm == eLOD_LENGTH || algorithm == eLOD_LENGTH_CURVATURE ) && m_instanceGeometry && m_instanceGeometry->m_abstractGeometry->m_hasAnimation )
 	{
 		MessageBoxA( "You can't assign a triangulated PhysX shape to an animated instanced geometry. Please choose another shape and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
@@ -172,19 +180,24 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 	else
 		m_bInvisible = CFalse;
 
-
-	for( CUInt i = 0; i < g_scene.size(); i++ )
+	for (CUInt i = 0; i < g_scene.size(); i++)
 	{
-		index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible);
-		if( index != -1 )
+		if (m_fDensity > 0.0f)
+		{
+			if (CmpIn(g_scene[i]->GetName(), "_LOD1"))
+				index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible);
+		}
+		else
+		{
+			index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible);
+		}
+		if (index != -1)
 			break;
 	}
-	//if( m_bIsTrigger )
-	//{
-	//	ex_pBtnScriptEditor->EnableWindow( TRUE );
-	//	ex_pMenu->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_ENABLED );
-	//	ex_pAddScript->SetInstanceGeo(m_instanceGeometry);
-	//}
+	if (index == -1 && m_fDensity > 0.0f && g_scene.size() > 1)
+	{
+		MessageBoxA("We don't support dynamic PhysX actor for LOD 2 or LOD 3. Please remove LOD 2 and LOD 3 and try again", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+	}
 
 	if( index != -1 )
 	{
@@ -244,8 +257,6 @@ void CEditPhysX::OnBnClickedBtnDeletePhysx()
 		return;
 	}
 	RemovePhysXMesh();
-	//ex_pBtnScriptEditor->EnableWindow( FALSE );
-	ex_pMenu->EnableMenuItem( ID_TOOLS_SCRIPTMANAGER, MF_DISABLED | MF_GRAYED );
 	ex_pAddScript->SetInstanceGeo(NULL);
 
 	g_updateOctree = CTrue;
@@ -272,6 +283,15 @@ BOOL CEditPhysX::OnInitDialog()
 	m_comboPhysX.InsertString( 6, "Capsule: Method 2" );
 	m_comboPhysX.InsertString( 7, "Capsule: Method 3" );
 
+	if (m_instanceGeometry)
+	{
+		init_strPhysX = m_instanceGeometry->m_physXName;
+		init_algorithm = m_instanceGeometry->m_lodAlgorithm;
+		init_density = m_instanceGeometry->m_physXDensity;
+		init_percentage = m_instanceGeometry->m_physXPercentage;
+		init_trigger = m_instanceGeometry->m_isTrigger;
+		init_invisible = m_instanceGeometry->m_isInvisible;
+	}
 	if( m_instanceGeometry && m_instanceGeometry->m_lodAlgorithm != eLOD_NONE )
 		m_comboPhysX.SetCurSel(m_instanceGeometry->m_lodAlgorithm);
 	else
@@ -359,9 +379,10 @@ CVoid CEditPhysX::RemovePhysXMesh()
 		PrintInfo( "\nFailed to remove the actor" );
 	}
 
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE && gPhysXscene )
+	if( !g_multipleView->IsPlayGameMode() && gPhysXscene )
 	{
 	  // Run collision and dynamics for delta time since the last frame
+		g_multipleView->m_nx->gControllers->reportSceneChanged();
 		gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
 		gPhysXscene->flushStream();
 		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
@@ -394,4 +415,57 @@ void CEditPhysX::OnEnChangeEditPhysxDensity()
 	m_fDensity = atof( m_strDensity );
 	if( m_fDensity < 0.0f )
 		m_fDensity = 0.0f;
+}
+
+
+void CEditPhysX::OnEnChangeEditPhysx()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+}
+
+
+void CEditPhysX::OnBnClickedCancel()
+{
+	CInt index = -1;
+	if (m_btnRemovePhysX.IsWindowEnabled())
+	{
+		RemovePhysXMesh();
+	}
+	if (!Cmp((LPCTSTR)init_strPhysX, "\n"))
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			if (init_density > 0.0f)
+			{
+				if (CmpIn(g_scene[i]->GetName(), "_LOD1"))
+					index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible);
+			}
+			else
+			{
+				index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible);
+			}
+			if (index != -1)
+				break;
+		}
+
+		if (m_instanceGeometry && (init_density > 0 || m_instanceGeometry->m_abstractGeometry->m_hasAnimation))
+			ex_pVandaEngine1Dlg->InsertItemToPhysXList((CChar*)init_strPhysX.GetBuffer(init_strPhysX.GetLength()), ePHYSXELEMENTLIST_DYNAMIC_RIGIDBODY);
+		else if (m_instanceGeometry && init_trigger)
+			ex_pVandaEngine1Dlg->InsertItemToPhysXList((CChar*)init_strPhysX.GetBuffer(init_strPhysX.GetLength()), ePHYSXELEMENTLIST_TRIGGER);
+		else if (m_instanceGeometry)
+			ex_pVandaEngine1Dlg->InsertItemToPhysXList((CChar*)init_strPhysX.GetBuffer(init_strPhysX.GetLength()), ePHYSXELEMENTLIST_STATIC_RIGIDBODY);
+	}
+	g_updateOctree = CTrue;
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+	g_multipleView->RenderWindow();
+
+	CDialog::OnCancel();
 }

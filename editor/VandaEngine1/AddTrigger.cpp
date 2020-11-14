@@ -42,6 +42,19 @@ END_MESSAGE_MAP()
 
 void CAddTrigger::OnBnClickedOk()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+
 	if (m_strTriggerName.IsEmpty())
 	{
 		MessageBox("Please select a name for new trigger", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
@@ -133,6 +146,7 @@ void CAddTrigger::OnBnClickedOk()
 	ex_pVandaEngine1Dlg->m_dlgPrefabs = CNew(CPrefabDlg);
 	ex_pDlgPrefabs = ex_pVandaEngine1Dlg->m_dlgPrefabs;
 	ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(NULL, packageName, prefabName);
+
 	new_trigger->SetInstancePrefab(g_instancePrefab[g_instancePrefab.size() - 1]); //last element
 	new_trigger->GetInstancePrefab()->SetIsTrigger(CTrue);
 	CDelete(ex_pVandaEngine1Dlg->m_dlgPrefabs);
@@ -146,6 +160,7 @@ void CAddTrigger::OnBnClickedOk()
 	{
 		g_selectedName = new_trigger->GetInstancePrefab()->GetNameIndex();
 	}
+
 	if (m_trigger)
 	{
 		new_trigger->GetInstancePrefab()->SetTranslate(translation);
@@ -153,6 +168,7 @@ void CAddTrigger::OnBnClickedOk()
 		new_trigger->GetInstancePrefab()->SetScale(scaling);
 		new_trigger->GetInstancePrefab()->UpdateBoundingBox(CTrue);
 		new_trigger->GetInstancePrefab()->CalculateDistance();
+		//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
 
 		CScene* scene = new_trigger->GetInstancePrefab()->GetScene(0);
 		for (CUInt i = 0; i < scene->m_instanceGeometries.size(); i++)
@@ -180,6 +196,35 @@ void CAddTrigger::OnBnClickedOk()
 		ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(new_trigger->GetName(), eENGINEOBJECTLIST_TRIGGER);
 		g_engineObjectNames.push_back(new_trigger->GetName());
 	}
+
+	CChar triggerName[MAX_NAME_SIZE];
+	Cpy(triggerName, new_trigger->GetName());
+
+	for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
+	{
+		if (Cmp(triggerName, ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemText(k, 0)))
+		{
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetSelectionMark(k);
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+		}
+		else
+		{
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+			ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
+		}
+	}
+
+
+	//Erase all items of m_listBoxEngineObjects
+	for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
+	{
+		ex_pVandaEngine1Dlg->m_listBoxScenes.SetItemState(k, ~LVIS_SELECTED, LVIS_SELECTED);
+		ex_pVandaEngine1Dlg->m_listBoxScenes.Update(k);
+	}
+	ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
+	ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
+
 	g_multipleView->SetElapsedTimeFromBeginning();
 
 	CDialog::OnOK();

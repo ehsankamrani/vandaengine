@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -9,8 +9,8 @@
 class CStaticSound
 {
 public:
-	CStaticSound(){ m_fStaticSoundVolume = 0.0f; }
-	~CStaticSound(){ alSourceStop( m_source->GetSource());alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE); /*CDelete( m_buffer );*/ CDelete( m_source ) };
+	CStaticSound(){ m_fStaticSoundVolume = 0.0f;  m_source = NULL; m_buffer = NULL; }
+	~CStaticSound();
 
 public:
 	CChar m_name[MAX_NAME_SIZE];

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -84,6 +84,7 @@ CVoid CSkyDome::Destroy()
 CVoid CSkyDome::RenderDome()
 {
 	glUseProgram(0);
+
 	glMatrixMode( GL_MODELVIEW );
 	g_render.PushMatrix();
 	glTranslatef( m_position[0], m_position[1], m_position[2] );
@@ -131,7 +132,11 @@ CVoid CSkyDome::RenderDome()
 	//glDisable(GL_BLEND);
 	//glEnable(GL_DEPTH_TEST);
 	glPopAttrib();
+
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+
 }
 
 CVoid CSkyDome::SetSkyTexture( CChar* path )
@@ -141,42 +146,42 @@ CVoid CSkyDome::SetSkyTexture( CChar* path )
 	m_hasImage = CTrue;
 }
 
-CVoid CSkyDome::RenderIcon( CBool selectionMode )
+CVoid CSkyDome::RenderIcon(CBool selectionMode)
 {
 	glUseProgram(0);
 
-	if( selectionMode )
+	if (selectionMode)
 	{
-		glPushName( m_nameIndex );
+		glPushName(m_nameIndex);
 	}
-	if( !selectionMode )
+	if (!selectionMode)
 	{
-		if( m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName )
+		if (m_nameIndex == g_selectedName || m_nameIndex == g_lastEngineObjectSelectedName)
 		{
 			g_tempLastEngineObjectSelectedName = m_nameIndex;
 
-			if( g_transformObject )
+			if (g_transformObject)
 			{
-				m_position[0] = g_arrowPosition.x; 
-				m_position[1] = g_arrowPosition.y - 3.0f; 
-				m_position[2] = g_arrowPosition.z; 
+				m_position[0] = g_arrowPosition.x;
+				m_position[1] = g_arrowPosition.y - 3.0f;
+				m_position[2] = g_arrowPosition.z;
 			}
 			else
 			{
-				g_arrowPosition.x = m_position[0]; 
-				g_arrowPosition.y = m_position[1] + 3.0f; 
-				g_arrowPosition.z = m_position[2]; 
+				g_arrowPosition.x = m_position[0];
+				g_arrowPosition.y = m_position[1] + 3.0f;
+				g_arrowPosition.z = m_position[2];
 			}
-			g_glUtil.Billboarding( m_position[0], m_position[1] + 3.0f, m_position[2], g_skyImg->GetId(), 0.7f, 0.7f, 1.0, 0.0, 0.0 );
+			g_glUtil.Billboarding(m_position[0], m_position[1] + 3.0f, m_position[2], g_skyImg->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0);
 
 			g_showArrow = CTrue;
 		}
 		else
-			g_glUtil.Billboarding( m_position[0], m_position[1] + 3.0f, m_position[2], g_skyImg->GetId(), 0.7f, 0.7f );
+			g_glUtil.Billboarding(m_position[0], m_position[1] + 3.0f, m_position[2], g_skyImg->GetId(), 1.0f, 1.0f);
 	}
 	else
-		g_glUtil.Billboarding( m_position[0], m_position[1] + 3.0f, m_position[2], g_skyImg->GetId(), 0.7f, 0.7f );
-	if( selectionMode )
+		g_glUtil.Billboarding(m_position[0], m_position[1] + 3.0f, m_position[2], g_skyImg->GetId(), 1.0f, 1.0f);
+	if (selectionMode)
 		glPopName();
 
 }

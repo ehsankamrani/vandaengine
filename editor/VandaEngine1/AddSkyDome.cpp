@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddSkyDome.cpp : implementation file
@@ -72,7 +72,7 @@ BOOL CAddSkyDome::OnInitDialog()
 
 		m_strSkyDomeDampening = "0.8f";
 
-		m_strSkyDomeRadius = "250.0f";
+		m_strSkyDomeRadius = "850.0f";
 
 		CChar skyPath[MAX_NAME_SIZE];
 		sprintf( skyPath, "%s%s", g_pathProperties.m_skyPath, "defaultTexture.dds" );

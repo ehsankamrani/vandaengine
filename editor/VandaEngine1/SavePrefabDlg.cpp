@@ -98,11 +98,11 @@ BOOL CSavePrefabDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 	for (CUInt i = 0; i < g_prefabPackagesAndNames.size(); i++)
 	{
-		if (Cmp(g_prefabPackagesAndNames[i].front().c_str(), "Vanda_Basics") && !g_admin)
-		{
-			continue;
-		}
-		else
+		//if (Cmp(g_prefabPackagesAndNames[i].front().c_str(), "Vanda_Basics") && !g_admin)
+		//{
+		//	continue;
+		//}
+		//else
 			m_prefabPackageList.InsertString(i, g_prefabPackagesAndNames[i].front().c_str());
 	}
 

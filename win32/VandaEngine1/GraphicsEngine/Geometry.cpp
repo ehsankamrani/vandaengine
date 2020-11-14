@@ -1,15 +1,5 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "window.h"
@@ -41,7 +31,195 @@ CInputType CPolyGroup::SetType( CChar * s )
 	return eUNKNOWN;
 }
 
-/*cfxMaterial* */ CVoid CPolyGroup::SetupMaterialForDraw(CNode *parentNode, CInstance * instance, CBool isSelected, CBool hasDiffuse )
+CVoid CPolyGroup::EnableShader()
+{
+	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+	{
+		if (g_fogBlurPass)
+			g_shaderType = g_render.m_fogBlurProgram;
+		else
+			if (g_renderForWater)
+			{
+				g_shaderType = g_render.m_waterShaderProgram; //currently I support low quality water reflection
+			}
+			else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
+			{
+				if (m_hasNormalMap)
+				{
+					switch (g_shadowProperties.m_shadowType)
+					{
+					case eSHADOW_SINGLE_HL:
+						g_shaderType = g_render.m_shad_single_hl_normal_prog;
+						break;
+					case eSHADOW_SINGLE:
+						g_shaderType = g_render.m_shad_single_normal_prog;
+						break;
+					case eSHADOW_MULTI_LEAK:
+						g_shaderType = g_render.m_shad_multi_normal_prog;
+						break;
+					case eSHADOW_MULTI_NOLEAK:
+						g_shaderType = g_render.m_shad_multi_noleak_normal_prog;
+						break;
+					case eSHADOW_PCF:
+						g_shaderType = g_render.m_shad_pcf_normal_prog;
+						break;
+					case eSHADOW_PCF_TRILIN:
+						g_shaderType = g_render.m_shad_pcf_trilin_normal_prog;
+						break;
+					case eSHADOW_PCF_4TAP:
+						g_shaderType = g_render.m_shad_pcf_4tap_normal_prog;
+						break;
+					case eSHADOW_PCF_8TAP:
+						g_shaderType = g_render.m_shad_pcf_8tap_normal_prog;
+						break;
+					case eSHADOW_PCF_GAUSSIAN:
+						g_shaderType = g_render.m_shad_pcf_gaussian_normal_prog;
+						break;
+					}
+				}
+				else
+				{
+					switch (g_shadowProperties.m_shadowType)
+					{
+					case eSHADOW_SINGLE_HL:
+						g_shaderType = g_render.m_shad_single_hl_prog;
+						break;
+					case eSHADOW_SINGLE:
+						g_shaderType = g_render.m_shad_single_prog;
+						break;
+					case eSHADOW_MULTI_LEAK:
+						g_shaderType = g_render.m_shad_multi_prog;
+						break;
+					case eSHADOW_MULTI_NOLEAK:
+						g_shaderType = g_render.m_shad_multi_noleak_prog;
+						break;
+					case eSHADOW_PCF:
+						g_shaderType = g_render.m_shad_pcf_prog;
+						break;
+					case eSHADOW_PCF_TRILIN:
+						g_shaderType = g_render.m_shad_pcf_trilin_prog;
+						break;
+					case eSHADOW_PCF_4TAP:
+						g_shaderType = g_render.m_shad_pcf_4tap_prog;
+						break;
+					case eSHADOW_PCF_8TAP:
+						g_shaderType = g_render.m_shad_pcf_8tap_prog;
+						break;
+					case eSHADOW_PCF_GAUSSIAN:
+						g_shaderType = g_render.m_shad_pcf_gaussian_prog;
+						break;
+					}
+				}
+			}
+			else if (m_hasNormalMap)
+				g_shaderType = g_render.m_shader_normalProgram;
+			else
+				g_shaderType = g_render.m_shaderProgram;
+
+			glUseProgram(g_shaderType);
+			glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
+			glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
+			glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
+			glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
+
+			CInt num_point_lights = 0;
+			CInt num_spot_lights = 0;
+			CInt num_dir_lights = 0;
+			if (g_engineLights.size() == 0)
+			{
+				glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000);
+				glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), 0);
+				glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
+				glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), 0);
+
+			}
+			else
+			{
+				//I support up to 1 directional light, up to 4 point lights, and up to 3 spot lights for each object
+				for (CUInt i = 0; i < g_currentInstancePrefab->GetTotalLights(); i++)
+				{
+					CInstanceLight *instanceLight = g_currentInstancePrefab->m_lights[i];
+					g_currentInstanceLight = instanceLight;
+
+					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+					{
+						if (Cmp(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName()))
+							glUniform1i(glGetUniformLocation(g_shaderType, "defaultDirLightIndex"), i);
+
+						num_dir_lights++;
+					}
+
+					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_POINT)
+					{
+						num_point_lights++;
+						if (num_point_lights == 1)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), g_currentInstanceLight->GetRadius());
+						else if (num_point_lights == 2)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), g_currentInstanceLight->GetRadius());
+						else if (num_point_lights == 3)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
+						else if (num_point_lights == 4)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
+					}
+
+					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
+					{
+						num_spot_lights++;
+						if (num_spot_lights == 1)
+							glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[0]"), g_currentInstanceLight->GetRadius());
+					}
+				}
+				glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), num_dir_lights);
+				glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), num_point_lights);
+				glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), num_spot_lights);
+			}
+
+			//if num lights is 0 use default light
+			//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000.0f);
+			//	glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
+			//	glUniform1f(glGetUniformLocation(g_shaderType, "pointLight"), CTrue);
+
+			if (g_fogBlurPass)
+			{
+				glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
+				glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
+			}
+	}
+	else
+	{
+		glUseProgram(0);
+	}
+
+}
+
+CVoid CPolyGroup::SaveMaterialValues(CMaterial * mat)
+{
+	CEffect *effect = mat->GetEffect();
+	assert(effect);  // In COLLADA 1.4 a material is required to have a reference to an effect
+
+	CColor4f ambient = effect->GetAmbient();
+	CColor4f diffuse = effect->GetDiffuse();
+	CColor4f specular = effect->GetSpecular();
+	CColor4f emission = effect->GetEmission();
+
+	CFloat shininess = effect->GetShininess();
+	if (shininess < 1.0) shininess = (CFloat)(shininess * 100.0); // if the scale is 0.0 to 1.0, make it 0.0 to 100.0
+
+	m_fAmbientColor[0] = ambient.r; m_fAmbientColor[1] = ambient.g; m_fAmbientColor[2] = ambient.b; m_fAmbientColor[3] = ambient.a;
+	m_fDiffuseColor[0] = diffuse.r; m_fDiffuseColor[1] = diffuse.g; m_fDiffuseColor[2] = diffuse.b; m_fDiffuseColor[3] = effect->m_transparency;
+	m_fSpecularColor[0] = specular.r; m_fSpecularColor[1] = specular.g; m_fSpecularColor[2] = specular.b; m_fSpecularColor[3] = specular.a;
+	m_fEmissionColor[0] = emission.r; m_fEmissionColor[1] = emission.g; m_fEmissionColor[2] = emission.b; m_fEmissionColor[3] = emission.a;
+
+	m_fTransparency = effect->m_transparency;
+	m_fShininess = shininess;
+}
+
+CVoid CPolyGroup::SetupMaterialForDrawFromGameEngine(CBool isSelected)
+{
+	g_render.SetMaterialFromGameEngine(m_fAmbientColor, m_fDiffuseColor, m_fSpecularColor, m_fEmissionColor, m_fShininess, m_fTransparency, isSelected);
+}
+
+/*cfxMaterial* */ CVoid CPolyGroup::SetupMaterialForDrawFromCOLLADA(CNode *parentNode, CInstance * instance, CBool isSelected, CBool hasDiffuse )
 {
 	// This method contains code that is common to both Draw and DrawSkinned.  Was going to combine
 	// Draw and DrawSkinned into one function, but decided to retain the two seperate functions so the
@@ -59,7 +237,8 @@ CInputType CPolyGroup::SetType( CChar * s )
 			if (symbol == std::string(m_materialName)) {
 				if (thisInstanceMaterial->m_targetMaterial)	// common material
 				{
-					g_render.SetMaterial(thisInstanceMaterial->m_targetMaterial, isSelected, hasDiffuse ); 
+					g_render.SetMaterialFromCOLLADA(thisInstanceMaterial->m_targetMaterial, isSelected, hasDiffuse ); 
+					SaveMaterialValues(thisInstanceMaterial->m_targetMaterial);
 					return /*NULL*/;
 				}//else if (thisInstanceMaterial->m_targetcfxMaterial) // fx material
 				//{
@@ -152,8 +331,15 @@ CInputType CPolyGroup::SetType( CChar * s )
 
 CVoid CPolyGroup::Draw(CNode *parentNode, CInstance * instance, CBool isSelected, CBool hasDiffuse )
 {
-	/*cfxMaterial* currentMaterial = */SetupMaterialForDraw(parentNode, instance, isSelected, hasDiffuse );
-
+	if (m_setMatFromCollada)
+	{
+		/*cfxMaterial* currentMaterial = */SetupMaterialForDrawFromCOLLADA(parentNode, instance, isSelected, hasDiffuse);
+		m_setMatFromCollada = CFalse;
+	}
+	else
+	{
+		SetupMaterialForDrawFromGameEngine(isSelected);
+	}
 	Render();
 	
 	// Restore the old material state
@@ -169,7 +355,7 @@ CImage* CPolyGroup::GetImage( const CChar * name )
 		return NULL;
 	for( CUInt i = 0; i < g_images.size(); i++ )
 	{
-		if ( ICmp( GetAfterPath(g_images[i]->m_fileName), name ) )
+		if ( ICmp( GetAfterPath(g_images[i]->GetFileName()), name ) )
 			return g_images[i];
 	}
 	return NULL;
@@ -372,7 +558,7 @@ CImage* CGeometry::GetImage( const CChar * name )
 
 	for( CUInt i = 0; i < g_images.size(); i++ )
 	{
-		if ( ICmp( GetAfterPath(g_images[i]->m_fileName), name ) )
+		if ( ICmp( GetAfterPath(g_images[i]->GetFileName()), name ) )
 			return g_images[i];
 	}
 	return NULL;
@@ -639,6 +825,8 @@ CVoid CGeometry::Draw(CNode *parentNode, CInstance * instance)
 			if (g_main->m_renderQuery && m_groups[i]->m_diffuseImg && m_groups[i]->m_diffuseImg->GetFormat() == 4)
 				glDepthMask(GL_FALSE);
 
+			m_groups[i]->EnableShader();
+
 			SetGroupRender( m_groups[i] );
 			if( g_selectedName == m_nameIndex )
 				m_groups[i]->Draw(parentNode, instance, CTrue, m_groups[i]->m_hasDiffuse ); 
@@ -659,35 +847,69 @@ CVoid CGeometry::DrawSkinned(CNode *parentNode, CInstance * instance )
 {	
 	if ( m_skinData )
 	{
-		// copy the skinned matrices from the joint nodes 
-		m_skinData->UpdateCombinedMats(); 
-		
-		// use the gemetry normals 
-		if ( !m_skinData->GetBindNormals() && !m_bindNormals )
+		if (m_updateSkin)
 		{
-			m_bindNormals = CNewData( CVec3f, m_vertexcount );  	
-			memcpy(m_bindNormals, m_normals, m_vertexcount * sizeof( CVec3f ));  
-			m_bindPoints = CNewData( CVec3f, m_vertexcount );  	
-			memcpy(m_bindPoints, m_points, m_vertexcount * sizeof( CVec3f ));  
+			// copy the skinned matrices from the joint nodes 
+			m_skinData->UpdateCombinedMats();
+
+			// use the gemetry normals 
+			if (!m_skinData->GetBindNormals() && !m_bindNormals)
+			{
+				m_bindNormals = CNewData(CVec3f, m_vertexcount);
+				memcpy(m_bindNormals, m_normals, m_vertexcount * sizeof(CVec3f));
+				m_bindPoints = CNewData(CVec3f, m_vertexcount);
+				memcpy(m_bindPoints, m_points, m_vertexcount * sizeof(CVec3f));
+			}
+
+			m_skinMatrixStack = m_skinData->m_skinningMats;
+			m_skinMatrixStack3x4 = m_skinData->m_skinningMats3x4;
+			SetSkins(m_skinData->GetJointCount());
+
+			if (g_render.UsingVBOs() && g_options.m_enableVBO)
+			{
+				//g_render.CopyVBOData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints],m_points, m_vertexcount*3*sizeof(CFloat));
+				//g_render.CopyVBOData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoNormals],m_normals, m_vertexcount*3*sizeof(CFloat));
+				//glBufferSubData is faster than glBufferData, since it doesn't need freeing and reallocating the memory
+				g_render.CopyVBOSubData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints], m_points, 0, m_vertexcount * 3 * sizeof(CFloat));
+				g_render.CopyVBOSubData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoNormals], m_normals, 0, m_vertexcount * 3 * sizeof(CFloat));
+			}
+
+			m_updateSkin = CFalse; //only calculate skin data once per frame
 		}
 
-		m_skinMatrixStack = m_skinData->m_skinningMats; 
-		m_skinMatrixStack3x4 = m_skinData->m_skinningMats3x4; 
-		SetSkins(m_skinData->GetJointCount());
-
-		if (g_render.UsingVBOs() && g_options.m_enableVBO )
+		if (g_renderShadow)
 		{
-			//g_render.CopyVBOData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints],m_points, m_vertexcount*3*sizeof(CFloat));
-			//g_render.CopyVBOData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoNormals],m_normals, m_vertexcount*3*sizeof(CFloat));
-			//glBufferSubData is faster than glBufferData, since it doesn't need freeing and reallocating the memory
-			g_render.CopyVBOSubData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints],m_points, 0, m_vertexcount*3*sizeof(CFloat));
-			g_render.CopyVBOSubData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoNormals],m_normals, 0, m_vertexcount*3*sizeof(CFloat));
+			for (CUInt i = 0; i < m_groups.size(); i++)
+			{
+				CPolyGroup* group = m_groups[i];
+
+				if (g_renderShadow && (!g_render.m_useShader || !g_render.UsingShader() || !g_options.m_enableShader) && group->m_diffuseImg && group->m_diffuseImg->GetFormat() == 4)
+				{
+					glEnable(GL_ALPHA_TEST);
+					glAlphaFunc(GL_GREATER, 0.5);
+
+					glActiveTexture(GL_TEXTURE0);
+					glEnable(GL_TEXTURE_2D);
+					glBindTexture(GL_TEXTURE_2D, group->m_diffuseImg->GetId());
+					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+				}
+
+				m_groups[i]->Render();
+
+				if (g_renderShadow && (!g_render.m_useShader || !g_render.UsingShader() || !g_options.m_enableShader) && group->m_diffuseImg && group->m_diffuseImg->GetFormat() == 4)
+				{
+					glDisable(GL_ALPHA_TEST);
+				}
+			}
+			return;
 		}
 
 		for (CUInt i = 0; i < m_groups.size(); i++ )
 		{
 			if (g_main->m_renderQuery && m_groups[i]->m_diffuseImg && m_groups[i]->m_diffuseImg->GetFormat() == 4)
 				glDepthMask(GL_FALSE);
+
+			m_groups[i]->EnableShader();
 
 			SetGroupRender( m_groups[i] );
 
@@ -713,80 +935,32 @@ CVoid	CGeometry::GetJointsForWeights( CJoint *& Joints, CInt & NumJoints )
 	}
 };
 
-CVoid CGeometry::ResetGrassStates()
-{
-    glClientActiveTexture(GL_TEXTURE0);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	//alpha map
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-
-	//diffuse
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState( GL_VERTEX_ARRAY ); 
-
-	g_render.BindVBO(GL_ARRAY_BUFFER, 0 );
-	glEnable( GL_CULL_FACE );
-}
-
-CVoid CGeometry::SetGrassRender()
-{
-	glDisable( GL_CULL_FACE );
-
-	glActiveTexture(GL_TEXTURE0);
-	glEnable( GL_TEXTURE_2D );
-	glBindTexture(GL_TEXTURE_2D, m_diffuseImg->GetId() );
-
-	static CFloat time;
-	time += g_elapsedTime;
-	if( time >= 360.0f )
-		time -= 360.0f;
-	if( g_render.UsingShader() && g_render.m_useShader && g_options.m_enableShader)
-	{
-		glUniform1f(glGetUniformLocation( g_render.m_grassProgram , "time"), NxMath::degToRad(time));
-
-		glUniform1i(glGetUniformLocation( g_render.m_grassProgram , "colorMap"), 0);
-
-		if( g_fogProperties.m_enable )
-			glUniform1i(glGetUniformLocation( g_render.m_grassProgram , "enableFog"), CTrue );
-		else
-			glUniform1i(glGetUniformLocation( g_render.m_grassProgram , "enableFog"), CFalse );
-	} 
-
-	if (g_render.UsingVBOs() && g_options.m_enableVBO )
-	{
-		glEnableClientState(GL_VERTEX_ARRAY); 
-		g_render.BindVBO(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints]);
-		glVertexPointer( 3, GL_FLOAT, 0, NULL);				
-
-		if (m_texCoords[0]) {
-			glClientActiveTexture(GL_TEXTURE0);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			g_render.BindVBO(GL_ARRAY_BUFFER, m_VBOIDs[eGeoTexCoord0]);
-			glTexCoordPointer( 2, GL_FLOAT, 0, NULL);
-		}
-
-		return;
-	}
-
-	g_render.BindVBO(GL_ARRAY_BUFFER, 0 ); //disable VBOs
-	glEnableClientState(GL_VERTEX_ARRAY); 
-	glVertexPointer ( 3, GL_FLOAT, 0, m_points );				
-	if (m_texCoords[0]) {
-		glClientActiveTexture(GL_TEXTURE0);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer( 2, GL_FLOAT, 0, m_texCoords[0] );	
-	}
-}
-
 CVoid CGeometry::SetGroupRender( CPolyGroup* group )
 {
+	//if (g_polygonMode != ePOLYGON_FILL)
+	//{
+	//	glUseProgram(0);
+	//	// Disable the texture units.
+	//	glActiveTextureARB(GL_TEXTURE5_ARB);
+	//	glDisable(GL_TEXTURE_2D);
+
+	//	glActiveTextureARB(GL_TEXTURE4_ARB);
+	//	glDisable(GL_TEXTURE_2D);
+
+	//	glActiveTextureARB(GL_TEXTURE3_ARB);
+	//	glDisable(GL_TEXTURE_2D);
+
+	//	glActiveTextureARB(GL_TEXTURE2_ARB);
+	//	glDisable(GL_TEXTURE_2D);
+
+	//	glActiveTextureARB(GL_TEXTURE1_ARB);
+	//	glDisable(GL_TEXTURE_2D);
+
+	//	glActiveTextureARB(GL_TEXTURE0_ARB);
+	//	glDisable(GL_TEXTURE_2D);
+	//	return;
+	//}
+
 	if (!g_renderShadow && !g_main->m_renderQuery && group->m_hasDiffuse)
 	{
 		glActiveTexture(GL_TEXTURE0);
@@ -800,14 +974,13 @@ CVoid CGeometry::SetGroupRender( CPolyGroup* group )
 	}
 	if (g_renderShadow && (!g_render.m_useShader || !g_render.UsingShader() || !g_options.m_enableShader) && group->m_diffuseImg && group->m_diffuseImg->GetFormat() == 4)
 	{
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.5);
+
 		glActiveTexture(GL_TEXTURE0);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, group->m_diffuseImg->GetId());
-		if ((!g_render.m_useShader || !g_render.UsingShader() || !g_options.m_enableShader) && group->m_diffuseImg->GetFormat() == 4)
-		{
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, 0);
-		}
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	}
 
 	if( g_render.UsingShader() && g_render.m_useShader && g_options.m_enableShader)
@@ -969,6 +1142,54 @@ CVoid CGeometry::SetRender()
 		else
 			glUniform1i(glGetUniformLocation( g_shaderType , "enableFog"), CFalse );
 	} 
+	if (g_render.UsingVBOs() && g_options.m_enableVBO && g_renderShadow)
+	{
+		glEnableClientState(GL_VERTEX_ARRAY);
+		g_render.BindVBO(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints]);
+		glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+		for (CUInt i = 0; i < m_groups.size(); i++)
+		{
+			CPolyGroup* group = m_groups[i];
+			if (group->m_diffuseImg && group->m_diffuseImg->GetFormat() == 4)
+			{
+				//Used For Alpha Blending
+				if (m_texCoords[0]) {
+					glClientActiveTexture(GL_TEXTURE0);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					g_render.BindVBO(GL_ARRAY_BUFFER, m_VBOIDs[eGeoTexCoord0]);
+					glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+				}
+				break;
+			}
+		}
+
+		return;
+	}
+	else if (g_renderShadow)
+	{
+		g_render.BindVBO(GL_ARRAY_BUFFER, 0); //disable VBOs
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, m_points);
+
+		for (CUInt i = 0; i < m_groups.size(); i++)
+		{
+			CPolyGroup* group = m_groups[i];
+			if (group->m_diffuseImg && group->m_diffuseImg->GetFormat() == 4)
+			{
+				//Used For Alpha Blending
+				if (m_texCoords[0]) {
+					glClientActiveTexture(GL_TEXTURE0);
+					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+					g_render.BindVBO(GL_ARRAY_BUFFER, m_VBOIDs[eGeoTexCoord0]);
+					glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+				}
+				break;
+			}
+		}
+
+		return;
+	}
 
 	if (g_render.UsingVBOs() && g_options.m_enableVBO )
 	{

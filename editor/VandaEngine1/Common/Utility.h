@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -8,7 +8,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp> 
+#include <boost/serialization/string.hpp>
+#include <iostream>
+#include <sstream>
+
 #define EPSILON 2.5e-8 
+#define INFINITE_DISTANCE 1000000
 #define ZERO EPSILON
 #define Min(a,b)            (((a) < (b)) ? (a) : (b))
 #define Max(a,b)            (((a) > (b)) ? (a) : (b))
@@ -101,7 +109,7 @@ inline BOOL RemoveAllFilesAndFoldersInDirectory(const TCHAR* sPath) {
 	return RemoveDirectory(sPath); // remove the empty directory
 }
 
-inline CBool CopyAllFilesAndFoldersToDstDirectory(CChar* r_szSrcPath, CChar* r_szDesPath)
+inline CBool CopyAllFilesAndFoldersToDstDirectory(CChar* r_szSrcPath, CChar* r_szDesPath, CBool failIfExist = TRUE)
 {
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
@@ -142,7 +150,7 @@ inline CBool CopyAllFilesAndFoldersToDstDirectory(CChar* r_szSrcPath, CChar* r_s
 			char l_szDesFile[1025] = {0};
 			sprintf(l_szDesFile,"%s%s",l_szDesPath,FindFileData.cFileName);
 			sprintf(l_szSrcFile,"%s%s",l_szSrcPath,FindFileData.cFileName);
-			BOOL l_bRet = CopyFile(l_szSrcFile,l_szDesFile,TRUE);
+			BOOL l_bRet = CopyFile(l_szSrcFile, l_szDesFile, failIfExist);
 		}
 	}
 	while(FindNextFile(hFind, &FindFileData));
@@ -376,11 +384,14 @@ inline CVoid CopyOneFileToDstDirectory(CChar* srcFilePath, CChar* dstDirectory)
 	CChar dstFilePath[MAX_NAME_SIZE];
 	sprintf( dstFilePath, "%s%s", dstDirectory, srcFilePathAfterPath );
 
+	if (Cmp(srcFilePath, dstFilePath))
+		return;
+
 	if( !CopyFile( srcFilePath, dstFilePath, FALSE) )
 	{
-			CChar temp[MAX_NAME_SIZE];
-			sprintf( temp, "\n%s%d%s%s%s%s", "Error (", GetLastError(), ") Couldn't copy the file ", srcFilePath, " to ", dstFilePath );
-			PrintInfo( temp, COLOR_RED );
+		CChar temp[MAX_NAME_SIZE];
+		sprintf( temp, "\n%s%d%s%s%s%s", "Error (", GetLastError(), ") Couldn't copy the file ", srcFilePath, " to ", dstFilePath );
+		PrintInfo( temp, COLOR_RED );
 	}
 }
 
@@ -612,7 +623,19 @@ struct CVec3f
 		v3.z = v1->x*v2->y - v1->y*v2->x;
 		
 		return v3; 
-	}; 	
+	}
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & x;
+		ar & y;
+		ar & z;
+	}
+
 };
 
 struct CQuat; 
@@ -675,6 +698,19 @@ struct CVec4f
 	}
 
 	CVoid Set( CQuat *); 
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & x;
+		ar & y;
+		ar & z;
+		ar & w;
+
+	}
 };
 
 inline CVec4f Lerp(CVec4f start, CVec4f end, float percent)

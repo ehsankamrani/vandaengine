@@ -1,15 +1,6 @@
-/*
- * Copyright 2006 Sony Computer Entertainment Inc.
- *
- * Licensed under the SCEA Shared Source License, Version 1.0 (the "License"); you may not use this 
- * file except in compliance with the License. You may obtain a copy of the License at:
- * http://research.scea.com/scea_shared_source_license.html
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License 
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or 
- * implied. See the License for the specific language governing permissions and limitations under the 
- * License. 
- */
+//Copyright (C) 2020 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "render.h"
 #include "..\VandaEngine1.h"
@@ -27,9 +18,8 @@ CVoid CRender::Init()
 	m_selectedScene = NULL;
 	m_selectedInstancePrefab = NULL;
 	m_shaderProgram = 0;
-	m_spotShaderProgram = 0;
+	m_waterShaderProgram = 0;
 	m_waterProgram = 0;
-	m_grassProgram = 0;
 	m_glowProgram = 0;
 	m_blurProgram = 0;
 	m_shad_single_hl_prog = 0;
@@ -41,13 +31,23 @@ CVoid CRender::Init()
     m_shad_pcf_4tap_prog = 0;
     m_shad_pcf_8tap_prog = 0;
     m_shad_pcf_gaussian_prog = 0;
+
+	m_terrain_shad_single_prog = 0;
+	m_terrain_shad_multi_prog = 0;
+	m_terrain_shad_multi_noleak_prog = 0;
+	m_terrain_shad_pcf_prog = 0;
+	m_terrain_shad_pcf_trilin_prog = 0;
+	m_terrain_shad_pcf_4tap_prog = 0;
+	m_terrain_shad_pcf_8tap_prog = 0;
+	m_terrain_shad_pcf_gaussian_prog = 0;
+
 	m_shad_view_depth = 0;
 	for( CUInt i = 0; i < 4; i++ )
 		m_dofProgram[i] = 0;
 
 	//m_cgInitialized = InitCg();
-	CheckForVBOs();
-	CheckForFBOs();
+	SupportForVBOs();
+	SupportForFBOs();
 
 	std::string infoLog;
 	m_shadowShaderAvailable = CTrue;
@@ -65,6 +65,25 @@ CVoid CRender::Init()
 	}
 	else
 	{
+		m_waterShaderProgram = LoadShaderProgram("Assets/Engine/shaders/default_water.glsl", infoLog);
+		if (m_waterShaderProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/default_water.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nDefault Water shader loaded successfully", COLOR_WHITE);
+			m_shaderAvailable = CTrue;
+		}
+
 		m_shaderProgram = LoadShaderProgram( "Assets/Engine/shaders/default.glsl", infoLog);
 		if( m_shaderProgram == 0 )
 		{
@@ -102,45 +121,6 @@ CVoid CRender::Init()
 			PrintInfo("\nDefault_Normal shader loaded successfully", COLOR_WHITE);
 			m_shaderAvailable = CTrue;
 		}
-
-		m_spotShaderProgram = LoadShaderProgram( "Assets/Engine/shaders/default_spot.glsl", infoLog);
-		if( m_spotShaderProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/default_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nDefault_Spot shader loaded successfully", COLOR_WHITE );
-			m_shaderAvailable = CTrue;
-		}
-
-		m_spot_normalShaderProgram = LoadShaderProgram("Assets/Engine/shaders/default_spot_normal.glsl", infoLog);
-		if (m_spot_normalShaderProgram == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/default_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nDefault_Spot_Normal shader loaded successfully", COLOR_WHITE);
-			m_shaderAvailable = CTrue;
-		}
-
 
 		m_deferredProgram = LoadShaderProgram( "Assets/Engine/shaders/deferred.glsl", infoLog);
 		if( m_deferredProgram == 0 )
@@ -215,23 +195,6 @@ CVoid CRender::Init()
 			PrintInfo( "\nglow shader loaded successfully", COLOR_WHITE );
 
 		}
-		m_grassProgram = LoadShaderProgram( "Assets/Engine/shaders/grass.glsl", infoLog);
-		if( m_grassProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/grass.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\ngrass shader loaded successfully", COLOR_WHITE );
-		}
 
 		m_fogBlurProgram = LoadShaderProgram( "Assets/Engine/shaders/fog_blur.glsl", infoLog);
 		if( m_fogBlurProgram == 0 )
@@ -268,6 +231,79 @@ CVoid CRender::Init()
 		else
 		{
 			PrintInfo( "\nwater_fog_blur shader loaded successfully", COLOR_WHITE );
+		}
+
+		//terrain Program
+		m_terrainProgram = LoadShaderProgram("Assets/Engine/shaders/Terrain/default.glsl", infoLog);
+		if (m_terrainProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/Terrain/default.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrainNormalMapLayerProgram = LoadShaderProgram("Assets/Engine/shaders/Terrain/normalMapLayer.glsl", infoLog);
+		if (m_terrainNormalMapLayerProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/Terrain/normalMapLayer.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain normal map layer shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrainDiffuseLayerProgram = LoadShaderProgram("Assets/Engine/shaders/Terrain/diffuseLayer.glsl", infoLog);
+		if (m_terrainDiffuseLayerProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/Terrain/diffuseLayer.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain diffuse layer shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrainOtherLayerProgram = LoadShaderProgram("Assets/Engine/shaders/Terrain/otherLayer.glsl", infoLog);
+		if (m_terrainOtherLayerProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/Terrain/otherLayer.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain other layers shader loaded successfully", COLOR_WHITE);
 		}
 
 		/////////////////////////////////////////////
@@ -551,6 +587,162 @@ CVoid CRender::Init()
 			PrintInfo( "\nshadow/view_depth shader loaded successfully", COLOR_WHITE );
 		}
 
+		//terrain shadow
+		m_terrain_shad_multi_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_multi_leak.glsl", infoLog);
+		if (m_terrain_shad_multi_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_multi_leak.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_multi_leak shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_single_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_single.glsl", infoLog);
+		if (m_terrain_shad_single_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_single.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_single shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_multi_noleak_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_multi_noleak.glsl", infoLog);
+		if (m_terrain_shad_multi_noleak_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_multi_noleak.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_multi_noleak shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_pcf_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_pcf.glsl", infoLog);
+		if (m_terrain_shad_pcf_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_pcf.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_pcf shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_pcf_trilin_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_pcf_trilinear.glsl", infoLog);
+		if (m_terrain_shad_pcf_trilin_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_pcf_trilinear.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_pcf_trilinear shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_pcf_4tap_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_pcf_4tap.glsl", infoLog);
+		if (m_terrain_shad_pcf_4tap_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_pcf_4tap.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_pcf_4tap shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_pcf_8tap_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_pcf_8tap_random.glsl", infoLog);
+		if (m_terrain_shad_pcf_8tap_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_pcf_8tap_random.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_pcf_8tap_random shader loaded successfully", COLOR_WHITE);
+		}
+
+		m_terrain_shad_pcf_gaussian_prog = LoadShaderProgram("Assets/Engine/shaders/terrain/shadow/shadow_pcf_gaussian.glsl", infoLog);
+		if (m_terrain_shad_pcf_gaussian_prog == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/terrain/shadow/shadow_pcf_gaussian.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CTrue;
+			m_shadowShaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nterrain/shadow/shadow_pcf_gaussian shader loaded successfully", COLOR_WHITE);
+		}
+
+
+		////////////////
+
 		//shadow + normal map
 		m_shad_single_hl_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/shadow_normal/shadow_single_hl_normal.glsl", infoLog);
 		if (m_shad_single_hl_normal_prog == 0)
@@ -722,353 +914,6 @@ CVoid CRender::Init()
 		{
 			PrintInfo("\nshadow/shadow_normal/shadow_pcf_gaussian_normal shader loaded successfully", COLOR_WHITE);
 		}
-		///////////////////////
-
-		///////Shadow Spot/////////////////////////
-		m_shad_single_hl_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_single_hl_spot.glsl", infoLog);
-		if( m_shad_single_hl_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_single_hl_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_single_hl_spot shader loaded successfully", COLOR_WHITE );
-		}
-	 
-		m_shad_multi_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_multi_leak_spot.glsl", infoLog);
-		if( m_shad_multi_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_multi_leak_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_multi_leak_spot shader loaded successfully", COLOR_WHITE );
-		}
-
-		m_shad_single_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_single_spot.glsl", infoLog);
-		if( m_shad_single_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_single_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_single_spot shader loaded successfully", COLOR_WHITE );
-		}
-
-		m_shad_multi_noleak_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_multi_noleak_spot.glsl", infoLog);
-		if( m_shad_multi_noleak_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_multi_noleak_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_multi_noleak_spot shader loaded successfully", COLOR_WHITE );
-		}
-
-		m_shad_pcf_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_pcf_spot.glsl", infoLog);
-		if( m_shad_pcf_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_pcf_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_pcf_spot shader loaded successfully", COLOR_WHITE );
-		}
-	
-		m_shad_pcf_trilin_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_pcf_trilinear_spot.glsl", infoLog);
-		if( m_shad_pcf_trilin_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_pcf_trilinear_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_pcf_trilinear_spot shader loaded successfully", COLOR_WHITE );
-		}
-	
-		m_shad_pcf_4tap_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_pcf_4tap_spot.glsl", infoLog);
-		if( m_shad_pcf_4tap_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_pcf_4tap_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_pcf_4tap_spot shader loaded successfully", COLOR_WHITE );
-		}
-		
-		m_shad_pcf_8tap_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_pcf_8tap_random_spot.glsl", infoLog);
-		if( m_shad_pcf_8tap_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_pcf_8tap_random_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_pcf_8tap_random_spot shader loaded successfully", COLOR_WHITE );
-		}
-		
-		m_shad_pcf_gaussian_spot_prog = LoadShaderProgram( "Assets/Engine/shaders/shadow/spot/shadow_pcf_gaussian_spot.glsl", infoLog);
-		if( m_shad_pcf_gaussian_spot_prog == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/shadow_pcf_gaussian_spot.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nshadow/spot/shadow_pcf_gaussian_spot shader loaded successfully", COLOR_WHITE );
-		}
-
-		//shadow spot + normal map
-		m_shad_single_hl_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_single_hl_spot_normal.glsl", infoLog);
-		if (m_shad_single_hl_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_single_hl_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_single_hl_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_multi_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_multi_leak_spot_normal.glsl", infoLog);
-		if (m_shad_multi_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_multi_leak_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_multi_leak_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_single_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_single_spot_normal.glsl", infoLog);
-		if (m_shad_single_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_single_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_single_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_multi_noleak_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_multi_noleak_spot_normal.glsl", infoLog);
-		if (m_shad_multi_noleak_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_multi_noleak_spot_normal", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_multi_noleak_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_pcf_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_spot_normal.glsl", infoLog);
-		if (m_shad_pcf_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_pcf_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_pcf_trilin_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_trilinear_spot_normal.glsl", infoLog);
-		if (m_shad_pcf_trilin_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_trilinear_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_pcf_trilinear_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_pcf_4tap_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_4tap_spot_normal.glsl", infoLog);
-		if (m_shad_pcf_4tap_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_4tap_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_pcf_4tap_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_pcf_8tap_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_8tap_random_spot_normal.glsl", infoLog);
-		if (m_shad_pcf_8tap_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_8tap_random_spot_normal.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_pcf_8tap_random_spot_normal shader loaded successfully", COLOR_WHITE);
-		}
-
-		m_shad_pcf_gaussian_spot_normal_prog = LoadShaderProgram("Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_gaussian_spot_normal.glsl", infoLog);
-		if (m_shad_pcf_gaussian_spot_normal_prog == 0)
-		{
-			if (infoLog.c_str())
-			{
-				PrintShaderLog("\n");
-				PrintShaderLog(infoLog.c_str());
-			}
-			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/shadow/spot/spot_normal/shadow_pcf_gaussian_spot_normal.glsl.glsl", COLOR_RED);
-			infoLog.erase();
-			m_shaderAvailable = CTrue;
-			m_shadowShaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo("\nshadow/spot/spot_normal/shadow_pcf_gaussian_spot_normal.glsl shader loaded successfully", COLOR_WHITE);
-		}
-
-		//////////////////////////
 
 		//loading shader to show layers. These shaders are used in Editor that lets the user view different layers of their meshes
 
@@ -1214,9 +1059,9 @@ CVoid CRender::Init()
 	//initialize default free camera
 	CCamera * default_camera = CNew( CCamera ); 
 	default_camera->SetName( "default_camera" );	
-	default_camera->SetZNear(1.0);
-	default_camera->SetZFar(10000.0);
-		
+	default_camera->SetZNear(g_cameraProperties.m_freePerspectiveNCP);
+	default_camera->SetZFar(g_cameraProperties.m_freePerspectiveFCP);
+
 	// new CNode
 	CNode * camNode = CNew( CNode ); 
 
@@ -1226,6 +1071,11 @@ CVoid CRender::Init()
 	instanceCamera->m_parent = camNode;
 	instanceCamera->MoveTransform2(7, 5, 7 );
 	instanceCamera->SetPanAndTilt2(43, -25 );
+	instanceCamera->ZoomTransform2(0.0f);
+	instanceCamera->m_abstractCamera->SetAngle(DEFAULT_CAMERA_ANGLE);
+	instanceCamera->m_abstractCamera->SetMinAngle(MIN_CAMERA_ANGLE);
+	instanceCamera->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
+
 	g_render.SetActiveInstanceCamera(instanceCamera);
 	g_render.m_defaultInstanceCamera = instanceCamera;
 
@@ -1309,17 +1159,19 @@ CVoid CRender::Destroy()
 {
 	//if ( m_cgInitialized )
 	//	DestroyCg(); 
-	glDeleteProgram( m_shaderProgram );
+	glDeleteProgram(m_shaderProgram);
+	glDeleteProgram(m_waterShaderProgram);
 	glDeleteProgram(m_shader_normalProgram);
-	glDeleteProgram( m_spotShaderProgram );
-	glDeleteProgram(m_spot_normalShaderProgram);
 	glDeleteProgram( m_waterProgram );
 	glDeleteProgram( m_blurProgram );
 	glDeleteProgram( m_glowProgram );
-	glDeleteProgram( m_grassProgram );
 	glDeleteProgram( m_fogBlurProgram );
 	glDeleteProgram( m_waterFogBlurProgram );
-	glDeleteProgram( m_dofProgram[0] );
+	glDeleteProgram(m_terrainProgram);
+	glDeleteProgram(m_terrainNormalMapLayerProgram);
+	glDeleteProgram(m_terrainDiffuseLayerProgram);
+	glDeleteProgram(m_terrainOtherLayerProgram);
+	glDeleteProgram(m_dofProgram[0]);
 	glDeleteProgram( m_dofProgram[1] );
 	glDeleteProgram( m_dofProgram[2] );
 	glDeleteProgram( m_dofProgram[3] );
@@ -1334,6 +1186,15 @@ CVoid CRender::Destroy()
     glDeleteProgram(m_shad_pcf_8tap_prog);
     glDeleteProgram(m_shad_pcf_gaussian_prog);
 
+	glDeleteProgram(m_terrain_shad_single_prog);
+	glDeleteProgram(m_terrain_shad_multi_prog);
+	glDeleteProgram(m_terrain_shad_multi_noleak_prog);
+	glDeleteProgram(m_terrain_shad_pcf_prog);
+	glDeleteProgram(m_terrain_shad_pcf_trilin_prog);
+	glDeleteProgram(m_terrain_shad_pcf_4tap_prog);
+	glDeleteProgram(m_terrain_shad_pcf_8tap_prog);
+	glDeleteProgram(m_terrain_shad_pcf_gaussian_prog);
+
 	glDeleteProgram(m_shad_single_hl_normal_prog);
 	glDeleteProgram(m_shad_single_normal_prog);
 	glDeleteProgram(m_shad_multi_normal_prog);
@@ -1345,26 +1206,6 @@ CVoid CRender::Destroy()
 	glDeleteProgram(m_shad_pcf_gaussian_normal_prog);
 
 	glDeleteProgram(m_shad_view_depth);
-
-	glDeleteProgram(m_shad_single_hl_spot_prog);
-	glDeleteProgram(m_shad_single_spot_prog);
-	glDeleteProgram( m_shad_multi_spot_prog );
-	glDeleteProgram(m_shad_multi_noleak_spot_prog);
-    glDeleteProgram(m_shad_pcf_spot_prog);
-    glDeleteProgram(m_shad_pcf_trilin_spot_prog);
-    glDeleteProgram(m_shad_pcf_4tap_spot_prog);
-    glDeleteProgram(m_shad_pcf_8tap_spot_prog);
-    glDeleteProgram(m_shad_pcf_gaussian_spot_prog);
-
-	glDeleteProgram(m_shad_single_hl_spot_normal_prog);
-	glDeleteProgram(m_shad_single_spot_normal_prog);
-	glDeleteProgram(m_shad_multi_spot_normal_prog);
-	glDeleteProgram(m_shad_multi_noleak_spot_normal_prog);
-	glDeleteProgram(m_shad_pcf_spot_normal_prog);
-	glDeleteProgram(m_shad_pcf_trilin_spot_normal_prog);
-	glDeleteProgram(m_shad_pcf_4tap_spot_normal_prog);
-	glDeleteProgram(m_shad_pcf_8tap_spot_normal_prog);
-	glDeleteProgram(m_shad_pcf_gaussian_spot_normal_prog);
 
 	//layers
     glDeleteProgram(m_shaderColorMapLayerProgram);
@@ -1447,7 +1288,7 @@ CVoid CRender::ModelViewMatrix()
 
 
 
-CBool CRender::CheckForVBOs()
+CBool CRender::SupportForVBOs()
 {
 	if( GLEW_ARB_vertex_buffer_object )
 	{
@@ -1458,6 +1299,7 @@ CBool CRender::CheckForVBOs()
 	{
 		m_VBOsAvailable = CFalse;
 		m_useVBOs = CFalse;
+		return CFalse;
 	}
 	return CTrue; //To disable warning
 }
@@ -1515,7 +1357,7 @@ CVoid CRender::FreeVBO( CUInt vboId )
 	}
 }
 
-CBool CRender::CheckForFBOs()
+CBool CRender::SupportForFBOs()
 {
 	if( GLEW_EXT_framebuffer_object )
 	{
@@ -1526,6 +1368,7 @@ CBool CRender::CheckForFBOs()
 	{
 		m_FBOsAvailable = CFalse;
 		m_useFBOs = CFalse;
+		return CFalse;
 	}
 	return CTrue; //To disable warning
 }
@@ -1663,7 +1506,44 @@ CVoid CRender::FreeRenderBuffer( CUInt rbId )
 	}
 }
 
-CVoid CRender::SetMaterial( CMaterial * mat, CGeometryColor color, CBool hasDiffuse )
+CVoid CRender::SetMaterialFromGameEngine(CFloat* mat_ambient, CFloat* mat_diffuse, CFloat* mat_specular, CFloat* mat_emission, CFloat mat_shininess, CFloat mat_transparency, CGeometryColor mat_color)
+{
+	CColor4f emission;
+	CColor4f ambient;
+	CColor4f diffuse;
+	CColor4f specular;
+	diffuse.a = mat_transparency;
+	if (mat_color == eCOLOR_YELLOW) //used for selection color
+	{
+		ambient = diffuse = emission = CColor4f(0.7f, 0.7f, 0.0f, 1.0f);
+	}
+	else //color == eCOLOR_MATERIAL
+	{
+		emission.r = mat_emission[0]; emission.g = mat_emission[1]; emission.b = mat_emission[2]; emission.a = mat_emission[3];
+
+		if (g_useGlobalAmbientColor)
+		{
+			ambient = g_globalAmbientColor;
+		}
+		else
+		{
+			ambient.r = mat_ambient[0]; ambient.g = mat_ambient[1]; ambient.b = mat_ambient[2]; ambient.a = mat_ambient[3];
+		}
+
+		diffuse.r = mat_diffuse[0]; diffuse.g = mat_diffuse[1]; diffuse.b = mat_diffuse[2];
+	}
+	specular.r = mat_specular[0]; specular.g = mat_specular[1]; specular.b = mat_specular[2]; specular.a = mat_specular[3];
+
+	CFloat	shininess = mat_shininess;
+
+	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, (GLfloat*)&emission);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (GLfloat*)&ambient);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, (GLfloat*)&diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (GLfloat*)&specular);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, (GLfloat)shininess);
+}
+
+CVoid CRender::SetMaterialFromCOLLADA( CMaterial * mat, CGeometryColor color, CBool hasDiffuse )
 {
 	CEffect *effect = mat->GetEffect();
 	assert(effect);  // In COLLADA 1.4 a material is required to have a reference to an effect
@@ -1991,10 +1871,14 @@ CBool CRender::SetInstanceLight( CInstanceLight * lightInstance, CInt lightNumbe
 				float * localmatrix = (float *) lightInstance->m_parent->GetLocalToWorldMatrix();
 				CMatrixRotate(localmatrix, olddirection, newdirection);
 				GLfloat lightDir[4] = { newdirection.x, newdirection.y, newdirection.z, 0.0f };
-				glLightfv( GL_LIGHT0+lightNumber, GL_POSITION, lightDir );
+				CVec3f normalize_light_dir(lightDir[0], lightDir[1], lightDir[2]);
+				normalize_light_dir.Normalize();
+				GLfloat lightDirNormalized[4] = { normalize_light_dir.x, normalize_light_dir.y, normalize_light_dir.z, 0.0f };
+
+				glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, lightDirNormalized);
 				if( markDefaultDirectionalLight )
 				{
-					g_defaultDirectionalLight.x = lightDir[0]; g_defaultDirectionalLight.y = lightDir[1]; g_defaultDirectionalLight.z = lightDir[2]; g_defaultDirectionalLight.w = 1.0f;
+					g_defaultDirectionalLight.x = lightDirNormalized[0]; g_defaultDirectionalLight.y = lightDirNormalized[1]; g_defaultDirectionalLight.z = lightDirNormalized[2]; g_defaultDirectionalLight.w = 1.0f;
 				}
 				if( !g_dofProperties.m_debug &&  g_menu.m_showLightIcons )
 				{

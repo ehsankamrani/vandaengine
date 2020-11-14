@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CAddAmbientSound.cpp : implementation file
 //
@@ -50,8 +50,14 @@ void CGUIText::Render(CBool selectionMode)
 		glPushName(m_nameIndex);
 
 	if (!selectionMode)
+	{
 		m_font->StartRendering(g_width, g_height);
-	m_font->Print(m_text, m_position.x, m_position.y, 0.0f, m_color.x, m_color.y, m_color.z);
+	}
+	if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
+		m_font->Print(m_text, m_position.x, m_position.y, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
+	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
+		m_font->Print(m_text, m_position.x * 0.5f, m_position.y * 0.5f, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
+
 
 	if (!selectionMode)
 		m_font->EndRendering();

@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -110,9 +110,9 @@ CBool CNovodex::initNx(CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChara
 	InitCharacterControllers(XCharacterPos, YCharacterPos, ZCharacterPos, crtlRadius, crtlHeight, crtSkinWidth, crtSlopeLimit, crtStepOffset);
 	CFloat TimeStep = 1.0f / 60.0f;
 	if (bFixedStep)	
-		gPhysXscene->setTiming(TimeStep, 1, NX_TIMESTEP_FIXED);
+		gPhysXscene->setTiming(TimeStep, 8, NX_TIMESTEP_FIXED);
 	else
-		gPhysXscene->setTiming(TimeStep, 1, NX_TIMESTEP_VARIABLE);
+		gPhysXscene->setTiming(TimeStep, 8, NX_TIMESTEP_VARIABLE);
 
 
 	gCharacterPos.x = XCharacterPos;
@@ -130,7 +130,7 @@ CVoid CNovodex::runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveD
 	if( gPhysXscene )
 	{
 	  // Run collision and dynamics for delta time since the last frame
-		gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
+		gPhysXscene->simulate(/*1.0f/60.0f*/elapsedTime);
 		gPhysXscene->flushStream();
 		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
@@ -312,7 +312,7 @@ CVoid CNovodex::GetCameraAndCharacterPositions( const CFloat pitch, const CFloat
 	NxVec3 cameraGoal((NxReal)cpos.x, (NxReal)cpos.y, (NxReal)cpos.z);
 
 	characterPos = cameraGoal;
-	if ((g_currentCameraType == eCAMERA_DEFAULT_PHYSX && !g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetType() == eCHARACTER_FIRST_PERSON))
+	if ((g_currentCameraType == eCAMERA_PHYSX && !g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON))
 	{
 		characterPos += -gDir*3.0f;
 		cameraGoal += gDir*0.1f;
@@ -321,7 +321,6 @@ CVoid CNovodex::GetCameraAndCharacterPositions( const CFloat pitch, const CFloat
 	{
 		cameraGoal += gDir*dist;
 	}
-
 
 	cameraPos = cameraGoal;
 }
@@ -750,6 +749,77 @@ NxActor* CNovodex::CreateConvexMesh( CInt vertexCount, CFloat* meshVertices, con
 	return actor;
 }
 
+CBool CNovodex::CookTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, const CChar* path, const CChar* name)
+{
+	// Create descriptor for triangle mesh
+	NxTriangleMeshDesc triangleMeshDesc;
+
+	triangleMeshDesc.numVertices = vertexCount;
+	triangleMeshDesc.pointStrideBytes = 3 * sizeof(CFloat);
+	triangleMeshDesc.points = meshVertices;
+	triangleMeshDesc.numTriangles = faceCount;
+	triangleMeshDesc.flags = 0;
+	triangleMeshDesc.triangles = meshFaces;
+	triangleMeshDesc.triangleStrideBytes = 3 * sizeof(CInt);
+	CChar temp[MAX_NAME_SIZE];
+	sprintf(temp, "%s/%s.phx", path, name);
+
+	NxInitCooking();
+	CBool status = NxCookTriangleMesh(triangleMeshDesc, UserStream(temp, false));
+	NxCloseCooking();
+
+	if (status)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, const CChar* name)
+{
+	CChar temp[MAX_NAME_SIZE];
+	sprintf(temp, "%s%s.phx", path, name);
+
+	NxTriangleMesh* pMesh;
+	pMesh = gPhysicsSDK->createTriangleMesh(UserStream(temp, true));
+	// Create TriangleMesh above code segment.
+
+	NxTriangleMeshShapeDesc tmsd;
+	if (isTrigger)
+		tmsd.shapeFlags |= NX_TRIGGER_ENABLE;
+
+	tmsd.meshData = pMesh;
+	tmsd.localPose.t = NxVec3(0.f, 0.0f, 0.f);
+	tmsd.meshPagingMode = NX_MESH_PAGING_MANUAL;
+
+	NxActorDesc actorDesc;
+	NxBodyDesc  bodyDesc;
+
+	assert(tmsd.isValid());
+	actorDesc.shapes.pushBack(&tmsd);
+	//Dynamic triangle mesh don't be supported anymore. So body = NULL
+	actorDesc.body = NULL;
+	actorDesc.globalPose.t = NxVec3(0.0f, 0.0f, 0.0f);
+	actorDesc.name = name;
+
+	if (pMesh)
+	{
+		assert(actorDesc.isValid());
+		NxActor *actor = gPhysXscene->createActor(actorDesc);
+		assert(actor);
+		if (isTrigger)
+		{
+			SetActorCollisionGroup(actor, GROUP_TRIGGER);
+		}
+		return actor;
+	}
+
+	return NULL;
+}
+
 NxActor* CNovodex::CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name )
 {
 	// Create descriptor for triangle mesh
@@ -772,18 +842,18 @@ NxActor* CNovodex::CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat*
 	NxInitCooking();
 	MemoryWriteBuffer buf;
 
-	CBool status = NxCookTriangleMesh(triangleMeshDesc, buf);
+	//sprintf(temp, "c:\\terrain/%s.phx", name);
+	CBool status = NxCookTriangleMesh(triangleMeshDesc,/* UserStream(temp, false)*/buf);
 	NxTriangleMesh* pMesh;
 	if (status)
 	{
-		pMesh = gPhysicsSDK->createTriangleMesh(MemoryReadBuffer(buf.data));
+		pMesh = gPhysicsSDK->createTriangleMesh(/*UserStream(temp, true)*/MemoryReadBuffer(buf.data));
 	}
 	else
 	{
 		assert(false);
 		pMesh = NULL;
 	}
-	NxCloseCooking();
 	// Create TriangleMesh above code segment.
 
 	NxTriangleMeshShapeDesc tmsd;
@@ -793,7 +863,7 @@ NxActor* CNovodex::CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat*
 	tmsd.meshData		= pMesh;
 	tmsd.userData		= &triangleMeshDesc;
 	tmsd.localPose.t	= NxVec3(0.f, 0.0f, 0.f);
-	tmsd.meshPagingMode = NX_MESH_PAGING_AUTO;
+	tmsd.meshPagingMode = NX_MESH_PAGING_MANUAL;
 	
 	NxActorDesc actorDesc;
 	NxBodyDesc  bodyDesc;
@@ -817,9 +887,10 @@ NxActor* CNovodex::CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat*
 		{
 			SetActorCollisionGroup(actor, GROUP_TRIGGER );
 		}
-
+		NxCloseCooking();
 		return actor;
 	}
+	NxCloseCooking();
 
 	return NULL;
 }

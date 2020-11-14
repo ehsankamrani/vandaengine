@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -55,7 +55,7 @@ bool CDDS::LoadFile(std::istream & File)
 
 	// Check that the given dimentions are 2^x, 2^y
 	if (! OpenGLSize())
-		PrintInfo( "\nWarning: Texture with or height are not power of 2", COLOR_RED) ;
+		PrintInfo( "\nWarning: Texture width or height are not power of 2", COLOR_RED) ;
 
 	// How big is it going to be including all mipmaps?
 	size_t BufSize = 0;

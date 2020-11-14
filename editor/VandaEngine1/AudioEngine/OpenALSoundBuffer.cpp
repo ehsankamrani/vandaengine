@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -93,19 +93,18 @@ CBool COpenALSoundBuffer::LoadOggVorbisFromFile( CChar* fileName )
 	bufferData.clear();
 
 	ALenum err = alGetError();
-	if( err == AL_NO_ERROR )
+	if (err == AL_NO_ERROR)
 		return CTrue;
-	else if( err == AL_INVALID_NAME )
-	MessageBox( NULL, _T("LoadOggVorbisFromFile::AL_INVALID_NAME"), _T("Vanda Engine Error"), MB_OK );
+	else if (err == AL_INVALID_NAME)
+		PrintInfo("\nLoadOggVorbisFromFile Error: AL_INVALID_NAME", COLOR_RED);
 	else if(  err == AL_INVALID_ENUM )
-	MessageBox( NULL, _T("LoadOggVorbisFromFile::AL_INVALID_ENUM"), _T("Vanda Engine Error"), MB_OK );
+		PrintInfo("\nLoadOggVorbisFromFile Error: AL_INVALID_ENUM", COLOR_RED);
 	else if( err == AL_INVALID_VALUE )
-	MessageBox( NULL, _T("LoadOggVorbisFromFile::AL_INVALID_VALUE"), _T("Vanda Engine Error"), MB_OK );
+		PrintInfo("\nLoadOggVorbisFromFile Error: AL_INVALID_VALUE", COLOR_RED);
 	else if( err == AL_INVALID_OPERATION )
-	MessageBox( NULL, _T("LoadOggVorbisFromFile::AL_INVALID_OPERATION"), _T("Vanda Engine Error"), MB_OK );
+		PrintInfo("\nLoadOggVorbisFromFile Error: AL_INVALID_OPERATION", COLOR_RED);
 	else if( err == AL_OUT_OF_MEMORY )
-	MessageBox( NULL, _T("LoadOggVorbisFromFile::AL_OUT_OF_MEMORY"), _T("Vanda Engine Error"), MB_OK );
-	PrintInfo( "\nAn error occured while loading the ogg sound", COLOR_RED );
+		PrintInfo("\nLoadOggVorbisFromFile Error: AL_OUT_OF_MEMORY", COLOR_RED);
 
 	return CFalse;
 }

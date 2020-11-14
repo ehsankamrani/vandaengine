@@ -1,6 +1,3 @@
-//Copyright (C) 2018 Ehsan Kamrani 
-//This file is licensed and distributed under MIT license
-
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by VandaEngine1.rc

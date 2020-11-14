@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -28,7 +28,7 @@ public:
 	~COctree();
 	CVoid GetWorldDimensions();
 	CVoid ResetOctreeGeoCount();
-	CVoid Render();
+	CVoid Render(CBool checkVisibility = CFalse, CBool drawGeometry = CTrue);
 	CVoid SplitNode8( COctree* parent );
 	CBool AttachGeometriesToNode();
 	CVoid AttachLightsToGeometries();

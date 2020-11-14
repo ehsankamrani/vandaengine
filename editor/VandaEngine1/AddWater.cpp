@@ -1,4 +1,4 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddWater.cpp : implementation file
@@ -51,6 +51,7 @@ BOOL CAddWater::OnInitDialog()
 		sprintf( NormalMapPath, "%s%s", g_pathProperties.m_waterPath, "normalmap.dds" );
 		m_strNormalMap = NormalMapPath;
 		m_strPureNormalMap = "normalmap";
+		m_isVisible = CTrue;
 	}
 	m_editBoxDuDvMap.SetWindowTextA( m_strDuDvMap );
 	m_editBoxNormalMap.SetWindowTextA( m_strNormalMap );
@@ -65,6 +66,11 @@ BOOL CAddWater::OnInitDialog()
 	m_editBoxLX.SetWindowTextA( m_strWaterLX );
 	m_editBoxLY.SetWindowTextA( m_strWaterLY );
 	m_editBoxLZ.SetWindowTextA( m_strWaterLZ );
+
+	if (m_isVisible)
+		m_checkIsVisible.SetCheck(BST_CHECKED);
+	else
+		m_checkIsVisible.SetCheck(BST_UNCHECKED);
 
 	m_strTempWaterName = m_strWaterName;
 
@@ -88,6 +94,7 @@ void CAddWater::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WATER_LIGHT_X, m_editBoxLX);
 	DDX_Control(pDX, IDC_EDIT_WATER_LIGHT_Y, m_editBoxLY);
 	DDX_Control(pDX, IDC_EDIT_WATER_LIGHT_Z, m_editBoxLZ);
+	DDX_Control(pDX, IDC_CHECK_IS_WATER_VISIBLE, m_checkIsVisible);
 }
 
 
@@ -176,6 +183,12 @@ void CAddWater::OnOK()
 			}
 		}
 	}
+	CInt checkState;
+	checkState = m_checkIsVisible.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_isVisible = CTrue;
+	else
+		m_isVisible = CFalse;
 
 	// TODO: Add your specialized code here and/or call the base class
 	if( m_strNormalMap.IsEmpty() || m_strDuDvMap.IsEmpty() || m_strWaterName.IsEmpty() || m_strWaterHeight.IsEmpty() ||

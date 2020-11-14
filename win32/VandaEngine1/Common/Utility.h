@@ -1,10 +1,16 @@
-//Copyright (C) 2018 Ehsan Kamrani 
+//Copyright (C) 2020 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
 #include <math.h>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp> 
+#include <boost/serialization/string.hpp>
+#include <iostream>
+#include <sstream>
 
 #define EPSILON 2.5e-8 
+#define INFINITE_DISTANCE 1000000
 #define ZERO EPSILON
 #define Min(a,b)            (((a) < (b)) ? (a) : (b))
 #define Max(a,b)            (((a) > (b)) ? (a) : (b))
@@ -399,7 +405,17 @@ struct CVec3f
 		v3.z = v1->x*v2->y - v1->y*v2->x;
 		
 		return v3; 
-	}; 	
+	}
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & x;
+		ar & y;
+		ar & z;
+	}
 };
 
 struct CQuat; 
@@ -462,6 +478,18 @@ struct CVec4f
 	}
 
 	CVoid Set( CQuat *); 
+
+private:
+	friend class boost::serialization::access;
+
+	template <typename Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		ar & x;
+		ar & y;
+		ar & z;
+		ar & w;
+	}
 };
 
 inline CVec4f Lerp(CVec4f start, CVec4f end, float percent)

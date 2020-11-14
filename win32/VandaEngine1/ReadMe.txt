@@ -1,5 +1,5 @@
-//Vanda Engine version 1.6.1
-//Copyright (C) 2018 Ehsan Kamrani
+//Vanda Engine version 1.7.0
+//Copyright (C) 2020 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 
 ========================================================================
