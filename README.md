@@ -30,10 +30,7 @@ For more information about MIT license, please visit http://opensource.org/licen
 
 Compiler
 
-1.3.1: Microsoft Visual Studio 2005
-1.3.2 and 1.3.3: Microsoft Visual Studio 2010
-1.3.4: Microsoft Visual Studio 2012
-1.3.5 and higher: Microsoft Visual Studio 2013
+Microsoft Visual Studio 2013
 
 Compiling the source code:
 https://vanda3d.org/compiling-the-source-code/
