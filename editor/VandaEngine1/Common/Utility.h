@@ -218,6 +218,9 @@ inline CVoid Cpy( CChar * dest, const CChar * src )
 
 inline CBool ICmp( const CChar * s1, const CChar * s2 )
 {	
+	if (!s1 || !s2)
+		return false;
+
 	if ( _stricmp( s1, s2 )  == 0 )
 		return CTrue;
 	return CFalse;
@@ -225,6 +228,8 @@ inline CBool ICmp( const CChar * s1, const CChar * s2 )
 
 inline CBool Cmp( const CChar * s1, const CChar * s2 )
 {	
+	if (!s1 || !s2)
+		return false;
 	if ( strcmp( s1, s2 )  == 0 )
 		return true;
 	return false;
@@ -232,6 +237,9 @@ inline CBool Cmp( const CChar * s1, const CChar * s2 )
 
 inline CBool Cmp2( CChar * s1, CChar * s2 )
 {	
+	if (!s1 || !s2)
+		return false;
+
 	if ( strcmp( s1, s2 )  == 0 )
 		return true;
 	return false;
@@ -258,6 +266,9 @@ inline	CVoid Cpy( CChar * dest, const CChar * src, const CChar endChar )
 
 inline CBool CmpIn( const CChar * s1, const CChar * s2 )
 {	
+	if (!s1 || !s2)
+		return CFalse;
+
 	if ( strstr( s1, s2 ) != NULL )
 		return CTrue;
 	return CFalse;

@@ -77,6 +77,7 @@
 #include "SceneBanner.h"
 #include "VsceneMenuCursor.h"
 #include "PublishProject.h"
+#include "BackupAllProjects.h"
 #include "CustomButton.h"
 #include "CustomBitmapButton.h"
 #include "ScriptEngine/luaforcpp.h"
@@ -864,6 +865,7 @@ public:
 	afx_msg void OnBnClickedBtnYoutube();
 	afx_msg void OnLvnItemchangedListPhysxElements(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedBtnPublishSolution();
+	void OnBnClickedBtnBackupAllProjects();
 	afx_msg void OnBnClickedBtnScriptManager();
 	CCustomBitmapButton m_mainBtnPublishSolution;
 	CCustomBitmapButton m_mainBtnScriptManager;

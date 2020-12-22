@@ -2684,6 +2684,7 @@ CBool CMain::Render()
 		//	g_render.GetScene()->m_update = CTrue;
 		//}
 
+		//update octree
 		Render3DModels( CTrue, NULL );
 		g_octree->Init();
 		g_octree->GetWorldDimensions();
@@ -2693,6 +2694,18 @@ CBool CMain::Render()
 		g_octree->AttachLightsToGeometries();
 		g_updateOctree = CFalse;
 		g_main->RenderQueries(CTrue);
+
+		//update shadow max radius
+		g_maxInstancePrefabRadius = -1.f;
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
 	}
 
 
@@ -3466,12 +3479,12 @@ CBool CMain::ProcessInputs()
 		if (dx != 0 || dy != 0)
 		{
 			//mouse moved
-			CUInt index = GetSelectedGUI();
+			m_selectedGUIIndex = GetSelectedGUI();
 			for (CUInt i = 0; i < g_guis.size(); i++)
 			{
 				for (CUInt k = 0; k < g_guis[i]->m_guiButtons.size(); k++)
 				{
-					if (g_guis[i]->m_guiButtons[k]->GetIndex() == index)
+					if (g_guis[i]->m_guiButtons[k]->GetIndex() == m_selectedGUIIndex)
 					{
 						if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() == eBUTTON_IMAGE_MAIN && g_guis[i]->m_guiButtons[k]->GetHasHoverImage())
 						{
@@ -3479,7 +3492,8 @@ CBool CMain::ProcessInputs()
 							{
 								if (g_guis[i]->m_guiButtons[k]->GetHasHoverScript())
 								{
-									LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
+									if (m_previuosSelectedGUIIndex != m_selectedGUIIndex)
+										LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
 								}
 							}
 
@@ -3492,7 +3506,7 @@ CBool CMain::ProcessInputs()
 					}
 				}
 			}
-
+			m_previuosSelectedGUIIndex = m_selectedGUIIndex;
 		}
 
 		g_main->m_mousePosition.x += dx;
@@ -4612,6 +4626,12 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 					m_newPrefab->SetHasLod(2);
 					tempScene->SetDocURI(m_newPrefab->GetCurrentInstance()->GetName());
 				}
+				else if (CmpIn(tempScene->GetName(), "_COL"))
+				{
+					m_newPrefab->GetCurrentInstance()->SetScene(3, tempScene);
+					m_newPrefab->GetCurrentInstance()->SetHasCollider(CTrue);
+					tempScene->SetDocURI(m_newPrefab->GetCurrentInstance()->GetName());
+				}
 
 				sceneLoaded = CTrue;
 
@@ -5109,6 +5129,17 @@ CBool CMain::Load(CChar* pathName)
 
 		g_prefab.push_back(new_prefab);
 
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s%s", "Loading Prefab: ", name);
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
 		CUInt prefabInstanceSize;
 		fread(&prefabInstanceSize, sizeof(CUInt), 1, filePtr);
 
@@ -5117,7 +5148,60 @@ CBool CMain::Load(CChar* pathName)
 			//read instance data
 			CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
 			g_currentInstancePrefab = new_instance_prefab;
-			fread(new_instance_prefab, sizeof(CInstancePrefab), 1, filePtr);
+			//fread(new_instance_prefab, sizeof(CInstancePrefab), 1, filePtr);
+
+			CChar name[MAX_NAME_SIZE];
+			CVec3f translate;
+			CVec4f rotate;
+			CVec3f scale;
+			CBool isVisible;
+			CChar enterScript[MAX_NAME_SIZE];
+			CChar exitScript[MAX_NAME_SIZE];
+			CBool isTrigger;
+			CBool isControlledByPhysx;
+			CBool isAnimated;
+			CBool isStatic;
+			CBool totalLights;
+			CBool castShadow;
+
+			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			new_instance_prefab->SetName(name);
+
+			fread(&translate, sizeof(CVec3f), 1, filePtr);
+			new_instance_prefab->SetTranslate(translate);
+
+			fread(&rotate, sizeof(CVec4f), 1, filePtr);
+			new_instance_prefab->SetRotate(rotate);
+
+			fread(&scale, sizeof(CVec3f), 1, filePtr);
+			new_instance_prefab->SetScale(scale);
+
+			fread(&isVisible, sizeof(CBool), 1, filePtr);
+
+			fread(enterScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			new_instance_prefab->SetEnterScript(enterScript);
+
+			fread(exitScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			new_instance_prefab->SetExitScript(exitScript);
+
+			fread(&isTrigger, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetIsTrigger(isTrigger);
+
+			fread(&isControlledByPhysx, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetIsControlledByPhysX(isControlledByPhysx);
+
+			fread(&isAnimated, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetIsAnimated(isAnimated);
+
+			fread(&isStatic, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetIsStatic(isStatic);
+
+			fread(&totalLights, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetTotalLights(totalLights);
+
+			fread(&castShadow, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetCastShadow(castShadow);
+
 			new_prefab->SetInstance(new_instance_prefab);
 			new_prefab->SetCurrentInstance(new_instance_prefab);
 			new_instance_prefab->SetPrefab(new_prefab);
@@ -5127,21 +5211,13 @@ CBool CMain::Load(CChar* pathName)
 			g_instancePrefab.push_back(new_instance_prefab);
 			Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 			InsertPrefab(new_prefab);
-			new_instance_prefab->UpdateBoundingBox();
-			new_instance_prefab->CalculateDistance();
-			new_instance_prefab->UpdateIsStaticOrAnimated();
+			//new_instance_prefab->UpdateBoundingBox();
+			//new_instance_prefab->CalculateDistance();
+			//new_instance_prefab->UpdateIsStaticOrAnimated();
+			new_instance_prefab->SetVisible(isVisible);
 
 			CChar tempInstanceName[MAX_NAME_SIZE];
 			sprintf(tempInstanceName, "%s%s%s", "\nPrefab Instance ' ", new_instance_prefab->GetName(), " ' created successfully");
-		}
-	}
-
-	for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-	{
-		if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
-		{
-			if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
-				g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
 		}
 	}
 
@@ -5163,6 +5239,17 @@ CBool CMain::Load(CChar* pathName)
 		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 		new_gui->SetName(name);
+
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s%s", "Loading GUI: ", name);
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
 
 		CChar packageName[MAX_NAME_SIZE];
 		fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -5504,6 +5591,17 @@ CBool CMain::Load(CChar* pathName)
 
 	if (showSky)
 	{
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s", "Loading sky dome");
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
 		CChar name[MAX_NAME_SIZE];
 		CChar path[MAX_NAME_SIZE];
 		CInt slices, sides;
@@ -5544,6 +5642,17 @@ CBool CMain::Load(CChar* pathName)
 	fread(&showTerrain, sizeof(CBool), 1, filePtr);
 	if (showTerrain)
 	{
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s", "Loading terrain");
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
 		CChar name[MAX_NAME_SIZE], heightMapPath[MAX_NAME_SIZE], bottomTexturePath[MAX_NAME_SIZE], bottomNormalMapPath[MAX_NAME_SIZE],
 			slopeTexturePath[MAX_NAME_SIZE], slopeNormalMapPath[MAX_NAME_SIZE], topTexturePath[MAX_NAME_SIZE], topNormalPath[MAX_NAME_SIZE];
 
@@ -5653,6 +5762,17 @@ CBool CMain::Load(CChar* pathName)
 		fread(strWaterName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(strNormalMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(strDuDvMap, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s%s", "Loading water: ", strWaterName);
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
 
 		fread(waterPos, sizeof(CFloat), 3, filePtr);
 		fread(waterLightPos, sizeof(CFloat), 3, filePtr);
@@ -5821,6 +5941,18 @@ CBool CMain::Load(CChar* pathName)
 	for (CInt i = 0; i < tempStaticSoundCount; i++)
 	{
 		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s%s", "Loading sound: ", name);
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
 		fread(path, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&loop, sizeof(CBool), 1, filePtr);
 		fread(&staticSoundMaxDistance, sizeof(CFloat), 1, filePtr);
@@ -5901,39 +6033,6 @@ CBool CMain::Load(CChar* pathName)
 	//Copy this to Win32 Project as well
 	sprintf(AmbientSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", AmbientSoundName);
 
-	//load the ambient sound if it exists
-	if (insertAmbientSound)
-	{
-		CDelete(m_ambientSound);
-		COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
-		COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
-
-		//Initialize ambient sound here
-		// Velocity of the source sound.
-		m_ambientSoundBuffer->LoadOggVorbisFromFile(AmbientSoundPath);
-		m_ambientSoundSource->BindSoundBuffer(*m_ambientSoundBuffer);
-
-		m_ambientSoundSource->SetLooping(true);
-		m_ambientSoundSource->SetPitch(pitch);
-		m_ambientSoundSource->SetVolume(volume);
-		m_soundSystem->PlayALSound(*m_ambientSoundSource);
-
-		m_ambientSound = CNew(CAmbientSound);
-		m_ambientSound->SetSoundSource(m_ambientSoundSource);
-		m_ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
-		m_ambientSound->SetName(strAmbientSoundName);
-		m_ambientSound->SetPath(AmbientSoundPath);
-		m_ambientSound->SetVolume(volume);
-		m_ambientSound->SetPitch(pitch);
-
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf( temp, "ambient sound '%s' loaded successfully\n", strAmbientSoundPath );
-		//PrintInfo2( temp );
-
-		g_databaseVariables.m_playAmbientSound = CTrue;
-		g_databaseVariables.m_insertAmbientSound = CTrue;
-
-	}
 	CPrefab* box = CNew(CPrefab);
 	CChar pr_name[MAX_NAME_SIZE];
 	CChar package_name[MAX_NAME_SIZE];
@@ -6057,8 +6156,20 @@ CBool CMain::Load(CChar* pathName)
 	CBool hasCharacter;
 	fread(&hasCharacter, sizeof(CBool), 1, filePtr);
 	g_databaseVariables.m_insertCharacter = hasCharacter;
+
 	if (hasCharacter)
 	{
+		CChar Message[MAX_NAME_SIZE];
+		sprintf(Message, "%s", "Loading main character");
+		MSG lpMsg;
+		HWND hwnd = NULL;
+		while (PeekMessage(&lpMsg, hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&lpMsg);		// translate and dispatch to event queue
+			DispatchMessage(&lpMsg);
+		}
+		ShowLoadingScene(Message);
+
 		if (!g_mainCharacter)
 			g_mainCharacter = CNew(CMainCharacter);
 
@@ -6143,15 +6254,6 @@ CBool CMain::Load(CChar* pathName)
 		g_instancePrefab.push_back(new_instance_prefab);
 		Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 		InsertPrefab(new_prefab);
-
-		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-		{
-			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
-			{
-				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
-					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
-			}
-		}
 
 		g_instancePrefab[g_instancePrefab.size() - 1]->SetName("VANDA_MAIN_CHARACTER");
 
@@ -6248,6 +6350,17 @@ CBool CMain::Load(CChar* pathName)
 	fread(&insertStartup, sizeof(CBool), 1, filePtr);
 	if (insertStartup)
 	{
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s", "Loading startup scripts");
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
 		CChar name[MAX_NAME_SIZE];
 		CChar path[MAX_URI_SIZE];
 
@@ -6293,6 +6406,17 @@ CBool CMain::Load(CChar* pathName)
 		g_instancePrefab[i]->UpdateIsStaticOrAnimated();//init
 	}
 
+	CChar message[MAX_NAME_SIZE];
+	sprintf(message, "%s", "Generating physics");
+	MSG msg;
+	HWND m_hwnd = NULL;
+	while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+	{
+		TranslateMessage(&msg);		// translate and dispatch to event queue
+		DispatchMessage(&msg);
+	}
+	ShowLoadingScene(message);
+
 	//generate physX colliders
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -6323,6 +6447,26 @@ CBool CMain::Load(CChar* pathName)
 				}
 			}
 		}
+		if (g_currentInstancePrefab->GetHasCollider())
+		{
+			scene = g_instancePrefab[i]->GetScene(3);
+			if (scene)
+			{
+				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+				{
+					if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
+					{
+						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+					}
+					else if (scene->m_instanceGeometries[k]->m_hasPhysX)
+					{
+						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, NULL);
+					}
+				}
+				scene->m_update = CFalse;
+			}
+		}
+
 	}
 
 	if (g_physXProperties.m_bGroundPlane)
@@ -6332,6 +6476,51 @@ CBool CMain::Load(CChar* pathName)
 		NxVec3 rot2(0, 0, 0);
 		NxMat33 rot(rot0, rot1, rot2);
 		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1f, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+	}
+
+	//load the ambient sound if it exists
+	if (insertAmbientSound)
+	{
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s%s", "Loading ambient sound: ", strAmbientSoundName);
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
+		CDelete(m_ambientSound);
+		COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
+		COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
+
+		//Initialize ambient sound here
+		// Velocity of the source sound.
+		m_ambientSoundBuffer->LoadOggVorbisFromFile(AmbientSoundPath);
+		m_ambientSoundSource->BindSoundBuffer(*m_ambientSoundBuffer);
+
+		m_ambientSoundSource->SetLooping(true);
+		m_ambientSoundSource->SetPitch(pitch);
+		m_ambientSoundSource->SetVolume(volume);
+		m_soundSystem->PlayALSound(*m_ambientSoundSource);
+
+		m_ambientSound = CNew(CAmbientSound);
+		m_ambientSound->SetSoundSource(m_ambientSoundSource);
+		m_ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
+		m_ambientSound->SetName(strAmbientSoundName);
+		m_ambientSound->SetPath(AmbientSoundPath);
+		m_ambientSound->SetVolume(volume);
+		m_ambientSound->SetPitch(pitch);
+
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf( temp, "ambient sound '%s' loaded successfully\n", strAmbientSoundPath );
+		//PrintInfo2( temp );
+
+		g_databaseVariables.m_playAmbientSound = CTrue;
+		g_databaseVariables.m_insertAmbientSound = CTrue;
+
 	}
 
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )

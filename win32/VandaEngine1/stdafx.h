@@ -101,4 +101,4 @@ CInt HideGUI(lua_State *L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
-CVoid ShowLoadingScene();
+CVoid ShowLoadingScene(CChar* message = NULL);

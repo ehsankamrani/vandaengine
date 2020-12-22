@@ -29,7 +29,7 @@ public:
 	afx_msg void OnBnClickedInsert();
 	virtual BOOL OnInitDialog();
 	CVoid InsertItemToPackageList(CChar* packageName);
-	CVoid InsertItemToGUIList(CChar* guiName);
+	CVoid InsertItemToGUIList(CChar* guiName, CUInt imgIndex = -1);
 	CButton m_btnInsertGUI;
 	CImageList m_guiListImage;
 	CImageList m_packageListImage;

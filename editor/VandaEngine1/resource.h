@@ -340,6 +340,8 @@
 #define IDB_BITMAP_ENGINEOBJECTLIST_ENGINE_CAMERA 485
 #define IDD_DIALOG_ADD_CAMERA           486
 #define IDB_BITMAP_CAMERA_DISABLE       487
+#define IDD_DIALOG5                     488
+#define IDD_DIALOG_BACKUP_ALL_PROJECTS  488
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -496,6 +498,7 @@
 #define IDC_BUTTON_RESET_CAMERA_PROPERTIES 1041
 #define IDC_BUTTON_ADD_HEIGHTMAP        1041
 #define IDC_BUTTON_ACTIVATE             1041
+#define IDC_BUTTON_DESTINATION          1041
 #define IDC_BUTTON_DIFFUSE_LIGHT        1042
 #define IDC_BTN_SAVE                    1042
 #define IDC_WELCOME_BUTTON_HELP         1042
@@ -1137,13 +1140,14 @@
 #define ID_TOOLS_SCRIPT                 33057
 #define ID_SCRIPT_SELECTEDTRIGGER       33058
 #define ID_SCRIPT_KEYSANDBUTTONS        33059
+#define ID_PROJECT_BACKUPPROJECTS       33060
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        488
-#define _APS_NEXT_COMMAND_VALUE         33060
+#define _APS_NEXT_RESOURCE_VALUE        489
+#define _APS_NEXT_COMMAND_VALUE         33061
 #define _APS_NEXT_CONTROL_VALUE         1258
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

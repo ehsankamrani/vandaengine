@@ -621,6 +621,15 @@ BOOL CEditMaterial::OnInitDialog()
 		}
 
 	}
+	else if (m_polyGroup)
+	{
+		sprintf(ambientText, "R: %.2f, G: %.2f, B: %.2f", m_polyGroup->GetAmbient()[0], m_polyGroup->GetAmbient()[1], m_polyGroup->GetAmbient()[2]);
+		sprintf(diffuseText, "R: %.2f, G: %.2f, B: %.2f", m_polyGroup->GetDiffuse()[0], m_polyGroup->GetDiffuse()[1], m_polyGroup->GetDiffuse()[2]);
+		sprintf(specularText, "R: %.2f, G: %.2f, B: %.2f", m_polyGroup->GetSpecular()[0], m_polyGroup->GetSpecular()[1], m_polyGroup->GetSpecular()[2]);
+		sprintf(emissionText, "R: %.2f, G: %.2f, B: %.2f", m_polyGroup->GetEmission()[0], m_polyGroup->GetEmission()[1], m_polyGroup->GetEmission()[2]);
+
+	}
+
 	if (!foundAmbientDifference)
 	{
 		m_ambientColor = RGB((CInt)(m_fAmbientColor[0] * 255), (CInt)(m_fAmbientColor[1] * 255), (CInt)(m_fAmbientColor[2] * 255));

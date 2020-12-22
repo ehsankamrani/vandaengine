@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>Ehsan</author>
+      <authoring_tool>OpenCOLLADA for 3ds Max;  ;  </authoring_tool>
+    </contributor>
+    <created>2015-06-20T05:44:09</created>
+    <modified>2015-06-20T05:44:09</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="X_blin-fx">
+      <profile_COMMON>
+        <technique sid="common">
+          <blinn>
+            <emission>
+              <color>0.5 0 0 1</color>
+            </emission>
+            <ambient>
+              <color>0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color>0 0 0 1</color>
+            </diffuse>
+            <specular>
+              <color>0 0 0 1</color>
+            </specular>
+            <shininess>
+              <float>0</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </blinn>
+        </technique>
+      </profile_COMMON>
+      <extra>
+        <technique profile="OpenCOLLADA3dsMax">
+          <extended_shader>
+            <apply_reflection_dimming>0</apply_reflection_dimming>
+            <dim_level>0</dim_level>
+            <falloff_type>0</falloff_type>
+            <index_of_refraction>1.5</index_of_refraction>
+            <opacity_type>0</opacity_type>
+            <reflection_level>3</reflection_level>
+            <wire_size>1</wire_size>
+            <wire_units>0</wire_units>
+          </extended_shader>
+          <shader>
+            <ambient_diffuse_lock>0</ambient_diffuse_lock>
+            <ambient_diffuse_texture_lock>0</ambient_diffuse_texture_lock>
+            <diffuse_specular_lock>0</diffuse_specular_lock>
+            <soften>0.1</soften>
+            <use_self_illum_color>1</use_self_illum_color>
+          </shader>
+        </technique>
+      </extra>
+    </effect>
+    <effect id="Z_blin-fx">
+      <profile_COMMON>
+        <technique sid="common">
+          <blinn>
+            <emission>
+              <color>0 0 0.5 1</color>
+            </emission>
+            <ambient>
+              <color>0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color>0 0 0 1</color>
+            </diffuse>
+            <specular>
+              <color>0 0 0 1</color>
+            </specular>
+            <shininess>
+              <float>0</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </blinn>
+        </technique>
+      </profile_COMMON>
+      <extra>
+        <technique profile="OpenCOLLADA3dsMax">
+          <extended_shader>
+            <apply_reflection_dimming>0</apply_reflection_dimming>
+            <dim_level>0</dim_level>
+            <falloff_type>0</falloff_type>
+            <index_of_refraction>1.5</index_of_refraction>
+            <opacity_type>0</opacity_type>
+            <reflection_level>3</reflection_level>
+            <wire_size>1</wire_size>
+            <wire_units>0</wire_units>
+          </extended_shader>
+          <shader>
+            <ambient_diffuse_lock>0</ambient_diffuse_lock>
+            <ambient_diffuse_texture_lock>0</ambient_diffuse_texture_lock>
+            <diffuse_specular_lock>0</diffuse_specular_lock>
+            <soften>0.1</soften>
+            <use_self_illum_color>1</use_self_illum_color>
+          </shader>
+        </technique>
+      </extra>
+    </effect>
+    <effect id="Y_blin-fx">
+      <profile_COMMON>
+        <technique sid="common">
+          <blinn>
+            <emission>
+              <color>0 0.5 0 1</color>
+            </emission>
+            <ambient>
+              <color>0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color>0 0 0 1</color>
+            </diffuse>
+            <specular>
+              <color>0 0 0 1</color>
+            </specular>
+            <shininess>
+              <float>0</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </blinn>
+        </technique>
+      </profile_COMMON>
+      <extra>
+        <technique profile="OpenCOLLADA3dsMax">
+          <extended_shader>
+            <apply_reflection_dimming>0</apply_reflection_dimming>
+            <dim_level>0</dim_level>
+            <falloff_type>0</falloff_type>
+            <index_of_refraction>1.5</index_of_refraction>
+            <opacity_type>0</opacity_type>
+            <reflection_level>3</reflection_level>
+            <wire_size>1</wire_size>
+            <wire_units>0</wire_units>
+          </extended_shader>
+          <shader>
+            <ambient_diffuse_lock>0</ambient_diffuse_lock>
+            <ambient_diffuse_texture_lock>0</ambient_diffuse_texture_lock>
+            <diffuse_specular_lock>0</diffuse_specular_lock>
+            <soften>0.1</soften>
+            <use_self_illum_color>1</use_self_illum_color>
+          </shader>
+        </technique>
+      </extra>
+    </effect>
+    <effect id="ColorEffectR135G110B8">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color>0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color>0.5294118 0.4313726 0.03137255 1</color>
+            </ambient>
+            <diffuse>
+              <color>0.5294118 0.4313726 0.03137255 1</color>
+            </diffuse>
+            <specular>
+              <color>1 1 1 1</color>
+            </specular>
+            <shininess>
+              <float>0.09999999</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+      <extra>
+        <technique profile="OpenCOLLADA3dsMax">
+          <extended_shader>
+            <apply_reflection_dimming>0</apply_reflection_dimming>
+            <dim_level>0</dim_level>
+            <falloff_type>0</falloff_type>
+            <index_of_refraction>1.5</index_of_refraction>
+            <opacity_type>0</opacity_type>
+            <reflection_level>3</reflection_level>
+            <wire_size>1</wire_size>
+            <wire_units>0</wire_units>
+          </extended_shader>
+          <shader>
+            <ambient_diffuse_lock>0</ambient_diffuse_lock>
+            <ambient_diffuse_texture_lock>0</ambient_diffuse_texture_lock>
+            <diffuse_specular_lock>0</diffuse_specular_lock>
+            <soften>0.1</soften>
+            <use_self_illum_color>1</use_self_illum_color>
+          </shader>
+        </technique>
+      </extra>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="X_blin-fx-material" name="X_blin-fx">
+      <instance_effect url="#X_blin-fx"/>
+    </material>
+    <material id="Z_blin-fx-material" name="Z_blin-fx">
+      <instance_effect url="#Z_blin-fx"/>
+    </material>
+    <material id="Y_blin-fx-material" name="Y_blin-fx">
+      <instance_effect url="#Y_blin-fx"/>
+    </material>
+    <material id="ColorEffectR135G110B8-material" name="ColorEffectR135G110B8">
+      <instance_effect url="#ColorEffectR135G110B8"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="geom-XAXIS" name="XAXIS">
+      <mesh>
+        <source id="geom-XAXIS-positions">
+          <float_array id="geom-XAXIS-positions-array" count="90">-0.03329327 -0.03329327 0 0.03329327 -0.03329327 0 -0.03329327 0.03329327 0 0.03329327 0.03329327 0 -0.03329327 -0.03329327 0.06658655 0.03329327 -0.03329327 0.06658655 -0.03329327 0.03329327 0.06658655 0.03329327 0.03329327 0.06658655 -0.5833113 0.005043501 0.03488774 -0.5833113 0.002198336 0.03696601 -0.5833113 -0.001318394 0.03696601 -0.5833113 -0.004163549 0.03488774 -0.5833113 -0.005250266 0.03152504 -0.5833113 -0.004163549 0.02816232 -0.5833113 -0.001318393 0.02608405 -0.5833113 0.002198347 0.02608405 -0.5833113 0.005043497 0.02816232 -0.5833113 0.006130288 0.03152504 -0.001158953 0.005043501 0.03488768 -0.001158953 0.002198336 0.03696601 -0.001158953 -0.001318394 0.03696601 -0.001158953 -0.004163549 0.03488768 -0.001158953 -0.005250266 0.03152504 -0.001158953 -0.004163549 0.02816238 -0.001158953 -0.001318393 0.02608401 -0.001158953 0.002198347 0.02608401 -0.001158953 0.005043497 0.02816238 -0.001158953 0.006130288 0.03152504 -0.5833113 4.39983e-4 0.03152505 -0.001158953 4.39983e-4 0.03152505</float_array>
+          <technique_common>
+            <accessor source="#geom-XAXIS-positions-array" count="30" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-XAXIS-normals">
+          <float_array id="geom-XAXIS-normals-array" count="198">0 0.5877904 -0.8090132 0 0.9510562 -0.3090178 0 0.9510562 -0.3090178 0 0.5877904 -0.8090132 0 0.9510561 0.3090184 0 0.9510561 0.3090184 0 0.587782 0.8090193 0 0.587782 0.8090193 0 0 1 0 0 1 0 -0.5877792 0.8090214 0 -0.5877792 0.8090214 0 -0.951055 0.3090217 0 -0.951055 0.3090217 0 -0.9510549 -0.3090218 0 -0.9510549 -0.3090218 0 -0.5877869 -0.8090158 0 -0.5877869 -0.8090158 0 0 -1 0 0 -1 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 0.9999999 0 0 1 0 0 1 0 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 -0.9999999 0 0 -1 0 0 -0.9999999 0 0 -1 0 0.9999999 0 0 1 0 0 0.9999999 0 0 1 0 0 0 0.9999999 0 0 1 0 0 0.9999999 0 0 1 0 -0.9999999 0 0 -1 0 0 -0.9999999 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#geom-XAXIS-normals-array" count="66" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-XAXIS-map1">
+          <float_array id="geom-XAXIS-map1-array" count="138">1 0 0 0 0 0 1 1 0 0 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0.3158644 0.6017323 -1.32018e-15 0.2830822 0.6244463 0 0.2830821 0.624446 4.67253e24 0.3158643 0.6017317 0 0.2425622 0.6244463 0 0.2425621 0.624446 0 0.2097801 0.6017323 0 0.20978 0.6017317 0 0.1972589 0.5649804 0 0.1972587 0.5649804 0 0.2097801 0.5282283 0 0.20978 0.528229 0 0.2425622 0.5055144 0 0.2425621 0.5055139 0 0.2830825 0.5055144 0 0.2830822 0.5055139 0 0.3158644 0.5282283 0 0.3158642 0.528229 0 0.3283865 0.5649804 -1.3202e-15 0.3283862 0.5649804 0 0.2628223 0.5649804 4.67253e24 0.2628222 0.5649804 0</float_array>
+          <technique_common>
+            <accessor source="#geom-XAXIS-map1-array" count="46" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="geom-XAXIS-vertices">
+          <input semantic="POSITION" source="#geom-XAXIS-positions"/>
+        </vertices>
+        <triangles material="X_blin-fx" count="52">
+          <input semantic="VERTEX" source="#geom-XAXIS-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#geom-XAXIS-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#geom-XAXIS-map1" offset="2" set="0"/>
+          <p>0 42 0 2 43 2 3 44 3 3 44 3 1 45 1 0 42 0 4 46 4 5 47 5 7 48 7 7 48 7 6 49 6 4 46 4 0 50 8 1 51 9 5 52 11 5 52 11 4 53 10 0 50 8 1 54 12 3 55 13 7 56 15 7 56 15 5 57 14 1 54 12 3 58 16 2 59 17 6 60 19 6 60 19 7 61 18 3 58 16 2 62 20 0 63 21 4 64 23 4 64 23 6 65 22 2 62 20 8 0 24 9 1 25 18 3 27 18 3 27 9 1 25 19 2 26 9 1 25 10 4 28 19 2 26 19 2 26 10 4 28 20 5 29 10 4 28 11 6 30 20 5 29 20 5 29 11 6 30 21 7 31 11 6 30 12 8 32 21 7 31 21 7 31 12 8 32 22 9 33 12 8 32 13 10 34 22 9 33 22 9 33 13 10 34 23 11 35 13 10 34 14 12 36 23 11 35 23 11 35 14 12 36 24 13 37 14 12 36 15 14 38 24 13 37 24 13 37 15 14 38 25 15 39 15 14 38 16 16 40 25 15 39 25 15 39 16 16 40 26 17 41 16 16 40 17 18 42 26 17 41 26 17 41 17 18 42 27 19 43 17 18 42 8 0 24 27 19 43 27 19 43 8 0 24 18 3 27 9 20 25 8 21 24 28 22 44 10 23 28 9 20 25 28 22 44 11 24 30 10 23 28 28 22 44 12 25 32 11 24 30 28 22 44 13 26 34 12 25 32 28 22 44 14 27 36 13 26 34 28 22 44 15 28 38 14 27 36 28 22 44 16 29 40 15 28 38 28 22 44 17 30 42 16 29 40 28 22 44 8 21 24 17 30 42 28 22 44 18 31 27 19 32 26 29 33 45 19 32 26 20 34 29 29 33 45 20 34 29 21 35 31 29 33 45 21 35 31 22 36 33 29 33 45 22 36 33 23 37 35 29 33 45 23 37 35 24 38 37 29 33 45 24 38 37 25 39 39 29 33 45 25 39 39 26 40 41 29 33 45 26 40 41 27 41 43 29 33 45 27 41 43 18 31 27 29 33 45</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="geom-ZAXIS" name="ZAXIS">
+      <mesh>
+        <source id="geom-ZAXIS-positions">
+          <float_array id="geom-ZAXIS-positions-array" count="90">-0.03329327 -0.03329327 0 0.03329327 -0.03329327 0 -0.03329327 0.03329327 0 0.03329327 0.03329327 0 -0.03329327 -0.03329327 0.06658655 0.03329327 -0.03329327 0.06658655 -0.03329327 0.03329327 0.06658655 0.03329327 0.03329327 0.06658655 0.001991902 0.5706025 0.0348598 -8.77034e-4 0.5706025 0.03692079 -0.004423146 0.5706025 0.03692079 -0.007292149 0.5706025 0.0348598 -0.008387958 0.5706025 0.03152504 -0.007292146 0.5706025 0.02819026 -0.004423146 0.5706025 0.02612927 -8.77034e-4 0.5706025 0.02612927 0.001991902 0.5706025 0.02819026 0.00308774 0.5706025 0.03152504 0.001991902 -0.01154959 0.03485976 -8.77034e-4 -0.01154959 0.03692078 -0.004423146 -0.01154959 0.03692078 -0.007292149 -0.01154959 0.03485976 -0.008387958 -0.01154965 0.03152502 -0.007292146 -0.01154965 0.02819028 -0.004423146 -0.01154959 0.02612927 -8.77034e-4 -0.01154959 0.02612927 0.001991902 -0.01154965 0.02819028 0.00308774 -0.01154965 0.03152502 -0.002650134 0.5706025 0.03152505 -0.002650134 -0.01154965 0.03152502</float_array>
+          <technique_common>
+            <accessor source="#geom-ZAXIS-positions-array" count="30" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-ZAXIS-normals">
+          <float_array id="geom-ZAXIS-normals-array" count="198">0.8090166 0.5877858 0 0.3090174 0.9510564 0 0.3090174 0.9510564 0 0.8090166 0.5877858 0 -0.3090119 0.9510581 0 -0.3090119 0.9510581 0 -0.8090158 0.5877869 0 -0.8090158 0.5877869 0 -1 0 0 -1 0 0 -0.8090153 -0.5877875 0 -0.8090153 -0.5877875 0 -0.3090115 -0.9510583 0 -0.3090115 -0.9510583 0 0.3090166 -0.9510567 0 0.3090166 -0.9510567 0 0.8090162 -0.5877863 0 0.8090162 -0.5877863 0 1 0 0 1 0 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 3.2254e-6 -1 9.98667e-6 4.41489e-12 -1 2.43605e-6 -3.22535e-6 -1 9.98675e-6 -3.18522e-6 -0.9999999 1.344e-5 0 -1 8.93692e-6 5.15372e-6 -1 -7.17406e-6 5.21865e-6 -1 -1.27614e-5 -5.21874e-6 -1 -1.27615e-5 -5.15376e-6 -1 -7.17416e-6 0 -1 8.93692e-6 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 -0.9999999 0 0 -1 0 0 -0.9999999 0 0 -1 0 0.9999999 0 0 1 0 0 0.9999999 0 0 1 0 0 0 0.9999999 0 0 1 0 0 0.9999999 0 0 1 0 -0.9999999 0 0 -1 0 0 -0.9999999 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#geom-ZAXIS-normals-array" count="66" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-ZAXIS-map1">
+          <float_array id="geom-ZAXIS-map1-array" count="138">1 0 0 0 0 0 1 1 0 0 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0.8189747 0.1734834 0 0.8189747 0.1860012 0 0.2703045 0.1860012 0 0.2703045 0.1734832 1.80588e28 0.8189747 0.1860012 0 0.2703045 0.1860012 0 0.8189747 0.1734834 0 0.2703045 0.1734832 0 0.8189747 0.153229 9.92437e27 0.2703045 0.153229 0 0.8189747 0.1329745 0 0.2703045 0.1329747 1.74864e25 0.8189747 0.1204567 0 0.2703045 0.1204567 0 0.8189747 0.1204567 0 0.2703045 0.1204567 0 0.8189747 0.1329745 2054.063 0.2703045 0.1329747 0 0.8189747 0.153229 0 0.2703045 0.153229 0 0.8189747 0.153229 0 0.2703045 0.153229 0</float_array>
+          <technique_common>
+            <accessor source="#geom-ZAXIS-map1-array" count="46" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="geom-ZAXIS-vertices">
+          <input semantic="POSITION" source="#geom-ZAXIS-positions"/>
+        </vertices>
+        <triangles material="Z_blin-fx" count="52">
+          <input semantic="VERTEX" source="#geom-ZAXIS-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#geom-ZAXIS-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#geom-ZAXIS-map1" offset="2" set="0"/>
+          <p>0 42 0 2 43 2 3 44 3 3 44 3 1 45 1 0 42 0 4 46 4 5 47 5 7 48 7 7 48 7 6 49 6 4 46 4 0 50 8 1 51 9 5 52 11 5 52 11 4 53 10 0 50 8 1 54 12 3 55 13 7 56 15 7 56 15 5 57 14 1 54 12 3 58 16 2 59 17 6 60 19 6 60 19 7 61 18 3 58 16 2 62 20 0 63 21 4 64 23 4 64 23 6 65 22 2 62 20 8 0 24 9 1 25 18 3 27 18 3 27 9 1 25 19 2 26 9 1 25 10 4 28 19 2 26 19 2 26 10 4 28 20 5 29 10 4 28 11 6 30 20 5 29 20 5 29 11 6 30 21 7 31 11 6 30 12 8 32 21 7 31 21 7 31 12 8 32 22 9 33 12 8 32 13 10 34 22 9 33 22 9 33 13 10 34 23 11 35 13 10 34 14 12 36 23 11 35 23 11 35 14 12 36 24 13 37 14 12 36 15 14 38 24 13 37 24 13 37 15 14 38 25 15 39 15 14 38 16 16 40 25 15 39 25 15 39 16 16 40 26 17 41 16 16 40 17 18 42 26 17 41 26 17 41 17 18 42 27 19 43 17 18 42 8 0 24 27 19 43 27 19 43 8 0 24 18 3 27 9 20 25 8 21 24 28 22 44 10 23 28 9 20 25 28 22 44 11 24 30 10 23 28 28 22 44 12 25 32 11 24 30 28 22 44 13 26 34 12 25 32 28 22 44 14 27 36 13 26 34 28 22 44 15 28 38 14 27 36 28 22 44 16 29 40 15 28 38 28 22 44 17 30 42 16 29 40 28 22 44 8 21 24 17 30 42 28 22 44 18 31 27 19 32 26 29 33 45 19 32 26 20 34 29 29 33 45 20 34 29 21 35 31 29 33 45 21 35 31 22 36 33 29 33 45 22 36 33 23 37 35 29 33 45 23 37 35 24 38 37 29 33 45 24 38 37 25 39 39 29 33 45 25 39 39 26 40 41 29 33 45 26 40 41 27 41 43 29 33 45 27 41 43 18 31 27 29 33 45</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="geom-YAXIS" name="YAXIS">
+      <mesh>
+        <source id="geom-YAXIS-positions">
+          <float_array id="geom-YAXIS-positions-array" count="90">-0.03329327 -0.03329327 0 0.03329327 -0.03329327 0 -0.03329327 0.03329327 0 0.03329327 0.03329327 0 -0.03329327 -0.03329327 0.06658655 0.03329327 -0.03329327 0.06658655 -0.03329327 0.03329327 0.06658655 0.03329327 0.03329327 0.06658655 0.003567416 0.003608336 -0.5551646 7.05173e-4 0.005683105 -0.5551646 -0.002832637 0.005683105 -0.5551646 -0.005694886 0.003608336 -0.5551646 -0.006788177 2.50883e-4 -0.5551646 -0.005694883 -0.003106445 -0.5551646 -0.002832637 -0.005181374 -0.5551646 7.05173e-4 -0.005181374 -0.5551646 0.003567416 -0.003106445 -0.5551646 0.004660711 2.50883e-4 -0.5551646 0.003567416 0.003608323 0.02698743 7.05173e-4 0.005683091 0.02698743 -0.002832637 0.005683091 0.02698743 -0.005694886 0.003608323 0.02698743 -0.006788177 2.50871e-4 0.02698743 -0.005694883 -0.003106458 0.02698743 -0.002832637 -0.005181387 0.02698743 7.05173e-4 -0.005181387 0.02698743 0.003567416 -0.003106458 0.02698743 0.004660711 2.50871e-4 0.02698743 -0.001063731 2.50872e-4 -0.5551646 -0.001063731 2.50847e-4 0.02698743</float_array>
+          <technique_common>
+            <accessor source="#geom-YAXIS-positions-array" count="30" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-YAXIS-normals">
+          <float_array id="geom-YAXIS-normals-array" count="198">0.8090028 0 -0.5878047 0.3089936 0 -0.9510641 0.3089936 0 -0.9510641 0.8090028 0 -0.5878047 -0.3089931 0 -0.9510643 -0.3089931 0 -0.9510643 -0.8090029 0 -0.5878047 -0.8090029 0 -0.5878047 -1 0 0 -1 0 0 -0.8090106 0 0.5877941 -0.8090106 0 0.5877941 -0.3090113 0 0.9510584 -0.3090113 0 0.9510584 0.3090114 0 0.9510583 0.3090114 0 0.9510583 0.8090106 0 0.587794 0.8090106 0 0.587794 1 0 0 1 0 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 0 1 0 0 1 0 0 0.9999999 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 -0.9999999 0 0 -1 0 0 -0.9999999 0 0 -1 0 0.9999999 0 0 1 0 0 0.9999999 0 0 1 0 0 0 0.9999999 0 0 1 0 0 0.9999999 0 0 1 0 -0.9999999 0 0 -1 0 0 -0.9999999 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#geom-YAXIS-normals-array" count="66" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-YAXIS-map1">
+          <float_array id="geom-YAXIS-map1-array" count="138">1 0 0 0 0 0 1 1 0 0 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0.7962313 0.3232556 3.7742e19 0.8169072 0.3232556 -9.89092e-6 0.8169072 0.8533558 -6.6967e-12 0.7962313 0.8533558 0 0.8169072 0.3232556 0 0.8169072 0.8533558 3.7742e19 0.7962313 0.3232556 0 0.7962313 0.8533558 0 0.7627726 0.3232556 0 0.7627726 0.8533558 0 0.7293152 0.3232556 0 0.7293152 0.8533558 0 0.7086375 0.3232556 0 0.7086375 0.8533558 0 0.7086375 0.3232556 0 0.7086375 0.8533558 0 0.7293152 0.3232556 0 0.7293152 0.8533558 0 0.7627726 0.3232556 -1.3202e-15 0.7627726 0.8533558 0 0.7627726 0.3232556 4.67385e24 0.7627726 0.8533558 0</float_array>
+          <technique_common>
+            <accessor source="#geom-YAXIS-map1-array" count="46" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="geom-YAXIS-vertices">
+          <input semantic="POSITION" source="#geom-YAXIS-positions"/>
+        </vertices>
+        <triangles material="Y_blin-fx" count="52">
+          <input semantic="VERTEX" source="#geom-YAXIS-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#geom-YAXIS-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#geom-YAXIS-map1" offset="2" set="0"/>
+          <p>0 42 0 2 43 2 3 44 3 3 44 3 1 45 1 0 42 0 4 46 4 5 47 5 7 48 7 7 48 7 6 49 6 4 46 4 0 50 8 1 51 9 5 52 11 5 52 11 4 53 10 0 50 8 1 54 12 3 55 13 7 56 15 7 56 15 5 57 14 1 54 12 3 58 16 2 59 17 6 60 19 6 60 19 7 61 18 3 58 16 2 62 20 0 63 21 4 64 23 4 64 23 6 65 22 2 62 20 8 0 24 9 1 25 18 3 27 18 3 27 9 1 25 19 2 26 9 1 25 10 4 28 19 2 26 19 2 26 10 4 28 20 5 29 10 4 28 11 6 30 20 5 29 20 5 29 11 6 30 21 7 31 11 6 30 12 8 32 21 7 31 21 7 31 12 8 32 22 9 33 12 8 32 13 10 34 22 9 33 22 9 33 13 10 34 23 11 35 13 10 34 14 12 36 23 11 35 23 11 35 14 12 36 24 13 37 14 12 36 15 14 38 24 13 37 24 13 37 15 14 38 25 15 39 15 14 38 16 16 40 25 15 39 25 15 39 16 16 40 26 17 41 16 16 40 17 18 42 26 17 41 26 17 41 17 18 42 27 19 43 17 18 42 8 0 24 27 19 43 27 19 43 8 0 24 18 3 27 9 20 25 8 21 24 28 22 44 10 23 28 9 20 25 28 22 44 11 24 30 10 23 28 28 22 44 12 25 32 11 24 30 28 22 44 13 26 34 12 25 32 28 22 44 14 27 36 13 26 34 28 22 44 15 28 38 14 27 36 28 22 44 16 29 40 15 28 38 28 22 44 17 30 42 16 29 40 28 22 44 8 21 24 17 30 42 28 22 44 18 31 27 19 32 26 29 33 45 19 32 26 20 34 29 29 33 45 20 34 29 21 35 31 29 33 45 21 35 31 22 36 33 29 33 45 22 36 33 23 37 35 29 33 45 23 37 35 24 38 37 29 33 45 24 38 37 25 39 39 29 33 45 25 39 39 26 40 41 29 33 45 26 40 41 27 41 43 29 33 45 27 41 43 18 31 27 29 33 45</p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="geom-XYZ" name="XYZ">
+      <mesh>
+        <source id="geom-XYZ-positions">
+          <float_array id="geom-XYZ-positions-array" count="24">-0.317883 -0.2482903 0 0.317883 -0.2482903 0 -0.317883 0.2482903 0 0.317883 0.2482903 0 -0.317883 -0.2482903 0 0.317883 -0.2482903 0 -0.317883 0.2482903 0 0.317883 0.2482903 0</float_array>
+          <technique_common>
+            <accessor source="#geom-XYZ-positions-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-XYZ-normals">
+          <float_array id="geom-XYZ-normals-array" count="72">0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0</float_array>
+          <technique_common>
+            <accessor source="#geom-XYZ-normals-array" count="24" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-XYZ-map1">
+          <float_array id="geom-XYZ-map1-array" count="36">0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0</float_array>
+          <technique_common>
+            <accessor source="#geom-XYZ-map1-array" count="12" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="geom-XYZ-vertices">
+          <input semantic="POSITION" source="#geom-XYZ-positions"/>
+        </vertices>
+        <triangles material="ColorEffectR135G110B8" count="12">
+          <input semantic="VERTEX" source="#geom-XYZ-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#geom-XYZ-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#geom-XYZ-map1" offset="2" set="0"/>
+          <p>0 0 9 2 1 11 3 2 10 3 2 10 1 3 8 0 0 9 4 4 8 5 5 9 7 6 11 7 6 11 6 7 10 4 4 8 0 8 0 1 9 0 5 10 0 5 10 0 4 11 0 0 8 0 1 12 0 3 13 1 7 14 1 7 14 1 5 15 0 1 12 0 3 16 1 2 17 1 6 18 1 6 18 1 7 19 1 3 16 1 2 20 1 0 21 0 4 22 0 4 22 0 6 23 1 2 20 1</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_lights>
+    <light id="EnvironmentAmbientLight" name="EnvironmentAmbientLight">
+      <technique_common>
+        <ambient>
+          <color>0 0 0</color>
+        </ambient>
+      </technique_common>
+    </light>
+  </library_lights>
+  <library_visual_scenes>
+    <visual_scene id="MaxScene">
+      <node name="EnvironmentAmbientLight">
+        <instance_light url="#EnvironmentAmbientLight"/>
+      </node>
+      <node id="node-XAXIS" name="XAXIS">
+        <matrix>2.3158 0 0 1.295682 0 2.3158 0 0.0541313 0 0 2.3158 -0.1281559 0 0 0 1</matrix>
+        <instance_geometry url="#geom-XAXIS">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="X_blin-fx" target="#X_blin-fx-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-ZAXIS" name="ZAXIS">
+        <matrix>2.3158 0 0 -0.04901302 0 2.3158 0 -1.266251 0 0 2.3158 -0.1281559 0 0 0 1</matrix>
+        <instance_geometry url="#geom-ZAXIS">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Z_blin-fx" target="#Z_blin-fx-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-YAXIS" name="YAXIS">
+        <matrix>2.3158 0 0 -0.05268681 0 2.3158 0 0.05456924 0 0 2.3158 1.2305 0 0 0 1</matrix>
+        <instance_geometry url="#geom-YAXIS">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Y_blin-fx" target="#Y_blin-fx-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+      <node id="node-XYZ" name="XYZ">
+        <matrix>1.131256 0 0 0.3351924 0 1.3 0 -0.3079667 0 0 1.3 -0.05937757 0 0 0 1</matrix>
+        <instance_geometry url="#geom-XYZ">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="ColorEffectR135G110B8" target="#ColorEffectR135G110B8-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+        <extra>
+          <technique profile="OpenCOLLADA">
+            <cast_shadows>1</cast_shadows>
+            <primary_visibility>1</primary_visibility>
+            <receive_shadows>1</receive_shadows>
+            <secondary_visibility>1</secondary_visibility>
+          </technique>
+        </extra>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#MaxScene"/>
+  </scene>
+</COLLADA>

@@ -462,6 +462,9 @@
     <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BackupAllProjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddAmbientSound.h">
@@ -945,6 +948,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScriptEngine\LuaForCpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BackupAllProjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

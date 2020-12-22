@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>ehsan</author>
+      <authoring_tool>OpenCOLLADA2010</authoring_tool>
+      <comments>
+			ColladaMaya export options: 
+			bakeTransforms=0;relativePaths=0;copyTextures=0;exportTriangles=1;exportCgfxFileReferences=0;
+			isSampling=0;curveConstrainSampling=0;removeStaticCurves=0;exportPolygonMeshes=1;exportLights=0;
+			exportCameras=0;exportJointsAndSkin=0;exportAnimations=0;exportInvisibleNodes=0;exportDefaultCameras=0;
+			exportTexCoords=0;exportNormals=1;exportNormalsPerVertex=0;exportVertexColors=0;exportVertexColorsPerVertex=0;
+			exportTexTangents=0;exportTangents=0;exportReferencedMaterials=1;exportMaterialsOnly=0;
+			exportXRefs=0;dereferenceXRefs=1;exportCameraAsLookat=0;cameraXFov=0;cameraYFov=1;doublePrecision=0
+		</comments>
+      <source_data>file:///E:/New%20Engine/VandaEngine/editor/PersianEngine/Assets/Engine/Arrows/Arrows.ma</source_data>
+    </contributor>
+    <created>2013-03-14T21:36:19</created>
+    <modified>2013-03-14T21:36:19</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Y_UP</up_axis>
+  </asset>
+  <library_materials>
+    <material id="Z_blin" name="Z_blin">
+      <instance_effect url="#Z_blin-fx"/>
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Z_blin-fx">
+      <profile_COMMON>
+        <technique sid="common">
+          <blinn>
+            <emission>
+              <color>0 0 0.5 1</color>
+            </emission>
+            <ambient>
+              <color>0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color>0.5 0.5 0.5 1</color>
+            </diffuse>
+            <specular>
+              <color>0 0 0 1</color>
+            </specular>
+            <shininess>
+              <float>0.3</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <reflectivity>
+              <float>0.5</float>
+            </reflectivity>
+            <transparent opaque="RGB_ZERO">
+              <color>0 0 0 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </blinn>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="ZAxis" name="ZAXISShape">
+      <mesh>
+        <source id="ZAxis-positions" name="ZAxis-positions">
+          <float_array id="ZAxis-positions-array" count="99">0.013816 0.010038 0 0.005277 0.016241 0 -0.005277 0.016241 0 -0.013816 0.010038 0 -0.017077 0 0 -0.013816 -0.010038 0 -0.005277 -0.016241 0 0.005277 -0.016241 0 0.013816 -0.010038 0 0.017077 0 0 0.013816 0.010038 0.868946 0.005277 0.016241 0.868946 -0.005277 0.016241 0.868946 -0.013816 0.010038 0.868946 -0.017077 0 0.868946 -0.013816 -0.010038 0.868946 -0.005277 -0.016241 0.868946 0.005277 -0.016241 0.868946 0.013816 -0.010038 0.868946 0.017077 0 0.868946 0 0 0 0 0 0.868946 0.054647 0.039704 0.854189 0.020873 0.064242 0.854189 -0.020873 0.064242 0.854189 -0.054647 0.039704 0.854189 -0.067548 0 0.854189 -0.054647 -0.039704 0.854189 -0.020873 -0.064242 0.854189 0.020873 -0.064242 0.854189 0.054647 -0.039704 0.854189 0.067548 0 0.854189 0 0 1.000049</float_array>
+          <technique_common>
+            <accessor source="#ZAxis-positions-array" count="33" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="ZAxis-normals" name="ZAxis-normals">
+          <float_array id="ZAxis-normals-array" count="522">0.8090166 0.5877857 0 0.3090172 0.9510565 0 0.8090166 0.5877857 0 0.8090166 0.5877857 0 0.3090172 0.9510565 0 0.3090172 0.9510565 0 0.3090172 0.9510565 0 -0.309012 0.9510581 0 0.3090172 0.9510565 0 0.3090172 0.9510565 0 -0.309012 0.9510581 0 -0.309012 0.9510581 0 -0.309012 0.9510581 0 -0.8090158 0.5877868 0 -0.309012 0.9510581 0 -0.309012 0.9510581 0 -0.8090158 0.5877868 0 -0.8090158 0.5877868 0 -0.8090158 0.5877868 0 -0.9999999 0 0 -0.8090158 0.5877868 0 -0.8090158 0.5877868 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.8090149 -0.5877879 0 -0.9999999 0 0 -0.9999999 0 0 -0.8090149 -0.5877879 0 -0.8090149 -0.5877879 0 -0.8090149 -0.5877879 0 -0.3090112 -0.9510584 0 -0.8090149 -0.5877879 0 -0.8090149 -0.5877879 0 -0.3090112 -0.9510584 0 -0.3090112 -0.9510584 0 -0.3090112 -0.9510584 0 0.3090168 -0.9510565 0 -0.3090112 -0.9510584 0 -0.3090112 -0.9510584 0 0.3090168 -0.9510565 0 0.3090168 -0.9510565 0 0.3090168 -0.9510565 0 0.8090163 -0.5877863 0 0.3090168 -0.9510565 0 0.3090168 -0.9510565 0 0.8090163 -0.5877863 0 0.8090163 -0.5877863 0 0.8090163 -0.5877863 0 0.9999999 0 0 0.8090163 -0.5877863 0 0.8090163 -0.5877863 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.8090166 0.5877857 0 0.9999999 0 0 0.9999999 0 0 0.8090166 0.5877857 0 0.8090166 0.5877857 0 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0 0 -0.9999999 0.7341177 0.5333678 0.4202259 0.280408 0.8630071 0.4202261 0 0 0.9999999 0.280408 0.8630071 0.4202261 -0.280408 0.8630071 0.4202261 0 0 0.9999999 -0.280408 0.8630071 0.4202261 -0.7341177 0.5333678 0.4202259 0 0 0.9999999 -0.7341177 0.5333678 0.4202259 -0.9074193 0 0.4202262 0 0 0.9999999 -0.9074193 0 0.4202262 -0.7341174 -0.5333676 0.4202267 0 0 0.9999999 -0.7341174 -0.5333676 0.4202267 -0.2804079 -0.8630068 0.4202269 0 0 0.9999999 -0.2804079 -0.8630068 0.4202269 0.2804089 -0.8630068 0.4202259 0 0 0.9999999 0.2804089 -0.8630068 0.4202259 0.7341182 -0.5333671 0.4202261 0 0 0.9999999 0.7341182 -0.5333671 0.4202261 0.9074193 0 0.4202262 0 0 0.9999999 0.9074193 0 0.4202262 0.7341177 0.5333678 0.4202259 0 0 0.9999999</float_array>
+          <technique_common>
+            <accessor source="#ZAxis-normals-array" count="174" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="ZAxis-vertices" name="ZAxis-vertices">
+          <input semantic="POSITION" source="#ZAxis-positions"/>
+        </vertices>
+        <triangles material="Z_blinSG" count="58">
+          <input semantic="VERTEX" source="#ZAxis-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#ZAxis-normals" offset="1"/>
+          <p>0 0 1 1 10 2 10 3 1 4 11 5 1 6 2 7 11 8 11 9 2 10 12 11 2 12 3 13 12 14 12 15 3 16 13 17 3 18 4 19 13 20 13 21 4 22 14 23 4 24 5 25 14 26 14 27 5 28 15 29 5 30 6 31 15 32 15 33 6 34 16 35 6 36 7 37 16 38 16 39 7 40 17 41 7 42 8 43 17 44 17 45 8 46 18 47 8 48 9 49 18 50 18 51 9 52 19 53 9 54 0 55 19 56 19 57 0 58 10 59 1 60 0 61 20 62 2 63 1 64 20 65 3 66 2 67 20 68 4 69 3 70 20 71 5 72 4 73 20 74 6 75 5 76 20 77 7 78 6 79 20 80 8 81 7 82 20 83 9 84 8 85 20 86 0 87 9 88 20 89 10 90 11 91 21 92 11 93 12 94 21 95 12 96 13 97 21 98 13 99 14 100 21 101 14 102 15 103 21 104 15 105 16 106 21 107 16 108 17 109 21 110 17 111 18 112 21 113 18 114 19 115 21 116 19 117 10 118 21 119 22 120 31 121 23 122 31 123 30 124 23 125 30 126 29 127 23 128 29 129 28 130 23 131 28 132 27 133 23 134 27 135 26 136 23 137 26 138 25 139 23 140 25 141 24 142 23 143 22 144 23 145 32 146 23 147 24 148 32 149 24 150 25 151 32 152 25 153 26 154 32 155 26 156 27 157 32 158 27 159 28 160 32 161 28 162 29 163 32 164 29 165 30 166 32 167 30 168 31 169 32 170 31 171 22 172 32 173</p>
+        </triangles>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADAMaya">
+          <originalMayaNodeId>ZAXISShape</originalMayaNodeId>
+          <double_sided>1</double_sided>
+        </technique>
+      </extra>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="VisualSceneNode" name="Arrows">
+      <node id="ZAXIS" name="ZAXIS" type="NODE">
+        <translate sid="translate">0 0 0</translate>
+        <rotate sid="rotateZ">0 0 1 0</rotate>
+        <rotate sid="rotateY">0 1 0 0</rotate>
+        <rotate sid="rotateX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
+        <instance_geometry url="#ZAxis">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Z_blinSG" target="#Z_blin"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+        <extra>
+          <technique profile="OpenCOLLADAMaya">
+            <originalMayaNodeId>ZAXIS</originalMayaNodeId>
+          </technique>
+        </extra>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#VisualSceneNode"/>
+  </scene>
+</COLLADA>

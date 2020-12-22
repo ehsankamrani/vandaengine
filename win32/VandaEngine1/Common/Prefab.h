@@ -38,7 +38,8 @@ private:
 	CVec3f m_scale;
 	CBool m_isVisible;
 	CBool m_isSceneVisible[3];
-	CScene* m_scene[3]; //Up to 3 LODs
+	CScene* m_scene[4]; //Up to 3 LODs, one PhysX collider
+	CBool m_hasCollider;
 	CUInt m_nameIndex;
 	CVec3f m_minAABB;
 	CVec3f m_maxAABB;
@@ -142,6 +143,15 @@ public:
 
 	CChar* GetTempScriptPath() { return m_tempScriptPath; }
 	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
+
+	CVoid SetHasCollider(CBool set) { m_hasCollider = set; }
+	CBool GetHasCollider() { return m_hasCollider; }
+
+	CVoid SetIsControlledByPhysX(CBool set) { m_isControlledByPhysX = set; }
+	CVoid SetIsAnimated(CBool set) { m_isAnimated = set; }
+	CVoid SetIsStatic(CBool set) { m_isStatic = set; }
+	CVoid SetTotalLights(CBool set) { m_totalLights = set; }
+	CVoid SetCastShadow(CBool set) { m_castShadow = set; }
 
 };
 

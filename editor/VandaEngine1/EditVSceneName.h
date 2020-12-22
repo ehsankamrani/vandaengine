@@ -31,7 +31,7 @@ public:
 	CString m_strName;
 	afx_msg void OnEnChangePrefabName();
 	virtual BOOL OnInitDialog();
-	CVoid InsertItemToVSceneList(CChar* vsceneName);
+	CVoid InsertItemToVSceneList(CChar* vsceneName, CUInt imgIndex = -1);
 	CListCtrl m_listVScenes;
 	CInt m_VSceneIndex;
 	CImageList m_VSceneImage;

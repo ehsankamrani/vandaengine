@@ -117,8 +117,9 @@ CInstancePrefab::CInstancePrefab()
 	m_isSceneVisible[1] = CFalse;
 	m_isSceneVisible[2] = CFalse;
 	m_water = NULL;
-	for (CUInt i = 0; i < 3; i++)
-		m_scene[i] = NULL;
+	memset(m_scene, 0, sizeof(m_scene));
+	m_hasCollider = CFalse;
+
 	m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
 	m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
 
@@ -718,6 +719,16 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 			}
 		}
 	}
+	if (GetHasCollider())
+	{
+		CScene* scene = GetScene(3);
+		if (scene)
+		{
+			scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
+			scene->Update(0.00001);
+		}
+	}
+
 	CPrefab* prefab = GetPrefab();
 	CScene* scene = NULL;
 	if (prefab  && prefab->GetHasLod(0))

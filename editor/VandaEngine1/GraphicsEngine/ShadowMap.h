@@ -36,7 +36,7 @@ public:
 	void UpdateSplitDist(frustum f[MAX_SPLITS], float nd, float fd);
 	void UpdateFOV();
 	float ApplyCropMatrix(frustum &f, vec3f cam_pos);
-	void MakeShadowMap( float cam_pos[3], float cam_view[3], float light_dir[4] );
+	void MakeShadowMap(float cam_pos[3], float cam_view[3], float light_dir[4]);
 	void ShowDepthTex();
 
 	GLuint depth_fb, depth_rb;

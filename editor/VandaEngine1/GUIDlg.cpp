@@ -111,14 +111,6 @@ BOOL CGUIDlg::OnInitDialog()
 	m_listGUIPackages.ShowWindow(SW_SHOW);
 	m_listGUIPackages.UpdateWindow();
 
-	m_guiListImage.Create(80, 80, ILC_COLOR24, 1, 1);
-
-	cBmp.LoadBitmap(IDB_BITMAP_DEFAULT_GUI);
-	m_guiListImage.Add(&cBmp, cBmpMask);
-	cBmp.DeleteObject();
-
-	m_listGUIs.SetImageList(&m_guiListImage, LVSIL_NORMAL);
-
 	m_listGUIs.GetClientRect(&tempRect);
 	m_listGUIs.InsertColumn(0, "GUIs", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempRect.right - tempRect.left) * 80 / 100);
 	m_listGUIs.ShowWindow(SW_SHOW);
@@ -155,13 +147,13 @@ CVoid CGUIDlg::InsertItemToPackageList(CChar* packageName)
 	m_listGUIPackages.UpdateWindow();
 }
 
-CVoid CGUIDlg::InsertItemToGUIList(CChar* guiName)
+CVoid CGUIDlg::InsertItemToGUIList(CChar* guiName, CUInt imgIndex)
 {
 	m_guiIndex++;
 	int index = m_guiIndex;
 	LVITEM lvItem;
 	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
-	lvItem.iImage = 0;
+	lvItem.iImage = imgIndex;
 	lvItem.iItem = index;
 	lvItem.iSubItem = 0;
 	lvItem.pszText = guiName;
@@ -219,12 +211,48 @@ void CGUIDlg::OnLvnItemchangedListPackages(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	if (index != -1)
 	{
+		CChar docPath[MAX_URI_SIZE];
+		HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, docPath);
+		if (result != S_OK)
+		{
+			PrintInfo("\nCouldn't get the documents folder", COLOR_RED);
+			return;
+		}
+
+		CBitmap* cBmpMask = NULL;
+
+		m_guiListImage.DeleteImageList();
+		m_guiListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_guiPackagesAndNames[index].size());
+
+		for (CUInt i = 0; i < g_guiPackagesAndNames[index].size(); i++)
+		{
+			if (i == 0) continue;
+
+			CChar bitmapName[MAX_NAME_SIZE];
+			sprintf(bitmapName, "%s%s%s%s", g_guiPackagesAndNames[index][0].c_str(), "_", g_guiPackagesAndNames[index][i].c_str(), ".bmp");
+
+			CChar bitmapPath[MAX_URI_SIZE];
+			sprintf(bitmapPath, "%s%s%s%s%s%s%s", docPath, "/Vanda/GUIs/", g_guiPackagesAndNames[index][0].c_str(), "/", g_guiPackagesAndNames[index][i].c_str(), "/", bitmapName);
+
+			HBITMAP hBmp = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), bitmapPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+			if (hBmp != NULL)
+			{
+				CBitmap* cBmp = CBitmap::FromHandle(hBmp);
+				if (cBmp != NULL)
+					m_guiListImage.Add(cBmp, cBmpMask);
+				cBmp->DeleteObject();
+			}
+		}
+
+		m_listGUIs.SetImageList(&m_guiListImage, LVSIL_NORMAL);
+
+
 		for (CUInt i = 0; i < g_guiPackagesAndNames[index].size(); i++)
 		{
 			if (i == 0) continue;
 			CChar str[MAX_NAME_SIZE];
 			Cpy(str, g_guiPackagesAndNames[index][i].c_str());
-			InsertItemToGUIList(str);
+			InsertItemToGUIList(str, i - 1);
 		}
 	}
 	*pResult = 0;
@@ -660,12 +688,48 @@ void CGUIDlg::OnBnClickedDeleteGUI()
 				m_listGUIs.DeleteItem(nItem);
 			}
 
+			CChar docPath[MAX_URI_SIZE];
+			HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, docPath);
+			if (result != S_OK)
+			{
+				PrintInfo("\nCouldn't get the documents folder", COLOR_RED);
+				return;
+			}
+
+			CBitmap* cBmpMask = NULL;
+
+			m_guiListImage.DeleteImageList();
+			m_guiListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_guiPackagesAndNames[packageIndex].size());
+
+			for (CUInt i = 0; i < g_guiPackagesAndNames[packageIndex].size(); i++)
+			{
+				if (i == 0) continue;
+
+				CChar bitmapName[MAX_NAME_SIZE];
+				sprintf(bitmapName, "%s%s%s%s", g_guiPackagesAndNames[packageIndex][0].c_str(), "_", g_guiPackagesAndNames[packageIndex][i].c_str(), ".bmp");
+
+				CChar bitmapPath[MAX_URI_SIZE];
+				sprintf(bitmapPath, "%s%s%s%s%s%s%s", docPath, "/Vanda/GUIs/", g_guiPackagesAndNames[packageIndex][0].c_str(), "/", g_guiPackagesAndNames[packageIndex][i].c_str(), "/", bitmapName);
+
+				HBITMAP hBmp = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), bitmapPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+				if (hBmp != NULL)
+				{
+					CBitmap* cBmp = CBitmap::FromHandle(hBmp);
+					if (cBmp != NULL)
+						m_guiListImage.Add(cBmp, cBmpMask);
+					cBmp->DeleteObject();
+				}
+			}
+
+			m_listGUIs.SetImageList(&m_guiListImage, LVSIL_NORMAL);
+
+
 			for (CUInt i = 0; i < g_guiPackagesAndNames[packageIndex].size(); i++)
 			{
 				if (i == 0) continue;
 				CChar str[MAX_NAME_SIZE];
 				Cpy(str, g_guiPackagesAndNames[packageIndex][i].c_str());
-				InsertItemToGUIList(str);
+				InsertItemToGUIList(str, i - 1);
 			}
 			m_listGUIs.UpdateWindow();
 		}

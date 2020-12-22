@@ -123,16 +123,6 @@ BOOL CEditVSceneName::OnInitDialog()
 	RECT tempRect;
 	m_listVScenes.GetClientRect(&tempRect);
 
-	CBitmap cBmp;
-	CBitmap* cBmpMask = NULL;
-	m_VSceneImage.Create(80, 80, ILC_COLOR24, 1, 1);
-
-	cBmp.LoadBitmap(IDB_BITMAP_DEFAULT_VIN);
-	m_VSceneImage.Add(&cBmp, cBmpMask);
-	cBmp.DeleteObject();
-
-	m_listVScenes.SetImageList(&m_VSceneImage, LVSIL_NORMAL);
-
 	m_listVScenes.GetClientRect(&tempRect);
 	m_listVScenes.InsertColumn(0, "VScenes", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempRect.right - tempRect.left) * 80 / 100);
 	m_listVScenes.ShowWindow(SW_SHOW);
@@ -141,11 +131,38 @@ BOOL CEditVSceneName::OnInitDialog()
 	//insert items
 	m_listVScenes.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE);
 
+
+	CBitmap* cBmpMask = NULL;
+
+	m_VSceneImage.DeleteImageList();
+	m_VSceneImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
+
+	for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
+	{
+		CChar VScene_str[MAX_NAME_SIZE];
+		Cpy(VScene_str, g_VSceneNamesOfCurrentProject[i].c_str());
+		GetWithoutDot(VScene_str);
+
+		CChar BitmapPath[MAX_NAME_SIZE];
+		sprintf(BitmapPath, "%s%s%s%s%s", g_currentProjectPath, VScene_str, "/", VScene_str, ".bmp");
+
+		HBITMAP hBmp = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), BitmapPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+		if (hBmp != NULL)
+		{
+			CBitmap* cBmp = CBitmap::FromHandle(hBmp);
+			if (cBmp != NULL)
+				m_VSceneImage.Add(cBmp, cBmpMask);
+			cBmp->DeleteObject();
+		}
+	}
+
+	m_listVScenes.SetImageList(&m_VSceneImage, LVSIL_NORMAL);
+
 	for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 	{
 		CChar str[MAX_NAME_SIZE];
 		Cpy(str, g_VSceneNamesOfCurrentProject[i].c_str());
-		InsertItemToVSceneList(str);
+		InsertItemToVSceneList(str, i);
 	}
 
 	m_editName.SetWindowTextA("");
@@ -153,12 +170,13 @@ BOOL CEditVSceneName::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 
-CVoid CEditVSceneName::InsertItemToVSceneList(CChar* vsceneName)
+CVoid CEditVSceneName::InsertItemToVSceneList(CChar* vsceneName, CUInt imgIndex)
 {
 	m_VSceneIndex++;
 	int index = m_VSceneIndex;
 	LVITEM lvItem;
-	lvItem.mask = LVIF_TEXT;
+	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+	lvItem.iImage = imgIndex;
 	lvItem.iItem = index;
 	lvItem.iSubItem = 0;
 	lvItem.pszText = vsceneName;

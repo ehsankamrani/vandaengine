@@ -15,6 +15,7 @@
 
 #include "Animation.h"
 #include <thread>
+#include "imageLib.h"
 // CMultipleWindows
 CInt g_numLights = 0;
 CInt g_totalLights = 0;
@@ -1780,6 +1781,7 @@ CMultipleWindows::CMultipleWindows()
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
 	m_playGameMode = CFalse;
+	m_saveScreenshot = CFalse;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -3172,7 +3174,8 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 					{
 						if (g_guiButtons[k]->GetHasHoverScript())
 						{
-							LuaLoadAndExecute(g_lua, g_guiButtons[k]->GetHoverScriptPath());
+							if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
+								LuaLoadAndExecute(g_lua, g_guiButtons[k]->GetHoverScriptPath());
 						}
 					}
 					g_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
@@ -3185,6 +3188,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 		m_mouseOldPosition = m_mousePosition;
+		m_previousSelectedGUIIndex = m_selectedGUIIndex;
 		CWnd::OnMouseMove(nFlags, point);
 		return;
 
@@ -3204,7 +3208,8 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 						{
 							if (g_guis[i]->m_guiButtons[k]->GetHasHoverScript())
 							{
-								LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
+								if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
+									LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
 							}
 						}
 
@@ -3217,6 +3222,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 				}
 			}
 		}
+		m_previousSelectedGUIIndex = m_selectedGUIIndex;
 	}
 	else if (g_editorMode == eMODE_GUI && !g_multipleView->IsPlayGameMode())
 	{
@@ -3545,6 +3551,31 @@ CVoid CMultipleWindows::DrawGUIMode()
 		glMatrixMode(GL_MODELVIEW); glPopMatrix();
 	}
 
+	if (GetSaveScreenshot())
+	{
+		CChar screenshotTGAPath[MAX_URI_SIZE];
+		sprintf(screenshotTGAPath, "%s%s", GetScreenshotPath(), ".tga");
+
+		g_glUtil.SaveScreenShot(screenshotTGAPath, g_width, g_height);
+		ILboolean loaded = ilLoadImage(screenshotTGAPath);
+		if (loaded != IL_FALSE)
+		{
+			iluImageParameter(ILU_FILTER, ILU_SCALE_LANCZOS3);
+
+			iluScale((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ilGetInteger(IL_IMAGE_DEPTH));
+
+			ilEnable(IL_FILE_OVERWRITE);
+
+			CChar screenshotBMPPath[MAX_URI_SIZE];
+			sprintf(screenshotBMPPath, "%s%s", GetScreenshotPath(), ".bmp");
+
+			ilSaveImage(screenshotBMPPath);
+
+			DeleteFile(screenshotTGAPath);
+
+		}
+		SetSaveScreenshot(CFalse);
+	}
 
 }
 
@@ -4665,6 +4696,16 @@ CVoid CMultipleWindows::DrawPerspective()
 		PrintInfo( "\nOctree updated successfully", COLOR_RED_GREEN );
 		PrintInfo( "\nReady", COLOR_GREEN );
 
+		g_maxInstancePrefabRadius = -1.f;
+		//update shadow max radius
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
 	}
 	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	{
@@ -4909,15 +4950,15 @@ CVoid CMultipleWindows::DrawPerspective()
 
 	}
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-	if( !g_useOldRenderingStyle && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && g_options.m_enableFBO)
 	{
-		if( g_dofProperties.m_enable )
+		if (g_dofProperties.m_enable)
 		{
 			glUseProgram(g_render.m_dofProgram[1]);
-			if( g_dofProperties.m_debug )
-				glUniform1i(glGetUniformLocation( g_render.m_dofProgram[1] , "debugMode"), CTrue);
+			if (g_dofProperties.m_debug)
+				glUniform1i(glGetUniformLocation(g_render.m_dofProgram[1], "debugMode"), CTrue);
 			else
-				glUniform1i(glGetUniformLocation( g_render.m_dofProgram[1] , "debugMode"), CFalse);
+				glUniform1i(glGetUniformLocation(g_render.m_dofProgram[1], "debugMode"), CFalse);
 
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
@@ -4935,8 +4976,8 @@ CVoid CMultipleWindows::DrawPerspective()
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glBindTexture(GL_TEXTURE_2D, m_textureTarget[0]);
 			glUseProgram(g_render.m_dofProgram[0]);
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[0], "Tex0"), 0 );
-			glViewport(0, 0, g_width/2, g_height/2);
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[0], "Tex0"), 0);
+			glViewport(0, 0, g_width / 2, g_height / 2);
 			m_dof.DrawQuad();
 
 			/* Third pass: Gaussian filtering along the X axis */
@@ -4945,16 +4986,16 @@ CVoid CMultipleWindows::DrawPerspective()
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glBindTexture(GL_TEXTURE_2D, m_dof.m_texid[0]);
 			glUseProgram(g_render.m_dofProgram[1]);
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[1], "Tex0"), 0 );
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[1], "Width"), g_width );
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[1], "Tex0"), 0);
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[1], "Width"), g_width);
 			m_dof.DrawQuad();
 
 			/* Fourth pass: Gaussian filtering along the Y axis */
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_dof.m_fbo[2]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(g_render.m_dofProgram[2]);
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[2], "Tex0"), 0 );
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[2], "Height"), g_height );
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[2], "Tex0"), 0);
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[2], "Height"), g_height);
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glBindTexture(GL_TEXTURE_2D, m_dof.m_texid[1]);
 			m_dof.DrawQuad();
@@ -4968,24 +5009,24 @@ CVoid CMultipleWindows::DrawPerspective()
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, m_dof.m_texid[2]);
 			glUseProgram(g_render.m_dofProgram[3]);
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[3], "Tex0"), 0 );
-			glUniform1i( glGetUniformLocation(g_render.m_dofProgram[3], "Tex1"), 1 );
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[3], "Tex0"), 0);
+			glUniform1i(glGetUniformLocation(g_render.m_dofProgram[3], "Tex1"), 1);
 
 			glViewport(0, 0, g_width, g_height);
 
 			glBegin(GL_QUADS);
-				glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
-				glMultiTexCoord2f(GL_TEXTURE1, 0.0f, 0.0f);
-				glVertex2d(-1, -1);
-				glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
-				glMultiTexCoord2f(GL_TEXTURE1, 1.0f, 0.0f);
-				glVertex2d(1, -1);
-				glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
-				glMultiTexCoord2f(GL_TEXTURE1, 1.0f, 1.0f);
-				glVertex2d(1, 1);
-				glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
-				glMultiTexCoord2f(GL_TEXTURE1, 0.0f, 1.0f);
-				glVertex2d(-1, 1);
+			glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f);
+			glMultiTexCoord2f(GL_TEXTURE1, 0.0f, 0.0f);
+			glVertex2d(-1, -1);
+			glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f);
+			glMultiTexCoord2f(GL_TEXTURE1, 1.0f, 0.0f);
+			glVertex2d(1, -1);
+			glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f);
+			glMultiTexCoord2f(GL_TEXTURE1, 1.0f, 1.0f);
+			glVertex2d(1, 1);
+			glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f);
+			glMultiTexCoord2f(GL_TEXTURE1, 0.0f, 1.0f);
+			glVertex2d(-1, 1);
 			glEnd();
 
 			glMatrixMode(GL_PROJECTION);
@@ -4994,33 +5035,33 @@ CVoid CMultipleWindows::DrawPerspective()
 			glPopMatrix();
 		}
 
-		if( !g_menu.m_justPerspective )
-			glViewport( 0, 0 , m_width / 2, m_height / 2 );// resets the viewport to new dimensions.
+		if (!g_menu.m_justPerspective)
+			glViewport(0, 0, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
 
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glUseProgram(0);
-		glDrawBuffer( GL_BACK );
-		glClear( GL_COLOR_BUFFER_BIT );
-		glPushAttrib( GL_ENABLE_BIT );
+		glDrawBuffer(GL_BACK);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glPushAttrib(GL_ENABLE_BIT);
 		glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
-		gluOrtho2D(0, g_width, 0, g_height );
+		gluOrtho2D(0, g_width, 0, g_height);
 		glMatrixMode(GL_MODELVIEW); glPushMatrix();	glLoadIdentity();
-		glDisable( GL_LIGHTING );
+		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 		CBool found = CFalse;
-		glBindTexture( GL_TEXTURE_2D, m_textureTarget[0] );
+		glBindTexture(GL_TEXTURE_2D, m_textureTarget[0]);
 
-		if( !found )
-			if( g_dofProperties.m_enable )
+		if (!found)
+			if (g_dofProperties.m_enable)
 			{
-				glBindTexture( GL_TEXTURE_2D, m_dof.m_texid[3] );
+				glBindTexture(GL_TEXTURE_2D, m_dof.m_texid[3]);
 				found = CTrue;
 			}
 
-		glEnable( GL_TEXTURE_2D);
+		glEnable(GL_TEXTURE_2D);
 		glClearColor(0.37f, 0.37f, 0.37f, 1.0f);
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//if( !found ) //render default texture with deferred shader
 		//{
@@ -5038,49 +5079,90 @@ CVoid CMultipleWindows::DrawPerspective()
 		//glUniform3fv(glGetUniformLocation(g_render.m_deferredProgram, "cameraPosition"), 1, cameraPos);
 		//}
 
-		glBegin(GL_QUADS); 
-		glTexCoord2d(0,	0);	glVertex2d(0, 0); 
+		glBegin(GL_QUADS);
+		glTexCoord2d(0, 0);	glVertex2d(0, 0);
 		glTexCoord2d(1, 0);	glVertex2d(g_width, 0);
-		glTexCoord2d(1, 1);	glVertex2d(g_width, g_height );
+		glTexCoord2d(1, 1);	glVertex2d(g_width, g_height);
 		glTexCoord2d(0, 1);	glVertex2d(0, g_height);
 		glEnd();
 		glUseProgram(0);
 
 		CBool useBloom;
-		if( (g_dofProperties.m_enable && g_dofProperties.m_debug ) || g_materialChannels != eCHANNELS_ALL || g_polygonMode != ePOLYGON_FILL)
+		if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || g_materialChannels != eCHANNELS_ALL || g_polygonMode != ePOLYGON_FILL)
 			useBloom = CFalse;
 		else
 			useBloom = CTrue;
 
-		if( g_render.m_useBloom && useBloom && g_bloomProperties.m_enable)
+		if (g_render.m_useBloom && useBloom && g_bloomProperties.m_enable)
 		{
-			g_bloom->CreateRuntimeTexture( g_width, g_height, m_textureTarget[0]  );
+			g_bloom->CreateRuntimeTexture(g_width, g_height, m_textureTarget[0]);
 
-			glPushAttrib( GL_CURRENT_BIT );
+			glPushAttrib(GL_CURRENT_BIT);
 
-			glEnable( GL_TEXTURE_2D );
+			glEnable(GL_TEXTURE_2D);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			glColor4f( g_bloomProperties.m_bloomColor[0], g_bloomProperties.m_bloomColor[1], g_bloomProperties.m_bloomColor[2], g_bloomProperties.m_bloomIntensity );
+			glColor4f(g_bloomProperties.m_bloomColor[0], g_bloomProperties.m_bloomColor[1], g_bloomProperties.m_bloomColor[2], g_bloomProperties.m_bloomIntensity);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture( GL_TEXTURE_2D, g_bloom->m_bloomTexture );
-			glBegin(GL_QUADS); 
-			glTexCoord2d(0,	0);	glVertex2d(0, 0); 
+			glBindTexture(GL_TEXTURE_2D, g_bloom->m_bloomTexture);
+			glBegin(GL_QUADS);
+			glTexCoord2d(0, 0);	glVertex2d(0, 0);
 			glTexCoord2d(1, 0);	glVertex2d(g_width, 0);
-			glTexCoord2d(1, 1);	glVertex2d(g_width, g_height );
+			glTexCoord2d(1, 1);	glVertex2d(g_width, g_height);
 			glTexCoord2d(0, 1);	glVertex2d(0, g_height);
 			glEnd();
-			glDisable( GL_BLEND );
+			glDisable(GL_BLEND);
 			glPopAttrib();
 		}
 
-		if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_menu.m_showDynamicShadowDepthTexture && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
- 			m_dynamicShadowMap->ShowDepthTex();
-	
+		if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_menu.m_showDynamicShadowDepthTexture && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
+			m_dynamicShadowMap->ShowDepthTex();
+
 		DrawGUI();
 		glPopAttrib();
 		glMatrixMode(GL_PROJECTION); glPopMatrix();
 		glMatrixMode(GL_MODELVIEW); glPopMatrix();
+
+		if (GetSaveScreenshot())
+		{
+			CUInt width, height;
+			if (g_menu.m_justPerspective)
+			{
+				width = g_width;
+				height = g_height;
+			}
+			else
+			{
+				width = g_width / 2;
+				height = g_height / 2;
+			}
+			CChar screenshotTGAPath[MAX_URI_SIZE];
+			sprintf(screenshotTGAPath, "%s%s", GetScreenshotPath(), ".tga");
+
+			g_glUtil.SaveScreenShot(screenshotTGAPath, width, height);
+			ILboolean loaded = ilLoadImage(screenshotTGAPath);
+			if (loaded != IL_FALSE)
+			{
+				iluImageParameter(ILU_FILTER, ILU_SCALE_LANCZOS3);
+
+				if (g_menu.m_justPerspective)
+					iluScale((CInt)((CFloat)width / 6.0f), (CInt)((CFloat)height / 6.0f), ilGetInteger(IL_IMAGE_DEPTH));
+				else
+					iluScale((CInt)((CFloat)width / 3.0f), (CInt)((CFloat)height / 3.0f), ilGetInteger(IL_IMAGE_DEPTH));
+
+				ilEnable(IL_FILE_OVERWRITE);
+
+				CChar screenshotBMPPath[MAX_URI_SIZE];
+				sprintf(screenshotBMPPath, "%s%s", GetScreenshotPath(), ".bmp");
+
+				ilSaveImage(screenshotBMPPath);
+
+				DeleteFile(screenshotTGAPath);
+
+			}
+			SetSaveScreenshot(CFalse);
+		}
+
 	}
 	else
 	{
@@ -5091,6 +5173,7 @@ CVoid CMultipleWindows::DrawPerspective()
 	ResetData();
 
 	glFlush();
+
 }
 
 CVoid CMultipleWindows::ResetData()

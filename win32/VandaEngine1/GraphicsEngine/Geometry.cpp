@@ -340,8 +340,18 @@ CVoid CPolyGroup::Draw(CNode *parentNode, CInstance * instance, CBool isSelected
 	{
 		SetupMaterialForDrawFromGameEngine(isSelected);
 	}
+	if (m_fTransparency < 1.0f)
+	{
+		glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+		glEnable(GL_BLEND);
+		glBlendColor(1.0f, 1.0f, 1.0f, m_fTransparency);
+	}
 	Render();
-	
+	if (m_fTransparency < 1.0f)
+	{
+		glDisable(GL_BLEND);
+	}
+
 	// Restore the old material state
 	//if(currentMaterial)
 	//{

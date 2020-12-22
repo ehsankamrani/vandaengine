@@ -146,40 +146,51 @@ void DeleteLoadingTexture()
 	CDelete(m_loadingImg);
 }
 
-void ShowLoadingScene()
+void ShowLoadingScene(CChar* message)
 {
 	glViewport(0, 0, g_width, g_height);
 	glPushAttrib(GL_ENABLE_BIT);
 	glUseProgram(0);
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable( GL_DEPTH_TEST );
-	glMatrixMode( GL_PROJECTION );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
 	gluOrtho2D(0, g_width, 0, g_height);
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
-	glEnable( GL_TEXTURE_2D );
-	glBindTexture( GL_TEXTURE_2D, m_loadingImg->GetId() );
-	glBegin( GL_QUADS );
-	glTexCoord2f( 0.0f, 0.0f );
-	glVertex2f( 0.0f, 0.0f );
-	glTexCoord2f( 1.0f, 0.0f );
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_loadingImg->GetId());
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2f(0.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex2f(g_width, 0.0f);
-	glTexCoord2f( 1.0f, 1.0f );
+	glTexCoord2f(1.0f, 1.0f);
 	glVertex2f(g_width, g_height);
-	glTexCoord2f( 0.0f, 1.0f );
+	glTexCoord2f(0.0f, 1.0f);
 	glVertex2f(0.0f, g_height);
 	glEnd();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
 	glPopAttrib();
+
+	if (message)
+	{
+		g_font->StartRendering();
+		g_font->Print(message, 10.0f, 40.0, 0.0f, 0.85f, 0.67f, 0.0f);
+		g_font->EndRendering();
+
+		glFlush();
+		SwapBuffers(g_window.m_windowGL.hDC);
+	}
 }
 
 GLvoid CleanUp()

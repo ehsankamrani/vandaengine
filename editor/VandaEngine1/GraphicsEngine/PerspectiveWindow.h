@@ -268,6 +268,7 @@ public:
 	CPoint m_translateMousePosition;
 	CBool m_loadData; //load initial data?
 	CUInt m_selectedGUIIndex;
+	CUInt m_previousSelectedGUIIndex;
 	//shadow
 	float cam_proj[16];
 	float cam_modelview[16];
@@ -347,6 +348,9 @@ private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_playGameMode;
 
+	CChar m_screenshotPath[MAX_URI_SIZE];
+	CBool m_saveScreenshot;
+
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );
@@ -360,6 +364,12 @@ public:
 	CVoid InitGUISelection();
 	CUInt GetSelectedGUI();
 	CVoid FinishGUISelection();
+
+	CVoid SetSaveScreenshot(CBool set) { m_saveScreenshot = set; }
+	CBool GetSaveScreenshot() { return m_saveScreenshot; }
+
+	CVoid SetScreenshotPath(CChar* path) { Cpy(m_screenshotPath, path); }
+	CChar* GetScreenshotPath() { return m_screenshotPath; }
 
 	CFloat GetElapsedTime() { return elapsedTime; }
 

@@ -23,7 +23,7 @@ protected:
 public:
 	afx_msg void OnBnClickedDelete();
 	afx_msg void OnBnClickedRename();
-	CVoid InsertItemToVSceneList(CChar* vsceneName);
+	CVoid InsertItemToVSceneList(CChar* vsceneName, CUInt imgIndex = -1);
 	void SetState(CBool open);
 	CBool m_open;
 	CListCtrl m_listVScenes;

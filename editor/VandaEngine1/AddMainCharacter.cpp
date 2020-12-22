@@ -630,7 +630,7 @@ void CAddMainCharacter::OnBnClickedOk()
 
 	NxExtendedVec3 pos;
 	pos.x = g_arrowPosition.x;
-	pos.y = g_arrowPosition.y + g_physXProperties.m_fCapsuleHeight * 0.5f;
+	pos.y = g_arrowPosition.y + (g_physXProperties.m_fCapsuleHeight * 0.5f) + g_physXProperties.m_fCapsuleRadius + g_physXProperties.m_fCharacterSkinWidth;
 	pos.z = g_arrowPosition.z;
 
 	g_multipleView->m_nx->gControllers->setPosition(pos);
@@ -1215,7 +1215,7 @@ void CAddMainCharacter::OnBnClickedCancel()
 
 		NxExtendedVec3 pos;
 		pos.x = g_arrowPosition.x;
-		pos.y = g_arrowPosition.y + g_physXProperties.m_fCapsuleHeight * 0.5f;
+		pos.y = g_arrowPosition.y + (g_physXProperties.m_fCapsuleHeight * 0.5f) + g_physXProperties.m_fCapsuleRadius + g_physXProperties.m_fCharacterSkinWidth;
 		pos.z = g_arrowPosition.z;
 
 		g_multipleView->m_nx->gControllers->setPosition(pos);

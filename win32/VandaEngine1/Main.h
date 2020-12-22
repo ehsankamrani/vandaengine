@@ -194,6 +194,9 @@ private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_publishDebug;
 	CBool m_exitGame;
+
+	CUInt m_selectedGUIIndex;
+	CUInt m_previuosSelectedGUIIndex;
 public:
 	CBool m_lockInput;
 	CBool m_loadScene;

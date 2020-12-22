@@ -47,7 +47,7 @@ public:
 	afx_msg void OnBnClickedInsert();
 	CVoid SetSelectForMainCharacter(CBool select);
 	CVoid InsertItemToPackageList(CChar* packageName);
-	CVoid InsertItemToPrefabList(CChar* prefabList);
+	CVoid InsertItemToPrefabList(CChar* prefabList, CInt imageIndex = -1);
 	CInt m_packageIndex;
 	CInt m_prefabIndex;
 	CBool m_selectForMainCharacter;

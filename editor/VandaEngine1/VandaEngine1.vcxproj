@@ -153,6 +153,7 @@
     <ClCompile Include="AddTrigger.cpp" />
     <ClCompile Include="AddWater.cpp" />
     <ClCompile Include="AudioEngine\AmbientSound.cpp" />
+    <ClCompile Include="BackupAllProjects.cpp" />
     <ClCompile Include="Common\HyperLink.cpp" />
     <ClCompile Include="Common\Prefab.cpp" />
     <ClCompile Include="Common\Startup.cpp" />
@@ -307,6 +308,7 @@
     <ClInclude Include="AddTrigger.h" />
     <ClInclude Include="AddWater.h" />
     <ClInclude Include="AudioEngine\AmbientSound.h" />
+    <ClInclude Include="BackupAllProjects.h" />
     <ClInclude Include="Common\HyperLink.h" />
     <ClInclude Include="Common\Prefab.h" />
     <ClInclude Include="Common\Startup.h" />

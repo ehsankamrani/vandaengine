@@ -87,7 +87,8 @@ CVoid COpenGLUtility::SaveScreenShot( CChar* fileName, CInt16 CInt width, CInt16
 {
 	CUChar* pImageData = (CUChar*)malloc( width * height * 3 );
 	memset( pImageData, 0, width * height * 3 );
-	glReadPixels( 0, 0, width - 1, height -1, GL_RGB, GL_UNSIGNED_BYTE, pImageData );
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glReadPixels( 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pImageData );
 	WriteTGAFile( fileName, width, height, pImageData );
 	free( pImageData );
 }

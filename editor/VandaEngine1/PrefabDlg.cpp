@@ -317,12 +317,47 @@ void CPrefabDlg::OnBnClickedDelete()
 				m_listPrefabs.DeleteItem(nItem);
 			}
 
+			CChar docPath[MAX_URI_SIZE];
+			HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, docPath);
+			if (result != S_OK)
+			{
+				PrintInfo("\nCouldn't get the documents folder", COLOR_RED);
+				return;
+			}
+
+			CBitmap* cBmpMask = NULL;
+
+			m_prefabListImage.DeleteImageList();
+			m_prefabListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_prefabPackagesAndNames[packageIndex].size());
+
+			for (CUInt i = 0; i < g_prefabPackagesAndNames[packageIndex].size(); i++)
+			{
+				if (i == 0) continue;
+
+				CChar bitmapName[MAX_NAME_SIZE];
+				sprintf(bitmapName, "%s%s%s%s", g_prefabPackagesAndNames[packageIndex][0].c_str(), "_", g_prefabPackagesAndNames[packageIndex][i].c_str(), ".bmp");
+
+				CChar bitmapPath[MAX_URI_SIZE];
+				sprintf(bitmapPath, "%s%s%s%s%s%s%s", docPath, "/Vanda/Packages/", g_prefabPackagesAndNames[packageIndex][0].c_str(), "/", g_prefabPackagesAndNames[packageIndex][i].c_str(), "/", bitmapName);
+
+				HBITMAP hBmp = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), bitmapPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+				if (hBmp != NULL)
+				{
+					CBitmap* cBmp = CBitmap::FromHandle(hBmp);
+					if (cBmp != NULL)
+						m_prefabListImage.Add(cBmp, cBmpMask);
+					cBmp->DeleteObject();
+				}
+			}
+
+			m_listPrefabs.SetImageList(&m_prefabListImage, LVSIL_NORMAL);
+
 			for (CUInt i = 0; i < g_prefabPackagesAndNames[packageIndex].size(); i++)
 			{
 				if (i == 0) continue;
 				CChar str[MAX_NAME_SIZE];
 				Cpy(str, g_prefabPackagesAndNames[packageIndex][i].c_str());
-				InsertItemToPrefabList(str);
+				InsertItemToPrefabList(str, i - 1);
 			}
 			m_listPrefabs.UpdateWindow();
 		}
@@ -857,14 +892,6 @@ BOOL CPrefabDlg::OnInitDialog()
 	m_listPrefabPackages.ShowWindow(SW_SHOW);
 	m_listPrefabPackages.UpdateWindow();
 
-	m_prefabListImage.Create(80, 80, ILC_COLOR24, 1, 1);
-
-	cBmp.LoadBitmap(IDB_BITMAP_DEFAULT_VPF);
-	m_prefabListImage.Add(&cBmp, cBmpMask);
-	cBmp.DeleteObject();
-
-	m_listPrefabs.SetImageList(&m_prefabListImage, LVSIL_NORMAL);
-
 	m_listPrefabs.GetClientRect(&tempRect);
 	m_listPrefabs.InsertColumn(0, "Prefabs", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempRect.right - tempRect.left) * 80 / 100);
 	m_listPrefabs.ShowWindow(SW_SHOW);
@@ -939,13 +966,13 @@ CVoid CPrefabDlg::InsertItemToPackageList(CChar* packageName)
 	m_listPrefabPackages.UpdateWindow();
 }
 
-CVoid CPrefabDlg::InsertItemToPrefabList(CChar* prefabName)
+CVoid CPrefabDlg::InsertItemToPrefabList(CChar* prefabName, CInt imageIndex)
 {
 	m_prefabIndex++;
 	int index = m_prefabIndex;
 	LVITEM lvItem;
 	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
-	lvItem.iImage = 0;
+	lvItem.iImage = imageIndex;
 	lvItem.iItem = index;
 	lvItem.iSubItem = 0;
 	lvItem.pszText = prefabName;
@@ -1021,12 +1048,47 @@ void CPrefabDlg::OnLvnItemchangedListPrefabsProjects(NMHDR *pNMHDR, LRESULT *pRe
 	}
 	if (index != -1)
 	{
+		CChar docPath[MAX_URI_SIZE];
+		HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, docPath);
+		if (result != S_OK)
+		{
+			PrintInfo("\nCouldn't get the documents folder", COLOR_RED);
+			return;
+		}
+
+		CBitmap* cBmpMask = NULL;
+
+		m_prefabListImage.DeleteImageList();
+		m_prefabListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_prefabPackagesAndNames[index].size());
+
+		for (CUInt i = 0; i < g_prefabPackagesAndNames[index].size(); i++)
+		{
+			if (i == 0) continue;
+
+			CChar bitmapName[MAX_NAME_SIZE];
+			sprintf(bitmapName, "%s%s%s%s", g_prefabPackagesAndNames[index][0].c_str(), "_", g_prefabPackagesAndNames[index][i].c_str(), ".bmp");
+
+			CChar bitmapPath[MAX_URI_SIZE];
+			sprintf(bitmapPath, "%s%s%s%s%s%s%s", docPath, "/Vanda/Packages/", g_prefabPackagesAndNames[index][0].c_str(), "/", g_prefabPackagesAndNames[index][i].c_str(), "/", bitmapName);
+
+			HBITMAP hBmp = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), bitmapPath, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+			if (hBmp != NULL)
+			{
+				CBitmap* cBmp = CBitmap::FromHandle(hBmp);
+				if (cBmp != NULL)
+					m_prefabListImage.Add(cBmp, cBmpMask);
+				cBmp->DeleteObject();
+			}
+		}
+
+		m_listPrefabs.SetImageList(&m_prefabListImage, LVSIL_NORMAL);
+
 		for (CUInt i = 0; i < g_prefabPackagesAndNames[index].size(); i++)
 		{
 			if (i == 0) continue;
 			CChar str[MAX_NAME_SIZE];
 			Cpy(str, g_prefabPackagesAndNames[index][i].c_str());
-			InsertItemToPrefabList(str);
+			InsertItemToPrefabList(str, i - 1);
 		}
 	}
 	*pResult = 0;
