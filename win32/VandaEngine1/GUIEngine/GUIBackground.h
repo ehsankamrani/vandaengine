@@ -1,9 +1,9 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
 
-#include "Utility.h"
+#include "../Common/Utility.h"
 #include "..\\GraphicsEngine\\Image.h"
 class CGUIBackground
 {

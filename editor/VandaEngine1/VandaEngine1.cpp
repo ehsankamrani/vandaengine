@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // VandaEngine.cpp : Defines the class behaviors for the application.
 //

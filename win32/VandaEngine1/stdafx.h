@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // stdafx.h : include file for standard system include files,
@@ -79,6 +79,7 @@ CInt ExitGame(lua_State *L);
 
 //Cameras
 CInt ActivateImportedCamera(lua_State *L);
+CInt ActivateImportedCameraOfPrefab(lua_State *L);
 CInt ActivateEngineCamera(lua_State *L);
 CInt ActivateThirdPersonCamera(lua_State *L);
 CInt ActivateFirstPersonCamera(lua_State *L);
@@ -94,7 +95,7 @@ CInt StopAllResourceSounds(lua_State *L);
 CInt ShowCursorIcon(lua_State *L);
 CInt HideCursorIcon(lua_State *L);
 CInt AttachScriptToKey(lua_State *L);
-
+CInt PrintConsole(lua_State *L);
 //GUIs
 CInt ShowGUI(lua_State *L);
 CInt HideGUI(lua_State *L);

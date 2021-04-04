@@ -1,8 +1,8 @@
-Vanda Engine 1.7.1
-Copyright (C) 2020 Ehsan Kamrani
+Vanda Engine 1.7.2
+Copyright (C) 2021 Ehsan Kamrani
 www.vanda3d.org
 www.facebook.com/vandaengine
-www.twitter.com/vanda_engine
+I removed Twitter account as it violates freedom of expression
 www.youtube.com/vandaengine1
 Please report the bugs to opentechno@hotmail.com
 For more information about this application, please refer to the User's Manual

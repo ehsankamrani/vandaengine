@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // PerspectiveWindow.cpp : implementation file
@@ -29,20 +29,68 @@ CInt PlaySoundLoop(lua_State *L)
 		return 0;
 	int argc = lua_gettop(L);
 
-	for ( int n=1; n<=argc; ++n )
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		for (int n = 1; n <= argc; ++n)
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString);
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				g_engineStaticSounds[i]->GetSoundSource()->SetLooping( CTrue );
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames.size(); j++)
+					{
+						CChar staticSoundName[MAX_NAME_SIZE];
+						Cpy(staticSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+						StringToUpper(staticSoundName);
+
+						if (Cmp(staticSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will be played continiously", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be played.");
+				PrintInfo(temp, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CTrue);
 				g_engineStaticSounds[i]->SetLoop( CTrue );
 				g_engineStaticSounds[i]->SetPlay(CTrue);
 				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' is playing continiously.");
-				PrintInfo(temp, COLOR_YELLOW);
+				PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
@@ -64,12 +112,60 @@ CInt PlaySoundOnce(lua_State *L)
 		return 0;
 	int argc = lua_gettop(L);
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (int n = 1; n <= argc; ++n)
+		{
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString);
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames.size(); j++)
+					{
+						CChar staticSoundName[MAX_NAME_SIZE];
+						Cpy(staticSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+						StringToUpper(staticSoundName);
+
+						if (Cmp(staticSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will be played once", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be played.");
+				PrintInfo(temp, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
 	for (int n = 1; n <= argc; ++n)
 	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
 		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
-			if (Cmp(g_engineStaticSounds[i]->GetName(), lua_tostring(L, n)))
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CFalse);
 				g_engineStaticSounds[i]->SetLoop( CFalse );
@@ -77,7 +173,7 @@ CInt PlaySoundOnce(lua_State *L)
 				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' is playing once.");
-				PrintInfo(temp, COLOR_YELLOW);
+				PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
@@ -101,18 +197,66 @@ CInt PauseSound(lua_State *L)
 
 	int argc = lua_gettop(L);
 
-	for ( int n=1; n<=argc; ++n )
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		for (int n = 1; n <= argc; ++n)
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString);
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames.size(); j++)
+					{
+						CChar staticSoundName[MAX_NAME_SIZE];
+						Cpy(staticSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+						StringToUpper(staticSoundName);
+
+						if (Cmp(staticSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will pause", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be paused.");
+				PrintInfo(temp, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
 				g_soundSystem->PauseALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' was paused.");
-				PrintInfo(temp, COLOR_YELLOW);
+				PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
@@ -135,18 +279,66 @@ CInt StopSound(lua_State *L)
 
 	int argc = lua_gettop(L);
 
-	for ( int n=1; n<=argc; ++n )
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		for (int n = 1; n <= argc; ++n)
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString);
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames.size(); j++)
+					{
+						CChar staticSoundName[MAX_NAME_SIZE];
+						Cpy(staticSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+						StringToUpper(staticSoundName);
+
+						if (Cmp(staticSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will stop", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_staticSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be stopped.");
+				PrintInfo(temp, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
 				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' was stopped.");
-				PrintInfo(temp, COLOR_YELLOW);
+				PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
@@ -180,6 +372,162 @@ CInt BlendCycle(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						scene->SetAnimationStatus(eANIM_PLAY);
+
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						CBool foundAnimationTarget = CFalse;
+						CInt index;
+						for (CInt k = 0; k < scene->GetNumClips(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, scene->m_animationClips[k]->GetName());
+							StringToUpper(animationName);
+							if (Cmp(luaToString2, animationName))
+							{
+								index = k;
+								foundAnimationTarget = CTrue;
+								break;
+							}
+						}
+						if (!foundAnimationTarget)
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+							PrintInfo(temp, COLOR_RED);
+							return 0;
+						}
+						scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				scene->SetAnimationStatus(eANIM_PLAY);
+
+				CChar luaToString2[MAX_NAME_SIZE];
+				Cpy(luaToString2, lua_tostring(L, 2));
+				StringToUpper(luaToString2);
+
+				CBool foundAnimationTarget = CFalse;
+				CInt index;
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					CChar animationName[MAX_NAME_SIZE];
+					Cpy(animationName, scene->m_animationClips[k]->GetName());
+					StringToUpper(animationName);
+					if (Cmp(luaToString2, animationName))
+					{
+						index = k;
+						foundAnimationTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundAnimationTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+				scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundAnimation = CFalse;
+						foundPrefabInstance = CTrue;
+
+						//animation clip name
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames.size(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+							StringToUpper(animationName);
+
+							if (Cmp(animationName, luaToString2))
+							{
+								foundAnimation = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nBlendCycle() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundAnimation)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nBlendCycle() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "BlendCycle() Error : Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -202,14 +550,14 @@ CInt BlendCycle(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -263,6 +611,164 @@ CInt ClearCycle(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						scene->SetAnimationStatus(eANIM_PLAY);
+
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						CBool foundAnimationTarget = CFalse;
+						CInt index;
+						for (CInt k = 0; k < scene->GetNumClips(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, scene->m_animationClips[k]->GetName());
+							StringToUpper(animationName);
+							if (Cmp(luaToString2, animationName))
+							{
+								index = k;
+								foundAnimationTarget = CTrue;
+								break;
+							}
+						}
+						if (!foundAnimationTarget)
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+							PrintInfo(temp, COLOR_RED);
+							return 0;
+						}
+
+						scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				scene->SetAnimationStatus(eANIM_PLAY);
+
+				CChar luaToString2[MAX_NAME_SIZE];
+				Cpy(luaToString2, lua_tostring(L, 2));
+				StringToUpper(luaToString2);
+
+				CBool foundAnimationTarget = CFalse;
+				CInt index;
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					CChar animationName[MAX_NAME_SIZE];
+					Cpy(animationName, scene->m_animationClips[k]->GetName());
+					StringToUpper(animationName);
+					if (Cmp(luaToString2, animationName))
+					{
+						index = k;
+						foundAnimationTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundAnimationTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+
+				scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundAnimation = CFalse;
+						foundPrefabInstance = CTrue;
+
+						//animation clip name
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames.size(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+							StringToUpper(animationName);
+
+							if (Cmp(animationName, luaToString2))
+							{
+								foundAnimation = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nClearCycle() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundAnimation)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nClearCycle() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "ClearCycle() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -285,14 +791,14 @@ CInt ClearCycle(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -347,6 +853,190 @@ CInt ExecuteAction(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						scene->SetAnimationStatus(eANIM_PLAY);
+
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						CBool foundAnimationTarget = CFalse;
+						CInt index;
+						for (CInt k = 0; k < scene->GetNumClips(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, scene->m_animationClips[k]->GetName());
+							StringToUpper(animationName);
+							if (Cmp(luaToString2, animationName))
+							{
+								index = k;
+								foundAnimationTarget = CTrue;
+								break;
+							}
+						}
+						if (!foundAnimationTarget)
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+							PrintInfo(temp, COLOR_RED);
+							return 0;
+						}
+
+						CFloat weight = 1.0f;
+						CInt lockResult;
+						CBool lock = CFalse;
+						if (argc > 4)
+							weight = lua_tonumber(L, 5);
+						if (argc > 5)
+							lockResult = lua_toboolean(L, 6);
+
+						if (lockResult)
+							lock = CTrue;
+						else
+							lock = CFalse;
+
+						scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				scene->SetAnimationStatus(eANIM_PLAY);
+
+				CChar luaToString2[MAX_NAME_SIZE];
+				Cpy(luaToString2, lua_tostring(L, 2));
+				StringToUpper(luaToString2);
+
+				CBool foundAnimationTarget = CFalse;
+				CInt index;
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					CChar animationName[MAX_NAME_SIZE];
+					Cpy(animationName, scene->m_animationClips[k]->GetName());
+					StringToUpper(animationName);
+					if (Cmp(luaToString2, animationName))
+					{
+						index = k;
+						foundAnimationTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundAnimationTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+
+				CFloat weight = 1.0f;
+				CInt lockResult;
+				CBool lock = CFalse;
+				if (argc > 4)
+					weight = lua_tonumber(L, 5);
+				if (argc > 5)
+					lockResult = lua_toboolean(L, 6);
+
+				if (lockResult)
+					lock = CTrue;
+				else
+					lock = CFalse;
+
+				scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundAnimation = CFalse;
+						foundPrefabInstance = CTrue;
+
+						//animation clip name
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames.size(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+							StringToUpper(animationName);
+
+							if (Cmp(animationName, luaToString2))
+							{
+								foundAnimation = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nExecuteAction() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundAnimation)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nExecuteAction() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "ExecuteAction() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -369,14 +1059,14 @@ CInt ExecuteAction(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -390,11 +1080,16 @@ CInt ExecuteAction(lua_State *L)
 					}
 
 					CFloat weight = 1.0f;
+					CInt lockResult;
 					CBool lock = CFalse;
 					if (argc > 4)
 						weight = lua_tonumber(L, 5);
 					if (argc > 5)
-						lock = (CBool)lua_toboolean(L, 6);
+						lockResult = lua_toboolean(L, 6);
+					if (lockResult)
+						lock = CTrue;
+					else
+						lock = CFalse;
 					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 				}
 			}
@@ -437,6 +1132,164 @@ CInt ReverseExecuteAction(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j)/* && g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						scene->SetAnimationStatus(eANIM_PLAY);
+
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						CBool foundAnimationTarget = CFalse;
+						CInt index;
+						for (CInt k = 0; k < scene->GetNumClips(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, scene->m_animationClips[k]->GetName());
+							StringToUpper(animationName);
+							if (Cmp(luaToString2, animationName))
+							{
+								index = k;
+								foundAnimationTarget = CTrue;
+								break;
+							}
+						}
+						if (!foundAnimationTarget)
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+							PrintInfo(temp, COLOR_RED);
+							return 0;
+						}
+
+						scene->ReverseExecuteAction(index);
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				scene->SetAnimationStatus(eANIM_PLAY);
+
+				CChar luaToString2[MAX_NAME_SIZE];
+				Cpy(luaToString2, lua_tostring(L, 2));
+				StringToUpper(luaToString2);
+
+				CBool foundAnimationTarget = CFalse;
+				CInt index;
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					CChar animationName[MAX_NAME_SIZE];
+					Cpy(animationName, scene->m_animationClips[k]->GetName());
+					StringToUpper(animationName);
+					if (Cmp(luaToString2, animationName))
+					{
+						index = k;
+						foundAnimationTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundAnimationTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+
+				scene->ReverseExecuteAction(index);
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundAnimation = CFalse;
+						foundPrefabInstance = CTrue;
+
+						//animation clip name
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames.size(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+							StringToUpper(animationName);
+
+							if (Cmp(animationName, luaToString2))
+							{
+								foundAnimation = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nReverseExecuteAction() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundAnimation)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nReverseExecuteAction() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "ReverseExecuteAction() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -459,14 +1312,14 @@ CInt ReverseExecuteAction(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -523,6 +1376,165 @@ CInt RemoveAction(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				foundPrefabInstance = CTrue;
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						scene->SetAnimationStatus(eANIM_PLAY);
+
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						CBool foundAnimationTarget = CFalse;
+						CInt index;
+						for (CInt k = 0; k < scene->GetNumClips(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, scene->m_animationClips[k]->GetName());
+							StringToUpper(animationName);
+							if (Cmp(luaToString2, animationName))
+							{
+								index = k;
+								foundAnimationTarget = CTrue;
+								break;
+							}
+						}
+						if (!foundAnimationTarget)
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+							PrintInfo(temp, COLOR_RED);
+							return 0;
+						}
+
+						scene->RemoveAction(index);
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				scene->SetAnimationStatus(eANIM_PLAY);
+
+				CChar luaToString2[MAX_NAME_SIZE];
+				Cpy(luaToString2, lua_tostring(L, 2));
+				StringToUpper(luaToString2);
+
+				CBool foundAnimationTarget = CFalse;
+				CInt index;
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					CChar animationName[MAX_NAME_SIZE];
+					Cpy(animationName, scene->m_animationClips[k]->GetName());
+					StringToUpper(animationName);
+					if (Cmp(luaToString2, animationName))
+					{
+						index = k;
+						foundAnimationTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundAnimationTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+
+				scene->RemoveAction(index);
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundAnimation = CFalse;
+						foundPrefabInstance = CTrue;
+
+						//animation clip name
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames.size(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+							StringToUpper(animationName);
+
+							if (Cmp(animationName, luaToString2))
+							{
+								foundAnimation = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nRemoveAction() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundAnimation)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nRemoveAction() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "RemoveAction() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -545,14 +1557,14 @@ CInt RemoveAction(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -609,6 +1621,157 @@ CInt GetAnimationClipDuration(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				foundPrefabInstance = CTrue;
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						CBool foundAnimationTarget = CFalse;
+						CInt index;
+						for (CInt k = 0; k < scene->GetNumClips(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, scene->m_animationClips[k]->GetName());
+							StringToUpper(animationName);
+							if (Cmp(luaToString2, animationName))
+							{
+								index = k;
+								foundAnimationTarget = CTrue;
+								break;
+							}
+						}
+						if (!foundAnimationTarget)
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+							PrintInfo(temp, COLOR_RED);
+							return 0;
+						}
+
+						lua_pushnumber(L, scene->m_animationClips[index]->GetDuration());
+						return 1;
+
+					}
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				CChar luaToString2[MAX_NAME_SIZE];
+				Cpy(luaToString2, lua_tostring(L, 2));
+				StringToUpper(luaToString2);
+
+				CBool foundAnimationTarget = CFalse;
+				CInt index;
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					CChar animationName[MAX_NAME_SIZE];
+					Cpy(animationName, scene->m_animationClips[k]->GetName());
+					StringToUpper(animationName);
+					if (Cmp(luaToString2, animationName))
+					{
+						index = k;
+						foundAnimationTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundAnimationTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+
+				lua_pushnumber(L, scene->m_animationClips[index]->GetDuration());
+				return 1;
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundAnimation = CFalse;
+						foundPrefabInstance = CTrue;
+
+						//animation clip name
+						CChar luaToString2[MAX_NAME_SIZE];
+						Cpy(luaToString2, lua_tostring(L, 2));
+						StringToUpper(luaToString2);
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames.size(); k++)
+						{
+							CChar animationName[MAX_NAME_SIZE];
+							Cpy(animationName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+							StringToUpper(animationName);
+
+							if (Cmp(animationName, luaToString2))
+							{
+								foundAnimation = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetAnimationClipDuration() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundAnimation)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nGetAnimationClipDuration() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "GetAnimationClipDuration() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -630,14 +1793,14 @@ CInt GetAnimationClipDuration(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -685,6 +1848,56 @@ CInt SetPrefabInstanceVisible(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+				g_currentInstancePrefab->SetVisible(CTrue);
+			else
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			PrintInfo("\nAll LODs will become visible", COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : Prefab Instance '%s' will become visible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -722,6 +1935,56 @@ CInt SetPrefabInstanceInvisible(lua_State *L)
 	CChar luaToString[MAX_NAME_SIZE];
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+				g_currentInstancePrefab->SetVisible(CFalse);
+			else
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			PrintInfo("\nAll LODs will become invisible", COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : Prefab Instance '%s' will become invisible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -761,6 +2024,81 @@ CInt PauseAnimations(lua_State *L)
 	CChar luaToString[MAX_NAME_SIZE];
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j)/* && g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+						scene->SetAnimationStatus(eANIM_PAUSE);
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+				scene->SetAnimationStatus(eANIM_PAUSE);
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nPauseAnimations() will execute for Project '%s', VScene '%s', Prefab Instance '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "PauseAnimations() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -828,6 +2166,34 @@ CInt LoadVScene(lua_State *L)
 	//g_multipleView->m_loadScene = CFalse;
 	//g_clickedNew = g_clickedOpen = CFalse;
 	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt i = 0; i < g_projects.size(); i++)
+		{
+			for (CUInt j = 0; j < g_projects[i]->m_sceneNames.size(); j++)
+			{
+				CChar currentVSceneName[MAX_NAME_SIZE];
+				Cpy(currentVSceneName, g_projects[i]->m_sceneNames[j].c_str());
+				StringToUpper(currentVSceneName);
+				if (Cmp(currentVSceneName, VSceneName))
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "%s%s%s%s%s", "\nVScene '", g_projects[i]->m_sceneNames[j].c_str(), "' in project '", g_projects[i]->m_name, "' will be loaded");
+					PrintInfo(temp, COLOR_GREEN);
+					foundTarget = CTrue;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nCouldn't find VScene '", luaToString, "' to be loaded.");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 	{
 		CChar currentVSceneName[MAX_NAME_SIZE];
@@ -837,7 +2203,7 @@ CInt LoadVScene(lua_State *L)
 		if (Cmp(VSceneName, currentVSceneName))
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nVScene '", luaToString, ".vin' will be loaded.");
+			sprintf(temp, "%s%s%s", "\nVScene '", luaToString, "' will be loaded.");
 			PrintInfo(temp, COLOR_GREEN);
 			foundTarget = CTrue;
 			break;
@@ -846,7 +2212,7 @@ CInt LoadVScene(lua_State *L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCoudn't find VScene '", VSceneName, "' to be loaded.");
+		sprintf(temp, "%s%s%s", "\nCouldn't find VScene '", luaToString, "' to be loaded.");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -868,13 +2234,30 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 		PrintInfo("\nPlease specify 3 arguments for SetCurrentVSceneAsMenu()", COLOR_RED);
 		return 0;
 	}
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nSetCurrentVSceneAsMenu() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+
+	}
+
+	CInt menuResult;
 	CBool menu = CFalse;
-	menu = (CBool)lua_toboolean(L, 1); //true or false
+	menuResult = lua_toboolean(L, 1); //true or false
+	if (menuResult)
+		menu = CTrue;
+	else
+		menu = CFalse;
 	g_currentVSceneProperties.m_isMenu = menu;
 	g_multipleView->m_isMenu = menu;
 
+	CInt pauseResult;
 	CBool pause;
-	pause = (CBool)lua_toboolean(L, 2); //true or false
+	pauseResult = lua_toboolean(L, 2); //true or false
+	if (pauseResult)
+		pause = CTrue;
+	else
+		pause = CFalse;
 	g_currentVSceneProperties.m_isPause = pause;
 	if (!g_currentVSceneProperties.m_isPause)
 	{
@@ -1019,7 +2402,14 @@ CInt ActivateThirdPersonCamera(lua_State *L)
 	}
 	else
 	{
-		PrintInfo("\nCouldn't find main character", COLOR_RED);
+		if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+		{
+			PrintInfo("\nActivateThirdPersonCamera() will activate third person camera in VScene mode", COLOR_GREEN);
+		}
+		else
+		{
+			PrintInfo("\nCouldn't find main character", COLOR_RED);
+		}
 		return 0;
 	}
 }
@@ -1039,7 +2429,14 @@ CInt ActivateFirstPersonCamera(lua_State *L)
 	}
 	else
 	{
-		PrintInfo("\nCouldn't find main character", COLOR_RED);
+		if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+		{
+			PrintInfo("\nActivateFirstPersonCamera() will activate first person camera in VScene mode", COLOR_GREEN);
+		}
+		else
+		{
+			PrintInfo("\nCouldn't find main character", COLOR_RED);
+		}
 		return 0;
 	}
 }
@@ -1064,6 +2461,42 @@ CInt ActivateImportedCamera( lua_State* L )
 	StringToUpper( luaToString );
 
 	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames.size(); j++)
+				{
+					 CChar camera[MAX_NAME_SIZE];
+					 Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames[j].c_str());
+					 StringToUpper(camera);
+
+					 if (Cmp(camera, luaToString))
+					 {
+						 foundTarget = CTrue;
+
+						 CChar message[MAX_NAME_SIZE];
+						 sprintf(message, "\nActivateImportedCamera() will execute for Project '%s', VScene '%s', Imported Camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames[j].c_str());
+						 PrintInfo(message, COLOR_GREEN);
+
+						 break;
+					 }
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nActivateImportedCamera() Error: Couldn't find camera '", luaToString, "' to be activated.");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
 	for( CUInt i = 0; i < g_importedCameraInstances.size(); i++ )
 	{
 		CChar camera[MAX_NAME_SIZE];
@@ -1103,10 +2536,322 @@ CInt ActivateImportedCamera( lua_State* L )
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCoudn't find camera '", luaToString, "' to be activated.");
+		sprintf(temp, "%s%s%s", "\nCouldn't find camera '", luaToString, "' to be activated.");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
+	return 0;
+}
+
+//First Argument: Prefab Instance Name. Use "this" to refer to current prefab instance
+//Second Argument: Imported camera name of prefab
+//Third Argument: End Time. Should Be Positive Value. Arbitrary Argument
+CInt ActivateImportedCameraOfPrefab(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify at least 2 arguments for ActivateImportedCameraOfPrefab()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	//camera name of current prefab
+	CChar luaToString2[MAX_NAME_SIZE];
+	Cpy(luaToString2, lua_tostring(L, 2));
+	StringToUpper(luaToString2);
+
+	CBool foundCameraTarget = CFalse;
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+
+						CUInt index;
+						for (CUInt k = 0; k < scene->m_cameraInstances.size(); k++)
+						{
+							CChar cameraName[MAX_NAME_SIZE];
+							Cpy(cameraName, scene->m_cameraInstances[k]->m_abstractCamera->GetPureName());
+							StringToUpper(cameraName);
+							if (Cmp(luaToString2, cameraName))
+							{
+								index = k;
+								foundCameraTarget = CTrue;
+								break;
+							}
+						}
+
+						if (foundCameraTarget)
+						{
+							CFloat end_time = 0.0f;
+							CBool enableTimer = CFalse;
+							if (argc > 2)
+							{
+								end_time = (CFloat)lua_tonumber(L, 3);
+								if (end_time <= 0.0f)
+								{
+									enableTimer = CFalse;
+									end_time = 0.0f;
+								}
+								else
+								{
+									enableTimer = CTrue;
+								}
+							}
+
+							g_render.SetActiveInstanceCamera(scene->m_cameraInstances[index]);
+							scene->m_cameraInstances[index]->SetIsTimerEnabled(enableTimer);
+							scene->m_cameraInstances[index]->SetEndTime(end_time);
+							g_currentCameraType = eCAMERA_COLLADA;
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "%s%s%s", "\nCamera '", scene->m_cameraInstances[index]->m_abstractCamera->GetPureName(), "' was activated.");
+							PrintInfo(temp, COLOR_GREEN);
+						}
+					}
+					if (foundCameraTarget)
+						break;
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+				if (!foundCameraTarget)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Couldn't find the camera '", luaToString2, "'");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+			}
+			else
+			{
+				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				if (CmpIn(scene->GetName(), "_COL"))
+					continue;
+
+				CUInt index;
+				for (CUInt k = 0; k < scene->m_cameraInstances.size(); k++)
+				{
+					CChar cameraName[MAX_NAME_SIZE];
+					Cpy(cameraName, scene->m_cameraInstances[k]->m_abstractCamera->GetPureName());
+					StringToUpper(cameraName);
+					if (Cmp(luaToString2, cameraName))
+					{
+						index = k;
+						foundCameraTarget = CTrue;
+						break;
+					}
+				}
+
+				if (foundCameraTarget)
+				{
+					CFloat end_time = 0.0f;
+					CBool enableTimer = CFalse;
+					if (argc > 2)
+					{
+						end_time = (CFloat)lua_tonumber(L, 3);
+						if (end_time <= 0.0f)
+						{
+							enableTimer = CFalse;
+							end_time = 0.0f;
+						}
+						else
+						{
+							enableTimer = CTrue;
+						}
+					}
+
+					g_render.SetActiveInstanceCamera(scene->m_cameraInstances[index]);
+					scene->m_cameraInstances[index]->SetIsTimerEnabled(enableTimer);
+					scene->m_cameraInstances[index]->SetEndTime(end_time);
+					g_currentCameraType = eCAMERA_COLLADA;
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "%s%s%s", "\nCamera '", scene->m_cameraInstances[index]->m_abstractCamera->GetPureName(), "' was activated.");
+					PrintInfo(temp, COLOR_GREEN);
+				}
+				if (foundCameraTarget)
+					break;
+			}
+			if (!foundCameraTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "\n%s%s%s", "Couldn't find the camera '", luaToString2, "'");
+				PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						CBool foundCamera = CFalse;
+						foundPrefabInstance = CTrue;
+
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_cameraNames.size(); k++)
+						{
+							CChar cameraName[MAX_NAME_SIZE];
+							Cpy(cameraName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_cameraNames[k].c_str());
+							StringToUpper(cameraName);
+
+							if (Cmp(cameraName, luaToString2))
+							{
+								foundCamera = CTrue;
+
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nActivateImportedCameraOfPrefab() will execute for project '%s', VScene '%s', prefab Instance '%s', camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_cameraNames[k].c_str());
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+
+						if (!foundCamera)
+						{
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nActivateImportedCameraOfPrefab() Error: project '%s', VScene '%s', prefab Instance '%s' has no camera called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							PrintInfo(message, COLOR_RED);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "ActivateImportedCameraOfPrefab() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+
+					CUInt index;
+					for (CUInt k = 0; k < scene->m_cameraInstances.size(); k++)
+					{
+						CChar cameraName[MAX_NAME_SIZE];
+						Cpy(cameraName, scene->m_cameraInstances[k]->m_abstractCamera->GetPureName());
+						StringToUpper(cameraName);
+						if (Cmp(luaToString2, cameraName))
+						{
+							index = k;
+							foundCameraTarget = CTrue;
+							break;
+						}
+					}
+					if (foundCameraTarget)
+					{
+						CFloat end_time = 0.0f;
+						CBool enableTimer = CFalse;
+						if (argc > 2)
+						{
+							end_time = (CFloat)lua_tonumber(L, 3);
+							if (end_time <= 0.0f)
+							{
+								enableTimer = CFalse;
+								end_time = 0.0f;
+							}
+							else
+							{
+								enableTimer = CTrue;
+							}
+						}
+
+						g_render.SetActiveInstanceCamera(scene->m_cameraInstances[index]);
+						scene->m_cameraInstances[index]->SetIsTimerEnabled(enableTimer);
+						scene->m_cameraInstances[index]->SetEndTime(end_time);
+						g_currentCameraType = eCAMERA_COLLADA;
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "%s%s%s", "\nCamera '", scene->m_cameraInstances[index]->m_abstractCamera->GetPureName(), "' was activated.");
+						PrintInfo(temp, COLOR_GREEN);
+					}
+				}
+				if (foundCameraTarget)
+					break;
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	if (!scene)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	if (!foundCameraTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "Couldn't find the camera '", luaToString2, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -1130,6 +2875,42 @@ CInt ActivateEngineCamera(lua_State* L)
 	StringToUpper(luaToString);
 
 	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames.size(); j++)
+				{
+					CChar camera[MAX_NAME_SIZE];
+					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames[j].c_str());
+					StringToUpper(camera);
+
+					if (Cmp(camera, luaToString))
+					{
+						foundTarget = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nActivateEngineCamera() will execute for Project '%s', VScene '%s', Engine Camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nActivateEngineCamera() Error: Couldn't find camera '", luaToString, "' to be activated.");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
 	CInt index = -1;
 	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
 	{
@@ -1207,6 +2988,53 @@ CInt LoadResource(lua_State *L)
 	Cpy(luaToString2, lua_tostring(L, 2));
 	StringToUpper(luaToString2);
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			CBool foundTargetInCurrentProject = CFalse;
+			for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+			{
+				CChar resourceFolder[MAX_NAME_SIZE];
+				Cpy(resourceFolder, g_projects[pr]->m_resourceNames[i].front().c_str());
+				StringToUpper(resourceFolder);
+
+				if (Cmp(luaToString1, resourceFolder))
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+					{
+						if (j == 0)
+							continue; //it's folder name
+
+						CChar resourceFile[MAX_NAME_SIZE];
+						Cpy(resourceFile, g_projects[pr]->m_resourceNames[i][j].c_str());
+						StringToUpper(resourceFile);
+
+						if (Cmp(luaToString2, resourceFile))
+						{
+							foundTarget = CTrue;
+							foundTargetInCurrentProject = CTrue;
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nLoadResource() will load '%s/%s' resource in Project '%s'", lua_tostring(L, 1), lua_tostring(L, 2), g_projects[pr]->m_name );
+							PrintInfo(message, COLOR_GREEN);
+							break;
+						}
+					}
+				}
+				if (foundTargetInCurrentProject)
+					break;
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar errorMessage[MAX_NAME_SIZE];
+			sprintf(errorMessage, "\nLoadResource() Error: Couldn't find '%s/%s' resource in all projects", lua_tostring(L, 1), lua_tostring(L, 2));
+			PrintInfo(errorMessage, COLOR_RED);
+		}
+		return 0;
+	}
+
 	CChar fileName[MAX_NAME_SIZE];
 	Cpy(fileName, g_currentProjectPath);
 
@@ -1282,6 +3110,12 @@ CInt LoadResource(lua_State *L)
 
 CInt DeleteAllResources(lua_State* L)
 {
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nDeleteAllResources() - All loaded resources will be deleted.");
+		return 0;
+	}
+
 	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
 		CDelete(g_resourceFiles[j]);
 	g_resourceFiles.clear();
@@ -1301,6 +3135,62 @@ CInt PlayResourceSoundLoop(lua_State *L)
 	if (argc < 1)
 	{
 		PrintInfo("\nPlease specify at least 1 argument for PlayResourceSoundLoop()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (int n = 1; n <= argc; ++n)
+		{
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString); //package name
+
+			CChar extension[MAX_NAME_SIZE];
+			if (GetFileExtension(luaToString))
+			{
+				Cpy(extension, GetFileExtension(luaToString));
+				if (Cmp(extension, ".OGG"))
+				{
+					for (CUInt pr = 0; pr < g_projects.size(); pr++)
+					{
+						CBool foundTargetInCurrentProject = CFalse;
+						for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+						{
+							for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+							{
+								if (j == 0)
+									continue; //it's folder name
+
+								CChar resourceFile[MAX_NAME_SIZE];
+								sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+								StringToUpper(resourceFile);
+
+								if (Cmp(luaToString, resourceFile))
+								{
+									foundTarget = CTrue;
+									foundTargetInCurrentProject = CTrue;
+									CChar message[MAX_NAME_SIZE];
+									sprintf(message, "\nProject '%s' - PlayResourceSoundLoop() will play sound resource '%s' continiously", g_projects[pr]->m_name, lua_tostring(L, n));
+									PrintInfo(message, COLOR_GREEN);
+									break;
+								}
+							}
+							if (foundTargetInCurrentProject)
+								break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar errorMessage[MAX_NAME_SIZE];
+				sprintf(errorMessage, "\nPlayResourceSoundLoop() Error: Couldn't find '%s' sound resource in all projects", lua_tostring(L, n));
+				PrintInfo(errorMessage, COLOR_RED);
+			}
+		}
 		return 0;
 	}
 
@@ -1350,7 +3240,63 @@ CInt PlayResourceSoundOnce(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		PrintInfo("\nPlease specify at least 1 argument for PlayResourceSoundLoop()", COLOR_RED);
+		PrintInfo("\nPlease specify at least 1 argument for PlayResourceSoundOnce()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (int n = 1; n <= argc; ++n)
+		{
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString); //package name
+
+			CChar extension[MAX_NAME_SIZE];
+			if (GetFileExtension(luaToString))
+			{
+				Cpy(extension, GetFileExtension(luaToString));
+				if (Cmp(extension, ".OGG"))
+				{
+					for (CUInt pr = 0; pr < g_projects.size(); pr++)
+					{
+						CBool foundTargetInCurrentProject = CFalse;
+						for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+						{
+							for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+							{
+								if (j == 0)
+									continue; //it's folder name
+
+								CChar resourceFile[MAX_NAME_SIZE];
+								sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+								StringToUpper(resourceFile);
+
+								if (Cmp(luaToString, resourceFile))
+								{
+									foundTarget = CTrue;
+									foundTargetInCurrentProject = CTrue;
+									CChar message[MAX_NAME_SIZE];
+									sprintf(message, "\nProject '%s' - PlayResourceSoundOnce() will play sound resource '%s' once", g_projects[pr]->m_name, lua_tostring(L, n));
+									PrintInfo(message, COLOR_GREEN);
+									break;
+								}
+							}
+							if (foundTargetInCurrentProject)
+								break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar errorMessage[MAX_NAME_SIZE];
+				sprintf(errorMessage, "\nPlayResourceSoundOnce() Error: Couldn't find '%s' sound resource in all projects", lua_tostring(L, n));
+				PrintInfo(errorMessage, COLOR_RED);
+			}
+		}
 		return 0;
 	}
 
@@ -1404,6 +3350,62 @@ CInt StopResourceSound(lua_State *L)
 		return 0;
 	}
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (int n = 1; n <= argc; ++n)
+		{
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString); //package name
+
+			CChar extension[MAX_NAME_SIZE];
+			if (GetFileExtension(luaToString))
+			{
+				Cpy(extension, GetFileExtension(luaToString));
+				if (Cmp(extension, ".OGG"))
+				{
+					for (CUInt pr = 0; pr < g_projects.size(); pr++)
+					{
+						CBool foundTargetInCurrentProject = CFalse;
+						for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+						{
+							for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+							{
+								if (j == 0)
+									continue; //it's folder name
+
+								CChar resourceFile[MAX_NAME_SIZE];
+								sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+								StringToUpper(resourceFile);
+
+								if (Cmp(luaToString, resourceFile))
+								{
+									foundTarget = CTrue;
+									foundTargetInCurrentProject = CTrue;
+									CChar message[MAX_NAME_SIZE];
+									sprintf(message, "\nProject '%s' - StopResourceSound() will stop sound resource '%s'", g_projects[pr]->m_name, lua_tostring(L, n));
+									PrintInfo(message, COLOR_GREEN);
+									break;
+								}
+							}
+							if (foundTargetInCurrentProject)
+								break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar errorMessage[MAX_NAME_SIZE];
+				sprintf(errorMessage, "\nStopResourceSound() Error: Couldn't find '%s' sound resource in all projects", lua_tostring(L, n));
+				PrintInfo(errorMessage, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
 	for (int n = 1; n <= argc; ++n)
 	{
 		CChar luaToString[MAX_NAME_SIZE];
@@ -1446,6 +3448,12 @@ CInt StopAllResourceSounds(lua_State *L)
 	if (g_testScript)
 		return 0;
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nStopAllResourceSounds() - All resource sounds will be stopped.");
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
 	{
 		if (g_resourceFiles[i]->GetSoundSource())
@@ -1465,7 +3473,63 @@ CInt PauseResourceSound(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		PrintInfo("\nPlease specify at least 1 argument for StopResourceSound()", COLOR_RED);
+		PrintInfo("\nPlease specify at least 1 argument for PauseResourceSound()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (int n = 1; n <= argc; ++n)
+		{
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString); //package name
+
+			CChar extension[MAX_NAME_SIZE];
+			if (GetFileExtension(luaToString))
+			{
+				Cpy(extension, GetFileExtension(luaToString));
+				if (Cmp(extension, ".OGG"))
+				{
+					for (CUInt pr = 0; pr < g_projects.size(); pr++)
+					{
+						CBool foundTargetInCurrentProject = CFalse;
+						for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+						{
+							for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+							{
+								if (j == 0)
+									continue; //it's folder name
+
+								CChar resourceFile[MAX_NAME_SIZE];
+								sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+								StringToUpper(resourceFile);
+
+								if (Cmp(luaToString, resourceFile))
+								{
+									foundTarget = CTrue;
+									foundTargetInCurrentProject = CTrue;
+									CChar message[MAX_NAME_SIZE];
+									sprintf(message, "\nProject '%s' - PauseResourceSound() will pause sound resource '%s'", g_projects[pr]->m_name, lua_tostring(L, n));
+									PrintInfo(message, COLOR_GREEN);
+									break;
+								}
+							}
+							if (foundTargetInCurrentProject)
+								break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar errorMessage[MAX_NAME_SIZE];
+				sprintf(errorMessage, "\nPauseResourceSound() Error: Couldn't find '%s' sound resource in all projects", lua_tostring(L, n));
+				PrintInfo(errorMessage, COLOR_RED);
+			}
+		}
 		return 0;
 	}
 
@@ -1523,6 +3587,41 @@ CInt ShowGUI(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1));
 	StringToUpper(luaToString);
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar camera[MAX_NAME_SIZE];
+					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
+					StringToUpper(camera);
+
+					if (Cmp(camera, luaToString))
+					{
+						foundTarget = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nShowGUI() - Project '%s', VScene '%s', GUI '%s' will become visible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nShowGUI() Error: Couldn't find GUI '", luaToString, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -1568,6 +3667,41 @@ CInt HideGUI(lua_State* L)
 	Cpy(luaToString, lua_tostring(L, 1));
 	StringToUpper(luaToString);
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar camera[MAX_NAME_SIZE];
+					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
+					StringToUpper(camera);
+
+					if (Cmp(camera, luaToString))
+					{
+						foundTarget = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nHideGUI() - Project '%s', VScene '%s', GUI '%s' will become invisible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nHideGUI() Error: Couldn't find GUI '", luaToString, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -1605,6 +3739,60 @@ CInt ShowCursorIcon(lua_State *L)
 	if (argc < 2)
 	{
 		PrintInfo("\nPlease specify 2 arguments for ShowCursorIcon()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, 1));
+		StringToUpper(luaToString); //package name
+
+		CChar extension[MAX_NAME_SIZE];
+		if (GetFileExtension(luaToString))
+		{
+			Cpy(extension, GetFileExtension(luaToString));
+			if (Cmp(extension, ".DDS"))
+			{
+				for (CUInt pr = 0; pr < g_projects.size(); pr++)
+				{
+					CBool foundTargetInCurrentProject = CFalse;
+					for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+					{
+						for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+						{
+							if (j == 0)
+								continue; //it's folder name
+
+							CChar resourceFile[MAX_NAME_SIZE];
+							sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+							StringToUpper(resourceFile);
+
+							if (Cmp(luaToString, resourceFile))
+							{
+								foundTarget = CTrue;
+								foundTargetInCurrentProject = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nProject '%s' - ShowCursorIcon() will show image resource '%s'", g_projects[pr]->m_name, lua_tostring(L, 1));
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						if (foundTargetInCurrentProject)
+							break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar errorMessage[MAX_NAME_SIZE];
+			sprintf(errorMessage, "\nShowCursorIcon() Error: Couldn't find '%s' image resource in all projects", lua_tostring(L, 1));
+			PrintInfo(errorMessage, COLOR_RED);
+		}
+
 		return 0;
 	}
 
@@ -1655,6 +3843,60 @@ CInt HideCursorIcon(lua_State *L)
 	if (argc < 1)
 	{
 		PrintInfo("\nPlease specify 1 argument for HideCursorIcon()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, 1));
+		StringToUpper(luaToString); //package name
+
+		CChar extension[MAX_NAME_SIZE];
+		if (GetFileExtension(luaToString))
+		{
+			Cpy(extension, GetFileExtension(luaToString));
+			if (Cmp(extension, ".DDS"))
+			{
+				for (CUInt pr = 0; pr < g_projects.size(); pr++)
+				{
+					CBool foundTargetInCurrentProject = CFalse;
+					for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+					{
+						for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+						{
+							if (j == 0)
+								continue; //it's folder name
+
+							CChar resourceFile[MAX_NAME_SIZE];
+							sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+							StringToUpper(resourceFile);
+
+							if (Cmp(luaToString, resourceFile))
+							{
+								foundTarget = CTrue;
+								foundTargetInCurrentProject = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nProject '%s' - HideCursorIcon() will hide image resource '%s'", g_projects[pr]->m_name, lua_tostring(L, 1));
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						if (foundTargetInCurrentProject)
+							break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar errorMessage[MAX_NAME_SIZE];
+			sprintf(errorMessage, "\nHideCursorIcon() Error: Couldn't find '%s' image resource in all projects", lua_tostring(L, 1));
+			PrintInfo(errorMessage, COLOR_RED);
+		}
+
 		return 0;
 	}
 
@@ -1750,6 +3992,27 @@ CInt AttachScriptToKey(lua_State *L)
 	return 0;
 }
 
+CInt PrintConsole(lua_State *L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for Print funation", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	PrintInfo(luaToString);
+
+	return 0;
+
+}
+
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
 
@@ -1782,6 +4045,8 @@ CMultipleWindows::CMultipleWindows()
 	m_menuCursorImg = NULL;
 	m_playGameMode = CFalse;
 	m_saveScreenshot = CFalse;
+	m_swapBuffers = CTrue;
+	m_notFocus = CFalse; //by default we focus on main dialog
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -2105,7 +4370,7 @@ CBool CMultipleWindows::InitAll()
 
 		m_nx = new CNovodex();
 
-		if (!m_nx->initNx(-1000.0, g_physXProperties.m_fCapsuleHeight * 0.5f, 1000.0, g_physXProperties.m_fGravityY, g_physXProperties.m_fCapsuleRadius, g_physXProperties.m_fCapsuleHeight, g_physXProperties.m_fCharacterSlopeLimit, g_physXProperties.m_fCharacterSkinWidth, g_physXProperties.m_fCharacterStepOffset))
+		if (!m_nx->initNx(-1000.0, g_physXProperties.m_fCapsuleHeight * 0.5f, 1000.0, g_physXProperties.m_fCapsuleRadius, g_physXProperties.m_fCapsuleHeight, g_physXProperties.m_fCharacterSlopeLimit, g_physXProperties.m_fCharacterSkinWidth, g_physXProperties.m_fCharacterStepOffset))
 		{
 			PrintInfo("\nCouldn't initialize physX", COLOR_RED);
 			return false;
@@ -3172,11 +5437,8 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 				{
 					if (g_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 					{
-						if (g_guiButtons[k]->GetHasHoverScript())
-						{
-							if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
-								LuaLoadAndExecute(g_lua, g_guiButtons[k]->GetHoverScriptPath());
-						}
+						if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
+							g_guiButtons[k]->OnSelectMouseHoverScript();
 					}
 					g_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
 				}
@@ -3206,11 +5468,9 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 					{
 						if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 						{
-							if (g_guis[i]->m_guiButtons[k]->GetHasHoverScript())
-							{
-								if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
-									LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
-							}
+							if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
+								g_guis[i]->m_guiButtons[k]->OnSelectMouseHoverScript();
+							
 						}
 
 						g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
@@ -3562,7 +5822,7 @@ CVoid CMultipleWindows::DrawGUIMode()
 		{
 			iluImageParameter(ILU_FILTER, ILU_SCALE_LANCZOS3);
 
-			iluScale((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ilGetInteger(IL_IMAGE_DEPTH));
+			iluScale(182, 101, ilGetInteger(IL_IMAGE_DEPTH));
 
 			ilEnable(IL_FILE_OVERWRITE);
 
@@ -4251,10 +6511,12 @@ CVoid CMultipleWindows::DrawPerspective()
 	}
 
 	g_camera->m_cameraManager->UpdateFrustum();
-	g_octree->ResetOctreeGeoCount();
-	g_octree->Render(CTrue);
-	g_octree->ResetOctreeGeoCount();
-
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		g_octree->ResetOctreeGeoCount();
+		g_octree->Render(CTrue);
+		g_octree->ResetOctreeGeoCount();
+	}
 	m_calculateDistance = CFalse;
 	if ( m_cameraType != m_cameraTypeOfPreviousFrame )
 	{
@@ -4566,6 +6828,32 @@ CVoid CMultipleWindows::DrawPerspective()
 	if (g_polygonMode == ePOLYGON_FILL)
 		glEnable(GL_LIGHTING);   //just for per vertex lighting
 
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				if (!g_instancePrefab[i]->GetVisible()) continue;
+				g_instancePrefab[i]->UpdateScript();
+			}
+			if (g_startup)
+				g_startup->UpdateScript();
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			if (g_prefabProperties.m_hasScript)
+			{
+				lua_getglobal(g_lua, "Update");
+				if (lua_isfunction(g_lua, -1))
+				{
+					lua_pcall(g_lua, 0, 0, 0);
+				}
+				lua_settop(g_lua, 0);
+			}
+		}
+	}
+
 	RenderQueries();
 
 	ManageLODs();
@@ -4610,12 +6898,12 @@ CVoid CMultipleWindows::DrawPerspective()
 	g_currentInstanceLight = NULL;
 
 	CBool useFog;
-	if( ( g_dofProperties.m_enable && g_dofProperties.m_debug ) || ( g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+	if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
 		useFog = CFalse;
 	else 
 		useFog = CTrue;
 
-	if( ( g_fogProperties.m_enable && useFog ) || g_dofProperties.m_enable )
+	if ((g_fogProperties.m_enable && useFog) || (g_dofProperties.m_enable && g_polygonMode == ePOLYGON_FILL))
 	{
 		if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 			g_render.BindForWriting(m_mFboIDFogDof);
@@ -4625,16 +6913,16 @@ CVoid CMultipleWindows::DrawPerspective()
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		g_fogBlurPass = CTrue;
 		if (g_editorMode == eMODE_PREFAB)
+		{
 			g_octree->Render();
-		else if (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective)
+		}
+		else if (g_editorMode == eMODE_VSCENE)
 		{
 			g_multipleView->RenderBakedOctree3DModels();
 			if (g_menu.m_showOctree)
 				g_octree->Render(CFalse, CFalse); //just show octree for debug mode.
 		}
-		else
-			g_multipleView->Render3DModels(CTrue, NULL);
-		g_multipleView->Render3DAnimatedModels( CTrue);
+		g_multipleView->Render3DAnimatedModels(CTrue);
 		g_multipleView->Render3DModelsControlledByPhysX();
 		g_multipleView->RenderCharacter(CFalse);
 		if (g_menu.m_insertAndShowTerrain)
@@ -4952,7 +7240,7 @@ CVoid CMultipleWindows::DrawPerspective()
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	if (!g_useOldRenderingStyle && g_options.m_enableFBO)
 	{
-		if (g_dofProperties.m_enable)
+		if (g_dofProperties.m_enable && g_polygonMode == ePOLYGON_FILL)
 		{
 			glUseProgram(g_render.m_dofProgram[1]);
 			if (g_dofProperties.m_debug)
@@ -5053,7 +7341,7 @@ CVoid CMultipleWindows::DrawPerspective()
 		glBindTexture(GL_TEXTURE_2D, m_textureTarget[0]);
 
 		if (!found)
-			if (g_dofProperties.m_enable)
+			if (g_dofProperties.m_enable && g_polygonMode == ePOLYGON_FILL)
 			{
 				glBindTexture(GL_TEXTURE_2D, m_dof.m_texid[3]);
 				found = CTrue;
@@ -5145,10 +7433,7 @@ CVoid CMultipleWindows::DrawPerspective()
 			{
 				iluImageParameter(ILU_FILTER, ILU_SCALE_LANCZOS3);
 
-				if (g_menu.m_justPerspective)
-					iluScale((CInt)((CFloat)width / 6.0f), (CInt)((CFloat)height / 6.0f), ilGetInteger(IL_IMAGE_DEPTH));
-				else
-					iluScale((CInt)((CFloat)width / 3.0f), (CInt)((CFloat)height / 3.0f), ilGetInteger(IL_IMAGE_DEPTH));
+				iluScale(182, 101, ilGetInteger(IL_IMAGE_DEPTH));
 
 				ilEnable(IL_FILE_OVERWRITE);
 
@@ -5446,7 +7731,8 @@ CVoid CMultipleWindows::RenderWindow()
 		}
 		ResetPhysXCounts();
 	}
-	SwapBuffers(m_pDC->m_hDC);
+	if (m_swapBuffers)
+		SwapBuffers(m_pDC->m_hDC);
 }
 
 CVoid CMultipleWindows::ResetPhysXCounts()
@@ -5497,6 +7783,8 @@ CVoid CMultipleWindows::ApplyForce( CInt direction, CFloat elapsedTime )
 
 CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName)
 {
+	if (!IsPlayGameMode()) return CFalse;
+
 	if (Cmp(m_previousCharacterAnimationType, animationType))
 		return CFalse;
 	else 
@@ -5683,7 +7971,7 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut);
+			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut, 1.0f, CFalse);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
@@ -5786,15 +8074,15 @@ CBool CMultipleWindows::GetJumpCurrentEndDuration(CFloat& duration)
 	CBool foundTarget = CFalse;
 	CUInt index = -1;
 
-	for (CInt i = 0; i < scene->GetNumClips(); i++)
+	for (CInt k = 0; k < scene->GetNumClips(); k++)
 	{
 		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, scene->m_animationClips[i]->GetName());
+		Cpy(animationName, scene->m_animationClips[k]->GetName());
 		StringToUpper(animationName);
 		StringToUpper((CChar*)jumpName[0].c_str());
 		if (Cmp(jumpName[0].c_str(), animationName))
 		{
-			index = i;
+			index = k;
 			foundTarget = CTrue;
 			break;
 		}
@@ -5812,6 +8100,7 @@ CBool CMultipleWindows::GetJumpCurrentEndDuration(CFloat& duration)
 
 CVoid CMultipleWindows::ProcessInputs()
 {
+	if (m_notFocus) return;
 	if(m_loadScene) return;
 
 	if (m_lockInput || m_isMenu)
@@ -5830,7 +8119,7 @@ CVoid CMultipleWindows::ProcessInputs()
 		{
 			bEscapeDown = CTrue;
 			if (m_keyboadAndMouseScript.GetHasEscapeScript())
-				LuaLoadAndExecute(g_lua, m_keyboadAndMouseScript.GetEscapeScriptFile());
+				m_keyboadAndMouseScript.ExecuteScript(m_keyboadAndMouseScript.GetEscapeScriptFile());
 			else
 				PrintInfo("\nGame Will Exit", COLOR_YELLOW);
 		}
@@ -7627,8 +9916,8 @@ CVoid CMultipleWindows::Render3DModelsControlledByPhysX(CBool sceneManager)
 	}
 	else
 	{
-		if (g_multipleView->IsPlayGameMode())
-		{
+		//if (g_multipleView->IsPlayGameMode())
+		//{
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				if (!g_scene[i]->m_isVisible) continue;
@@ -7649,7 +9938,7 @@ CVoid CMultipleWindows::Render3DModelsControlledByPhysX(CBool sceneManager)
 					}
 				}
 			}
-		}
+		//}
 	}
 
 }
@@ -8172,7 +10461,7 @@ CVoid CMultipleWindows::RenderTerrain()
 			glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
 			glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_multipleView->m_dof.m_focalRange);
 			CBool useFog;
-			if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+			if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
 				useFog = CFalse;
 			else
 				useFog = CTrue;
@@ -9483,20 +11772,22 @@ CVoid CMultipleWindows::Draw3DObjects()
 		if (g_engineLights.size() == 0 || g_editorMode == eMODE_PREFAB)
 			SetDefaultLight();
 
-		if (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective)
+		if (g_editorMode == eMODE_PREFAB)
+		{
+			g_octree->Render();
+		}
+		else if (g_editorMode == eMODE_VSCENE)
 		{
 			g_multipleView->RenderBakedOctree3DModels();
 			if (g_menu.m_showOctree)
 				g_octree->Render(CFalse, CFalse); //just show octree for debug mode.
 		}
-		else
-			g_multipleView->Render3DModels(CTrue, NULL);
 		g_multipleView->Render3DAnimatedModels(CTrue);
 		g_multipleView->Render3DModelsControlledByPhysX();
 		g_multipleView->RenderCharacter(CFalse);
 
 		++g_numLights;
-		if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
+		if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_VSCENE)
 			g_octree->ResetOctreeGeoCount();
 	} //if !g_useOldRenderingStyle
 }
@@ -9747,3 +12038,4 @@ void CMultipleWindows::DeleteMenuCursorTexture()
 {
 	CDelete(m_menuCursorImg);
 }
+

@@ -1,0 +1,7 @@
+function OnTriggerEnter()
+
+end
+
+function OnTriggerExit()
+
+end

@@ -17,8 +17,8 @@
 
 #include "OpenGL.h"
 #include "CHeightClass.h"
-#include "Utility.h"
-#include "Defines.h"
+#include "../Common/Utility.h"
+#include "../Common/Defines.h"
 #include "../physXEngine/nx.h"
 class CInstanceLight;
 ///////////////////////////////////

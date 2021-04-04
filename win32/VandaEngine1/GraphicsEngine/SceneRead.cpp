@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -930,6 +930,19 @@ CNode * CScene::ReadNode( domNodeRef node, CNode * parentNode )
 		CInstanceCamera *instanceCamera = ReadInstanceCamera(node->getInstance_camera_array()[i]);
 		if (instanceCamera)
 		{
+			CBool foundCamera = CFalse;
+			//if camera name exists, skip
+			for (CUInt j = 0; j < g_importedCameraInstances.size(); j++)
+			{
+				if (Cmp(instanceCamera->m_abstractCamera->GetName(), g_importedCameraInstances[j]->m_abstractCamera->GetName()))
+				{
+					foundCamera = CTrue;
+					break;
+				}
+			}
+			if (foundCamera)
+				continue;
+
 			instanceCamera->m_parent = tempNode;
 			m_cameraInstances.push_back(instanceCamera);
 			g_importedCameraInstances.push_back(instanceCamera);
@@ -1905,6 +1918,9 @@ CCamera *CScene::ReadCamera( domCameraRef lib )
 		CChar camName[MAX_NAME_SIZE];
 		sprintf(camName, "%s%s%s", g_currentInstancePrefabName, "_", CameraElement->getId());
 		newCam->SetName(camName);
+
+		newCam->SetPureName(CameraElement->getId());
+
 		newCam->SetDocURI(CameraElement->getDocumentURI()->getURI());
 		
 		// Get the optics

@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // SelectCamera.cpp : implementation file
@@ -27,12 +27,15 @@ void CSelectCamera::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_SELECT_CAMERA, m_listBoxCameraObjects);
+	DDX_Control(pDX, IDC_RICHED_CAMERA_NAME, m_richCameraName);
 }
 
 
 BEGIN_MESSAGE_MAP(CSelectCamera, CDialog)
 	ON_BN_CLICKED(IDOK, &CSelectCamera::OnBnClickedOk)
 	ON_BN_CLICKED(ID_ACIVATE_AND_RENDER, &CSelectCamera::OnBnClickedAcivateAndRender)
+	ON_BN_CLICKED(IDC_BUTTON_COPY_CAMERA_NAME, &CSelectCamera::OnBnClickedButtonCopyCameraName)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_SELECT_CAMERA, &CSelectCamera::OnLvnItemchangedListSelectCamera)
 END_MESSAGE_MAP()
 
 
@@ -48,7 +51,7 @@ CVoid CSelectCamera::InserItemToCameraList( char * objectName )
 	lvItem.iSubItem = 0;
 	lvItem.pszText = objectName;
 	m_listBoxCameraObjects.InsertItem(&lvItem);
-	m_listBoxCameraObjects.SetExtendedStyle( LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP | LVS_EX_GRIDLINES  );
+	m_listBoxCameraObjects.SetExtendedStyle( LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP );
 	m_listBoxCameraObjects.SetItemState(cameraObjectIndex, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED );
 	m_listBoxCameraObjects.EnsureVisible(0, FALSE);
 }
@@ -161,6 +164,11 @@ void CSelectCamera::OnBnClickedOk()
 
 		//}
 	}
+	else
+	{
+		MessageBox("Please select an item from the list!", "ERROR", MB_OK | MB_ICONERROR);
+		return;
+	}
 	OnOK();
 }
 
@@ -194,4 +202,58 @@ void CSelectCamera::OnBnClickedAcivateAndRender()
 	else
 	{
 	}
+}
+
+
+void CSelectCamera::OnBnClickedButtonCopyCameraName()
+{
+	CString s;
+	m_richCameraName.GetWindowTextA(s);
+	if (s.IsEmpty())
+		MessageBox("Please select a camera from the list!", "Error", MB_OK | MB_ICONERROR);
+	else
+	{
+		m_richCameraName.Copy();
+		CChar message[MAX_URI_SIZE];
+		sprintf(message, "Item '%s' copied to clipboard", s);
+		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
+	}
+}
+
+
+void CSelectCamera::OnLvnItemchangedListSelectCamera(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	int nSelected = -1;
+	POSITION p = m_listBoxCameraObjects.GetFirstSelectedItemPosition();
+	while (p)
+	{
+		nSelected = m_listBoxCameraObjects.GetNextSelectedItem(p);
+	}
+	TCHAR szBuffer[1024];
+
+	if (nSelected >= 0)
+	{
+		DWORD cchBuf(1024);
+		LVITEM lvi;
+		lvi.iItem = nSelected;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = szBuffer;
+		lvi.cchTextMax = cchBuf;
+		m_listBoxCameraObjects.GetItem(&lvi);
+
+		m_richCameraName.SetWindowTextA(szBuffer);
+		CInt end = m_richCameraName.GetWindowTextLengthA();
+		m_richCameraName.SetSel(0, end);
+
+	}
+	else
+	{
+		m_richCameraName.SetWindowTextA("");
+		m_richCameraName.SetSel(0, 0);
+	}
+
+	*pResult = 0;
 }

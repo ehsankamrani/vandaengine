@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -113,7 +113,6 @@ extern CBool g_updateOctree;
 extern CMain* g_main;
 extern CBool g_useGlobalAmbientColor;
 extern CColor4f g_globalAmbientColor;
-extern CLuaState g_lua;
 extern COpenALSystem* g_soundSystem;
 extern std::vector<CInstanceCamera*> g_importedCameraInstances;
 extern std::vector<CInstanceCamera*> g_engineCameraInstances;
@@ -417,6 +416,9 @@ struct CPrefabProperties
 {
 	CInt m_clipIndex;
 	std::vector<std::string> m_names;
+	CChar m_scriptPath[MAX_URI_SIZE];
+	CBool m_updateScript;
+	CBool m_hasScript;
 	CBool m_loopAnimationAtStart;
 	CBool m_playAnimationAtStart;
 	CBool m_alwaysVisible;
@@ -429,6 +431,9 @@ struct CPrefabProperties
 		m_playAnimationAtStart = CTrue;
 		m_alwaysVisible = CFalse;
 		m_castShadow = CTrue;
+		Cpy(m_scriptPath, "\n");
+		m_updateScript = CFalse;
+		m_hasScript = CFalse;
 	}
 
 	CVoid Reset()
@@ -439,8 +444,10 @@ struct CPrefabProperties
 		m_playAnimationAtStart = CTrue;
 		m_alwaysVisible = CFalse;
 		m_castShadow = CTrue;
+		Cpy(m_scriptPath, "\n");
+		m_updateScript = CFalse;
+		m_hasScript = CFalse;
 	}
-
 };
 
 struct CShadowProperties

@@ -16,6 +16,8 @@ CAddTrigger::CAddTrigger(CWnd* pParent /*=NULL*/)
 {
 	m_triggerType = eTRIGGER_BOX;
 	m_trigger = NULL;
+	m_changed = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddTrigger::~CAddTrigger()
@@ -27,6 +29,7 @@ void CAddTrigger::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMB_TRIGGER, m_comboTrigger);
 	DDX_Control(pDX, IDC_EDIT_TRIGGER, m_editBoxTrigger);
+	DDX_Control(pDX, IDC_EDIT_TRIGGER_SCRIPT, m_editBoxScript);
 }
 
 
@@ -34,6 +37,8 @@ BEGIN_MESSAGE_MAP(CAddTrigger, CDialog)
 	ON_BN_CLICKED(IDOK, &CAddTrigger::OnBnClickedOk)
 	ON_CBN_SELCHANGE(IDC_COMB_TRIGGER, &CAddTrigger::OnCbnSelchangeCombTrigger)
 	ON_EN_CHANGE(IDC_EDIT_TRIGGER, &CAddTrigger::OnEnChangeEditTrigger)
+	ON_BN_CLICKED(IDC_BTN_ADD_TRIGGER, &CAddTrigger::OnBnClickedBtnAddTrigger)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_TRIGGER, &CAddTrigger::OnBnClickedBtnRemoveTrigger)
 END_MESSAGE_MAP()
 
 
@@ -89,8 +94,6 @@ void CAddTrigger::OnBnClickedOk()
 	CVec3f translation;
 	CVec4f rotation;
 	CVec3f scaling;
-	CChar m_enterScript[MAX_NAME_SIZE];
-	CChar m_exitScript[MAX_NAME_SIZE];
 
 	if (m_trigger)
 	{
@@ -98,9 +101,6 @@ void CAddTrigger::OnBnClickedOk()
 		translation = m_trigger->GetInstancePrefab()->GetTranslate();
 		rotation = m_trigger->GetInstancePrefab()->GetRotate();
 		scaling = m_trigger->GetInstancePrefab()->GetScale();
-		Cpy(m_enterScript, m_trigger->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_enterScript);
-		Cpy(m_exitScript, m_trigger->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_exitScript);
-
 	}
 	else
 		new_trigger = CNew(CTrigger);
@@ -122,6 +122,14 @@ void CAddTrigger::OnBnClickedOk()
 		new_trigger->SetTriggerType(eTRIGGER_SPHERE);
 	}
 
+	new_trigger->SetHasScript(m_hasScript);
+	new_trigger->SetUpdateScript(m_changed);
+	if (m_hasScript)
+	{
+		new_trigger->SetScript(m_strScript.GetBuffer(m_strScript.GetLength()));
+		new_trigger->LoadLuaFile();
+		m_strScript.ReleaseBuffer();
+	}
 	g_importPrefab = CTrue;
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
@@ -169,26 +177,6 @@ void CAddTrigger::OnBnClickedOk()
 		new_trigger->GetInstancePrefab()->UpdateBoundingBox(CTrue);
 		new_trigger->GetInstancePrefab()->CalculateDistance();
 		//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
-
-		CScene* scene = new_trigger->GetInstancePrefab()->GetScene(0);
-		for (CUInt i = 0; i < scene->m_instanceGeometries.size(); i++)
-		{
-			Cpy(scene->m_instanceGeometries[i]->m_enterScript, m_enterScript);
-			Cpy(scene->m_instanceGeometries[i]->m_exitScript, m_exitScript);
-
-			if (!Cmp(scene->m_instanceGeometries[i]->m_enterScript, "\n"))
-				scene->m_instanceGeometries[i]->m_hasEnterScript = CTrue;
-			else
-				scene->m_instanceGeometries[i]->m_hasEnterScript = CFalse;
-
-			if (!Cmp(scene->m_instanceGeometries[i]->m_exitScript, "\n"))
-				scene->m_instanceGeometries[i]->m_hasExitScript = CTrue;
-			else
-				scene->m_instanceGeometries[i]->m_hasExitScript = CFalse;
-
-		}
-		new_trigger->GetInstancePrefab()->SetEnterScript(m_enterScript);
-		new_trigger->GetInstancePrefab()->SetExitScript(m_exitScript);
 	}
 	else
 	{
@@ -250,6 +238,13 @@ BOOL CAddTrigger::OnInitDialog()
 	if (m_trigger)
 	{
 		m_editBoxTrigger.SetWindowTextA(m_trigger->GetName());
+		if (m_trigger->GetHasScript())
+		{
+			m_editBoxScript.SetWindowTextA(m_trigger->GetScript());
+			m_strScript = m_trigger->GetScript();
+			m_changed = m_trigger->GetUpdateScript();
+			m_hasScript = CTrue;
+		}
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -281,4 +276,44 @@ void CAddTrigger::OnEnChangeEditTrigger()
 CVoid CAddTrigger::Init(CTrigger* trigger)
 {
 	m_trigger = trigger;
+}
+
+
+void CAddTrigger::OnBnClickedBtnAddTrigger()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_changed = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAddTrigger::OnBnClickedBtnRemoveTrigger()
+{
+	m_editBoxScript.SetWindowTextA("\n");
+	m_strScript.Empty();
+	m_hasScript = CFalse;
 }

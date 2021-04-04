@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -7,11 +7,26 @@
 #include "../Main.h"
 CTrigger::CTrigger()
 {
+	m_hasScript = CFalse;
+	m_updateScript = CFalse;
+	Cpy(m_script, "\n");
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
 }
 
 CTrigger::~CTrigger()
 {
 	Destroy();
+	LuaClose(m_lua);
+}
+
+CVoid CTrigger::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
 }
 
 CVoid CTrigger::Destroy()
@@ -72,8 +87,6 @@ CVoid CTrigger::Destroy()
 			}
 		}
 	}
-
-
 }
 
 CVoid CTrigger::SetName(CChar* name)
@@ -106,4 +119,42 @@ CInstancePrefab* CTrigger::GetInstancePrefab()
 	return m_instancePrefab;
 }
 
+CBool CTrigger::LoadLuaFile()
+{
+	//ResetLua();
+	if (!LuaLoadFile(m_lua, m_script))
+		return CFalse;
+	return CTrue;
+}
 
+CVoid CTrigger::OnTriggerEnterScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnTriggerEnter");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CTrigger::OnTriggerExitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnTriggerExit");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}

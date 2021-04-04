@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -29,9 +29,7 @@ private:
 	CBool m_updateHoverImage;
 	CBool m_updateRightClickImage;
 	CBool m_updateDisableImage;
-	CBool m_updateLeftClickScript;
-	CBool m_updateHoverScript;
-	CBool m_updateRightClickScript;
+	CBool m_updateScript;
 
 public:
 	afx_msg void OnBnClickedButtonAddMainImg();
@@ -43,20 +41,14 @@ public:
 	afx_msg void OnBnClickedButtonRemoveRightClkImg();
 	afx_msg void OnBnClickedButtonAddDisableImg();
 	afx_msg void OnBnClickedButtonRemoveDisableImg();
-	afx_msg void OnBnClickedButtonAddLeftClkScript();
-	afx_msg void OnBnClickedButtonRemoveLeftClkScript();
-	afx_msg void OnBnClickedButtonAddHoverScript();
-	afx_msg void OnBnClickedButtonRemoveHoverScript();
-	afx_msg void OnBnClickedButtonAddRightClkScript();
-	afx_msg void OnBnClickedButtonRemoveRightClkScript();
+	afx_msg void OnBnClickedButtonAddScript();
+	afx_msg void OnBnClickedButtonRemoveScript();
 	CEdit m_editMainImg;
 	CEdit m_editLeftClickImg;
 	CEdit m_editHoverImg;
 	CEdit m_editRightClickImg;
 	CEdit m_editDisableImg;
-	CEdit m_editLeftClickScript;
-	CEdit m_editHoverScript;
-	CEdit m_editRightClickScript;
+	CEdit m_editScript;
 
 	CString m_strMainImgPath;
 	CString m_strMainPureImgPath;
@@ -73,28 +65,22 @@ public:
 	CBool m_hasRightClickImage;
 	CBool m_hasHoverImage;
 	CBool m_hasDisableImage;
-	CBool m_hasLeftClickScript;
-	CBool m_hasRightClickScript;
-	CBool m_hasHoverScript;
+	CBool m_hasScript;
 
 	inline CBool GetHasLeftClickImage() { return m_hasLeftClickImage; }
 	inline CBool GetHasHoverImage() { return m_hasHoverImage; }
 	inline CBool GetHasRightClickImage() { return m_hasRightClickImage; }
 	inline CBool GetHasDisableImage() { return m_hasDisableImage; }
 
-	inline CBool GetHasLeftClickScript() { return m_hasLeftClickScript; }
-	inline CBool GetHasRightClickScript() { return m_hasRightClickScript; }
-	inline CBool GetHasHoverScript() { return m_hasHoverScript; }
+	inline CBool GetHasScript() { return m_hasScript; }
 
 
 	CString m_strSize;
 	CFloat m_fSize;
 
-	CString m_strLeftClickScriptPath;
-	CString m_strLeftClickPureScriptPath;
-	CString m_strHoverScriptPath;
+	CString m_strScriptPath;
+	CString m_strPureScriptPath;
 	CString m_strHoverPureScriptPath;
-	CString m_strRightClickScriptPath;
 	CString m_strRightClickPureScriptPath;
 	afx_msg void OnBnClickedOk();
 	virtual BOOL OnInitDialog();
@@ -129,27 +115,21 @@ public:
 	CVoid SetRightClickImagePath(CChar* path);
 	CVoid SetDisableImagePath(CChar* path);
 
-	CVoid SetLeftClickScriptPath(CChar* path);
-	CVoid SetHoverScriptPath(CChar* path);
-	CVoid SetRightClickScriptPath(CChar* path);
+	CVoid SetScriptPath(CChar* path);
 
 	inline CVoid SetUpdateMainImage(CBool state) { m_updateMainImage = state; }
 	inline CVoid SetUpdateLeftClickImage(CBool state) { m_updateLeftClickImage = state; }
 	inline CVoid SetUpdateHoverImage(CBool state) { m_updateHoverImage = state; }
 	inline CVoid SetUpdateRightClickImage(CBool state) { m_updateRightClickImage = state; }
 	inline CVoid SetUpdateDisableImage(CBool state) { m_updateDisableImage = state; }
-	inline CVoid SetUpdateLeftClickScript(CBool state) { m_updateLeftClickScript = state; }
-	inline CVoid SetUpdateRightClickScript(CBool state) { m_updateRightClickScript = state; }
-	inline CVoid SetUpdateHoverScript(CBool state) { m_updateHoverScript = state; }
+	inline CVoid SetUpdateScript(CBool state) { m_updateScript = state; }
 
 	inline CBool GetUpdateMainImage() { return m_updateMainImage; }
 	inline CBool GetUpdateLeftClickImage() { return m_updateLeftClickImage; }
 	inline CBool GetUpdateHoverImage() { return m_updateHoverImage; }
 	inline CBool GetUpdateRightClickImage() { return m_updateRightClickImage; }
 	inline CBool GetUpdateDisableImage() { return m_updateDisableImage; }
-	inline CBool GetUpdateLeftClickScript() { return m_updateLeftClickScript; }
-	inline CBool GetUpdateRightClickScript() { return m_updateRightClickScript; }
-	inline CBool GetUpdateHoverScript() { return m_updateHoverScript; }
+	inline CBool GetUpdateScript() { return m_updateScript; }
 
 	CChar* GetName();
 	CVec2f GetPosition();
@@ -161,8 +141,5 @@ public:
 	CChar* GetRightClickImagePath();
 	CChar* GetDisableImagePath();
 
-	CChar* GetLeftClickScriptPath();
-	CChar* GetHoverScriptPath();
-	CChar* GetRightClickScriptPath();
-
+	CChar* GetScriptPath();
 };

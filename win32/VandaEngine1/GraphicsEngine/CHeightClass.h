@@ -9,7 +9,7 @@
 #include "OpenGL.h"
 #include <gl/glu.h>
 #include "Image.h"
-#include "Defines.h"
+#include "../Common/Defines.h"
 
 // Vector struct.
 struct SVector

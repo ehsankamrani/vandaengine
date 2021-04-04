@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 /*************************************************
@@ -271,12 +271,14 @@ public:
 	CVector m_vLightSourceTointersect;       //A vector from the light source to the intersection point
 	Point m_pt;                               //POINT to temp 
 
+	CVoid SetPureName(const CChar* name) { Cpy(m_pureName, name); }
+	CChar* GetPureName() { return m_pureName; }
 private:
 	GLdouble m_angle;
 	GLdouble m_defaultAngleValue;
 	GLdouble m_maxAngleValue;
 	GLdouble m_minAngleValue;
-
+	CChar m_pureName[MAX_NAME_SIZE];
 private:
 	//variables related to COLLADA camera
 	CFloat		m_xFov;		// X field of view for perspective CCamera

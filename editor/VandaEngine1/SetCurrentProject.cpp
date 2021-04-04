@@ -28,12 +28,9 @@ void CSetCurrentProject::DoDataExchange(CDataExchange* pDX)
 }
 
 
+// CSetCurrentProject message handlers
 BEGIN_MESSAGE_MAP(CSetCurrentProject, CDialog)
 END_MESSAGE_MAP()
-
-
-// CSetCurrentProject message handlers
-
 
 BOOL CSetCurrentProject::OnInitDialog()
 {
@@ -108,6 +105,7 @@ void CSetCurrentProject::OnOK()
 			{
 				if( Cmp( szBuffer, g_projects[i]->m_name ) )
 				{
+					MessageBox("This project is already activated!", "Error", MB_OK | MB_ICONINFORMATION);
 					return; // no need to switch projects
 				}
 			}
@@ -130,7 +128,7 @@ void CSetCurrentProject::OnOK()
 				g_projects[i]->m_isActive = CTrue;
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "Project ' %s ' set to current.", g_projects[i]->m_name);
-				MessageBox(temp);
+				MessageBox(temp, "Report", MB_OK | MB_ICONINFORMATION);
 				break;
 			}
 		}
@@ -164,7 +162,7 @@ void CSetCurrentProject::OnOK()
 		}
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.1 (", szBuffer, " - ", m_currentVSceneNameWithoutDot, ")");
+		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.2 (", szBuffer, " - ", m_currentVSceneNameWithoutDot, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 		//save the changes to projects.dat
 		FILE *ProjectsFilePtr;
@@ -213,6 +211,3 @@ void CSetCurrentProject::OnOK()
 	}
 
 }
-
-
-

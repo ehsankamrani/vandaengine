@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -35,6 +35,9 @@ CScene::CScene()
 	m_isVisible = CTrue;
 	m_updateBoundingBox = CFalse;
 	m_calculateDynamicBoundingBox = CFalse;
+	//m_hasScript = CFalse;
+	//m_updateScript = CFalse;
+	//Cpy(m_script, "\n");
 }
 
 CScene::~CScene()
@@ -138,7 +141,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 1.7.1");
+		zipClose(zipOpen, "Vanda Engine 1.7.2");
 		free(buf);
 		return -1;
 	}
@@ -151,7 +154,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 1.7.1");
+			//zipClose(zf, "Vanda Engine 1.7.2");
 			//free(buf);
 			//return -1;
    //     }
@@ -167,7 +170,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.7.1");
+				zipClose(zf, "Vanda Engine 1.7.2");
 				free(buf);
 				return -1;
 			}
@@ -182,7 +185,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.7.1");
+				zipClose(zf, "Vanda Engine 1.7.2");
 				free(buf);
 				return -1;
             }
@@ -192,7 +195,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 1.7.1");
+	zipClose(zf,"Vanda Engine 1.7.2");
     free(buf);
 	return 1;
 }
@@ -847,6 +850,7 @@ CVoid CScene::RenderSelectionMode()
 //we blend from  animation2 to animation1, and continue from the first animation
 CVoid CScene::Update( CFloat elapsedTime, CBool updateOrient, CBool resetTimer )
 {
+	g_render.SetScene(this);
 	m_sceneRoot->Update( elapsedTime, updateOrient ); 
 	UpdateBlendCycleList(elapsedTime, resetTimer );
 
@@ -1779,16 +1783,20 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 	{
 		if (!g_multipleView->m_nx->CreateTriangleMesh((CInt)(vertices_temp.size() / 3), (CInt)(triangles_temp.size() / 3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName))
 			failed = CTrue;
-		else
+		else if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		else if (g_editorMode == eMODE_VSCENE)
+			sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 
 	}
 	else if (vertices != NULL && algorithm == eLOD_CONVEX_HULL)
 	{
 		if (!g_multipleView->m_nx->CreateConvexMesh((CInt)(vertices_temp.size() / 3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation))
 			failed = CTrue;
-		else
+		else if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		else if (g_editorMode == eMODE_VSCENE)
+			sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 	}
 	////////////////////////////////////////
 	if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH || algorithm == eLOD_CONVEX_HULL)
@@ -1857,7 +1865,10 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 			g_multipleView->m_nx->CreateBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
 		else
 			g_multipleView->m_nx->CreateTriggerBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
-		sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		if (g_editorMode == eMODE_PREFAB)
+			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		else if (g_editorMode == eMODE_VSCENE)
+			sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 		m_instanceGeo->m_lodAlgorithm = algorithm;
 		m_instanceGeo->m_hasPhysX = CTrue;
 		m_instanceGeo->m_physXDensity = density;
@@ -1890,7 +1901,10 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 				radius = length;
 		}
 		g_multipleView->m_nx->CreateSphere(NxVec3(PosX, PosY, PosZ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
-		sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		if (g_editorMode == eMODE_PREFAB)
+			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		else if (g_editorMode == eMODE_VSCENE)
+			sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 		m_instanceGeo->m_lodAlgorithm = algorithm;
 		m_instanceGeo->m_hasPhysX = CTrue;
 		m_instanceGeo->m_physXDensity = density;
@@ -1972,7 +1986,10 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 		PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
 
 		g_multipleView->m_nx->CreateCapsule(NxVec3(PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
-		sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		if (g_editorMode == eMODE_PREFAB)
+			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+		else if (g_editorMode == eMODE_VSCENE)
+			sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 		m_instanceGeo->m_lodAlgorithm = algorithm;
 		m_instanceGeo->m_hasPhysX = CTrue;
 		m_instanceGeo->m_physXDensity = density;

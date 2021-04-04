@@ -75,12 +75,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.7.0"
+            VALUE "FileVersion", "1.7.2"
             VALUE "internalName", "VandaEngine.exe"
-            VALUE "LegalCopyright", "(c) 2020 Vanda Engine.  All rights reserved."
+            VALUE "LegalCopyright", "(c) 2021 Vanda Engine.  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.7.0"
+            VALUE "ProductVersion", "1.7.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -101,8 +101,8 @@ CAPTION "About"
 FONT 8, "System"
 BEGIN
     ICON            107,IDC_MYICON,14,9,16,16
-    LTEXT           "VandaEngine Version 1.7.0",IDC_STATIC,49,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2020",IDC_STATIC,49,20,119,8
+    LTEXT           "VandaEngine Version 1.7.2",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2021",IDC_STATIC,49,20,119,8
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
 END
 
@@ -196,7 +196,7 @@ BEGIN
     CONTROL         "16",IDC_ISOTROP_16,"Button",BS_AUTORADIOBUTTON,252,220,25,8
     CONTROL         "Current Resolution",IDC_RES_CURRENT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,16,181,78,8
     CONTROL         "1024 * 768",IDC_RES_1024,"Button",BS_AUTORADIOBUTTON,16,206,66,8
-    CONTROL         "1280 * 720",IDC_RES_1280,"Button",BS_AUTORADIOBUTTON,16,219,67,8
+    CONTROL         "1280 * 1024",IDC_RES_1280,"Button",BS_AUTORADIOBUTTON,16,219,67,8
     CONTROL         "1440 * 900",IDC_RES_1440,"Button",BS_AUTORADIOBUTTON,16,232,77,8
     CONTROL         "1680 * 1050",IDC_RES_1680,"Button",BS_AUTORADIOBUTTON,16,245,59,8
     CONTROL         "800 * 600",IDC_RES_800,"Button",BS_AUTORADIOBUTTON,16,193,70,8

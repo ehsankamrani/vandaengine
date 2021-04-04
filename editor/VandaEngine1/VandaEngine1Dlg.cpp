@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngine1Dlg.cpp : implementation file
@@ -86,10 +86,9 @@ CMenu *ex_pMenu = NULL; //extern
 
 CEditMaterial *ex_pEditMaterial = NULL; //extern
 CEditPhysX *ex_pEditPhysX = NULL; //extern
-CAddScript* ex_pAddScript = NULL;
 
 CBool g_vandaDemo = CFalse;
-CBool g_admin = CFalse;
+CBool g_admin = CTrue;
 CBool g_importCOLLADA = CFalse;
 CBool g_openVINFile = CFalse;
 CChar g_fileNameInCommandLine[MAX_NAME_SIZE];
@@ -174,7 +173,7 @@ CBool g_firstPass;
 CInstanceLight* g_currentInstanceLight = NULL;
 CMaterialChannels g_materialChannels = eCHANNELS_ALL;
 CInt g_sceneManagerObjectsPerSplit = 15;
-CLuaState g_lua;
+lua_State* g_lua;
 CBool g_testScript = CFalse;
 CBool g_renderShadow = CFalse;
 CFloat g_maxInstancePrefabRadius = -1.0f;
@@ -235,6 +234,7 @@ DWORD __stdcall MEditStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LO
 
 	return 0;
 }
+
 CVoid SetDialogData4(CChar* name, CFloat x, CFloat y, CFloat z, CBool showXYZ = CTrue, CBool showArrow = CTrue)
 {
 	//selected object
@@ -966,7 +966,6 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	//Initialize material editor
 	ex_pEditMaterial = m_dlgEditMaterial = CNew( CEditMaterial );
 	ex_pEditPhysX = m_dlgEditPhysX = CNew( CEditPhysX );
-	ex_pAddScript = m_dlgAddScript = CNew (CAddScript);
 
 	ex_pBtnPrevAnim = &m_mainBtnPrevAnim;
 	ex_pBtnNextAnim = &m_mainBtnNextAnim;
@@ -1098,7 +1097,6 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	//delete material editor
 	CDelete( m_dlgEditMaterial );
 	CDelete( m_dlgEditPhysX );
-	CDelete( m_dlgAddScript );
 	CDelete( m_pToolTip );
 	//Delete ambient sound
 	CDelete( g_multipleView );
@@ -1264,6 +1262,8 @@ CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_STARTUP, m_mainBtnStartup);
 	DDX_Control(pDX, IDC_BTN_TERRAIN, m_mainBtnTerrain);
 	DDX_Control(pDX, IDC_BTN_ENGINE_CAMERA, m_mainBtnEngineCamera);
+	DDX_Control(pDX, IDC_BTN_PREFAB_SETTINGS, m_mainBtnPrefabSettings);
+	DDX_Control(pDX, IDC_STATIC_COPY_SELECTEDOBJECT_NAME, m_richSelectedObjectName);
 }
 
 BEGIN_MESSAGE_MAP(CVandaEngine1Dlg, CDialog)
@@ -1344,6 +1344,10 @@ ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_ENGINE_OBJECTS, &CVandaEngine1Dlg::OnLvnIte
 ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_GUI_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangingListGuiElements)
 ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_PHYSX_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangingListPhysxElements)
 ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_OBJECTS, &CVandaEngine1Dlg::OnLvnItemchangingListObjects)
+ON_BN_CLICKED(IDC_BTN_PREFAB_SETTINGS, &CVandaEngine1Dlg::OnBnClickedBtnPrefabSettings)
+ON_WM_SETFOCUS()
+ON_WM_KILLFOCUS()
+ON_WM_ACTIVATE()
 END_MESSAGE_MAP()
 
 
@@ -1393,7 +1397,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnImportColladaMultipleAnimations, "Import Multiple Animations");
 	//m_pToolTip->AddTool(&m_mainBtnImportPhysX, "Import PhysX"); removed in version 1.4 or later
 	m_pToolTip->AddTool(&m_mainBtnPublishSolution, "Publish Solution");
-	m_pToolTip->AddTool(&m_mainBtnScriptManager, "Script Manager");
+	m_pToolTip->AddTool(&m_mainBtnScriptManager, "Script Editor");
 	m_pToolTip->AddTool(&m_mainBtnFreeCamera, "Activate Default Free Camera");
 	m_pToolTip->AddTool(&m_mainBtnWaterAttach, "Water Attachment");
 	m_pToolTip->AddTool(&m_mainBtnTimer, "Enable/Disable Timer");
@@ -1429,6 +1433,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnGUIButton, "Create Button");
 	m_pToolTip->AddTool(&m_mainBtnGUIBackground, "Create Background Image");
 	m_pToolTip->AddTool(&m_mainBtnGUIText, "Create Text");
+	m_pToolTip->AddTool(&m_mainBtnPrefabSettings, "Prefab Options");
 
 	m_pToolTip->Activate(TRUE);
 
@@ -1446,7 +1451,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.7.1"));
+	SetWindowText(_T("Vanda Engine 1.7.2"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -1615,17 +1620,6 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_mainBtnWaterAttach.ShowWindow(SW_SHOW);
 	m_mainBtnWaterAttach.UpdateWindow();
 
-	//Initialize main *Script* button here
-	previousRight = rcRect.right;
-	rcRect.left = previousRight + m_horizontalPointFivePercent;
-	rcRect.right = rcRect.left + fivePercent;
-
-	m_mainBtnScriptManager.MoveWindow(rcRect);
-	m_mainBtnScriptManager.LoadBitmaps(IDB_BITMAP_SCRIPT_UP, IDB_BITMAP_SCRIPT_DOWN, IDB_BITMAP_SCRIPT_FOCUS, IDB_BITMAP_SCRIPT_DISABLE);
-	m_mainBtnScriptManager.ShowWindow(SW_SHOW);
-	m_mainBtnScriptManager.UpdateWindow();
-
-
 	//Initialize main *Timer* button here
 	previousRight = rcRect.right;
 	rcRect.left = previousRight + m_horizontalPointFivePercent;
@@ -1659,6 +1653,26 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_mainBtnTestDeactive.ShowWindow(SW_SHOW);
 	m_mainBtnTestDeactive.UpdateWindow();
 	m_mainBtnTestDeactive.EnableWindow(TRUE);
+
+	//Initialize main *Script* button here
+	previousRight = rcRect.right;
+	rcRect.left = previousRight + m_horizontalPointFivePercent;
+	rcRect.right = rcRect.left + fivePercent;
+
+	m_mainBtnScriptManager.MoveWindow(rcRect);
+	m_mainBtnScriptManager.LoadBitmaps(IDB_BITMAP_SCRIPT_UP, IDB_BITMAP_SCRIPT_DOWN, IDB_BITMAP_SCRIPT_FOCUS, IDB_BITMAP_SCRIPT_DISABLE);
+	m_mainBtnScriptManager.ShowWindow(SW_SHOW);
+	m_mainBtnScriptManager.UpdateWindow();
+
+	//Initialize main *Prefab Settings* button here
+	//previousRight = rcRect.right;
+	//rcRect.left = previousRight + m_horizontalPointFivePercent;
+	//rcRect.right = rcRect.left + fivePercent;
+
+	//m_mainBtnPrefabSettings.MoveWindow(rcRect);
+	m_mainBtnPrefabSettings.LoadBitmaps(IDB_BITMAP_PREFAB_SETTINGS, IDB_BITMAP_PREFAB_SETTINGS_DOWN, IDB_BITMAP_PREFAB_SETTINGS_FOCUS, IDB_BITMAP_PREFAB_SETTINGS_DISABLE);
+	m_mainBtnPrefabSettings.ShowWindow(SW_HIDE);
+	m_mainBtnPrefabSettings.UpdateWindow();
 
 	//Initialize main *Console* button here
 
@@ -2026,7 +2040,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_btnSceneProperties.MoveWindow( rcRect );
 	m_btnSceneProperties.SetFont( &fnt2 );
 	m_btnSceneProperties.EnableWindow( FALSE );
-	m_btnSceneProperties.ShowWindow( SW_HIDE );
+	m_btnSceneProperties.ShowWindow( SW_SHOW );
 	m_btnSceneProperties.UpdateWindow();
 
 	//==============================================
@@ -2484,6 +2498,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	GetMenu()->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_IMPORT_COLLADA, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_IMPORT_COLLADA_MULTIPLE_ANIMATIONS, MF_DISABLED | MF_GRAYED);
+	GetMenu()->EnableMenuItem(ID_MODIFY_PREFABOPTIONS, MF_DISABLED | MF_GRAYED);
 
 
 	//intitialize OpenGL window
@@ -3002,7 +3017,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3052,60 +3067,18 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	g_vsceneMenuCursor.SetCursorPath("Assets/Engine/Textures/Cursor.dds");
     srand(time(NULL));
 
-
-	//initialize lua/////////////////
+	g_lua = LuaNewState();
 	LuaOpenLibs(g_lua);
-	lua_register(g_lua, "PlaySoundLoop", PlaySoundLoop);
-	lua_register(g_lua, "PlaySoundOnce", PlaySoundOnce);
-	lua_register(g_lua, "PauseSound", PauseSound);
-	lua_register(g_lua, "StopSound", StopSound);
-
-	lua_register(g_lua, "BlendCycle", BlendCycle);
-	lua_register(g_lua, "ClearCycle", ClearCycle);
-	lua_register(g_lua, "ExecuteAction", ExecuteAction);
-	lua_register(g_lua, "ReverseExecuteAction", ReverseExecuteAction);
-	lua_register(g_lua, "RemoveAction", RemoveAction);
-	lua_register(g_lua, "GetAnimationClipDuration", GetAnimationClipDuration);
-	lua_register(g_lua, "PauseAnimations", PauseAnimations);
-
-	lua_register(g_lua, "LoadVScene", LoadVScene);
-	lua_register(g_lua, "ExitGame", ExitGame);
-	lua_register(g_lua, "SetCurrentVSceneAsMenu", SetCurrentVSceneAsMenu);
-
-	lua_register(g_lua, "ActivateThirdPersonCamera", ActivateThirdPersonCamera);
-	lua_register(g_lua, "ActivateFirstPersonCamera", ActivateFirstPersonCamera);
-	lua_register(g_lua, "ActivateImportedCamera", ActivateImportedCamera);
-	lua_register(g_lua, "ActivateEngineCamera", ActivateEngineCamera);
-
-	lua_register(g_lua, "LoadResource", LoadResource);
-	lua_register(g_lua, "DeleteAllResources", DeleteAllResources);
-	lua_register(g_lua, "PlayResourceSoundLoop", PlayResourceSoundLoop);
-	lua_register(g_lua, "PlayResourceSoundOnce", PlayResourceSoundOnce);
-	lua_register(g_lua, "StopResourceSound", StopResourceSound);
-	lua_register(g_lua, "PauseResourceSound", PauseResourceSound);
-	lua_register(g_lua, "StopAllResourceSounds", StopAllResourceSounds);
-	lua_register(g_lua, "ShowCursorIcon", ShowCursorIcon);
-	lua_register(g_lua, "HideCursorIcon", HideCursorIcon);
-	lua_register(g_lua, "AttachScriptToKey", AttachScriptToKey);
-	
-	lua_register(g_lua, "ShowGUI", ShowGUI);
-	lua_register(g_lua, "HideGUI", HideGUI);
-
-	lua_register(g_lua, "SetPrefabInstanceVisible", SetPrefabInstanceVisible);
-	lua_register(g_lua, "SetPrefabInstanceInvisible", SetPrefabInstanceInvisible);
-
-
-	////////////////////////////////
+	LuaRegisterFunctions(g_lua);
 
 	//Remove desktop.ini read only flag. (used for Uninstall)
 	//SetFileAttributes("C:/Users/Public/Desktop/desktop.ini", GetFileAttributes( "C:/Users/Public/Desktop/desktop.ini" ) & ~FILE_ATTRIBUTE_READONLY );
 	if (g_multipleView->GetInitError() || !g_render.m_shaderAvailable)
 	{
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
-
 	}
 	else
-		PrintInfo( "\nVersion 1.7 initialized successfully" );
+		PrintInfo( "\nVersion 1.7.2 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3128,6 +3101,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	{
 		OnMenuClickedOpenVScene(CFalse);
 	}
+
 	SetDialogData3(CFalse);
 	dlgWaiting->ShowWindow(SW_HIDE);
 	CDelete(dlgWaiting);
@@ -3201,6 +3175,28 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		OnBnClickedBtnScale();
 	}
+	else if (wParam == ID_EDIT_COPYSELECTEDOBJECTNAME)
+	{
+		CString s;
+		m_staticSelectedObject.GetWindowTextA(s);
+
+		if (!s.IsEmpty())
+		{
+			m_richSelectedObjectName.SetWindowTextA(s);
+			CInt end = m_richSelectedObjectName.GetWindowTextLengthA();
+			m_richSelectedObjectName.SetSel(0, end);
+			m_richSelectedObjectName.Copy();
+
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nObject name '%s' copied to clipboard", s.GetBuffer(s.GetLength()));
+			PrintInfo(temp);
+			s.ReleaseBuffer();
+		}
+		else
+		{
+			MessageBox("Please select an object!", "Error", MB_OK | MB_ICONERROR);
+		}
+	}
 	else if (wParam == ID_MODE_VSCENE || wParam == ID_MODE_VSCENE2)
 	{
 		if (g_editorMode != eMODE_VSCENE)
@@ -3272,7 +3268,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3358,7 +3354,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.2 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3432,7 +3428,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.2 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3966,6 +3962,55 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CTrue );
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+
+	}
+	else if (wParam == ID_PROJECT_DELETEPROJECTS)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+
+		CDeleteProject m_dlgDeleteProject;
+		m_dlgDeleteProject.DoModal();
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
 
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
@@ -5475,7 +5520,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if( wParam == ID_TOOLS_SCRIPTMANAGER )
+	else if( wParam == ID_TOOLS_SCRIPT_EDITOR )
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -6540,14 +6585,25 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			}
 		}
 
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+
 		CSceneProperties* m_dlgSceneProperties = CNew(CSceneProperties);
 		m_dlgSceneProperties->DoModal();
 		CDelete(m_dlgSceneProperties);
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+
 	}
 	else if( wParam == ID_HELP_ONLINEHELP )
 	{
 		//ShellExecute(NULL, "open", "data\\help\\vanda.chm", NULL, NULL, SW_SHOWNORMAL);
-		ShellExecute(NULL, "open", "https://vanda3d.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
+		//ShellExecute(NULL, "open", "https://vanda3d.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
+		MessageBox("Updated version of online help will be available soon.", "Report", MB_OK | MB_ICONINFORMATION);
 
 		g_multipleView->SetElapsedTimeFromBeginning();
 	}
@@ -6676,6 +6732,11 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
+		m_mainBtnScriptManager.MoveWindow(rcRect);
+
+		previousRight = rcRect.right;
+		rcRect.left = previousRight + m_horizontalPointFivePercent;
+		rcRect.right = rcRect.left + fivePercent;
 		m_mainBtnConsole.MoveWindow(rcRect);
 
 		m_mainBtnGUIButton.ShowWindow(SW_SHOW);
@@ -6702,6 +6763,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnNextAnim.ShowWindow(SW_HIDE);
 		m_mainBtnPlayAnim.ShowWindow(SW_HIDE);
 		m_mainBtnPauseAnim.ShowWindow(SW_HIDE);
+		m_mainBtnPrefabSettings.ShowWindow(SW_HIDE);
 
 		m_mainBtnStartup.ShowWindow(SW_HIDE);
 		m_mainBtnSky.ShowWindow(SW_HIDE);
@@ -6715,7 +6777,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnEngineCamera.ShowWindow(SW_HIDE);
 		m_mainBtnMaterial.ShowWindow(SW_HIDE);
 		m_mainBtnPhysXEditor.ShowWindow(SW_HIDE);
-		m_mainBtnScriptManager.ShowWindow(SW_HIDE);
+		m_mainBtnScriptManager.ShowWindow(SW_SHOW);
 		m_btnRemovePhysX.ShowWindow(SW_HIDE);
 
 	}
@@ -6741,7 +6803,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
-		//m_btnSceneProperties.ShowWindow(SW_SHOW);
+		m_btnSceneProperties.ShowWindow(SW_HIDE);
 		m_btnRemoveScene.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_DISABLED | MF_GRAYED);
@@ -6827,6 +6889,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_IMPORT_COLLADA_MULTIPLE_ANIMATIONS, MF_ENABLED);
 		m_mainBtnImportColladaMultipleAnimations.ShowWindow(SW_SHOW);
 
+		m_mainBtnPrefabSettings.ShowWindow(SW_SHOW);
+
 		ex_pMenu->EnableMenuItem(ID_FILE_OPEN, MF_DISABLED | MF_GRAYED);
 		m_mainBtnOpen.ShowWindow(SW_HIDE);
 
@@ -6845,9 +6909,20 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_PUBLISH_PROJECT, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_SETCURRENT, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITCURRENT, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_PROJECT_DELETEPROJECTS, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITVSCENESOFCURRENTPROJECT, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_PROJECT_ADDRESOURCETOCURRENTPROJECT, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_PROJECT_BACKUPPROJECTS, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_NEW, MF_DISABLED | MF_GRAYED);
 		m_mainBtnPublishSolution.ShowWindow(SW_HIDE);
+
+		ex_pMenu->EnableMenuItem(ID_MODIFY_SHADOW, MF_DISABLED | MF_GRAYED);
+
+		ex_pMenu->EnableMenuItem(ID_VIEW_SHADOWDEPTHMAP, MF_DISABLED | MF_GRAYED);
+		g_menu.m_showDynamicShadowDepthTexture = CFalse;
+		GetMenu()->CheckMenuItem(ID_VIEW_SHADOWDEPTHMAP, MF_UNCHECKED);
+
+		ex_pMenu->EnableMenuItem(ID_MODIFY_LOD, MF_DISABLED | MF_GRAYED);
 
 		m_mainBtnMaterial.ShowWindow(SW_SHOW);
 		m_mainBtnPhysXEditor.ShowWindow(SW_SHOW);
@@ -6963,13 +7038,18 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
-		m_mainBtnScriptManager.MoveWindow(rcRect);
+		m_mainBtnTestActive.MoveWindow(rcRect);
+		m_mainBtnTestDeactive.MoveWindow(rcRect);
 
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
-		m_mainBtnTestActive.MoveWindow(rcRect);
-		m_mainBtnTestDeactive.MoveWindow(rcRect);
+		m_mainBtnPrefabSettings.MoveWindow(rcRect);
+
+		previousRight = rcRect.right;
+		rcRect.left = previousRight + m_horizontalPointFivePercent;
+		rcRect.right = rcRect.left + fivePercent;
+		m_mainBtnScriptManager.MoveWindow(rcRect);
 
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
@@ -6992,8 +7072,6 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_editY.SetWindowTextA("\n");
 		m_editZ.SetWindowTextA("\n");
 
-		m_btnSceneProperties.ShowWindow(SW_HIDE);
-
 		GetDlgItem(IDC_STATIC_X)->ShowWindow(SW_SHOW);
 		GetDlgItem(IDC_STATIC_Y)->ShowWindow(SW_SHOW);
 		GetDlgItem(IDC_STATIC_Z)->ShowWindow(SW_SHOW);
@@ -7003,7 +7081,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
-		m_btnSceneProperties.ShowWindow(SW_HIDE);
+		m_btnSceneProperties.ShowWindow(SW_SHOW);
 		m_btnRemoveScene.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_ENABLED);
@@ -7169,6 +7247,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_IMPORT_COLLADA_MULTIPLE_ANIMATIONS, MF_DISABLED | MF_GRAYED);
 		m_mainBtnImportColladaMultipleAnimations.ShowWindow(SW_HIDE);
 
+		m_mainBtnPrefabSettings.ShowWindow(SW_HIDE);
+
 		ex_pMenu->EnableMenuItem(ID_FILE_OPEN, MF_ENABLED);
 		m_mainBtnOpen.ShowWindow(SW_SHOW);
 
@@ -7189,10 +7269,17 @@ CVoid CVandaEngine1Dlg::SortButtons()
 
 		ex_pMenu->EnableMenuItem(ID_PUBLISH_PROJECT, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_SETCURRENT, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_PROJECT_DELETEPROJECTS, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITCURRENT, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITVSCENESOFCURRENTPROJECT, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_PROJECT_ADDRESOURCETOCURRENTPROJECT, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_PROJECT_BACKUPPROJECTS, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_NEW, MF_ENABLED);
 		m_mainBtnPublishSolution.ShowWindow(SW_SHOW);
+
+		ex_pMenu->EnableMenuItem(ID_MODIFY_SHADOW, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_VIEW_SHADOWDEPTHMAP, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_MODIFY_LOD, MF_ENABLED);
 
 		m_mainBtnMaterial.ShowWindow(SW_HIDE);
 		m_mainBtnPhysXEditor.ShowWindow(SW_HIDE);
@@ -7273,11 +7360,6 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnWaterAttach.MoveWindow(rcRect);
 		m_mainBtnWaterAttach.ShowWindow(SW_SHOW);
 
-		previousRight = rcRect.right;
-		rcRect.left = previousRight + m_horizontalPointFivePercent;
-		rcRect.right = rcRect.left + fivePercent;
-		m_mainBtnScriptManager.MoveWindow(rcRect);
-
 		//previousRight = rcRect.right;
 		//rcRect.left = previousRight + m_horizontalPointFivePercent;
 		//rcRect.right = rcRect.left + fivePercent;
@@ -7305,6 +7387,11 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		rcRect.right = rcRect.left + fivePercent;
 		m_mainBtnTestActive.MoveWindow(rcRect);
 		m_mainBtnTestDeactive.MoveWindow(rcRect);
+
+		previousRight = rcRect.right;
+		rcRect.left = previousRight + m_horizontalPointFivePercent;
+		rcRect.right = rcRect.left + fivePercent;
+		m_mainBtnScriptManager.MoveWindow(rcRect);
 
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
@@ -7392,7 +7479,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.1 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.2 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7817,7 +7904,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7826,7 +7913,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.2 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -7998,22 +8085,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportColladaMultipleAnimations(CChar* file
 			tempScene->SetCurrentClipIndex(g_scene[0]->GetClipIndexForStartup());
 			tempScene->m_alwaysVisible = g_scene[0]->m_alwaysVisible;
 			tempScene->m_castShadow = g_scene[0]->m_castShadow;
-		}
-		if (tempScene->m_playAnimation)
-		{
-			tempScene->SetAnimationStatus(eANIM_PLAY);
-			if (tempScene->GetNumClips())
-			{
-				if (tempScene->m_loopAnimationAtStartup)
-					tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
-				else
-					tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
-			}
-		}
-		else
-		{
 			tempScene->SetAnimationStatus(eANIM_PAUSE);
 		}
+		//if (tempScene->m_playAnimation)
+		//{
+		//	tempScene->SetAnimationStatus(eANIM_PLAY);
+		//	if (tempScene->GetNumClips())
+		//	{
+		//		if (tempScene->m_loopAnimationAtStartup)
+		//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+		//		else
+		//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+		//	}
+		//}
+		//else
+		//{
+		//	tempScene->SetAnimationStatus(eANIM_PAUSE);
+		//}
 
 		PrintInfo("\nscene '");
 		PrintInfo(tempScene->GetFileName(), COLOR_RED_GREEN);
@@ -8280,22 +8368,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 				tempScene->SetClipIndex(g_scene[0]->GetClipIndexForStartup());
 				tempScene->m_alwaysVisible = g_scene[0]->m_alwaysVisible;
 				tempScene->m_castShadow = g_scene[0]->m_castShadow;
-			}
-			if (tempScene->m_playAnimation)
-			{
-				tempScene->SetAnimationStatus(eANIM_PLAY);
-				if (tempScene->GetNumClips())
-				{
-					if (tempScene->m_loopAnimationAtStartup)
-						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
-					else
-						tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
-				}
-			}
-			else
-			{
 				tempScene->SetAnimationStatus(eANIM_PAUSE);
 			}
+			//if (tempScene->m_playAnimation)
+			//{
+			//	tempScene->SetAnimationStatus(eANIM_PLAY);
+			//	if (tempScene->GetNumClips())
+			//	{
+			//		if (tempScene->m_loopAnimationAtStartup)
+			//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+			//		else
+			//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+			//	}
+			//}
+			//else
+			//{
+			//	tempScene->SetAnimationStatus(eANIM_PAUSE);
+			//}
 
 			PrintInfo("\nscene '");
 			PrintInfo(tempScene->GetFileName(), COLOR_RED_GREEN);
@@ -8307,6 +8396,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 			tempScene = NULL;
 			g_scene.erase(g_scene.end());
 		}
+		g_updateOctree = CTrue;
 		g_reportInfo = CTrue;
 		dlgWaiting->ShowWindow(SW_HIDE);
 		CDelete(dlgWaiting);
@@ -9135,43 +9225,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 				}
 
 				//scripts
-				if (g_guiButtons[i]->GetUpdateLeftClickScript() && g_guiButtons[i]->GetHasLeftClickScript())
+				if (g_guiButtons[i]->GetUpdateScript() && g_guiButtons[i]->GetHasScript())
 				{
-					CopyOneFileToDstDirectory(g_guiButtons[i]->GetLeftClickScriptPath(), newScriptPath);
-					g_guiButtons[i]->SetUpdateLeftClickScript(CFalse);
+					CopyOneFileToDstDirectory(g_guiButtons[i]->GetScriptPath(), newScriptPath);
+					g_guiButtons[i]->SetUpdateScript(CFalse);
 
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetLeftClickScriptPath());
+					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetScriptPath());
 
 					CChar newFilePath[MAX_NAME_SIZE];
 					sprintf(newFilePath, "%s%s", newScriptPath, srcFilePathAfterPath);
 
-					g_guiButtons[i]->SetLeftClickScriptPath(newFilePath);
-
-				}
-				if (g_guiButtons[i]->GetUpdateRightClickScript() && g_guiButtons[i]->GetHasRightClickScript())
-				{
-					CopyOneFileToDstDirectory(g_guiButtons[i]->GetRightClickScriptPath(), newScriptPath);
-					g_guiButtons[i]->SetUpdateRightClickScript(CFalse);
-
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetRightClickScriptPath());
-
-					CChar newFilePath[MAX_NAME_SIZE];
-					sprintf(newFilePath, "%s%s", newScriptPath, srcFilePathAfterPath);
-
-					g_guiButtons[i]->SetRightClickScriptPath(newFilePath);
-				}
-				if (g_guiButtons[i]->GetUpdateHoverScript() && g_guiButtons[i]->GetHasHoverScript())
-				{
-					CopyOneFileToDstDirectory(g_guiButtons[i]->GetHoverScriptPath(), newScriptPath);
-					g_guiButtons[i]->SetUpdateHoverScript(CFalse);
-
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetHoverScriptPath());
-
-					CChar newFilePath[MAX_NAME_SIZE];
-					sprintf(newFilePath, "%s%s", newScriptPath, srcFilePathAfterPath);
-
-					g_guiButtons[i]->SetHoverScriptPath(newFilePath);
-
+					g_guiButtons[i]->SetScriptPath(newFilePath);
+					g_guiButtons[i]->LoadLuaFile();
 				}
 
 			}
@@ -9272,44 +9337,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 				}
 
 				//scripts
-				if (g_guiButtons[i]->GetUpdateLeftClickScript() && g_guiButtons[i]->GetHasLeftClickScript())
+				if (g_guiButtons[i]->GetUpdateScript() && g_guiButtons[i]->GetHasScript())
 				{
-					CopyOneFileToDstDirectory(g_guiButtons[i]->GetLeftClickScriptPath(), newScriptPath);
-					g_guiButtons[i]->SetUpdateLeftClickScript(CFalse);
+					CopyOneFileToDstDirectory(g_guiButtons[i]->GetScriptPath(), newScriptPath);
+					g_guiButtons[i]->SetUpdateScript(CFalse);
 
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetLeftClickScriptPath());
+					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetScriptPath());
 
 					CChar newFilePath[MAX_NAME_SIZE];
 					sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
 
-					g_guiButtons[i]->SetLeftClickScriptPath(newFilePath);
-
-				}
-				if (g_guiButtons[i]->GetUpdateRightClickScript() && g_guiButtons[i]->GetHasRightClickScript())
-				{
-					CopyOneFileToDstDirectory(g_guiButtons[i]->GetRightClickScriptPath(), newScriptPath);
-					g_guiButtons[i]->SetUpdateRightClickScript(CFalse);
-
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetRightClickScriptPath());
-
-					CChar newFilePath[MAX_NAME_SIZE];
-					sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
-
-					g_guiButtons[i]->SetRightClickScriptPath(newFilePath);
-
-				}
-				if (g_guiButtons[i]->GetUpdateHoverScript() && g_guiButtons[i]->GetHasHoverScript())
-				{
-					CopyOneFileToDstDirectory(g_guiButtons[i]->GetHoverScriptPath(), newScriptPath);
-					g_guiButtons[i]->SetUpdateHoverScript(CFalse);
-
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiButtons[i]->GetHoverScriptPath());
-
-					CChar newFilePath[MAX_NAME_SIZE];
-					sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
-
-					g_guiButtons[i]->SetHoverScriptPath(newFilePath);
-
+					g_guiButtons[i]->SetScriptPath(newFilePath);
+					g_guiButtons[i]->LoadLuaFile();
 				}
 
 			}
@@ -9370,34 +9409,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 			//search for removed files
 			for (CUInt i = 0; i < g_guiButtons.size(); i++)
 			{
-				if (g_guiButtons[i]->GetHasLeftClickScript())
+				if (g_guiButtons[i]->GetHasScript())
 				{
 					CChar nameWithoutDot[MAX_NAME_SIZE];
-					Cpy(nameWithoutDot, GetAfterPath(g_guiButtons[i]->GetLeftClickScriptPath()));
-					GetWithoutDot(nameWithoutDot);
-					Append(nameWithoutDot, ".lua");
-					if (Cmp(nameWithoutDot, data.cFileName))
-					{
-						foundTarget = CTrue;
-						break;
-					}
-				}
-				if (g_guiButtons[i]->GetHasRightClickScript())
-				{
-					CChar nameWithoutDot[MAX_NAME_SIZE];
-					Cpy(nameWithoutDot, GetAfterPath(g_guiButtons[i]->GetRightClickScriptPath()));
-					GetWithoutDot(nameWithoutDot);
-					Append(nameWithoutDot, ".lua");
-					if (Cmp(nameWithoutDot, data.cFileName))
-					{
-						foundTarget = CTrue;
-						break;
-					}
-				}
-				if (g_guiButtons[i]->GetHasHoverScript())
-				{
-					CChar nameWithoutDot[MAX_NAME_SIZE];
-					Cpy(nameWithoutDot, GetAfterPath(g_guiButtons[i]->GetHoverScriptPath()));
+					Cpy(nameWithoutDot, GetAfterPath(g_guiButtons[i]->GetScriptPath()));
 					GetWithoutDot(nameWithoutDot);
 					Append(nameWithoutDot, ".lua");
 					if (Cmp(nameWithoutDot, data.cFileName))
@@ -9589,25 +9604,12 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 				fwrite(g_guiButtons[i]->GetRightClickImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			//left click script
-			CBool hasLeftClickScript = g_guiButtons[i]->GetHasLeftClickScript();
-			fwrite(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+			CBool hasScript = g_guiButtons[i]->GetHasScript();
+			fwrite(&hasScript, sizeof(CBool), 1, filePtr);
 
-			if (hasLeftClickScript)
-				fwrite(g_guiButtons[i]->GetLeftClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			if (hasScript)
+				fwrite(g_guiButtons[i]->GetScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-			//right click script
-			CBool hasRightClickScript = g_guiButtons[i]->GetHasRightClickScript();
-			fwrite(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-			if (hasRightClickScript)
-				fwrite(g_guiButtons[i]->GetRightClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//hover script
-			CBool hasHoverScript = g_guiButtons[i]->GetHasHoverScript();
-			fwrite(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-			if (hasHoverScript)
-				fwrite(g_guiButtons[i]->GetHoverScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		}
 
 		CUInt numberOfGUIBackgrounds = g_guiBackgrounds.size();
@@ -9711,7 +9713,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		Cpy(g_currentGUIPackageName, m_strNewGUIPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -9847,6 +9849,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		{
 			//copy the assets from original place to the saved directory
 			//scenes
+
+			//Save Prefab Script
+			if (g_prefabProperties.m_hasScript && g_prefabProperties.m_updateScript)
+			{
+				CopyOneFileToDstDirectory(g_prefabProperties.m_scriptPath, newScriptPath);
+				g_prefabProperties.m_updateScript = CFalse;
+				CChar* TempAfterPath = GetAfterPath(g_prefabProperties.m_scriptPath);
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, newScriptPath);
+				Append(NewPathAndName, TempAfterPath);
+				Cpy(g_prefabProperties.m_scriptPath, NewPathAndName);
+			}
+
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				if (g_scene[i]->IsInPrefabList(pureFileName, CTrue, CTrue))
@@ -9965,33 +9980,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 					}
 					//////////////////////////////////////////////////////////////////
 
-					for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-					{
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasEnterScript && g_scene[i]->m_instanceGeometries[j]->m_updateEnterScript)
-						{
-							CopyOneFileToDstDirectory(g_scene[i]->m_instanceGeometries[j]->m_enterScript, newScriptPath);
-							g_scene[i]->m_instanceGeometries[j]->m_updateEnterScript = CFalse;
-
-							CChar* TempAfterPath = GetAfterPath(g_scene[i]->m_instanceGeometries[j]->m_enterScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, newScriptPath);
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(g_scene[i]->m_instanceGeometries[j]->m_enterScript, NewPathAndName);
-						}
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasExitScript && g_scene[i]->m_instanceGeometries[j]->m_updateExitScript)
-						{
-							CopyOneFileToDstDirectory(g_scene[i]->m_instanceGeometries[j]->m_exitScript, newScriptPath);
-							g_scene[i]->m_instanceGeometries[j]->m_updateExitScript = CFalse;
-
-							CChar* TempAfterPath = GetAfterPath(g_scene[i]->m_instanceGeometries[j]->m_exitScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, newScriptPath);
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(g_scene[i]->m_instanceGeometries[j]->m_exitScript, NewPathAndName);
-
-						}
-					}
-
 					for (CUInt j = 0; j < g_scene[i]->m_geometries.size(); j++)
 					{
 						CUInt groupSize = CUInt(g_scene[i]->m_geometries[j]->m_groups.size());
@@ -10032,6 +10020,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 			CopyAllFilesFromSrcToDstDirectory(currentExternalScenePath, newExternalScenePath);
 			CopyAllFilesFromSrcToDstDirectory(currentExternalSceneTexturesPath, newExternalSceneTexturesPath);
 			CopyAllFilesFromSrcToDstDirectory(currentScriptPath, newScriptPath);
+
+			//Prefab Script
+			if (g_prefabProperties.m_hasScript && g_prefabProperties.m_updateScript)
+			{
+				CopyOneFileToDstDirectory(g_prefabProperties.m_scriptPath, newScriptPath);
+				g_prefabProperties.m_updateScript = CFalse;
+				CChar* TempAfterPath = GetAfterPath(g_prefabProperties.m_scriptPath);
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, newScriptPath);
+				Append(NewPathAndName, TempAfterPath);
+				Cpy(g_prefabProperties.m_scriptPath, NewPathAndName);
+			}
 
 			//then copy changed assets
 			//scenes
@@ -10151,34 +10151,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 					}
 					//////////////////////////////////////////////////////////////////
 
-					for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-					{
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasEnterScript && g_scene[i]->m_instanceGeometries[j]->m_updateEnterScript)
-						{
-							CopyOneFileToDstDirectory(g_scene[i]->m_instanceGeometries[j]->m_enterScript, newScriptPath);
-							g_scene[i]->m_instanceGeometries[j]->m_updateEnterScript = CFalse;
-
-							CChar* TempAfterPath = GetAfterPath(g_scene[i]->m_instanceGeometries[j]->m_enterScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, newScriptPath);
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(g_scene[i]->m_instanceGeometries[j]->m_enterScript, NewPathAndName);
-
-						}
-						if (g_scene[i]->m_instanceGeometries[j]->m_hasExitScript && g_scene[i]->m_instanceGeometries[j]->m_updateExitScript)
-						{
-							CopyOneFileToDstDirectory(g_scene[i]->m_instanceGeometries[j]->m_exitScript, newScriptPath);
-							g_scene[i]->m_instanceGeometries[j]->m_updateExitScript = CFalse;
-
-							CChar* TempAfterPath = GetAfterPath(g_scene[i]->m_instanceGeometries[j]->m_exitScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, newScriptPath);
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(g_scene[i]->m_instanceGeometries[j]->m_exitScript, NewPathAndName);
-
-						}
-					}
-
 					for (CUInt j = 0; j < g_scene[i]->m_geometries.size(); j++)
 					{
 						CUInt groupSize = CUInt(g_scene[i]->m_geometries[j]->m_groups.size());
@@ -10210,6 +10182,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 						} //groups
 					} //geometries
 				}
+
 				g_scene[i]->IsInPrefabList(pureFileName, CTrue, CTrue);
 			} //scenes
 		}
@@ -10263,7 +10236,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		} while (FindNextFile(hFind, &data));
 		FindClose(hFind);
 
-		//Delete removed scenes : scripts
+		//Delete removed scripts
 		CChar tempScriptPath[MAX_NAME_SIZE];
 		sprintf(tempScriptPath, "%s%s", newScriptPath, "*.*");
 		hFind = FindFirstFile(tempScriptPath, &data);
@@ -10273,21 +10246,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 			sprintf(scriptTempPath, "%s%s", newScriptPath, data.cFileName);
 
 			CBool foundTarget = CFalse;
-			for (CUInt i = 0; i <g_scene.size(); i++)
+			if (g_prefabProperties.m_hasScript && Cmp(GetAfterPath(g_prefabProperties.m_scriptPath), data.cFileName))
 			{
-				for (CUInt j = 0; j <g_scene[i]->m_instanceGeometries.size(); j++)
-				{
-					if (g_scene[i]->m_instanceGeometries[j]->m_hasEnterScript && Cmp(GetAfterPath(g_scene[i]->m_instanceGeometries[j]->m_enterScript), data.cFileName))
-					{
-						foundTarget = CTrue;
-						break;
-					}
-					if (g_scene[i]->m_instanceGeometries[j]->m_hasExitScript && Cmp(GetAfterPath(g_scene[i]->m_instanceGeometries[j]->m_exitScript), data.cFileName))
-					{
-						foundTarget = CTrue;
-						break;
-					}
-				}
+				foundTarget = CTrue;
 			}
 
 			//Remove Files
@@ -10397,6 +10358,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		fwrite(&g_cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fwrite(&g_cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
 		fwrite(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
+
+		CBool hasScript = g_prefabProperties.m_hasScript;
+		fwrite(&hasScript, 1, sizeof(CBool), filePtr);
+		fwrite(g_prefabProperties.m_scriptPath, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
 
 		CInt tempSceneSize = (CInt)g_scene.size();
 		CInt tempGeoSize;
@@ -10538,11 +10503,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, 1, sizeof(CInt), filePtr);
 				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_isTrigger, 1, sizeof(CBool), filePtr);
 				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_isInvisible, 1, sizeof(CBool), filePtr);
-				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_enterScript, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_hasEnterScript, 1, sizeof(CBool), filePtr);
-				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_exitScript, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_hasExitScript, 1, sizeof(CBool), filePtr);
-
 			}
 		} //for all of the scenes
 
@@ -10574,7 +10534,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		Cpy(g_currentPrefabPackageName, m_strNewPrefabPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10726,22 +10686,15 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		sprintf(rootTriggersScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/");
 
 		std::vector<std::string> scriptPath;
-		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-		{
-			if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
-			{
-				CScene* scene = g_instancePrefab[j]->GetScene(0);
-				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
-				{
-					if (scene->m_instanceGeometries[k]->m_hasEnterScript || scene->m_instanceGeometries[k]->m_hasExitScript)
-					{
-						CChar tempScriptPath[MAX_NAME_SIZE];
-						sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_instancePrefab[j]->GetName());
-						scriptPath.push_back(tempScriptPath);
-						g_instancePrefab[j]->SetTempScriptPath(tempScriptPath);
-					}
 
-				}
+		for (CUInt j = 0; j < g_triggers.size(); j++)
+		{
+			if (g_triggers[j]->GetHasScript())
+			{
+				CChar tempScriptPath[MAX_NAME_SIZE];
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetInstancePrefab()->GetName());
+				scriptPath.push_back(tempScriptPath);
+				g_triggers[j]->SetTempScriptPath(tempScriptPath);
 			}
 		}
 
@@ -10779,21 +10732,15 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar rootCurrentScriptPath[MAX_NAME_SIZE];
 		sprintf(rootCurrentScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/");
 		std::vector<std::string> currentScriptPath;
-		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+
+		for (CUInt j = 0; j < g_triggers.size(); j++)
 		{
-			if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+			if (g_triggers[j]->GetHasScript())
 			{
-				CScene* scene = g_instancePrefab[j]->GetScene(0);
-				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
-				{
-					if (scene->m_instanceGeometries[k]->m_hasEnterScript || scene->m_instanceGeometries[k]->m_hasExitScript)
-					{
-						CChar tempCurrentScriptPath[MAX_NAME_SIZE];
-						sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", g_instancePrefab[j]->GetName());
-						currentScriptPath.push_back(tempCurrentScriptPath);
-						g_instancePrefab[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
-					}
-				}
+				CChar tempCurrentScriptPath[MAX_NAME_SIZE];
+				sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetInstancePrefab()->GetName());
+				currentScriptPath.push_back(tempCurrentScriptPath);
+				g_triggers[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
 			}
 		}
 
@@ -10869,59 +10816,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_vsceneMenuCursor.SetCursorPath(newCursorPathAndName);
 
 			//scripts
-			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
-				if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+				if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
 				{
-					CScene* scene = g_instancePrefab[j]->GetScene(0);
-					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
-					{
-						if (scene->m_instanceGeometries[k]->m_hasEnterScript && scene->m_instanceGeometries[k]->m_updateEnterScript)
-						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_enterScript, g_instancePrefab[j]->GetTempScriptPath());
-							scene->m_instanceGeometries[k]->m_updateEnterScript = CFalse;
+					CopyOneFileToDstDirectory(g_triggers[j]->GetScript(), g_triggers[j]->GetTempScriptPath());
+					g_triggers[j]->SetUpdateScript(CFalse);
 
-							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(scene->m_instanceGeometries[k]->m_enterScript, NewPathAndName);
-						}
-						if (scene->m_instanceGeometries[k]->m_hasExitScript && scene->m_instanceGeometries[k]->m_updateExitScript)
-						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_exitScript, g_instancePrefab[j]->GetTempScriptPath());
-							scene->m_instanceGeometries[k]->m_updateExitScript = CFalse;
-
-							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(scene->m_instanceGeometries[k]->m_exitScript, NewPathAndName);
-						}
-
-						if (scene->m_instanceGeometries[k]->m_hasEnterScript)
-						{
-							g_instancePrefab[j]->SetEnterScript(scene->m_instanceGeometries[k]->m_enterScript);
-						}
-						else
-						{
-							g_instancePrefab[j]->SetEnterScript("\n");
-						}
-
-						if (scene->m_instanceGeometries[k]->m_hasExitScript)
-						{
-							g_instancePrefab[j]->SetExitScript(scene->m_instanceGeometries[k]->m_exitScript);
-						}
-						else
-						{
-							g_instancePrefab[j]->SetExitScript("\n");
-						}
-
-					}
+					CChar* TempAfterPath = GetAfterPath(g_triggers[j]->GetScript());
+					CChar NewPathAndName[MAX_NAME_SIZE];
+					Cpy(NewPathAndName, g_triggers[j]->GetTempScriptPath());
+					Append(NewPathAndName, TempAfterPath);
+					g_triggers[j]->SetScript(NewPathAndName);
+					g_triggers[j]->LoadLuaFile();
 				}
 			}
 
-			//startup dome
+			//startup
 			if (g_startup)
 			{
 				if (g_startup->GetUpdateScript())
@@ -10934,6 +10845,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				Append(newPathAndName, tempAfterPath);
 				g_startup->SetScriptPath(newPathAndName);
 				g_startup->SetUpdateScript(CFalse);
+				g_startup->LoadLuaFile();
 			}
 
 			//sky dome
@@ -11142,56 +11054,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_vsceneMenuCursor.IsInVSceneList(pureFileName, CTrue, CTrue);
 
 			//scripts
-			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
-				if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+				if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
 				{
-					CScene* scene = g_instancePrefab[j]->GetScene(0);
-					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
-					{
-						if (scene->m_instanceGeometries[k]->m_hasEnterScript && scene->m_instanceGeometries[k]->m_updateEnterScript)
-						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_enterScript, g_instancePrefab[j]->GetTempScriptPath());
-							scene->m_instanceGeometries[k]->m_updateEnterScript = CFalse;
+					CopyOneFileToDstDirectory(g_triggers[j]->GetScript(), g_triggers[j]->GetTempScriptPath());
+					g_triggers[j]->SetUpdateScript(CFalse);
 
-							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(scene->m_instanceGeometries[k]->m_enterScript, NewPathAndName);
-						}
-						if (scene->m_instanceGeometries[k]->m_hasExitScript && scene->m_instanceGeometries[k]->m_updateExitScript)
-						{
-							CopyOneFileToDstDirectory(scene->m_instanceGeometries[k]->m_exitScript, g_instancePrefab[j]->GetTempScriptPath());
-							scene->m_instanceGeometries[k]->m_updateExitScript = CFalse;
-
-							CChar* TempAfterPath = GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript);
-							CChar NewPathAndName[MAX_NAME_SIZE];
-							Cpy(NewPathAndName, g_instancePrefab[j]->GetTempScriptPath());
-							Append(NewPathAndName, TempAfterPath);
-							Cpy(scene->m_instanceGeometries[k]->m_exitScript, NewPathAndName);
-						}
-
-						if (scene->m_instanceGeometries[k]->m_hasEnterScript)
-						{
-							g_instancePrefab[j]->SetEnterScript(scene->m_instanceGeometries[k]->m_enterScript);
-						}
-						else
-						{
-							g_instancePrefab[j]->SetEnterScript("\n");
-						}
-
-						if (scene->m_instanceGeometries[k]->m_hasExitScript)
-						{
-							g_instancePrefab[j]->SetExitScript(scene->m_instanceGeometries[k]->m_exitScript);
-						}
-						else
-						{
-							g_instancePrefab[j]->SetExitScript("\n");
-						}
-
-
-					}
+					CChar* TempAfterPath = GetAfterPath(g_triggers[j]->GetScript());
+					CChar NewPathAndName[MAX_NAME_SIZE];
+					Cpy(NewPathAndName, g_triggers[j]->GetTempScriptPath());
+					Append(NewPathAndName, TempAfterPath);
+					g_triggers[j]->SetScript(NewPathAndName);
+					g_triggers[j]->LoadLuaFile();
 				}
 			}
 
@@ -11208,6 +11083,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				Append(newPathAndName, tempAfterPath);
 				g_startup->SetScriptPath(newPathAndName);
 				g_startup->SetUpdateScript(CFalse);
+				g_startup->LoadLuaFile();
 			}
 
 			//sky
@@ -11457,24 +11333,12 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				sprintf(scriptTempPath, "%s%s", scriptPath[sc].c_str(), data.cFileName);
 
 				CBool foundTarget = CFalse;
-				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				for (CUInt j = 0; j < g_triggers.size(); j++)
 				{
-					if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+					if (g_triggers[j]->GetHasScript() && Cmp(GetAfterPath(g_triggers[j]->GetScript()), data.cFileName))
 					{
-						CScene* scene = g_instancePrefab[j]->GetScene(0);
-						for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
-						{
-							if (scene->m_instanceGeometries[k]->m_hasEnterScript && Cmp(GetAfterPath(scene->m_instanceGeometries[k]->m_enterScript), data.cFileName))
-							{
-								foundTarget = CTrue;
-								break;
-							}
-							if (scene->m_instanceGeometries[k]->m_hasExitScript && Cmp(GetAfterPath(scene->m_instanceGeometries[k]->m_exitScript), data.cFileName))
-							{
-								foundTarget = CTrue;
-								break;
-							}
-						}
+						foundTarget = CTrue;
+						break;
 					}
 				}
 
@@ -11496,15 +11360,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		for (CUInt k = 0; k < m_deletedTriggerObjects.size(); k++)
 		{
 			CBool foundTarget = CFalse;
-			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
-				if (CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[j]->GetName(), "Vanda_Basics_Sphere_Trigger"))
+				CInstancePrefab* currentInstancePrefab = g_triggers[j]->GetInstancePrefab();
+
+				if (Cmp(m_deletedTriggerObjects[k].c_str(), currentInstancePrefab->GetName()))
 				{
-					if (Cmp(m_deletedTriggerObjects[k].c_str(), g_instancePrefab[j]->GetName()))
-					{
-						foundTarget = CTrue;
-						break;
-					}
+					foundTarget = CTrue;
+					break;
 				}
 			}
 			if (!foundTarget)
@@ -11929,8 +11792,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				CBool isVisible = g_prefab[i]->GetInstance(j)->GetVisible2();
 				fwrite(&isVisible, sizeof(CBool), 1, filePtr);
 
-				fwrite(g_prefab[i]->GetInstance(j)->GetEnterScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_prefab[i]->GetInstance(j)->GetExitScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fwrite(g_prefab[i]->GetInstance(j)->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 				CBool isTrigger = g_prefab[i]->GetInstance(j)->GetIsTrigger();
 				fwrite(&isTrigger, sizeof(CBool), 1, filePtr);
@@ -12126,10 +11988,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CVec3f translation = g_triggers[i]->GetInstancePrefab()->GetTranslate();
 			CVec4f rotation = g_triggers[i]->GetInstancePrefab()->GetRotate();
 			CVec3f scaling = g_triggers[i]->GetInstancePrefab()->GetScale();
-			CChar m_enterScript[MAX_NAME_SIZE];
-			CChar m_exitScript[MAX_NAME_SIZE];
-			Cpy(m_enterScript, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_enterScript);
-			Cpy(m_exitScript, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_exitScript);
+			CChar m_script[MAX_NAME_SIZE];
+			Cpy(m_script, g_triggers[i]->GetScript());
+			CBool m_hasScript = g_triggers[i]->GetHasScript();
 
 			fwrite(g_triggers[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fwrite(&type, sizeof(CTriggerType), 1, filePtr);
@@ -12141,8 +12002,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&translation, sizeof(CVec3f), 1, filePtr);
 			fwrite(&rotation, sizeof(CVec4f), 1, filePtr);
 			fwrite(&scaling, sizeof(CVec3f), 1, filePtr);
-			fwrite(m_enterScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-			fwrite(m_exitScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(&m_hasScript, sizeof(CBool), 1, filePtr);
 		}
 
 		CBool hasCharacter = g_menu.m_insertCharacter;
@@ -12323,7 +12184,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12380,6 +12241,114 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		if (dlgSave)
 		CDelete(dlgSave);
+
+		//Save object names
+		CChar objectNamePath[MAX_URI_SIZE];
+		sprintf(objectNamePath, "%s%s%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/", GetAfterPath(currentVSceneNameWithoutDot), ".onm"); //Object Names
+
+		FILE *ObjectNamefilePtr;
+		ObjectNamefilePtr = fopen(objectNamePath, "wb");
+		if (!ObjectNamefilePtr)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "Couldn't open the file '", objectNamePath, "' to save data");
+			MessageBox(temp, "Vanda Engine Error", MB_OK);
+			return;
+		}
+		//Write data here
+		//prefab instances
+		CUInt prefabInstanceSize = g_instancePrefab.size();
+		fwrite(&prefabInstanceSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			//prefab instance name
+			fwrite(g_instancePrefab[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+			//package name
+			fwrite(g_instancePrefab[i]->GetPrefab()->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+			//prefab name
+			fwrite(g_instancePrefab[i]->GetPrefab()->GetPrefabName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+			//number of animations
+			CUInt numClips = g_instancePrefab[i]->GetScene(0)->GetNumClips();
+			fwrite(&numClips, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			//animation names
+			for (CUInt j = 0; j < numClips; j++)
+			{
+				CChar clipName[MAX_NAME_SIZE];
+				Cpy(clipName, g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetName());
+				fwrite(clipName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			}
+
+			for (CUInt sceneIndex = 0; sceneIndex < 3; sceneIndex++)
+			{
+				CBool hasLOD = g_instancePrefab[i]->GetPrefab()->GetHasLod(sceneIndex);
+				fwrite(&hasLOD, sizeof(CBool), 1, ObjectNamefilePtr);
+
+				if (hasLOD)
+				{
+					//number of instance cameras
+					CUInt numCameras = g_instancePrefab[i]->GetScene(sceneIndex)->m_cameraInstances.size();
+					fwrite(&numCameras, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+					//camera instance names
+					for (CUInt j = 0; j < numCameras; j++)
+					{
+						CChar cameraName[MAX_NAME_SIZE];
+						Cpy(cameraName, g_instancePrefab[i]->GetScene(sceneIndex)->m_cameraInstances[j]->m_abstractCamera->GetPureName());
+						fwrite(cameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+					}
+				}
+			}
+
+		}
+		//static sounds
+		CUInt staticSoundSize = g_engineStaticSounds.size();
+		fwrite(&staticSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		{
+			fwrite(g_engineStaticSounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		//Imported cameras in COLLADA format
+		CUInt importedCameraSize = g_importedCameraInstances.size();
+		fwrite(&importedCameraSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_importedCameraInstances.size(); i++)
+		{
+			CChar importedCameraName[MAX_NAME_SIZE];
+			Cpy(importedCameraName, g_importedCameraInstances[i]->m_abstractCamera->GetName());
+			fwrite(importedCameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		//engine cameras
+		CUInt engineCameraSize = g_engineCameraInstances.size();
+		fwrite(&engineCameraSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			CChar engineCameraName[MAX_NAME_SIZE];
+			Cpy(engineCameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+			fwrite(engineCameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		//GUIs
+		CUInt GUISize = g_guis.size();
+		fwrite(&GUISize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_guis.size(); i++)
+		{
+			fwrite(g_guis[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			fwrite(g_guis[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			fwrite(g_guis[i]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		fclose(ObjectNamefilePtr);
+
 		PrintInfo("\nScene Saved Successfully");
 		ReleaseCapture();
 	}
@@ -12395,6 +12364,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 	CChar guiInstanceName[MAX_NAME_SIZE];
 	CChar packageName[MAX_NAME_SIZE];
 	CChar guiName[MAX_NAME_SIZE];
+	CChar guiFilePathAndName[MAX_NAME_SIZE];
+	CChar buttonTexturePath[MAX_NAME_SIZE];
+	CChar backgroundTexturePath[MAX_NAME_SIZE];
+	CChar scriptPath[MAX_NAME_SIZE];
 
 	int nSelected = -1;
 	POSITION p = m_dlgGUIs->m_listGUIPackages.GetFirstSelectedItemPosition();
@@ -12474,8 +12447,19 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 		Cpy(guiPath, packagePath);
 		Append(guiPath, (CChar*)m_dlgGUIs->m_selectedGUIName.c_str());
 		Append(guiPath, "/");
-		Append(guiPath, guiAndPackageName);
-		Append(guiPath, ".gui");
+
+		Cpy(buttonTexturePath, guiPath);
+		Append(buttonTexturePath, "Textures/Buttons/");
+
+		Cpy(backgroundTexturePath, guiPath);
+		Append(backgroundTexturePath, "Textures/Backgrounds/");
+
+		Cpy(scriptPath, guiPath);
+		Append(scriptPath, "Scripts/");
+
+		Cpy(guiFilePathAndName, guiPath);
+		Append(guiFilePathAndName, guiAndPackageName);
+		Append(guiFilePathAndName, ".gui");
 	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
@@ -12490,7 +12474,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 
 	CGUI* new_gui = CNew(CGUI);
 
-	FILE *filePtr = fopen(guiPath, "rb");
+	FILE *filePtr = fopen(guiFilePathAndName, "rb");
 	if (filePtr)
 	{
 		CChar reportTemp[MAX_NAME_SIZE];
@@ -12570,28 +12554,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 				fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			//left click script
-			CBool hasLeftClickScript;
-			fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+			CBool hasScript;
+			fread(&hasScript, sizeof(CBool), 1, filePtr);
 
-			CChar leftClickScriptPath[MAX_NAME_SIZE];
-			if (hasLeftClickScript)
-				fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//right click script
-			CBool hasRightClickScript;
-			fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-			CChar rightClickScriptPath[MAX_NAME_SIZE];
-			if (hasRightClickScript)
-				fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//hover script
-			CBool hasHoverScript;
-			fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-			CChar hoverScriptPath[MAX_NAME_SIZE];
-			if (hasHoverScript)
-				fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			CChar ScriptPath[MAX_NAME_SIZE];
+			if (hasScript)
+				fread(ScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			CGUIButton* guiButton = CNew(CGUIButton);
 
@@ -12599,12 +12567,25 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			guiButton->SetPackageName(packageName);
 			guiButton->SetGUIName(guiName);
 			guiButton->SetSize(size);
-			guiButton->SetMainImagePath(mainImagePath);
+
+			CChar imagePath[MAX_NAME_SIZE];
+			CChar afterPathFileName[MAX_NAME_SIZE];
+			Cpy(afterPathFileName, GetAfterPath(mainImagePath));
+			Cpy(imagePath, buttonTexturePath);
+			Append(imagePath, afterPathFileName);
+
+			guiButton->SetMainImagePath(imagePath);
 			guiButton->LoadMainImage();
 			guiButton->SetPosition(pos);
 			if (hasDisableImage)
 			{
-				guiButton->SetDisableImagePath(disableImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(disableImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetDisableImagePath(imagePath);
 				guiButton->SetHasDisableImage(CTrue);
 				guiButton->LoadDisableImage();
 			}
@@ -12614,7 +12595,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			}
 			if (hasHoverImage)
 			{
-				guiButton->SetHoverImagePath(hoverImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(hoverImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetHoverImagePath(imagePath);
 				guiButton->SetHasHoverImage(CTrue);
 				guiButton->LoadHoverImage();
 			}
@@ -12624,7 +12611,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			}
 			if (hasLeftClickImage)
 			{
-				guiButton->SetLeftClickImagePath(leftClickImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(leftClickImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetLeftClickImagePath(imagePath);
 				guiButton->SetHasLeftClickImage(CTrue);
 				guiButton->LoadLeftClickImage();
 			}
@@ -12634,7 +12627,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			}
 			if (hasRightClickImage)
 			{
-				guiButton->SetRightClickImagePath(rightClickImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(rightClickImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetRightClickImagePath(imagePath);
 				guiButton->SetHasRightClickImage(CTrue);
 				guiButton->LoadRightClickImage();
 			}
@@ -12642,33 +12641,23 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			{
 				guiButton->SetHasRightClickImage(CFalse);
 			}
-			if (hasLeftClickScript)
+			if (hasScript)
 			{
-				guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-				guiButton->SetHasLeftClickScript(CTrue);
+				CChar scriptPathAndFile[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(ScriptPath));
+				Cpy(scriptPathAndFile, scriptPath);
+				Append(scriptPathAndFile, afterPathFileName);
+
+				guiButton->SetScriptPath(scriptPathAndFile);
+				guiButton->SetHasScript(CTrue);
+				guiButton->LoadLuaFile();
 			}
 			else
 			{
-				guiButton->SetHasLeftClickScript(CFalse);
+				guiButton->SetHasScript(CFalse);
 			}
-			if (hasRightClickScript)
-			{
-				guiButton->SetRightClickScriptPath(rightClickScriptPath);
-				guiButton->SetHasRightClickScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasRightClickScript(CFalse);
-			}
-			if (hasHoverScript)
-			{
-				guiButton->SetHoverScriptPath(hoverScriptPath);
-				guiButton->SetHasHoverScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasHoverScript(CFalse);
-			}
+
 			new_gui->AddGUIButton(guiButton);
 		}
 
@@ -12701,7 +12690,15 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			guiBackground->SetPackageName(packageName);
 			guiBackground->SetGUIName(guiName);
 			guiBackground->SetSize(size);
-			guiBackground->SetImagePath(imagePath);
+
+			CChar backgroundImagePath[MAX_NAME_SIZE];
+			CChar afterPathFileName[MAX_NAME_SIZE];
+			Cpy(afterPathFileName, GetAfterPath(imagePath));
+			Cpy(backgroundImagePath, backgroundTexturePath);
+			Append(backgroundImagePath, afterPathFileName);
+
+			guiBackground->SetImagePath(backgroundImagePath);
+
 			guiBackground->LoadBackgroundImage();
 			guiBackground->SetPosition(pos);
 
@@ -12771,7 +12768,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 	else
 	{
 		CChar path[MAX_URI_SIZE];
-		sprintf(path, "\nCouldn't open the file ' %s '", guiPath);
+		sprintf(path, "\nCouldn't open the file ' %s '", guiFilePathAndName);
 		PrintInfo(path, COLOR_RED);
 		CDelete(new_gui);
 	}
@@ -12786,6 +12783,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 	CChar guiAndPackageName[MAX_NAME_SIZE];
 	CChar packageName[MAX_NAME_SIZE];
 	CChar guiName[MAX_NAME_SIZE];
+	CChar guiFilePathAndName[MAX_NAME_SIZE];
+	CChar buttonTexturePath[MAX_NAME_SIZE];
+	CChar backgroundTexturePath[MAX_NAME_SIZE];
+	CChar scriptPath[MAX_NAME_SIZE];
 
 	int nSelected = -1;
 	POSITION p = m_dlgGUIs->m_listGUIPackages.GetFirstSelectedItemPosition();
@@ -12867,10 +12868,21 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		Cpy(guiPath, packagePath);
 		Append(guiPath, (CChar*)m_dlgGUIs->m_selectedGUIName.c_str());
 		Append(guiPath, "/");
-		Append(guiPath, guiAndPackageName);
-		Append(guiPath, ".gui");
+
+		Cpy(buttonTexturePath, guiPath);
+		Append(buttonTexturePath, "Textures/Buttons/");
+
+		Cpy(backgroundTexturePath, guiPath);
+		Append(backgroundTexturePath, "Textures/Backgrounds/");
+
+		Cpy(scriptPath, guiPath);
+		Append(scriptPath, "Scripts/");
+
+		Cpy(guiFilePathAndName, guiPath);
+		Append(guiFilePathAndName, guiAndPackageName);
+		Append(guiFilePathAndName, ".gui");
 	}
-	FILE *filePtr = fopen(guiPath, "rb");
+	FILE *filePtr = fopen(guiFilePathAndName, "rb");
 	if (filePtr)
 	{
 		CChar reportTemp[MAX_NAME_SIZE];
@@ -12950,28 +12962,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 				fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			//left click script
-			CBool hasLeftClickScript;
-			fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+			CBool hasScript;
+			fread(&hasScript, sizeof(CBool), 1, filePtr);
 
-			CChar leftClickScriptPath[MAX_NAME_SIZE];
-			if (hasLeftClickScript)
-				fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//right click script
-			CBool hasRightClickScript;
-			fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-			CChar rightClickScriptPath[MAX_NAME_SIZE];
-			if (hasRightClickScript)
-				fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//hover script
-			CBool hasHoverScript;
-			fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-			CChar hoverScriptPath[MAX_NAME_SIZE];
-			if (hasHoverScript)
-				fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			CChar ScriptPath[MAX_NAME_SIZE];
+			if (hasScript)
+				fread(ScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			CGUIButton* guiButton = CNew(CGUIButton);
 
@@ -12979,12 +12975,25 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			guiButton->SetPackageName(packageName);
 			guiButton->SetGUIName(guiName);
 			guiButton->SetSize(size);
-			guiButton->SetMainImagePath(mainImagePath);
+
+			CChar imagePath[MAX_NAME_SIZE];
+			CChar afterPathFileName[MAX_NAME_SIZE];
+			Cpy(afterPathFileName, GetAfterPath(mainImagePath));
+			Cpy(imagePath, buttonTexturePath);
+			Append(imagePath, afterPathFileName);
+
+			guiButton->SetMainImagePath(imagePath);
 			guiButton->LoadMainImage();
 			guiButton->SetPosition(pos);
 			if (hasDisableImage)
 			{
-				guiButton->SetDisableImagePath(disableImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(disableImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetDisableImagePath(imagePath);
 				guiButton->SetHasDisableImage(CTrue);
 				guiButton->LoadDisableImage();
 			}
@@ -12994,7 +13003,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			}
 			if (hasHoverImage)
 			{
-				guiButton->SetHoverImagePath(hoverImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(hoverImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetHoverImagePath(imagePath);
 				guiButton->SetHasHoverImage(CTrue);
 				guiButton->LoadHoverImage();
 			}
@@ -13004,7 +13019,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			}
 			if (hasLeftClickImage)
 			{
-				guiButton->SetLeftClickImagePath(leftClickImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(leftClickImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetLeftClickImagePath(imagePath);
 				guiButton->SetHasLeftClickImage(CTrue);
 				guiButton->LoadLeftClickImage();
 			}
@@ -13014,7 +13035,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			}
 			if (hasRightClickImage)
 			{
-				guiButton->SetRightClickImagePath(rightClickImagePath);
+				CChar imagePath[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(rightClickImagePath));
+				Cpy(imagePath, buttonTexturePath);
+				Append(imagePath, afterPathFileName);
+
+				guiButton->SetRightClickImagePath(imagePath);
 				guiButton->SetHasRightClickImage(CTrue);
 				guiButton->LoadRightClickImage();
 			}
@@ -13022,32 +13049,21 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			{
 				guiButton->SetHasRightClickImage(CFalse);
 			}
-			if (hasLeftClickScript)
+			if (hasScript)
 			{
-				guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-				guiButton->SetHasLeftClickScript(CTrue);
+				CChar scriptPathAndFile[MAX_NAME_SIZE];
+				CChar afterPathFileName[MAX_NAME_SIZE];
+				Cpy(afterPathFileName, GetAfterPath(ScriptPath));
+				Cpy(scriptPathAndFile, scriptPath);
+				Append(scriptPathAndFile, afterPathFileName);
+
+				guiButton->SetScriptPath(scriptPathAndFile);
+				guiButton->SetHasScript(CTrue);
+				guiButton->LoadLuaFile();
 			}
 			else
 			{
-				guiButton->SetHasLeftClickScript(CFalse);
-			}
-			if (hasRightClickScript)
-			{
-				guiButton->SetRightClickScriptPath(rightClickScriptPath);
-				guiButton->SetHasRightClickScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasRightClickScript(CFalse);
-			}
-			if (hasHoverScript)
-			{
-				guiButton->SetHoverScriptPath(hoverScriptPath);
-				guiButton->SetHasHoverScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasHoverScript(CFalse);
+				guiButton->SetHasScript(CFalse);
 			}
 			g_guiButtons.push_back(guiButton);
 			g_guiNames.push_back(name);
@@ -13084,7 +13100,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			guiBackground->SetPackageName(packageName);
 			guiBackground->SetGUIName(guiName);
 			guiBackground->SetSize(size);
-			guiBackground->SetImagePath(imagePath);
+
+			CChar backgroundImagePath[MAX_NAME_SIZE];
+			CChar afterPathFileName[MAX_NAME_SIZE];
+			Cpy(afterPathFileName, GetAfterPath(imagePath));
+			Cpy(backgroundImagePath, backgroundTexturePath);
+			Append(backgroundImagePath, afterPathFileName);
+
+			guiBackground->SetImagePath(backgroundImagePath);
 
 			guiBackground->LoadBackgroundImage();
 			guiBackground->SetPosition(pos);
@@ -13151,14 +13174,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.1 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.2 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
 	else
 	{
 		CChar path[MAX_URI_SIZE];
-		sprintf(path, "\nCouldn't open the file ' %s '", guiPath);
+		sprintf(path, "\nCouldn't open the file ' %s '", guiFilePathAndName);
 		PrintInfo(path, COLOR_RED);
 	}
 
@@ -13167,6 +13190,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 
 CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packageStr, CChar* prefabStr)
 {
+	g_importColladaImages = CFalse;
+
 	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 
 	CChar packagePath[MAX_NAME_SIZE];
@@ -13440,6 +13465,34 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
 		fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 
+		CPrefab* current_prefab = NULL;
+		if (!prefab)
+			current_prefab = m_newInstancePrefab->GetPrefab();
+		else
+			current_prefab = prefab;
+
+		CBool hasScript;
+		CChar script[MAX_NAME_SIZE];
+		fread(&hasScript, 1, sizeof(CBool), filePtr);
+		fread(script, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
+
+		CChar scriptPath[MAX_NAME_SIZE];
+		CChar* tempPath = GetAfterPath(script);
+		if (hasScript)
+			sprintf(scriptPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/Scripts/", tempPath);
+		else
+			Cpy(scriptPath, "\n");
+
+		current_prefab->SetHasScript(hasScript);
+		current_prefab->SetScript(scriptPath);
+
+		if (!prefab)
+		{
+			m_newInstancePrefab->SetHasScript(m_newInstancePrefab->GetPrefab()->GetHasScript());
+			m_newInstancePrefab->SetScript(m_newInstancePrefab->GetPrefab()->GetScript());
+			m_newInstancePrefab->LoadLuaFile();
+		}
+
 		CChar tempSceneName[MAX_NAME_SIZE];
 
 		CInt tempSceneSize, tempGeoSize;
@@ -13460,6 +13513,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 			fread(&isVisible, 1, sizeof(CBool), filePtr);
 			fread(&isAlwaysVisible, 1, sizeof(CBool), filePtr);
 			fread(&castShadow, 1, sizeof(CBool), filePtr);
+
 			fread(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
 
 			CScene * tempScene = new CScene();
@@ -13550,23 +13604,24 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				tempScene->m_loopAnimationAtStartup = loopAnimation;
 				tempScene->m_alwaysVisible = isAlwaysVisible;
 				tempScene->m_castShadow = castShadow;
+				tempScene->SetAnimationStatus(eANIM_PAUSE);
 
-				if (tempScene->m_playAnimation)
-				{
-					tempScene->SetAnimationStatus(eANIM_PLAY);
-					tempScene->SetClipIndex(clipIndex, loopAnimation);
-					if (tempScene->GetNumClips())
-					{
-						if (tempScene->m_loopAnimationAtStartup)
-							tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
-						else
-							tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
-					}
-				}
-				else
-				{
-					tempScene->SetAnimationStatus(eANIM_PAUSE);
-				}
+				//if (tempScene->m_playAnimation)
+				//{
+				//	tempScene->SetAnimationStatus(eANIM_PLAY);
+				//	tempScene->SetClipIndex(clipIndex, loopAnimation);
+				//	if (tempScene->GetNumClips())
+				//	{
+				//		if (tempScene->m_loopAnimationAtStartup)
+				//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+				//		else
+				//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+				//	}
+				//}
+				//else
+				//{
+				//	tempScene->SetAnimationStatus(eANIM_PAUSE);
+				//}
 				//save functions/////////////////////////////////
 				g_currentScene = tempScene; //mark the current scene. Save functions
 
@@ -13849,10 +13904,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				CInt physXPercentage;
 				CBool isTrigger;
 				CBool isInvisible;
-				CBool hasScriptEnter;
-				CBool hasScriptExit;
-				CChar scriptEnter[MAX_NAME_SIZE];
-				CChar scriptExit[MAX_NAME_SIZE];
 				fread(geoName, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
 				fread(instanceLocalToWorldMatrix, 1, sizeof(CMatrix), filePtr);
 				fread(&hasPhysX, 1, sizeof(CBool), filePtr);
@@ -13862,10 +13913,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				fread(&physXPercentage, 1, sizeof(CInt), filePtr);
 				fread(&isTrigger, 1, sizeof(CBool), filePtr);
 				fread(&isInvisible, 1, sizeof(CBool), filePtr);
-				fread(scriptEnter, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fread(&hasScriptEnter, 1, sizeof(CBool), filePtr);
-				fread(scriptExit, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fread(&hasScriptExit, 1, sizeof(CBool), filePtr);
 
 				if (hasPhysX)
 				{
@@ -13892,27 +13939,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 									tempScene->m_instanceGeometries[k]->m_physXPercentage = physXPercentage;
 									tempScene->m_instanceGeometries[k]->m_isTrigger = isTrigger;
 									tempScene->m_instanceGeometries[k]->m_isInvisible = isInvisible;
-
-									CChar scriptEnterPath[MAX_NAME_SIZE];
-									CChar scriptExitPath[MAX_NAME_SIZE];
-
-									CChar* tempEnterPath = GetAfterPath(scriptEnter);
-									CChar* tempExitPath = GetAfterPath(scriptExit);
-									//Copy this to Win32 Project as well
-									if (hasScriptEnter)
-										sprintf(scriptEnterPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/Scripts/", tempEnterPath);
-									else
-										Cpy(scriptEnterPath, "\n");
-
-									if (hasScriptExit)
-										sprintf(scriptExitPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/Scripts/", tempExitPath);
-									else
-										Cpy(scriptExitPath, "\n");
-
-									Cpy(tempScene->m_instanceGeometries[k]->m_enterScript, scriptEnterPath);
-									Cpy(tempScene->m_instanceGeometries[k]->m_exitScript, scriptExitPath);
-									tempScene->m_instanceGeometries[k]->m_hasEnterScript = hasScriptEnter;
-									tempScene->m_instanceGeometries[k]->m_hasExitScript = hasScriptExit;
 
 									//if (physXDensity > 0 || tempScene->m_instanceGeometries[k]->m_abstractGeometry->m_hasAnimation)
 									//	InsertItemToPhysXList(tempScene->m_instanceGeometries[k]->m_physXName, ePHYSXELEMENTLIST_DYNAMIC_RIGIDBODY);
@@ -13996,6 +14022,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 
 CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 {
+	g_importColladaImages = CFalse;
+
 	int nSelected = -1;
 	POSITION p = m_dlgPrefabs->m_listPrefabPackages.GetFirstSelectedItemPosition();
 	while (p)
@@ -14244,6 +14272,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		fread(&cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
 		fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
+
 		g_cameraInstancePos = cameraInstancePos;
 		g_cameraInstancePanTilt = cameraInstancePanTilt;
 		g_render.GetDefaultInstanceCamera()->MoveTransform2(cameraInstancePos.x, cameraInstancePos.y, cameraInstancePos.z);
@@ -14306,6 +14335,33 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				g_multipleView->m_nx->SetSceneName(PhysXPath);
 			}
 		}
+		CBool hasScript;
+		CChar script[MAX_NAME_SIZE];
+		fread(&hasScript, 1, sizeof(CBool), filePtr);
+		fread(script, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
+
+		g_prefabProperties.m_hasScript = hasScript;
+
+		CChar scriptPath[MAX_NAME_SIZE];
+		CChar* tempPath = GetAfterPath(script);
+		if (hasScript)
+			sprintf(scriptPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/Scripts/", tempPath);
+		else
+			Cpy(scriptPath, "\n");
+		Cpy(g_prefabProperties.m_scriptPath, scriptPath);
+
+		if (g_prefabProperties.m_hasScript)
+		{
+			//reset lua
+			lua_close(g_lua);
+			g_lua = LuaNewState();
+			LuaOpenLibs(g_lua);
+			LuaRegisterFunctions(g_lua);
+
+			if (!LuaLoadFile(g_lua, g_prefabProperties.m_scriptPath))
+				MessageBox("Couldn't load the script", "Error");
+		}
+
 		g_multipleView->m_nx->ResetCharacterPos(characterPos);
 
 		CChar tempSceneName[MAX_NAME_SIZE];
@@ -14326,6 +14382,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 			fread(&isVisible, 1, sizeof(CBool), filePtr);
 			fread(&isAlwaysVisible, 1, sizeof(CBool), filePtr);
 			fread(&castShadow, 1, sizeof(CBool), filePtr);
+
 			fread(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
 
 			CScene * tempScene = new CScene();
@@ -14413,23 +14470,24 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				tempScene->m_loopAnimationAtStartup = loopAnimation;
 				tempScene->m_alwaysVisible = isAlwaysVisible;
 				tempScene->m_castShadow = castShadow;
+				tempScene->SetAnimationStatus(eANIM_PAUSE);
 
-				if (tempScene->m_playAnimation)
-				{
-					tempScene->SetAnimationStatus(eANIM_PLAY);
-					tempScene->SetCurrentClipIndex(clipIndex);
-					if (tempScene->GetNumClips())
-					{
-						if (tempScene->m_loopAnimationAtStartup)
-							tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
-						else
-							tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
-					}
-				}
-				else
-				{
-					tempScene->SetAnimationStatus(eANIM_PAUSE);
-				}
+				//if (tempScene->m_playAnimation)
+				//{
+				//	tempScene->SetAnimationStatus(eANIM_PLAY);
+				//	tempScene->SetCurrentClipIndex(clipIndex);
+				//	if (tempScene->GetNumClips())
+				//	{
+				//		if (tempScene->m_loopAnimationAtStartup)
+				//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+				//		else
+				//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+				//	}
+				//}
+				//else
+				//{
+				//	tempScene->SetAnimationStatus(eANIM_PAUSE);
+				//}
 				//save functions/////////////////////////////////
 				g_currentScene = tempScene; //mark the current scene. Save functions
 
@@ -14758,10 +14816,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				CInt physXPercentage;
 				CBool isTrigger;
 				CBool isInvisible;
-				CBool hasScriptEnter;
-				CBool hasScriptExit;
-				CChar scriptEnter[MAX_NAME_SIZE];
-				CChar scriptExit[MAX_NAME_SIZE];
 				fread(geoName, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
 				fread(instanceLocalToWorldMatrix, 1, sizeof(CMatrix), filePtr);
 				fread(&hasPhysX, 1, sizeof(CBool), filePtr);
@@ -14771,10 +14825,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				fread(&physXPercentage, 1, sizeof(CInt), filePtr);
 				fread(&isTrigger, 1, sizeof(CBool), filePtr);
 				fread(&isInvisible, 1, sizeof(CBool), filePtr);
-				fread(scriptEnter, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fread(&hasScriptEnter, 1, sizeof(CBool), filePtr);
-				fread(scriptExit, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fread(&hasScriptExit, 1, sizeof(CBool), filePtr);
 
 				if (hasPhysX)
 				{
@@ -14795,27 +14845,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 							{
 								if (tempScene->GeneratePhysX(physXAlgorithm, physXDensity, physXPercentage, isTrigger, isInvisible, tempScene->m_instanceGeometries[k], CTrue))
 								{
-									CChar scriptEnterPath[MAX_NAME_SIZE];
-									CChar scriptExitPath[MAX_NAME_SIZE];
-
-									CChar* tempEnterPath = GetAfterPath(scriptEnter);
-									CChar* tempExitPath = GetAfterPath(scriptExit);
-									//Copy this to Win32 Project as well
-									if (hasScriptEnter)
-										sprintf(scriptEnterPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/Scripts/", tempEnterPath);
-									else
-										Cpy(scriptEnterPath, "\n");
-
-									if (hasScriptExit)
-										sprintf(scriptExitPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/Scripts/", tempExitPath);
-									else
-										Cpy(scriptExitPath, "\n");
-
-									Cpy(tempScene->m_instanceGeometries[k]->m_enterScript, scriptEnterPath);
-									Cpy(tempScene->m_instanceGeometries[k]->m_exitScript, scriptExitPath);
-									tempScene->m_instanceGeometries[k]->m_hasEnterScript = hasScriptEnter;
-									tempScene->m_instanceGeometries[k]->m_hasExitScript = hasScriptExit;
-
 									if (physXDensity > 0 || tempScene->m_instanceGeometries[k]->m_abstractGeometry->m_hasAnimation)
 										InsertItemToPhysXList(tempScene->m_instanceGeometries[k]->m_physXName, ePHYSXELEMENTLIST_DYNAMIC_RIGIDBODY);
 									else if (isTrigger)
@@ -14840,6 +14869,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 
 		if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 		{
+			NxExtendedVec3 sp;
+			sp.x = g_render.GetDefaultInstanceCamera()->GetPos().x;
+			sp.y = g_render.GetDefaultInstanceCamera()->GetPos().y;
+			sp.z = g_render.GetDefaultInstanceCamera()->GetPos().z;
+			g_multipleView->m_nx->gControllers->setPosition(sp);
 			g_multipleView->m_nx->gControllers->reportSceneChanged();
 			gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
 			gPhysXscene->flushStream();
@@ -14847,7 +14881,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.2 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -14866,12 +14900,16 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 					for (CInt ac = 0; ac < g_scene[i]->GetNumClips(); ac++)
 					{
 						g_prefabProperties.m_names.push_back(g_scene[i]->m_animationClips[ac]->GetName());
+					}
+					if (g_scene[i]->GetNumClips())
+					{
 						g_prefabProperties.m_clipIndex = g_scene[i]->GetClipIndexForStartup();
-						g_prefabProperties.m_alwaysVisible = g_scene[i]->m_alwaysVisible;
-						g_prefabProperties.m_castShadow = g_scene[i]->m_castShadow;
 						g_prefabProperties.m_loopAnimationAtStart = g_scene[i]->m_loopAnimationAtStartup;
 						g_prefabProperties.m_playAnimationAtStart = g_scene[i]->m_playAnimation;
 					}
+
+					g_prefabProperties.m_alwaysVisible = g_scene[i]->m_alwaysVisible;
+					g_prefabProperties.m_castShadow = g_scene[i]->m_castShadow;
 
 					break;
 				}
@@ -15214,8 +15252,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					CVec4f rotate;
 					CVec3f scale;
 					CBool isVisible;
-					CChar enterScript[MAX_NAME_SIZE];
-					CChar exitScript[MAX_NAME_SIZE];
+					CChar script[MAX_NAME_SIZE];
 					CBool isTrigger;
 					CBool isControlledByPhysx;
 					CBool isAnimated;
@@ -15237,11 +15274,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 					fread(&isVisible, sizeof(CBool), 1, filePtr);
 
-					fread(enterScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-					new_instance_prefab->SetEnterScript(enterScript);
-
-					fread(exitScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-					new_instance_prefab->SetExitScript(exitScript);
+					fread(script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+					new_instance_prefab->SetScript(script);
+					new_instance_prefab->LoadLuaFile();
 
 					fread(&isTrigger, sizeof(CBool), 1, filePtr);
 					new_instance_prefab->SetIsTrigger(isTrigger);
@@ -15275,26 +15310,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					//new_instance_prefab->CalculateDistance();
 					//new_instance_prefab->UpdateIsStaticOrAnimated();
 					new_instance_prefab->SetVisible(isVisible);
+					new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
+					new_instance_prefab->SetScript(new_prefab->GetScript());
+					new_instance_prefab->LoadLuaFile();
 
 					g_editorMode = eMODE_VSCENE; //to load textures from prefab locations
-					if (CmpIn(new_instance_prefab->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(new_instance_prefab->GetName(), "Vanda_Basics_Sphere_Trigger"))
-					{
-						for (CUInt k = 0; k < new_instance_prefab->GetScene(0)->m_instanceGeometries.size(); k++)
-						{
-							Cpy(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_enterScript, new_instance_prefab->GetEnterScript());
-							Cpy(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_exitScript, new_instance_prefab->GetExitScript());
-							if (!Cmp(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_enterScript, "\n"))
-								new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_hasEnterScript = CTrue;
-							else
-								new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_hasEnterScript = CFalse;
-
-							if (!Cmp(new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_exitScript, "\n"))
-								new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_hasExitScript = CTrue;
-							else
-								new_instance_prefab->GetScene(0)->m_instanceGeometries[k]->m_hasExitScript = CFalse;
-
-						}
-					}
 
 					CChar tempInstanceName[MAX_NAME_SIZE];
 					sprintf(tempInstanceName, "%s%s%s", "\nPrefab Instance ' ", new_instance_prefab->GetName(), " ' created successfully");
@@ -15372,6 +15392,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				{
 					CChar guiPath[MAX_NAME_SIZE];
 					CChar guiAndPackageName[MAX_NAME_SIZE];
+					CChar guiFilePathAndName[MAX_NAME_SIZE];
+					CChar buttonTexturePath[MAX_NAME_SIZE];
+					CChar backgroundTexturePath[MAX_NAME_SIZE];
+					CChar scriptPath[MAX_NAME_SIZE];
 
 					Cpy(guiAndPackageName, packageName);
 					Append(guiAndPackageName, "_");
@@ -15384,11 +15408,22 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					Cpy(guiPath, docPath);
 					Append(guiPath, guiName);
 					Append(guiPath, "/");
-					Append(guiPath, guiAndPackageName);
-					Append(guiPath, ".gui");
+
+					Cpy(buttonTexturePath, guiPath);
+					Append(buttonTexturePath, "Textures/Buttons/");
+
+					Cpy(backgroundTexturePath, guiPath);
+					Append(backgroundTexturePath, "Textures/Backgrounds/");
+
+					Cpy(scriptPath, guiPath);
+					Append(scriptPath, "Scripts/");
+
+					Cpy(guiFilePathAndName, guiPath);
+					Append(guiFilePathAndName, guiAndPackageName);
+					Append(guiFilePathAndName, ".gui");
 
 					FILE *filePtr;
-					filePtr = fopen(guiPath, "rb");
+					filePtr = fopen(guiFilePathAndName, "rb");
 					if (!filePtr)
 					{
 						MessageBox("Couldn't open the GUI file to load data", "Vanda Engine Error", MB_OK | MB_ICONERROR);
@@ -15402,8 +15437,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 					for (CUInt j = 0; j < numButtons; j++)
 					{
-						//load button information
-
 						CChar name[MAX_NAME_SIZE];
 						fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -15457,28 +15490,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 							fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 						//left click script
-						CBool hasLeftClickScript;
-						fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+						CBool hasScript;
+						fread(&hasScript, sizeof(CBool), 1, filePtr);
 
-						CChar leftClickScriptPath[MAX_NAME_SIZE];
-						if (hasLeftClickScript)
-							fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-						//right click script
-						CBool hasRightClickScript;
-						fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-						CChar rightClickScriptPath[MAX_NAME_SIZE];
-						if (hasRightClickScript)
-							fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-						//hover script
-						CBool hasHoverScript;
-						fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-						CChar hoverScriptPath[MAX_NAME_SIZE];
-						if (hasHoverScript)
-							fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+						CChar ScriptPath[MAX_NAME_SIZE];
+						if (hasScript)
+							fread(ScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 						CGUIButton* guiButton = CNew(CGUIButton);
 
@@ -15486,12 +15503,25 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						guiButton->SetPackageName(packageName);
 						guiButton->SetGUIName(guiName);
 						guiButton->SetSize(size);
-						guiButton->SetMainImagePath(mainImagePath);
+
+						CChar imagePath[MAX_NAME_SIZE];
+						CChar afterPathFileName[MAX_NAME_SIZE];
+						Cpy(afterPathFileName, GetAfterPath(mainImagePath));
+						Cpy(imagePath, buttonTexturePath);
+						Append(imagePath, afterPathFileName);
+
+						guiButton->SetMainImagePath(imagePath);
 						guiButton->LoadMainImage();
 						guiButton->SetPosition(pos);
 						if (hasDisableImage)
 						{
-							guiButton->SetDisableImagePath(disableImagePath);
+							CChar imagePath[MAX_NAME_SIZE];
+							CChar afterPathFileName[MAX_NAME_SIZE];
+							Cpy(afterPathFileName, GetAfterPath(disableImagePath));
+							Cpy(imagePath, buttonTexturePath);
+							Append(imagePath, afterPathFileName);
+
+							guiButton->SetDisableImagePath(imagePath);
 							guiButton->SetHasDisableImage(CTrue);
 							guiButton->LoadDisableImage();
 						}
@@ -15501,7 +15531,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						}
 						if (hasHoverImage)
 						{
-							guiButton->SetHoverImagePath(hoverImagePath);
+							CChar imagePath[MAX_NAME_SIZE];
+							CChar afterPathFileName[MAX_NAME_SIZE];
+							Cpy(afterPathFileName, GetAfterPath(hoverImagePath));
+							Cpy(imagePath, buttonTexturePath);
+							Append(imagePath, afterPathFileName);
+
+							guiButton->SetHoverImagePath(imagePath);
 							guiButton->SetHasHoverImage(CTrue);
 							guiButton->LoadHoverImage();
 						}
@@ -15511,7 +15547,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						}
 						if (hasLeftClickImage)
 						{
-							guiButton->SetLeftClickImagePath(leftClickImagePath);
+							CChar imagePath[MAX_NAME_SIZE];
+							CChar afterPathFileName[MAX_NAME_SIZE];
+							Cpy(afterPathFileName, GetAfterPath(leftClickImagePath));
+							Cpy(imagePath, buttonTexturePath);
+							Append(imagePath, afterPathFileName);
+
+							guiButton->SetLeftClickImagePath(imagePath);
 							guiButton->SetHasLeftClickImage(CTrue);
 							guiButton->LoadLeftClickImage();
 						}
@@ -15521,7 +15563,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						}
 						if (hasRightClickImage)
 						{
-							guiButton->SetRightClickImagePath(rightClickImagePath);
+							CChar imagePath[MAX_NAME_SIZE];
+							CChar afterPathFileName[MAX_NAME_SIZE];
+							Cpy(afterPathFileName, GetAfterPath(rightClickImagePath));
+							Cpy(imagePath, buttonTexturePath);
+							Append(imagePath, afterPathFileName);
+
+							guiButton->SetRightClickImagePath(imagePath);
 							guiButton->SetHasRightClickImage(CTrue);
 							guiButton->LoadRightClickImage();
 						}
@@ -15529,35 +15577,24 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						{
 							guiButton->SetHasRightClickImage(CFalse);
 						}
-						if (hasLeftClickScript)
+						if (hasScript)
 						{
-							guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-							guiButton->SetHasLeftClickScript(CTrue);
-						}
-						else
-						{
-							guiButton->SetHasLeftClickScript(CFalse);
-						}
-						if (hasRightClickScript)
-						{
-							guiButton->SetRightClickScriptPath(rightClickScriptPath);
-							guiButton->SetHasRightClickScript(CTrue);
-						}
-						else
-						{
-							guiButton->SetHasRightClickScript(CFalse);
-						}
-						if (hasHoverScript)
-						{
-							guiButton->SetHoverScriptPath(hoverScriptPath);
-							guiButton->SetHasHoverScript(CTrue);
-						}
-						else
-						{
-							guiButton->SetHasHoverScript(CFalse);
-						}
-						new_gui->AddGUIButton(guiButton);
+							CChar scriptPathAndFile[MAX_NAME_SIZE];
+							CChar afterPathFileName[MAX_NAME_SIZE];
+							Cpy(afterPathFileName, GetAfterPath(ScriptPath));
+							Cpy(scriptPathAndFile, scriptPath);
+							Append(scriptPathAndFile, afterPathFileName);
 
+							guiButton->SetScriptPath(scriptPathAndFile);
+							guiButton->SetHasScript(CTrue);
+							guiButton->LoadLuaFile();
+						}
+						else
+						{
+							guiButton->SetHasScript(CFalse);
+						}
+
+						new_gui->AddGUIButton(guiButton);
 					}
 
 					CUInt numBackgrounds;
@@ -15565,8 +15602,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 					for (CUInt j = 0; j < numBackgrounds; j++)
 					{
-						//load background information
-
 						CChar name[MAX_NAME_SIZE];
 						fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -15592,11 +15627,19 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						guiBackground->SetPackageName(packageName);
 						guiBackground->SetGUIName(guiName);
 						guiBackground->SetSize(size);
-						guiBackground->SetImagePath(imagePath);
+
+						CChar backgroundImagePath[MAX_NAME_SIZE];
+						CChar afterPathFileName[MAX_NAME_SIZE];
+						Cpy(afterPathFileName, GetAfterPath(imagePath));
+						Cpy(backgroundImagePath, backgroundTexturePath);
+						Append(backgroundImagePath, afterPathFileName);
+
+						guiBackground->SetImagePath(backgroundImagePath);
+
 						guiBackground->LoadBackgroundImage();
 						guiBackground->SetPosition(pos);
-						new_gui->AddGUIBackground(guiBackground);
 
+						new_gui->AddGUIBackground(guiBackground);
 					}
 
 					CUInt numTexts;
@@ -16284,8 +16327,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CVec3f translation;
 				CVec4f rotation;
 				CVec3f scaling;
-				CChar m_enterScript[MAX_NAME_SIZE];
-				CChar m_exitScript[MAX_NAME_SIZE];
+				CChar m_script[MAX_NAME_SIZE];
+				CBool m_hasScript;
 				fread(trigger_name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(&type, sizeof(CTriggerType), 1, filePtr);
 
@@ -16293,8 +16336,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&translation, sizeof(CVec3f), 1, filePtr);
 				fread(&rotation, sizeof(CVec4f), 1, filePtr);
 				fread(&scaling, sizeof(CVec3f), 1, filePtr);
-				fread(m_enterScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fread(m_exitScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(&m_hasScript, sizeof(CBool), 1, filePtr);
 
 				//read prefab data
 
@@ -16327,6 +16370,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_importPrefab = CTrue;
 				ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(new_prefab);
 				g_importPrefab = CFalse;
+				new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
+				new_instance_prefab->SetScript(new_prefab->GetScript());
+				new_instance_prefab->LoadLuaFile();
 
 				new_trigger->SetInstancePrefab(g_instancePrefab[g_instancePrefab.size() - 1]); //last element
 				new_trigger->GetInstancePrefab()->SetIsTrigger(CTrue);
@@ -16338,26 +16384,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				new_trigger->GetInstancePrefab()->CalculateDistance();
 				//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
 
-				CScene* scene = new_trigger->GetInstancePrefab()->GetScene(0);
-				for (CUInt i = 0; i < scene->m_instanceGeometries.size(); i++)
-				{
-					Cpy(scene->m_instanceGeometries[i]->m_enterScript, m_enterScript);
-					Cpy(scene->m_instanceGeometries[i]->m_exitScript, m_exitScript);
+				CChar scriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(m_script);
+				sprintf(scriptPath, "%s%s%s%s/%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", instance_name, tempScriptPath);
 
-					if (!Cmp(scene->m_instanceGeometries[i]->m_enterScript, "\n"))
-						scene->m_instanceGeometries[i]->m_hasEnterScript = CTrue;
-					else
-						scene->m_instanceGeometries[i]->m_hasEnterScript = CFalse;
-
-					if (!Cmp(scene->m_instanceGeometries[i]->m_exitScript, "\n"))
-						scene->m_instanceGeometries[i]->m_hasExitScript = CTrue;
-					else
-						scene->m_instanceGeometries[i]->m_hasExitScript = CFalse;
-
-				}
-
-				new_trigger->GetInstancePrefab()->SetEnterScript(m_enterScript);
-				new_trigger->GetInstancePrefab()->SetExitScript(m_exitScript);
+				new_trigger->SetScript(scriptPath);
+				new_trigger->SetHasScript(m_hasScript);
+				new_trigger->LoadLuaFile();
 
 				g_triggers.push_back(new_trigger);
 				ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(new_trigger->GetName(), eENGINEOBJECTLIST_TRIGGER);
@@ -16458,8 +16491,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 				g_importPrefab = CTrue;
 				ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(new_prefab);
-
 				g_importPrefab = CFalse;
+
+				new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
+				new_instance_prefab->SetScript(new_prefab->GetScript());
+				new_instance_prefab->LoadLuaFile();
+
 				g_instancePrefab[g_instancePrefab.size() - 1]->SetName("VANDA_MAIN_CHARACTER");
 
 				g_mainCharacter->SetInstancePrefab(g_instancePrefab[g_instancePrefab.size() - 1]); //last element
@@ -16579,8 +16616,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_startup->SetName(name);
 				g_startup->SetScriptPath(newPath);
 				g_startup->SetUpdateScript(CFalse);
+				g_startup->LoadLuaFile();
+
 				g_menu.m_insertStartup = CTrue;
 				InsertItemToEngineObjectList(g_startup->GetName(), eENGINEOBJECTLIST_STARTUP);
+				ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
+				ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
+				g_engineObjectNames.push_back(g_startup->GetName());
 				PumpMessages();
 				UpdateWindow();
 
@@ -16615,7 +16657,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -16961,7 +17003,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			ChangeStartupProperties();
 
 			if (g_multipleView->m_enableTimer)
+			{
 				g_multipleView->EnableTimer(CTrue);
+			}
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			g_multipleView->RenderWindow();
@@ -16975,8 +17019,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 		
 			ChangeSkyDomeProperties();
 			
-			if( g_multipleView->m_enableTimer )
-				g_multipleView->EnableTimer( CTrue );
+			if (g_multipleView->m_enableTimer)
+			{
+				g_multipleView->EnableTimer(CTrue);
+			}
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			g_multipleView->RenderWindow();
@@ -16990,7 +17036,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			ChangeTerrainProperties();
 
 			if (g_multipleView->m_enableTimer)
+			{
 				g_multipleView->EnableTimer(CTrue);
+			}
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			g_multipleView->RenderWindow();
@@ -17005,8 +17053,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 				ChangeLightProperties( g_engineLights[i]);
 
-				if( g_multipleView->m_enableTimer )
-					g_multipleView->EnableTimer( CTrue );
+				if (g_multipleView->m_enableTimer)
+				{
+					g_multipleView->EnableTimer(CTrue);
+				}
 
 				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
 				{
@@ -17029,8 +17079,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 				ChangeWaterProperties(g_engineWaters[i]);
 
-				if( g_multipleView->m_enableTimer )
-					g_multipleView->EnableTimer( CTrue );
+				if (g_multipleView->m_enableTimer)
+				{
+					g_multipleView->EnableTimer(CTrue);
+				}
 
 				g_multipleView->SetElapsedTimeFromBeginning();
 				g_multipleView->RenderWindow();
@@ -17047,8 +17099,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 				ChangeStaticSoundProperties(g_engineStaticSounds[i]);
 
-				if( g_multipleView->m_enableTimer )
-					g_multipleView->EnableTimer( CTrue );
+				if (g_multipleView->m_enableTimer)
+				{
+					g_multipleView->EnableTimer(CTrue);
+				}
 
 				g_multipleView->SetElapsedTimeFromBeginning();
 				return;
@@ -17066,6 +17120,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 				if (m_dlgAddTrigger->DoModal() == IDCANCEL)
 				{
 					CDelete(m_dlgAddTrigger);
+					if (g_multipleView->m_enableTimer)
+						g_multipleView->EnableTimer(CTrue);
 					return;
 				}
 				CDelete(m_dlgAddTrigger);
@@ -17097,7 +17153,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 				}
 
 				if (g_multipleView->m_enableTimer)
+				{
 					g_multipleView->EnableTimer(CTrue);
+				}
 
 				g_multipleView->SetElapsedTimeFromBeginning();
 				return;
@@ -17114,7 +17172,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 				ChangeEngineCameraProperties(g_engineCameraInstances[i]);
 
 				if (g_multipleView->m_enableTimer)
+				{
 					g_multipleView->EnableTimer(CTrue);
+				}
 
 				g_multipleView->SetElapsedTimeFromBeginning();
 				g_multipleView->RenderWindow();
@@ -17145,6 +17205,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			if (m_dlgMainCharacter->DoModal() == IDCANCEL)
 			{
 				CDelete(m_dlgMainCharacter);
+				if (g_multipleView->m_enableTimer)
+					g_multipleView->EnableTimer(CTrue);
 				return;
 			}
 			CDelete(m_dlgMainCharacter);
@@ -17175,7 +17237,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			}
 
 			if (g_multipleView->m_enableTimer)
+			{
 				g_multipleView->EnableTimer(CTrue);
+			}
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			return;
@@ -17188,8 +17252,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 
 			ChangeAmbientSoundProperties();
 
-			if( g_multipleView->m_enableTimer )
-				g_multipleView->EnableTimer( CTrue );
+			if (g_multipleView->m_enableTimer)
+			{
+				g_multipleView->EnableTimer(CTrue);
+			}
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			return;
@@ -17972,6 +18038,7 @@ CVoid CVandaEngine1Dlg::InsertItemToSceneList( char * sceneName )
 				if (Cmp(g_instancePrefab[i]->GetName(), sceneName))
 				{
 					foundTarget = CTrue;
+					m_btnSceneProperties.EnableWindow(TRUE);
 					//if we are loading the scenes from a vin file, set the check box based on the visible property of the scene
 					if (g_instancePrefab[i]->GetVisible())
 						m_listBoxScenes.SetCheck(index);
@@ -18746,6 +18813,7 @@ CVoid CVandaEngine1Dlg::ChangeStartupProperties()
 		g_startup->SetName(m_dlgAddStartup->GetName());
 		g_startup->SetScriptPath(m_dlgAddStartup->GetScriptPath());
 		g_startup->SetUpdateScript(m_dlgAddStartup->GetUpdateScript());
+		g_startup->LoadLuaFile();
 		ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(g_startup->GetName(), eENGINEOBJECTLIST_STARTUP);
 		ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
 		ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
@@ -20354,6 +20422,7 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 			{
 				if (Cmp(g_instancePrefab[i]->GetName(), szBuffer))
 				{
+					m_btnSceneProperties.EnableWindow(TRUE);
 					m_newInstancePrefab = g_instancePrefab[i];
 					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_instancePrefab[i]->GetNameIndex();
 					g_showArrow = CTrue;
@@ -20364,6 +20433,7 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 					break;
 				}
 			}
+			
 			if (m_newInstancePrefab)
 			{
 				//show the elements of newly selected prefab
@@ -20380,7 +20450,12 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 				{
 					if (Cmp(g_guis[i]->GetName(), szBuffer))
 					{
+						m_btnSceneProperties.EnableWindow(TRUE);
 						gui = g_guis[i];
+						g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+						g_showArrow = CFalse;
+						g_transformObject = CFalse;
+						SetDialogData4(g_guis[i]->GetName(), 0.0f, 0.0f, 0.0f, CFalse, CFalse);
 					}
 				}
 				if (gui)
@@ -20413,6 +20488,20 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 	{
 		m_btnRemoveScene.EnableWindow( FALSE );
 		m_btnSceneProperties.EnableWindow( FALSE );
+
+		POSITION p = m_listBoxEngineObjects.GetFirstSelectedItemPosition();
+		CInt nSelected = -1;
+		while (p)
+		{
+			nSelected = m_listBoxEngineObjects.GetNextSelectedItem(p);
+		}
+		if (nSelected < 0)
+		{
+			g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+			g_showArrow = CFalse;
+			g_transformObject = CFalse;
+			SetDialogData3(CFalse, NULL);
+		}
 	}
 
 
@@ -20573,6 +20662,19 @@ void CVandaEngine1Dlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT 
 	{
 		m_btnRemoveEngineObject.EnableWindow( FALSE );
 		m_btnEngineObjectProperties.EnableWindow( FALSE );
+		int nSelected = -1;
+		POSITION p = m_listBoxScenes.GetFirstSelectedItemPosition();
+		while (p)
+		{
+			nSelected = m_listBoxScenes.GetNextSelectedItem(p);
+		}
+		if (nSelected < 0)
+		{
+			g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+			g_showArrow = CFalse;
+			g_transformObject = CFalse;
+			SetDialogData3(CFalse, NULL);
+		}
 	}
 }
 
@@ -20615,12 +20717,12 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 
 	g_multipleView->m_nx->ReleaseCharacterControllers();
 
-	g_multipleView->m_nx->gDefaultGravity.x = g_physXProperties.m_fGravityX;
-	g_multipleView->m_nx->gDefaultGravity.y = g_physXProperties.m_fGravityY;
-	g_multipleView->m_nx->gDefaultGravity.z = g_physXProperties.m_fGravityZ;
+	g_multipleView->m_nx->m_defaultGravity.x = g_physXProperties.m_fGravityX;
+	g_multipleView->m_nx->m_defaultGravity.y = g_physXProperties.m_fGravityY;
+	g_multipleView->m_nx->m_defaultGravity.z = g_physXProperties.m_fGravityZ;
 	gPhysicsSDK->setParameter( NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth );
 
-	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->gDefaultGravity.x, g_multipleView->m_nx->gDefaultGravity.y, g_multipleView->m_nx->gDefaultGravity.z));
+	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->m_defaultGravity.x, g_multipleView->m_nx->m_defaultGravity.y, g_multipleView->m_nx->m_defaultGravity.z));
 
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
@@ -20633,11 +20735,11 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 
 	if( g_physXProperties.m_bApplyGravity )
 	{
-		g_multipleView->m_nx->gDefaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
+		g_multipleView->m_nx->m_defaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
 	}
 	else
 	{
-		g_multipleView->m_nx->gDefaultGravity = NxVec3(0.0f);
+		g_multipleView->m_nx->m_defaultGravity = NxVec3(0.0f);
 	}
 	g_multipleView->m_nx->gDesiredDistance = g_physXProperties.m_fCameraCharacterDistance;
 	g_multipleView->m_nx->debugMode = g_physXProperties.m_bDebugMode;
@@ -21464,60 +21566,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnScriptManager()
 	}
 	g_multipleView->RenderWindow();
 
-	CBool foundTarget = CFalse;
-	if (g_selectedName != -1)
-	{
-		if (g_editorMode == eMODE_VSCENE)
-		{
-			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-			{
-				if (g_instancePrefab[i]->GetNameIndex() == g_selectedName)
-				{
-					if (CmpIn(g_instancePrefab[i]->GetName(), "Vanda_Basics_Box_Trigger") || CmpIn(g_instancePrefab[i]->GetName(), "Vanda_Basics_Sphere_Trigger"))
-					{
-						ex_pAddScript->SetInstanceGeo(g_instancePrefab[i]->GetScene(0)->m_instanceGeometries[0]);
-
-						foundTarget = CTrue;
-						break;
-					}
-				}
-			}
-		}
-		else //prefab mode
-		{
-			for (CUInt i = 0; i < g_scene.size(); i++)
-			{
-				for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-				{
-					if (g_scene[i]->m_instanceGeometries[j]->m_nameIndex == g_selectedName)
-					{
-						if (g_scene[i]->m_instanceGeometries[j]->m_isTrigger)
-						{
-							ex_pAddScript->SetInstanceGeo(g_scene[i]->m_instanceGeometries[j]);
-							foundTarget = CTrue;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	if (!foundTarget)
-	{
-		MessageBox("Please select a trigger", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
-		return;
-	}
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
 
-	if( g_vandaDemo )
-	{
-		MessageBox( "This button opens the script manager that lets you load another scene or activate an animation while colliding the appropriate triggers.\nThis feature is not available in RTI demo Edition Version 1.x", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION );
-	}
-	else
-	{
-		m_dlgAddScript->DoModal();
-	}
+	CScriptEditor* m_dlgScriptEditor = CNew(CScriptEditor);
+	m_dlgScriptEditor->Create(CScriptEditor::IDD);
+	m_dlgScriptEditor->ShowWindow(SW_SHOW);
+
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CTrue );
 
@@ -21645,20 +21700,57 @@ void CVandaEngine1Dlg::OnBnClickedBtnSceneProperties()
 		lvi.pszText = szBuffer;
 		lvi.cchTextMax = cchBuf;
 		m_listBoxScenes.GetItem(&lvi);
-		CScene* scene = NULL;
-		for( CUInt i = 0; i < g_scene.size(); i++ )
-		{
-			if( Cmp( szBuffer, g_scene[i]->GetName() ) )
-			{
-				scene = g_scene[i];
-			}
-		}
+
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
 
-		CSceneProperties* m_dlgSceneProperties = CNew (CSceneProperties);
-		m_dlgSceneProperties->DoModal();
-		CDelete( m_dlgSceneProperties );
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			//open dialog here
+			CString s;
+			m_staticSelectedObject.GetWindowTextA(s);
+			CBool foundPrefabInstance = CFalse;
+			CBool foundGUIInstance = CFalse;
+			CChar name[MAX_NAME_SIZE];
+			Cpy(name, s.GetBuffer(s.GetLength()));
+			CEditPrefab* dlg_prefab = NULL;
+			CEditGUI* dlg_gui = NULL;
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				if (Cmp(g_instancePrefab[i]->GetName(), name))
+				{
+					dlg_prefab = CNew(CEditPrefab);
+					dlg_prefab->SetPrefabInstance(g_instancePrefab[i]);
+					foundPrefabInstance = CTrue;
+					break;
+				}
+			}
+			if (!foundPrefabInstance)
+			{
+				for (CUInt i = 0; i < g_guis.size(); i++)
+				{
+					if (Cmp(g_guis[i]->GetName(), name))
+					{
+						dlg_gui = CNew(CEditGUI);
+						dlg_gui->SetGUIInstance(g_guis[i]);
+						foundGUIInstance = CTrue;
+						break;
+					}
+				}
+			}
+
+			s.ReleaseBuffer();
+			if (foundPrefabInstance)
+			{
+				dlg_prefab->DoModal();
+				CDelete(dlg_prefab);
+			}
+			else if (foundGUIInstance)
+			{
+				dlg_gui->DoModal();
+				CDelete(dlg_gui);
+			}
+		}
 
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CTrue );
@@ -22045,6 +22137,8 @@ void CVandaEngine1Dlg::PumpMessages()
 
 void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 {
+	ClearObjectNames();
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		m_mainBtnTestActive.ShowWindow(SW_HIDE);
@@ -22140,55 +22234,48 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 						if (prefab && prefab->GetHasLod(k))
 						{
 							CScene* scene = g_instancePrefab[j]->GetScene(k);
+							scene->SetAnimationStatus(eANIM_PLAY);
 							for (CInt l = 0; l < scene->GetNumClips(); l++)
 							{
 								scene->ClearCycle(l, 0.0f);
 								scene->RemoveAction(l);
-
-								g_multipleView->RenderWindow();
-
-								scene->m_blendCycleList.clear();
-								scene->m_executeActionList.clear();
-								scene->m_animationClips[l]->SetAnimationStatus(eANIM_NONE);
 							}
-
 						}
-
 					}
 
-					for (CUInt k = 0; k < 3; k++)
-					{
-						if (m_instancePrefab[i]->GetPrefab() && m_instancePrefab[i]->GetPrefab()->GetHasLod(k))
-						{
-							CScene* scene = m_instancePrefab[i]->GetScene(k);
-							if (!scene) continue;
+					//for (CUInt k = 0; k < 3; k++)
+					//{
+					//	if (m_instancePrefab[i]->GetPrefab() && m_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+					//	{
+					//		CScene* scene = m_instancePrefab[i]->GetScene(k);
+					//		if (!scene) continue;
 
 							//load animation status
-							g_instancePrefab[j]->GetScene(k)->SetAnimationStatus(scene->GetAnimationStatus());
+							//g_instancePrefab[j]->GetScene(k)->SetAnimationStatus(scene->GetAnimationStatus());
 
-							for (CInt l = 0; l < scene->GetNumClips(); l++)
-							{
-								CAnimationStatus animationClipStatus = scene->m_animationClips[l]->GetAnimationStatus();
+							//for (CInt l = 0; l < scene->GetNumClips(); l++)
+							//{
+							//	CAnimationStatus animationClipStatus = scene->m_animationClips[l]->GetAnimationStatus();
 
-								if (g_instancePrefab[j]->GetScene(k)->GetAnimationStatus() == eANIM_PLAY)
-								{
-									if (animationClipStatus == eANIM_BLEND_CYCLE)
-									{
-										g_instancePrefab[j]->GetScene(k)->BlendCycle(l, 1.0f, 0.0f);
-									}
-									else if (animationClipStatus == eANIM_EXECUTE_ACTION)
-									{
-										g_instancePrefab[j]->GetScene(k)->ExecuteAction(l, 0.0f, 0.0f, 1.0f, CFalse);
-									}
-								}
-								g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetAnimationStatus(animationClipStatus);
-								g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetCurrentTime(scene->m_animationClips[l]->GetCurrentAnimationTime());
-							}
+							//	if (g_instancePrefab[j]->GetScene(k)->GetAnimationStatus() == eANIM_PLAY)
+							//	{
+							//		if (animationClipStatus == eANIM_BLEND_CYCLE)
+							//		{
+							//			g_instancePrefab[j]->GetScene(k)->BlendCycle(l, 1.0f, 0.0f);
+							//		}
+							//		else if (animationClipStatus == eANIM_EXECUTE_ACTION)
+							//		{
+							//			g_instancePrefab[j]->GetScene(k)->ExecuteAction(l, 0.0f, 0.0f, 1.0f, CFalse);
+							//		}
+							//	}
+							//	g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetAnimationStatus(animationClipStatus);
+							//	g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetCurrentTime(scene->m_animationClips[l]->GetCurrentAnimationTime());
+							//}
 
-							if (scene)
-								CDelete(scene);
-						}
-					}
+					//		if (scene)
+					//			CDelete(scene);
+					//	}
+					//}
 
 					CDelete(m_instancePrefab[i]);
 					break;
@@ -22198,6 +22285,34 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		m_instancePrefab.clear();
 		//end of load prefab instance parameters
 
+		//remove all animations of player
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_mainCharacter)
+			{
+				if (Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[j]->GetName()))
+				{
+					//remove all animations
+					for (CUInt k = 0; k < 3; k++)
+					{
+						CPrefab* prefab = g_instancePrefab[j]->GetPrefab();
+
+						if (prefab && prefab->GetHasLod(k))
+						{
+							CScene* scene = g_instancePrefab[j]->GetScene(k);
+							scene->SetAnimationStatus(eANIM_PLAY);
+
+							for (CInt l = 0; l < scene->GetNumClips(); l++)
+							{
+								scene->ClearCycle(l, 0.0f);
+								scene->RemoveAction(l);
+							}
+
+						}
+					}
+				}
+			}
+		}
 		//Load Current VScene info
 		g_currentVSceneProperties.m_isMenu = m_currentVSceneProperties.m_isMenu;
 		g_currentVSceneProperties.m_cursorSize = m_currentVSceneProperties.m_cursorSize;
@@ -22226,9 +22341,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		{
 			Cpy(g_multipleView->GetPreviousCharacterAnimationType(), "\n");
 			CMultipleWindows::firstIdle = CTrue;
-			g_multipleView->ManageCharacterBlends("idle");
+			//g_multipleView->ManageCharacterBlends("idle");
 			g_multipleView->m_idleCounter = 0.0f;
 			g_mainCharacter->GetInstancePrefab()->SetRotate(m_initCharacterRotate);
+			g_mainCharacter->GetInstancePrefab()->SetTranslate(m_initCharacterTranslate);
+			g_mainCharacter->SetPosition(m_initCharacterTranslate);
 			g_multipleView->m_soundSystem->StopALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
 			g_multipleView->m_soundSystem->StopALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
 		}
@@ -22274,19 +22391,20 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 			g_multipleView->DeleteMenuCursorTexture();
 		}
 	}
-	else
-	{
-		for (CUInt i = 0; i < g_scene.size(); i++)
-		{
-			g_render.SetScene(g_scene[i]);
-			g_render.GetScene()->Update();
-		}
-	}
+
+	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
 	if (g_editorMode == eMODE_PREFAB)
 	{
 		for (CUInt i = 0; i < g_scene.size(); i++)
 		{
+			g_render.SetScene(g_scene[i]);
+			g_scene[i]->Update();
+
 			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
 			{
 				if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
@@ -22294,14 +22412,20 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 					g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, g_scene[i]->m_instanceGeometries[j]);
 				}
 			}
+
+			//Deactivate all animations
+			if (g_scene[i]->GetNumClips() == 0)
+				continue;
+
+			g_scene[i]->SetAnimationStatus(eANIM_PLAY);
+
+			for (CInt l = 0; l < g_scene[i]->GetNumClips(); l++)
+			{
+				g_scene[i]->ClearCycle(l, 0.0f);
+				g_scene[i]->RemoveAction(l);
+			}
 		}
 	}
-
-	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
-	g_multipleView->m_nx->gControllers->reportSceneChanged();
-	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
-	gPhysXscene->flushStream();
-	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
 	g_multipleView->SetPlayGameMode(CFalse);
 
@@ -22313,8 +22437,40 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 			g_instancePrefab[i]->UpdateIsStaticOrAnimated();
 		}
 	}
+	g_multipleView->SetSwapBuffers(CFalse);
 	for (CUInt i = 0; i < 10; i++)
 		g_multipleView->RenderWindow();
+	g_multipleView->SetSwapBuffers(CTrue);
+
+	if (g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			g_scene[i]->SetAnimationStatus(eANIM_PAUSE);
+		}
+	}
+	else if (g_editorMode == eMODE_VSCENE)
+	{
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			//remove all animations
+			for (CUInt k = 0; k < 3; k++)
+			{
+				CPrefab* prefab = g_instancePrefab[j]->GetPrefab();
+
+				if (prefab && prefab->GetHasLod(k))
+				{
+					CScene* scene = g_instancePrefab[j]->GetScene(k);
+					scene->SetAnimationStatus(eANIM_PAUSE);
+				}
+			}
+			if (g_instancePrefab[j]->GetHasCollider())
+			{
+				CScene* scene = g_instancePrefab[j]->GetScene(3);
+				scene->SetAnimationStatus(eANIM_PAUSE);
+			}
+		}
+	}
 
 	PrintInfo("\nPlay mode disabled");
 
@@ -22337,6 +22493,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		}
 	}
 
+	LoadObjectNames();
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		m_mainBtnTestActive.ShowWindow(SW_SHOW);
@@ -22358,6 +22516,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
+
+		for (CUInt k = 0; k < g_guiButtons.size(); k++)
+		{
+			if (g_guiButtons[k]->GetHasScript())
+				g_guiButtons[k]->LoadLuaFile();
+		}
 
 		g_multipleView->SetPlayGameMode(CTrue);
 
@@ -22389,6 +22553,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
 	g_transformObject = CFalse;
 	g_showArrow = CFalse;
+
+	//load scripts in VScene mode
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		//startup
+		if (g_startup)
+			if (g_startup->LoadLuaFile())
+
+		//guis
+		for (CUInt i = 0; i < g_guis.size(); i++)
+		{
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				if (g_guis[i]->m_guiButtons[j]->GetHasScript())
+					g_guis[i]->m_guiButtons[j]->LoadLuaFile();
+			}
+		}
+
+		//triggers
+		for (CUInt i = 0; i < g_triggers.size(); i++)
+		{
+			if (g_triggers[i]->GetHasScript())
+				g_triggers[i]->LoadLuaFile();
+		}
+
+		//prefab instances
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			if (g_instancePrefab[i]->GetHasScript())
+				g_instancePrefab[i]->LoadLuaFile();
+		}
+	}
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
@@ -22495,27 +22691,27 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			m_instancePrefab.push_back(new_instance_prefab);
 
 			//Animations
-			for (CUInt j = 0; j < 3; j++)
-			{
-				if (new_instance_prefab->GetPrefab() && new_instance_prefab->GetPrefab()->GetHasLod(j))
-				{
-					CScene* scene = g_instancePrefab[i]->GetScene(j);
-					if (!scene) continue;
+			//for (CUInt j = 0; j < 3; j++)
+			//{
+			//	if (new_instance_prefab->GetPrefab() && new_instance_prefab->GetPrefab()->GetHasLod(j))
+			//	{
+			//		CScene* scene = g_instancePrefab[i]->GetScene(j);
+			//		if (!scene) continue;
 
-					CScene* temp_scene = CNew(CScene);
-					temp_scene->SetAnimationStatus(scene->GetAnimationStatus());
+			//		CScene* temp_scene = CNew(CScene);
+			//		temp_scene->SetAnimationStatus(scene->GetAnimationStatus());
 
-					for (CInt k = 0; k < scene->GetNumClips(); k++)
-					{
-						CAnimationClip * newAnimClip = CNew(CAnimationClip);
-						temp_scene->m_animationClips.push_back(newAnimClip);
-						temp_scene->m_animationClips[k]->SetAnimationStatus(scene->m_animationClips[k]->GetAnimationStatus());
-						temp_scene->m_animationClips[k]->SetCurrentTime(scene->m_animationClips[k]->GetCurrentAnimationTime());
-					}
-					temp_scene->SetNumClips(scene->GetNumClips());
-					new_instance_prefab->SetScene(j, temp_scene);
-				}
-			}
+			//		for (CInt k = 0; k < scene->GetNumClips(); k++)
+			//		{
+			//			CAnimationClip * newAnimClip = CNew(CAnimationClip);
+			//			temp_scene->m_animationClips.push_back(newAnimClip);
+			//			temp_scene->m_animationClips[k]->SetAnimationStatus(scene->m_animationClips[k]->GetAnimationStatus());
+			//			temp_scene->m_animationClips[k]->SetCurrentTime(scene->m_animationClips[k]->GetCurrentAnimationTime());
+			//		}
+			//		temp_scene->SetNumClips(scene->GetNumClips());
+			//		new_instance_prefab->SetScene(j, temp_scene);
+			//	}
+			//}
 
 		}
 
@@ -22537,6 +22733,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			g_multipleView->m_characterRotationTransition = CTrue;
 			g_multipleView->ManageCharacterBlends("idle");
 			m_initCharacterRotate = g_mainCharacter->GetInstancePrefab()->GetRotate();
+			m_initCharacterTranslate = g_mainCharacter->GetInstancePrefab()->GetTranslate();
 			g_mainCharacter->SetCurrentRotation(m_initCharacterRotate.y);
 			CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
 			g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
@@ -22561,13 +22758,21 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 					{
 						g_instancePrefab[i]->SetSceneVisible(j, CTrue);
 					}
-					if (scene->GetNumClips() > 0)
+					if (scene->m_playAnimation)
 					{
-						if (scene->m_loopAnimationAtStartup)
-							scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
-						else
-							scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f);
+						scene->SetAnimationStatus(eANIM_PLAY);
+						if (scene->GetNumClips() > 0)
+						{
+							if (scene->m_loopAnimationAtStartup)
+								scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+							else
+								scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
+						}
 					}
+					//else
+					//{
+					//	scene->SetAnimationStatus(eANIM_PAUSE);
+					//}
 					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						scene->m_animationClips[k]->SetCurrentTime(0.0f); //start from beginning
@@ -22633,13 +22838,82 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 		//Load startup object
 		if (g_menu.m_insertStartup)
-			LuaLoadAndExecute(g_lua, g_startup->GetScriptPath());
+			g_startup->InitScript();
 
 		if (g_currentVSceneProperties.m_isMenu)
 		{
 			g_multipleView->GenerateMenuCursorTexture(g_vsceneMenuCursor.GetCursorPath());
 		}
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->InitScript();
+		}
 	}
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		//Play animations in play mode
+		for (CUInt j = 0; j < g_scene.size(); j++)
+		{
+			CScene* scene = g_scene[j];
+			if (scene->GetNumClips() == 0)
+				continue;
+			//Clear all animations//
+			scene->SetAnimationStatus(eANIM_PLAY);
+			for (CInt l = 0; l < scene->GetNumClips(); l++)
+			{
+				scene->ClearCycle(l, 0.0f);
+				scene->RemoveAction(l);
+			}
+			g_multipleView->SetSwapBuffers(CFalse);
+			for (CUInt k = 0; k < 10; k++)
+				g_multipleView->RenderWindow();
+			g_multipleView->SetSwapBuffers(CTrue);
+
+			scene->SetAnimationStatus(eANIM_PAUSE);
+			//////////////////////
+		}
+
+		for (CUInt j = 0; j < g_scene.size(); j++)
+		{
+			CScene* scene = g_scene[j];
+
+			if (scene->GetNumClips() == 0)
+				continue;
+
+			if (scene->m_playAnimation)
+			{
+				scene->SetAnimationStatus(eANIM_PLAY);
+
+				if (scene->m_loopAnimationAtStartup)
+					scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+				else
+					scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
+			}
+		}
+
+		if (g_prefabProperties.m_hasScript)
+		{
+			if (!LuaLoadFile(g_lua, g_prefabProperties.m_scriptPath))
+				return;
+
+			lua_getglobal(g_lua, "Init");
+			if (lua_isfunction(g_lua, -1))
+			{
+				lua_pcall(g_lua, 0, 0, 0);
+			}
+			lua_settop(g_lua, 0);
+		}
+		
+		//Disable Play, Pause, Next and Prev buttons
+		ex_pBtnPlayAnim->EnableWindow(FALSE);
+		ex_pBtnPlayAnim->ShowWindow(SW_HIDE);
+		ex_pBtnPauseAnim->EnableWindow(FALSE);
+		ex_pBtnPauseAnim->ShowWindow(SW_SHOW);
+		ex_pBtnNextAnim->EnableWindow(FALSE);
+		ex_pBtnPrevAnim->EnableWindow(FALSE);
+	}
+
 	if (g_physXProperties.m_bGroundPlane)
 	{
 		NxVec3 rot0(0, 0, 0);
@@ -22659,7 +22933,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 	g_multipleView->SetPlayGameMode(CTrue);
 
+	g_multipleView->SetSwapBuffers(CFalse);
 	g_multipleView->RenderWindow();
+	g_multipleView->SetSwapBuffers(CTrue);
 
 	g_multipleView->m_loadScene = CFalse;
 
@@ -22670,7 +22946,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	dlgWaiting->ShowWindow(SW_HIDE);
 	CDelete(dlgWaiting);
 
-	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->gDefaultGravity.x, g_multipleView->m_nx->gDefaultGravity.y, g_multipleView->m_nx->gDefaultGravity.z));
+	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->m_defaultGravity.x, g_multipleView->m_nx->m_defaultGravity.y, g_multipleView->m_nx->m_defaultGravity.z));
 }
 
 
@@ -23889,22 +24165,10 @@ CVoid CVandaEngine1Dlg::ChangeGUIButtonProperties(CGUIButton* button)
 		m_dlgAddGUIButton->SetUpdateRightClickImage(button->GetUpdateRightClickImage());
 	}
 
-	if (button->GetHasLeftClickScript())
+	if (button->GetHasScript())
 	{
-		m_dlgAddGUIButton->SetLeftClickScriptPath(button->GetLeftClickScriptPath());
-		m_dlgAddGUIButton->SetUpdateLeftClickScript(button->GetUpdateLeftClickScript());
-	}
-
-	if (button->GetHasHoverScript())
-	{
-		m_dlgAddGUIButton->SetHoverScriptPath(button->GetHoverScriptPath());
-		m_dlgAddGUIButton->SetUpdateHoverScript(button->GetUpdateHoverScript());
-	}
-
-	if (button->GetHasRightClickScript())
-	{
-		m_dlgAddGUIButton->SetRightClickScriptPath(button->GetRightClickScriptPath());
-		m_dlgAddGUIButton->SetUpdateRightClickScript(button->GetUpdateRightClickScript());
+		m_dlgAddGUIButton->SetScriptPath(button->GetScriptPath());
+		m_dlgAddGUIButton->SetUpdateScript(button->GetUpdateScript());
 	}
 
 	INT_PTR result = m_dlgAddGUIButton->DoModal();
@@ -23993,32 +24257,15 @@ CVoid CVandaEngine1Dlg::ChangeGUIButtonProperties(CGUIButton* button)
 		{
 			guiButton->SetHasRightClickImage(CFalse);
 		}
-		if (m_dlgAddGUIButton->GetHasLeftClickScript())
+		if (m_dlgAddGUIButton->GetHasScript())
 		{
-			guiButton->SetLeftClickScriptPath(m_dlgAddGUIButton->GetLeftClickScriptPath());
-			guiButton->SetHasLeftClickScript(CTrue);
+			guiButton->SetScriptPath(m_dlgAddGUIButton->GetScriptPath());
+			guiButton->SetHasScript(CTrue);
+			guiButton->LoadLuaFile();
 		}
 		else
 		{
-			guiButton->SetHasLeftClickScript(CFalse);
-		}
-		if (m_dlgAddGUIButton->GetHasRightClickScript())
-		{
-			guiButton->SetRightClickScriptPath(m_dlgAddGUIButton->GetRightClickScriptPath());
-			guiButton->SetHasRightClickScript(CTrue);
-		}
-		else
-		{
-			guiButton->SetHasRightClickScript(CFalse);
-		}
-		if (m_dlgAddGUIButton->GetHasHoverScript())
-		{
-			guiButton->SetHoverScriptPath(m_dlgAddGUIButton->GetHoverScriptPath());
-			guiButton->SetHasHoverScript(CTrue);
-		}
-		else
-		{
-			guiButton->SetHasHoverScript(CFalse);
+			guiButton->SetHasScript(CFalse);
 		}
 
 		guiButton->SetUpdateMainImage(m_dlgAddGUIButton->GetUpdateMainImage());
@@ -24026,10 +24273,7 @@ CVoid CVandaEngine1Dlg::ChangeGUIButtonProperties(CGUIButton* button)
 		guiButton->SetUpdateHoverImage(m_dlgAddGUIButton->GetUpdateHoverImage());
 		guiButton->SetUpdateRightClickImage(m_dlgAddGUIButton->GetUpdateRightClickImage());
 		guiButton->SetUpdateDisableImage(m_dlgAddGUIButton->GetUpdateDisableImage());
-		guiButton->SetUpdateLeftClickScript(m_dlgAddGUIButton->GetUpdateLeftClickScript());
-		guiButton->SetUpdateRightClickScript(m_dlgAddGUIButton->GetUpdateRightClickScript());
-		guiButton->SetUpdateHoverScript(m_dlgAddGUIButton->GetUpdateHoverScript());
-
+		guiButton->SetUpdateScript(m_dlgAddGUIButton->GetUpdateScript());
 		g_guiButtons.push_back(guiButton);
 		g_guiNames.push_back(guiButton->GetName());
 
@@ -24919,4 +25163,288 @@ void CVandaEngine1Dlg::OnLvnItemchangingListObjects(NMHDR *pNMHDR, LRESULT *pRes
 		return;
 	}
 	*pResult = 0;
+}
+
+
+void CVandaEngine1Dlg::OnBnClickedBtnPrefabSettings()
+{
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+			g_multipleView->RenderWindow();
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+					g_engineCameraInstances[c]->SetActive(CFalse);
+
+				g_multipleView->RenderWindow();
+
+			}
+			else
+			{
+				return;
+			}
+
+		}
+	}
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+
+	CSceneProperties* m_dlgSceneProperties = CNew(CSceneProperties);
+	m_dlgSceneProperties->DoModal();
+	CDelete(m_dlgSceneProperties);
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CTrue);
+
+	g_multipleView->SetElapsedTimeFromBeginning();
+	g_multipleView->RenderWindow();
+}
+
+CVoid CVandaEngine1Dlg::LoadObjectNames()
+{
+	CChar projectPathRoot[MAX_URI_SIZE];
+	HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, projectPathRoot);
+	if (result != S_OK)
+	{
+		PrintInfo("\nCouldn't get the documents folder to write data", COLOR_RED);
+	}
+	else
+	{
+		Append(projectPathRoot, "/Vanda/Projects/");
+	}
+
+	for (CUInt pr = 0; pr < g_projects.size(); pr++)
+	{
+		for (CUInt vs = 0; vs < g_projects[pr]->m_sceneNames.size(); vs++)
+		{
+			CVSceneObjectNames VSceneObjectNames;
+
+			CChar VSceneNameWithoutDot[MAX_NAME_SIZE];
+			Cpy(VSceneNameWithoutDot, g_projects[pr]->m_sceneNames[vs].c_str());
+			GetWithoutDot(VSceneNameWithoutDot);
+
+			CChar objectNamePath[MAX_URI_SIZE];
+			sprintf(objectNamePath, "%s%s%s%s%s%s%s", projectPathRoot, g_projects[pr]->m_name, "/", VSceneNameWithoutDot, "/", VSceneNameWithoutDot, ".onm");
+
+			FILE *ObjectNamefilePtr;
+			ObjectNamefilePtr = fopen(objectNamePath, "rb");
+			if (!ObjectNamefilePtr)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "Couldn't open the file '", objectNamePath, "' to load data");
+				MessageBox(temp, "Vanda Engine Error", MB_OK);
+				return;
+			}
+			//read data here
+			//prefab instances
+			CUInt prefabInstanceSize;
+			fread(&prefabInstanceSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < prefabInstanceSize; i++)
+			{
+				CInstancePrefabNames newPrefabInstance;
+
+				//prefab instance name
+				CChar prefabInstanceName[MAX_NAME_SIZE];
+				fread(prefabInstanceName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				Cpy(newPrefabInstance.m_name, prefabInstanceName);
+
+				//package name- used for loading image preview
+				CChar packageName[MAX_NAME_SIZE];
+				fread(packageName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				Cpy(newPrefabInstance.m_packageName, packageName);
+
+				//prefab name- used for loading image preview
+				CChar prefabName[MAX_NAME_SIZE];
+				fread(prefabName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				Cpy(newPrefabInstance.m_prefabName, prefabName);
+
+				//number of animations
+				CUInt numClips;
+				fread(&numClips, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+				//animation names
+				for (CUInt j = 0; j < numClips; j++)
+				{
+					CChar clipName[MAX_NAME_SIZE];
+					fread(clipName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+					newPrefabInstance.m_animationNames.push_back(clipName);
+				}
+
+				for (CUInt sceneIndex = 0; sceneIndex < 3; sceneIndex++)
+				{
+					CBool hasLOD;
+					fread(&hasLOD, sizeof(CBool), 1, ObjectNamefilePtr);
+
+					if (hasLOD)
+					{
+						//number of instance cameras
+						CUInt numCameras;
+						fread(&numCameras, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+						//Camera names
+						for (CUInt j = 0; j < numCameras; j++)
+						{
+							CBool foundTarget = CFalse;
+
+							CChar cameraName[MAX_NAME_SIZE];
+							fread(cameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+							for (CUInt k = 0; k < newPrefabInstance.m_cameraNames.size(); k++)
+							{
+								if (Cmp(newPrefabInstance.m_cameraNames[k].c_str(), cameraName))
+								{
+									foundTarget = CTrue;
+									break;
+								}
+							}
+							if (!foundTarget)
+								newPrefabInstance.m_cameraNames.push_back(cameraName);
+						}
+					}
+				}
+
+				VSceneObjectNames.m_instancePrefabNames.push_back(newPrefabInstance);
+			}
+			//static sounds
+			CUInt staticSoundSize;
+			fread(&staticSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < staticSoundSize; i++)
+			{
+				CChar staticSoundName[MAX_NAME_SIZE];
+				fread(staticSoundName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				VSceneObjectNames.m_staticSoundsNames.push_back(staticSoundName);
+			}
+
+			//Imported cameras in COLLADA format
+			CUInt importedCameraSize;
+			fread(&importedCameraSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < importedCameraSize; i++)
+			{
+				CChar importedCameraName[MAX_NAME_SIZE];
+				fread(importedCameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				VSceneObjectNames.m_importedCameraNames.push_back(importedCameraName);
+			}
+
+			//engine cameras
+			CUInt engineCameraSize;
+			fread(&engineCameraSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < engineCameraSize; i++)
+			{
+				CChar engineCameraName[MAX_NAME_SIZE];
+				fread(engineCameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				VSceneObjectNames.m_engineCameraNames.push_back(engineCameraName);
+			}
+
+			//GUIs
+			CUInt GUISize;
+			fread(&GUISize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < GUISize; i++)
+			{
+				CChar GUIName[MAX_NAME_SIZE];
+				fread(GUIName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+				VSceneObjectNames.m_guiNames.push_back(GUIName);
+
+				CChar GUIPackageName[MAX_NAME_SIZE];
+				fread(GUIPackageName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+				VSceneObjectNames.m_guiPackageNames.push_back(GUIPackageName);
+
+				CChar GUIPureName[MAX_NAME_SIZE];
+				fread(GUIPureName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+				VSceneObjectNames.m_guiPureNames.push_back(GUIPureName);
+
+
+			}
+
+			fclose(ObjectNamefilePtr);
+
+			g_projects[pr]->m_vsceneObjectNames.push_back(VSceneObjectNames);
+		}
+
+		//load project files
+		FILE* resourceFilePtr;
+		CChar resourceFileName[MAX_URI_SIZE];
+		CChar currentProjectPath[MAX_URI_SIZE];
+		sprintf(currentProjectPath, "%s%s/", projectPathRoot, g_projects[pr]->m_name);
+
+		Cpy(resourceFileName, currentProjectPath);
+		Append(resourceFileName, "Resources");
+		Append(resourceFileName, "/resources.res");
+
+		resourceFilePtr = fopen(resourceFileName, "rb");
+		if (resourceFilePtr)
+		{
+			CUInt size;
+			fread(&size, sizeof(CUInt), 1, resourceFilePtr);
+
+			for (CUInt i = 0; i < size; i++)
+			{
+				g_projects[pr]->m_resourceNames.push_back(std::vector<std::string>());
+
+				CUInt row_size;
+				fread(&row_size, sizeof(CUInt), 1, resourceFilePtr);
+				for (CUInt j = 0; j < row_size; j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, resourceFilePtr);
+					g_projects[pr]->m_resourceNames[i].push_back(name);
+				}
+			}
+			fclose(resourceFilePtr);
+		}
+
+	}
+}
+
+CVoid CVandaEngine1Dlg::ClearObjectNames()
+{
+	for (CUInt pr = 0; pr < g_projects.size(); pr++)
+	{
+		g_projects[pr]->ClearNames();
+	}
+}
+
+
+void CVandaEngine1Dlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
+{
+	CDialog::OnActivate(nState, pWndOther, bMinimized);
+
+	if (nState == WA_INACTIVE)
+	{
+		if (g_multipleView)
+			g_multipleView->m_notFocus = CTrue;
+	}
+	else
+	{
+		if (g_multipleView)
+			g_multipleView->m_notFocus = CFalse;
+	}
+	// TODO: Add your message handler code here
 }

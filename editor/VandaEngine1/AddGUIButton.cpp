@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddGUI.cpp : implementation file
@@ -23,9 +23,7 @@ CAddGUIButton::CAddGUIButton(CWnd* pParent /*=NULL*/)
 	m_updateHoverImage = CFalse;
 	m_updateRightClickImage = CFalse;
 	m_updateDisableImage = CFalse;
-	m_updateLeftClickScript = CFalse;
-	m_updateHoverScript = CFalse;
-	m_updateRightClickScript = CFalse;
+	m_updateScript = CFalse;
 
 }
 
@@ -41,9 +39,7 @@ void CAddGUIButton::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_HOVER_IMG, m_editHoverImg);
 	DDX_Control(pDX, IDC_EDIT_RIGHT_CLK_IMG, m_editRightClickImg);
 	DDX_Control(pDX, IDC_EDIT_DISABLE_IMG, m_editDisableImg);
-	DDX_Control(pDX, IDC_EDIT_LEFT_CLK_SCRIPT, m_editLeftClickScript);
-	DDX_Control(pDX, IDC_EDIT_HOVER_SCRIPT, m_editHoverScript);
-	DDX_Control(pDX, IDC_EDIT_RIGHT_CLK_SCRIPT, m_editRightClickScript);
+	DDX_Control(pDX, IDC_EDIT_LEFT_CLK_SCRIPT, m_editScript);
 	DDX_Control(pDX, IDC_EDIT_SIZE, m_editSize);
 	DDX_Control(pDX, IDC_EDIT_NAME, m_editName);
 	DDX_Control(pDX, IDC_EDIT_POS_X, m_editPosX);
@@ -61,12 +57,8 @@ BEGIN_MESSAGE_MAP(CAddGUIButton, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_REMOVE_RIGHT_CLK_IMG, &CAddGUIButton::OnBnClickedButtonRemoveRightClkImg)
 	ON_BN_CLICKED(IDC_BUTTON_ADD_DISABLE_IMG, &CAddGUIButton::OnBnClickedButtonAddDisableImg)
 	ON_BN_CLICKED(IDC_BUTTON_REMOVE_DISABLE_IMG, &CAddGUIButton::OnBnClickedButtonRemoveDisableImg)
-	ON_BN_CLICKED(IDC_BUTTON_ADD_LEFT_CLK_SCRIPT, &CAddGUIButton::OnBnClickedButtonAddLeftClkScript)
-	ON_BN_CLICKED(IDC_BUTTON_REMOVE_LEFT_CLK_SCRIPT, &CAddGUIButton::OnBnClickedButtonRemoveLeftClkScript)
-	ON_BN_CLICKED(IDC_BUTTON_ADD_HOVER_SCRIPT, &CAddGUIButton::OnBnClickedButtonAddHoverScript)
-	ON_BN_CLICKED(IDC_BUTTON_REMOVE_HOVER_SCRIPT, &CAddGUIButton::OnBnClickedButtonRemoveHoverScript)
-	ON_BN_CLICKED(IDC_BUTTON_ADD_RIGHT_CLK_SCRIPT, &CAddGUIButton::OnBnClickedButtonAddRightClkScript)
-	ON_BN_CLICKED(IDC_BUTTON_REMOVE_RIGHT_CLK_SCRIPT, &CAddGUIButton::OnBnClickedButtonRemoveRightClkScript)
+	ON_BN_CLICKED(IDC_BUTTON_ADD_LEFT_CLK_SCRIPT, &CAddGUIButton::OnBnClickedButtonAddScript)
+	ON_BN_CLICKED(IDC_BUTTON_REMOVE_LEFT_CLK_SCRIPT, &CAddGUIButton::OnBnClickedButtonRemoveScript)
 	ON_BN_CLICKED(IDOK, &CAddGUIButton::OnBnClickedOk)
 	ON_EN_CHANGE(IDC_EDIT_SIZE, &CAddGUIButton::OnEnChangeEditSize)
 	ON_EN_CHANGE(IDC_EDIT_NAME, &CAddGUIButton::OnEnChangeEditName)
@@ -871,88 +863,50 @@ void CAddGUIButton::OnBnClickedButtonRemoveDisableImg()
 }
 
 
-void CAddGUIButton::OnBnClickedButtonAddLeftClkScript()
+void CAddGUIButton::OnBnClickedButtonAddScript()
 {
 	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
 		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
 	if (IDOK == dlgOpen.DoModal())
 	{
-		m_strLeftClickScriptPath = (CString)dlgOpen.GetPathName();
-		m_strLeftClickPureScriptPath = dlgOpen.GetFileTitle();
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
 
-		m_editLeftClickScript.SetWindowText(m_strLeftClickScriptPath);
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_strScriptPath = (CString)dlgOpen.GetPathName();
+			m_strPureScriptPath = dlgOpen.GetFileTitle();
 
-		m_updateLeftClickScript = CTrue;
-	}
-}
+			m_editScript.SetWindowText(m_strScriptPath);
 
-
-void CAddGUIButton::OnBnClickedButtonRemoveLeftClkScript()
-{
-	if (!m_strLeftClickScriptPath.IsEmpty())
-		if (MessageBox("Delete current left click script?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
-			return;
-
-	m_editLeftClickScript.SetWindowTextA("\n");
-	m_strLeftClickScriptPath.Empty();
-	m_strLeftClickPureScriptPath.Empty();
-}
-
-
-void CAddGUIButton::OnBnClickedButtonAddHoverScript()
-{
-	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
-		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
-	if (IDOK == dlgOpen.DoModal())
-	{
-		m_strHoverScriptPath = (CString)dlgOpen.GetPathName();
-		m_strHoverPureScriptPath = dlgOpen.GetFileTitle();
-
-		m_editHoverScript.SetWindowText(m_strHoverScriptPath);
-
-		m_updateHoverScript = CTrue;
-	}
-}
-
-
-void CAddGUIButton::OnBnClickedButtonRemoveHoverScript()
-{
-	if (!m_strHoverScriptPath.IsEmpty())
-		if (MessageBox("Delete current hover script?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
-			return;
-
-	m_editHoverScript.SetWindowTextA("\n");
-	m_strHoverPureScriptPath.Empty();
-	m_strHoverScriptPath.Empty();
-}
-
-
-void CAddGUIButton::OnBnClickedButtonAddRightClkScript()
-{
-	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
-		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
-	if (IDOK == dlgOpen.DoModal())
-	{
-		m_strRightClickScriptPath = (CString)dlgOpen.GetPathName();
-		m_strRightClickPureScriptPath = dlgOpen.GetFileTitle();
-
-		m_editRightClickScript.SetWindowText(m_strRightClickScriptPath);
-
-		m_updateRightClickScript = CTrue;
+			m_updateScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
 
 	}
 }
 
 
-void CAddGUIButton::OnBnClickedButtonRemoveRightClkScript()
+void CAddGUIButton::OnBnClickedButtonRemoveScript()
 {
-	if (!m_strRightClickScriptPath.IsEmpty())
-		if (MessageBox("Delete current right click script?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
+	if (!m_strScriptPath.IsEmpty())
+		if (MessageBox("Delete current script?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
 			return;
 
-	m_editRightClickScript.SetWindowTextA("\n");
-	m_strRightClickScriptPath.Empty();
-	m_strRightClickPureScriptPath.Empty();
+	m_editScript.SetWindowTextA("\n");
+	m_strScriptPath.Empty();
+	m_strPureScriptPath.Empty();
 }
 
 CVoid CAddGUIButton::SetCreate(CBool create)
@@ -988,19 +942,9 @@ void CAddGUIButton::OnBnClickedOk()
 		return;
 	}
 
-	if (!m_strLeftClickScriptPath.IsEmpty() && m_strLeftClickImgPath.IsEmpty())
+	if (!m_strScriptPath.IsEmpty() && m_strLeftClickImgPath.IsEmpty())
 	{
 		MessageBox("Please specify left click image", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-		return;
-	}
-	if (!m_strRightClickScriptPath.IsEmpty() && m_strRightClickImgPath.IsEmpty())
-	{
-		MessageBox("Please specify right click image", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-		return;
-	}
-	if (!m_strHoverScriptPath.IsEmpty() && m_strHoverImgPath.IsEmpty())
-	{
-		MessageBox("Please specify hover image", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
@@ -1051,20 +995,10 @@ void CAddGUIButton::OnBnClickedOk()
 	else
 		m_hasRightClickImage = CFalse;
 
-	if (!m_strLeftClickScriptPath.IsEmpty())
-		m_hasLeftClickScript = CTrue;
+	if (!m_strScriptPath.IsEmpty())
+		m_hasScript = CTrue;
 	else
-		m_hasLeftClickScript = CFalse;
-
-	if (!m_strRightClickScriptPath.IsEmpty())
-		m_hasRightClickScript = CTrue;
-	else
-		m_hasRightClickScript = CFalse;
-
-	if (!m_strHoverScriptPath.IsEmpty())
-		m_hasHoverScript = CTrue;
-	else
-		m_hasHoverScript = CFalse;
+		m_hasScript = CFalse;
 
 	if (m_create)
 	{
@@ -1117,32 +1051,15 @@ void CAddGUIButton::OnBnClickedOk()
 		{
 			guiButton->SetHasRightClickImage(CFalse);
 		}
-		if (!m_strLeftClickScriptPath.IsEmpty())
+		if (!m_strScriptPath.IsEmpty())
 		{
-			guiButton->SetLeftClickScriptPath(m_strLeftClickScriptPath.GetBuffer(m_strLeftClickScriptPath.GetLength()));
-			guiButton->SetHasLeftClickScript(CTrue);
+			guiButton->SetScriptPath(m_strScriptPath.GetBuffer(m_strScriptPath.GetLength()));
+			guiButton->SetHasScript(CTrue);
+			guiButton->LoadLuaFile();
 		}
 		else
 		{
-			guiButton->SetHasLeftClickScript(CFalse);
-		}
-		if (!m_strRightClickScriptPath.IsEmpty())
-		{
-			guiButton->SetRightClickScriptPath(m_strRightClickScriptPath.GetBuffer(m_strRightClickScriptPath.GetLength()));
-			guiButton->SetHasRightClickScript(CTrue);
-		}
-		else
-		{
-			guiButton->SetHasRightClickScript(CFalse);
-		}
-		if (!m_strHoverScriptPath.IsEmpty())
-		{
-			guiButton->SetHoverScriptPath(m_strHoverScriptPath.GetBuffer(m_strHoverScriptPath.GetLength()));
-			guiButton->SetHasHoverScript(CTrue);
-		}
-		else
-		{
-			guiButton->SetHasHoverScript(CFalse);
+			guiButton->SetHasScript(CFalse);
 		}
 
 		guiButton->SetUpdateMainImage(CTrue);
@@ -1150,9 +1067,7 @@ void CAddGUIButton::OnBnClickedOk()
 		guiButton->SetUpdateHoverImage(CTrue);
 		guiButton->SetUpdateRightClickImage(CTrue);
 		guiButton->SetUpdateDisableImage(CTrue);
-		guiButton->SetUpdateLeftClickScript(CTrue);
-		guiButton->SetUpdateRightClickScript(CTrue);
-		guiButton->SetUpdateHoverScript(CTrue);
+		guiButton->SetUpdateScript(CTrue);
 
 		if (!Cmp(g_currentPackageAndGUIName, "\n"))
 		{
@@ -1217,19 +1132,9 @@ CVoid CAddGUIButton::SetDisableImagePath(CChar* path)
 	m_strDisableImgPath = path;
 }
 
-CVoid CAddGUIButton::SetLeftClickScriptPath(CChar* path)
+CVoid CAddGUIButton::SetScriptPath(CChar* path)
 {
-	m_strLeftClickScriptPath = path;
-}
-
-CVoid CAddGUIButton::SetHoverScriptPath(CChar* path)
-{
-	m_strHoverScriptPath = path;
-}
-
-CVoid CAddGUIButton::SetRightClickScriptPath(CChar* path)
-{
-	m_strRightClickScriptPath = path;
+	m_strScriptPath = path;
 }
 
 CChar* CAddGUIButton::GetName()
@@ -1273,19 +1178,9 @@ CChar* CAddGUIButton::GetDisableImagePath()
 	return m_strDisableImgPath.GetBuffer(m_strDisableImgPath.GetLength());
 }
 
-CChar* CAddGUIButton::GetLeftClickScriptPath()
+CChar* CAddGUIButton::GetScriptPath()
 {
-	return m_strLeftClickScriptPath.GetBuffer(m_strLeftClickScriptPath.GetLength());
-}
-
-CChar* CAddGUIButton::GetHoverScriptPath()
-{
-	return m_strHoverScriptPath.GetBuffer(m_strHoverScriptPath.GetLength());
-}
-
-CChar* CAddGUIButton::GetRightClickScriptPath()
-{
-	return m_strRightClickScriptPath.GetBuffer(m_strRightClickScriptPath.GetLength());
+	return m_strScriptPath.GetBuffer(m_strScriptPath.GetLength());
 }
 
 BOOL CAddGUIButton::OnInitDialog()
@@ -1317,9 +1212,7 @@ BOOL CAddGUIButton::OnInitDialog()
 		m_editRightClickImg.SetWindowTextA(m_strRightClickImgPath);
 		m_editDisableImg.SetWindowTextA(m_strDisableImgPath);
 
-		m_editLeftClickScript.SetWindowTextA(m_strLeftClickScriptPath);
-		m_editHoverScript.SetWindowTextA(m_strHoverScriptPath);
-		m_editRightClickScript.SetWindowTextA(m_strRightClickScriptPath);
+		m_editScript.SetWindowTextA(m_strScriptPath);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control

@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -58,8 +58,8 @@ public:
 class CInstanceGeometry : public CInstance
 {
 public:
-	CInstanceGeometry() : m_abstractGeometry(0) { m_renderCount = 0; m_nameIndex = -1; m_hasPhysX = CFalse; Cpy(m_physXName, "\n"); m_lodAlgorithm = eLOD_NONE; m_prevLodAlgorithm = eLOD_NONE; m_physXDensity = 0.0f; m_physXPercentage = 50; m_physXCount = 0; m_firstUpdate = CTrue; m_isTrigger = CFalse; m_isInvisible = CFalse; Cpy( m_enterScript, "\n"); Cpy( m_exitScript, "\n" );
-	m_updateEnterScript = m_updateExitScript = CTrue; m_hasEnterScript = m_hasExitScript = CFalse; m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse;}
+	CInstanceGeometry() : m_abstractGeometry(0) { m_renderCount = 0; m_nameIndex = -1; m_hasPhysX = CFalse; Cpy(m_physXName, "\n"); m_lodAlgorithm = eLOD_NONE; m_prevLodAlgorithm = eLOD_NONE; m_physXDensity = 0.0f; m_physXPercentage = 50; m_physXCount = 0; m_firstUpdate = CTrue; m_isTrigger = CFalse; m_isInvisible = CFalse;
+	m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse;}
 	~CInstanceGeometry() { 	m_parentTree.clear(); m_lights.clear();}
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 
@@ -86,11 +86,6 @@ public:
 	CBool m_hasPhysX;
 	CBool m_isTrigger;
 	CBool m_isInvisible;
-	CChar m_enterScript[MAX_NAME_SIZE];
-	CChar m_exitScript[MAX_NAME_SIZE];
-	//save functions
-	CBool m_updateEnterScript, m_hasEnterScript;
-	CBool m_updateExitScript, m_hasExitScript;
 	////////////////
 	CFloat m_physXDensity;
 	CInt m_physXPercentage;

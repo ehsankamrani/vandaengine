@@ -1,8 +1,9 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
 #include "afxwin.h"
+#include "afxcmn.h"
 
 
 // CSceneProperties dialog
@@ -34,4 +35,14 @@ public:
 	CInt m_currentAnimClip;
 	CButton m_checkBoxAlwaysVisible;
 	CButton m_checkBoxCastShadow;
+	afx_msg void OnBnClickedBtnAddPrefabScript();
+	afx_msg void OnBnClickedBtnRemovePrefabScript();
+	CRichEditCtrl m_editBoxScriptPath;
+private:
+	CBool m_updateScript;
+	CString m_strScriptName;
+	CBool m_hasScript;
+public:
+	afx_msg void OnBnClickedButtonCopyAnimation();
+	CRichEditCtrl m_richAnimationName;
 };

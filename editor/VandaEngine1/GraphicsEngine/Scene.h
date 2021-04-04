@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -188,7 +188,7 @@ public:
 	//new way
 	CBool BlendCycle(CInt id, CFloat weight, CFloat delay);
 	CBool ClearCycle(CInt id, CFloat delay);
-	CBool ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat weightTarget = 1.0f, CBool autoLock=CFalse);
+	CBool ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat weightTarget, CBool autoLock);
 	CBool ReverseExecuteAction(CInt id );
 	CBool RemoveAction(CInt id);
 	CBool UpdateAnimationLists() { return m_updateAnimationLists; }
@@ -587,16 +587,20 @@ public:
 					{
 						if( !g_multipleView->m_nx->CreateTriangleMesh( (CInt)(vertices_temp.size()/3), (CInt)(triangles_temp.size()/3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName ) )
 							failed = CTrue;
-						else
-							sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
+						else if (g_editorMode == eMODE_PREFAB)
+							sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+						else if (g_editorMode == eMODE_VSCENE)
+							sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 
 					}
 					else if( vertices != NULL && algorithm == eLOD_CONVEX_HULL )
 					{
 						if( !g_multipleView->m_nx->CreateConvexMesh( (CInt)(vertices_temp.size()/3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation ) )
 							failed = CTrue;
-						else
-							sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
+						else if (g_editorMode == eMODE_PREFAB)
+							sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+						else if (g_editorMode == eMODE_VSCENE)
+							sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
 					}
 					////////////////////////////////////////
 					if( algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH || algorithm == eLOD_CONVEX_HULL )
@@ -666,8 +670,11 @@ public:
 							g_multipleView->m_nx->CreateBox(  NxVec3(PosX,PosY,PosZ), NxVec3( DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
 						else
 							g_multipleView->m_nx->CreateTriggerBox(  NxVec3(PosX,PosY,PosZ), NxVec3( DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-						sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-						m_instanceGeo->m_lodAlgorithm = algorithm;	
+						if (g_editorMode == eMODE_PREFAB)
+							sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+						else if (g_editorMode == eMODE_VSCENE)
+							sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					m_instanceGeo->m_lodAlgorithm = algorithm;
 						m_instanceGeo->m_hasPhysX = CTrue;
 						m_instanceGeo->m_physXDensity = density;
 						m_instanceGeo->m_physXPercentage = percentage;
@@ -700,8 +707,11 @@ public:
 						}
 			
 						g_multipleView->m_nx->CreateSphere( NxVec3( PosX, PosY, PosZ ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-						sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-						m_instanceGeo->m_lodAlgorithm = algorithm;	
+						if (g_editorMode == eMODE_PREFAB)
+							sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+						else if (g_editorMode == eMODE_VSCENE)
+							sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					m_instanceGeo->m_lodAlgorithm = algorithm;
 						m_instanceGeo->m_hasPhysX = CTrue;
 						m_instanceGeo->m_physXDensity = density;
 						m_instanceGeo->m_physXPercentage = percentage;
@@ -781,8 +791,11 @@ public:
 						PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y )/ 2.f;
 						PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z )/ 2.f;
 						g_multipleView->m_nx->CreateCapsule( NxVec3( PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation );
-						sprintf( m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex );
-						m_instanceGeo->m_lodAlgorithm = algorithm;	
+						if (g_editorMode == eMODE_PREFAB)
+							sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+						else if (g_editorMode == eMODE_VSCENE)
+							sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+						m_instanceGeo->m_lodAlgorithm = algorithm;
 						m_instanceGeo->m_hasPhysX = CTrue;
 						m_instanceGeo->m_physXDensity = density;
 						m_instanceGeo->m_physXPercentage = percentage;
@@ -1723,6 +1736,13 @@ public:
 	CFloat GetFirstKeyTime() { return m_firstKeyTime; }
 	CVoid SetFirstKeyTime(CFloat time) { m_firstKeyTime = time; }
 
+	//CBool GetHasScript() { return m_hasScript; }
+	//CVoid SetHasScript(CBool set) { m_hasScript = set; }
+	//CBool GetUpdateScript() { return m_updateScript; }
+	//CVoid SetUpdateScript(CBool set) { m_updateScript = set; }
+	//CChar* GetScript() { return m_script; }
+	//CVoid SetScript(CChar* script) { Cpy(m_script, script); }
+
 private:
 	CBool m_loadAnimation;
 	//CBool m_loadDefaultCamera;
@@ -1735,4 +1755,7 @@ private:
 	CInt m_currentClipIndex;
 	CInt m_clipIndexForStartup;
 	CBool m_calculateDynamicBoundingBox;
+	//CBool m_hasScript;
+	//CBool m_updateScript;
+	//CChar m_script[MAX_NAME_SIZE];
 };

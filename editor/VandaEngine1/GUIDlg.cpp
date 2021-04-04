@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 
@@ -20,7 +20,7 @@ CGUIDlg::CGUIDlg(CWnd* pParent /*=NULL*/)
 {
 	m_packageIndex = -1;
 	m_guiIndex = -1;
-
+	m_openForScriptUtility = CFalse;
 }
 
 CGUIDlg::~CGUIDlg()
@@ -33,6 +33,8 @@ void CGUIDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_PACKAGES, m_listGUIPackages);
 	DDX_Control(pDX, IDC_LIST_GUIS, m_listGUIs);
 	DDX_Control(pDX, ID_INSERT, m_btnInsertGUI);
+	DDX_Control(pDX, IDCANCEL, m_btnCancel);
+	DDX_Control(pDX, IDC_RICHED_GUI_NAME, m_richGUIName);
 }
 
 
@@ -40,6 +42,7 @@ BEGIN_MESSAGE_MAP(CGUIDlg, CDialog)
 	ON_BN_CLICKED(ID_INSERT, &CGUIDlg::OnBnClickedInsert)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_PACKAGES, &CGUIDlg::OnLvnItemchangedListPackages)
 	ON_BN_CLICKED(IDOK, &CGUIDlg::OnBnClickedOk)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GUIS, &CGUIDlg::OnLvnItemchangedListGuis)
 END_MESSAGE_MAP()
 
 
@@ -48,6 +51,22 @@ END_MESSAGE_MAP()
 
 void CGUIDlg::OnBnClickedInsert()
 {
+	if (m_openForScriptUtility)
+	{
+		CString s;
+		m_richGUIName.GetWindowTextA(s);
+		if (s.IsEmpty())
+			MessageBox("Please select an item from the list!", "Error", MB_OK | MB_ICONERROR);
+		else
+		{
+			m_richGUIName.Copy();
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "Item '%s' copied to clipboard", s);
+			MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
+		}
+		return;
+	}
+
 	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode())
 	{
 		if (MessageBox("You can not insert GUIs in Play Mode. Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
@@ -79,15 +98,19 @@ BOOL CGUIDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	if (g_editorMode == eMODE_GUI)
+	if (m_openForScriptUtility)
+	{
+		m_btnInsertGUI.SetWindowTextA("Copy Item Name");
+		m_btnCancel.SetWindowTextA("OK");
+	}
+	else if (g_editorMode == eMODE_GUI)
 	{
 		CMenu menu;
 		menu.LoadMenu(IDR_MENU4);
 		SetMenu(&menu);
 		menu.Detach();
 	}
-
-	if (g_editorMode == eMODE_VSCENE)
+	else if (g_editorMode == eMODE_VSCENE)
 	{
 		m_btnInsertGUI.SetWindowTextA("Insert GUI");
 	}
@@ -222,7 +245,7 @@ void CGUIDlg::OnLvnItemchangedListPackages(NMHDR *pNMHDR, LRESULT *pResult)
 		CBitmap* cBmpMask = NULL;
 
 		m_guiListImage.DeleteImageList();
-		m_guiListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_guiPackagesAndNames[index].size());
+		m_guiListImage.Create(182, 101, ILC_COLOR24, 1, g_guiPackagesAndNames[index].size());
 
 		for (CUInt i = 0; i < g_guiPackagesAndNames[index].size(); i++)
 		{
@@ -699,7 +722,7 @@ void CGUIDlg::OnBnClickedDeleteGUI()
 			CBitmap* cBmpMask = NULL;
 
 			m_guiListImage.DeleteImageList();
-			m_guiListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_guiPackagesAndNames[packageIndex].size());
+			m_guiListImage.Create(182, 101, ILC_COLOR24, 1, g_guiPackagesAndNames[packageIndex].size());
 
 			for (CUInt i = 0; i < g_guiPackagesAndNames[packageIndex].size(); i++)
 			{
@@ -995,28 +1018,12 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 								fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 							//left click script
-							CBool hasLeftClickScript;
-							fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+							CBool hasScript;
+							fread(&hasScript, sizeof(CBool), 1, filePtr);
 
-							CChar leftClickScriptPath[MAX_NAME_SIZE];
-							if (hasLeftClickScript)
-								fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-							//right click script
-							CBool hasRightClickScript;
-							fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-							CChar rightClickScriptPath[MAX_NAME_SIZE];
-							if (hasRightClickScript)
-								fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-							//hover script
-							CBool hasHoverScript;
-							fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-							CChar hoverScriptPath[MAX_NAME_SIZE];
-							if (hasHoverScript)
-								fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+							CChar ScriptPath[MAX_NAME_SIZE];
+							if (hasScript)
+								fread(ScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 							CGUIButton* guiButton = CNew(CGUIButton);
 
@@ -1063,32 +1070,15 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							{
 								guiButton->SetHasRightClickImage(CFalse);
 							}
-							if (hasLeftClickScript)
+							if (hasScript)
 							{
-								guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-								guiButton->SetHasLeftClickScript(CTrue);
+								guiButton->SetScriptPath(ScriptPath);
+								guiButton->SetHasScript(CTrue);
+								guiButton->LoadLuaFile();
 							}
 							else
 							{
-								guiButton->SetHasLeftClickScript(CFalse);
-							}
-							if (hasRightClickScript)
-							{
-								guiButton->SetRightClickScriptPath(rightClickScriptPath);
-								guiButton->SetHasRightClickScript(CTrue);
-							}
-							else
-							{
-								guiButton->SetHasRightClickScript(CFalse);
-							}
-							if (hasHoverScript)
-							{
-								guiButton->SetHoverScriptPath(hoverScriptPath);
-								guiButton->SetHasHoverScript(CTrue);
-							}
-							else
-							{
-								guiButton->SetHasHoverScript(CFalse);
+								guiButton->SetHasScript(CFalse);
 							}
 							m_guiButtons.push_back(guiButton);
 						}
@@ -1245,42 +1235,18 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						}
 
 						//scripts
-						if (m_guiButtons[i]->GetHasLeftClickScript())
+						if (m_guiButtons[i]->GetHasScript())
 						{
-							m_guiButtons[i]->SetUpdateLeftClickScript(CFalse);
+							m_guiButtons[i]->SetUpdateScript(CFalse);
 
-							CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetLeftClickScriptPath());
+							CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetScriptPath());
 
 							CChar newFilePath[MAX_NAME_SIZE];
 							sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
 
-							m_guiButtons[i]->SetLeftClickScriptPath(newFilePath);
-
+							m_guiButtons[i]->SetScriptPath(newFilePath);
+							m_guiButtons[i]->LoadLuaFile();
 						}
-						if (m_guiButtons[i]->GetHasRightClickScript())
-						{
-							m_guiButtons[i]->SetUpdateRightClickScript(CFalse);
-
-							CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetRightClickScriptPath());
-
-							CChar newFilePath[MAX_NAME_SIZE];
-							sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
-
-							m_guiButtons[i]->SetRightClickScriptPath(newFilePath);
-						}
-						if (m_guiButtons[i]->GetHasHoverScript())
-						{
-							m_guiButtons[i]->SetUpdateHoverScript(CFalse);
-
-							CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetHoverScriptPath());
-
-							CChar newFilePath[MAX_NAME_SIZE];
-							sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
-
-							m_guiButtons[i]->SetHoverScriptPath(newFilePath);
-
-						}
-
 					}
 
 					//Save functions////////////////////////////////////
@@ -1344,25 +1310,12 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							fwrite(m_guiButtons[i]->GetRightClickImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 						//left click script
-						CBool hasLeftClickScript = m_guiButtons[i]->GetHasLeftClickScript();
-						fwrite(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+						CBool hasScript = m_guiButtons[i]->GetHasScript();
+						fwrite(&hasScript, sizeof(CBool), 1, filePtr);
 
-						if (hasLeftClickScript)
-							fwrite(m_guiButtons[i]->GetLeftClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+						if (hasScript)
+							fwrite(m_guiButtons[i]->GetScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-						//right click script
-						CBool hasRightClickScript = m_guiButtons[i]->GetHasRightClickScript();
-						fwrite(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-						if (hasRightClickScript)
-							fwrite(m_guiButtons[i]->GetRightClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-						//hover script
-						CBool hasHoverScript = m_guiButtons[i]->GetHasHoverScript();
-						fwrite(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-						if (hasHoverScript)
-							fwrite(m_guiButtons[i]->GetHoverScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 					}
 
 					CUInt numberOfGUIBackgrounds = m_guiBackgrounds.size();
@@ -1714,28 +1667,12 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 									fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 								//left click script
-								CBool hasLeftClickScript;
-								fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+								CBool hasScript;
+								fread(&hasScript, sizeof(CBool), 1, filePtr);
 
-								CChar leftClickScriptPath[MAX_NAME_SIZE];
-								if (hasLeftClickScript)
-									fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-								//right click script
-								CBool hasRightClickScript;
-								fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-								CChar rightClickScriptPath[MAX_NAME_SIZE];
-								if (hasRightClickScript)
-									fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-								//hover script
-								CBool hasHoverScript;
-								fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-								CChar hoverScriptPath[MAX_NAME_SIZE];
-								if (hasHoverScript)
-									fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+								CChar ScriptPath[MAX_NAME_SIZE];
+								if (hasScript)
+									fread(ScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 								CGUIButton* guiButton = CNew(CGUIButton);
 
@@ -1782,32 +1719,15 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								{
 									guiButton->SetHasRightClickImage(CFalse);
 								}
-								if (hasLeftClickScript)
+								if (hasScript)
 								{
-									guiButton->SetLeftClickScriptPath(leftClickScriptPath);
-									guiButton->SetHasLeftClickScript(CTrue);
+									guiButton->SetScriptPath(ScriptPath);
+									guiButton->SetHasScript(CTrue);
+									guiButton->LoadLuaFile();
 								}
 								else
 								{
-									guiButton->SetHasLeftClickScript(CFalse);
-								}
-								if (hasRightClickScript)
-								{
-									guiButton->SetRightClickScriptPath(rightClickScriptPath);
-									guiButton->SetHasRightClickScript(CTrue);
-								}
-								else
-								{
-									guiButton->SetHasRightClickScript(CFalse);
-								}
-								if (hasHoverScript)
-								{
-									guiButton->SetHoverScriptPath(hoverScriptPath);
-									guiButton->SetHasHoverScript(CTrue);
-								}
-								else
-								{
-									guiButton->SetHasHoverScript(CFalse);
+									guiButton->SetHasScript(CFalse);
 								}
 								m_guiButtons.push_back(guiButton);
 							}
@@ -1964,40 +1884,17 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							}
 
 							//scripts
-							if (m_guiButtons[i]->GetHasLeftClickScript())
+							if (m_guiButtons[i]->GetHasScript())
 							{
-								m_guiButtons[i]->SetUpdateLeftClickScript(CFalse);
+								m_guiButtons[i]->SetUpdateScript(CFalse);
 
-								CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetLeftClickScriptPath());
+								CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetScriptPath());
 
 								CChar newFilePath[MAX_NAME_SIZE];
 								sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
 
-								m_guiButtons[i]->SetLeftClickScriptPath(newFilePath);
-
-							}
-							if (m_guiButtons[i]->GetHasRightClickScript())
-							{
-								m_guiButtons[i]->SetUpdateRightClickScript(CFalse);
-
-								CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetRightClickScriptPath());
-
-								CChar newFilePath[MAX_NAME_SIZE];
-								sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
-
-								m_guiButtons[i]->SetRightClickScriptPath(newFilePath);
-							}
-							if (m_guiButtons[i]->GetHasHoverScript())
-							{
-								m_guiButtons[i]->SetUpdateHoverScript(CFalse);
-
-								CChar* srcFilePathAfterPath = GetAfterPath(m_guiButtons[i]->GetHoverScriptPath());
-
-								CChar newFilePath[MAX_NAME_SIZE];
-								sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
-
-								m_guiButtons[i]->SetHoverScriptPath(newFilePath);
-
+								m_guiButtons[i]->SetScriptPath(newFilePath);
+								m_guiButtons[i]->LoadLuaFile();
 							}
 
 						}
@@ -2063,25 +1960,12 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								fwrite(m_guiButtons[i]->GetRightClickImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 							//left click script
-							CBool hasLeftClickScript = m_guiButtons[i]->GetHasLeftClickScript();
-							fwrite(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+							CBool hasScript = m_guiButtons[i]->GetHasScript();
+							fwrite(&hasScript, sizeof(CBool), 1, filePtr);
 
-							if (hasLeftClickScript)
-								fwrite(m_guiButtons[i]->GetLeftClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+							if (hasScript)
+								fwrite(m_guiButtons[i]->GetScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-							//right click script
-							CBool hasRightClickScript = m_guiButtons[i]->GetHasRightClickScript();
-							fwrite(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-							if (hasRightClickScript)
-								fwrite(m_guiButtons[i]->GetRightClickScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-							//hover script
-							CBool hasHoverScript = m_guiButtons[i]->GetHasHoverScript();
-							fwrite(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-							if (hasHoverScript)
-								fwrite(m_guiButtons[i]->GetHoverScriptPath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						}
 
 						CUInt numberOfGUIBackgrounds = m_guiBackgrounds.size();
@@ -2167,4 +2051,72 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 	}
 	CDelete(m_guiNameDlg);
 
+}
+
+
+void CGUIDlg::OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	
+	if (m_openForScriptUtility)
+	{
+		int nPackageSelected = -1;
+		POSITION p = m_listGUIPackages.GetFirstSelectedItemPosition();
+		while (p)
+		{
+			nPackageSelected = m_listGUIPackages.GetNextSelectedItem(p);
+		}
+		TCHAR szPackageBuffer[1024];
+
+		if (nPackageSelected >= 0)
+		{
+			DWORD cchBufPackage(1024);
+			LVITEM lviPackage;
+			lviPackage.iItem = nPackageSelected;
+			lviPackage.iSubItem = 0;
+			lviPackage.mask = LVIF_TEXT;
+			lviPackage.pszText = szPackageBuffer;
+			lviPackage.cchTextMax = cchBufPackage;
+			m_listGUIPackages.GetItem(&lviPackage);
+
+			int nGUISelected = -1;
+			POSITION p = m_listGUIs.GetFirstSelectedItemPosition();
+			while (p)
+			{
+				nGUISelected = m_listGUIs.GetNextSelectedItem(p);
+			}
+			TCHAR szGUIBuffer[1024];
+
+			if (nGUISelected >= 0)
+			{
+				DWORD cchBuf(1024);
+				LVITEM lvi;
+				lvi.iItem = nGUISelected;
+				lvi.iSubItem = 0;
+				lvi.mask = LVIF_TEXT;
+				lvi.pszText = szGUIBuffer;
+				lvi.cchTextMax = cchBuf;
+				m_listGUIs.GetItem(&lvi);
+
+				CChar guiName[MAX_NAME_SIZE];
+				sprintf(guiName, "gui_%s_%s", szPackageBuffer, szGUIBuffer);
+				m_richGUIName.SetWindowTextA(guiName);
+				CInt end = m_richGUIName.GetWindowTextLengthA();
+				m_richGUIName.SetSel(0, end);
+
+			}
+			else
+			{
+				m_richGUIName.SetWindowTextA("");
+				m_richGUIName.SetSel(0, 0);
+			}
+		}
+		else
+		{
+			m_richGUIName.SetWindowTextA("");
+			m_richGUIName.SetSel(0, 0);
+		}
+	}
+
+	*pResult = 0;
 }

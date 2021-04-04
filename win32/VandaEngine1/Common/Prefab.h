@@ -1,10 +1,10 @@
 #pragma once
-#include "Defines.h"
+#include "../Common/Defines.h"
 #include <vector>
 #include <set>
 #include <map>
 #include "../GraphicsEngine/opengl.h"
-
+#include "../ScriptEngine/luaforcpp.h"
 
 class CScene;
 class CPrefab;
@@ -54,8 +54,8 @@ private:
 	CFloat m_distanceFromCamera;
 	CFloat m_radius;
 	GLint m_result;
-	CChar m_enterScript[MAX_NAME_SIZE];
-	CChar m_exitScript[MAX_NAME_SIZE];
+	CBool m_hasScript;
+	CChar m_script[MAX_NAME_SIZE];
 	CChar m_tempScriptPath[MAX_NAME_SIZE];
 	CChar m_tempCurrentScriptPath[MAX_NAME_SIZE];
 	CBool m_isTrigger;
@@ -70,6 +70,7 @@ private:
 	CUInt m_totalVisibleLights;
 	CBool m_lightCooked;
 	CBool m_castShadow;
+	lua_State* m_lua;
 
 public:
 	CVoid SetName(CChar* name);
@@ -83,8 +84,7 @@ public:
 	CVoid SetScene(CUInt index, CScene* scene);
 	CVoid SetElapsedTime(CFloat delta);
 	CVoid SetResult(GLint result);
-	CVoid SetEnterScript(CChar* enter);
-	CVoid SetExitScript(CChar* exit);
+	CVoid SetScript(CChar* enter);
 	CVoid SetIsTrigger(CBool isTrigger);
 	CVoid SetRenderForQuery(CBool query);
 	CVoid SetRenderForWaterQuery(CBool query);
@@ -134,8 +134,7 @@ public:
 	CVoid CalculateDistance();
 	CFloat GetRadius();
 	CVec3f GetCenter();
-	CChar* GetEnterScript();
-	CChar* GetExitScript();
+	CChar* GetScript();
 	CVoid UpdateIsStaticOrAnimated();
 
 	CVoid SetTempScriptPath(CChar* path) { Cpy(m_tempScriptPath, path); }
@@ -153,6 +152,15 @@ public:
 	CVoid SetTotalLights(CBool set) { m_totalLights = set; }
 	CVoid SetCastShadow(CBool set) { m_castShadow = set; }
 
+	CBool LoadLuaFile();
+	CVoid ResetLua();
+	CVoid InitScript();
+	CVoid UpdateScript();
+	CVoid OnTriggerEnterScript();
+	CVoid OnTriggerExitScript();
+
+	CBool GetHasScript() { return m_hasScript; }
+	CVoid SetHasScript(CBool set) { m_hasScript = set; }
 };
 
 class CPrefab
@@ -170,6 +178,9 @@ private:
 	std::vector <CInstancePrefab*> m_instance;
 	CInstancePrefab* m_currentInstance;
 	CUInt m_instanceIndex;
+	CBool m_hasScript;
+	CChar m_script[MAX_NAME_SIZE];
+
 public:
 	CVoid SetName(CChar* name);
 	CVoid SetPackageName(CChar* name);
@@ -189,5 +200,9 @@ public:
 	CInstancePrefab* GetInstance(CUInt index);
 	CInstancePrefab* GetCurrentInstance();
 	CVLOD* GetLOD(CInt index);
+	CBool GetHasScript() { return m_hasScript; }
+	CVoid SetHasScript(CBool set) { m_hasScript = set; }
+	CChar* GetScript() { return m_script; }
+	CVoid SetScript(CChar* script) { Cpy(m_script, script); }
 };
 

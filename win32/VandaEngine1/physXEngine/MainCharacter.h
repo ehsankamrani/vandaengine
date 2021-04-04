@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -8,7 +8,7 @@ class CInstancePrefab;
 #include <string>
 #include <map>
 #include <vector>
-#include "Utility.h"
+#include "../Common/Utility.h"
 #include "..\\AudioEngine\\AmbientSound.h"
 class CMainCharacter
 {

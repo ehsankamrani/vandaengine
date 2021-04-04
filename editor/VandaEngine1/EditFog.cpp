@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditFog.cpp : implementation file
@@ -128,4 +128,3 @@ CVoid CEditFog::GetInformation()
 {
 	OnEnChangeEditFogDensity();
 }
-

@@ -1,8 +1,8 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
-#include "Utility.h"
+#include "../Common/Utility.h"
 #include "..\\GraphicsEngine\\Image.h"
 class CGUIButton
 {
@@ -23,9 +23,7 @@ private:
 	CChar m_rightClickImagePath[MAX_NAME_SIZE];
 	CChar m_disableImagePath[MAX_NAME_SIZE];
 
-	CChar m_leftClickScriptPath[MAX_NAME_SIZE];
-	CChar m_rightClickScriptPath[MAX_NAME_SIZE];
-	CChar m_hoverScriptPath[MAX_NAME_SIZE];
+	CChar m_ScriptPath[MAX_NAME_SIZE];
 
 	CImage* m_mainImage;
 	CImage* m_leftClickImage;
@@ -38,9 +36,7 @@ private:
 	CBool m_updateHoverImage;
 	CBool m_updateRightClickImage;
 	CBool m_updateDisableImage;
-	CBool m_updateLeftClickScript;
-	CBool m_updateHoverScript;
-	CBool m_updateRightClickScript;
+	CBool m_updateScript;
 
 	CButtonImageType m_currentImageType;
 
@@ -52,6 +48,8 @@ private:
 	CFloat m_maxRightClickTimer;
 	CFloat m_maxLeftClickTimer;
 
+	lua_State* m_lua;
+
 public:
 	inline CVoid SetMainImagePath(CChar* path) { Cpy(m_mainImagePath, path); }
 	inline CVoid SetLeftClickImagePath(CChar* path) { Cpy(m_leftClickImagePath, path); }
@@ -59,9 +57,7 @@ public:
 	inline CVoid SetRightClickImagePath(CChar* path) { Cpy(m_rightClickImagePath, path); }
 	inline CVoid SetDisableImagePath(CChar* path) { Cpy(m_disableImagePath, path); }
 
-	inline CVoid SetLeftClickScriptPath(CChar* path) { Cpy(m_leftClickScriptPath, path); }
-	inline CVoid SetRightClickScriptPath(CChar* path) { Cpy(m_rightClickScriptPath, path); }
-	inline CVoid SetHoverScriptPath(CChar* path) { Cpy(m_hoverScriptPath, path); }
+	inline CVoid SetScriptPath(CChar* path) { Cpy(m_ScriptPath, path); }
 
 	inline CVoid SetPosition(CVec2f pos) { m_position.x = pos.x; m_position.y = pos.y; }
 	inline CVoid SetName(CChar* name) { Cpy(m_name, name); }
@@ -79,9 +75,7 @@ public:
 	inline CChar* GetRightClickImagePath() { return m_rightClickImagePath; }
 	inline CChar* GetDisableImagePath() { return m_disableImagePath; }
 
-	inline CChar* GetLeftClickScriptPath() { return m_leftClickScriptPath; }
-	inline CChar* GetRightClickScriptPath() { return m_rightClickScriptPath; }
-	inline CChar* GetHoverScriptPath() { return m_hoverScriptPath; }
+	inline CChar* GetScriptPath() { return m_ScriptPath; }
 
 	inline CVec2f GetPosition() { return m_position; }
 	inline CInt GetSize() { return m_size; }
@@ -91,9 +85,7 @@ public:
 	inline CVoid SetUpdateHoverImage(CBool state) { m_updateHoverImage = state; }
 	inline CVoid SetUpdateRightClickImage(CBool state) { m_updateRightClickImage = state; }
 	inline CVoid SetUpdateDisableImage(CBool state) { m_updateDisableImage = state; }
-	inline CVoid SetUpdateLeftClickScript(CBool state) { m_updateLeftClickScript = state; }
-	inline CVoid SetUpdateRightClickScript(CBool state) { m_updateRightClickScript = state; }
-	inline CVoid SetUpdateHoverScript(CBool state) { m_updateHoverScript = state; }
+	inline CVoid SetUpdateScript(CBool state) { m_updateScript = state; }
 
 	inline CVoid SetCurrentImageType(CButtonImageType type) { m_currentImageType = type; }
 
@@ -102,9 +94,7 @@ public:
 	inline CBool GetUpdateHoverImage() { return m_updateHoverImage; }
 	inline CBool GetUpdateRightClickImage() { return m_updateRightClickImage; }
 	inline CBool GetUpdateDisableImage() { return m_updateDisableImage; }
-	inline CBool GetUpdateLeftClickScript() { return m_updateLeftClickScript; }
-	inline CBool GetUpdateRightClickScript() { return m_updateRightClickScript; }
-	inline CBool GetUpdateHoverScript() { return m_updateHoverScript; }
+	inline CBool GetUpdateScript() { return m_updateScript; }
 
 	inline CButtonImageType GetCurrentImageType() { return m_currentImageType; }
 
@@ -121,29 +111,29 @@ public:
 	CBool m_hasHoverImage;
 	CBool m_hasRightClickImage;
 	CBool m_hasDisableImage;
-	CBool m_hasLeftClickScript;
-	CBool m_hasRightClickScript;
-	CBool m_hasHoverScript;
+	CBool m_hasScript;
 
 	inline CBool GetHasLeftClickImage() { return m_hasLeftClickImage; }
 	inline CBool GetHasHoverImage() { return m_hasHoverImage; }
 	inline CBool GetHasRightClickImage() { return m_hasRightClickImage; }
 	inline CBool GetHasDisableImage() { return m_hasDisableImage; }
 
-	inline CBool GetHasLeftClickScript() { return m_hasLeftClickScript; }
-	inline CBool GetHasRightClickScript() { return m_hasRightClickScript; }
-	inline CBool GetHasHoverScript() { return m_hasHoverScript; }
+	inline CBool GetHasScript() { return m_hasScript; }
 
 	inline CVoid SetHasLeftClickImage(CBool state) { m_hasLeftClickImage = state; }
 	inline CVoid SetHasHoverImage(CBool state) { m_hasHoverImage = state; }
 	inline CVoid SetHasRightClickImage(CBool state) { m_hasRightClickImage = state; }
 	inline CVoid SetHasDisableImage(CBool state) { m_hasDisableImage = state; }
 
-	inline CVoid SetHasLeftClickScript(CBool state) { m_hasLeftClickScript = state; }
-	inline CVoid SetHasRightClickScript(CBool state) { m_hasRightClickScript = state; }
-	inline CVoid SetHasHoverScript(CBool state) { m_hasHoverScript = state; }
+	inline CVoid SetHasScript(CBool state) { m_hasScript = state; }
 
 	CVoid Render(CBool selectionMode = CFalse);
+
+	CVoid OnSelectMouseLButtonDownScript();
+	CVoid OnSelectMouseRButtonDownScript();
+	CVoid OnSelectMouseHoverScript();
+	CVoid ResetLua();
+	CBool LoadLuaFile();
 };
 
 

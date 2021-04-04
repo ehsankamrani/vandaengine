@@ -51,16 +51,28 @@ void CAddStartupObject::OnBnClickedButtonAddScript()
 		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
 	if (IDOK == dlgOpen.DoModal())
 	{
-		m_strScript = (CString)dlgOpen.GetPathName();
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
 
-		m_editScript.SetWindowText(m_strScript);
-
-		m_updateScript = CTrue;
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_updateScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
 	}
-
-	//CScriptEditor* m_dlgScriptEditor = CNew(CScriptEditor);
-	//m_dlgScriptEditor->DoModal();
-	//CDelete(m_dlgScriptEditor);
 }
 
 void CAddStartupObject::OnBnClickedButtonRemoveScript()
@@ -119,6 +131,8 @@ void CAddStartupObject::OnBnClickedOk()
 		g_startup->SetName(name);
 		g_startup->SetScriptPath(path);
 		g_startup->SetUpdateScript(m_updateScript);
+		g_startup->LoadLuaFile();
+
 		ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(name, eENGINEOBJECTLIST_STARTUP);
 		ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
 		ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
@@ -141,7 +155,6 @@ void CAddStartupObject::OnBnClickedOk()
 				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
 			}
 		}
-
 	}
 	CDialog::OnOK();
 }

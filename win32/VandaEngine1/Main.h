@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -123,6 +123,7 @@ public:
 	CVoid SetExitGame(CBool set) { m_exitGame = set; }
 	CBool GetExitGame() { return m_exitGame; }
 public:
+	CVoid	ApplyForce( /*NxVec3 forceDirection, */CInt moveDirection, CFloat elapsedTime);
 
 	CIcon* m_cursorIcon;
 	CPhysXVariables m_physXVariables;
@@ -183,7 +184,6 @@ private:
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
 	CBool GetJumpCurrentEndDuration(CFloat& duration);
 	CBool IsJumping(CBool &isInList);
-	CVoid	ApplyForce( /*NxVec3 forceDirection, */CInt moveDirection, CFloat elapsedTime );
 	COpenALSoundBuffer* GetSoundBuffer( const CChar * name );
 	
 	GLuint *m_guiPtr, m_guiMinZ, m_guiSelectedName, m_guiBuffer[MAX_NAME_SIZE];//gui selection

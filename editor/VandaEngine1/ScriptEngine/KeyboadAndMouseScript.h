@@ -20,8 +20,10 @@ public:
 		else
 			return NULL;
 	}
+	CVoid ExecuteScript(CChar* path);
 private:
 	CChar m_escapeScriptFile[MAX_NAME_SIZE];
 	CBool m_hasEscapeScript;
+	lua_State* m_lua;
 };
 

@@ -38,7 +38,7 @@ Usage:
 
 #pragma once
 
-#include "defines.h"
+#include "../Common/Defines.h"
 
 class CTimer
 {

@@ -1,9 +1,10 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "Nx.h"
 #include "../graphicsEngine/scene.h"
+#include "../Main.h"
 
 NxPhysicsSDK*     gPhysicsSDK;
 NxScene*          gPhysXscene;
@@ -21,7 +22,7 @@ CNovodex::~CNovodex()
 	g_physXMaterial.clear();
 }
 
-CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZCharacterPos, CFloat gravity, CFloat crtlRadius, CFloat crtlHeight, CFloat crtSlopeLimit, CFloat crtSkinWidth, CFloat crtStepOffset, CBool createScene )
+CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZCharacterPos, CFloat crtlRadius, CFloat crtlHeight, CFloat crtSlopeLimit, CFloat crtSkinWidth, CFloat crtStepOffset, CBool createScene )
 {
 	if( createScene )
 	{
@@ -32,9 +33,10 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 	triangleMeshDesc = NULL;
 
 	//Default gravity
-	gDefaultGravity.x = g_physXProperties.m_fGravityX;
-	gDefaultGravity.y = g_physXProperties.m_fGravityY;
-	gDefaultGravity.z = g_physXProperties.m_fGravityZ;
+	m_defaultGravity.x = g_physXProperties.m_fGravityX;
+	m_defaultGravity.y = g_physXProperties.m_fGravityY;
+	m_defaultGravity.z = g_physXProperties.m_fGravityZ;
+
 	wireFrame = false;
 	zero = NxVec3(0,0,0);
 
@@ -48,11 +50,9 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 	gCharacterRunSpeed = g_physXProperties.m_fCharacterRunSpeed;
 	bFixedStep = true;
 	gDesiredDistance = 3.f;
-	G = g_physXProperties.m_fGravityY;
 	m_pushCharacter = CFalse;
 
 	gTriggerReport.hitName = NULL;
-	gDefaultGravity.y = gravity;
 
 	if( createScene )
 	{
@@ -67,7 +67,7 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 		}
 		gPhysicsSDK->setParameter( NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth );
 		NxSceneDesc sceneDesc;
-		sceneDesc.gravity = gDefaultGravity;
+		sceneDesc.gravity = m_defaultGravity;
 		sceneDesc.simType = NX_SIMULATION_HW;
 
 		gPhysXscene = gPhysicsSDK->createScene( sceneDesc );
@@ -121,7 +121,6 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 	gCharacterPos.y = YCharacterPos;
 	gCharacterPos.z = ZCharacterPos;
 
-	gDefaultGravity = NxVec3(0.0f); //By default, disable gravity that affects character controller
 	CreateGroundPlane(g_physXProperties.m_fGroundHeight);
 	return true;
 }
@@ -131,7 +130,7 @@ CVoid CNovodex::runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveD
 	if( gPhysXscene )
 	{
 		// Run collision and dynamics for delta time since the last frame
-		gPhysXscene->simulate(/*1.0f/60.0f*/elapsedTime);
+		gPhysXscene->simulate(elapsedTime);
 		gPhysXscene->flushStream();
 		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 		// Update the box character's position according to by testing its
@@ -174,7 +173,9 @@ CVoid CNovodex::UpdateCharacter( NxVec3 forceDirection, CFloat forceSpeed, CFloa
 
 	deltaTime *= (CFloat)gTimestepMultiplier;
 
-	NxVec3 disp = gDefaultGravity;
+	NxVec3 gravity;
+	gPhysXscene->getGravity(gravity);
+	NxVec3 disp = gravity;
 	CFloat vdisp = 0.0f;
 	gCharacterPos = GetFilteredCharacterPos();
     
@@ -343,17 +344,19 @@ NxReal CNovodex::updateTime()
 
 NxF32 CNovodex::GetHeight(NxF32 elapsedTime)
 {
+	NxVec3 gravity;
+	gPhysXscene->getGravity(gravity);
 	if (!gJump)  return 0.0f;
 	jumpTime += elapsedTime;
-	NxF32 h = G*jumpTime*jumpTime + gV0*jumpTime;
-	return (h - gDefaultGravity.y)*elapsedTime;
+	NxF32 h = gravity.y *jumpTime*jumpTime + m_V0*jumpTime;
+	return (h - gravity.y)*elapsedTime;
 }
 
 CVoid CNovodex::StartJump(NxF32 v0)
 {
 	if (gJump)  return;
 	jumpTime = 0.0f;
-	gV0	= v0;
+	m_V0	= v0;
 	gJump = true;
 }
 
@@ -1144,90 +1147,133 @@ NxActor* CNovodex::HitActor()
 
 CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTriggerFlag status)
 {
-		hitName = NULL;
-		hitActor = NULL;
+	hitName = NULL;
+	hitActor = NULL;
 
-		NxActor* otherActor = &otherShape.getActor();
-		char* OtherName = (char *)otherActor->getName();
+	NxActor* otherActor = &otherShape.getActor();
+	char* OtherName = (char *)otherActor->getName();
 
-		if (status & NX_TRIGGER_ON_ENTER & !OtherName)
+	if (status & NX_TRIGGER_ON_ENTER & !OtherName)
+	{
+		// A body just entered the trigger area
+		//gNbTouchedBodies++;
+		NxActor* triggerActor = &triggerShape.getActor();
+		hitActor = triggerActor;
+		hitName = (char *)triggerActor->getName();
+		if (!triggerActor || !hitActor || !hitName)
+			return;
+
+		//Trigger Objects in VScene Mode
+		for (CUInt i = 0; i < g_triggers.size(); i++)
 		{
-			// A body just entered the trigger area
-			//gNbTouchedBodies++;
-			NxActor* triggerActor = &triggerShape.getActor();
-			hitActor = triggerActor;
-			hitName = (char *)triggerActor->getName();
-			if( !triggerActor || !hitActor || !hitName )
-				return;
-
-			CBool foundTarget = CFalse;
-			CInstanceGeometry* instance_geo = NULL;
-			for( CUInt i = 0; i < g_scene.size(); i++ )
+			if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 			{
-				for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
-				{
-					if( g_scene[i]->m_instanceGeometries[j]->m_hasEnterScript && Cmp( hitName, g_scene[i]->m_instanceGeometries[j]->m_physXName ) )
-					{
-						instance_geo = g_scene[i]->m_instanceGeometries[j];
-						foundTarget = CTrue;
-						break;
-					}
-				}
-				if( foundTarget )
-					break;
-			}
-			if( foundTarget )
-			{
-				LuaLoadAndExecute( g_lua, instance_geo->m_enterScript );
-				return;
-			}
-			
-		}
-		if (status & NX_TRIGGER_ON_LEAVE)
-		{
-			// A body just left the trigger area
-			//gNbTouchedBodies--;
-			NxActor* triggerActor = &triggerShape.getActor();
-			hitActor = triggerActor;
-			hitName = (char *)triggerActor->getName();
-			if( !triggerActor || !hitActor || !hitName )
-				return;
-
-			CBool foundTarget = CFalse;
-			CInstanceGeometry* instance_geo = NULL;
-
-			for( CUInt i = 0; i < g_scene.size(); i++ )
-			{
-				for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
-				{
-					if( g_scene[i]->m_instanceGeometries[j]->m_hasExitScript && Cmp( hitName, g_scene[i]->m_instanceGeometries[j]->m_physXName ) )
-					{
-						instance_geo = g_scene[i]->m_instanceGeometries[j];
-						foundTarget = CTrue;
-						break;
-					}
-				}
-				if( foundTarget )
-					break;
-			}
-			if( foundTarget )
-			{
-				LuaLoadAndExecute( g_lua, instance_geo->m_exitScript );
+				g_triggers[i]->OnTriggerEnterScript();
 				return;
 			}
 		}
-//		NX_ASSERT(gNbTouchedBodies>=0);
 
-		// Mark actors in the trigger area to apply forcefield forces to them
-		//NxActor* triggerActor = &triggerShape.getActor();
-		//if (triggerActor->userData == (CVoid*)-1)
-		//{
-  //          if (status & NX_TRIGGER_ON_STAY)
-  //          {
-  //              NxActor* otherActor = &otherShape.getActor();
-  //              otherActor->userData = (CVoid*)3;
-  //          }
-		//}
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			if (prefab && prefab->GetHasScript())
+			{
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab->GetHasLod(j))
+					{
+						CScene* scene = g_instancePrefab[i]->GetScene(j);
+						for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+						{
+							if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
+							{
+								g_instancePrefab[i]->OnTriggerEnterScript();
+								return;
+							}
+						}
+					}
+				}
+				if (g_instancePrefab[i]->GetHasCollider())
+				{
+					CScene* scene = g_instancePrefab[i]->GetScene(3);
+					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+					{
+						if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
+						{
+							g_instancePrefab[i]->OnTriggerEnterScript();
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	if (status & NX_TRIGGER_ON_LEAVE)
+	{
+		// A body just left the trigger area
+		//gNbTouchedBodies--;
+		NxActor* triggerActor = &triggerShape.getActor();
+		hitActor = triggerActor;
+		hitName = (char *)triggerActor->getName();
+		if (!triggerActor || !hitActor || !hitName)
+			return;
+
+		//Trigger Objects in VScene Mode
+		for (CUInt i = 0; i < g_triggers.size(); i++)
+		{
+			if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
+			{
+				g_triggers[i]->OnTriggerExitScript();
+				return;
+			}
+		}
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			if (prefab && prefab->GetHasScript())
+			{
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab->GetHasLod(j))
+					{
+						CScene* scene = g_instancePrefab[i]->GetScene(j);
+						for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+						{
+							if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
+							{
+								g_instancePrefab[i]->OnTriggerExitScript();
+								return;
+							}
+						}
+					}
+				}
+				if (g_instancePrefab[i]->GetHasCollider())
+				{
+					CScene* scene = g_instancePrefab[i]->GetScene(3);
+					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+					{
+						if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
+						{
+							g_instancePrefab[i]->OnTriggerExitScript();
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	//		NX_ASSERT(gNbTouchedBodies>=0);
+
+	// Mark actors in the trigger area to apply forcefield forces to them
+	//NxActor* triggerActor = &triggerShape.getActor();
+	//if (triggerActor->userData == (CVoid*)-1)
+	//{
+	//          if (status & NX_TRIGGER_ON_STAY)
+	//          {
+	//              NxActor* otherActor = &otherShape.getActor();
+	//              otherActor->userData = (CVoid*)3;
+	//          }
+	//}
 }
 
 NxControllerAction ControllerHitReport::  onShapeHit(const NxControllerShapeHit& hit)
@@ -1446,7 +1492,7 @@ NX_BOOL CNovodex::LoadScene(const CChar *pFilename,NXU::NXU_FileType type)
 			if (gPhysicsSDK)
 			{
 				NxSceneDesc sceneDesc;
-				sceneDesc.gravity = gDefaultGravity;
+				sceneDesc.gravity = m_defaultGravity;
 				sceneDesc.simType = NX_SIMULATION_HW;
 
 				NxScene* defaultScene = gPhysicsSDK->createScene( sceneDesc );

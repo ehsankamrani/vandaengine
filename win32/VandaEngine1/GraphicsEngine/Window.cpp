@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -19,12 +19,14 @@ CWindow:: ~CWindow()
 
 BOOL CWindow::ChangeScreenResolution (int width, int height, int bitsPerPixel)	// Change The Screen Resolution
 {
-	DEVMODE dmScreenSettings;					// device mode
-    EnumDisplaySettings (NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);	
-	dmScreenSettings.dmPelsWidth = width;		// screen width
-	dmScreenSettings.dmPelsHeight = height;		// screen height
-	dmScreenSettings.dmBitsPerPel = bitsPerPixel;		// bits per pixel
-	if (ChangeDisplaySettings (&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+	DEVMODE dmScreenSettings;                   // Device Mode
+	memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));       // Makes Sure Memory's Cleared
+	dmScreenSettings.dmSize = sizeof(dmScreenSettings);       // Size Of The Devmode Structure
+	dmScreenSettings.dmPelsWidth = width;            // Selected Screen Width
+	dmScreenSettings.dmPelsHeight = height;           // Selected Screen Height
+	dmScreenSettings.dmBitsPerPel = bitsPerPixel;             // Selected Bits Per Pixel
+	dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+	if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 	{
 		return FALSE;													// Display Change Failed, Return False
 	}

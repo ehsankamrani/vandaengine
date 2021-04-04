@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -36,6 +36,9 @@ CScene::CScene()
 	m_isVisible = CTrue;
 	m_updateBoundingBox = CFalse;
 	m_calculateDynamicBoundingBox = CFalse;
+	//m_hasScript = CFalse;
+	//m_updateScript = CFalse;
+	//Cpy(m_script, "\n");
 }
 
 CScene::~CScene()
@@ -616,6 +619,7 @@ CVoid CScene::RenderSelectionMode()
 //we blend from  animation2 to animation1, and continue from the first animation
 CVoid CScene::Update( CFloat elapsedTime, CBool initialUpdate, CBool updateOrient, CBool resetTimer )
 {
+	g_render.SetScene(this);
 	m_sceneRoot->Update( elapsedTime, initialUpdate, updateOrient ); 
 	UpdateBlendCycleList(elapsedTime, resetTimer);
 

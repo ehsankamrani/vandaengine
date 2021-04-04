@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility.h"
+#include "Common\Utility.h"
 class CImage;
 class CIcon
 {

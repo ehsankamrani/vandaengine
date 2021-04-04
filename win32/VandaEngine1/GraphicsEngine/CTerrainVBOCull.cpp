@@ -15,7 +15,7 @@
 #include "CTerrainVBOCull.h"
 #include "..//Main.h"
 #include "Light.h"
-#include <Utility.h>
+#include "../Common/Utility.h"
 //////////////////////////////////////////////////////////
 ///	Function: "buildBufferObjectVertexArrays"
 //

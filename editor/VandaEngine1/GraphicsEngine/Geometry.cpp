@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -207,6 +207,18 @@ CVoid CPolyGroup::EnableShader()
 		{
 			glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
 			glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_multipleView->m_dof.m_focalRange);
+
+			CBool useFog;
+			if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+				useFog = CFalse;
+			else
+				useFog = CTrue;
+
+			if (g_fogProperties.m_enable && useFog)
+				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
+			else
+				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
+
 		}
 	}
 	else
@@ -2004,22 +2016,6 @@ CVoid CGeometry::SetRender()
 		glEnable( GL_CULL_FACE );
 	else
 		glDisable( GL_CULL_FACE );
-
-
-	if( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
-	{
-		CBool useFog;
-		if( ( g_dofProperties.m_enable && g_dofProperties.m_debug ) || ( g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
-			useFog = CFalse;
-		else 
-			useFog = CTrue;
-
-		if( g_fogProperties.m_enable && useFog )
-			glUniform1i(glGetUniformLocation( g_shaderType , "enableFog"), CTrue );
-		else
-			glUniform1i(glGetUniformLocation( g_shaderType , "enableFog"), CFalse );
-
-	} 
 
 	if (g_render.UsingVBOs() && g_options.m_enableVBO && g_renderShadow)
 	{

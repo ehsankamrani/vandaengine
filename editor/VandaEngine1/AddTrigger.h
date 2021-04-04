@@ -1,6 +1,7 @@
 #pragma once
 #include "afxwin.h"
 #include "defines.h"
+#include "afxcmn.h"
 
 
 // CAddTrigger dialog
@@ -32,4 +33,11 @@ public:
 	CString m_strTriggerName;
 	afx_msg void OnEnChangeEditTrigger();
 	CVoid Init(CTrigger* trigger);
+	CRichEditCtrl m_editBoxScript;
+	afx_msg void OnBnClickedBtnAddTrigger();
+	afx_msg void OnBnClickedBtnRemoveTrigger();
+private:
+	CBool m_changed;
+	CString m_strScript;
+	CBool m_hasScript;
 };

@@ -257,7 +257,6 @@ void CEditPhysX::OnBnClickedBtnDeletePhysx()
 		return;
 	}
 	RemovePhysXMesh();
-	ex_pAddScript->SetInstanceGeo(NULL);
 
 	g_updateOctree = CTrue;
 	g_multipleView->RenderWindow();
@@ -352,19 +351,7 @@ CVoid CEditPhysX::RemovePhysXMesh()
 	{
 		if( m_instanceGeometry->m_isTrigger )
 		{
-			if( m_instanceGeometry->m_hasEnterScript || m_instanceGeometry->m_hasExitScript )
-			{
-				for (CUInt index = 0; index < g_allPrefabNames.size(); index++)
-				{
-					m_instanceGeometry->m_node->GetScene()->IsInPrefabList(g_allPrefabNames[index].c_str(), CFalse, CTrue );
-				}
-			}
 			m_instanceGeometry->m_isTrigger = CFalse;
-			m_instanceGeometry->m_hasEnterScript = m_instanceGeometry->m_hasExitScript = CFalse;
-			Cpy( m_instanceGeometry->m_enterScript, "\n" );
-			Cpy( m_instanceGeometry->m_exitScript, "\n" );
-			ex_pAddScript->m_strTriggerEnterScriptName.Empty();
-			ex_pAddScript->m_strTriggerExitScriptName.Empty();
 		}
 		
 		m_instanceGeometry->m_isInvisible = CFalse;

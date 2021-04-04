@@ -1,0 +1,15 @@
+function Init()
+
+end
+
+function Update()
+
+end
+
+function OnTriggerEnter()
+
+end
+
+function OnTriggerExit()
+
+end

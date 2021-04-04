@@ -55,7 +55,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>D:\interactive project\requirements\Collada\collada-dom-2.2\collada-dom\dom\external-libs\boost;D:\interactive project\requirements\Collada\collada-dom-2.2\collada-dom\fx\include;D:\interactive project\requirements\Collada\collada-dom-2.2\collada-dom\dom\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB;PCRE_STATIC;DOM_INCLUDE_LIBXML;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -100,6 +100,9 @@
       <HeapReserveSize>
       </HeapReserveSize>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Common\Prefab.cpp" />

@@ -21,9 +21,6 @@
     <ClCompile Include="AddLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AddScript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AddSkyDome.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -465,15 +462,48 @@
     <ClCompile Include="BackupAllProjects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ScriptUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptUtilityPrefabInstances.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptUtilityImportedCameras.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptUtilityGameObjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptUtilityGUIs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptUtilityResources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptEditorAddEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomRichEditCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptEditorAddFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeleteProject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EditPrefab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EditGUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddAmbientSound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AddLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AddScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AddSkyDome.h">
@@ -951,6 +981,42 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BackupAllProjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptUtilityPrefabInstances.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptUtilityImportedCameras.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptUtilityGameObjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptUtilityGUIs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptUtilityResources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptEditorAddEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomRichEditCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptEditorAddFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeleteProject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditPrefab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditGUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1722,6 +1788,24 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Icon\Camera\camera_disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings_Disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings_Down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings_Focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\audio.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\camera.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

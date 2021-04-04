@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 /******************************************************
@@ -78,7 +78,6 @@ CBool g_updateOctree = CTrue;
 CMain* g_main = NULL;
 CBool g_useGlobalAmbientColor;
 CColor4f g_globalAmbientColor;
-CLuaState g_lua;
 COpenALSystem* g_soundSystem = NULL;
 std::vector<CInstanceCamera*> g_importedCameraInstances;
 std::vector<CInstanceCamera*> g_engineCameraInstances;
@@ -271,7 +270,7 @@ bool Render()
 			GenerateLoadingTexture(bannerNameAndPath);
 			load_fix++;
 		}
-		if (load_fix < 30) //almost 1 second
+		if (load_fix < 5) 
 			ShowLoadingScene();
 		else
 		{
@@ -283,9 +282,13 @@ bool Render()
 				DeleteLoadingTexture();
 				g_main->ResetTimer();
 			}
-			if (loop < 10)
+			if (loop < 5)
 			{
 				g_main->Render();
+				gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
+				g_nx->gControllers->reportSceneChanged();
+				g_main->ApplyForce(IDLE, 1.f / 60.f);
+
 				g_main->ResetPhysXCounts();
 				SwapBuffers(g_window.m_windowGL.hDC);
 				loop++;
@@ -294,7 +297,9 @@ bool Render()
 			else
 			{
 				g_loading = CFalse;
-				gPhysXscene->setGravity(NxVec3(g_nx->gDefaultGravity.x, g_nx->gDefaultGravity.y, g_nx->gDefaultGravity.z));
+				gPhysXscene->setGravity(NxVec3(g_nx->m_defaultGravity.x, g_nx->m_defaultGravity.y, g_nx->m_defaultGravity.z));
+				g_nx->gControllers->reportSceneChanged();
+
 				g_main->m_loadScene = CFalse; //unlock input
 				loop = 0;
 			}
@@ -344,9 +349,13 @@ bool Render()
 			g_main->ResetTimer();
 			gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
 		}
-		if (loop < 10)
+		if (loop < 5)
 		{
 			g_main->Render();
+			gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
+			g_nx->gControllers->reportSceneChanged();
+			g_main->ApplyForce(IDLE, 1.f / 60.f);
+
 			g_main->ResetPhysXCounts();
 			SwapBuffers(g_window.m_windowGL.hDC);
 			loop++;
@@ -355,7 +364,9 @@ bool Render()
 		else
 		{
 			g_loadSceneViaScript = CFalse;
-			gPhysXscene->setGravity(NxVec3(g_nx->gDefaultGravity.x, g_nx->gDefaultGravity.y, g_nx->gDefaultGravity.z));
+			gPhysXscene->setGravity(NxVec3(g_nx->m_defaultGravity.x, g_nx->m_defaultGravity.y, g_nx->m_defaultGravity.z));
+			g_nx->gControllers->reportSceneChanged();
+
 			g_main->m_loadScene = CFalse;
 			loop = 0;
 		}
@@ -546,7 +557,7 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if( wParam == IDC_RES_1280 )
 		{
 			g_options.m_width = 1280;
-			g_options.m_height = 720;
+			g_options.m_height = 1024;
 		}
 		else if( wParam == IDC_RES_1440 )
 		{
@@ -640,9 +651,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Fill Out Window
 	ZeroMemory (&g_window.m_windowGL, sizeof (CWindowGL));		// Make Sure Memory Is Zeroed
-	g_window.m_windowGL.init.className		= _T("ZZGame");
+	g_window.m_windowGL.init.className		= _T("EhsanKamrani");
 	g_window.m_windowGL.init.hInstance		= g_instance;
-	g_window.m_windowGL.init.title			= _T("VandaEngine ");						// Window Title
+	g_window.m_windowGL.init.title			= _T("VandaEngine");						// Window Title
 	g_window.m_windowGL.init.width			= g_width;								// Window Width
 	g_window.m_windowGL.init.height			= g_height;								// Window Height
 	g_window.m_windowGL.init.bitsPerPixel	= g_bits;									// Bits Per Pixel

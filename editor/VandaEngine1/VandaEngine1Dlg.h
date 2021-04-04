@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngine1Dlg.h : header file
@@ -26,7 +26,6 @@
 #include "AddWater.h"
 #include "AddStartupObject.h"
 #include "AddMultipleAnimations.h"
-#include "AddScript.h"
 #include "AddSkyDome.h"
 #include "AddAmbientSound.h"
 #include "AddStaticSound.h"
@@ -35,6 +34,8 @@
 #include "GeneralAmbientColor.h"
 #include "ScriptEditor.h"
 #include "EditMaterial.h"
+#include "EditPrefab.h"
+#include "EditGUI.h"
 #include "EditPhysX.h"
 #include "EditDOF.h"
 #include "EditFog.h"
@@ -47,6 +48,7 @@
 #include "EditGeneralPhysXProperties.h"
 #include "EditProjectProperties.h"
 #include "SetCurrentProject.h"
+#include "DeleteProject.h"
 #include "EditProjectVScenes.h"
 #include "EditSceneOptions.h"
 #include "EditCurrentSceneOptions.h"
@@ -126,11 +128,64 @@ struct COptions
 
 };
 
+//mainly used in script editor and to test scripts in Prefab mode
+struct CInstancePrefabNames
+{
+	CChar m_name[MAX_NAME_SIZE];
+	CChar m_packageName[MAX_NAME_SIZE];
+	CChar m_prefabName[MAX_NAME_SIZE];
+	std::vector<std::string> m_animationNames;
+	std::vector<std::string> m_cameraNames;
+
+	CVoid ClearNames()
+	{
+		m_animationNames.clear();
+		m_cameraNames.clear();
+	}
+};
+
+
+//mainly used in script editor and to test scripts in Prefab mode
+struct CVSceneObjectNames
+{
+	std::vector<CInstancePrefabNames>m_instancePrefabNames; //Prefab Instances of this VScene
+	std::vector<std::string> m_staticSoundsNames; //static sounds of this VScene
+	std::vector<std::string> m_importedCameraNames; //imported cameras in dae format of this VScene
+	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
+
+	std::vector<std::string> m_guiNames; //Full GUI name of this VScene
+	std::vector<std::string> m_guiPackageNames; //Package name of GUI (used for image preview)
+	std::vector<std::string> m_guiPureNames; //Pure GUI name (used for image preview)
+
+	CVoid ClearNames()
+	{
+		for (CUInt i = 0; i < m_instancePrefabNames.size(); i++)
+			m_instancePrefabNames[i].ClearNames();
+		m_instancePrefabNames.clear();
+
+		m_staticSoundsNames.clear();
+		m_importedCameraNames.clear();
+		m_engineCameraNames.clear();
+		m_guiNames.clear();
+	}
+
+};
+
 struct CProjects
 {
 	CChar m_name[MAX_NAME_SIZE];
 	std::vector<std::string> m_sceneNames;
 	CBool m_isActive;
+	std::vector<CVSceneObjectNames> m_vsceneObjectNames; //mainly used in script editor and to test scripts in Prefab mode
+	std::vector<std::vector<std::string>> m_resourceNames;
+
+	CVoid ClearNames()
+	{
+		//m_sceneNames.clear();
+		for (CUInt i = 0; i < m_vsceneObjectNames.size(); i++)
+			m_vsceneObjectNames[i].ClearNames();
+		m_vsceneObjectNames.clear();
+	}
 };
 
 struct CExtraTexturesNamingConventions
@@ -552,6 +607,9 @@ struct CPrefabProperties
 {
 	CInt m_clipIndex;
 	std::vector<std::string> m_names;
+	CChar m_scriptPath[MAX_URI_SIZE];
+	CBool m_updateScript;
+	CBool m_hasScript;
 	CBool m_loopAnimationAtStart;
 	CBool m_playAnimationAtStart;
 	CBool m_alwaysVisible;
@@ -564,6 +622,9 @@ struct CPrefabProperties
 		m_playAnimationAtStart = CTrue;
 		m_alwaysVisible = CFalse;
 		m_castShadow = CTrue;
+		Cpy(m_scriptPath, "\n");
+		m_updateScript = CFalse;
+		m_hasScript = CFalse;
 	}
 
 	CVoid Reset()
@@ -574,8 +635,10 @@ struct CPrefabProperties
 		m_playAnimationAtStart = CTrue;
 		m_alwaysVisible = CFalse;
 		m_castShadow = CTrue;
-	}
-
+		Cpy(m_scriptPath, "\n");
+		m_updateScript = CFalse;
+		m_hasScript = CFalse;
+ 	}
 };
 
 // CVandaEngine1Dlg dialog
@@ -624,7 +687,8 @@ public:
 	CVoid OnMenuClickedSaveGUIAs(CBool askQuestion = CTrue);
 	CVoid OnMenuClickedImportColladaMultipleAnimations(CChar* baseModelName, std::vector<std::string>animations);
 	CVoid OnMenuClickedPrefab();
-
+	CVoid LoadObjectNames();
+	CVoid ClearObjectNames();
 protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	CVoid OnMenuClickedImportCollada();
@@ -720,7 +784,6 @@ public:
 	CSelectCamera* m_dlgSelectCamera;
 	CEditMaterial* m_dlgEditMaterial;
 	CEditPhysX* m_dlgEditPhysX;
-	CAddScript* m_dlgAddScript;
 	CAddMainCharacter* m_dlgMainCharacter;
 	CEditBloom* m_dlgEditBloom;
 	CEditLight* m_dlgEditLight;
@@ -742,6 +805,7 @@ public:
 	CSaveGUIDlg *m_dlgSaveGUIs;
 	NxExtendedVec3 m_currentCharacterPos;
 	CVec4f m_initCharacterRotate;
+	CVec3f m_initCharacterTranslate;
 	std::vector<std::string> m_deletedTriggerObjects;
 protected:
 	virtual void OnCancel();
@@ -939,6 +1003,10 @@ public:
 	afx_msg void OnLvnItemchangingListGuiElements(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangingListPhysxElements(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangingListObjects(NMHDR *pNMHDR, LRESULT *pResult);
+	CCustomBitmapButton m_mainBtnPrefabSettings;
+	afx_msg void OnBnClickedBtnPrefabSettings();
+	CRichEditCtrl m_richSelectedObjectName;
+	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 };
 
 //Edition.MaxVersion.MinVersion.BugFixes;
@@ -998,7 +1066,6 @@ extern CMenu *ex_pMenu; //pointer to menu ( used for cull face check mark )
 
 extern CEditMaterial *ex_pEditMaterial; //extern
 extern CEditPhysX *ex_pEditPhysX;
-extern CAddScript* ex_pAddScript;
 extern CButton* ex_pBtnPrevAnim;
 extern CButton* ex_pBtnPlayAnim;
 extern CButton* ex_pBtnPauseAnim;
@@ -1099,7 +1166,7 @@ extern CBool g_firstPass;
 extern CMaterialChannels g_materialChannels;
 extern CInstanceLight* g_currentInstanceLight;
 extern CInt g_sceneManagerObjectsPerSplit;
-extern CLuaState g_lua;
+extern lua_State* g_lua;
 extern CBool g_testScript;
 extern CBool g_renderShadow;
 extern CFloat g_maxInstancePrefabRadius; //maximum radius of prefabs: currently used for the max radius of dynamic shadow
@@ -1122,3 +1189,4 @@ CVoid CheckCullFace( CCullFaceTypeForMenu type ); // cull face check mark
 CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo = NULL, CGeometry* geo = NULL, CBool engineObject = CFalse, CBool showDialog = CTrue );
 CVoid SetDialogData2( CBool selected, CPolyGroup* group = NULL, CBool engineObject = CFalse, CBool showDialog = CTrue );
 CVoid SetDialogData3(CBool selected, CInstancePrefab* instancePrefab = NULL);
+

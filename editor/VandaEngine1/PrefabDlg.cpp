@@ -328,7 +328,7 @@ void CPrefabDlg::OnBnClickedDelete()
 			CBitmap* cBmpMask = NULL;
 
 			m_prefabListImage.DeleteImageList();
-			m_prefabListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_prefabPackagesAndNames[packageIndex].size());
+			m_prefabListImage.Create(182, 101, ILC_COLOR24, 1, g_prefabPackagesAndNames[packageIndex].size());
 
 			for (CUInt i = 0; i < g_prefabPackagesAndNames[packageIndex].size(); i++)
 			{
@@ -1059,7 +1059,7 @@ void CPrefabDlg::OnLvnItemchangedListPrefabsProjects(NMHDR *pNMHDR, LRESULT *pRe
 		CBitmap* cBmpMask = NULL;
 
 		m_prefabListImage.DeleteImageList();
-		m_prefabListImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_prefabPackagesAndNames[index].size());
+		m_prefabListImage.Create(182, 101, ILC_COLOR24, 1, g_prefabPackagesAndNames[index].size());
 
 		for (CUInt i = 0; i < g_prefabPackagesAndNames[index].size(); i++)
 		{

@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -24,6 +24,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
+	CBool m_openForScriptUtility;
 	CListCtrl m_listGUIPackages;
 	CListCtrl m_listGUIs;
 	afx_msg void OnBnClickedInsert();
@@ -52,4 +53,8 @@ public:
 	CVoid OnBnClickedRenamePackage();
 	CVoid OnBnClickedDeleteGUI();
 	CVoid OnBnClickedRenameGUI();
+	CVoid OpenForScriptUtility(CBool set) { m_openForScriptUtility = set; }
+	CButton m_btnCancel;
+	CRichEditCtrl m_richGUIName;
+	afx_msg void OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResult);
 };

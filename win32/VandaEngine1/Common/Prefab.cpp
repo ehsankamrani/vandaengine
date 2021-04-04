@@ -1,10 +1,12 @@
 #include "stdafx.h"
-#include "Utility.h"
+#include "../Common/Utility.h"
 #include "Prefab.h"
 #include "../GraphicsEngine/scene.h"
 #include "../GraphicsEngine/Water.h"
 #include "../GraphicsEngine/Light.h"
 #include "../GraphicsEngine/animation.h"
+#include "../VandaEngine1Win32.h"
+#include "../Main.h"
 CPrefab::CPrefab()
 {
 	Cpy(m_name, "\n");
@@ -17,6 +19,8 @@ CPrefab::CPrefab()
 	m_lod[0]->m_isVisible = CTrue;
 	m_instanceIndex = 0;
 	m_currentInstance = NULL;
+	m_hasScript = CFalse;
+	Cpy(m_script, "\n");
 }
 
 CPrefab::~CPrefab()
@@ -109,6 +113,86 @@ CVLOD* CPrefab::GetLOD(CInt index)
 	return m_lod[index];
 }
 
+CVoid CInstancePrefab::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+}
+
+CBool CInstancePrefab::LoadLuaFile()
+{
+	//ResetLua();
+	if (!LuaLoadFile(m_lua, m_script))
+		return CFalse;
+	return CTrue;
+}
+
+CVoid CInstancePrefab::InitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = this;
+
+		lua_getglobal(m_lua, "Init");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CInstancePrefab::UpdateScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = this;
+
+		lua_getglobal(m_lua, "Update");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CInstancePrefab::OnTriggerEnterScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = this;
+
+		lua_getglobal(m_lua, "OnTriggerEnter");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CInstancePrefab::OnTriggerExitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = this;
+
+		lua_getglobal(m_lua, "OnTriggerExit");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
 CInstancePrefab::CInstancePrefab()
 {
 	m_isVisible = CTrue;
@@ -138,8 +222,7 @@ CInstancePrefab::CInstancePrefab()
 	CMatrix4x4Scale(m_instanceMatrix, scale);
 	m_elapsedTime = 0.0f;
 	m_prefab = NULL;
-	Cpy(m_enterScript, "\n");
-	Cpy(m_exitScript, "\n");
+	Cpy(m_script, "\n");
 	m_renderForQuery = CFalse;
 	m_realTimeSceneCheckIsInFrustom = CTrue; //by default sences are checked to see if they are in frustom
 	m_isControlledByPhysX = CFalse;
@@ -149,12 +232,16 @@ CInstancePrefab::CInstancePrefab()
 		m_lights[i] = NULL;
 	m_lightCooked = CFalse;
 	m_castShadow = CTrue;
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
 }
 
 CInstancePrefab::~CInstancePrefab()
 {
 	glDeleteQueries(1, &m_queryIndex);
 	glDeleteQueries(1, &m_waterQueryIndex);
+	LuaClose(m_lua);
 }
 
 CVoid CInstancePrefab::SetWater(CWater* water)
@@ -724,6 +811,7 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 		CScene* scene = GetScene(3);
 		if (scene)
 		{
+			g_render.SetScene(scene);
 			scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
 			scene->Update(0.00001);
 		}
@@ -851,24 +939,14 @@ CFloat CInstancePrefab::GetRadius()
 	return m_radius;
 }
 
-CVoid CInstancePrefab::SetEnterScript(CChar* enter)
+CVoid CInstancePrefab::SetScript(CChar* enter)
 {
-	Cpy(m_enterScript, enter);
+	Cpy(m_script, enter);
 }
 
-CVoid CInstancePrefab::SetExitScript(CChar* exit)
+CChar* CInstancePrefab::GetScript()
 {
-	Cpy(m_exitScript, exit);
-}
-
-CChar* CInstancePrefab::GetEnterScript()
-{
-	return m_enterScript;
-}
-
-CChar* CInstancePrefab::GetExitScript()
-{
-	return m_exitScript;
+	return m_script;
 }
 
 CVec3f CInstancePrefab::GetCenter()

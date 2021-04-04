@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -95,7 +95,7 @@ public:
 	NxTriangleMeshDesc* triangleMeshDesc;
 	ControllerHitReport gControllerHitReport;
 	DebugRenderer     gDebugRenderer;
-	NxVec3            gDefaultGravity;
+	NxVec3            m_defaultGravity;
 	NxVec3		      zero;
 	CBool			  gJump;
 	UserAllocator* gAllocator;
@@ -110,8 +110,7 @@ public:
 	NxF32			  gCharacterRunSpeed;
 	CBool			  bFixedStep;
 	NxF32			  jumpTime;
-	NxF32			  G;
-	NxF32			  gV0;
+	NxF32			  m_V0;
 	NxVec3 gDir;                       //camera direction 
 	NxVec3 gRightDir;                  //Camera right direction  
 	NxF32 dist;
@@ -155,7 +154,7 @@ public:
 	~CNovodex();
     CBool debugMode; 
 	CBool wireFrame;
-	CBool initNx(CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZCharacterPos, CFloat gravity, CFloat crtlRadius = 2.5f, CFloat ctrlHeight = 0.01f, CFloat crtSlopeLimit = cosf(NxMath::degToRad(45.0f)), CFloat crtSkinWidth = 0.1f, CFloat crtStepOffset = 0.1f, CBool createScene = CTrue);
+	CBool initNx(CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZCharacterPos, CFloat crtlRadius = 2.5f, CFloat ctrlHeight = 0.01f, CFloat crtSlopeLimit = cosf(NxMath::degToRad(45.0f)), CFloat crtSkinWidth = 0.1f, CFloat crtStepOffset = 0.1f, CBool createScene = CTrue);
 	CVoid releaseNx();
 
 	NxActor* CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic);

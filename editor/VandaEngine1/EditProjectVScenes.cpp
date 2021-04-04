@@ -157,7 +157,7 @@ void CEditProjectVScenes::OnBnClickedDelete()
 			CBitmap* cBmpMask = NULL;
 
 			m_VSceneImage.DeleteImageList();
-			m_VSceneImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
+			m_VSceneImage.Create(182, 101, ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
 
 			for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 			{
@@ -259,6 +259,24 @@ void CEditProjectVScenes::OnBnClickedRename()
 
 		rename(oldVinPath, newVinPath);
 
+		//rename bmp file
+		CChar oldBmpPath[MAX_URI_SIZE];
+		sprintf(oldBmpPath, "%s%s%s%s", newPath, "/", oldVSceneNameWithoutDot, ".bmp");
+
+		CChar newBmpPath[MAX_URI_SIZE];
+		sprintf(newBmpPath, "%s%s%s%s", newPath, "/", newVSceneNameWithoutDot, ".bmp");
+
+		rename(oldBmpPath, newBmpPath);
+
+		//rename onm file
+		CChar oldOnmPath[MAX_URI_SIZE];
+		sprintf(oldOnmPath, "%s%s%s%s", newPath, "/", oldVSceneNameWithoutDot, ".onm");
+
+		CChar newOnmPath[MAX_URI_SIZE];
+		sprintf(newOnmPath, "%s%s%s%s", newPath, "/", newVSceneNameWithoutDot, ".onm");
+
+		rename(oldOnmPath, newOnmPath);
+
 		for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 		{
 			if (Cmp(g_VSceneNamesOfCurrentProject[i].c_str(), szBuffer))
@@ -338,13 +356,13 @@ BOOL CEditProjectVScenes::OnInitDialog()
 		m_btnDelete.ShowWindow(SW_HIDE);
 		m_btnRename.ShowWindow(SW_HIDE);
 		m_btnOK.SetWindowTextA("Open");
-
 	}
 	else
 	{
 		m_btnDelete.ShowWindow(SW_SHOW);
 		m_btnRename.ShowWindow(SW_SHOW);
-		m_btnOK.SetWindowTextA("OK");
+		m_btnOK.ShowWindow(SW_HIDE);
+		m_btnCancel.SetWindowTextA("OK");
 	}
 
 	RECT tempRect;
@@ -354,7 +372,7 @@ BOOL CEditProjectVScenes::OnInitDialog()
 	CBitmap* cBmpMask = NULL;
 
 	m_VSceneImage.DeleteImageList();
-	m_VSceneImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
+	m_VSceneImage.Create(182, 101, ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
 
 	for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 	{

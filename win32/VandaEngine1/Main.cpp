@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -27,11 +27,19 @@ CInt PlaySoundLoop(lua_State *L)
 	int argc = lua_gettop(L);
 
 
-	for ( int n=1; n<=argc; ++n )
+	for (int n = 1; n <= argc; ++n)
 	{
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CTrue);
 				g_engineStaticSounds[i]->SetLoop( CTrue );
@@ -51,9 +59,17 @@ CInt PlaySoundOnce(lua_State *L)
 
 	for (int n = 1; n <= argc; ++n)
 	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
-			if (Cmp(g_engineStaticSounds[i]->GetName(), lua_tostring(L, n)))
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CFalse);
 				g_engineStaticSounds[i]->SetLoop(CFalse);
@@ -71,11 +87,19 @@ CInt PauseSound(lua_State *L)
 {
 	int argc = lua_gettop(L);
 
-	for ( int n=1; n<=argc; ++n )
+	for (int n = 1; n <= argc; ++n)
 	{
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
 				g_soundSystem->PauseALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
@@ -90,11 +114,19 @@ CInt StopSound(lua_State *L)
 {
 	int argc = lua_gettop(L);
 
-	for ( int n=1; n<=argc; ++n )
+	for (int n = 1; n <= argc; ++n)
 	{
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(),  lua_tostring(L, n) ) )
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineStaticSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
 				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
@@ -123,6 +155,61 @@ CInt BlendCycle(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = k;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+					scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -145,14 +232,14 @@ CInt BlendCycle(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -206,6 +293,62 @@ CInt ClearCycle(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = k;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -228,14 +371,14 @@ CInt ClearCycle(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -290,6 +433,73 @@ CInt ExecuteAction(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = k;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					CFloat weight = 1.0f;
+					CInt lockResult;
+					CBool lock = CFalse;
+					if (argc > 4)
+						weight = lua_tonumber(L, 5);
+					if (argc > 5)
+						lockResult = lua_toboolean(L, 6);
+					if (lockResult)
+						lock = CTrue;
+					else
+						lock = CFalse;
+					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current instance prefab", COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -312,14 +522,14 @@ CInt ExecuteAction(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -333,11 +543,16 @@ CInt ExecuteAction(lua_State *L)
 					}
 
 					CFloat weight = 1.0f;
+					CInt lockResult;
 					CBool lock = CFalse;
 					if (argc > 4)
 						weight = lua_tonumber(L, 5);
 					if (argc > 5)
-						lock = (CBool)lua_toboolean(L, 6);
+						lockResult = lua_toboolean(L, 6);
+					if (lockResult)
+						lock = CTrue;
+					else
+						lock = CFalse;
 					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 				}
 			}
@@ -380,6 +595,62 @@ CInt ReverseExecuteAction(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j)/* && g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = k;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					scene->ReverseExecuteAction(index);
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current instance prefab", COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -402,14 +673,14 @@ CInt ReverseExecuteAction(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -466,6 +737,63 @@ CInt RemoveAction(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PLAY);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = k;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					scene->RemoveAction(index);
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current instance prefab", COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -488,14 +816,14 @@ CInt RemoveAction(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -552,6 +880,56 @@ CInt GetAnimationClipDuration(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+
+					CChar luaToString2[MAX_NAME_SIZE];
+					Cpy(luaToString2, lua_tostring(L, 2));
+					StringToUpper(luaToString2);
+
+					CBool foundAnimationTarget = CFalse;
+					CInt index;
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
+					{
+						CChar animationName[MAX_NAME_SIZE];
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
+						StringToUpper(animationName);
+						if (Cmp(luaToString2, animationName))
+						{
+							index = k;
+							foundAnimationTarget = CTrue;
+							break;
+						}
+					}
+					if (!foundAnimationTarget)
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "\n%s%s%s", "Couldn't find the animation clip '", luaToString2, "'");
+						//PrintInfo(temp, COLOR_RED);
+						return 0;
+					}
+
+					lua_pushnumber(L, scene->m_animationClips[index]->GetDuration());
+					return 1;
+				}
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current instance prefab", COLOR_RED);
+		}
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -573,14 +951,14 @@ CInt GetAnimationClipDuration(lua_State *L)
 
 					CBool foundAnimationTarget = CFalse;
 					CInt index;
-					for (CInt i = 0; i < scene->GetNumClips(); i++)
+					for (CInt k = 0; k < scene->GetNumClips(); k++)
 					{
 						CChar animationName[MAX_NAME_SIZE];
-						Cpy(animationName, scene->m_animationClips[i]->GetName());
+						Cpy(animationName, scene->m_animationClips[k]->GetName());
 						StringToUpper(animationName);
 						if (Cmp(luaToString2, animationName))
 						{
-							index = i;
+							index = k;
 							foundAnimationTarget = CTrue;
 							break;
 						}
@@ -628,6 +1006,15 @@ CInt SetPrefabInstanceVisible(lua_State *L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+			g_currentInstancePrefab->SetVisible(CTrue);
+		//else
+		//	PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CChar prefabName[MAX_NAME_SIZE];
@@ -665,6 +1052,15 @@ CInt SetPrefabInstanceInvisible(lua_State *L)
 	CChar luaToString[MAX_NAME_SIZE];
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+			g_currentInstancePrefab->SetVisible(CFalse);
+		//else
+		//	PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		return 0;
+	}
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -704,6 +1100,34 @@ CInt PauseAnimations(lua_State *L)
 	CChar luaToString[MAX_NAME_SIZE];
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j)/* && g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+					scene->SetAnimationStatus(eANIM_PAUSE);
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current instance prefab", COLOR_RED);
+		}
+		return 0;
+	}
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
@@ -770,12 +1194,22 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 		//PrintInfo("\nPlease specify 3 arguments for SetCurrentVSceneAsMenu()", COLOR_RED);
 		return 0;
 	}
+	CInt menuResult;
 	CBool menu = CFalse;
-	menu = (CBool)lua_toboolean(L, 1); //true or false
+	menuResult = lua_toboolean(L, 1); //true or false
+	if (menuResult)
+		menu = CTrue;
+	else
+		menu = CFalse;
 	g_currentVSceneProperties.m_isMenu = menu;
 
+	CInt pauseResult;
 	CBool pause;
-	pause = (CBool)lua_toboolean(L, 2); //true or false
+	pauseResult = lua_toboolean(L, 2); //true or false
+	if (pauseResult)
+		pause = CTrue;
+	else
+		pause = CFalse;
 	g_currentVSceneProperties.m_isPause = pause;
 	if (!g_currentVSceneProperties.m_isPause)
 	{
@@ -1003,6 +1437,197 @@ CInt ActivateImportedCamera(lua_State* L)
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
+	return 0;
+}
+
+//First Argument: Prefab Instance Name. Use "this" to refer to current prefab instance
+//Second Argument: Imported camera name of prefab
+//Third Argument: End Time. Should Be Positive Value. Arbitrary Argument
+CInt ActivateImportedCameraOfPrefab(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify at least 2 arguments for ActivateImportedCameraOfPrefab()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	//camera name of current prefab
+	CChar luaToString2[MAX_NAME_SIZE];
+	Cpy(luaToString2, lua_tostring(L, 2));
+	StringToUpper(luaToString2);
+
+	CBool foundCameraTarget = CFalse;
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+
+					CUInt index;
+					for (CUInt k = 0; k < scene->m_cameraInstances.size(); k++)
+					{
+						CChar cameraName[MAX_NAME_SIZE];
+						Cpy(cameraName, scene->m_cameraInstances[k]->m_abstractCamera->GetPureName());
+						StringToUpper(cameraName);
+						if (Cmp(luaToString2, cameraName))
+						{
+							index = k;
+							foundCameraTarget = CTrue;
+							break;
+						}
+					}
+
+					if (foundCameraTarget)
+					{
+						CFloat end_time = 0.0f;
+						CBool enableTimer = CFalse;
+						if (argc > 2)
+						{
+							end_time = (CFloat)lua_tonumber(L, 3);
+							if (end_time <= 0.0f)
+							{
+								enableTimer = CFalse;
+								end_time = 0.0f;
+							}
+							else
+							{
+								enableTimer = CTrue;
+							}
+						}
+
+						g_render.SetActiveInstanceCamera(scene->m_cameraInstances[index]);
+						scene->m_cameraInstances[index]->SetIsTimerEnabled(enableTimer);
+						scene->m_cameraInstances[index]->SetEndTime(end_time);
+						g_currentCameraType = eCAMERA_COLLADA;
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "%s%s%s", "\nCamera '", scene->m_cameraInstances[index]->m_abstractCamera->GetPureName(), "' was activated.");
+						//PrintInfo(temp, COLOR_GREEN);
+					}
+				}
+				if (foundCameraTarget)
+					break;
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+			if (!foundCameraTarget)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Couldn't find the camera '", luaToString2, "'");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+
+					CUInt index;
+					for (CUInt k = 0; k < scene->m_cameraInstances.size(); k++)
+					{
+						CChar cameraName[MAX_NAME_SIZE];
+						Cpy(cameraName, scene->m_cameraInstances[k]->m_abstractCamera->GetPureName());
+						StringToUpper(cameraName);
+						if (Cmp(luaToString2, cameraName))
+						{
+							index = k;
+							foundCameraTarget = CTrue;
+							break;
+						}
+					}
+					if (foundCameraTarget)
+					{
+						CFloat end_time = 0.0f;
+						CBool enableTimer = CFalse;
+						if (argc > 2)
+						{
+							end_time = (CFloat)lua_tonumber(L, 3);
+							if (end_time <= 0.0f)
+							{
+								enableTimer = CFalse;
+								end_time = 0.0f;
+							}
+							else
+							{
+								enableTimer = CTrue;
+							}
+						}
+
+						g_render.SetActiveInstanceCamera(scene->m_cameraInstances[index]);
+						scene->m_cameraInstances[index]->SetIsTimerEnabled(enableTimer);
+						scene->m_cameraInstances[index]->SetEndTime(end_time);
+						g_currentCameraType = eCAMERA_COLLADA;
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf(temp, "%s%s%s", "\nCamera '", scene->m_cameraInstances[index]->m_abstractCamera->GetPureName(), "' was activated.");
+						//PrintInfo(temp, COLOR_GREEN);
+					}
+				}
+				if (foundCameraTarget)
+					break;
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	if (!scene)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	if (!foundCameraTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find the camera '", luaToString2, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -1573,6 +2198,23 @@ CInt AttachScriptToKey(lua_State *L)
 	return 0;
 }
 
+CInt PrintConsole(lua_State *L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for Print funation", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	//PrintInfo(luaToString);
+
+	return 0;
+}
+
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
 
@@ -1594,7 +2236,7 @@ CMain::CMain()
 	m_cursorIcon = CNew(CIcon);
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
-	m_publishDebug = CFalse;
+	m_publishDebug = CTrue;
 	m_exitGame = CFalse;
 	m_mousePosition.x = (CFloat)g_width / 2.f;
 	m_mousePosition.y = (CFloat)g_height / 2.f;
@@ -1822,49 +2464,6 @@ void CMain::RemoveSelectedScene(CChar* szBuffer, CChar* sceneId)
 CBool CMain::Init()
 {
 	//initialize lua/////////////////
-	LuaOpenLibs(g_lua);
-	lua_register(g_lua, "PlaySoundLoop", PlaySoundLoop);
-	lua_register(g_lua, "PlaySoundOnce", PlaySoundOnce);
-	lua_register(g_lua, "PauseSound", PauseSound);
-	lua_register(g_lua, "StopSound", StopSound);
-
-	lua_register(g_lua, "BlendCycle", BlendCycle);
-	lua_register(g_lua, "ClearCycle", ClearCycle);
-	lua_register(g_lua, "ExecuteAction", ExecuteAction);
-	lua_register(g_lua, "ReverseExecuteAction", ReverseExecuteAction);
-	lua_register(g_lua, "RemoveAction", RemoveAction);
-	lua_register(g_lua, "GetAnimationClipDuration", GetAnimationClipDuration);
-	lua_register(g_lua, "PauseAnimations", PauseAnimations);
-
-	lua_register(g_lua, "LoadVScene", LoadVScene);
-	lua_register(g_lua, "ExitGame", ExitGame);
-	lua_register(g_lua, "SetCurrentVSceneAsMenu", SetCurrentVSceneAsMenu);
-
-	lua_register(g_lua, "ActivateThirdPersonCamera", ActivateThirdPersonCamera);
-	lua_register(g_lua, "ActivateFirstPersonCamera", ActivateFirstPersonCamera);
-	lua_register(g_lua, "ActivateImportedCamera", ActivateImportedCamera);
-	lua_register(g_lua, "ActivateEngineCamera", ActivateEngineCamera);
-
-	lua_register(g_lua, "LoadResource", LoadResource);
-	lua_register(g_lua, "DeleteAllResources", DeleteAllResources);
-	lua_register(g_lua, "PlayResourceSoundLoop", PlayResourceSoundLoop);
-	lua_register(g_lua, "PlayResourceSoundOnce", PlayResourceSoundOnce);
-	lua_register(g_lua, "StopResourceSound", StopResourceSound);
-	lua_register(g_lua, "PauseResourceSound", PauseResourceSound);
-	lua_register(g_lua, "StopAllResourceSounds", StopAllResourceSounds);
-	lua_register(g_lua, "ShowCursorIcon", ShowCursorIcon);
-	lua_register(g_lua, "HideCursorIcon", HideCursorIcon);
-	lua_register(g_lua, "AttachScriptToKey", AttachScriptToKey);
-
-	lua_register(g_lua, "ShowGUI", ShowGUI);
-	lua_register(g_lua, "HideGUI", HideGUI);
-
-	lua_register(g_lua, "SetPrefabInstanceVisible", SetPrefabInstanceVisible);
-	lua_register(g_lua, "SetPrefabInstanceInvisible", SetPrefabInstanceInvisible);
-
-
-	////////////////////////////////
-
 	glShadeModel(GL_SMOOTH);										// Enable Smooth Shading
 	glClearColor(0.6f, 0.6f, 0.6f, 1.0f);							// Black Background
 	glEnable(GL_TEXTURE_2D);							
@@ -1920,7 +2519,7 @@ CBool CMain::Init()
 		return CFalse; 
 	}
 	g_nx = CNew( CNovodex );
-	if (!g_nx->initNx(10.0, 5.0, 10.0, g_physXProperties.m_fGravityY, g_physXProperties.m_fCapsuleRadius, g_physXProperties.m_fCapsuleHeight, g_physXProperties.m_fCharacterSlopeLimit, g_physXProperties.m_fCharacterSkinWidth, g_physXProperties.m_fCharacterStepOffset))
+	if (!g_nx->initNx(10.0, 5.0, 10.0, g_physXProperties.m_fCapsuleRadius, g_physXProperties.m_fCapsuleHeight, g_physXProperties.m_fCharacterSlopeLimit, g_physXProperties.m_fCharacterSkinWidth, g_physXProperties.m_fCharacterStepOffset))
 	{
 		MessageBox( NULL, _T("Couldn't initialize physX"),_T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION );
 		return false;
@@ -2584,6 +3183,14 @@ CBool CMain::Render()
 	if (!g_render.UsingShader())
 		glEnable( GL_LIGHTING );
 
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		if (!g_instancePrefab[i]->GetVisible()) continue;
+		g_instancePrefab[i]->UpdateScript();
+	}
+	if (g_startup)
+		g_startup->UpdateScript();
+
 	RenderQueries();
 
 	ManageLODs();
@@ -3010,15 +3617,15 @@ CBool CMain::GetJumpCurrentEndDuration(CFloat& duration)
 	CBool foundTarget = CFalse;
 	CUInt index = -1;
 
-	for (CInt i = 0; i < scene->GetNumClips(); i++)
+	for (CInt k = 0; k < scene->GetNumClips(); k++)
 	{
 		CChar animationName[MAX_NAME_SIZE];
-		Cpy(animationName, scene->m_animationClips[i]->GetName());
+		Cpy(animationName, scene->m_animationClips[k]->GetName());
 		StringToUpper(animationName);
 		StringToUpper((CChar*)jumpName[0].c_str());
 		if (Cmp(jumpName[0].c_str(), animationName))
 		{
-			index = i;
+			index = k;
 			foundTarget = CTrue;
 			break;
 		}
@@ -3202,7 +3809,7 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut);
+			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut, 1.0, CFalse);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
@@ -3375,9 +3982,9 @@ CBool CMain::ProcessInputs()
 			gKeyDown = CTrue;
 			g_physXProperties.m_bApplyGravity = !g_physXProperties.m_bApplyGravity;
 			if (g_physXProperties.m_bApplyGravity)
-				g_nx->gDefaultGravity = NxVec3(g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ);
+				g_nx->m_defaultGravity = NxVec3(g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ);
 			else
-				g_nx->gDefaultGravity = NxVec3(0.0f);
+				g_nx->m_defaultGravity = NxVec3(0.0f);
 
 		}
 		if (g_input.KeyUp(DIK_G))
@@ -3401,7 +4008,7 @@ CBool CMain::ProcessInputs()
 	{
 		bEscapeDown = CTrue;
 		if (m_keyboadAndMouseScript.GetHasEscapeScript())
-			LuaLoadAndExecute(g_lua, m_keyboadAndMouseScript.GetEscapeScriptFile());
+			m_keyboadAndMouseScript.ExecuteScript(m_keyboadAndMouseScript.GetEscapeScriptFile());
 		else
 			return CFalse;
 	}
@@ -3490,11 +4097,8 @@ CBool CMain::ProcessInputs()
 						{
 							if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 							{
-								if (g_guis[i]->m_guiButtons[k]->GetHasHoverScript())
-								{
-									if (m_previuosSelectedGUIIndex != m_selectedGUIIndex)
-										LuaLoadAndExecute(g_lua, g_guis[i]->m_guiButtons[k]->GetHoverScriptPath());
-								}
+								if (m_previuosSelectedGUIIndex != m_selectedGUIIndex)
+									g_guis[i]->m_guiButtons[k]->OnSelectMouseHoverScript();
 							}
 
 							g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
@@ -4482,6 +5086,21 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		fread(&cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
 		fread(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 
+		CBool hasScript;
+		CChar script[MAX_NAME_SIZE];
+		fread(&hasScript, 1, sizeof(CBool), filePtr);
+		fread(script, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
+
+		CChar scriptPath[MAX_NAME_SIZE];
+		CChar* tempPath = GetAfterPath(script);
+		if (hasScript)
+			sprintf(scriptPath, "%s%s%s%s", packagePath, prefab->GetPrefabName(), "/Scripts/", tempPath);
+		else
+			Cpy(scriptPath, "\n");
+
+		prefab->SetHasScript(hasScript);
+		prefab->SetScript(scriptPath);
+
 		CChar tempSceneName[MAX_NAME_SIZE];
 
 		CInt tempSceneSize, tempGeoSize;
@@ -4595,7 +5214,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 					if (tempScene->m_loopAnimationAtStartup)
 						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 					else
-						tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f);
+						tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
 				}
 				else
 				{
@@ -4856,10 +5475,6 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				CInt physXPercentage;
 				CBool isTrigger;
 				CBool isInvisible;
-				CBool hasScriptEnter;
-				CBool hasScriptExit;
-				CChar scriptEnter[MAX_NAME_SIZE];
-				CChar scriptExit[MAX_NAME_SIZE];
 				fread(geoName, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
 				fread(instanceLocalToWorldMatrix, 1, sizeof(CMatrix), filePtr);
 				fread(&hasPhysX, 1, sizeof(CBool), filePtr);
@@ -4869,10 +5484,6 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				fread(&physXPercentage, 1, sizeof(CInt), filePtr);
 				fread(&isTrigger, 1, sizeof(CBool), filePtr);
 				fread(&isInvisible, 1, sizeof(CBool), filePtr);
-				fread(scriptEnter, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fread(&hasScriptEnter, 1, sizeof(CBool), filePtr);
-				fread(scriptExit, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
-				fread(&hasScriptExit, 1, sizeof(CBool), filePtr);
 
 				if (hasPhysX)
 				{
@@ -4900,27 +5511,6 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 									tempScene->m_instanceGeometries[k]->m_isTrigger = isTrigger;
 									tempScene->m_instanceGeometries[k]->m_isInvisible = isInvisible;
 
-									CChar scriptEnterPath[MAX_NAME_SIZE];
-									CChar scriptExitPath[MAX_NAME_SIZE];
-
-									CChar* tempEnterPath = GetAfterPath(scriptEnter);
-									CChar* tempExitPath = GetAfterPath(scriptExit);
-									//Copy this to Win32 Project as well
-									if (hasScriptEnter)
-										sprintf(scriptEnterPath, "%s%s%s%s", packagePath, prefab->GetPrefabName(), "/Scripts/", tempEnterPath);
-									else
-										Cpy(scriptEnterPath, "\n");
-
-									if (hasScriptExit)
-										sprintf(scriptExitPath, "%s%s%s%s", packagePath, prefab->GetPrefabName(), "/Scripts/", tempExitPath);
-									else
-										Cpy(scriptExitPath, "\n");
-
-									Cpy(tempScene->m_instanceGeometries[k]->m_enterScript, scriptEnterPath);
-									Cpy(tempScene->m_instanceGeometries[k]->m_exitScript, scriptExitPath);
-									tempScene->m_instanceGeometries[k]->m_hasEnterScript = hasScriptEnter;
-									tempScene->m_instanceGeometries[k]->m_hasExitScript = hasScriptExit;
-
 									//if (physXDensity > 0 || tempScene->m_instanceGeometries[k]->m_abstractGeometry->m_hasAnimation)
 									//	InsertItemToPhysXList(tempScene->m_instanceGeometries[k]->m_physXName, ePHYSXELEMENTLIST_DYNAMIC_RIGIDBODY);
 									//else if (isTrigger)
@@ -4934,6 +5524,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				} //if has PhysX
 			}
 		} // for all of the scenes
+
 		//if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 		//{
 			//g_nx->gControllers->reportSceneChanged();
@@ -5155,8 +5746,7 @@ CBool CMain::Load(CChar* pathName)
 			CVec4f rotate;
 			CVec3f scale;
 			CBool isVisible;
-			CChar enterScript[MAX_NAME_SIZE];
-			CChar exitScript[MAX_NAME_SIZE];
+			CChar script[MAX_NAME_SIZE];
 			CBool isTrigger;
 			CBool isControlledByPhysx;
 			CBool isAnimated;
@@ -5178,11 +5768,9 @@ CBool CMain::Load(CChar* pathName)
 
 			fread(&isVisible, sizeof(CBool), 1, filePtr);
 
-			fread(enterScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-			new_instance_prefab->SetEnterScript(enterScript);
-
-			fread(exitScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-			new_instance_prefab->SetExitScript(exitScript);
+			fread(script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			new_instance_prefab->SetScript(script);
+			new_instance_prefab->LoadLuaFile();
 
 			fread(&isTrigger, sizeof(CBool), 1, filePtr);
 			new_instance_prefab->SetIsTrigger(isTrigger);
@@ -5215,6 +5803,9 @@ CBool CMain::Load(CChar* pathName)
 			//new_instance_prefab->CalculateDistance();
 			//new_instance_prefab->UpdateIsStaticOrAnimated();
 			new_instance_prefab->SetVisible(isVisible);
+			new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
+			new_instance_prefab->SetScript(new_prefab->GetScript());
+			new_instance_prefab->LoadLuaFile();
 
 			CChar tempInstanceName[MAX_NAME_SIZE];
 			sprintf(tempInstanceName, "%s%s%s", "\nPrefab Instance ' ", new_instance_prefab->GetName(), " ' created successfully");
@@ -5349,28 +5940,12 @@ CBool CMain::Load(CChar* pathName)
 				fread(rightClickImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			//left click script
-			CBool hasLeftClickScript;
-			fread(&hasLeftClickScript, sizeof(CBool), 1, filePtr);
+			CBool hasScript;
+			fread(&hasScript, sizeof(CBool), 1, filePtr);
 
-			CChar leftClickScriptPath[MAX_NAME_SIZE];
-			if (hasLeftClickScript)
-				fread(leftClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//right click script
-			CBool hasRightClickScript;
-			fread(&hasRightClickScript, sizeof(CBool), 1, filePtr);
-
-			CChar rightClickScriptPath[MAX_NAME_SIZE];
-			if (hasRightClickScript)
-				fread(rightClickScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-
-			//hover script
-			CBool hasHoverScript;
-			fread(&hasHoverScript, sizeof(CBool), 1, filePtr);
-
-			CChar hoverScriptPath[MAX_NAME_SIZE];
-			if (hasHoverScript)
-				fread(hoverScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			CChar ScriptPath[MAX_NAME_SIZE];
+			if (hasScript)
+				fread(ScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			CChar finalMainImagePath[MAX_NAME_SIZE];
 			CChar* tempMainImagePath = GetAfterPath(mainImagePath);
@@ -5443,44 +6018,19 @@ CBool CMain::Load(CChar* pathName)
 			{
 				guiButton->SetHasRightClickImage(CFalse);
 			}
-			if (hasLeftClickScript)
+			if (hasScript)
 			{
 				CChar finalScriptPath[MAX_NAME_SIZE];
-				CChar* tempScriptPath = GetAfterPath(leftClickScriptPath);
+				CChar* tempScriptPath = GetAfterPath(ScriptPath);
 				sprintf(finalScriptPath, "%s%s%s%s%s%s", "assets/GUIs/",packageName, "/", guiName, "/Scripts/", tempScriptPath);
 
-				guiButton->SetLeftClickScriptPath(finalScriptPath);
-				guiButton->SetHasLeftClickScript(CTrue);
+				guiButton->SetScriptPath(finalScriptPath);
+				guiButton->SetHasScript(CTrue);
+				guiButton->LoadLuaFile();
 			}
 			else
 			{
-				guiButton->SetHasLeftClickScript(CFalse);
-			}
-			if (hasRightClickScript)
-			{
-				CChar finalScriptPath[MAX_NAME_SIZE];
-				CChar* tempScriptPath = GetAfterPath(rightClickScriptPath);
-				sprintf(finalScriptPath, "%s%s%s%s%s%s", "assets/GUIs/",packageName, "/", guiName, "/Scripts/", tempScriptPath);
-
-				guiButton->SetRightClickScriptPath(finalScriptPath);
-				guiButton->SetHasRightClickScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasRightClickScript(CFalse);
-			}
-			if (hasHoverScript)
-			{
-				CChar finalScriptPath[MAX_NAME_SIZE];
-				CChar* tempScriptPath = GetAfterPath(hoverScriptPath);
-				sprintf(finalScriptPath, "%s%s%s%s%s%s", "assets/GUIs/",packageName, "/", guiName, "/Scripts/", tempScriptPath);
-
-				guiButton->SetHoverScriptPath(finalScriptPath);
-				guiButton->SetHasHoverScript(CTrue);
-			}
-			else
-			{
-				guiButton->SetHasHoverScript(CFalse);
+				guiButton->SetHasScript(CFalse);
 			}
 			new_gui->AddGUIButton(guiButton);
 
@@ -6071,8 +6621,8 @@ CBool CMain::Load(CChar* pathName)
 		CVec3f translation;
 		CVec4f rotation;
 		CVec3f scaling;
-		CChar m_enterScript[MAX_NAME_SIZE];
-		CChar m_exitScript[MAX_NAME_SIZE];
+		CChar m_script[MAX_NAME_SIZE];
+		CBool m_hasScript;
 		fread(trigger_name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&type, sizeof(CTriggerType), 1, filePtr);
 
@@ -6080,12 +6630,11 @@ CBool CMain::Load(CChar* pathName)
 		fread(&translation, sizeof(CVec3f), 1, filePtr);
 		fread(&rotation, sizeof(CVec4f), 1, filePtr);
 		fread(&scaling, sizeof(CVec3f), 1, filePtr);
-		fread(m_enterScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-		fread(m_exitScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(&m_hasScript, sizeof(CBool), 1, filePtr);
 
 		//Copy this to Win32 Project as well
-		CChar trimmed_enter_script[MAX_NAME_SIZE];
-		CChar trimmed_exit_script[MAX_NAME_SIZE];
+		CChar trimmed_script[MAX_NAME_SIZE];
 
 		//read prefab data
 
@@ -6116,6 +6665,9 @@ CBool CMain::Load(CChar* pathName)
 		g_instancePrefab.push_back(new_instance_prefab);
 		Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 		InsertPrefab(new_prefab);
+		new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
+		new_instance_prefab->SetScript(new_prefab->GetScript());
+		new_instance_prefab->LoadLuaFile();
 
 		new_trigger->SetInstancePrefab(g_instancePrefab[g_instancePrefab.size() - 1]); //last element
 		new_trigger->GetInstancePrefab()->SetIsTrigger(CTrue);
@@ -6127,29 +6679,12 @@ CBool CMain::Load(CChar* pathName)
 		new_trigger->GetInstancePrefab()->CalculateDistance();
 		//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
 
-		sprintf(trimmed_enter_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", new_trigger->GetInstancePrefab()->GetName(), GetAfterPath(m_enterScript));
-		sprintf(trimmed_exit_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", new_trigger->GetInstancePrefab()->GetName(), GetAfterPath(m_exitScript));
+		CChar* scriptAfterPath = GetAfterPath(m_script);
+		sprintf(trimmed_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", new_trigger->GetInstancePrefab()->GetName(), scriptAfterPath);
 
-		CScene* scene = new_trigger->GetInstancePrefab()->GetScene(0);
-		for (CUInt i = 0; i < scene->m_instanceGeometries.size(); i++)
-		{
-			Cpy(scene->m_instanceGeometries[i]->m_enterScript, trimmed_enter_script);
-			Cpy(scene->m_instanceGeometries[i]->m_exitScript, trimmed_exit_script);
-
-			if (!Cmp(scene->m_instanceGeometries[i]->m_enterScript, "\n"))
-				scene->m_instanceGeometries[i]->m_hasEnterScript = CTrue;
-			else
-				scene->m_instanceGeometries[i]->m_hasEnterScript = CFalse;
-
-			if (!Cmp(scene->m_instanceGeometries[i]->m_exitScript, "\n"))
-				scene->m_instanceGeometries[i]->m_hasExitScript = CTrue;
-			else
-				scene->m_instanceGeometries[i]->m_hasExitScript = CFalse;
-
-		}
-
-		new_trigger->GetInstancePrefab()->SetEnterScript(trimmed_enter_script);
-		new_trigger->GetInstancePrefab()->SetExitScript(trimmed_exit_script);
+		new_trigger->SetScript(trimmed_script);
+		new_trigger->SetHasScript(m_hasScript);
+		new_trigger->LoadLuaFile();
 
 		g_triggers.push_back(new_trigger);
 	}
@@ -6254,6 +6789,9 @@ CBool CMain::Load(CChar* pathName)
 		g_instancePrefab.push_back(new_instance_prefab);
 		Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 		InsertPrefab(new_prefab);
+		new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
+		new_instance_prefab->SetScript(new_prefab->GetScript());
+		new_instance_prefab->LoadLuaFile();
 
 		g_instancePrefab[g_instancePrefab.size() - 1]->SetName("VANDA_MAIN_CHARACTER");
 
@@ -6376,9 +6914,11 @@ CBool CMain::Load(CChar* pathName)
 		g_startup->SetName(name);
 		g_startup->SetScriptPath(newPath);
 		g_startup->SetUpdateScript(CFalse);
+		g_startup->LoadLuaFile();
+
 		g_databaseVariables.m_insertStartup = CTrue;
 
-		LuaLoadAndExecute(g_lua, newPath);
+		g_startup->InitScript();
 	}
 	else
 	{
@@ -6466,7 +7006,7 @@ CBool CMain::Load(CChar* pathName)
 				scene->m_update = CFalse;
 			}
 		}
-
+		g_instancePrefab[i]->InitScript();
 	}
 
 	if (g_physXProperties.m_bGroundPlane)
@@ -7943,7 +8483,7 @@ CVoid CMain::DrawGUI()
 
 	g_font->StartRendering();
 	//g_font->Print( "Vanda Engine 1", 10.0f, 980.0f, 0.0f, 1.0f, 1.0f, 1.0f );
-	//g_font->Print( "Copyright (C) 2020 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
+	//g_font->Print( "Copyright (C) 2021 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "http://www.vandaengine.org", 10.0f, 920.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "Press F4 for help...", 10.0f, 890.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 
@@ -8170,11 +8710,11 @@ void CMain::ResetPhysX(CBool releaseActors)
 
 	g_nx->ReleaseCharacterControllers();
 
-	g_nx->gDefaultGravity.x = g_physXProperties.m_fGravityX;
-	g_nx->gDefaultGravity.y = g_physXProperties.m_fGravityY;
-	g_nx->gDefaultGravity.z = g_physXProperties.m_fGravityZ;
+	g_nx->m_defaultGravity.x = g_physXProperties.m_fGravityX;
+	g_nx->m_defaultGravity.y = g_physXProperties.m_fGravityY;
+	g_nx->m_defaultGravity.z = g_physXProperties.m_fGravityZ;
 	gPhysicsSDK->setParameter( NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth );
-	gPhysXscene->setGravity(NxVec3(g_nx->gDefaultGravity.x, g_nx->gDefaultGravity.y, g_nx->gDefaultGravity.z));
+	gPhysXscene->setGravity(NxVec3(g_nx->m_defaultGravity.x, g_nx->m_defaultGravity.y, g_nx->m_defaultGravity.z));
 
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
@@ -8186,11 +8726,11 @@ void CMain::ResetPhysX(CBool releaseActors)
 	
 	if( g_physXProperties.m_bApplyGravity )
 	{
-		g_nx->gDefaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
+		g_nx->m_defaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
 	}
 	else
 	{
-		g_nx->gDefaultGravity = NxVec3(0.0f);
+		g_nx->m_defaultGravity = NxVec3(0.0f);
 	}
 	g_nx->gDesiredDistance = g_physXProperties.m_fCameraCharacterDistance;
 	g_nx->debugMode = g_physXProperties.m_bDebugMode;

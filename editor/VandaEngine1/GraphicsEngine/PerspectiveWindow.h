@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -218,6 +218,8 @@ public:
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
 	CBool IsJumping(CBool &isInList);
 	CBool GetJumpCurrentEndDuration(CFloat& duration);
+	CVoid SetSwapBuffers(CBool set) { m_swapBuffers = set; }
+	CBool GetSwapBuffers() { return m_swapBuffers; }
 	CFloat elapsedTime;
 	__int64 m_timerCounter;
 	CFloat m_totalElapsedTime;
@@ -317,6 +319,7 @@ public:
 
 	CBool m_lockInput;
 	CBool m_loadScene;
+	CBool m_notFocus;
 	CBool m_isMenu;
 	CBool m_isPlayingGame;
 	CCameraType m_cameraType;
@@ -350,6 +353,7 @@ private:
 
 	CChar m_screenshotPath[MAX_URI_SIZE];
 	CBool m_saveScreenshot;
+	CBool m_swapBuffers;
 
 public:
 	CVoid ProcessInputs();

@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CAddAmbientSound.cpp : implementation file
 //
@@ -18,9 +18,7 @@ CGUIButton::CGUIButton()
 	m_updateHoverImage = CFalse;
 	m_updateRightClickImage = CFalse;
 	m_updateDisableImage = CFalse;
-	m_updateLeftClickScript = CFalse;
-	m_updateHoverScript = CFalse;
-	m_updateRightClickScript = CFalse;
+	m_updateScript = CFalse;
 
 	m_currentImageType = eBUTTON_IMAGE_MAIN;
 
@@ -29,6 +27,10 @@ CGUIButton::CGUIButton()
 	m_rightClickTimer = m_leftClickTimer = 0.0f;
 	m_maxRightClickTimer = 0.1f;
 	m_maxLeftClickTimer = 0.1f;
+
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
 }
 
 CGUIButton::~CGUIButton()
@@ -38,7 +40,7 @@ CGUIButton::~CGUIButton()
 	CDelete(m_hoverImage);
 	CDelete(m_rightClickImage);
 	CDelete(m_disableImage);
-
+	LuaClose(m_lua);
 }
 
 CBool CGUIButton::LoadMainImage()
@@ -172,9 +174,7 @@ CVoid CGUIButton::Render(CBool selectionMode)
 				m_currentImageType = eBUTTON_IMAGE_MAIN;
 			}
 
-			if (GetHasLeftClickScript())
-				LuaLoadAndExecute(g_lua, GetLeftClickScriptPath());
-
+			OnSelectMouseLButtonDownScript();
 		}
 	}
 	else if (m_currentImageType == eBUTTON_IMAGE_RIGHT_CLICK)
@@ -197,8 +197,7 @@ CVoid CGUIButton::Render(CBool selectionMode)
 				m_currentImageType = eBUTTON_IMAGE_MAIN;
 			}
 
-			if (GetHasRightClickScript())
-				LuaLoadAndExecute(g_lua, GetRightClickScriptPath());
+			OnSelectMouseRButtonDownScript();
 		}
 	}
 	glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -256,5 +255,70 @@ CVoid CGUIButton::Render(CBool selectionMode)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+}
+
+CVoid CGUIButton::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+}
+
+CBool CGUIButton::LoadLuaFile()
+{
+	//ResetLua();
+	if (!LuaLoadFile(m_lua, m_ScriptPath))
+		return CFalse;
+	return CTrue;
+}
+
+CVoid CGUIButton::OnSelectMouseLButtonDownScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnSelectMouseLButtonDown");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CGUIButton::OnSelectMouseRButtonDownScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnSelectMouseRButtonDown");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CGUIButton::OnSelectMouseHoverScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnSelectMouseHover");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
 
 }

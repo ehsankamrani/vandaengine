@@ -221,12 +221,12 @@ void CEditGeneralPhysXProperties::OnOK()
 		if( checkState == BST_CHECKED )
 		{
 			g_physXProperties.m_bApplyGravity = CTrue;
-			g_multipleView->m_nx->gDefaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
+			g_multipleView->m_nx->m_defaultGravity = NxVec3( g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ );
 		}
 		else
 		{
 			g_physXProperties.m_bApplyGravity = CFalse;
-			g_multipleView->m_nx->gDefaultGravity = NxVec3(0.0f);
+			g_multipleView->m_nx->m_defaultGravity = NxVec3(0.0f);
 		}
 
 		checkState = m_checkBoxDebugMode.GetCheck();

@@ -135,7 +135,7 @@ BOOL CEditVSceneName::OnInitDialog()
 	CBitmap* cBmpMask = NULL;
 
 	m_VSceneImage.DeleteImageList();
-	m_VSceneImage.Create((CInt)((CFloat)g_width / 6.0f), (CInt)((CFloat)g_height / 6.0f), ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
+	m_VSceneImage.Create(182, 101, ILC_COLOR24, 1, g_VSceneNamesOfCurrentProject.size());
 
 	for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 	{

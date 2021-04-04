@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani 
+//Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -32,4 +32,7 @@ public:
 public:
 	virtual INT_PTR DoModal();
 	afx_msg void OnBnClickedAcivateAndRender();
+	CRichEditCtrl m_richCameraName;
+	afx_msg void OnBnClickedButtonCopyCameraName();
+	afx_msg void OnLvnItemchangedListSelectCamera(NMHDR *pNMHDR, LRESULT *pResult);
 };
