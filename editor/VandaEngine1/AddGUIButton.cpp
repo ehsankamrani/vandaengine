@@ -8,7 +8,7 @@
 #include "VandaEngine1.h"
 #include "AddGUIButton.h"
 #include "afxdialogex.h"
-
+#include "ViewScript.h"
 
 // CAddGUIButton dialog
 
@@ -64,6 +64,7 @@ BEGIN_MESSAGE_MAP(CAddGUIButton, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_NAME, &CAddGUIButton::OnEnChangeEditName)
 	ON_EN_CHANGE(IDC_EDIT_POS_X, &CAddGUIButton::OnEnChangeEditPosX)
 	ON_EN_CHANGE(IDC_EDIT_POS_Y, &CAddGUIButton::OnEnChangeEditPosY)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddGUIButton::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -873,6 +874,11 @@ void CAddGUIButton::OnBnClickedButtonAddScript()
 		CString m_string;
 		m_string = (CString)dlgOpen.GetPathName();
 
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
 		int s = luaL_loadfile(g_lua, m_string);
 		if (s == 0) {
 			// execute Lua program
@@ -1055,7 +1061,6 @@ void CAddGUIButton::OnBnClickedOk()
 		{
 			guiButton->SetScriptPath(m_strScriptPath.GetBuffer(m_strScriptPath.GetLength()));
 			guiButton->SetHasScript(CTrue);
-			guiButton->LoadLuaFile();
 		}
 		else
 		{
@@ -1244,4 +1249,20 @@ void CAddGUIButton::OnEnChangeEditPosY()
 {
 	m_editPosY.GetWindowTextA(m_strPosY);
 	m_fPosY = atof(m_strPosY);
+}
+
+
+void CAddGUIButton::OnBnClickedButtonViewScript()
+{
+	if (m_strScriptPath.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScriptPath.GetBuffer(m_strScriptPath.GetLength()));
+	m_strScriptPath.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

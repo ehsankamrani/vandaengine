@@ -29,6 +29,8 @@ CScene::CScene()
 	m_playAnimation = m_loopAnimationAtStartup = CTrue;
 	m_alwaysVisible = CFalse;
 	m_castShadow = CTrue;
+	m_isTransformable = CFalse;
+	m_isSelectable = CFalse;
 	m_clipIndexForStartup = 0;
 
 	m_isLODScene = CFalse;

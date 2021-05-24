@@ -163,8 +163,10 @@ public:
 	CVoid UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer);
 	CVoid UpdateExecuteActionList(CFloat elapsedTime, CBool &updateExecuteActionList);
 	CBool CastShadow() { return m_castShadow; }
+	CBool IsTransformable() { return m_isTransformable; }
+	CBool isSelectable() { return m_isSelectable; }
 	//deprecate
-	CBool m_loopAnimationAtStartup, m_playAnimation, m_alwaysVisible, m_castShadow;
+	CBool m_loopAnimationAtStartup, m_playAnimation, m_alwaysVisible, m_castShadow, m_isTransformable, m_isSelectable;
 	CBool m_updateBoundingBox;
 	//new way
 	std::vector<std::string>m_executeActionList;

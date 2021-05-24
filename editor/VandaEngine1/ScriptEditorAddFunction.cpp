@@ -38,8 +38,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ActivateThirdPersonCamera, "ActivateThirdPersonCamera()");
 	Cpy(ActivateFirstPersonCamera, "ActivateFirstPersonCamera()");
 	Cpy(ActivateImportedCamera, "ActivateImportedCamera(string importedCameraFullName, float endTime[optional])");
-	Cpy(ActivateImportedCameraOfPrefab, "ActivateImportedCameraOfPrefab(string prefabInstanceName, string prefabCameraName, float endTime[optional])");
+	Cpy(ActivateImportedCameraOfPrefabInstance, "ActivateImportedCameraOfPrefabInstance(string prefabInstanceName, string prefabCameraName, float endTime[optional])");
 	Cpy(ActivateEngineCamera, "ActivateEngineCamera(string gameObjectCameraName, float endTime[optional])");
+	Cpy(SetPhysicsCameraAngle, "SetPhysicsCameraAngle(float angle)");
+	Cpy(GetPhysicsCameraAngle, "GetPhysicsCameraAngle()");
 
 	Cpy(LoadResource, "LoadResource(string resourceDirectoryName, string resourceFileName)");
 	Cpy(DeleteAllResources, "DeleteAllResources()");
@@ -51,14 +53,33 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ShowCursorIcon, "ShowCursorIcon(string resourceDirectoryName_resourceFileName.dds, float cursorSize)");
 	Cpy(HideCursorIcon, "HideCursorIcon(string resourceDirectoryName_resourceFileName.dds)");
 
-	Cpy(AttachScriptToKey, "AttachScriptToKey(keyCode, string resourceScriptDirectoryName, string resourceScriptFileName.lua)");
 	Cpy(PrintConsole, "PrintConsole(string message)");
 
 	Cpy(ShowGUI, "ShowGUI(string guiName)");
 	Cpy(HideGUI, "HideGUI(string guiName)");
 
-	Cpy(SetPrefabInstanceVisible, "SetPrefabInstanceVisible(string prefabInstanceName)");
-	Cpy(SetPrefabInstanceInvisible, "SetPrefabInstanceInvisible(string prefabInstanceName)");
+	Cpy(IsKeyDown, "IsKeyDown(string DirectInputKeyCode)");
+
+	Cpy(ShowPrefabInstance, "ShowPrefabInstance(string prefabInstanceName)");
+	Cpy(HidePrefabInstance, "HidePrefabInstance(string prefabInstanceName)");
+
+	Cpy(SetSelectionDistance, "SetSelectionDistance(float selectionDistance)");
+	Cpy(GetSelectionDistance, "GetSelectionDistance()");
+	Cpy(SelectPrefabInstances , "SelectPrefabInstances(double mousePositionX, doube mousePositionY, double selectionWidthSize, double selectionHeightSize)");
+	Cpy(GetScreenWidth, "GetScreenWidth()");
+	Cpy(GetScreenHeight, "GetScreenHeight()");
+	Cpy(GetCursorX, "GetCursorX()");
+	Cpy(GetCursorY, "GetCursorY()");
+	Cpy(IsMenuEnabled, "IsMenuEnabled()");
+	Cpy(GetElapsedTime, "GetElapsedTime()");
+
+	Cpy(TranslatePrefabInstance, "TranslatePrefabInstance(string prefabInstanceName, float XPosition, float YPosition, float ZPosition)");
+	Cpy(RotatePrefabInstance, "RotatePrefabInstance(string prefabInstanceName, float XRotationAngle, float YRotationAngle, float ZRotationAngle)");
+	Cpy(ScalePrefabInstance, "ScalePrefabInstance(string prefabInstanceName, float XScale, float YScale, float ZScale)");
+
+	Cpy(GetPrefabInstanceTranslate, "GetPrefabInstanceTranslate(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceRotate, "GetPrefabInstanceRotate(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceScale, "GetPrefabInstanceScale(string prefabInstanceName)");
 
 }
 
@@ -195,13 +216,21 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(ActivateImportedCamera);
 		}
-		else if (Cmp(szBuffer, "ActivateImportedCameraOfPrefab"))
+		else if (Cmp(szBuffer, "ActivateImportedCameraOfPrefabInstance"))
 		{
-			m_richFunctionName.SetWindowTextA(ActivateImportedCameraOfPrefab);
+			m_richFunctionName.SetWindowTextA(ActivateImportedCameraOfPrefabInstance);
 		}
 		else if (Cmp(szBuffer, "ActivateEngineCamera"))
 		{
 			m_richFunctionName.SetWindowTextA(ActivateEngineCamera);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraAngle"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraAngle);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraAngle"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraAngle);
 		}
 		else if (Cmp(szBuffer, "LoadResource"))
 		{
@@ -239,10 +268,6 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(HideCursorIcon);
 		}
-		else if (Cmp(szBuffer, "AttachScriptToKey"))
-		{
-			m_richFunctionName.SetWindowTextA(AttachScriptToKey);
-		}
 		else if (Cmp(szBuffer, "PrintConsole"))
 		{
 			m_richFunctionName.SetWindowTextA(PrintConsole);
@@ -255,13 +280,77 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(HideGUI);
 		}
-		else if (Cmp(szBuffer, "SetPrefabInstanceVisible"))
+		else if (Cmp(szBuffer, "IsKeyDown"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPrefabInstanceVisible);
+			m_richFunctionName.SetWindowTextA(IsKeyDown);
 		}
-		else if (Cmp(szBuffer, "SetPrefabInstanceInvisible"))
+		else if (Cmp(szBuffer, "ShowPrefabInstance"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPrefabInstanceInvisible);
+			m_richFunctionName.SetWindowTextA(ShowPrefabInstance);
+		}
+		else if (Cmp(szBuffer, "HidePrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(HidePrefabInstance);
+		}
+		else if (Cmp(szBuffer, "SetSelectionDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSelectionDistance);
+		}
+		else if (Cmp(szBuffer, "GetSelectionDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSelectionDistance);
+		}
+		else if (Cmp(szBuffer, "SelectPrefabInstances"))
+		{
+			m_richFunctionName.SetWindowTextA(SelectPrefabInstances);
+		}
+		else if (Cmp(szBuffer, "GetScreenWidth"))
+		{
+			m_richFunctionName.SetWindowTextA(GetScreenWidth);
+		}
+		else if (Cmp(szBuffer, "GetScreenHeight"))
+		{
+			m_richFunctionName.SetWindowTextA(GetScreenHeight);
+		}
+		else if (Cmp(szBuffer, "GetCursorX"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCursorX);
+		}
+		else if (Cmp(szBuffer, "GetCursorY"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCursorY);
+		}
+		else if (Cmp(szBuffer, "IsMenuEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsMenuEnabled);
+		}
+		else if (Cmp(szBuffer, "GetElapsedTime"))
+		{
+			m_richFunctionName.SetWindowTextA(GetElapsedTime);
+		}
+		else if (Cmp(szBuffer, "TranslatePrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(TranslatePrefabInstance);
+		}
+		else if (Cmp(szBuffer, "RotatePrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(RotatePrefabInstance);
+		}
+		else if (Cmp(szBuffer, "ScalePrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(ScalePrefabInstance);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceTranslate"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceTranslate);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceRotate"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceRotate);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceScale"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScale);
 		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
@@ -307,9 +396,11 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("ActivateThirdPersonCamera");
 	InsertItem("ActivateFirstPersonCamera");
 	InsertItem("ActivateImportedCamera");
-	InsertItem("ActivateImportedCameraOfPrefab");
+	InsertItem("ActivateImportedCameraOfPrefabInstance");
 	InsertItem("ActivateEngineCamera");
-
+	InsertItem("SetPhysicsCameraAngle");
+	InsertItem("GetPhysicsCameraAngle");
+	
 	InsertItem("LoadResource");
 	InsertItem("DeleteAllResources");
 	InsertItem("PlayResourceSoundLoop");
@@ -320,14 +411,34 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("ShowCursorIcon");
 	InsertItem("HideCursorIcon");
 
-	InsertItem("AttachScriptToKey");
 	InsertItem("PrintConsole");
 
 	InsertItem("ShowGUI");
 	InsertItem("HideGUI");
 
-	InsertItem("SetPrefabInstanceVisible");
-	InsertItem("SetPrefabInstanceInvisible");
+	InsertItem("IsKeyDown");
+
+	InsertItem("ShowPrefabInstance");
+	InsertItem("HidePrefabInstance");
+
+	InsertItem("SetSelectionDistance");
+	InsertItem("GetSelectionDistance");
+	InsertItem("SelectPrefabInstances");
+
+	InsertItem("GetScreenWidth");
+	InsertItem("GetScreenHeight");
+	InsertItem("GetCursorX");
+	InsertItem("GetCursorY");
+	InsertItem("IsMenuEnabled");
+	InsertItem("GetElapsedTime");
+
+	InsertItem("TranslatePrefabInstance");
+	InsertItem("RotatePrefabInstance");
+	InsertItem("ScalePrefabInstance");
+
+	InsertItem("GetPrefabInstanceTranslate");
+	InsertItem("GetPrefabInstanceRotate");
+	InsertItem("GetPrefabInstanceScale");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

@@ -454,8 +454,8 @@ CVoid CSaveLoadCharacterProfile::SetCharacterBlendingProperties(CCharacterBlendi
 CVoid CSaveLoadCharacterProfile::SetCharacterCameraProperties(CUpdateCamera* properties)
 {
 	m_camera->m_cameraManager->SetDefaultAngle(properties->m_cameraManager->GetDefaultAngle());
-	m_camera->m_cameraManager->SetMinAngle(properties->m_cameraManager->GetMinAngle());
-	m_camera->m_cameraManager->SetMaxAngle(properties->m_cameraManager->GetMaxAngle());
+	//m_camera->m_cameraManager->SetMinAngle(properties->m_cameraManager->GetMinAngle());
+	//m_camera->m_cameraManager->SetMaxAngle(properties->m_cameraManager->GetMaxAngle());
 
 	m_camera->m_perspectiveCameraTilt = properties->m_perspectiveCameraTilt;
 	m_camera->m_perspectiveCameraMinTilt = properties->m_perspectiveCameraMinTilt;

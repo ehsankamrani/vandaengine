@@ -265,7 +265,6 @@
     <ClCompile Include="ScriptEditor.cpp" />
     <ClCompile Include="ScriptEditorAddEvent.cpp" />
     <ClCompile Include="ScriptEditorAddFunction.cpp" />
-    <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp" />
     <ClCompile Include="ScriptUtility.cpp" />
     <ClCompile Include="ScriptUtilityGameObjects.cpp" />
     <ClCompile Include="ScriptUtilityGUIs.cpp" />
@@ -295,6 +294,7 @@
     <ClCompile Include="VandaEngine1Dlg.cpp" />
     <ClCompile Include="Common\Vector.cpp" />
     <ClCompile Include="GraphicsEngine\Water.cpp" />
+    <ClCompile Include="ViewScript.cpp" />
     <ClCompile Include="VsceneMenuCursor.cpp" />
     <ClCompile Include="WaterAttachment.cpp" />
     <ClCompile Include="WelcomeDialog.cpp" />
@@ -439,7 +439,6 @@
     <ClInclude Include="ScriptEditor.h" />
     <ClInclude Include="ScriptEditorAddEvent.h" />
     <ClInclude Include="ScriptEditorAddFunction.h" />
-    <ClInclude Include="ScriptEngine\KeyboadAndMouseScript.h" />
     <ClInclude Include="ScriptEngine\LuaForCpp.h" />
     <ClInclude Include="ScriptUtility.h" />
     <ClInclude Include="ScriptUtilityGameObjects.h" />
@@ -470,6 +469,7 @@
     <ClInclude Include="VandaEngine1Dlg.h" />
     <ClInclude Include="Common\Vector.h" />
     <ClInclude Include="GraphicsEngine\Water.h" />
+    <ClInclude Include="ViewScript.h" />
     <ClInclude Include="VsceneMenuCursor.h" />
     <ClInclude Include="WaterAttachment.h" />
     <ClInclude Include="WelcomeDialog.h" />

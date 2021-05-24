@@ -25,7 +25,6 @@
 #include "AudioEngine/OpenALSoundSource.h"
 #include "AudioEngine/StaticSound.h"
 #include "AudioEngine/AmbientSound.h"
-#include "ScriptEngine/KeyboadAndMouseScript.h"
 #include "Icon.h"
 
 struct CPhysXVariables
@@ -177,7 +176,6 @@ public:
 	CVoid SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar);
 
 	std::vector<std::string> m_tempAllPlayingSoundSources;
-	CKeyboadAndMouseScript m_keyboadAndMouseScript;
 
 private:
 	CBool ProcessInputs();
@@ -197,6 +195,12 @@ private:
 
 	CUInt m_selectedGUIIndex;
 	CUInt m_previuosSelectedGUIIndex;
+
+	CFloat m_fSelectionDistance;
+	CBool m_bSelectionDistance;
+
+	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE], m_selectedPrefabName;//selection
+
 public:
 	CBool m_lockInput;
 	CBool m_loadScene;
@@ -210,4 +214,13 @@ public:
 	CFloat m_idleCounter;
 	static CBool firstIdle;
 	static CChar currentIdleName[MAX_NAME_SIZE];
+
+	CVoid SetSelectionDistance(CFloat distance) { m_fSelectionDistance = distance;  m_bSelectionDistance = CTrue; }
+	CFloat GetSelectionDistance() { return m_fSelectionDistance; }
+	CVoid SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
+	CVoid InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
+	CVoid FinishPrefabSelection();
+
+	CFloat GetCursorX();
+	CFloat GetCursorY();
 };

@@ -614,6 +614,8 @@ struct CPrefabProperties
 	CBool m_playAnimationAtStart;
 	CBool m_alwaysVisible;
 	CBool m_castShadow;
+	CBool m_isSelectable;
+	CBool m_isTransformable;
 
 	CPrefabProperties()
 	{
@@ -625,6 +627,8 @@ struct CPrefabProperties
 		Cpy(m_scriptPath, "\n");
 		m_updateScript = CFalse;
 		m_hasScript = CFalse;
+		m_isSelectable = CFalse;
+		m_isTransformable = CFalse;
 	}
 
 	CVoid Reset()
@@ -638,6 +642,8 @@ struct CPrefabProperties
 		Cpy(m_scriptPath, "\n");
 		m_updateScript = CFalse;
 		m_hasScript = CFalse;
+		m_isSelectable = CFalse;
+		m_isTransformable = CFalse;
  	}
 };
 

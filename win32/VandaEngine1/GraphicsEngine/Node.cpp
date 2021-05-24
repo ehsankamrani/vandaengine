@@ -324,8 +324,8 @@ CVoid CNode::UpdatePhysX( CInstanceGeometry* geometry )
 	{
 		for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
 		{
-			if (!gPhysXscene->getActors()[j]->isSleeping())
-			{
+			//if (!gPhysXscene->getActors()[j]->isSleeping())
+			//{
 				CChar actorName[MAX_NAME_SIZE];
 				if (!gPhysXscene->getActors()[j]->getName()) continue;
 				Cpy(actorName, gPhysXscene->getActors()[j]->getName());
@@ -397,7 +397,7 @@ CVoid CNode::UpdatePhysX( CInstanceGeometry* geometry )
 					gPhysXscene->getActors()[j]->moveGlobalPosition(globalPos);
 					gPhysXscene->getActors()[j]->moveGlobalOrientation(mat33);
 				}
-			}
+			//}
 		}
 	}
 

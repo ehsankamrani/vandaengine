@@ -45,4 +45,7 @@ private:
 public:
 	afx_msg void OnBnClickedButtonCopyAnimation();
 	CRichEditCtrl m_richAnimationName;
+	afx_msg void OnBnClickedButtonViewScript();
+	CButton m_checkBoxTransformable;
+	CButton m_checkBoxSelectable;
 };

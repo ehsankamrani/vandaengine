@@ -186,7 +186,6 @@
     <ClCompile Include="GraphicsEngine\skin.cpp" />
     <ClCompile Include="GraphicsEngine\Sky.cpp" />
     <ClCompile Include="AudioEngine\StaticSound.cpp" />
-    <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -295,7 +294,6 @@
     <ClInclude Include="GraphicsEngine\skin.h" />
     <ClInclude Include="GraphicsEngine\Sky.h" />
     <ClInclude Include="AudioEngine\StaticSound.h" />
-    <ClInclude Include="ScriptEngine\KeyboadAndMouseScript.h" />
     <ClInclude Include="ScriptEngine\LuaForCpp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="physXEngine\Stream.h" />

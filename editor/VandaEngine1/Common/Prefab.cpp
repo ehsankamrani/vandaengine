@@ -139,6 +139,23 @@ CVoid CInstancePrefab::OnTriggerEnterScript()
 	}
 }
 
+
+CVoid CInstancePrefab::OnTriggerStayScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = this;
+
+		lua_getglobal(m_lua, "OnTriggerStay");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
 CVoid CInstancePrefab::OnTriggerExitScript()
 {
 	if (m_hasScript)
@@ -146,6 +163,22 @@ CVoid CInstancePrefab::OnTriggerExitScript()
 		g_currentInstancePrefab = this;
 
 		lua_getglobal(m_lua, "OnTriggerExit");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CInstancePrefab::OnSelectScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = this;
+
+		lua_getglobal(m_lua, "OnSelect");
 		if (lua_isfunction(m_lua, -1))
 		{
 			lua_pcall(m_lua, 0, 0, 0);
@@ -229,6 +262,8 @@ CInstancePrefab::CInstancePrefab()
 		m_lights[i] = NULL;
 	m_lightCooked = CFalse;
 	m_castShadow = CTrue;
+	m_isTransformable = CFalse;
+	m_isSelectable = CFalse;
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
@@ -878,11 +913,11 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 	CMatrix4x4Scale(m_instanceMatrix, scale);
 
 	g_currentInstancePrefab = this;
+
 	for (CUInt i = 0; i < 3; i++)
 	{
 		if (GetPrefab()->GetHasLod(i))
 		{
-
 			CScene* scene = GetScene(i);
 			if (init)
 			{
@@ -894,6 +929,13 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 					}
 					g_render.SetScene(scene);
 					scene->Update(0.00001);
+				}
+			}
+			else if (scene && scene->m_isTransformable)
+			{
+				if (scene->m_controllers.size() == 0)
+				{
+					scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
 				}
 			}
 		}

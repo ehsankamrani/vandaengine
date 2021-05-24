@@ -153,6 +153,22 @@ CVoid CTrigger::OnTriggerEnterScript()
 	}
 }
 
+CVoid CTrigger::OnTriggerStayScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnTriggerStay");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
 CVoid CTrigger::OnTriggerExitScript()
 {
 	if (m_hasScript)

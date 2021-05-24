@@ -131,18 +131,28 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 		MessageBoxA( "You can't assign a dynamic actor to an animated instanced geometry. Please set density to 0 and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
 	}
+	if (m_fDensity > 0 && g_prefabProperties.m_isTransformable)
+	{
+		MessageBoxA("You can't assign a dynamic actor to a transformable prefab.\nPlease set density to 0 or deactivate IsTransformable in prefab properties dialog.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	if (g_scene.size() > 1 && m_fDensity > 0.0f)
 	{
 		MessageBoxA("We don't support dynamic PhysX actor for multiple LODs. Please remove LOD 2 and LOD 3 and try again", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
-
 	if( (algorithm == eLOD_LENGTH || algorithm == eLOD_LENGTH_CURVATURE ) && m_instanceGeometry && m_instanceGeometry->m_abstractGeometry->m_hasAnimation )
 	{
 		MessageBoxA( "You can't assign a triangulated PhysX shape to an animated instanced geometry. Please choose another shape and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
-
 	}
+
+	if ((algorithm == eLOD_LENGTH || algorithm == eLOD_LENGTH_CURVATURE) && g_prefabProperties.m_isTransformable)
+	{
+		MessageBoxA("You can't assign a triangulated PhysX shape to a transformable prefab.\nPlease choose another shape or deactivate IsTransformable in prefab properties dialog.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CInt isTrigger;
 	isTrigger = m_checkBoxTrigger.GetCheck();
 
@@ -151,9 +161,14 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 		MessageBoxA( "You can't assign a trigger to an animated instanced geometry or skin. Please uncheck trigger checkbox and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
 	}
+	if (isTrigger && g_prefabProperties.m_isTransformable)
+	{
+		MessageBoxA("You can't assign a trigger to a transformable prefab.\nPlease uncheck trigger checkbox or deactivate IsTransformable in prefab properties dialog.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	if( isTrigger && m_fDensity)
 	{
-		MessageBoxA( "You can't create a dynamic trigger. Please set denistity to 0 or uncheck trigger checkbox.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
+		MessageBoxA( "You can't create a dynamic trigger. Please set density to 0 or uncheck trigger checkbox.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
 	}
 

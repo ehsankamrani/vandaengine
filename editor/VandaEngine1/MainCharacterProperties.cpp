@@ -274,8 +274,8 @@ void CMainCharacterProperties::OnBnClickedOk()
 		m_characterBlendingProperties.m_jumpDelayOut = atof(m_strJumpDelayOut);
 
 		m_camera->m_cameraManager->SetDefaultAngle(atof(m_strDefaultFOV));
-		m_camera->m_cameraManager->SetMinAngle(atof(m_strMinFOV));
-		m_camera->m_cameraManager->SetMaxAngle(atof(m_strMaxFOV));
+		//m_camera->m_cameraManager->SetMinAngle(atof(m_strMinFOV));
+		//m_camera->m_cameraManager->SetMaxAngle(atof(m_strMaxFOV));
 
 		m_camera->m_perspectiveCameraTilt = atof(m_strDefaultTilt);
 		m_camera->m_perspectiveCameraMinTilt = atof(m_strMinTilt);
@@ -475,8 +475,8 @@ void CMainCharacterProperties::OnEnChangeEditCameraMaxTilt()
 CVoid CMainCharacterProperties::SetCharacterCameraProperties(CUpdateCamera* properties)
 {
 	m_camera->m_cameraManager->SetDefaultAngle(properties->m_cameraManager->GetDefaultAngle());
-	m_camera->m_cameraManager->SetMinAngle(properties->m_cameraManager->GetMinAngle());
-	m_camera->m_cameraManager->SetMaxAngle(properties->m_cameraManager->GetMaxAngle());
+	//m_camera->m_cameraManager->SetMinAngle(properties->m_cameraManager->GetMinAngle());
+	//m_camera->m_cameraManager->SetMaxAngle(properties->m_cameraManager->GetMaxAngle());
 
 	m_camera->m_perspectiveCameraTilt = properties->m_perspectiveCameraTilt;
 	m_camera->m_perspectiveCameraMinTilt = properties->m_perspectiveCameraMinTilt;

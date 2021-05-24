@@ -69,8 +69,8 @@ CInt PauseAnimations(lua_State *L);
 CInt GetAnimationClipDuration(lua_State *L);
 
 //Prefabs
-CInt SetPrefabInstanceVisible(lua_State *L);
-CInt SetPrefabInstanceInvisible(lua_State *L);
+CInt ShowPrefabInstance(lua_State *L);
+CInt HidePrefabInstance(lua_State *L);
 
 //VScene
 CInt LoadVScene(lua_State *L);
@@ -79,10 +79,12 @@ CInt ExitGame(lua_State *L);
 
 //Cameras
 CInt ActivateImportedCamera(lua_State *L);
-CInt ActivateImportedCameraOfPrefab(lua_State *L);
+CInt ActivateImportedCameraOfPrefabInstance(lua_State *L);
 CInt ActivateEngineCamera(lua_State *L);
 CInt ActivateThirdPersonCamera(lua_State *L);
 CInt ActivateFirstPersonCamera(lua_State *L);
+CInt SetPhysicsCameraAngle(lua_State *L);
+CInt GetPhysicsCameraAngle(lua_State *L);
 
 //Resources
 CInt LoadResource(lua_State *L);
@@ -94,11 +96,33 @@ CInt PauseResourceSound(lua_State *L);
 CInt StopAllResourceSounds(lua_State *L);
 CInt ShowCursorIcon(lua_State *L);
 CInt HideCursorIcon(lua_State *L);
-CInt AttachScriptToKey(lua_State *L);
 CInt PrintConsole(lua_State *L);
 //GUIs
 CInt ShowGUI(lua_State *L);
 CInt HideGUI(lua_State *L);
+
+CInt IsKeyDown(lua_State* L);
+
+//Selection
+CInt SetSelectionDistance(lua_State *L);
+CInt GetSelectionDistance(lua_State *L);
+CInt SelectPrefabInstances(lua_State* L);
+
+//Get
+CInt GetScreenWidth(lua_State* L);
+CInt GetScreenHeight(lua_State* L);
+CInt GetCursorX(lua_State* L);
+CInt GetCursorY(lua_State* L);
+CInt GetElapsedTime(lua_State* L);
+CInt IsMenuEnabled(lua_State* L);
+
+//translation, rotation and scaling of prefab instances
+CInt TranslatePrefabInstance(lua_State* L);
+CInt RotatePrefabInstance(lua_State* L);
+CInt ScalePrefabInstance(lua_State* L);
+CInt GetPrefabInstanceTranslate(lua_State* L);
+CInt GetPrefabInstanceRotate(lua_State* L);
+CInt GetPrefabInstanceScale(lua_State* L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();

@@ -5,7 +5,7 @@
 #include "VandaEngine1.h"
 #include "AddTrigger.h"
 #include "afxdialogex.h"
-
+#include "ViewScript.h"
 
 // CAddTrigger dialog
 
@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP(CAddTrigger, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_TRIGGER, &CAddTrigger::OnEnChangeEditTrigger)
 	ON_BN_CLICKED(IDC_BTN_ADD_TRIGGER, &CAddTrigger::OnBnClickedBtnAddTrigger)
 	ON_BN_CLICKED(IDC_BTN_REMOVE_TRIGGER, &CAddTrigger::OnBnClickedBtnRemoveTrigger)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddTrigger::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -127,7 +128,6 @@ void CAddTrigger::OnBnClickedOk()
 	if (m_hasScript)
 	{
 		new_trigger->SetScript(m_strScript.GetBuffer(m_strScript.GetLength()));
-		new_trigger->LoadLuaFile();
 		m_strScript.ReleaseBuffer();
 	}
 	g_importPrefab = CTrue;
@@ -289,6 +289,11 @@ void CAddTrigger::OnBnClickedBtnAddTrigger()
 		CString m_string;
 		m_string = (CString)dlgOpen.GetPathName();
 
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
 		int s = luaL_loadfile(g_lua, m_string);
 		if (s == 0) {
 			// execute Lua program
@@ -313,7 +318,29 @@ void CAddTrigger::OnBnClickedBtnAddTrigger()
 
 void CAddTrigger::OnBnClickedBtnRemoveTrigger()
 {
-	m_editBoxScript.SetWindowTextA("\n");
-	m_strScript.Empty();
-	m_hasScript = CFalse;
+	if (!m_strScript.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddTrigger::OnBnClickedButtonViewScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

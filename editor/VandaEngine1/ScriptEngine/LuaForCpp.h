@@ -103,8 +103,10 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "ActivateThirdPersonCamera", ActivateThirdPersonCamera);
 	lua_register(L, "ActivateFirstPersonCamera", ActivateFirstPersonCamera);
 	lua_register(L, "ActivateImportedCamera", ActivateImportedCamera);
-	lua_register(L, "ActivateImportedCameraOfPrefab", ActivateImportedCameraOfPrefab);
+	lua_register(L, "ActivateImportedCameraOfPrefabInstance", ActivateImportedCameraOfPrefabInstance);
 	lua_register(L, "ActivateEngineCamera", ActivateEngineCamera);
+	lua_register(L, "SetPhysicsCameraAngle", SetPhysicsCameraAngle);
+	lua_register(L, "GetPhysicsCameraAngle", GetPhysicsCameraAngle);
 
 	lua_register(L, "LoadResource", LoadResource);
 	lua_register(L, "DeleteAllResources", DeleteAllResources);
@@ -116,12 +118,31 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "ShowCursorIcon", ShowCursorIcon);
 	lua_register(L, "HideCursorIcon", HideCursorIcon);
 
-	lua_register(L, "AttachScriptToKey", AttachScriptToKey);
 	lua_register(L, "PrintConsole", PrintConsole);
 
 	lua_register(L, "ShowGUI", ShowGUI);
 	lua_register(L, "HideGUI", HideGUI);
 
-	lua_register(L, "SetPrefabInstanceVisible", SetPrefabInstanceVisible);
-	lua_register(L, "SetPrefabInstanceInvisible", SetPrefabInstanceInvisible);
+	lua_register(L, "IsKeyDown", IsKeyDown);
+
+	lua_register(L, "ShowPrefabInstance", ShowPrefabInstance);
+	lua_register(L, "HidePrefabInstance", HidePrefabInstance);
+
+	lua_register(L, "SetSelectionDistance", SetSelectionDistance);
+	lua_register(L, "GetSelectionDistance", GetSelectionDistance);
+	lua_register(L, "SelectPrefabInstances", SelectPrefabInstances);
+
+	lua_register(L, "GetScreenWidth", GetScreenWidth);
+	lua_register(L, "GetScreenHeight", GetScreenHeight);
+	lua_register(L, "GetCursorX", GetCursorX);
+	lua_register(L, "GetCursorY", GetCursorY);
+	lua_register(L, "IsMenuEnabled", IsMenuEnabled);
+	lua_register(L, "GetElapsedTime", GetElapsedTime);
+
+	lua_register(L, "TranslatePrefabInstance", TranslatePrefabInstance);
+	lua_register(L, "RotatePrefabInstance", RotatePrefabInstance);
+	lua_register(L, "ScalePrefabInstance", ScalePrefabInstance);
+	lua_register(L, "GetPrefabInstanceTranslate", GetPrefabInstanceTranslate);
+	lua_register(L, "GetPrefabInstanceRotate", GetPrefabInstanceRotate);
+	lua_register(L, "GetPrefabInstanceScale", GetPrefabInstanceScale);
 }

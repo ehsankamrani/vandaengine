@@ -14,7 +14,6 @@
 #include "..\AudioEngine/openal.h"
 #include "..\AudioEngine/OpenALSystem.h"
 #include "..\AudioEngine/ambientSound.h"
-#include"..\ScriptEngine/KeyboadAndMouseScript.h"
 #include "..\GraphicsEngine/SimpleFont.h"
 #include "../MouseTranslationController.h"
 #include "..\\Icon.h"
@@ -220,6 +219,8 @@ public:
 	CBool GetJumpCurrentEndDuration(CFloat& duration);
 	CVoid SetSwapBuffers(CBool set) { m_swapBuffers = set; }
 	CBool GetSwapBuffers() { return m_swapBuffers; }
+	CFloat GetCursorX();
+	CFloat GetCursorY();
 	CFloat elapsedTime;
 	__int64 m_timerCounter;
 	CFloat m_totalElapsedTime;
@@ -331,7 +332,7 @@ public:
 	
 	CIcon* m_cursorIcon;
 
-	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE];//selection
+	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE], m_selectedPrefabName;//selection
 
 	GLuint *m_guiPtr, m_guiMinZ, m_guiSelectedName, m_guiBuffer[MAX_NAME_SIZE];//gui selection
 
@@ -345,7 +346,6 @@ public:
 	CBool m_initError;
 
 	std::vector<std::string> m_tempAllPlayingSoundSources;
-	CKeyboadAndMouseScript m_keyboadAndMouseScript;
 
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
@@ -354,6 +354,8 @@ private:
 	CChar m_screenshotPath[MAX_URI_SIZE];
 	CBool m_saveScreenshot;
 	CBool m_swapBuffers;
+	CFloat m_fSelectionDistance;
+	CBool m_bSelectionDistance;
 
 public:
 	CVoid ProcessInputs();
@@ -382,6 +384,13 @@ public:
 	static CChar currentIdleName[MAX_NAME_SIZE];
 	CChar* GetPreviousCharacterAnimationType() { return m_previousCharacterAnimationType; }
 	CTimer timer;
+
+	CVoid SetSelectionDistance(CFloat distance) { m_fSelectionDistance = distance;  m_bSelectionDistance = CTrue; }
+	CFloat GetSelectionDistance() { return m_fSelectionDistance; }
+	CVoid SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
+	CVoid InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
+	CVoid FinishPrefabSelection();
+
 };
 
 extern CInt g_numLights;

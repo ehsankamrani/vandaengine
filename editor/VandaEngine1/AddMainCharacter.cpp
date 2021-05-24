@@ -410,8 +410,8 @@ BOOL CAddMainCharacter::OnInitDialog()
 	Cpy(m_characterSoundProperties.m_jumpSound, g_mainCharacter->GetSoundJumpPath());
 
 	m_camera->m_cameraManager->SetDefaultAngle(g_camera->m_cameraManager->GetDefaultAngle());
-	m_camera->m_cameraManager->SetMinAngle(g_camera->m_cameraManager->GetMinAngle());
-	m_camera->m_cameraManager->SetMaxAngle(g_camera->m_cameraManager->GetMaxAngle());
+	//m_camera->m_cameraManager->SetMinAngle(g_camera->m_cameraManager->GetMinAngle());
+	//m_camera->m_cameraManager->SetMaxAngle(g_camera->m_cameraManager->GetMaxAngle());
 
 	m_camera->m_perspectiveCameraTilt = g_camera->m_perspectiveCameraTilt;
 	m_camera->m_perspectiveCameraMinTilt = g_camera->m_perspectiveCameraMinTilt;
@@ -560,8 +560,8 @@ void CAddMainCharacter::OnBnClickedOk()
 	g_characterBlendingProperties = m_characterBlendingProperties;
 
 	g_camera->m_cameraManager->SetDefaultAngle(m_camera->m_cameraManager->GetDefaultAngle());
-	g_camera->m_cameraManager->SetMinAngle(m_camera->m_cameraManager->GetMinAngle());
-	g_camera->m_cameraManager->SetMaxAngle(m_camera->m_cameraManager->GetMaxAngle());
+	//g_camera->m_cameraManager->SetMinAngle(m_camera->m_cameraManager->GetMinAngle());
+	//g_camera->m_cameraManager->SetMaxAngle(m_camera->m_cameraManager->GetMaxAngle());
 
 	g_camera->m_perspectiveCameraTilt = m_camera->m_perspectiveCameraTilt;
 	g_camera->m_perspectiveCameraMinTilt = m_camera->m_perspectiveCameraMinTilt;
@@ -1273,8 +1273,8 @@ CVoid CAddMainCharacter::SetCharacterBlendingProperties(CCharacterBlendingProper
 CVoid CAddMainCharacter::SetCharacterCameraProperties(CUpdateCamera* properties)
 {
 	m_camera->m_cameraManager->SetDefaultAngle(properties->m_cameraManager->GetDefaultAngle());
-	m_camera->m_cameraManager->SetMinAngle(properties->m_cameraManager->GetMinAngle());
-	m_camera->m_cameraManager->SetMaxAngle(properties->m_cameraManager->GetMaxAngle());
+	//m_camera->m_cameraManager->SetMinAngle(properties->m_cameraManager->GetMinAngle());
+	//m_camera->m_cameraManager->SetMaxAngle(properties->m_cameraManager->GetMaxAngle());
 
 	m_camera->m_perspectiveCameraTilt = properties->m_perspectiveCameraTilt;
 	m_camera->m_perspectiveCameraMinTilt = properties->m_perspectiveCameraMinTilt;

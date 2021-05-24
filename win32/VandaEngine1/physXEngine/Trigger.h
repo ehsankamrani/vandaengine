@@ -23,6 +23,7 @@ public:
 	CChar* GetName();
 
 	CVoid OnTriggerEnterScript();
+	CVoid OnTriggerStayScript();
 	CVoid OnTriggerExitScript();
 
 	CVoid SetHasScript(CBool set) { m_hasScript = set; }

@@ -8,6 +8,8 @@
 #include "VandaEngine1.h"
 #include "SceneProperties.h"
 #include "GraphicsEngine/Animation.h"
+#include "ViewScript.h"
+
 // CSceneProperties dialog
 
 IMPLEMENT_DYNAMIC(CSceneProperties, CDialog)
@@ -33,6 +35,8 @@ void CSceneProperties::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CASTSHADOW, m_checkBoxCastShadow);
 	DDX_Control(pDX, IDC_PREFAB_SCRIPT_PATH, m_editBoxScriptPath);
 	DDX_Control(pDX, IDC_RICHED_ANIMATION_NAME, m_richAnimationName);
+	DDX_Control(pDX, IDC_TRANSFORMABLE, m_checkBoxTransformable);
+	DDX_Control(pDX, IDC_SELECTABLE, m_checkBoxSelectable);
 }
 
 
@@ -41,6 +45,7 @@ BEGIN_MESSAGE_MAP(CSceneProperties, CDialog)
 	ON_BN_CLICKED(IDC_BTN_ADD_PREFAB_SCRIPT, &CSceneProperties::OnBnClickedBtnAddPrefabScript)
 	ON_BN_CLICKED(IDC_BTN_REMOVE_PREFAB_SCRIPT, &CSceneProperties::OnBnClickedBtnRemovePrefabScript)
 	ON_BN_CLICKED(IDC_BUTTON_COPY_ANIMATION, &CSceneProperties::OnBnClickedButtonCopyAnimation)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CSceneProperties::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -76,6 +81,73 @@ BOOL CSceneProperties::OnInitDialog()
 	else
 	{
 		m_checkBoxCastShadow.SetCheck(BST_UNCHECKED);
+	}
+
+	//animated prefabs are always transformable
+	CBool foundDynamicPhysics = CFalse;
+	CBool foundTrigger = CFalse;
+	CBool foundIncompatiblePhysXAlgorithm = CFalse;
+
+	for (CUInt i = 0; i < g_scene.size(); i++)
+	{
+		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+		{
+			if (g_scene[i]->m_instanceGeometries[j]->GetHasPhysXActor() && g_scene[i]->m_instanceGeometries[j]->GetPhysXActorDensity() > 0.0f)
+			{
+				m_checkBoxTransformable.SetCheck(BST_UNCHECKED);
+				m_checkBoxTransformable.EnableWindow(FALSE);
+				foundDynamicPhysics = CTrue;
+				break;
+			}
+		}
+	}
+	for (CUInt i = 0; i < g_scene.size(); i++)
+	{
+		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+		{
+			if (g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm == eLOD_LENGTH || g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm == eLOD_LENGTH_CURVATURE)
+			{
+				m_checkBoxTransformable.SetCheck(BST_UNCHECKED);
+				m_checkBoxTransformable.EnableWindow(FALSE);
+				foundIncompatiblePhysXAlgorithm = CTrue;
+				break;
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_scene.size(); i++)
+	{
+		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+		{
+			if (g_scene[i]->m_instanceGeometries[j]->m_isTrigger)
+			{
+				m_checkBoxTransformable.SetCheck(BST_UNCHECKED);
+				m_checkBoxTransformable.EnableWindow(FALSE);
+				foundTrigger = CTrue;
+				break;
+			}
+		}
+	}
+
+	if (!foundDynamicPhysics && !foundTrigger && !foundIncompatiblePhysXAlgorithm)
+	{
+		if (g_prefabProperties.m_isTransformable)
+		{
+			m_checkBoxTransformable.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxTransformable.SetCheck(BST_UNCHECKED);
+		}
+	}
+
+	if (g_prefabProperties.m_isSelectable)
+	{
+		m_checkBoxSelectable.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxSelectable.SetCheck(BST_UNCHECKED);
 	}
 
 	for( CUInt i = 0; i < g_prefabProperties.m_names.size(); i++ )
@@ -138,6 +210,18 @@ void CSceneProperties::OnOK()
 	else
 		g_prefabProperties.m_castShadow = CFalse;
 
+	checkState = m_checkBoxTransformable.GetCheck();
+	if (checkState == BST_CHECKED)
+		g_prefabProperties.m_isTransformable = CTrue;
+	else
+		g_prefabProperties.m_isTransformable = CFalse;
+
+	checkState = m_checkBoxSelectable.GetCheck();
+	if (checkState == BST_CHECKED)
+		g_prefabProperties.m_isSelectable = CTrue;
+	else
+		g_prefabProperties.m_isSelectable = CFalse;
+
 	for (CUInt i = 0; i < g_prefabProperties.m_names.size(); i++)
 	{
 		if (Cmp(g_prefabProperties.m_names[m_currentAnimClip].c_str(), g_prefabProperties.m_names[i].c_str()))
@@ -159,19 +243,6 @@ void CSceneProperties::OnOK()
 		g_prefabProperties.m_hasScript = CFalse;
 	}
 
-	if (g_prefabProperties.m_hasScript)
-	{
-		//reset lua
-		lua_close(g_lua);
-		g_lua = LuaNewState();
-		LuaOpenLibs(g_lua);
-		LuaRegisterFunctions(g_lua);
-
-		if (!LuaLoadFile(g_lua, g_prefabProperties.m_scriptPath))
-			MessageBox("Couldn't load the script", "Error");
-	}
-
-
 	for (CUInt i = 0; i < g_scene.size(); i++)
 	{
 		CScene* m_scene = g_scene[i];
@@ -180,6 +251,8 @@ void CSceneProperties::OnOK()
 		m_scene->m_loopAnimationAtStartup = g_prefabProperties.m_loopAnimationAtStart;
 		m_scene->m_alwaysVisible = g_prefabProperties.m_alwaysVisible;
 		m_scene->m_castShadow = g_prefabProperties.m_castShadow;
+		m_scene->m_isTransformable = g_prefabProperties.m_isTransformable;
+		m_scene->m_isSelectable = g_prefabProperties.m_isSelectable;
 		m_scene->SetClipIndexForStartup(g_prefabProperties.m_clipIndex);
 	}
 
@@ -206,6 +279,11 @@ void CSceneProperties::OnBnClickedBtnAddPrefabScript()
 		CString m_string;
 		m_string = (CString)dlgOpen.GetPathName();
 
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
 		int s = luaL_loadfile(g_lua, m_string);
 		if (s == 0) {
 			// execute Lua program
@@ -230,8 +308,14 @@ void CSceneProperties::OnBnClickedBtnAddPrefabScript()
 
 void CSceneProperties::OnBnClickedBtnRemovePrefabScript()
 {
-	m_editBoxScriptPath.SetWindowTextA("\n");
-	m_strScriptName.Empty();
+	if (!m_strScriptName.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScriptPath.SetWindowTextA("\n");
+			m_strScriptName.Empty();
+		}
+	}
 }
 
 
@@ -248,4 +332,20 @@ void CSceneProperties::OnBnClickedButtonCopyAnimation()
 		sprintf(message, "Item '%s' copied to clipboard", s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
+}
+
+
+void CSceneProperties::OnBnClickedButtonViewScript()
+{
+	if (m_strScriptName.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScriptName.GetBuffer(m_strScriptName.GetLength()));
+	m_strScriptName.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

@@ -50,4 +50,5 @@ public:
 
 	CVoid SetCreate(CBool state);
 	CBool GetCreate();
+	afx_msg void OnBnClickedButtonViewScript();
 };

@@ -5,7 +5,7 @@
  */
 #include "stdafx.h"
 #include "Input.h"
-
+#include "..//VandaEngine1Dlg.h"
 
 /*****************************************************************************
  CKeyboard::onstructor
@@ -98,8 +98,6 @@ CBool CKeyboard::Unacquire()
   //Clear();
   return (!FAILED(m_pDIDev->Unacquire()));
 } // end CKeyboard::Unacquire()
-
-
 
 /*****************************************************************************
  CMouse::onstructor
@@ -310,3 +308,14 @@ CVoid CInputSystem::UnacquireAll()
     m_pMouse->Unacquire();
 } // end CInputSystem::UnacquireAll()
 
+
+
+CBool CInputSystem::KeyDown(CInt key)
+{
+	return (m_pKeyboard && m_pKeyboard->KeyDown(key) && g_camera && g_camera->m_activatePerspectiveCamera);
+}
+
+CBool CInputSystem::KeyUp(CInt key)
+{
+	return (m_pKeyboard && m_pKeyboard->KeyUp(key) && g_camera && g_camera->m_activatePerspectiveCamera);
+}

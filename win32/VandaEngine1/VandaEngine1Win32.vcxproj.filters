@@ -291,9 +291,6 @@
     <ClCompile Include="GraphicsEngine\terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptEngine\KeyboadAndMouseScript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsEngine\Actions.h">
@@ -606,9 +603,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsEngine\terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptEngine\KeyboadAndMouseScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScriptEngine\LuaForCpp.h">

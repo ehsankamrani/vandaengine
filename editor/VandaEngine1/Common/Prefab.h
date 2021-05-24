@@ -68,6 +68,8 @@ private:
 	CUInt m_totalVisibleLights;
 	CBool m_lightCooked;
 	CBool m_castShadow;
+	CBool m_isTransformable;
+	CBool m_isSelectable;
 	lua_State* m_lua;
 
 public:
@@ -94,6 +96,8 @@ public:
 	inline CFloat squared(float v);
 	CBool DoesLightIntersectsPrefab(CVec3f C1, CVec3f C2, CVec3f S, float R);
 	CBool CastShadow() { return m_castShadow; }
+	CBool IsTransformable() { return m_isTransformable; }
+	CBool isSelectable() { return m_isSelectable; }
 	CVoid ResetElapsedTime();
 	CScene* GetScene(CUInt index);
 	CVec3f GetMinAABB();
@@ -148,12 +152,16 @@ public:
 	CVoid SetIsStatic(CBool set) { m_isStatic = set; }
 	CVoid SetTotalLights(CBool set) { m_totalLights = set; }
 	CVoid SetCastShadow(CBool set) { m_castShadow = set; }
+	CVoid SetTransformable(CBool set) { m_isTransformable = set; }
+	CVoid SetSelectable(CBool set) { m_isSelectable = set; }
 	CBool LoadLuaFile();
 	CVoid ResetLua();
 	CVoid InitScript();
 	CVoid UpdateScript();
 	CVoid OnTriggerEnterScript();
+	CVoid OnTriggerStayScript();
 	CVoid OnTriggerExitScript();
+	CVoid OnSelectScript();
 	CBool GetHasScript() { return m_hasScript; }
 	CVoid SetHasScript(CBool set) { m_hasScript = set; }
 };

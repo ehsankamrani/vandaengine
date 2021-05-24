@@ -142,4 +142,5 @@ public:
 	CChar* GetDisableImagePath();
 
 	CChar* GetScriptPath();
+	afx_msg void OnBnClickedButtonViewScript();
 };

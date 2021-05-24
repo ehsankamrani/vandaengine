@@ -1074,7 +1074,6 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							{
 								guiButton->SetScriptPath(ScriptPath);
 								guiButton->SetHasScript(CTrue);
-								guiButton->LoadLuaFile();
 							}
 							else
 							{
@@ -1245,7 +1244,6 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
 
 							m_guiButtons[i]->SetScriptPath(newFilePath);
-							m_guiButtons[i]->LoadLuaFile();
 						}
 					}
 
@@ -1723,7 +1721,6 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								{
 									guiButton->SetScriptPath(ScriptPath);
 									guiButton->SetHasScript(CTrue);
-									guiButton->LoadLuaFile();
 								}
 								else
 								{
@@ -1894,7 +1891,6 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								sprintf(newFilePath, "%s%s", newExternalButtonTexturesPath, srcFilePathAfterPath);
 
 								m_guiButtons[i]->SetScriptPath(newFilePath);
-								m_guiButtons[i]->LoadLuaFile();
 							}
 
 						}

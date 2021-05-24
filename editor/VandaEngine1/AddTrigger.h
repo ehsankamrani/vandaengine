@@ -40,4 +40,6 @@ private:
 	CBool m_changed;
 	CString m_strScript;
 	CBool m_hasScript;
+public:
+	afx_msg void OnBnClickedButtonViewScript();
 };

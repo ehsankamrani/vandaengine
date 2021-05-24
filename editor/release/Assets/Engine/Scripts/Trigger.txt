@@ -2,6 +2,10 @@ function OnTriggerEnter()
 
 end
 
+function OnTriggerStay()
+
+end
+
 function OnTriggerExit()
 
 end

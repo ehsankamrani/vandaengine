@@ -1262,17 +1262,67 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			}
 		}
 	}
-	//		NX_ASSERT(gNbTouchedBodies>=0);
+	//NX_ASSERT(gNbTouchedBodies>=0);
 
 	// Mark actors in the trigger area to apply forcefield forces to them
 	//NxActor* triggerActor = &triggerShape.getActor();
 	//if (triggerActor->userData == (CVoid*)-1)
 	//{
-	//          if (status & NX_TRIGGER_ON_STAY)
-	//          {
-	//              NxActor* otherActor = &otherShape.getActor();
-	//              otherActor->userData = (CVoid*)3;
-	//          }
+	if (status & NX_TRIGGER_ON_STAY)
+	{
+		//NxActor* otherActor = &otherShape.getActor();
+		//otherActor->userData = (CVoid*)3;
+		NxActor* triggerActor = &triggerShape.getActor();
+		hitActor = triggerActor;
+		hitName = (char *)triggerActor->getName();
+		if (!triggerActor || !hitActor || !hitName)
+			return;
+
+		//Trigger Objects in VScene Mode
+		for (CUInt i = 0; i < g_triggers.size(); i++)
+		{
+			if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
+			{
+				g_triggers[i]->OnTriggerStayScript();
+				return;
+			}
+		}
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			if (prefab && prefab->GetHasScript())
+			{
+				for (CUInt j = 0; j < 3; j++)
+				{
+					if (prefab->GetHasLod(j))
+					{
+						CScene* scene = g_instancePrefab[i]->GetScene(j);
+						for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+						{
+							if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
+							{
+								g_instancePrefab[i]->OnTriggerStayScript();
+								return;
+							}
+						}
+					}
+				}
+				if (g_instancePrefab[i]->GetHasCollider())
+				{
+					CScene* scene = g_instancePrefab[i]->GetScene(3);
+					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+					{
+						if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
+						{
+							g_instancePrefab[i]->OnTriggerStayScript();
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
 	//}
 }
 

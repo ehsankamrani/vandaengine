@@ -6,6 +6,7 @@
 #include "AddStartupObject.h"
 #include "afxdialogex.h"
 #include "ScriptEditor.h"
+#include "ViewScript.h"
 
 // CAddStartupObject dialog
 
@@ -39,6 +40,7 @@ BEGIN_MESSAGE_MAP(CAddStartupObject, CDialog)
 	ON_BN_CLICKED(IDOK, &CAddStartupObject::OnBnClickedOk)
 	ON_EN_CHANGE(IDC_EDIT_STARTUP_NAME, &CAddStartupObject::OnEnChangeEditStartupName)
 	ON_EN_CHANGE(IDC_EDIT_SCRIPT, &CAddStartupObject::OnEnChangeEditScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddStartupObject::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -54,6 +56,11 @@ void CAddStartupObject::OnBnClickedButtonAddScript()
 		g_testScript = CTrue;
 		CString m_string;
 		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
 
 		int s = luaL_loadfile(g_lua, m_string);
 		if (s == 0) {
@@ -131,7 +138,6 @@ void CAddStartupObject::OnBnClickedOk()
 		g_startup->SetName(name);
 		g_startup->SetScriptPath(path);
 		g_startup->SetUpdateScript(m_updateScript);
-		g_startup->LoadLuaFile();
 
 		ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(name, eENGINEOBJECTLIST_STARTUP);
 		ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
@@ -200,4 +206,19 @@ CVoid CAddStartupObject::SetCreate(CBool state)
 CBool CAddStartupObject::GetCreate()
 {
 	return m_create;
+}
+
+void CAddStartupObject::OnBnClickedButtonViewScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

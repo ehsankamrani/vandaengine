@@ -360,6 +360,7 @@
 #define IDD_DIALOG_DELETE_PROJECT       504
 #define IDD_DIALOG_EDIT_PREFAB          505
 #define IDD_DIALOG_EDIT_GUI             506
+#define IDD_DIALOG_VIEW_SCRIPT          507
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -766,7 +767,10 @@
 #define Can                             1144
 #define IDC_ALWAYS_VISIBLE              1144
 #define IDC_CASTSHADOW                  1145
+#define IDC_TRANSFORMABLE               1146
 #define IDC_CHECK_DEBUG_MODE            1147
+#define IDC_TRANSFORMABLE2              1147
+#define IDC_SELECTABLE                  1147
 #define IDC_CHECK_GROUND_PLANE          1148
 #define IDC_EDIT_DEFAULT_RESTITUTION    1149
 #define IDC_MFCLINK1                    1150
@@ -842,6 +846,7 @@
 #define IDC_EDIT_SCRIPT                 1220
 #define IDC_BUTTON_REMOVE_SCRIPT        1221
 #define IDC_BUTTON_ADD_SCRIPT           1222
+#define IDC_BUTTON_VIEW_SCRIPT          1223
 #define IDC_RICHEDIT_LOD1_MAX           1224
 #define IDC_RICHEDIT_LOD2_MIN           1225
 #define IDC_RICHEDIT_PERSPECTIVE_CAMERA_NCP 1225
@@ -935,6 +940,7 @@
 #define IDC_STATIC_GUI_INSTANCE_NAME    1289
 #define IDC_BUTTON_COPY_GUI_INSTANCE_NAME 1290
 #define IDC_RICHED_GUI_INSTANCE_NAME    1291
+#define IDC_RICHED_VIEW_SCRIPT          1292
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1264,9 +1270,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        507
+#define _APS_NEXT_RESOURCE_VALUE        508
 #define _APS_NEXT_COMMAND_VALUE         33099
-#define _APS_NEXT_CONTROL_VALUE         1292
+#define _APS_NEXT_CONTROL_VALUE         1293
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

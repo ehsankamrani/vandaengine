@@ -24,6 +24,7 @@ CVoid CIcon::Render(CVec2f pos)
 {
 	if (!GetVisible())
 		return;
+
 	CFloat w = m_size * g_width / 100.0f;
 	CFloat h = (w / m_image->GetWidth()) * m_image->GetHeight();
 

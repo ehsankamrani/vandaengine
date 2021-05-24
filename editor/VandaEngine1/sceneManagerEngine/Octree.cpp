@@ -52,6 +52,9 @@ CVoid COctree::ResetOctreeGeoCount()
 	for( CUInt k = 0 ; k < g_scene.size(); k++ )
 	{
 		g_render.SetScene( g_scene[k] );
+
+		if (CmpIn(g_render.GetScene()->GetName(), "_COL") && g_editorMode == eMODE_VSCENE) continue;
+
 		if( !g_render.GetScene()->m_isTrigger )
 		{
 			for( CUInt l = 0; l < g_scene[k]->m_instanceGeometries.size(); l++ )
@@ -135,6 +138,9 @@ CVoid COctree::GetWorldDimensions()
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
 		g_render.SetScene( g_scene[i] );
+
+		if (CmpIn(g_render.GetScene()->GetName(), "_COL") && g_editorMode == eMODE_VSCENE) continue;
+
 		if( !g_render.GetScene()->m_isTrigger )
 		{
 			//if (g_scene[i]->m_hasAnimation)
@@ -260,6 +266,8 @@ CVoid COctree::AttachLightsToGeometries()
 		{
 			for( CUInt k = 0 ; k < g_scene.size(); k++ )
 			{
+				if (CmpIn(g_scene[k]->GetName(), "_COL") && g_editorMode == eMODE_VSCENE) continue;
+
 				if( !g_scene[k]->m_isTrigger )
 				{
 					for( CUInt l = 0;l < g_scene[k]->m_instanceGeometries.size(); l++ )
@@ -298,6 +306,9 @@ CBool COctree::AttachGeometriesToNode()
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
 		g_render.SetScene( g_scene[i]);
+
+		if (CmpIn(g_render.GetScene()->GetName(), "_COL") && g_editorMode == eMODE_VSCENE) continue;
+
 		if( !g_render.GetScene()->m_isTrigger )
 		{
 			for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
@@ -378,6 +389,8 @@ CVoid COctree::ResetState()
 {
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
+		if (CmpIn(g_scene[i]->GetName(), "_COL") && g_editorMode == eMODE_VSCENE) continue;
+
 		for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
 		{
 			for( CUInt k = 0; k < g_scene[i]->m_instanceGeometries[j]->m_parentTree.size(); k++ )
@@ -392,6 +405,8 @@ CVoid COctree::ResetState()
 	//Detach lights
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
+		if (CmpIn(g_scene[i]->GetName(), "_COL") && g_editorMode == eMODE_VSCENE) continue;
+
 		for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
 		{
 			for( CUInt k = 0; k < g_scene[i]->m_instanceGeometries[j]->m_lights.size(); k++ )

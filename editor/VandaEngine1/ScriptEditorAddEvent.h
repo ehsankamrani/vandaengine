@@ -32,10 +32,12 @@ public:
 	CChar m_initEventName[MAX_URI_SIZE];
 	CChar m_updateEventName[MAX_URI_SIZE];
 	CChar m_onTriggerEnterEventName[MAX_URI_SIZE];
+	CChar m_onTriggerStayEventName[MAX_URI_SIZE];
 	CChar m_onTriggerExitEventName[MAX_URI_SIZE];
 	CChar m_onSelectMouseLButtonDown[MAX_URI_SIZE];
 	CChar m_onSelectMouseRButtonDown[MAX_URI_SIZE];
 	CChar m_onSelectMouseHover[MAX_URI_SIZE];
+	CChar m_onSelectEventName[MAX_URI_SIZE];
 
 	afx_msg void OnBnClickedCancel();
 };

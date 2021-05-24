@@ -989,7 +989,7 @@ CInt GetAnimationClipDuration(lua_State *L)
 }
 
 
-CInt SetPrefabInstanceVisible(lua_State *L)
+CInt ShowPrefabInstance(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -997,7 +997,7 @@ CInt SetPrefabInstanceVisible(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 arguments for SetVisible()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 arguments for ShowPrefabInstance()", COLOR_RED);
 		return 0;
 	}
 	CBool foundPrefabInstance = CFalse;
@@ -1036,7 +1036,7 @@ CInt SetPrefabInstanceVisible(lua_State *L)
 	return 0;
 }
 
-CInt SetPrefabInstanceInvisible(lua_State *L)
+CInt HidePrefabInstance(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -1044,7 +1044,7 @@ CInt SetPrefabInstanceInvisible(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 arguments for SetInvisible()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 arguments for HidePrefabInstance()", COLOR_RED);
 		return 0;
 	}
 	CBool foundPrefabInstance = CFalse;
@@ -1443,12 +1443,12 @@ CInt ActivateImportedCamera(lua_State* L)
 //First Argument: Prefab Instance Name. Use "this" to refer to current prefab instance
 //Second Argument: Imported camera name of prefab
 //Third Argument: End Time. Should Be Positive Value. Arbitrary Argument
-CInt ActivateImportedCameraOfPrefab(lua_State* L)
+CInt ActivateImportedCameraOfPrefabInstance(lua_State* L)
 {
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		//PrintInfo("\nPlease specify at least 2 arguments for ActivateImportedCameraOfPrefab()", COLOR_RED);
+		//PrintInfo("\nPlease specify at least 2 arguments for ActivateImportedCameraOfPrefabInstance()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1705,6 +1705,40 @@ CInt ActivateEngineCamera(lua_State* L)
 		sprintf(temp, "%s%s%s", "\nCoudn't find camera '", luaToString, "' to be activated.");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
+	}
+	return 0;
+}
+
+//Argument: Angle in degrees
+CInt SetPhysicsCameraAngle(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraAngle()", COLOR_RED);
+		return 0;
+	}
+	if (g_camera)
+	{
+		CFloat angle = (CFloat)lua_tonumber(L, 1);
+		g_camera->m_cameraManager->SetAngle(angle);
+	}
+	return 0;
+}
+
+CInt GetPhysicsCameraAngle(lua_State *L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	if (g_camera)
+	{
+		CFloat angle = g_camera->m_cameraManager->GetAngle();
+		lua_pushnumber(L, angle);
+		return 1;
 	}
 	return 0;
 }
@@ -2161,49 +2195,12 @@ CInt HideCursorIcon(lua_State *L)
 	return 0;
 }
 
-CInt AttachScriptToKey(lua_State *L)
-{
-	//if (g_testScript)
-	//	return 0;
-
-	int argc = lua_gettop(L);
-	if (argc < 3)
-	{
-		//PrintInfo("\nPlease specify 3 arguments for AttachScriptToKey()", COLOR_RED);
-		return 0;
-	}
-
-	CChar luaToString1[MAX_NAME_SIZE];
-	Cpy(luaToString1, lua_tostring(L, 1));
-	StringToUpper(luaToString1); //keyboard or mouse key code
-
-	CChar luaToString2[MAX_NAME_SIZE];
-	Cpy(luaToString2, lua_tostring(L, 2));
-	StringToUpper(luaToString2); //Lua resource file directory
-
-	CChar luaToString3[MAX_NAME_SIZE];
-	Cpy(luaToString3, lua_tostring(L, 3));
-	StringToUpper(luaToString3); //Lua resource file name
-
-
-	CChar fileName[MAX_NAME_SIZE];
-	Cpy(fileName, "Assets/Resources/");
-
-	Append(fileName, luaToString2);
-	Append(fileName, "/");
-	Append(fileName, luaToString3);
-
-	if (Cmp("ESCAPE", luaToString1))
-		g_main->m_keyboadAndMouseScript.SetEscapeScriptFile(fileName);
-	return 0;
-}
-
 CInt PrintConsole(lua_State *L)
 {
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for Print funation", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for PrintConsole", COLOR_RED);
 		return 0;
 	}
 
@@ -2214,6 +2211,1520 @@ CInt PrintConsole(lua_State *L)
 
 	return 0;
 }
+
+CInt IsKeyDown(lua_State *L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for IsKeyDown()", COLOR_RED);
+		lua_pushboolean(L, 0);
+		return 0;
+	}
+
+	CChar keyCode[MAX_NAME_SIZE];
+	Cpy(keyCode, lua_tostring(L, 1)); //DirecInput Key Code
+	StringToUpper(keyCode);
+
+	g_input.Update();
+
+	if (Cmp(keyCode, "0"))
+	{
+		if (g_input.ButtonDown(0)) //left click
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "1"))
+	{
+		if (g_input.ButtonDown(1)) //right click
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "2"))
+	{
+		if (g_input.ButtonDown(2)) //middle button click
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_ESCAPE"))
+	{
+		if (g_input.KeyDown(DIK_ESCAPE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_1"))
+	{
+		if (g_input.KeyDown(DIK_1))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_2"))
+	{
+		if (g_input.KeyDown(DIK_2))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_3"))
+	{
+		if (g_input.KeyDown(DIK_3))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_4"))
+	{
+		if (g_input.KeyDown(DIK_4))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_5"))
+	{
+		if (g_input.KeyDown(DIK_5))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_6"))
+	{
+		if (g_input.KeyDown(DIK_6))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_7"))
+	{
+		if (g_input.KeyDown(DIK_7))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_8"))
+	{
+		if (g_input.KeyDown(DIK_8))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_9"))
+	{
+		if (g_input.KeyDown(DIK_9))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_0"))
+	{
+		if (g_input.KeyDown(DIK_0))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_MINUS"))
+	{
+		if (g_input.KeyDown(DIK_MINUS))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_EQUALS"))
+	{
+		if (g_input.KeyDown(DIK_EQUALS))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_BACK"))
+	{
+		if (g_input.KeyDown(DIK_BACK))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_TAB"))
+	{
+		if (g_input.KeyDown(DIK_TAB))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_Q"))
+	{
+		if (g_input.KeyDown(DIK_Q))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_W"))
+	{
+		if (g_input.KeyDown(DIK_W))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_E"))
+	{
+		if (g_input.KeyDown(DIK_E))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_R"))
+	{
+		if (g_input.KeyDown(DIK_R))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_T"))
+	{
+		if (g_input.KeyDown(DIK_T))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_Y"))
+	{
+		if (g_input.KeyDown(DIK_Y))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_U"))
+	{
+		if (g_input.KeyDown(DIK_U))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_I"))
+	{
+		if (g_input.KeyDown(DIK_I))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_O"))
+	{
+		if (g_input.KeyDown(DIK_O))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_P"))
+	{
+		if (g_input.KeyDown(DIK_P))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_LBRACKET"))
+	{
+		if (g_input.KeyDown(DIK_LBRACKET))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RBRACKET"))
+	{
+		if (g_input.KeyDown(DIK_RBRACKET))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RETURN"))
+	{
+		if (g_input.KeyDown(DIK_RETURN))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_LCONTROL"))
+	{
+		if (g_input.KeyDown(DIK_LCONTROL))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_A"))
+	{
+		if (g_input.KeyDown(DIK_A))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_S"))
+	{
+		if (g_input.KeyDown(DIK_S))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_D"))
+	{
+		if (g_input.KeyDown(DIK_D))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F"))
+	{
+		if (g_input.KeyDown(DIK_F))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_G"))
+	{
+		if (g_input.KeyDown(DIK_G))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_H"))
+	{
+		if (g_input.KeyDown(DIK_H))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_J"))
+	{
+		if (g_input.KeyDown(DIK_J))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_K"))
+	{
+		if (g_input.KeyDown(DIK_K))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_L"))
+	{
+		if (g_input.KeyDown(DIK_L))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SEMICOLON"))
+	{
+		if (g_input.KeyDown(DIK_SEMICOLON))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_APOSTROPHE"))
+	{
+		if (g_input.KeyDown(DIK_APOSTROPHE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_GRAVE"))
+	{
+		if (g_input.KeyDown(DIK_GRAVE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_LSHIFT"))
+	{
+		if (g_input.KeyDown(DIK_LSHIFT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_BACKSLASH"))
+	{
+		if (g_input.KeyDown(DIK_BACKSLASH))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_Z"))
+	{
+		if (g_input.KeyDown(DIK_Z))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_X"))
+	{
+		if (g_input.KeyDown(DIK_X))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_C"))
+	{
+		if (g_input.KeyDown(DIK_C))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_V"))
+	{
+		if (g_input.KeyDown(DIK_V))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_B"))
+	{
+		if (g_input.KeyDown(DIK_B))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_N"))
+	{
+		if (g_input.KeyDown(DIK_N))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_M"))
+	{
+		if (g_input.KeyDown(DIK_M))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_COMMA"))
+	{
+		if (g_input.KeyDown(DIK_COMMA))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_PERIOD"))
+	{
+		if (g_input.KeyDown(DIK_PERIOD))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SLASH"))
+	{
+		if (g_input.KeyDown(DIK_SLASH))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RSHIFT"))
+	{
+		if (g_input.KeyDown(DIK_RSHIFT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_MULTIPLY"))
+	{
+		if (g_input.KeyDown(DIK_MULTIPLY))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_LMENU"))
+	{
+		if (g_input.KeyDown(DIK_LMENU))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SPACE"))
+	{
+		if (g_input.KeyDown(DIK_SPACE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_CAPITAL"))
+	{
+		if (g_input.KeyDown(DIK_CAPITAL))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F1"))
+	{
+		if (g_input.KeyDown(DIK_F1))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F2"))
+	{
+		if (g_input.KeyDown(DIK_F2))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F3"))
+	{
+		if (g_input.KeyDown(DIK_F3))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	if (Cmp(keyCode, "DIK_F4"))
+	{
+		if (g_input.KeyDown(DIK_F4))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F5"))
+	{
+		if (g_input.KeyDown(DIK_F5))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F6"))
+	{
+		if (g_input.KeyDown(DIK_F6))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F7"))
+	{
+		if (g_input.KeyDown(DIK_F7))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F8"))
+	{
+		if (g_input.KeyDown(DIK_F8))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F9"))
+	{
+		if (g_input.KeyDown(DIK_F9))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F10"))
+	{
+		if (g_input.KeyDown(DIK_F10))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMLOCK"))
+	{
+		if (g_input.KeyDown(DIK_NUMLOCK))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SCROLL"))
+	{
+		if (g_input.KeyDown(DIK_SCROLL))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD7"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD7))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD8"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD8))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD9"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD9))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SUBTRACT"))
+	{
+		if (g_input.KeyDown(DIK_SUBTRACT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD4"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD4))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD5"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD5))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD6"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD6))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_ADD"))
+	{
+		if (g_input.KeyDown(DIK_ADD))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD1"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD1))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD2"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD2))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD3"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD3))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPAD0"))
+	{
+		if (g_input.KeyDown(DIK_NUMPAD0))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_DECIMAL"))
+	{
+		if (g_input.KeyDown(DIK_DECIMAL))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F11"))
+	{
+		if (g_input.KeyDown(DIK_F11))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F12"))
+	{
+		if (g_input.KeyDown(DIK_F12))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F13"))
+	{
+		if (g_input.KeyDown(DIK_F13))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F14"))
+	{
+		if (g_input.KeyDown(DIK_F14))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_F15"))
+	{
+		if (g_input.KeyDown(DIK_F15))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_KANA"))
+	{
+		if (g_input.KeyDown(DIK_KANA))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_CONVERT"))
+	{
+		if (g_input.KeyDown(DIK_CONVERT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NOCONVERT"))
+	{
+		if (g_input.KeyDown(DIK_NOCONVERT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_YEN"))
+	{
+		if (g_input.KeyDown(DIK_YEN))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPADEQUALS"))
+	{
+		if (g_input.KeyDown(DIK_NUMPADEQUALS))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_CIRCUMFLEX"))
+	{
+		if (g_input.KeyDown(DIK_CIRCUMFLEX))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_AT"))
+	{
+		if (g_input.KeyDown(DIK_AT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_COLON"))
+	{
+		if (g_input.KeyDown(DIK_COLON))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_UNDERLINE"))
+	{
+		if (g_input.KeyDown(DIK_UNDERLINE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_KANJI"))
+	{
+		if (g_input.KeyDown(DIK_KANJI))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_STOP"))
+	{
+		if (g_input.KeyDown(DIK_STOP))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_AX"))
+	{
+		if (g_input.KeyDown(DIK_AX))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_UNLABELED"))
+	{
+		if (g_input.KeyDown(DIK_UNLABELED))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPADENTER"))
+	{
+		if (g_input.KeyDown(DIK_NUMPADENTER))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RCONTROL"))
+	{
+		if (g_input.KeyDown(DIK_RCONTROL))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NUMPADCOMMA"))
+	{
+		if (g_input.KeyDown(DIK_NUMPADCOMMA))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_DIVIDE"))
+	{
+		if (g_input.KeyDown(DIK_DIVIDE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SYSRQ"))
+	{
+		if (g_input.KeyDown(DIK_SYSRQ))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RMENU"))
+	{
+		if (g_input.KeyDown(DIK_RMENU))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_PAUSE"))
+	{
+		if (g_input.KeyDown(DIK_PAUSE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_HOME"))
+	{
+		if (g_input.KeyDown(DIK_HOME))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_UP"))
+	{
+		if (g_input.KeyDown(DIK_UP))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_PRIOR"))
+	{
+		if (g_input.KeyDown(DIK_PRIOR))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_LEFT"))
+	{
+		if (g_input.KeyDown(DIK_LEFT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RIGHT"))
+	{
+		if (g_input.KeyDown(DIK_RIGHT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_END"))
+	{
+		if (g_input.KeyDown(DIK_END))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_DOWN"))
+	{
+		if (g_input.KeyDown(DIK_DOWN))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_NEXT"))
+	{
+		if (g_input.KeyDown(DIK_NEXT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_INSERT"))
+	{
+		if (g_input.KeyDown(DIK_INSERT))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_DELETE"))
+	{
+		if (g_input.KeyDown(DIK_DELETE))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_LWIN"))
+	{
+		if (g_input.KeyDown(DIK_LWIN))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_RWIN"))
+	{
+		if (g_input.KeyDown(DIK_RWIN))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_APPS"))
+	{
+		if (g_input.KeyDown(DIK_APPS))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_POWER"))
+	{
+		if (g_input.KeyDown(DIK_POWER))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+	else if (Cmp(keyCode, "DIK_SLEEP"))
+	{
+		if (g_input.KeyDown(DIK_SLEEP))
+		{
+			lua_pushboolean(L, 1); //true
+			return 1;
+		}
+	}
+
+
+	lua_pushboolean(L, 0); //false
+	return 0;
+}
+
+CInt SetSelectionDistance(lua_State *L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetSelectionDistance()", COLOR_RED);
+		return 0;
+	}
+	g_main->SetSelectionDistance(CFloat(lua_tonumber(L, 1)));
+	return 0;
+}
+
+CInt GetSelectionDistance(lua_State *L)
+{
+	CFloat selectionDistance = g_main->GetSelectionDistance();
+	lua_pushnumber(L, selectionDistance);
+	return 1;
+}
+
+CInt SelectPrefabInstances(lua_State *L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		//PrintInfo("\nPlease specify 4 argument for SelectPrefabInstances()", COLOR_RED);
+		return 0;
+	}
+	CDouble mouseXPos = CDouble(lua_tonumber(L, 1));
+	CDouble mouseYPos = CDouble(lua_tonumber(L, 2));
+	CDouble selectionWidth = CDouble(lua_tonumber(L, 3));
+	CDouble selectionHeight = CDouble(lua_tonumber(L, 4));
+
+	g_main->SelectPrefabInstances(mouseXPos, mouseYPos, selectionWidth, selectionHeight);
+	return 0;
+}
+
+CInt GetScreenWidth(lua_State* L)
+{
+	CFloat width = (CFloat)g_width;
+	lua_pushnumber(L, width);
+	return 1;
+}
+
+CInt GetScreenHeight(lua_State* L)
+{
+	CFloat height = (CFloat)g_height;
+	lua_pushnumber(L, height);
+	return 1;
+}
+
+CInt GetCursorX(lua_State* L)
+{
+	CFloat posX = g_main->GetCursorX();
+	lua_pushnumber(L, posX);
+	return 1;
+
+}
+
+CInt GetCursorY(lua_State* L)
+{
+	CFloat posY = g_main->GetCursorY();
+	lua_pushnumber(L, posY);
+	return 1;
+}
+
+CInt GetElapsedTime(lua_State* L)
+{
+	lua_pushnumber(L, g_elapsedTime);
+	return 1;
+}
+
+CInt IsMenuEnabled(lua_State* L)
+{
+	CBool isMenu = g_currentVSceneProperties.m_isMenu;
+	if (isMenu)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+
+//First argument: prefab instance name
+//2nd, 3rd, and 4th arguments: x positio, y position, z position of prefab instance
+CInt TranslatePrefabInstance(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		//PrintInfo("\nPlease specify 4 arguments for TranslatePrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CFloat xPos = lua_tonumber(L, 2);
+	CFloat yPos = lua_tonumber(L, 3);
+	CFloat zPos = lua_tonumber(L, 4);
+	CVec3f pos(xPos, yPos, zPos);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			if (g_currentInstancePrefab->GetScene(0) && g_currentInstancePrefab->GetScene(0)->IsTransformable())
+				g_currentInstancePrefab->SetTranslate(pos);
+		}
+		else
+		{
+		//	PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			if (g_instancePrefab[i]->GetScene(0) && g_instancePrefab[i]->GetScene(0)->IsTransformable())
+			{
+				g_instancePrefab[i]->SetTranslate(pos);
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+//First argument: prefab instance name
+//2nd, 3rd, and 4th arguments: x rotation, y rotation, z rotation of prefab instance
+CInt RotatePrefabInstance(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		//PrintInfo("\nPlease specify 4 arguments for RotatePrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CFloat xRot = lua_tonumber(L, 2);
+	CFloat yRot = lua_tonumber(L, 3);
+	CFloat zRot = lua_tonumber(L, 4);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			if (g_currentInstancePrefab->GetScene(0) && g_currentInstancePrefab->GetScene(0)->IsTransformable())
+			{
+				CVec4f rotation(xRot, yRot, zRot, g_currentInstancePrefab->GetRotate().w);
+				g_currentInstancePrefab->SetRotate(rotation);
+			}
+		}
+		else
+		{
+		//	PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			if (g_instancePrefab[i]->GetScene(0) && g_instancePrefab[i]->GetScene(0)->IsTransformable())
+			{
+				CVec4f rotation(xRot, yRot, zRot, g_instancePrefab[i]->GetRotate().w);
+				g_instancePrefab[i]->SetRotate(rotation);
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+//First argument: prefab instance name
+//2nd, 3rd, and 4th arguments: x scale, y scale, z scale of prefab instance
+CInt ScalePrefabInstance(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		//PrintInfo("\nPlease specify 4 arguments for ScalePrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CFloat xScale = lua_tonumber(L, 2);
+	CFloat yScale = lua_tonumber(L, 3);
+	CFloat zScale = lua_tonumber(L, 4);
+	CVec3f scale(xScale, yScale, zScale);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			if (g_currentInstancePrefab->GetScene(0) && g_currentInstancePrefab->GetScene(0)->IsTransformable())
+			{
+				g_currentInstancePrefab->SetScale(scale);
+			}
+		}
+		else
+		{
+		//	PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			if (g_instancePrefab[i]->GetScene(0) && g_instancePrefab[i]->GetScene(0)->IsTransformable())
+			{
+				g_instancePrefab[i]->SetScale(scale);
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceTranslate(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for GetPrefabInstanceTranslate()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CFloat x = g_currentInstancePrefab->GetTranslate().x;
+			CFloat y = g_currentInstancePrefab->GetTranslate().y;
+			CFloat z = g_currentInstancePrefab->GetTranslate().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CFloat x = g_instancePrefab[i]->GetTranslate().x;
+			CFloat y = g_instancePrefab[i]->GetTranslate().y;
+			CFloat z = g_instancePrefab[i]->GetTranslate().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceRotate(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for GetPrefabInstanceRotate()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CFloat x = g_currentInstancePrefab->GetRotate().x;
+			CFloat y = g_currentInstancePrefab->GetRotate().y;
+			CFloat z = g_currentInstancePrefab->GetRotate().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+	}
+
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CFloat x = g_instancePrefab[i]->GetRotate().x;
+			CFloat y = g_instancePrefab[i]->GetRotate().y;
+			CFloat z = g_instancePrefab[i]->GetRotate().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceScale(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for GetPrefabInstanceScale()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CFloat x = g_currentInstancePrefab->GetScale().x;
+			CFloat y = g_currentInstancePrefab->GetScale().y;
+			CFloat z = g_currentInstancePrefab->GetScale().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CFloat x = g_instancePrefab[i]->GetScale().x;
+			CFloat y = g_instancePrefab[i]->GetScale().y;
+			CFloat z = g_instancePrefab[i]->GetScale().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
@@ -2236,10 +3747,14 @@ CMain::CMain()
 	m_cursorIcon = CNew(CIcon);
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
-	m_publishDebug = CTrue;
+	m_publishDebug = CFalse;
 	m_exitGame = CFalse;
 	m_mousePosition.x = (CFloat)g_width / 2.f;
 	m_mousePosition.y = (CFloat)g_height / 2.f;
+
+	m_fSelectionDistance = -1.f;
+	m_bSelectionDistance = CFalse;
+
 }
 
 CMain::~CMain()
@@ -4002,18 +5517,15 @@ CBool CMain::ProcessInputs()
 	if (!inputUpdated)
 		g_input.Update();
 
-	static CBool bEscapeDown = CFalse;
+	//static CBool bEscapeDown = CFalse;
 
-	if (g_input.KeyDown(DIK_ESCAPE) && !bEscapeDown)
-	{
-		bEscapeDown = CTrue;
-		if (m_keyboadAndMouseScript.GetHasEscapeScript())
-			m_keyboadAndMouseScript.ExecuteScript(m_keyboadAndMouseScript.GetEscapeScriptFile());
-		else
-			return CFalse;
-	}
-	if (g_input.KeyUp(DIK_ESCAPE))
-		bEscapeDown = CFalse;
+	//if (g_input.KeyDown(DIK_ESCAPE) && !bEscapeDown)
+	//{
+	//	bEscapeDown = CTrue;
+	//	return CFalse;
+	//}
+	//if (g_input.KeyUp(DIK_ESCAPE))
+	//	bEscapeDown = CFalse;
 
 	if (g_currentVSceneProperties.m_isMenu)
 	{
@@ -4545,15 +6057,15 @@ CBool CMain::ProcessInputs()
 		{
 			g_camera->m_perspectiveCameraYaw -= (CFloat)dx * 0.004f;
 		}
-		if( g_input.ButtonDown(1) )
-		{
-			if( dy > 0 ) 
-				g_camera->m_cameraManager->SetZoomOut( elapsedTime * 50.0f );
-			else if( dy < 0 )
-				g_camera->m_cameraManager->SetZoomIn( elapsedTime * 50.0f );
-		}
-		else
-		{
+		//if( g_input.ButtonDown(1) )
+		//{
+		//	if( dy > 0 ) 
+		//		g_camera->m_cameraManager->SetZoomOut( elapsedTime * 50.0f );
+		//	else if( dy < 0 )
+		//		g_camera->m_cameraManager->SetZoomIn( elapsedTime * 50.0f );
+		//}
+		//else
+		//{
 			if( dy > 0 ) 
 			{
 				g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
@@ -4573,7 +6085,7 @@ CBool CMain::ProcessInputs()
 
 			}
 
-		}
+		//}
 	}
 	else if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	{
@@ -5109,7 +6621,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		for (CInt i = 0; i < tempSceneSize; i++)
 		{
 			CInt clipIndex;
-			CBool playAnimation, loopAnimation, isVisible, isAlwaysVisible, castShadow;
+			CBool playAnimation, loopAnimation, isVisible, isAlwaysVisible, castShadow, transformable, selectable;
 			CInt tempSceneAnimationListSize;
 
 			fread(tempSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -5119,6 +6631,8 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 			fread(&isVisible, 1, sizeof(CBool), filePtr);
 			fread(&isAlwaysVisible, 1, sizeof(CBool), filePtr);
 			fread(&castShadow, 1, sizeof(CBool), filePtr);
+			fread(&transformable, 1, sizeof(CBool), filePtr);
+			fread(&selectable, 1, sizeof(CBool), filePtr);
 
 			fread(&tempSceneAnimationListSize, 1, sizeof(CInt), filePtr);
 
@@ -5207,6 +6721,19 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				tempScene->m_alwaysVisible = isAlwaysVisible;
 				tempScene->m_loopAnimationAtStartup = loopAnimation;
 				tempScene->m_castShadow = castShadow;
+				tempScene->m_isTransformable = transformable;
+				tempScene->m_isSelectable = selectable;
+
+				if (tempScene->m_isTransformable)
+				{
+					for (CUInt l = 0; l < tempScene->m_instanceGeometries.size(); l++)
+					{
+						CGeometry* m_abstractGeometry = tempScene->m_instanceGeometries[l]->m_abstractGeometry;
+						m_abstractGeometry->m_hasAnimation = CTrue;
+					}
+					tempScene->m_hasAnimation = CTrue;
+				}
+
 				if (tempScene->m_playAnimation)
 				{
 					tempScene->SetAnimationStatus(eANIM_PLAY);
@@ -5753,6 +7280,8 @@ CBool CMain::Load(CChar* pathName)
 			CBool isStatic;
 			CBool totalLights;
 			CBool castShadow;
+			CBool transformable;
+			CBool selectable;
 
 			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			new_instance_prefab->SetName(name);
@@ -5789,6 +7318,12 @@ CBool CMain::Load(CChar* pathName)
 
 			fread(&castShadow, sizeof(CBool), 1, filePtr);
 			new_instance_prefab->SetCastShadow(castShadow);
+
+			fread(&transformable, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetTransformable(transformable);
+
+			fread(&selectable, sizeof(CBool), 1, filePtr);
+			new_instance_prefab->SetSelectable(selectable);
 
 			new_prefab->SetInstance(new_instance_prefab);
 			new_prefab->SetCurrentInstance(new_instance_prefab);
@@ -7113,6 +8648,127 @@ COpenALSoundBuffer *CMain::GetSoundBuffer( const CChar * name )
 	return NULL;
 }
 
+CVoid CMain::InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight)
+{
+	GLint viewport[4];
+	glSelectBuffer(MAX_NAME_SIZE, Buffer);
+	(void)glRenderMode(GL_SELECT);
+	g_render.ProjectionMatrix();
+	g_render.PushMatrix();
+	g_render.IdentityMatrix();
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	gluPickMatrix(mouseXPos - (selectionWidth / 2.0), mouseYPos - (selectionHeight / 2.0), selectionWidth, selectionHeight, viewport);
+
+	if (g_currentCameraType == eCAMERA_PHYSX)
+	{
+		gluPerspective(g_camera->m_cameraManager->GetAngle(), CDouble(g_width) / CDouble(g_height), g_cameraProperties.m_playModePerspectiveNCP, g_cameraProperties.m_playModePerspectiveFCP);
+	}
+	g_render.ModelViewMatrix();
+	glInitNames();
+}
+
+CVoid CMain::FinishPrefabSelection()
+{
+	g_render.ProjectionMatrix();
+	g_render.PopMatrix();
+	g_render.ModelViewMatrix();
+	glFlush();
+	GLint hits = glRenderMode(GL_RENDER);
+
+	if (hits > 0)
+	{
+		ptr = Buffer;
+		for (CInt j = 0; j < hits; j++)
+		{
+			ptr++; //skip the first info ( number of names which is one in my engine )and move to the min depth info
+
+			if (*ptr < minZ)
+			{
+				minZ = *ptr;
+
+				m_selectedPrefabName = *(ptr + 2); //name of the object
+			}
+			ptr += 3; //move to the next hit
+		}
+	}
+}
+
+CVoid CMain::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight)
+{
+	minZ = 0xffffffff;
+	m_selectedPrefabName = -1;
+	glPushAttrib(GL_VIEWPORT_BIT);
+	
+	glViewport(0, 0, g_width, g_height);// resets the viewport to new dimensions.
+
+	g_render.m_useShader = CFalse;
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		if (!g_instancePrefab[i]->GetVisible()) continue;
+
+		g_currentInstancePrefab = g_instancePrefab[i];
+
+		CScene* scene = NULL;
+
+		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+		scene = g_instancePrefab[i]->GetScene(0);
+
+		if (!scene) continue;
+
+		if (!scene->m_isSelectable) continue;
+
+		if (m_bSelectionDistance)
+		{
+			if (g_currentInstancePrefab->GetDistanceFromCamera() > m_fSelectionDistance)
+				continue;
+		}
+
+		InitPrefabSelection(mouseXPos, mouseYPos, selectionWidth, selectionHeight);
+		glPushName(g_instancePrefab[i]->GetNameIndex());
+		//g_scene[i]->RenderAABBWithQuads(); //Here's the code to "draw" the objects in selection mode
+		g_render.SetScene(scene);
+		//g_render.GetScene()->Update();
+		if (!g_render.GetScene()->m_isTrigger /*&& g_render.GetScene()->m_hasAnimation*/)
+		{
+			g_render.GetScene()->Render(CTrue, NULL, CFalse);
+			if (g_currentInstancePrefab)
+			{
+				g_render.ModelViewMatrix();
+				g_render.PushMatrix();
+				g_render.MultMatrix(*(g_currentInstancePrefab->GetInstanceMatrix()));
+			}
+			g_render.GetScene()->RenderAnimatedModels(CTrue, CTrue);
+			if (g_currentInstancePrefab)
+			{
+				g_render.PopMatrix();
+			}
+			g_render.GetScene()->RenderAnimatedModels(CTrue, CFalse);
+
+			g_render.GetScene()->RenderModelsControlledByPhysX(CTrue);
+		}
+
+		glPopName();
+		FinishPrefabSelection();
+	}
+	if (g_render.UsingShader())
+		g_render.m_useShader = CTrue;
+
+
+	glPopAttrib();
+
+	//run OnSelect function
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		if (m_selectedPrefabName != -1 && g_instancePrefab[i]->GetNameIndex() == m_selectedPrefabName)
+		{
+			g_instancePrefab[i]->OnSelectScript();
+			break;
+		}
+	}
+}
+
+
 CBool CMain::InitFBOs( CInt channels, CInt type )
 {
 	//glGetIntegerv( GL_MAX_DRAW_BUFFERS, &g_numBuffers );
@@ -7505,7 +9161,7 @@ CVoid CMain::UpdateAnimations(CBool init)
 				{
 					if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
 					{
-						if (g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists())
+						if ((g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists()) || g_render.GetScene()->IsTransformable())
 						{
 							g_render.GetScene()->Update(elapsedTime);
 							g_render.GetScene()->m_updateAnimation = CFalse;
@@ -9368,4 +11024,16 @@ void CMain::GenerateMenuCursorTexture(char* fileName)
 void CMain::DeleteMenuCursorTexture()
 {
 	CDelete(m_menuCursorImg);
+}
+
+CFloat CMain::GetCursorX()
+{
+	CFloat posX = (CFloat)g_main->m_mousePosition.x;
+	return posX;
+}
+
+CFloat CMain::GetCursorY()
+{
+	CFloat posY = CFloat(g_height - g_main->m_mousePosition.y);
+	return posY;
 }

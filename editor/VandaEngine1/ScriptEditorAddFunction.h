@@ -48,8 +48,10 @@ private:
 	CChar ActivateThirdPersonCamera[MAX_URI_SIZE];
 	CChar ActivateFirstPersonCamera[MAX_URI_SIZE];
 	CChar ActivateImportedCamera[MAX_URI_SIZE];
-	CChar ActivateImportedCameraOfPrefab[MAX_URI_SIZE];
+	CChar ActivateImportedCameraOfPrefabInstance[MAX_URI_SIZE];
 	CChar ActivateEngineCamera[MAX_URI_SIZE];
+	CChar SetPhysicsCameraAngle[MAX_URI_SIZE];
+	CChar GetPhysicsCameraAngle[MAX_URI_SIZE];
 
 	CChar LoadResource[MAX_URI_SIZE];
 	CChar DeleteAllResources[MAX_URI_SIZE];
@@ -61,14 +63,35 @@ private:
 	CChar ShowCursorIcon[MAX_URI_SIZE];
 	CChar HideCursorIcon[MAX_URI_SIZE];
 
-	CChar AttachScriptToKey[MAX_URI_SIZE];
 	CChar PrintConsole[MAX_URI_SIZE];
 
 	CChar ShowGUI[MAX_URI_SIZE];
 	CChar HideGUI[MAX_URI_SIZE];
 
-	CChar SetPrefabInstanceVisible[MAX_URI_SIZE];
-	CChar SetPrefabInstanceInvisible[MAX_URI_SIZE];
+	CChar IsKeyDown[MAX_URI_SIZE];
+
+	CChar ShowPrefabInstance[MAX_URI_SIZE];
+	CChar HidePrefabInstance[MAX_URI_SIZE];
+
+	CChar SetSelectionDistance[MAX_URI_SIZE];
+	CChar GetSelectionDistance[MAX_URI_SIZE];
+	CChar SelectPrefabInstances[MAX_URI_SIZE];
+
+	//get
+	CChar GetScreenWidth[MAX_URI_SIZE];
+	CChar GetScreenHeight[MAX_URI_SIZE];
+	CChar GetCursorX[MAX_URI_SIZE];
+	CChar GetCursorY[MAX_URI_SIZE];
+	CChar GetElapsedTime[MAX_URI_SIZE];
+	CChar IsMenuEnabled[MAX_URI_SIZE];
+
+	CChar TranslatePrefabInstance[MAX_URI_SIZE];
+	CChar RotatePrefabInstance[MAX_URI_SIZE];
+	CChar ScalePrefabInstance[MAX_URI_SIZE];
+
+	CChar GetPrefabInstanceTranslate[MAX_URI_SIZE];
+	CChar GetPrefabInstanceRotate[MAX_URI_SIZE];
+	CChar GetPrefabInstanceScale[MAX_URI_SIZE];
 
 public:
 	afx_msg void OnBnClickedCancel();

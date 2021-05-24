@@ -123,8 +123,8 @@ public:
 
   CBool Update();
 
-  CBool KeyDown(CInt key) { return (m_pKeyboard && m_pKeyboard->KeyDown(key)); }
-  CBool KeyUp(CInt key) { return (m_pKeyboard && m_pKeyboard->KeyUp(key)); }
+  CBool KeyDown(CInt key);
+  CBool KeyUp(CInt key);
 
   CBool ButtonDown(CInt button) { return (m_pMouse && m_pMouse->ButtonDown(button)); }
   CBool ButtonUp(CInt button) { return (m_pMouse && m_pMouse->ButtonUp(button)); }

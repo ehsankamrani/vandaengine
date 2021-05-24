@@ -167,32 +167,32 @@ void CEditCamera::OnBnClickedOk()
 	}
 	g_cameraProperties.m_freePerspectiveFCP = atof(m_strFreeCameraFCP);
 
-	//fov
-	m_richEditPlayModeCameraFOV.GetWindowTextA(m_strPlayModeCameraFOV);
-	if (m_strPlayModeCameraFOV.IsEmpty())
-	{
-		MessageBox("Please Enter a Value for Perspective Camera FOV");
-		return;
-	}
-	g_cameraProperties.m_playModePerspectiveFOV = atof(m_strPlayModeCameraFOV);
+	////fov
+	//m_richEditPlayModeCameraFOV.GetWindowTextA(m_strPlayModeCameraFOV);
+	//if (m_strPlayModeCameraFOV.IsEmpty())
+	//{
+	//	MessageBox("Please Enter a Value for Perspective Camera FOV");
+	//	return;
+	//}
+	//g_cameraProperties.m_playModePerspectiveFOV = atof(m_strPlayModeCameraFOV);
 
-	//min fov
-	m_richEditPlayModeCameraMinFOV.GetWindowTextA(m_strPlayModeCameraMinFOV);
-	if (m_strPlayModeCameraMinFOV.IsEmpty())
-	{
-		MessageBox("Please Enter a Value for Perspective Camera Min FOV");
-		return;
-	}
-	g_cameraProperties.m_playModePerspectiveMinFOV = atof(m_strPlayModeCameraMinFOV);
+	////min fov
+	//m_richEditPlayModeCameraMinFOV.GetWindowTextA(m_strPlayModeCameraMinFOV);
+	//if (m_strPlayModeCameraMinFOV.IsEmpty())
+	//{
+	//	MessageBox("Please Enter a Value for Perspective Camera Min FOV");
+	//	return;
+	//}
+	//g_cameraProperties.m_playModePerspectiveMinFOV = atof(m_strPlayModeCameraMinFOV);
 
-	//max fov
-	m_richEditPlayModeCameraMaxFOV.GetWindowTextA(m_strPlayModeCameraMaxFOV);
-	if (m_strPlayModeCameraMaxFOV.IsEmpty())
-	{
-		MessageBox("Please Enter a Value for Perspective Camera Max FOV");
-		return;
-	}
-	g_cameraProperties.m_playModePerspectiveMaxFOV = atof(m_strPlayModeCameraMaxFOV);
+	////max fov
+	//m_richEditPlayModeCameraMaxFOV.GetWindowTextA(m_strPlayModeCameraMaxFOV);
+	//if (m_strPlayModeCameraMaxFOV.IsEmpty())
+	//{
+	//	MessageBox("Please Enter a Value for Perspective Camera Max FOV");
+	//	return;
+	//}
+	//g_cameraProperties.m_playModePerspectiveMaxFOV = atof(m_strPlayModeCameraMaxFOV);
 
 	//ncp
 	m_richEditPlayModeCameraNCP.GetWindowTextA(m_strPlayModeCameraNCP);
@@ -277,17 +277,17 @@ void CEditCamera::OnBnClickedOk()
 
 	if (g_camera && g_camera->m_cameraManager)
 	{
-		g_camera->m_cameraManager->SetDefaultAngle(g_cameraProperties.m_playModePerspectiveFOV);
-		g_camera->m_cameraManager->SetMinAngle(g_cameraProperties.m_playModePerspectiveMinFOV);
-		g_camera->m_cameraManager->SetMaxAngle(g_cameraProperties.m_playModePerspectiveMaxFOV);
+		//g_camera->m_cameraManager->SetDefaultAngle(g_cameraProperties.m_playModePerspectiveFOV);
+		//g_camera->m_cameraManager->SetMinAngle(g_cameraProperties.m_playModePerspectiveMinFOV);
+		//g_camera->m_cameraManager->SetMaxAngle(g_cameraProperties.m_playModePerspectiveMaxFOV);
 		g_camera->m_cameraManager->SetZNear(g_cameraProperties.m_playModePerspectiveNCP);
 		g_camera->m_cameraManager->SetZFar(g_cameraProperties.m_playModePerspectiveFCP);
 
-		if (g_camera->m_cameraManager->GetAngle() > g_camera->m_cameraManager->GetMaxAngle())
-			g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetMaxAngle());
+		//if (g_camera->m_cameraManager->GetAngle() > g_camera->m_cameraManager->GetMaxAngle())
+		//	g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetMaxAngle());
 
-		if (g_camera->m_cameraManager->GetAngle() < g_camera->m_cameraManager->GetMinAngle())
-			g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetMinAngle());
+		//if (g_camera->m_cameraManager->GetAngle() < g_camera->m_cameraManager->GetMinAngle())
+		//	g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetMinAngle());
 	}
 
 	CDialog::OnOK();
