@@ -73,7 +73,6 @@ private:
 	CBool m_isTransformable;
 	CBool m_isSelectable;
 	lua_State* m_lua;
-
 public:
 	CVoid SetName(CChar* name);
 	CVoid SetNameIndex();
@@ -160,9 +159,9 @@ public:
 	CVoid ResetLua();
 	CVoid InitScript();
 	CVoid UpdateScript();
-	CVoid OnTriggerEnterScript();
-	CVoid OnTriggerStayScript();
-	CVoid OnTriggerExitScript();
+	CVoid OnTriggerEnterScript(CChar *otherActorName);
+	CVoid OnTriggerStayScript(CChar *otherActorName);
+	CVoid OnTriggerExitScript(CChar *otherActorName);
 	CVoid OnSelectScript();
 
 	CBool GetHasScript() { return m_hasScript; }

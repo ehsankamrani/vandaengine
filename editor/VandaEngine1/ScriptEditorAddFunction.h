@@ -54,6 +54,7 @@ private:
 	CChar GetPhysicsCameraAngle[MAX_URI_SIZE];
 
 	CChar LoadResource[MAX_URI_SIZE];
+	CChar DeleteResource[MAX_URI_SIZE];
 	CChar DeleteAllResources[MAX_URI_SIZE];
 	CChar PlayResourceSoundLoop[MAX_URI_SIZE];
 	CChar PlayResourceSoundOnce[MAX_URI_SIZE];
@@ -84,6 +85,7 @@ private:
 	CChar GetCursorY[MAX_URI_SIZE];
 	CChar GetElapsedTime[MAX_URI_SIZE];
 	CChar IsMenuEnabled[MAX_URI_SIZE];
+	CChar GetPrefabInstanceNameFromActor[MAX_URI_SIZE];
 
 	CChar TranslatePrefabInstance[MAX_URI_SIZE];
 	CChar RotatePrefabInstance[MAX_URI_SIZE];
@@ -92,6 +94,35 @@ private:
 	CChar GetPrefabInstanceTranslate[MAX_URI_SIZE];
 	CChar GetPrefabInstanceRotate[MAX_URI_SIZE];
 	CChar GetPrefabInstanceScale[MAX_URI_SIZE];
+
+	CChar GetPrefabInstanceRadius[MAX_URI_SIZE];
+	CChar GetDistanceOfPrefabInstanceFromPhysicsCamera[MAX_URI_SIZE];
+
+	CChar EnableDepthOfField[MAX_URI_SIZE];
+	CChar DisableDepthOfField[MAX_URI_SIZE];
+	CChar SetDepthOfFieldFocalDistance[MAX_URI_SIZE];
+	CChar SetDepthOfFieldFocalRange[MAX_URI_SIZE];
+
+	CChar EnableFog[MAX_URI_SIZE];
+	CChar DisableFog[MAX_URI_SIZE];
+	CChar SetFogColor[MAX_URI_SIZE];
+	CChar SetFogDensity[MAX_URI_SIZE];
+
+	CChar EnableBloom[MAX_URI_SIZE];
+	CChar DisableBloom[MAX_URI_SIZE];
+	CChar SetBloomColor[MAX_URI_SIZE];
+	CChar SetBloomIntensity[MAX_URI_SIZE];
+
+	CChar EnableDirectionalShadow[MAX_URI_SIZE];
+	CChar DisableDirectionalShadow[MAX_URI_SIZE];
+	CChar SetDirectionalShadowAlgorithm[MAX_URI_SIZE];
+	CChar SetDirectionalShadowNumberOfSplits[MAX_URI_SIZE];
+	CChar SetDirectionalShadowWeightOfSplits[MAX_URI_SIZE];
+	CChar SetDirectionalShadowNearClipPlane[MAX_URI_SIZE];
+	CChar SetDirectionalShadowFarClipPlane[MAX_URI_SIZE];
+	CChar SetDirectionalShadowResolution[MAX_URI_SIZE];
+	CChar SetDirectionalShadowIntensity[MAX_URI_SIZE];
+	CChar SetDirectionalShadowLight[MAX_URI_SIZE];
 
 public:
 	afx_msg void OnBnClickedCancel();

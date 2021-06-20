@@ -152,6 +152,7 @@ struct CVSceneObjectNames
 	std::vector<std::string> m_staticSoundsNames; //static sounds of this VScene
 	std::vector<std::string> m_importedCameraNames; //imported cameras in dae format of this VScene
 	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
+	std::vector<std::string> m_engineLightNames; //light names of this VScene
 
 	std::vector<std::string> m_guiNames; //Full GUI name of this VScene
 	std::vector<std::string> m_guiPackageNames; //Package name of GUI (used for image preview)
@@ -166,6 +167,7 @@ struct CVSceneObjectNames
 		m_staticSoundsNames.clear();
 		m_importedCameraNames.clear();
 		m_engineCameraNames.clear();
+		m_engineLightNames.clear();
 		m_guiNames.clear();
 	}
 
@@ -680,6 +682,10 @@ private:
 	std::vector<CInstancePrefab*> m_instancePrefab;
 	CCurrentVSceneProperties m_currentVSceneProperties;
 	std::vector<CGUI*> m_guis;
+	CBloomProperties m_bloomProperties;
+	CDOFProperties m_dofProperties;
+	CFogProperties m_fogProperties;
+	CShadowProperties m_shadowProperties;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );

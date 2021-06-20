@@ -44,6 +44,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetPhysicsCameraAngle, "GetPhysicsCameraAngle()");
 
 	Cpy(LoadResource, "LoadResource(string resourceDirectoryName, string resourceFileName)");
+	Cpy(DeleteResource, "DeleteResource(string resourceDirectoryName, string resourceFileName)");
 	Cpy(DeleteAllResources, "DeleteAllResources()");
 	Cpy(PlayResourceSoundLoop, "PlayResourceSoundLoop(string resourceDirectoryName_resourceFileName.ogg)");
 	Cpy(PlayResourceSoundOnce, "PlayResourceSoundOnce(string resourceDirectoryName_resourceFileName.ogg)");
@@ -65,13 +66,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(SetSelectionDistance, "SetSelectionDistance(float selectionDistance)");
 	Cpy(GetSelectionDistance, "GetSelectionDistance()");
-	Cpy(SelectPrefabInstances , "SelectPrefabInstances(double mousePositionX, doube mousePositionY, double selectionWidthSize, double selectionHeightSize)");
+	Cpy(SelectPrefabInstances , "SelectPrefabInstances(double mousePositionX, double mousePositionY, double selectionWidthSize, double selectionHeightSize)");
 	Cpy(GetScreenWidth, "GetScreenWidth()");
 	Cpy(GetScreenHeight, "GetScreenHeight()");
 	Cpy(GetCursorX, "GetCursorX()");
 	Cpy(GetCursorY, "GetCursorY()");
 	Cpy(IsMenuEnabled, "IsMenuEnabled()");
 	Cpy(GetElapsedTime, "GetElapsedTime()");
+	Cpy(GetPrefabInstanceNameFromActor, "GetPrefabInstanceNameFromActor(string physicsActorName)");
 
 	Cpy(TranslatePrefabInstance, "TranslatePrefabInstance(string prefabInstanceName, float XPosition, float YPosition, float ZPosition)");
 	Cpy(RotatePrefabInstance, "RotatePrefabInstance(string prefabInstanceName, float XRotationAngle, float YRotationAngle, float ZRotationAngle)");
@@ -80,6 +82,35 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetPrefabInstanceTranslate, "GetPrefabInstanceTranslate(string prefabInstanceName)");
 	Cpy(GetPrefabInstanceRotate, "GetPrefabInstanceRotate(string prefabInstanceName)");
 	Cpy(GetPrefabInstanceScale, "GetPrefabInstanceScale(string prefabInstanceName)");
+
+	Cpy(GetPrefabInstanceRadius, "GetPrefabInstanceRadius(string prefabInstanceName)");
+	Cpy(GetDistanceOfPrefabInstanceFromPhysicsCamera, "GetDistanceOfPrefabInstanceFromPhysicsCamera(string prefabInstanceName)");
+
+	Cpy(EnableDepthOfField, "EnableDepthOfField()");
+	Cpy(DisableDepthOfField, "DisableDepthOfField()");
+	Cpy(SetDepthOfFieldFocalDistance, "SetDepthOfFieldFocalDistance(float focalDistance)");
+	Cpy(SetDepthOfFieldFocalRange, "SetDepthOfFieldFocalRange(float focalRange)");
+
+	Cpy(EnableFog, "EnableFog()");
+	Cpy(DisableFog, "DisableFog()");
+	Cpy(SetFogColor, "SetFogColor(float red, float green, float blue)");
+	Cpy(SetFogDensity, "SetFogDensity(float density)");
+
+	Cpy(EnableBloom, "EnableBloom()");
+	Cpy(DisableBloom, "DisableBloom()");
+	Cpy(SetBloomColor, "SetBloomColor(float red, float green, float blue)");
+	Cpy(SetBloomIntensity, "SetBloomIntensity(float intensity)");
+
+	Cpy(EnableDirectionalShadow, "EnableDirectionalShadow()");
+	Cpy(DisableDirectionalShadow, "DisableDirectionalShadow()");
+	Cpy(SetDirectionalShadowAlgorithm, "SetDirectionalShadowAlgorithm(string shadowAlgorithmCode)");
+	Cpy(SetDirectionalShadowNumberOfSplits, "SetDirectionalShadowNumberOfSplits(int numberOfSplits)");
+	Cpy(SetDirectionalShadowWeightOfSplits, "SetDirectionalShadowWeightOfSplits(float weightOfSplits)");
+	Cpy(SetDirectionalShadowNearClipPlane, "SetDirectionalShadowNearClipPlane(float nearClipPlane)");
+	Cpy(SetDirectionalShadowFarClipPlane, "SetDirectionalShadowFarClipPlane(float farClipPlane)");
+	Cpy(SetDirectionalShadowResolution, "SetDirectionalShadowResolution(int shadowResolution)");
+	Cpy(SetDirectionalShadowIntensity, "SetDirectionalShadowIntensity(float shadowIntensity)");
+	Cpy(SetDirectionalShadowLight, "SetDirectionalShadowLight(string directionalLightName)");
 
 }
 
@@ -236,6 +267,10 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(LoadResource);
 		}
+		else if (Cmp(szBuffer, "DeleteResource"))
+		{
+			m_richFunctionName.SetWindowTextA(DeleteResource);
+		}
 		else if (Cmp(szBuffer, "DeleteAllResources"))
 		{
 			m_richFunctionName.SetWindowTextA(DeleteAllResources);
@@ -324,6 +359,10 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(IsMenuEnabled);
 		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceNameFromActor"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceNameFromActor);
+		}
 		else if (Cmp(szBuffer, "GetElapsedTime"))
 		{
 			m_richFunctionName.SetWindowTextA(GetElapsedTime);
@@ -351,6 +390,103 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "GetPrefabInstanceScale"))
 		{
 			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScale);
+		}
+
+		else if (Cmp(szBuffer, "GetPrefabInstanceRadius"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceRadius);
+		}
+		else if (Cmp(szBuffer, "GetDistanceOfPrefabInstanceFromPhysicsCamera"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDistanceOfPrefabInstanceFromPhysicsCamera);
+		}
+		else if (Cmp(szBuffer, "EnableDepthOfField"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableDepthOfField);
+		}
+		else if (Cmp(szBuffer, "DisableDepthOfField"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableDepthOfField);
+		}
+		else if (Cmp(szBuffer, "SetDepthOfFieldFocalDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDepthOfFieldFocalDistance);
+		}
+		else if (Cmp(szBuffer, "SetDepthOfFieldFocalRange"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDepthOfFieldFocalRange);
+		}
+		else if (Cmp(szBuffer, "EnableFog"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableFog);
+		}
+		else if (Cmp(szBuffer, "DisableFog"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableFog);
+		}
+		else if (Cmp(szBuffer, "SetFogColor"))
+		{
+			m_richFunctionName.SetWindowTextA(SetFogColor);
+		}
+		else if (Cmp(szBuffer, "SetFogDensity"))
+		{
+			m_richFunctionName.SetWindowTextA(SetFogDensity);
+		}
+		else if (Cmp(szBuffer, "EnableBloom"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableBloom);
+		}
+		else if (Cmp(szBuffer, "DisableBloom"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableBloom);
+		}
+		else if (Cmp(szBuffer, "SetBloomColor"))
+		{
+			m_richFunctionName.SetWindowTextA(SetBloomColor);
+		}
+		else if (Cmp(szBuffer, "SetBloomIntensity"))
+		{
+			m_richFunctionName.SetWindowTextA(SetBloomIntensity);
+		}
+		else if (Cmp(szBuffer, "EnableDirectionalShadow"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableDirectionalShadow);
+		}
+		else if (Cmp(szBuffer, "DisableDirectionalShadow"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableDirectionalShadow);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowAlgorithm"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowAlgorithm);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowNumberOfSplits"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowNumberOfSplits);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowWeightOfSplits"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowWeightOfSplits);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowNearClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowNearClipPlane);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowFarClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowFarClipPlane);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowResolution"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowResolution);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowIntensity"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowIntensity);
+		}
+		else if (Cmp(szBuffer, "SetDirectionalShadowLight"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDirectionalShadowLight);
 		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
@@ -402,6 +538,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetPhysicsCameraAngle");
 	
 	InsertItem("LoadResource");
+	InsertItem("DeleteResource");
 	InsertItem("DeleteAllResources");
 	InsertItem("PlayResourceSoundLoop");
 	InsertItem("PlayResourceSoundOnce");
@@ -431,6 +568,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetCursorY");
 	InsertItem("IsMenuEnabled");
 	InsertItem("GetElapsedTime");
+	InsertItem("GetPrefabInstanceNameFromActor");
 
 	InsertItem("TranslatePrefabInstance");
 	InsertItem("RotatePrefabInstance");
@@ -439,6 +577,35 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetPrefabInstanceTranslate");
 	InsertItem("GetPrefabInstanceRotate");
 	InsertItem("GetPrefabInstanceScale");
+
+	InsertItem("GetPrefabInstanceRadius");
+	InsertItem("GetDistanceOfPrefabInstanceFromPhysicsCamera");
+
+	InsertItem("EnableDepthOfField");
+	InsertItem("DisableDepthOfField");
+	InsertItem("SetDepthOfFieldFocalDistance");
+	InsertItem("SetDepthOfFieldFocalRange");
+
+	InsertItem("EnableFog");
+	InsertItem("DisableFog");
+	InsertItem("SetFogColor");
+	InsertItem("SetFogDensity");
+
+	InsertItem("EnableBloom");
+	InsertItem("DisableBloom");
+	InsertItem("SetBloomColor");
+	InsertItem("SetBloomIntensity");
+
+	InsertItem("EnableDirectionalShadow");
+	InsertItem("DisableDirectionalShadow");
+	InsertItem("SetDirectionalShadowAlgorithm");
+	InsertItem("SetDirectionalShadowNumberOfSplits");
+	InsertItem("SetDirectionalShadowWeightOfSplits");
+	InsertItem("SetDirectionalShadowNearClipPlane");
+	InsertItem("SetDirectionalShadowFarClipPlane");
+	InsertItem("SetDirectionalShadowResolution");
+	InsertItem("SetDirectionalShadowIntensity");
+	InsertItem("SetDirectionalShadowLight");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

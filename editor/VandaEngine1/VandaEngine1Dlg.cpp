@@ -1451,7 +1451,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.7.3"));
+	SetWindowText(_T("Vanda Engine 1.7.4"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3017,7 +3017,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3078,7 +3078,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.7.3 initialized successfully" );
+		PrintInfo( "\nVersion 1.7.4 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3267,7 +3267,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3353,7 +3353,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.3 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.4 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3427,7 +3427,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.3 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.4 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7478,7 +7478,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.3 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.4 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7903,7 +7903,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.3 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7912,7 +7912,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.3 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.4 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -9718,7 +9718,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		Cpy(g_currentGUIPackageName, m_strNewGUIPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.3 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10541,7 +10541,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		Cpy(g_currentPrefabPackageName, m_strNewPrefabPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.3 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -12194,7 +12194,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12344,6 +12344,17 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CChar engineCameraName[MAX_NAME_SIZE];
 			Cpy(engineCameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
 			fwrite(engineCameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		//engine lights
+		CUInt engineLightSize = g_engineLights.size();
+		fwrite(&engineLightSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			CChar engineLightName[MAX_NAME_SIZE];
+			Cpy(engineLightName, g_engineLights[i]->m_abstractLight->GetName());
+			fwrite(engineLightName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 		}
 
 		//GUIs
@@ -13182,7 +13193,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.3 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -14905,7 +14916,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.3 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -16684,7 +16695,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -22501,6 +22512,80 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		}
 	}
 
+	//Load DOF properties
+	g_dofProperties.m_enable = m_dofProperties.m_enable;
+	g_dofProperties.m_dofFocalDistance = m_dofProperties.m_dofFocalDistance;
+	g_dofProperties.m_dofFocalRange = m_dofProperties.m_dofFocalRange;
+
+	//Load fog Properties
+	g_fogProperties.m_enable = m_fogProperties.m_enable;
+	g_fogProperties.m_fogDensity = m_fogProperties.m_fogDensity;
+	for (CUInt i = 0; i < 4; i++)
+	{
+		g_fogProperties.m_fogColor[i] = m_fogProperties.m_fogColor[i];
+	}
+	CFog fog;
+	fog.SetColor(g_fogProperties.m_fogColor);
+	fog.SetDensity(g_fogProperties.m_fogDensity);
+
+	//Load Bloom Properties
+	g_bloomProperties.m_enable = m_bloomProperties.m_enable;
+	g_bloomProperties.m_bloomIntensity = m_bloomProperties.m_bloomIntensity;
+	for (CUInt i = 0; i < 3; i++)
+	{
+		g_bloomProperties.m_bloomColor[i] = m_bloomProperties.m_bloomColor[i];
+	}
+
+	//Load Shadow Properties
+	g_shadowProperties.m_shadowSplitWeight = m_shadowProperties.m_shadowSplitWeight;
+	g_shadowProperties.m_shadowNearClipPlane = m_shadowProperties.m_shadowNearClipPlane;
+	g_shadowProperties.m_shadowFarClipPlane = m_shadowProperties.m_shadowFarClipPlane;
+	g_shadowProperties.m_shadowType = m_shadowProperties.m_shadowType;
+	g_shadowProperties.m_shadowSplits = m_shadowProperties.m_shadowSplits;
+	g_shadowProperties.m_shadowResolution = m_shadowProperties.m_shadowResolution;
+	g_shadowProperties.m_intensity = m_shadowProperties.m_intensity;
+	g_shadowProperties.m_enable = m_shadowProperties.m_enable;
+	Cpy(g_shadowProperties.m_directionalLightName, m_shadowProperties.m_directionalLightName);
+
+	if (g_dynamicShadowMap)
+	{
+		switch (g_shadowProperties.m_shadowResolution)
+		{
+		case eSHADOW_1024:
+			g_dynamicShadowMap->depth_size = 1024;
+			break;
+		case eSHADOW_2048:
+			g_dynamicShadowMap->depth_size = 2048;
+			break;
+		case eSHADOW_4096:
+			g_dynamicShadowMap->depth_size = 4096;
+			break;
+		default:
+			break;
+		}
+		g_dynamicShadowMap->RegenerateDepthTex(g_dynamicShadowMap->depth_size);
+
+		switch (g_shadowProperties.m_shadowSplits)
+		{
+		case eSHADOW_1_SPLIT:
+			g_dynamicShadowMap->cur_num_splits = 1;
+			break;
+		case eSHADOW_2_SPLITS:
+			g_dynamicShadowMap->cur_num_splits = 2;
+			break;
+		case eSHADOW_3_SPLITS:
+			g_dynamicShadowMap->cur_num_splits = 3;
+			break;
+		case eSHADOW_4_SPLITS:
+			g_dynamicShadowMap->cur_num_splits = 4;
+			break;
+		default:
+			break;
+		}
+
+		g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
+	}
+
 	PrintInfo("\nPlay mode disabled");
 
 	ReleaseCapture();
@@ -22691,6 +22776,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		}
 	}
 
+
+	//Save DOF properties
+	m_dofProperties.m_enable = g_dofProperties.m_enable;
+	m_dofProperties.m_dofFocalDistance = g_dofProperties.m_dofFocalDistance;
+	m_dofProperties.m_dofFocalRange = g_dofProperties.m_dofFocalRange;
+
+	//Save fog Properties
+	m_fogProperties.m_enable = g_fogProperties.m_enable;
+	m_fogProperties.m_fogDensity = g_fogProperties.m_fogDensity;
+	for (CUInt i = 0; i < 4; i++)
+	{
+		m_fogProperties.m_fogColor[i] = g_fogProperties.m_fogColor[i];
+	}
+
+	//Save Bloom Properties
+	m_bloomProperties.m_enable = g_bloomProperties.m_enable;
+	m_bloomProperties.m_bloomIntensity = g_bloomProperties.m_bloomIntensity;
+	for (CUInt i = 0; i < 3; i++)
+	{
+		m_bloomProperties.m_bloomColor[i] = g_bloomProperties.m_bloomColor[i];
+	}
+
+	//Save Shadow Properties
+	m_shadowProperties.m_shadowSplitWeight = g_shadowProperties.m_shadowSplitWeight;
+	m_shadowProperties.m_shadowNearClipPlane = g_shadowProperties.m_shadowNearClipPlane;
+	m_shadowProperties.m_shadowFarClipPlane = g_shadowProperties.m_shadowFarClipPlane;
+	m_shadowProperties.m_shadowType = g_shadowProperties.m_shadowType;
+	m_shadowProperties.m_shadowSplits = g_shadowProperties.m_shadowSplits;
+	m_shadowProperties.m_shadowResolution = g_shadowProperties.m_shadowResolution;
+	m_shadowProperties.m_intensity = g_shadowProperties.m_intensity;
+	m_shadowProperties.m_enable = g_shadowProperties.m_enable;
+	Cpy(m_shadowProperties.m_directionalLightName, g_shadowProperties.m_directionalLightName);
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
@@ -25397,6 +25514,18 @@ CVoid CVandaEngine1Dlg::LoadObjectNames()
 				fread(engineCameraName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 
 				VSceneObjectNames.m_engineCameraNames.push_back(engineCameraName);
+			}
+
+			//engine lights
+			CUInt engineLightSize;
+			fread(&engineLightSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < engineLightSize; i++)
+			{
+				CChar engineLightName[MAX_NAME_SIZE];
+				fread(engineLightName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				VSceneObjectNames.m_engineLightNames.push_back(engineLightName);
 			}
 
 			//GUIs

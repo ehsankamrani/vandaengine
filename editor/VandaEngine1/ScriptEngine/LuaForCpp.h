@@ -109,6 +109,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetPhysicsCameraAngle", GetPhysicsCameraAngle);
 
 	lua_register(L, "LoadResource", LoadResource);
+	lua_register(L, "DeleteResource", DeleteResource);
 	lua_register(L, "DeleteAllResources", DeleteAllResources);
 	lua_register(L, "PlayResourceSoundLoop", PlayResourceSoundLoop);
 	lua_register(L, "PlayResourceSoundOnce", PlayResourceSoundOnce);
@@ -138,6 +139,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetCursorY", GetCursorY);
 	lua_register(L, "IsMenuEnabled", IsMenuEnabled);
 	lua_register(L, "GetElapsedTime", GetElapsedTime);
+	lua_register(L, "GetPrefabInstanceNameFromActor", GetPrefabInstanceNameFromActor);
 
 	lua_register(L, "TranslatePrefabInstance", TranslatePrefabInstance);
 	lua_register(L, "RotatePrefabInstance", RotatePrefabInstance);
@@ -145,4 +147,33 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetPrefabInstanceTranslate", GetPrefabInstanceTranslate);
 	lua_register(L, "GetPrefabInstanceRotate", GetPrefabInstanceRotate);
 	lua_register(L, "GetPrefabInstanceScale", GetPrefabInstanceScale);
+
+	lua_register(L, "GetPrefabInstanceRadius", GetPrefabInstanceRadius);
+	lua_register(L, "GetDistanceOfPrefabInstanceFromPhysicsCamera", GetDistanceOfPrefabInstanceFromPhysicsCamera);
+
+	lua_register(L, "EnableDepthOfField", EnableDepthOfField);
+	lua_register(L, "DisableDepthOfField", DisableDepthOfField);
+	lua_register(L, "SetDepthOfFieldFocalDistance", SetDepthOfFieldFocalDistance);
+	lua_register(L, "SetDepthOfFieldFocalRange", SetDepthOfFieldFocalRange);
+
+	lua_register(L, "EnableFog", EnableFog);
+	lua_register(L, "DisableFog", DisableFog);
+	lua_register(L, "SetFogColor", SetFogColor);
+	lua_register(L, "SetFogDensity", SetFogDensity);
+
+	lua_register(L, "EnableBloom", EnableBloom);
+	lua_register(L, "DisableBloom", DisableBloom);
+	lua_register(L, "SetBloomColor", SetBloomColor);
+	lua_register(L, "SetBloomIntensity", SetBloomIntensity);
+
+	lua_register(L, "EnableDirectionalShadow", EnableDirectionalShadow);
+	lua_register(L, "DisableDirectionalShadow", DisableDirectionalShadow);
+	lua_register(L, "SetDirectionalShadowAlgorithm", SetDirectionalShadowAlgorithm);
+	lua_register(L, "SetDirectionalShadowNumberOfSplits", SetDirectionalShadowNumberOfSplits);
+	lua_register(L, "SetDirectionalShadowWeightOfSplits", SetDirectionalShadowWeightOfSplits);
+	lua_register(L, "SetDirectionalShadowNearClipPlane", SetDirectionalShadowNearClipPlane);
+	lua_register(L, "SetDirectionalShadowFarClipPlane", SetDirectionalShadowFarClipPlane);
+	lua_register(L, "SetDirectionalShadowResolution", SetDirectionalShadowResolution);
+	lua_register(L, "SetDirectionalShadowIntensity", SetDirectionalShadowIntensity);
+	lua_register(L, "SetDirectionalShadowLight", SetDirectionalShadowLight);
 }

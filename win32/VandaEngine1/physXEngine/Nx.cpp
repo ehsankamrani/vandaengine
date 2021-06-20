@@ -900,6 +900,7 @@ NxActor* CNovodex::CreateGroundPlane(CFloat groundHeight)
 {
 	// Create a plane with default descriptor
 	NxPlaneShapeDesc planeDesc;
+	planeDesc.d = groundHeight;
 	NxActorDesc actorDesc;
 	actorDesc.shapes.pushBack(&planeDesc);
 	m_planeGroundActor = gPhysXscene->createActor(actorDesc);
@@ -1140,6 +1141,12 @@ char* CNovodex::CheckHit()
 {
 	return gTriggerReport.hitName;
 }
+
+char* CNovodex::CheckOtherActor()
+{
+	return gTriggerReport.otherName;
+}
+
 NxActor* CNovodex::HitActor()
 {
 	return gTriggerReport.hitActor;
@@ -1151,9 +1158,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 	hitActor = NULL;
 
 	NxActor* otherActor = &otherShape.getActor();
-	char* OtherName = (char *)otherActor->getName();
+	otherName = (char *)otherActor->getName();
 
-	if (status & NX_TRIGGER_ON_ENTER & !OtherName)
+	if (status & NX_TRIGGER_ON_ENTER & !otherName)
 	{
 		// A body just entered the trigger area
 		//gNbTouchedBodies++;
@@ -1168,7 +1175,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 		{
 			if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 			{
-				g_triggers[i]->OnTriggerEnterScript();
+				g_triggers[i]->OnTriggerEnterScript(otherName);
 				return;
 			}
 		}
@@ -1187,7 +1194,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 						{
 							if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 							{
-								g_instancePrefab[i]->OnTriggerEnterScript();
+								g_instancePrefab[i]->OnTriggerEnterScript(otherName);
 								return;
 							}
 						}
@@ -1200,7 +1207,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 					{
 						if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 						{
-							g_instancePrefab[i]->OnTriggerEnterScript();
+							g_instancePrefab[i]->OnTriggerEnterScript(otherName);
 							return;
 						}
 					}
@@ -1223,7 +1230,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 		{
 			if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 			{
-				g_triggers[i]->OnTriggerExitScript();
+				g_triggers[i]->OnTriggerExitScript(otherName);
 				return;
 			}
 		}
@@ -1241,7 +1248,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 						{
 							if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 							{
-								g_instancePrefab[i]->OnTriggerExitScript();
+								g_instancePrefab[i]->OnTriggerExitScript(otherName);
 								return;
 							}
 						}
@@ -1254,7 +1261,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 					{
 						if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 						{
-							g_instancePrefab[i]->OnTriggerExitScript();
+							g_instancePrefab[i]->OnTriggerExitScript(otherName);
 							return;
 						}
 					}
@@ -1283,7 +1290,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 		{
 			if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 			{
-				g_triggers[i]->OnTriggerStayScript();
+				g_triggers[i]->OnTriggerStayScript(otherName);
 				return;
 			}
 		}
@@ -1302,7 +1309,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 						{
 							if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 							{
-								g_instancePrefab[i]->OnTriggerStayScript();
+								g_instancePrefab[i]->OnTriggerStayScript(otherName);
 								return;
 							}
 						}
@@ -1315,7 +1322,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 					{
 						if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 						{
-							g_instancePrefab[i]->OnTriggerStayScript();
+							g_instancePrefab[i]->OnTriggerStayScript(otherName);
 							return;
 						}
 					}

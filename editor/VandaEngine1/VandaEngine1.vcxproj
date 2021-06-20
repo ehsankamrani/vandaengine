@@ -659,6 +659,7 @@
     <Image Include="Assets\Icon\Default\Default_Water.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\audio.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\camera.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\light.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_disable.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_down.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_focus.bmp" />

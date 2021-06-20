@@ -137,7 +137,7 @@ CBool CTrigger::LoadLuaFile()
 	return CTrue;
 }
 
-CVoid CTrigger::OnTriggerEnterScript()
+CVoid CTrigger::OnTriggerEnterScript(CChar *otherActorName)
 {
 	if (m_hasScript)
 	{
@@ -146,14 +146,15 @@ CVoid CTrigger::OnTriggerEnterScript()
 		lua_getglobal(m_lua, "OnTriggerEnter");
 		if (lua_isfunction(m_lua, -1))
 		{
-			lua_pcall(m_lua, 0, 0, 0);
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
 		}
 
 		lua_settop(m_lua, 0);
 	}
 }
 
-CVoid CTrigger::OnTriggerStayScript()
+CVoid CTrigger::OnTriggerStayScript(CChar *otherActorName)
 {
 	if (m_hasScript)
 	{
@@ -162,14 +163,15 @@ CVoid CTrigger::OnTriggerStayScript()
 		lua_getglobal(m_lua, "OnTriggerStay");
 		if (lua_isfunction(m_lua, -1))
 		{
-			lua_pcall(m_lua, 0, 0, 0);
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
 		}
 
 		lua_settop(m_lua, 0);
 	}
 }
 
-CVoid CTrigger::OnTriggerExitScript()
+CVoid CTrigger::OnTriggerExitScript(CChar *otherActorName)
 {
 	if (m_hasScript)
 	{
@@ -178,7 +180,8 @@ CVoid CTrigger::OnTriggerExitScript()
 		lua_getglobal(m_lua, "OnTriggerExit");
 		if (lua_isfunction(m_lua, -1))
 		{
-			lua_pcall(m_lua, 0, 0, 0);
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
 		}
 
 		lua_settop(m_lua, 0);

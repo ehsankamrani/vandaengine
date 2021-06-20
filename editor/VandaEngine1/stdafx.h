@@ -133,6 +133,7 @@ CInt GetPhysicsCameraAngle(lua_State *L);
 
 //Resources
 CInt LoadResource(lua_State *L);
+CInt DeleteResource(lua_State *L);
 CInt DeleteAllResources(lua_State *L);
 CInt PlayResourceSoundLoop(lua_State *L);
 CInt PlayResourceSoundOnce(lua_State *L);
@@ -160,6 +161,7 @@ CInt GetCursorX(lua_State* L);
 CInt GetCursorY(lua_State* L);
 CInt GetElapsedTime(lua_State* L);
 CInt IsMenuEnabled(lua_State* L);
+CInt GetPrefabInstanceNameFromActor(lua_State* L);
 
 //translation, rotation and scaling of prefab instances
 CInt TranslatePrefabInstance(lua_State* L);
@@ -168,3 +170,32 @@ CInt ScalePrefabInstance(lua_State* L);
 CInt GetPrefabInstanceTranslate(lua_State* L);
 CInt GetPrefabInstanceRotate(lua_State* L);
 CInt GetPrefabInstanceScale(lua_State* L);
+
+CInt GetPrefabInstanceRadius(lua_State* L);
+CInt GetDistanceOfPrefabInstanceFromPhysicsCamera(lua_State* L);
+
+CInt EnableDepthOfField(lua_State* L);
+CInt DisableDepthOfField(lua_State* L);
+CInt SetDepthOfFieldFocalDistance(lua_State* L);
+CInt SetDepthOfFieldFocalRange(lua_State* L);
+
+CInt EnableFog(lua_State* L);
+CInt DisableFog(lua_State* L);
+CInt SetFogColor(lua_State* L);
+CInt SetFogDensity(lua_State* L);
+
+CInt EnableBloom(lua_State* L);
+CInt DisableBloom(lua_State* L);
+CInt SetBloomColor(lua_State* L);
+CInt SetBloomIntensity(lua_State* L);
+
+CInt EnableDirectionalShadow(lua_State* L);
+CInt DisableDirectionalShadow(lua_State* L);
+CInt SetDirectionalShadowAlgorithm(lua_State* L);
+CInt SetDirectionalShadowNumberOfSplits(lua_State* L);
+CInt SetDirectionalShadowWeightOfSplits(lua_State* L);
+CInt SetDirectionalShadowNearClipPlane(lua_State* L);
+CInt SetDirectionalShadowFarClipPlane(lua_State* L);
+CInt SetDirectionalShadowResolution(lua_State* L);
+CInt SetDirectionalShadowIntensity(lua_State* L);
+CInt SetDirectionalShadowLight(lua_State* L);

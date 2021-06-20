@@ -161,7 +161,7 @@ CVoid CInstancePrefab::UpdateScript()
 	}
 }
 
-CVoid CInstancePrefab::OnTriggerEnterScript()
+CVoid CInstancePrefab::OnTriggerEnterScript(CChar *otherActorName)
 {
 	if (m_hasScript)
 	{
@@ -170,14 +170,15 @@ CVoid CInstancePrefab::OnTriggerEnterScript()
 		lua_getglobal(m_lua, "OnTriggerEnter");
 		if (lua_isfunction(m_lua, -1))
 		{
-			lua_pcall(m_lua, 0, 0, 0);
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
 		}
 
 		lua_settop(m_lua, 0);
 	}
 }
 
-CVoid CInstancePrefab::OnTriggerStayScript()
+CVoid CInstancePrefab::OnTriggerStayScript(CChar *otherActorName)
 {
 	if (m_hasScript)
 	{
@@ -186,14 +187,15 @@ CVoid CInstancePrefab::OnTriggerStayScript()
 		lua_getglobal(m_lua, "OnTriggerStay");
 		if (lua_isfunction(m_lua, -1))
 		{
-			lua_pcall(m_lua, 0, 0, 0);
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
 		}
 
 		lua_settop(m_lua, 0);
 	}
 }
 
-CVoid CInstancePrefab::OnTriggerExitScript()
+CVoid CInstancePrefab::OnTriggerExitScript(CChar *otherActorName)
 {
 	if (m_hasScript)
 	{
@@ -202,7 +204,8 @@ CVoid CInstancePrefab::OnTriggerExitScript()
 		lua_getglobal(m_lua, "OnTriggerExit");
 		if (lua_isfunction(m_lua, -1))
 		{
-			lua_pcall(m_lua, 0, 0, 0);
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
 		}
 
 		lua_settop(m_lua, 0);

@@ -82,6 +82,7 @@ class TriggerReport : public NxUserTriggerReport
 friend class CNovodex;
 private:
 	char* hitName;
+	char* otherName;
 	NxActor* hitActor;
 public:
 	virtual CVoid onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTriggerFlag status);
@@ -193,6 +194,7 @@ public:
 	CBool ResetCharacterPos( NxExtendedVec3 pos );
 	CVoid UpdateControllers();
 	char* CheckHit();
+	char* CheckOtherActor();
 	NxActor* HitActor();
 	NX_BOOL LoadScene(const CChar *pFilename,NXU::NXU_FileType type );
 };

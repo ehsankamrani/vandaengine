@@ -1808,5 +1808,8 @@
     <Image Include="Assets\Icon\Default\Script Utility\camera.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\light.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

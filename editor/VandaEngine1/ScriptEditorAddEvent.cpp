@@ -20,9 +20,9 @@ CScriptEditorAddEvent::CScriptEditorAddEvent(CWnd* pParent /*=NULL*/)
 	m_index = -1;
 	Cpy(m_initEventName, "function Init()\n\nend\n");
 	Cpy(m_updateEventName, "function Update()\n\nend\n");
-	Cpy(m_onTriggerEnterEventName, "function OnTriggerEnter()\n\nend\n");
-	Cpy(m_onTriggerStayEventName, "function OnTriggerStay()\n\nend\n");
-	Cpy(m_onTriggerExitEventName, "function OnTriggerExit()\n\nend\n");
+	Cpy(m_onTriggerEnterEventName, "function OnTriggerEnter(otherActorName)\n\nend\n");
+	Cpy(m_onTriggerStayEventName, "function OnTriggerStay(otherActorName)\n\nend\n");
+	Cpy(m_onTriggerExitEventName, "function OnTriggerExit(otherActorName)\n\nend\n");
 	Cpy(m_onSelectMouseLButtonDown, "function OnSelectMouseLButtonDown()\n\nend\n");
 	Cpy(m_onSelectMouseRButtonDown, "function OnSelectMouseRButtonDown()\n\nend\n");
 	Cpy(m_onSelectMouseHover, "function OnSelectMouseHover()\n\nend\n");

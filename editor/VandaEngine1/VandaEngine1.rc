@@ -182,6 +182,7 @@ IDB_BITMAP_PREFAB_SETTINGS_DOWN BITMAP                  "Assets\\Icon\\PrefabSet
 IDB_BITMAP_PREFAB_SETTINGS BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Focus.bmp"
 IDB_BITMAP_SCRIPT_UTILITY_STATIC_SOUND BITMAP                  "Assets\\Icon\\Default\\Script Utility\\audio.bmp"
 IDB_BITMAP_SCRIPT_UTILITY_CAMERA BITMAP                  "Assets\\Icon\\Default\\Script Utility\\camera.bmp"
+IDB_BITMAP_SCRIPT_UTILITY_LIGHT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\light.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1014,7 +1015,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,338,219,50,14
     CONTROL         "",IDC_LIST_GUIS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,49,231,146
-    GROUPBOX        "Imported Cameras",IDC_STATIC,7,30,381,175
+    GROUPBOX        "GUIs",IDC_STATIC,7,30,381,175
     LTEXT           "Selected Project And VScene Names",IDC_STATIC_PROJECT_VSCENE_NAME,7,10,355,8
     PUSHBUTTON      "Copy Selected GUI Name",IDC_BUTTON_COPY_GUI_NAME,258,141,117,14
     CONTROL         "",IDC_RICHED_GUI_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,219,96,14
@@ -2263,7 +2264,7 @@ BEGIN
     CONTROL         IDB_BITMAP8,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE,0,87,156,8
     CONTROL         IDB_BITMAP8,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE,0,180,156,8
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,133,28
-    LTEXT           "Version 1.7.3",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 1.7.4",IDC_STATIC,7,33,60,8
     LTEXT           "© 2021 Ehsan Kamrani",IDC_STATIC,7,48,126,9
     LTEXT           "This program is licensed and distributed under MIT license",IDC_STATIC,8,64,197,9
 END
@@ -2414,7 +2415,7 @@ CAPTION "About Vanda Engine 1.6"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 1.7.3",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.7.4",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -2959,12 +2960,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.7.3"
+            VALUE "FileVersion", "1.7.4"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.7.3"
+            VALUE "ProductVersion", "1.7.4"
         END
     END
     BLOCK "VarFileInfo"

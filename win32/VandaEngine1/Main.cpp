@@ -1796,6 +1796,8 @@ CInt LoadResource(lua_State *L)
 		{
 			oggFile->SetName(name);
 			oggFile->GetSoundSource()->SetName(name);
+			oggFile->SetDirectoryName(luaToString1);
+			oggFile->SetFileName(luaToString2);
 			g_resourceFiles.push_back(oggFile);
 		}
 		else
@@ -1809,6 +1811,8 @@ CInt LoadResource(lua_State *L)
 		if (ddsFile->LoadDDSFile(fileName))
 		{
 			ddsFile->SetName(name);
+			ddsFile->SetDirectoryName(luaToString1);
+			ddsFile->SetFileName(luaToString2);
 			g_resourceFiles.push_back(ddsFile);
 		}
 		else
@@ -1822,6 +1826,8 @@ CInt LoadResource(lua_State *L)
 		if (aviFile->LoadAVIFile(fileName))
 		{
 			aviFile->SetName(name);
+			aviFile->SetDirectoryName(luaToString1);
+			aviFile->SetFileName(luaToString2);
 			g_resourceFiles.push_back(aviFile);
 		}
 		else
@@ -1830,6 +1836,38 @@ CInt LoadResource(lua_State *L)
 		}
 	}
 
+	return 0;
+}
+
+CInt DeleteResource(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for DeleteResource()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString1[MAX_NAME_SIZE];
+	Cpy(luaToString1, lua_tostring(L, 1));
+	StringToUpper(luaToString1); //directory name
+
+	CChar luaToString2[MAX_NAME_SIZE];
+	Cpy(luaToString2, lua_tostring(L, 2));
+	StringToUpper(luaToString2); //file name
+
+	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
+	{
+		if (Cmp(g_resourceFiles[j]->GetDirectoryName(), luaToString1) && Cmp(g_resourceFiles[j]->GetFileName(), luaToString2))
+		{
+			CDelete(g_resourceFiles[j]);
+			g_resourceFiles.erase(g_resourceFiles.begin() + j);
+			break;
+		}
+	}
 	return 0;
 }
 
@@ -3274,8 +3312,9 @@ CInt SelectPrefabInstances(lua_State *L)
 	CDouble selectionWidth = CDouble(lua_tonumber(L, 3));
 	CDouble selectionHeight = CDouble(lua_tonumber(L, 4));
 
-	g_main->SelectPrefabInstances(mouseXPos, mouseYPos, selectionWidth, selectionHeight);
-	return 0;
+	CChar* selectedName = g_main->SelectPrefabInstances(mouseXPos, mouseYPos, selectionWidth, selectionHeight);
+	lua_pushstring(L, selectedName);
+	return 1;
 }
 
 CInt GetScreenWidth(lua_State* L)
@@ -3322,6 +3361,71 @@ CInt IsMenuEnabled(lua_State* L)
 		lua_pushboolean(L, 0);
 	return 1;
 }
+
+//First Argument: Physics Actor Name
+CInt GetPrefabInstanceNameFromActor(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetPrefabInstanceNameFromActor()", COLOR_RED);
+		return 0;
+	}
+
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	Cpy(luaToString, lua_tostring(L, 1)); //Physics Actor Name- First Argument
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+		if (prefab)
+		{
+			for (CUInt j = 0; j < 3; j++)
+			{
+				if (prefab->GetHasLod(j))
+				{
+					CScene* scene = g_instancePrefab[i]->GetScene(j);
+					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+					{
+						if (scene->m_instanceGeometries[k]->m_hasPhysX)
+						{
+							if (Cmp(luaToString, scene->m_instanceGeometries[k]->m_physXName))
+							{
+								lua_pushstring(L, g_instancePrefab[i]->GetName());
+								return 1;
+							}
+						}
+					}
+				}
+			}
+			if (g_instancePrefab[i]->GetHasCollider())
+			{
+				CScene* scene = g_instancePrefab[i]->GetScene(3);
+				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+				{
+					if (scene->m_instanceGeometries[k]->m_hasPhysX)
+					{
+						if (Cmp(luaToString, scene->m_instanceGeometries[k]->m_physXName))
+						{
+							lua_pushstring(L, g_instancePrefab[i]->GetName());
+							return 1;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
 
 //First argument: prefab instance name
 //2nd, 3rd, and 4th arguments: x positio, y position, z position of prefab instance
@@ -3721,6 +3825,677 @@ CInt GetPrefabInstanceScale(lua_State* L)
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceRadius(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for GetPrefabInstanceRadius()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CFloat radius = g_currentInstancePrefab->GetRadius();
+
+			lua_pushnumber(L, radius);
+
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CFloat radius = g_instancePrefab[i]->GetRadius();
+
+			lua_pushnumber(L, radius);
+
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetDistanceOfPrefabInstanceFromPhysicsCamera(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for GetDistanceOfPrefabInstanceFromPhysicsCamera()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CFloat distance = g_currentInstancePrefab->GetDistanceFromCamera();
+
+			lua_pushnumber(L, distance);
+
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CFloat distance = g_instancePrefab[i]->GetDistanceFromCamera();
+
+			lua_pushnumber(L, distance);
+
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+
+//depth of field
+CInt EnableDepthOfField(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_dofProperties.m_enable = CTrue;
+	return 0;
+}
+
+CInt DisableDepthOfField(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_dofProperties.m_enable = CFalse;
+	return 0;
+}
+
+CInt SetDepthOfFieldFocalDistance(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDepthOfFieldFocalDistance()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+	if (value <= 0.0f)
+	{
+		//PrintInfo("\nPlease specify a positive value for SetDepthOfFieldFocalDistance()", COLOR_RED);
+		return 0;
+	}
+
+	g_dofProperties.m_dofFocalDistance = value;
+
+	return 0;
+}
+
+CInt SetDepthOfFieldFocalRange(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDepthOfFieldFocalRange()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+	if (value <= 0.0f)
+	{
+		//PrintInfo("\nPlease specify a positive value for SetDepthOfFieldFocalRange()", COLOR_RED);
+		return 0;
+	}
+
+	g_dofProperties.m_dofFocalRange = value;
+
+	return 0;
+}
+
+//fog
+CInt EnableFog(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_fogProperties.m_enable = CTrue;
+	return 0;
+}
+
+CInt DisableFog(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_fogProperties.m_enable = CFalse;
+	return 0;
+}
+
+CInt SetFogColor(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetFogColor()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value[4];
+
+	for (CUInt i = 1; i < 4; i++)
+	{
+		value[i - 1] = (CFloat)lua_tonumber(L, i);
+		if (value[i - 1] < 0.0f || value[i - 1] > 1.0f)
+		{
+			//PrintInfo("\nError: All arguments of SetFogColor() must be between 0.0 and 1.0", COLOR_RED);
+			return 0;
+		}
+		g_fogProperties.m_fogColor[i - 1] = value[i - 1];
+	}
+	g_fogProperties.m_fogColor[3] = 1.0f;
+
+	CFog fog;
+	fog.SetColor(g_fogProperties.m_fogColor);
+
+	return 0;
+}
+
+CInt SetFogDensity(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetFogDensity()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat density;
+
+	density = (CFloat)lua_tonumber(L, 1);
+
+	if (density < 0.0f || density > 1.0f)
+	{
+		//PrintInfo("\nError: argument of SetFogDensity() must be between 0.0 and 1.0", COLOR_RED);
+		return 0;
+	}
+	g_fogProperties.m_fogDensity = density;
+
+	CFog fog;
+	fog.SetDensity(g_fogProperties.m_fogDensity);
+
+	return 0;
+}
+
+//bloom
+CInt EnableBloom(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_bloomProperties.m_enable = CTrue;
+	return 0;
+}
+
+CInt DisableBloom(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_bloomProperties.m_enable = CFalse;
+	return 0;
+}
+
+CInt SetBloomColor(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetBloomColor()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value[3];
+	for (CUInt i = 1; i < 4; i++)
+	{
+		value[i - 1] = (CFloat)lua_tonumber(L, i);
+		if (value[i - 1] < 0.0f || value[i - 1] > 1.0f)
+		{
+			//PrintInfo("\nError: All arguments of SetBloomColor() must be between 0.0 and 1.0", COLOR_RED);
+			return 0;
+		}
+		g_bloomProperties.m_bloomColor[i - 1] = value[i - 1];
+	}
+
+	return 0;
+}
+
+CInt SetBloomIntensity(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetBloomIntensity()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat intensity;
+
+	intensity = (CFloat)lua_tonumber(L, 1);
+	if (intensity < 0.0f || intensity > 1.0f)
+	{
+		//PrintInfo("\nError: argument of SetBloomIntensity() must be between 0.0 and 1.0", COLOR_RED);
+		return 0;
+	}
+
+	g_bloomProperties.m_bloomIntensity = intensity;
+
+	return 0;
+}
+
+//shadow
+CInt EnableDirectionalShadow(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_shadowProperties.m_enable = CTrue;
+
+	return 0;
+}
+
+CInt DisableDirectionalShadow(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	g_shadowProperties.m_enable = CFalse;
+
+	return 0;
+}
+
+CInt SetDirectionalShadowAlgorithm(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowAlgorithm()", COLOR_RED);
+		return 0;
+	}
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "SHADOW_SINGLE_HL"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_SINGLE_HL;
+	}
+	else if (Cmp(luaToString, "SHADOW_SINGLE"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_SINGLE;
+	}
+	else if (Cmp(luaToString, "SHADOW_MULTI_LEAK"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_MULTI_LEAK;
+	}
+	else if (Cmp(luaToString, "SHADOW_MULTI_NOLEAK"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_MULTI_NOLEAK;
+	}
+	else if (Cmp(luaToString, "SHADOW_PCF"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_PCF;
+	}
+	else if (Cmp(luaToString, "SHADOW_PCF_TRILIN"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_PCF_TRILIN;
+	}
+	else if (Cmp(luaToString, "SHADOW_PCF_4TAP"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_PCF_4TAP;
+	}
+	else if (Cmp(luaToString, "SHADOW_PCF_8TAP"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_PCF_8TAP;
+	}
+	else if (Cmp(luaToString, "SHADOW_PCF_GAUSSIAN"))
+	{
+		g_shadowProperties.m_shadowType = eSHADOW_PCF_GAUSSIAN;
+	}
+	else
+	{
+		//PrintInfo("\nError: SetDirectionalShadowAlgorithm() argument is invalid", COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt SetDirectionalShadowNumberOfSplits(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	if (g_dynamicShadowMap == NULL)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowNumberOfSplits()", COLOR_RED);
+		return 0;
+	}
+	int splits = lua_tonumber(L, 1);
+
+	if (splits == 1)
+	{
+		g_shadowProperties.m_shadowSplits = eSHADOW_1_SPLIT;
+	}
+	else if (splits == 2)
+	{
+		g_shadowProperties.m_shadowSplits = eSHADOW_2_SPLITS;
+	}
+	else if (splits == 3)
+	{
+		g_shadowProperties.m_shadowSplits = eSHADOW_3_SPLITS;
+	}
+	else if (splits == 4)
+	{
+		g_shadowProperties.m_shadowSplits = eSHADOW_4_SPLITS;
+	}
+	else
+	{
+		//PrintInfo("\nError:SetDirectionalShadowNumberOfSplits() argument must be 1, 2, 3 or 4", COLOR_RED);
+		return 0;
+	}
+
+	switch (g_shadowProperties.m_shadowSplits)
+	{
+	case eSHADOW_1_SPLIT:
+		g_dynamicShadowMap->cur_num_splits = 1;
+		break;
+	case eSHADOW_2_SPLITS:
+		g_dynamicShadowMap->cur_num_splits = 2;
+		break;
+	case eSHADOW_3_SPLITS:
+		g_dynamicShadowMap->cur_num_splits = 3;
+		break;
+	case eSHADOW_4_SPLITS:
+		g_dynamicShadowMap->cur_num_splits = 4;
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+CInt SetDirectionalShadowWeightOfSplits(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	if (g_dynamicShadowMap == NULL)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowWeightOfSplits()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat weight = (CFloat)lua_tonumber(L, 1);
+
+	g_shadowProperties.m_shadowSplitWeight = weight;
+
+	g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
+
+	return 0;
+}
+
+CInt SetDirectionalShadowNearClipPlane(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowNearClipPlane()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat ncp = (CFloat)lua_tonumber(L, 1);
+
+	if (ncp <= 0.0f)
+	{
+		//PrintInfo("\nError: SetDirectionalShadowNearClipPlane() argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_shadowProperties.m_shadowNearClipPlane = ncp;
+
+	return 0;
+}
+
+CInt SetDirectionalShadowFarClipPlane(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowFarClipPlane()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat fcp = (CFloat)lua_tonumber(L, 1);
+
+	if (fcp <= 0.0f)
+	{
+		//PrintInfo("\nError: SetDirectionalShadowFarClipPlane() argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_shadowProperties.m_shadowFarClipPlane = fcp;
+
+	return 0;
+}
+
+CInt SetDirectionalShadowResolution(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	if (g_dynamicShadowMap == NULL)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowResolution()", COLOR_RED);
+		return 0;
+	}
+	int resolution = lua_tonumber(L, 1);
+
+	if (resolution == 1024)
+	{
+		g_shadowProperties.m_shadowResolution = eSHADOW_1024;
+	}
+	else if (resolution == 2048)
+	{
+		g_shadowProperties.m_shadowResolution = eSHADOW_2048;
+	}
+	else if (resolution == 4096)
+	{
+		g_shadowProperties.m_shadowResolution = eSHADOW_4096;
+	}
+	else
+	{
+		//PrintInfo("\nError:SetDirectionalShadowResolution() argument must be 1024, 2048 or 4096", COLOR_RED);
+		return 0;
+	}
+
+	switch (g_shadowProperties.m_shadowResolution)
+	{
+	case eSHADOW_1024:
+		g_dynamicShadowMap->depth_size = 1024;
+		break;
+	case eSHADOW_2048:
+		g_dynamicShadowMap->depth_size = 2048;
+		break;
+	case eSHADOW_4096:
+		g_dynamicShadowMap->depth_size = 4096;
+		break;
+	default:
+		break;
+	}
+
+	g_dynamicShadowMap->RegenerateDepthTex(g_dynamicShadowMap->depth_size);
+
+	return 0;
+}
+
+CInt SetDirectionalShadowIntensity(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowIntensity()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat intensity = (CFloat)lua_tonumber(L, 1);
+
+	if (intensity < 0.0f || intensity > 1.0f)
+	{
+		//PrintInfo("\nError: SetDirectionalShadowIntensity() argument must be between 0.0 and 1.0", COLOR_RED);
+		return 0;
+	}
+
+	g_shadowProperties.m_intensity = intensity;
+
+	return 0;
+}
+
+CInt SetDirectionalShadowLight(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowLight()", COLOR_RED);
+		return 0;
+	}
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool foundTarget = CFalse;
+	for (CUInt j = 0; j < g_engineLights.size(); j++)
+	{
+		if (g_engineLights[j]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
+		{
+			if (Cmp(g_engineLights[j]->m_abstractLight->GetName(), luaToString))
+			{
+				foundTarget = CTrue;
+				break;
+			}
+		}
+	}
+	if (!foundTarget)
+	{
+		//PrintInfo("\nSetDirectionalShadowLight() Error:light name does not exist", COLOR_RED);
+		return 0;
+	}
+
+	Cpy(g_shadowProperties.m_directionalLightName, luaToString);
 
 	return 0;
 }
@@ -8694,7 +9469,7 @@ CVoid CMain::FinishPrefabSelection()
 	}
 }
 
-CVoid CMain::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight)
+CChar* CMain::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight)
 {
 	minZ = 0xffffffff;
 	m_selectedPrefabName = -1;
@@ -8757,15 +9532,19 @@ CVoid CMain::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble
 
 	glPopAttrib();
 
+	Cpy(m_selectedPrefabInstanceName, ""); //no name by default
+
 	//run OnSelect function
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		if (m_selectedPrefabName != -1 && g_instancePrefab[i]->GetNameIndex() == m_selectedPrefabName)
 		{
 			g_instancePrefab[i]->OnSelectScript();
+			Cpy(m_selectedPrefabInstanceName, g_instancePrefab[i]->GetName());
 			break;
 		}
 	}
+	return m_selectedPrefabInstanceName;
 }
 
 

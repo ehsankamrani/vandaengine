@@ -22,9 +22,9 @@ public:
 	CInstancePrefab* GetInstancePrefab();
 	CChar* GetName();
 
-	CVoid OnTriggerEnterScript();
-	CVoid OnTriggerStayScript();
-	CVoid OnTriggerExitScript();
+	CVoid OnTriggerEnterScript(CChar *otherActorName);
+	CVoid OnTriggerStayScript(CChar *otherActorName);
+	CVoid OnTriggerExitScript(CChar *otherActorName);
 
 	CVoid SetHasScript(CBool set) { m_hasScript = set; }
 	CBool GetHasScript() { return m_hasScript; }

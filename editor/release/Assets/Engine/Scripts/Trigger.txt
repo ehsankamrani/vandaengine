@@ -1,11 +1,11 @@
-function OnTriggerEnter()
+function OnTriggerEnter(otherActorName)
 
 end
 
-function OnTriggerStay()
+function OnTriggerStay(otherActorName)
 
 end
 
-function OnTriggerExit()
+function OnTriggerExit(otherActorName)
 
 end

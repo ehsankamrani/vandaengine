@@ -356,6 +356,7 @@ private:
 	CBool m_swapBuffers;
 	CFloat m_fSelectionDistance;
 	CBool m_bSelectionDistance;
+	CChar m_selectedPrefabInstanceName[MAX_NAME_SIZE];
 
 public:
 	CVoid ProcessInputs();
@@ -387,7 +388,7 @@ public:
 
 	CVoid SetSelectionDistance(CFloat distance) { m_fSelectionDistance = distance;  m_bSelectionDistance = CTrue; }
 	CFloat GetSelectionDistance() { return m_fSelectionDistance; }
-	CVoid SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
+	CChar* SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
 	CVoid InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
 	CVoid FinishPrefabSelection();
 
