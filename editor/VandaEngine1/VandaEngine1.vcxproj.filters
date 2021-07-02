@@ -1811,5 +1811,8 @@
     <Image Include="Assets\Icon\Default\Script Utility\light.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Icon\Welcome\coffee.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

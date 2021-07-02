@@ -83,4 +83,89 @@ public:
 	afx_msg void OnEnChangeEditScaleX();
 	afx_msg void OnEnChangeEditScaleY();
 	afx_msg void OnEnChangeEditScaleZ();
+	afx_msg void OnBnClickedButtonAmbient();
+	afx_msg void OnBnClickedButtonDiffuse();
+	afx_msg void OnBnClickedButtonSpecular();
+	afx_msg void OnBnClickedButtonEmission();
+	afx_msg void OnEnChangeEditShininess();
+	afx_msg void OnEnChangeEditTransparency();
+	CEdit m_editBoxAmbientColor;
+	CEdit m_editBoxDiffuseColor;
+	CEdit m_editBoxSpecularColor;
+	CEdit m_editBoxEmissionColor;
+	CEdit m_editBoxShininess;
+	CEdit m_editBoxTransparency;
+
+private:
+	CFloat m_fAmbientColor[4];
+	CFloat m_fDiffuseColor[4];
+	CFloat m_fSpecularColor[4];
+	CFloat m_fEmissionColor[4];
+	CFloat m_fShininess;
+	CFloat m_fTransparency;
+	CBool m_bEnableMaterial;
+	CBool m_updateAmbient, m_updateDiffuse, m_updateSpecular, m_updateEmission;
+	COLORREF m_ambientColor, m_diffuseColor, m_specularColor, m_emissionColor;
+	CBrush m_ambientBrush, m_diffuseBrush, m_specularBrush, m_emissionBrush;
+	CString m_strShininess, m_strTransparency;
+
+public:
+	CFloat* GetAmbientColor() { return m_fAmbientColor; }
+	CFloat* GetDiffuseColor() { return m_fDiffuseColor; }
+	CFloat* GetSpecularColor() { return m_fSpecularColor; }
+	CFloat* GetEmissionColor() { return m_fEmissionColor; }
+	CFloat GetShininess() { return m_fShininess; }
+	CFloat GetTransparency() { return m_fTransparency; }
+
+	CVoid SetAmbientColor(CFloat* color)
+	{
+		for (CUInt i = 0; i < 4; i++)
+		{
+			m_fAmbientColor[i] = color[i];
+		}
+	}
+
+	CVoid SetDiffuseColor(CFloat* color)
+	{
+		for (CUInt i = 0; i < 4; i++)
+		{
+			m_fDiffuseColor[i] = color[i];
+		}
+	}
+
+	CVoid SetSpecularColor(CFloat* color)
+	{
+		for (CUInt i = 0; i < 4; i++)
+		{
+			m_fSpecularColor[i] = color[i];
+		}
+	}
+
+	CVoid SetEmissionColor(CFloat* color)
+	{
+		for (CUInt i = 0; i < 4; i++)
+		{
+			m_fEmissionColor[i] = color[i];
+		}
+	}
+
+	CVoid SetShininess(CFloat shininess)
+	{
+		m_fShininess = shininess;
+		m_strShininess.Format("%.3f", m_fShininess);
+	}
+
+	CVoid SetTransparency(CFloat transparency)
+	{
+		m_fTransparency = transparency;
+		m_strTransparency.Format("%.3f", m_fTransparency);
+	}
+
+	CVoid SetEnableMaterial(CBool state)
+	{
+		m_bEnableMaterial = state;
+	}
+
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	CButton m_checkboxEnableMaterial;
 };

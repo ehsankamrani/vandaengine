@@ -124,6 +124,20 @@ private:
 	CChar SetDirectionalShadowIntensity[MAX_URI_SIZE];
 	CChar SetDirectionalShadowLight[MAX_URI_SIZE];
 
+	CChar SetLightAmbient[MAX_URI_SIZE];
+	CChar SetLightDiffuse[MAX_URI_SIZE];
+	CChar SetLightSpecular[MAX_URI_SIZE];
+	CChar SetLightShininess[MAX_URI_SIZE];
+
+	CChar SetPrefabInstanceAmbient[MAX_URI_SIZE];
+	CChar SetPrefabInstanceDiffuse[MAX_URI_SIZE];
+	CChar SetPrefabInstanceSpecular[MAX_URI_SIZE];
+	CChar SetPrefabInstanceEmission[MAX_URI_SIZE];
+	CChar SetPrefabInstanceShininess[MAX_URI_SIZE];
+	CChar SetPrefabInstanceTransparency[MAX_URI_SIZE];
+	CChar EnablePrefabInstanceMaterial[MAX_URI_SIZE];
+	CChar DisablePrefabInstanceMaterial[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

@@ -14,6 +14,7 @@ CEditPrefab::CEditPrefab(CWnd* pParent /*=NULL*/)
 	: CDialog(CEditPrefab::IDD, pParent)
 {
 	m_instancePrefab = NULL;
+	m_updateAmbient = m_updateDiffuse = m_updateSpecular = m_updateEmission = CFalse;
 }
 
 CEditPrefab::~CEditPrefab()
@@ -39,6 +40,13 @@ void CEditPrefab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SCALE_Z, m_editScaleZ);
 	DDX_Control(pDX, IDC_STATIC_PREFAB_INSTANCE_NAME, m_textPrefabInstanceName);
 	DDX_Control(pDX, IDC_RICHED_PREFAB_INSTANCE_NAME, m_richPrefabInstanceName);
+	DDX_Control(pDX, IDC_EDIT_AMBIENT_COLOR, m_editBoxAmbientColor);
+	DDX_Control(pDX, IDC_EDIT_DIFFUSE_COLOR, m_editBoxDiffuseColor);
+	DDX_Control(pDX, IDC_EDIT_SPECULAR_COLOR, m_editBoxSpecularColor);
+	DDX_Control(pDX, IDC_EDIT_EMISSION_COLOR, m_editBoxEmissionColor);
+	DDX_Control(pDX, IDC_EDIT_SHININESS, m_editBoxShininess);
+	DDX_Control(pDX, IDC_EDIT_TRANSPARENCY, m_editBoxTransparency);
+	DDX_Control(pDX, IDC_PREFAB_INSTANCE_MATERIAL_ENABLECHECK, m_checkboxEnableMaterial);
 }
 
 
@@ -58,6 +66,13 @@ BEGIN_MESSAGE_MAP(CEditPrefab, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_SCALE_X, &CEditPrefab::OnEnChangeEditScaleX)
 	ON_EN_CHANGE(IDC_EDIT_SCALE_Y, &CEditPrefab::OnEnChangeEditScaleY)
 	ON_EN_CHANGE(IDC_EDIT_SCALE_Z, &CEditPrefab::OnEnChangeEditScaleZ)
+	ON_BN_CLICKED(IDC_BUTTON_AMBIENT, &CEditPrefab::OnBnClickedButtonAmbient)
+	ON_BN_CLICKED(IDC_BUTTON_DIFFUSE, &CEditPrefab::OnBnClickedButtonDiffuse)
+	ON_BN_CLICKED(IDC_BUTTON_SPECULAR, &CEditPrefab::OnBnClickedButtonSpecular)
+	ON_BN_CLICKED(IDC_BUTTON_EMISSION, &CEditPrefab::OnBnClickedButtonEmission)
+	ON_EN_CHANGE(IDC_EDIT_SHININESS, &CEditPrefab::OnEnChangeEditShininess)
+	ON_EN_CHANGE(IDC_EDIT_TRANSPARENCY, &CEditPrefab::OnEnChangeEditTransparency)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -98,12 +113,42 @@ void CEditPrefab::OnBnClickedButtonCopyPrefabInstanceAnimationName()
 
 void CEditPrefab::OnBnClickedOk()
 {
-	if (m_strPosX.IsEmpty() || m_strPosY.IsEmpty() || m_strPosZ.IsEmpty() || m_strRotX.IsEmpty() || m_strRotY.IsEmpty() || m_strRotZ.IsEmpty()
-		|| m_strScaleX.IsEmpty() || m_strScaleY.IsEmpty() || m_strScaleZ.IsEmpty())
+	if (m_strPosX.IsEmpty() || m_strPosY.IsEmpty() || m_strPosZ.IsEmpty())
 	{
-		MessageBox("Please fill in all position, rotation and scale fields", "Error", MB_OK | MB_ICONERROR);
+		MessageBox("Please fill in all fields of position", "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
+	if (m_strRotX.IsEmpty() || m_strRotY.IsEmpty() || m_strRotZ.IsEmpty())
+	{
+		MessageBox("Please fill in all fields of rotation", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (m_strScaleX.IsEmpty() || m_strScaleY.IsEmpty() || m_strScaleZ.IsEmpty())
+	{
+		MessageBox("Please fill in all fields of scale", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (m_strTransparency.IsEmpty())
+	{
+		MessageBox("Please fill in transparency field", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (m_strShininess.IsEmpty())
+	{
+		MessageBox("Please fill in shininess field", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (m_fShininess < 0.0f)
+	{
+		MessageBox("Shininess must be 0.0 or higher", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (m_fTransparency < 0.0f || m_fTransparency > 1.0f)
+	{
+		MessageBox("Transparency must be between 0.0 and 1.0", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CVec3f position(m_fPosX, m_fPosY, m_fPosZ);
 	m_instancePrefab->SetTranslate(position);
 	g_arrowPosition = position;
@@ -114,6 +159,31 @@ void CEditPrefab::OnBnClickedOk()
 	CVec3f scale(m_fScaleX, m_fScaleY, m_fScaleZ);
 	m_instancePrefab->SetScale(scale);
 	g_arrowScale = scale;
+
+	//Material
+	if (m_updateAmbient)
+		m_instancePrefab->SetAmbient(m_fAmbientColor);
+
+	if (m_updateDiffuse)
+		m_instancePrefab->SetDiffuse(m_fDiffuseColor);
+
+	if (m_updateSpecular)
+		m_instancePrefab->SetSpecular(m_fSpecularColor);
+
+	if (m_updateEmission)
+		m_instancePrefab->SetEmission(m_fEmissionColor);
+
+	m_instancePrefab->SetShininess(m_fShininess);
+	m_instancePrefab->SetTransparency(m_fTransparency);
+
+	CInt checkState;
+	checkState = m_checkboxEnableMaterial.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_instancePrefab->EnableMaterial();
+	else
+		m_instancePrefab->DisableMaterial();
+
+	//End of Material
 
 	SetDialogData3(CTrue, m_instancePrefab);
 
@@ -141,6 +211,11 @@ BOOL CEditPrefab::OnInitDialog()
 
 	if (m_instancePrefab)
 	{
+		CChar ambientText[MAX_NAME_SIZE];
+		CChar diffuseText[MAX_NAME_SIZE];
+		CChar specularText[MAX_NAME_SIZE];
+		CChar emissionText[MAX_NAME_SIZE];
+
 		//prefab instance name
 		m_textPrefabInstanceName.SetWindowTextA(m_instancePrefab->GetName());
 		m_richPrefabInstanceName.SetWindowTextA(m_instancePrefab->GetName());
@@ -276,6 +351,50 @@ BOOL CEditPrefab::OnInitDialog()
 		val = roundf(m_instancePrefab->GetScale().z * 100) / 100;
 		sprintf(temp3_scale, "%.2f", val);
 		m_editScaleZ.SetWindowTextA(temp3_scale);
+
+		//Materials
+		SetAmbientColor(m_instancePrefab->GetAmbient());
+		SetDiffuseColor(m_instancePrefab->GetDiffuse());
+		SetSpecularColor(m_instancePrefab->GetSpecular());
+		SetEmissionColor(m_instancePrefab->GetEmission());
+		SetShininess(m_instancePrefab->GetShininess());
+		SetTransparency(m_instancePrefab->GetTransparency());
+		SetEnableMaterial(m_instancePrefab->IsMaterialEnabled());
+
+		sprintf(ambientText, "R: %.2f, G: %.2f, B: %.2f", m_fAmbientColor[0], m_fAmbientColor[1], m_fAmbientColor[2]);
+		sprintf(diffuseText, "R: %.2f, G: %.2f, B: %.2f", m_fDiffuseColor[0], m_fDiffuseColor[1], m_fDiffuseColor[2]);
+		sprintf(specularText, "R: %.2f, G: %.2f, B: %.2f", m_fSpecularColor[0], m_fSpecularColor[1], m_fSpecularColor[2]);
+		sprintf(emissionText, "R: %.2f, G: %.2f, B: %.2f", m_fEmissionColor[0], m_fEmissionColor[1], m_fEmissionColor[2]);
+
+		m_ambientColor = RGB((CInt)(m_fAmbientColor[0] * 255), (CInt)(m_fAmbientColor[1] * 255), (CInt)(m_fAmbientColor[2] * 255));
+		m_ambientBrush.CreateSolidBrush(m_ambientColor);
+
+		m_diffuseColor = RGB((CInt)(m_fDiffuseColor[0] * 255), (CInt)(m_fDiffuseColor[1] * 255), (CInt)(m_fDiffuseColor[2] * 255));
+		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
+
+		m_specularColor = RGB((CInt)(m_fSpecularColor[0] * 255), (CInt)(m_fSpecularColor[1] * 255), (CInt)(m_fSpecularColor[2] * 255));
+		m_specularBrush.CreateSolidBrush(m_specularColor);
+
+		m_emissionColor = RGB((CInt)(m_fEmissionColor[0] * 255), (CInt)(m_fEmissionColor[1] * 255), (CInt)(m_fEmissionColor[2] * 255));
+		m_emissionBrush.CreateSolidBrush(m_emissionColor);
+
+		m_editBoxAmbientColor.SetWindowTextA(ambientText);
+		m_editBoxDiffuseColor.SetWindowTextA(diffuseText);
+		m_editBoxSpecularColor.SetWindowTextA(specularText);
+		m_editBoxEmissionColor.SetWindowTextA(emissionText);
+		m_editBoxTransparency.SetWindowTextA(m_strTransparency);
+		m_editBoxShininess.SetWindowTextA(m_strShininess);
+
+		if (m_bEnableMaterial)
+		{
+			m_checkboxEnableMaterial.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkboxEnableMaterial.SetCheck(BST_UNCHECKED);
+		}
+
+		//End of Material
 
 		UpdatePreview();
 
@@ -471,4 +590,139 @@ void CEditPrefab::OnEnChangeEditScaleZ()
 {
 	m_editScaleZ.GetWindowTextA(m_strScaleZ);
 	m_fScaleZ = atof(m_strScaleZ);
+}
+
+
+void CEditPrefab::OnBnClickedButtonAmbient()
+{
+	CColorDialog dlg;
+	if (dlg.DoModal() == IDOK)
+	{
+		m_ambientColor = dlg.GetColor();
+		m_fAmbientColor[0] = (CFloat)GetRValue(m_ambientColor) / 255.f;
+		m_fAmbientColor[1] = (CFloat)GetGValue(m_ambientColor) / 255.f;
+		m_fAmbientColor[2] = (CFloat)GetBValue(m_ambientColor) / 255.f;
+		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.CreateSolidBrush(m_ambientColor);
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fAmbientColor[0], m_fAmbientColor[1], m_fAmbientColor[2]);
+		m_editBoxAmbientColor.SetWindowTextA(temp);
+		m_editBoxAmbientColor.RedrawWindow();
+		m_updateAmbient = CTrue;
+	}
+}
+
+
+void CEditPrefab::OnBnClickedButtonDiffuse()
+{
+	CColorDialog dlg;
+	if (dlg.DoModal() == IDOK)
+	{
+		m_diffuseColor = dlg.GetColor();
+		m_fDiffuseColor[0] = (CFloat)GetRValue(m_diffuseColor) / 255.f;
+		m_fDiffuseColor[1] = (CFloat)GetGValue(m_diffuseColor) / 255.f;
+		m_fDiffuseColor[2] = (CFloat)GetBValue(m_diffuseColor) / 255.f;
+		m_fDiffuseColor[3] = 1.0f;
+		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fDiffuseColor[0], m_fDiffuseColor[1], m_fDiffuseColor[2]);
+		m_editBoxDiffuseColor.SetWindowTextA(temp);
+		m_editBoxDiffuseColor.RedrawWindow();
+		m_updateDiffuse = CTrue;
+	}
+}
+
+
+void CEditPrefab::OnBnClickedButtonSpecular()
+{
+	CColorDialog dlg;
+	if (dlg.DoModal() == IDOK)
+	{
+		m_specularColor = dlg.GetColor();
+		m_fSpecularColor[0] = (CFloat)GetRValue(m_specularColor) / 255.f;
+		m_fSpecularColor[1] = (CFloat)GetGValue(m_specularColor) / 255.f;
+		m_fSpecularColor[2] = (CFloat)GetBValue(m_specularColor) / 255.f;
+		m_fSpecularColor[3] = 1.0f;
+		m_specularBrush.CreateSolidBrush(m_specularColor);
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fSpecularColor[0], m_fSpecularColor[1], m_fSpecularColor[2]);
+		m_editBoxSpecularColor.SetWindowTextA(temp);
+		m_editBoxSpecularColor.RedrawWindow();
+		m_updateSpecular = CTrue;
+	}
+}
+
+
+void CEditPrefab::OnBnClickedButtonEmission()
+{
+	CColorDialog dlg;
+	if (dlg.DoModal() == IDOK)
+	{
+		m_emissionColor = dlg.GetColor();
+		m_fEmissionColor[0] = (CFloat)GetRValue(m_emissionColor) / 255.f;
+		m_fEmissionColor[1] = (CFloat)GetGValue(m_emissionColor) / 255.f;
+		m_fEmissionColor[2] = (CFloat)GetBValue(m_emissionColor) / 255.f;
+		m_fEmissionColor[3] = 1.0f;
+		m_emissionBrush.CreateSolidBrush(m_emissionColor);
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fEmissionColor[0], m_fEmissionColor[1], m_fEmissionColor[2]);
+		m_editBoxEmissionColor.SetWindowTextA(temp);
+		m_editBoxEmissionColor.RedrawWindow();
+		m_updateEmission = CTrue;
+	}
+}
+
+
+void CEditPrefab::OnEnChangeEditShininess()
+{
+	m_editBoxShininess.GetWindowTextA(m_strShininess);
+	m_fShininess = atof(m_strShininess);
+}
+
+
+void CEditPrefab::OnEnChangeEditTransparency()
+{
+	m_editBoxTransparency.GetWindowTextA(m_strTransparency);
+	m_fTransparency = atof(m_strTransparency);
+}
+
+
+HBRUSH CEditPrefab::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	switch (pWnd->GetDlgCtrlID())
+	{
+	case IDC_EDIT_AMBIENT_COLOR:
+		pDC->SetBkColor(m_ambientColor);
+		if (GetRValue(m_ambientColor) < 128 && GetGValue(m_ambientColor) < 128 && GetBValue(m_ambientColor) < 128)
+			pDC->SetTextColor(RGB(255, 255, 255));
+		else
+			pDC->SetTextColor(RGB(0, 0, 0));
+
+		return m_ambientBrush;
+	case IDC_EDIT_DIFFUSE_COLOR:
+		pDC->SetBkColor(m_diffuseColor);
+		if (GetRValue(m_diffuseColor) < 128 && GetGValue(m_diffuseColor) < 128 && GetBValue(m_diffuseColor) < 128)
+			pDC->SetTextColor(RGB(255, 255, 255));
+		else
+			pDC->SetTextColor(RGB(0, 0, 0));
+
+		return m_diffuseBrush;
+	case IDC_EDIT_SPECULAR_COLOR:
+		pDC->SetBkColor(m_specularColor);
+		if (GetRValue(m_specularColor) < 128 && GetGValue(m_specularColor) < 128 && GetBValue(m_specularColor) < 128)
+			pDC->SetTextColor(RGB(255, 255, 255));
+		else
+			pDC->SetTextColor(RGB(0, 0, 0));
+
+		return m_specularBrush;
+	case IDC_EDIT_EMISSION_COLOR:
+		pDC->SetBkColor(m_emissionColor);
+		if (GetRValue(m_emissionColor) < 128 && GetGValue(m_emissionColor) < 128 && GetBValue(m_emissionColor) < 128)
+			pDC->SetTextColor(RGB(255, 255, 255));
+		else
+			pDC->SetTextColor(RGB(0, 0, 0));
+
+		return m_emissionBrush;
+	}
+	return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 }

@@ -267,6 +267,15 @@ CInstancePrefab::CInstancePrefab()
 	m_castShadow = CTrue;
 	m_isTransformable = CFalse;
 	m_isSelectable = CFalse;
+
+	m_fAmbientColor[0] = m_fAmbientColor[1] = m_fAmbientColor[2] = 0.5f; m_fAmbientColor[3] = 1.0f;
+	m_fDiffuseColor[0] = m_fDiffuseColor[1] = m_fDiffuseColor[2] = 0.5f; m_fDiffuseColor[3] = 1.0f;
+	m_fSpecularColor[0] = m_fSpecularColor[1] = m_fSpecularColor[2] = 0.5f; m_fSpecularColor[3] = 1.0f;
+	m_fEmissionColor[0] = m_fEmissionColor[1] = m_fEmissionColor[2] = 0.5f; m_fEmissionColor[3] = 1.0f;
+	m_fShininess = 50.0f;
+	m_fTransparency = 1.0f;
+	m_enableMaterial = CFalse;
+
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);

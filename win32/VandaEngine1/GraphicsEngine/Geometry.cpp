@@ -228,7 +228,14 @@ CVoid CPolyGroup::SaveMaterialValues(CMaterial * mat)
 
 CVoid CPolyGroup::SetupMaterialForDrawFromGameEngine(CBool isSelected)
 {
-	g_render.SetMaterialFromGameEngine(m_fAmbientColor, m_fDiffuseColor, m_fSpecularColor, m_fEmissionColor, m_fShininess, m_fTransparency, isSelected);
+	if (g_currentInstancePrefab && g_currentInstancePrefab->IsMaterialEnabled())
+	{
+		g_render.SetMaterialFromGameEngine(g_currentInstancePrefab->GetAmbient(), g_currentInstancePrefab->GetDiffuse(), g_currentInstancePrefab->GetSpecular(), g_currentInstancePrefab->GetEmission(), g_currentInstancePrefab->GetShininess(), g_currentInstancePrefab->GetTransparency(), isSelected);
+	}
+	else
+	{
+		g_render.SetMaterialFromGameEngine(m_fAmbientColor, m_fDiffuseColor, m_fSpecularColor, m_fEmissionColor, m_fShininess, m_fTransparency, isSelected);
+	}
 }
 
 /*cfxMaterial* */ CVoid CPolyGroup::SetupMaterialForDrawFromCOLLADA(CNode *parentNode, CInstance * instance, CBool isSelected, CBool hasDiffuse )
@@ -352,14 +359,24 @@ CVoid CPolyGroup::Draw(CNode *parentNode, CInstance * instance, CBool isSelected
 	{
 		SetupMaterialForDrawFromGameEngine(isSelected);
 	}
-	if (m_fTransparency < 1.0f)
+
+	CFloat transparency = m_fTransparency; //default value is the transparency of polygroup
+
+	if (g_currentInstancePrefab && g_currentInstancePrefab->IsMaterialEnabled())
+	{
+		transparency = g_currentInstancePrefab->GetTransparency();
+	}
+
+	if (transparency < 1.0f)
 	{
 		glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
 		glEnable(GL_BLEND);
-		glBlendColor(1.0f, 1.0f, 1.0f, m_fTransparency);
+		glBlendColor(1.0f, 1.0f, 1.0f, transparency);
 	}
+
 	Render();
-	if (m_fTransparency < 1.0f)
+	
+	if (transparency < 1.0f)
 	{
 		glDisable(GL_BLEND);
 	}

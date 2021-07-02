@@ -8,6 +8,7 @@
 #define ID_EDIT                         2
 #define ID_OPEN                         2
 #define ID_BUTTON_API_UTILITY           2
+#define IDDONATE                        2
 #define ID_BUTTON_WATER_DUDV            3
 #define ID_BUTTON_AMBIENT_SOUND         3
 #define ID_ACIVATE_AND_RENDER           3
@@ -363,6 +364,7 @@
 #define IDD_DIALOG_VIEW_SCRIPT          507
 #define IDB_BITMAP12                    508
 #define IDB_BITMAP_SCRIPT_UTILITY_LIGHT 508
+#define IDB_BITMAP_COFFEE               509
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -787,6 +789,8 @@
 #define IDC_STATIC_RUN_DEMO_IN_EDITOR   1161
 #define IDC_STATIC_RUN_PUBLISHED_DEMO   1162
 #define IDC_STATIC_DONATE               1163
+#define IDC_STATIC_DONATE2              1164
+#define IDC_STATIC_VANDA_ENGINE_WEBSITE 1164
 #define IDC_STATIC_RUN_IN_EDITOR        1166
 #define IDC_PROJECT_NAME                1167
 #define IDC_LIST_AVAILABLE_PROJECTS     1168
@@ -943,6 +947,7 @@
 #define IDC_BUTTON_COPY_GUI_INSTANCE_NAME 1290
 #define IDC_RICHED_GUI_INSTANCE_NAME    1291
 #define IDC_RICHED_VIEW_SCRIPT          1292
+#define IDC_PREFAB_INSTANCE_MATERIAL_ENABLECHECK 1293
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1272,9 +1277,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        509
+#define _APS_NEXT_RESOURCE_VALUE        510
 #define _APS_NEXT_COMMAND_VALUE         33099
-#define _APS_NEXT_CONTROL_VALUE         1293
+#define _APS_NEXT_CONTROL_VALUE         1294
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

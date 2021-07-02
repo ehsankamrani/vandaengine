@@ -71,6 +71,14 @@ private:
 	CBool m_isTransformable;
 	CBool m_isSelectable;
 	lua_State* m_lua;
+	//Material Colors
+	CFloat m_fAmbientColor[4];
+	CFloat m_fDiffuseColor[4];
+	CFloat m_fSpecularColor[4];
+	CFloat m_fEmissionColor[4];
+	CFloat m_fShininess, m_fTransparency;
+	CBool m_enableMaterial;
+
 public:
 	CVoid SetName(CChar* name);
 	CVoid SetNameIndex();
@@ -163,6 +171,42 @@ public:
 	CVoid OnSelectScript();
 	CBool GetHasScript() { return m_hasScript; }
 	CVoid SetHasScript(CBool set) { m_hasScript = set; }
+
+	//Material
+	CFloat* GetAmbient() { return m_fAmbientColor; }
+	CFloat* GetDiffuse() { return m_fDiffuseColor; }
+	CFloat* GetSpecular() { return m_fSpecularColor; }
+	CFloat* GetEmission() { return m_fEmissionColor; }
+	CFloat GetShininess() { return m_fShininess; }
+	CFloat GetTransparency() { return m_fTransparency; }
+	CBool IsMaterialEnabled() { return m_enableMaterial; }
+	CVoid EnableMaterial() { m_enableMaterial = CTrue; }
+	CVoid DisableMaterial() { m_enableMaterial = CFalse; }
+	
+	CVoid SetAmbient(CFloat* ambient)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fAmbientColor[i] = ambient[i];
+	}
+	CVoid SetDiffuse(CFloat* diffuse)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fDiffuseColor[i] = diffuse[i];
+	}
+	CVoid SetSpecular(CFloat* specular)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fSpecularColor[i] = specular[i];
+	}
+	CVoid SetEmission(CFloat* emission)
+	{
+		for (CUInt i = 0; i < 4; i++)
+			m_fEmissionColor[i] = emission[i];
+	}
+	CVoid SetShininess(CFloat shininess) { m_fShininess = shininess; }
+	CVoid SetTransparency(CFloat transparency) { m_fTransparency = transparency; }
+	//////////////////
+
 };
 
 class CPrefab

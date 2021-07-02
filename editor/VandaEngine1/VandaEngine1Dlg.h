@@ -686,6 +686,8 @@ private:
 	CDOFProperties m_dofProperties;
 	CFogProperties m_fogProperties;
 	CShadowProperties m_shadowProperties;
+	std::vector<CInstanceLight*>m_engineLights;
+
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );

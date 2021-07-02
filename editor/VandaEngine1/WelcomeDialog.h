@@ -6,6 +6,7 @@
 #include "custombutton.h"
 #include "afxwin.h"
 #include "Common\HyperLink.h"
+#include "F:\New Engine\VandaEngine\editor\VandaEngine1\Common\HyperLink.h"
 
 // CWelcomeDialog dialog
 
@@ -56,4 +57,7 @@ public:
 	CHyperLink m_linkDonate;
 	afx_msg void OnStnClickedStaticRunDemoInEditor();
 	afx_msg void OnStnClickedStaticRunPublishedDemo();
+	CCustomButton m_btnDonateNow;
+	afx_msg void OnBnClickedDonate();
+	CHyperLink m_vandaEngineWebsite;
 };

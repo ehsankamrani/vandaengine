@@ -43,6 +43,8 @@ void CWelcomeDialog::DoDataExchange(CDataExchange* pDX)
 	//DDX_Control(pDX, IDC_STATIC_RUN_DEMO_IN_EDITOR, m_linkRunDemoInEditor);
 	//DDX_Control(pDX, IDC_STATIC_RUN_PUBLISHED_DEMO, m_linkPublishedDemo);
 	DDX_Control(pDX, IDC_STATIC_DONATE, m_linkDonate);
+	DDX_Control(pDX, IDDONATE, m_btnDonateNow);
+	DDX_Control(pDX, IDC_STATIC_VANDA_ENGINE_WEBSITE, m_vandaEngineWebsite);
 }
 
 
@@ -60,6 +62,7 @@ BEGIN_MESSAGE_MAP(CWelcomeDialog, CDialog)
 	ON_BN_CLICKED(IDC_WELCOME_BUTTON_DONATE, &CWelcomeDialog::OnBnClickedWelcomeButtonDonate)
 	ON_STN_CLICKED(IDC_STATIC_RUN_DEMO_IN_EDITOR, &CWelcomeDialog::OnStnClickedStaticRunDemoInEditor)
 	ON_STN_CLICKED(IDC_STATIC_RUN_PUBLISHED_DEMO, &CWelcomeDialog::OnStnClickedStaticRunPublishedDemo)
+	ON_BN_CLICKED(IDDONATE, &CWelcomeDialog::OnBnClickedDonate)
 END_MESSAGE_MAP()
 
 
@@ -134,6 +137,10 @@ BOOL CWelcomeDialog::OnInitDialog()
 	m_linkDonate.SetColours(RGB(222, 122, 5), RGB(222, 122, 5));
 	m_linkDonate.SetURL( "https://vanda3d.org/donate/" );
 	m_linkDonate.SetLinkCursor( LoadCursor( NULL, IDC_HAND ) );
+
+	m_vandaEngineWebsite.SetColours(RGB(125, 175, 240), RGB(222, 122, 5));
+	m_vandaEngineWebsite.SetURL("https://vanda3d.org/");
+	m_vandaEngineWebsite.SetLinkCursor(LoadCursor(NULL, IDC_HAND));
 
 	if (g_options.m_showStartupDialog)
 	{
@@ -266,4 +273,10 @@ void CWelcomeDialog::OnStnClickedStaticRunDemoInEditor()
 void CWelcomeDialog::OnStnClickedStaticRunPublishedDemo()
 {
 	OnBnClickedWelcomeButtonRunDemoPublished();
+}
+
+
+void CWelcomeDialog::OnBnClickedDonate()
+{
+	ShellExecute(NULL, "open", "https://vanda3d.org/donate/", NULL, NULL, SW_SHOWNORMAL);
 }

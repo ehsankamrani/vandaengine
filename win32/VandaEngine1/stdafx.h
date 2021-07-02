@@ -155,6 +155,20 @@ CInt SetDirectionalShadowResolution(lua_State* L);
 CInt SetDirectionalShadowIntensity(lua_State* L);
 CInt SetDirectionalShadowLight(lua_State* L);
 
+CInt SetLightAmbient(lua_State* L);
+CInt SetLightDiffuse(lua_State* L);
+CInt SetLightSpecular(lua_State* L);
+CInt SetLightShininess(lua_State* L);
+
+CInt SetPrefabInstanceAmbient(lua_State* L);
+CInt SetPrefabInstanceDiffuse(lua_State* L);
+CInt SetPrefabInstanceSpecular(lua_State* L);
+CInt SetPrefabInstanceEmission(lua_State* L);
+CInt SetPrefabInstanceShininess(lua_State* L);
+CInt SetPrefabInstanceTransparency(lua_State* L);
+CInt EnablePrefabInstanceMaterial(lua_State* L);
+CInt DisablePrefabInstanceMaterial(lua_State* L);
+
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
 CVoid ShowLoadingScene(CChar* message = NULL);

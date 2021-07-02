@@ -743,6 +743,7 @@
     <Image Include="Assets\Icon\WaterAttach\WaterAttach_Focus.bmp" />
     <Image Include="Assets\Icon\WaterAttach\WaterAttach_Up.bmp" />
     <Image Include="Assets\Icon\Water\Water_Disable.bmp" />
+    <Image Include="Assets\Icon\Welcome\coffee.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

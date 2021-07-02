@@ -63,7 +63,7 @@ CInt PlaySoundLoop(lua_State *L)
 			if (!foundTarget)
 			{
 				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be played.");
+				sprintf(temp, "%s%s%s", "\nPlaySoundLoop() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be played.");
 				PrintInfo(temp, COLOR_RED);
 			}
 		}
@@ -98,7 +98,7 @@ CInt PlaySoundLoop(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be played.");
+			sprintf(temp, "%s%s%s", "\nPlaySoundLoop() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be played.");
 			PrintInfo(temp, COLOR_RED);
 		}
 	}
@@ -146,7 +146,7 @@ CInt PlaySoundOnce(lua_State *L)
 			if (!foundTarget)
 			{
 				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be played.");
+				sprintf(temp, "%s%s%s", "\nPlaySoundOnce() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be played.");
 				PrintInfo(temp, COLOR_RED);
 			}
 		}
@@ -181,7 +181,7 @@ CInt PlaySoundOnce(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be played.");
+			sprintf(temp, "%s%s%s", "\nPlaySoundOnce() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be played.");
 			PrintInfo(temp, COLOR_RED);
 		}
 	}
@@ -231,7 +231,7 @@ CInt PauseSound(lua_State *L)
 			if (!foundTarget)
 			{
 				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be paused.");
+				sprintf(temp, "%s%s%s", "\nPauseSound() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be paused.");
 				PrintInfo(temp, COLOR_RED);
 			}
 		}
@@ -264,7 +264,7 @@ CInt PauseSound(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be paused.");
+			sprintf(temp, "%s%s%s", "\nPauseSound() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be paused.");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -313,7 +313,7 @@ CInt StopSound(lua_State *L)
 			if (!foundTarget)
 			{
 				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be stopped.");
+				sprintf(temp, "%s%s%s", "\nStopSound() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be stopped.");
 				PrintInfo(temp, COLOR_RED);
 			}
 		}
@@ -346,7 +346,7 @@ CInt StopSound(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCoudn't find Sound '", lua_tostring(L, n), "' to be stopped.");
+			sprintf(temp, "%s%s%s", "\nStopSound() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be stopped.");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -424,7 +424,7 @@ CInt BlendCycle(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nBlendCycle() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -664,7 +664,7 @@ CInt ClearCycle(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nClearCycle() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -919,7 +919,7 @@ CInt ExecuteAction(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nExecuteAction() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1185,7 +1185,7 @@ CInt ReverseExecuteAction(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nReverseExecuteAction() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1430,7 +1430,7 @@ CInt RemoveAction(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nRemoveAction() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1669,7 +1669,7 @@ CInt GetAnimationClipDuration(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetAnimationClipDuration() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1855,12 +1855,12 @@ CInt ShowPrefabInstance(lua_State *L)
 			if (g_currentInstancePrefab)
 				g_currentInstancePrefab->SetVisible(CTrue);
 			else
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nShowPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			return 0;
 		}
 		else if (g_editorMode == eMODE_PREFAB)
 		{
-			PrintInfo("\nAll LODs will become visible", COLOR_GREEN);
+			PrintInfo("\nShowPrefabInstance() : All LODs will become visible", COLOR_GREEN);
 			return 0;
 		}
 	}
@@ -1891,7 +1891,7 @@ CInt ShowPrefabInstance(lua_State *L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\nShowPrefabInstance() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -1912,7 +1912,7 @@ CInt ShowPrefabInstance(lua_State *L)
 	if (!foundPrefabInstance)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		sprintf(temp, "\nShowPrefabInstance() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
@@ -1943,7 +1943,7 @@ CInt HidePrefabInstance(lua_State *L)
 			if (g_currentInstancePrefab)
 				g_currentInstancePrefab->SetVisible(CFalse);
 			else
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nHidePrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			return 0;
 		}
 		else if (g_editorMode == eMODE_PREFAB)
@@ -1979,7 +1979,7 @@ CInt HidePrefabInstance(lua_State *L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\nHidePrefabInstance() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -2000,7 +2000,7 @@ CInt HidePrefabInstance(lua_State *L)
 	if (!foundPrefabInstance)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		sprintf(temp, "\nHidePrefabInstance() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
@@ -2050,7 +2050,7 @@ CInt PauseAnimations(lua_State *L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nPauseAnimations() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -2188,7 +2188,7 @@ CInt LoadVScene(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCouldn't find VScene '", luaToString, "' to be loaded.");
+			sprintf(temp, "%s%s%s", "\nLoadVScene() Error: Couldn't find VScene '", luaToString, "' to be loaded.");
 			PrintInfo(temp, COLOR_RED);
 		}
 		return 0;
@@ -2212,7 +2212,7 @@ CInt LoadVScene(lua_State *L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCouldn't find VScene '", luaToString, "' to be loaded.");
+		sprintf(temp, "%s%s%s", "\nLoadVScene() Error: Couldn't find VScene '", luaToString, "' to be loaded.");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -2408,7 +2408,7 @@ CInt ActivateThirdPersonCamera(lua_State *L)
 		}
 		else
 		{
-			PrintInfo("\nCouldn't find main character", COLOR_RED);
+			PrintInfo("\nActivateThirdPersonCamera() Error: Couldn't find main character", COLOR_RED);
 		}
 		return 0;
 	}
@@ -2435,7 +2435,7 @@ CInt ActivateFirstPersonCamera(lua_State *L)
 		}
 		else
 		{
-			PrintInfo("\nCouldn't find main character", COLOR_RED);
+			PrintInfo("\nActivateFirstPersonCamera() Error: Couldn't find main character", COLOR_RED);
 		}
 		return 0;
 	}
@@ -2536,7 +2536,7 @@ CInt ActivateImportedCamera( lua_State* L )
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCouldn't find camera '", luaToString, "' to be activated.");
+		sprintf(temp, "%s%s%s", "\nActivateImportedCamera() Error: Couldn't find camera '", luaToString, "' to be activated.");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
@@ -2646,7 +2646,7 @@ CInt ActivateImportedCameraOfPrefabInstance(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nActivateImportedCameraOfPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -2961,7 +2961,7 @@ CInt ActivateEngineCamera(lua_State* L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCoudn't find camera '", luaToString, "' to be activated.");
+		sprintf(temp, "%s%s%s", "\nActivateEngineCamera() Error: Couldn't find camera '", luaToString, "' to be activated.");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
@@ -3342,7 +3342,7 @@ CInt PlayResourceSoundLoop(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCouldn't find the sound '", lua_tostring(L, n), "' to be played.");
+			sprintf(temp, "%s%s%s", "\nPlayResourceSoundLoop() Error: Couldn't find the sound '", lua_tostring(L, n), "' to be played.");
 			PrintInfo(temp, COLOR_RED);
 		}
 	}
@@ -3448,7 +3448,7 @@ CInt PlayResourceSoundOnce(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCouldn't find the sound '", lua_tostring(L, n), "' to be played once.");
+			sprintf(temp, "%s%s%s", "\nPlayResourceSoundOnce() Error: Couldn't find the sound '", lua_tostring(L, n), "' to be played once.");
 			PrintInfo(temp, COLOR_RED);
 		}
 	}
@@ -3553,7 +3553,7 @@ CInt StopResourceSound(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCouldn't find the sound '", lua_tostring(L, n), "' to be stopped.");
+			sprintf(temp, "%s%s%s", "\nStopResourceSound() Error: Couldn't find the sound '", lua_tostring(L, n), "' to be stopped.");
 			PrintInfo(temp, COLOR_RED);
 		}
 	}
@@ -3680,7 +3680,7 @@ CInt PauseResourceSound(lua_State *L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nCouldn't find the sound '", lua_tostring(L, n), "' to be paused.");
+			sprintf(temp, "%s%s%s", "\nPauseResourceSound() Error: Couldn't find the sound '", lua_tostring(L, n), "' to be paused.");
 			PrintInfo(temp, COLOR_RED);
 		}
 	}
@@ -3761,7 +3761,7 @@ CInt ShowGUI(lua_State *L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCoudn't find the GUI '", luaToString, "' to be activated.");
+		sprintf(temp, "%s%s%s", "\nShowGUI() Error: Couldn't find the GUI '", luaToString, "' to be activated.");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -3841,7 +3841,7 @@ CInt HideGUI(lua_State* L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCoudn't find the GUI '", luaToString, "' to be deactivated.");
+		sprintf(temp, "%s%s%s", "\nHideGUI() Error: Couldn't find the GUI '", luaToString, "' to be deactivated.");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -3945,7 +3945,7 @@ CInt ShowCursorIcon(lua_State *L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCouldn't find the image '", lua_tostring(L, 1), "' to be shown.");
+		sprintf(temp, "%s%s%s", "\nShowCursorIcon() Error: Couldn't find the image '", lua_tostring(L, 1), "' to be shown.");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -4045,7 +4045,7 @@ CInt HideCursorIcon(lua_State *L)
 	if (!foundTarget)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nCouldn't find the image '", lua_tostring(L, 1), "' to be hidden.");
+		sprintf(temp, "%s%s%s", "\nHideCursorIcon() Error: Couldn't find the image '", lua_tostring(L, 1), "' to be hidden.");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -5325,7 +5325,7 @@ CInt TranslatePrefabInstance(lua_State* L)
 					g_currentInstancePrefab->SetTranslate(pos);
 			}
 			else
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nTranslatePrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			return 0;
 		}
 		else if (g_editorMode == eMODE_PREFAB)
@@ -5438,7 +5438,7 @@ CInt RotatePrefabInstance(lua_State* L)
 				}
 			}
 			else
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nRotatePrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			return 0;
 		}
 		else if (g_editorMode == eMODE_PREFAB)
@@ -5552,7 +5552,7 @@ CInt ScalePrefabInstance(lua_State* L)
 				}
 			}
 			else
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nScalePrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			return 0;
 		}
 		else if (g_editorMode == eMODE_PREFAB)
@@ -5663,7 +5663,7 @@ CInt GetPrefabInstanceTranslate(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetPrefabInstanceTranslate() Error: Couldn't find current prefab instance", COLOR_RED);
 				return 0;
 			}
 		}
@@ -5775,7 +5775,7 @@ CInt GetPrefabInstanceRotate(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetPrefabInstanceRotate() Error: Couldn't find current prefab instance", COLOR_RED);
 				return 0;
 			}
 		}
@@ -5887,7 +5887,7 @@ CInt GetPrefabInstanceScale(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetPrefabInstanceScale() Error: Couldn't find current prefab instance", COLOR_RED);
 				return 0;
 			}
 		}
@@ -5996,7 +5996,7 @@ CInt GetPrefabInstanceRadius(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetPrefabInstanceRadius() Error: Couldn't find current prefab instance", COLOR_RED);
 				return 0;
 			}
 		}
@@ -6099,7 +6099,7 @@ CInt GetDistanceOfPrefabInstanceFromPhysicsCamera(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nCouldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetDistanceOfPrefabInstanceFromPhysicsCamera() Error: Couldn't find current prefab instance", COLOR_RED);
 				return 0;
 			}
 		}
@@ -6741,7 +6741,7 @@ CInt SetDirectionalShadowLight(lua_State* L)
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetDirectionalShadowLight() Error:Coudn't find light name '", lua_tostring(L, 1), "'.");
+			sprintf(temp, "%s%s%s", "\nSetDirectionalShadowLight() Error:Couldn't find light name '", lua_tostring(L, 1), "'.");
 			PrintInfo(temp, COLOR_RED);
 			return 0;
 		}
@@ -6751,6 +6751,1226 @@ CInt SetDirectionalShadowLight(lua_State* L)
 	return 0;
 }
 
+CInt SetLightAmbient(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetLightAmbient()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetLightAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetLightAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetLightAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightAmbient(%s, %.2f, %.2f, %.2f) will change ambient light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetLightAmbient() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			g_engineLights[i]->m_abstractLight->SetAmbient(Color);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetLightDiffuse(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetLightDiffuse()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetLightDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetLightDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetLightDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightDiffuse(%s, %.2f, %.2f, %.2f) will change diffuse light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetLightDiffuse() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			g_engineLights[i]->m_abstractLight->SetDiffuse(Color);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetLightSpecular(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetLightSpecular()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetLightSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetLightSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetLightSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightSpecular(%s, %.2f, %.2f, %.2f) will change specular light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetLightSpecular() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			g_engineLights[i]->m_abstractLight->SetSpecular(Color);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetLightShininess(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetLightShininess()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat shininess = (CFloat)lua_tonumber(L, 2);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CBool foundTarget = CFalse;
+
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightShininess(%s, %.2f) will change shininess", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), shininess);
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetLightShininess() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			g_engineLights[i]->m_abstractLight->SetShininess(shininess);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceAmbient(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetPrefabInstanceAmbient()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetPrefabInstanceAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetPrefabInstanceAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetPrefabInstanceAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetAmbient(Color);
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceAmbient() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceAmbient(%.2f, %.2f, %.2f) will execute for current prefab instance", R, G, B);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : SetPrefabInstanceAmbient(%s, %.2f, %.2f, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, R, G, B);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceAmbient() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetAmbient(Color);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceAmbient() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceDiffuse(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetPrefabInstanceDiffuse()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetPrefabInstanceDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetPrefabInstanceDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetPrefabInstanceDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetDiffuse(Color);
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceDiffuse() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceDiffuse(%.2f, %.2f, %.2f) will execute for current prefab instance", R, G, B);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : SetPrefabInstanceDiffuse(%s, %.2f, %.2f, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, R, G, B);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceDiffuse() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetDiffuse(Color);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceDiffuse() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceSpecular(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetPrefabInstanceSpecular()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetPrefabInstanceSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetPrefabInstanceSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetPrefabInstanceSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetSpecular(Color);
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceSpecular() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceSpecular(%.2f, %.2f, %.2f) will execute for current prefab instance", R, G, B);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : SetPrefabInstanceSpecular(%s, %.2f, %.2f, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, R, G, B);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceSpecular() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetSpecular(Color);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceSpecular() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceEmission(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetPrefabInstanceEmission()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetPrefabInstanceEmission() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetPrefabInstanceEmission() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetPrefabInstanceEmission() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetEmission(Color);
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceEmission() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceEmission(%.2f, %.2f, %.2f) will execute for current prefab instance", R, G, B);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : SetPrefabInstanceEmission(%s, %.2f, %.2f, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, R, G, B);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceEmission() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetEmission(Color);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceEmission() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceShininess(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetPrefabInstanceShininess()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat shininess = (CFloat)lua_tonumber(L, 2);
+	if (shininess < 0.0f)
+	{
+		PrintInfo("\nSecond argument of SetPrefabInstanceShininess() must be 0.0 or higher", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetShininess(shininess);
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceShininess() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceShininess(%.2f) will execute for current prefab instance", shininess);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : SetPrefabInstanceShininess(%s, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, shininess);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceShininess() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetShininess(shininess);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceShininess() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceTransparency(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetPrefabInstanceTransparency()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat transparency = (CFloat)lua_tonumber(L, 2);
+	if (transparency < 0.0f)
+	{
+		PrintInfo("\nSecond argument of SetPrefabInstanceTransparency() must be 0.0 or higher", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetTransparency(transparency);
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceTransparency() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceTransparency(%.2f) will execute for current prefab instance", transparency);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : SetPrefabInstanceTransparency(%s, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, transparency);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceTransparency() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetTransparency(transparency);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceTransparency() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt EnablePrefabInstanceMaterial(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for EnablePrefabInstanceMaterial()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+				g_currentInstancePrefab->EnableMaterial();
+			else
+				PrintInfo("\nEnablePrefabInstanceMaterial() Error: Couldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			PrintInfo("\nMaterial of current prefab instance will become enabled", COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : Material of prefab Instance '%s' will become enabled", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nEnablePrefabInstanceMaterial() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->EnableMaterial();
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nEnablePrefabInstanceMaterial() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt DisablePrefabInstanceMaterial(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for DisablePrefabInstanceMaterial()", COLOR_RED);
+		return 0;
+	}
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+				g_currentInstancePrefab->DisableMaterial();
+			else
+				PrintInfo("\nDisablePrefabInstanceMaterial Error: Couldn't find current prefab instance", COLOR_RED);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			PrintInfo("\nMaterial of current prefab instance will become disabled", COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : Material of prefab Instance '%s' will become disabled", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nDisablePrefabInstanceMaterial() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->DisableMaterial();
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nDisablePrefabInstanceMaterial() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
 
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];

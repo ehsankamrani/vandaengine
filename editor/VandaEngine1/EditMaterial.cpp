@@ -746,6 +746,17 @@ void CEditMaterial::OnOK()
 		MessageBox("Please Fill In Transparency Filed", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
+	if (!m_strShininess.IsEmpty() && m_fShininess < 0.0f)
+	{
+		MessageBox("Shininess must be 0.0 or higher", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (!m_strTransparency.IsEmpty() && (m_fTransparency < 0.0f || m_fTransparency > 1.0f))
+	{
+		MessageBox("Transparency must be between 0.0 and 1.0", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	//Material Colors
 	if (m_geometry)
 	{

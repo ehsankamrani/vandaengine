@@ -112,6 +112,20 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetDirectionalShadowIntensity, "SetDirectionalShadowIntensity(float shadowIntensity)");
 	Cpy(SetDirectionalShadowLight, "SetDirectionalShadowLight(string directionalLightName)");
 
+	Cpy(SetLightAmbient, "SetLightAmbient(string lightObjectName, float red, float green, float blue)");
+	Cpy(SetLightDiffuse, "SetLightDiffuse(string lightObjectName, float red, float green, float blue)");
+	Cpy(SetLightSpecular, "SetLightSpecular(string lightObjectName, float red, float green, float blue)");
+	Cpy(SetLightShininess, "SetLightShininess(string lightObjectName, float shininess)");
+
+	Cpy(SetPrefabInstanceAmbient, "SetPrefabInstanceAmbient(string prefabInstanceName, float red, float green, float blue)");
+	Cpy(SetPrefabInstanceDiffuse, "SetPrefabInstanceDiffuse(string prefabInstanceName, float red, float green, float blue)");
+	Cpy(SetPrefabInstanceSpecular, "SetPrefabInstanceSpecular(string prefabInstanceName, float red, float green, float blue)");
+	Cpy(SetPrefabInstanceEmission, "SetPrefabInstanceEmission(string prefabInstanceName, float red, float green, float blue)");
+	Cpy(SetPrefabInstanceShininess, "SetPrefabInstanceShininess(string prefabInstanceName, float shininess)");
+	Cpy(SetPrefabInstanceTransparency, "SetPrefabInstanceTransparency(string prefabInstanceName, float transparency)");
+	Cpy(EnablePrefabInstanceMaterial, "EnablePrefabInstanceMaterial(string prefabInstanceName)");
+	Cpy(DisablePrefabInstanceMaterial, "DisablePrefabInstanceMaterial(string prefabInstanceName)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -488,6 +502,54 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetDirectionalShadowLight);
 		}
+		else if (Cmp(szBuffer, "SetLightAmbient"))
+		{
+			m_richFunctionName.SetWindowTextA(SetLightAmbient);
+		}
+		else if (Cmp(szBuffer, "SetLightDiffuse"))
+		{
+			m_richFunctionName.SetWindowTextA(SetLightDiffuse);
+		}
+		else if (Cmp(szBuffer, "SetLightSpecular"))
+		{
+			m_richFunctionName.SetWindowTextA(SetLightSpecular);
+		}
+		else if (Cmp(szBuffer, "SetLightShininess"))
+		{
+			m_richFunctionName.SetWindowTextA(SetLightShininess);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceAmbient"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceAmbient);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceDiffuse"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceDiffuse);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceSpecular"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceSpecular);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceEmission"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceEmission);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceShininess"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceShininess);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceTransparency"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceTransparency);
+		}
+		else if (Cmp(szBuffer, "EnablePrefabInstanceMaterial"))
+		{
+			m_richFunctionName.SetWindowTextA(EnablePrefabInstanceMaterial);
+		}
+		else if (Cmp(szBuffer, "DisablePrefabInstanceMaterial"))
+		{
+			m_richFunctionName.SetWindowTextA(DisablePrefabInstanceMaterial);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -606,6 +668,20 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetDirectionalShadowResolution");
 	InsertItem("SetDirectionalShadowIntensity");
 	InsertItem("SetDirectionalShadowLight");
+
+	InsertItem("SetLightAmbient");
+	InsertItem("SetLightDiffuse");
+	InsertItem("SetLightSpecular");
+	InsertItem("SetLightShininess");
+
+	InsertItem("SetPrefabInstanceAmbient");
+	InsertItem("SetPrefabInstanceDiffuse");
+	InsertItem("SetPrefabInstanceSpecular");
+	InsertItem("SetPrefabInstanceEmission");
+	InsertItem("SetPrefabInstanceShininess");
+	InsertItem("SetPrefabInstanceTransparency");
+	InsertItem("EnablePrefabInstanceMaterial");
+	InsertItem("DisablePrefabInstanceMaterial");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

@@ -1451,7 +1451,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.7.4"));
+	SetWindowText(_T("Vanda Engine 1.7.5"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3017,7 +3017,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3078,7 +3078,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.7.4 initialized successfully" );
+		PrintInfo( "\nVersion 1.7.5 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3267,7 +3267,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3353,7 +3353,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.4 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.5 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3427,7 +3427,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.4 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.5 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7478,7 +7478,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.4 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.5 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7903,7 +7903,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.5 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7912,7 +7912,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.4 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.5 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -9718,7 +9718,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		Cpy(g_currentGUIPackageName, m_strNewGUIPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.5 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10541,7 +10541,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		Cpy(g_currentPrefabPackageName, m_strNewPrefabPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.5 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -11792,6 +11792,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				fwrite(&g_prefab[i]->GetInstance(j)->GetRotate(), sizeof(CVec4f), 1, filePtr);
 				fwrite(&g_prefab[i]->GetInstance(j)->GetScale(), sizeof(CVec3f), 1, filePtr);
 
+				//Materials
+				CBool enableMaterial = g_prefab[i]->GetInstance(j)->IsMaterialEnabled();
+				fwrite(&enableMaterial, sizeof(CBool), 1, filePtr);
+				fwrite(g_prefab[i]->GetInstance(j)->GetAmbient(), sizeof(CFloat), 4, filePtr);
+				fwrite(g_prefab[i]->GetInstance(j)->GetDiffuse(), sizeof(CFloat), 4, filePtr);
+				fwrite(g_prefab[i]->GetInstance(j)->GetSpecular(), sizeof(CFloat), 4, filePtr);
+				fwrite(g_prefab[i]->GetInstance(j)->GetEmission(), sizeof(CFloat), 4, filePtr);
+				CFloat shininess = g_prefab[i]->GetInstance(j)->GetShininess();
+				fwrite(&shininess, sizeof(CFloat), 1, filePtr);
+				CFloat transparency = g_prefab[i]->GetInstance(j)->GetTransparency();
+				fwrite(&transparency, sizeof(CFloat), 1, filePtr);
+				//////////
+
 				CBool isVisible = g_prefab[i]->GetInstance(j)->GetVisible2();
 				fwrite(&isVisible, sizeof(CBool), 1, filePtr);
 
@@ -12194,7 +12207,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13193,7 +13206,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.5 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -14916,7 +14929,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.4 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.5 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15310,6 +15323,39 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 					fread(&scale, sizeof(CVec3f), 1, filePtr);
 					new_instance_prefab->SetScale(scale);
+
+					//Materials
+					CBool enableMaterial;
+					fread(&enableMaterial, sizeof(CBool), 1, filePtr);
+					if (enableMaterial)
+						new_instance_prefab->EnableMaterial();
+					else
+						new_instance_prefab->DisableMaterial();
+
+					CFloat ambient[4];
+					fread(ambient, sizeof(CFloat), 4, filePtr);
+					new_instance_prefab->SetAmbient(ambient);
+
+					CFloat diffuse[4];
+					fread(diffuse, sizeof(CFloat), 4, filePtr);
+					new_instance_prefab->SetDiffuse(diffuse);
+
+					CFloat specular[4];
+					fread(specular, sizeof(CFloat), 4, filePtr);
+					new_instance_prefab->SetSpecular(specular);
+
+					CFloat emission[4];
+					fread(emission, sizeof(CFloat), 4, filePtr);
+					new_instance_prefab->SetEmission(emission);
+
+					CFloat shininess;
+					fread(&shininess, sizeof(CFloat), 1, filePtr);
+					new_instance_prefab->SetShininess(shininess);
+
+					CFloat transparency;
+					fread(&transparency, sizeof(CFloat), 1, filePtr);
+					new_instance_prefab->SetTransparency(transparency);
+					//////////
 
 					fread(&isVisible, sizeof(CBool), 1, filePtr);
 
@@ -16695,7 +16741,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -22266,6 +22312,17 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 					g_instancePrefab[j]->SetRotate(m_instancePrefab[i]->GetRotate());
 					g_instancePrefab[j]->SetScale(m_instancePrefab[i]->GetScale());
 
+					g_instancePrefab[j]->SetAmbient(m_instancePrefab[i]->GetAmbient());
+					g_instancePrefab[j]->SetDiffuse(m_instancePrefab[i]->GetDiffuse());
+					g_instancePrefab[j]->SetSpecular(m_instancePrefab[i]->GetSpecular());
+					g_instancePrefab[j]->SetEmission(m_instancePrefab[i]->GetEmission());
+					g_instancePrefab[j]->SetShininess(m_instancePrefab[i]->GetShininess());
+					g_instancePrefab[j]->SetTransparency(m_instancePrefab[i]->GetTransparency());
+					if (m_instancePrefab[i]->IsMaterialEnabled())
+						g_instancePrefab[j]->EnableMaterial();
+					else
+						g_instancePrefab[j]->DisableMaterial();
+
 					//remove all animations
 					for (CUInt k = 0; k < 3; k++)
 					{
@@ -22547,6 +22604,23 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 	g_shadowProperties.m_enable = m_shadowProperties.m_enable;
 	Cpy(g_shadowProperties.m_directionalLightName, m_shadowProperties.m_directionalLightName);
 
+	//Load light properties
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->m_abstractLight->SetAmbient(m_engineLights[i]->m_abstractLight->GetAmbient());
+		g_engineLights[i]->m_abstractLight->SetDiffuse(m_engineLights[i]->m_abstractLight->GetDiffuse());
+		g_engineLights[i]->m_abstractLight->SetSpecular(m_engineLights[i]->m_abstractLight->GetSpecular());
+		g_engineLights[i]->m_abstractLight->SetShininess(m_engineLights[i]->m_abstractLight->GetShininess());
+	}
+
+	for (std::vector<CInstanceLight*>::iterator it = m_engineLights.begin(); it != m_engineLights.end(); it++)
+	{
+		CDelete((*it)->m_abstractLight);
+		CDelete(*it);
+	}
+	m_engineLights.clear();
+	//End of loading light properties
+
 	if (g_dynamicShadowMap)
 	{
 		switch (g_shadowProperties.m_shadowResolution)
@@ -22809,6 +22883,23 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	m_shadowProperties.m_enable = g_shadowProperties.m_enable;
 	Cpy(m_shadowProperties.m_directionalLightName, g_shadowProperties.m_directionalLightName);
 
+	//Save light properties
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CInstanceLight* instance_light = new CInstanceLight();
+		CLight* abstract_light = new CLight();
+
+		instance_light->m_parent = NULL; //Not using COLLADA parent
+		instance_light->m_abstractLight = abstract_light;
+
+		abstract_light->SetAmbient(g_engineLights[i]->m_abstractLight->GetAmbient());
+		abstract_light->SetDiffuse(g_engineLights[i]->m_abstractLight->GetDiffuse());
+		abstract_light->SetSpecular(g_engineLights[i]->m_abstractLight->GetSpecular());
+		abstract_light->SetShininess(g_engineLights[i]->m_abstractLight->GetShininess());
+
+		m_engineLights.push_back(instance_light);
+	}
+
 	if (g_editorMode == eMODE_VSCENE)
 	{
 		//Save sounds
@@ -22837,6 +22928,18 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			new_instance_prefab->SetTranslate(g_instancePrefab[i]->GetTranslate());
 			new_instance_prefab->SetRotate(g_instancePrefab[i]->GetRotate());
 			new_instance_prefab->SetScale(g_instancePrefab[i]->GetScale());
+
+			new_instance_prefab->SetAmbient(g_instancePrefab[i]->GetAmbient());
+			new_instance_prefab->SetDiffuse(g_instancePrefab[i]->GetDiffuse());
+			new_instance_prefab->SetSpecular(g_instancePrefab[i]->GetSpecular());
+			new_instance_prefab->SetEmission(g_instancePrefab[i]->GetEmission());
+			new_instance_prefab->SetShininess(g_instancePrefab[i]->GetShininess());
+			new_instance_prefab->SetTransparency(g_instancePrefab[i]->GetTransparency());
+			if (g_instancePrefab[i]->IsMaterialEnabled())
+				new_instance_prefab->EnableMaterial();
+			else
+				new_instance_prefab->DisableMaterial();
+
 
 			m_instancePrefab.push_back(new_instance_prefab);
 
@@ -25372,11 +25475,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPrefabSettings()
 
 CVoid CVandaEngine1Dlg::LoadObjectNames()
 {
+	ClearObjectNames();
 	CChar projectPathRoot[MAX_URI_SIZE];
 	HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, projectPathRoot);
 	if (result != S_OK)
 	{
 		PrintInfo("\nCouldn't get the documents folder to write data", COLOR_RED);
+		return;
 	}
 	else
 	{

@@ -176,4 +176,19 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetDirectionalShadowResolution", SetDirectionalShadowResolution);
 	lua_register(L, "SetDirectionalShadowIntensity", SetDirectionalShadowIntensity);
 	lua_register(L, "SetDirectionalShadowLight", SetDirectionalShadowLight);
+
+	lua_register(L, "SetLightAmbient", SetLightAmbient);
+	lua_register(L, "SetLightDiffuse", SetLightDiffuse);
+	lua_register(L, "SetLightSpecular", SetLightSpecular);
+	lua_register(L, "SetLightShininess", SetLightShininess);
+
+	lua_register(L, "SetPrefabInstanceAmbient", SetPrefabInstanceAmbient);
+	lua_register(L, "SetPrefabInstanceDiffuse", SetPrefabInstanceDiffuse);
+	lua_register(L, "SetPrefabInstanceSpecular", SetPrefabInstanceSpecular);
+	lua_register(L, "SetPrefabInstanceEmission", SetPrefabInstanceEmission);
+	lua_register(L, "SetPrefabInstanceShininess", SetPrefabInstanceShininess);
+	lua_register(L, "SetPrefabInstanceTransparency", SetPrefabInstanceTransparency);
+	lua_register(L, "EnablePrefabInstanceMaterial", EnablePrefabInstanceMaterial);
+	lua_register(L, "DisablePrefabInstanceMaterial", DisablePrefabInstanceMaterial);
+
 }

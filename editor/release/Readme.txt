@@ -1,4 +1,4 @@
-Vanda Engine 1.7.4
+Vanda Engine 1.7.5
 Copyright (C) 2021 Ehsan Kamrani
 www.vanda3d.org
 www.facebook.com/vandaengine
