@@ -107,6 +107,14 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "ActivateEngineCamera", ActivateEngineCamera);
 	lua_register(L, "SetPhysicsCameraAngle", SetPhysicsCameraAngle);
 	lua_register(L, "GetPhysicsCameraAngle", GetPhysicsCameraAngle);
+	lua_register(L, "SetPhysicsCameraTilt", SetPhysicsCameraTilt);
+	lua_register(L, "SetPhysicsCameraMaxTilt", SetPhysicsCameraMaxTilt);
+	lua_register(L, "SetPhysicsCameraMinTilt", SetPhysicsCameraMinTilt);
+	lua_register(L, "GetPhysicsCameraTilt", GetPhysicsCameraTilt);
+	lua_register(L, "GetPhysicsCameraMaxTilt", GetPhysicsCameraMaxTilt);
+	lua_register(L, "GetPhysicsCameraMinTilt", GetPhysicsCameraMinTilt);
+	lua_register(L, "SetPhysicsCameraYaw", SetPhysicsCameraYaw);
+	lua_register(L, "GetPhysicsCameraYaw", GetPhysicsCameraYaw);
 
 	lua_register(L, "LoadResource", LoadResource);
 	lua_register(L, "DeleteResource", DeleteResource);
@@ -191,4 +199,30 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "EnablePrefabInstanceMaterial", EnablePrefabInstanceMaterial);
 	lua_register(L, "DisablePrefabInstanceMaterial", DisablePrefabInstanceMaterial);
 
+	lua_register(L, "SetPhysicsRestitution", SetPhysicsRestitution);
+	lua_register(L, "SetPhysicsSkinWidth", SetPhysicsSkinWidth);
+	lua_register(L, "SetPhysicsStaticFriction", SetPhysicsStaticFriction);
+	lua_register(L, "SetPhysicsDynamicFriction", SetPhysicsDynamicFriction);
+	lua_register(L, "EnablePhysicsGravity", EnablePhysicsGravity);
+	lua_register(L, "DisablePhysicsGravity", DisablePhysicsGravity);
+	lua_register(L, "SetPhysicsGravity", SetPhysicsGravity);
+	lua_register(L, "EnablePhysicsGroundPlane", EnablePhysicsGroundPlane);
+	lua_register(L, "DisablePhysicsGroundPlane", DisablePhysicsGroundPlane);
+	lua_register(L, "SetPhysicGroundHeight", SetPhysicGroundHeight);
+	lua_register(L, "SetDistanceBetweenPhysicsCameraAndCharacterController", SetDistanceBetweenPhysicsCameraAndCharacterController);
+	lua_register(L, "SetCharacterControllerCapsuleRadius", SetCharacterControllerCapsuleRadius);
+	lua_register(L, "SetCharacterControllerCapsuleHeight", SetCharacterControllerCapsuleHeight);
+	lua_register(L, "SetCharacterControllerForcePower", SetCharacterControllerForcePower);
+	lua_register(L, "SetCharacterControllerWalkSpeed", SetCharacterControllerWalkSpeed);
+	lua_register(L, "SetCharacterControllerRunSpeed", SetCharacterControllerRunSpeed);
+	lua_register(L, "SetCharacterControllerSkinWidth", SetCharacterControllerSkinWidth);
+	lua_register(L, "SetCharacterControllerStepOffset", SetCharacterControllerStepOffset);
+	lua_register(L, "SetCharacterControllerSlopeLimit", SetCharacterControllerSlopeLimit);
+	lua_register(L, "SetCharacterControllerJumpPower", SetCharacterControllerJumpPower);
+	lua_register(L, "EnableCharacterControllerJump", EnableCharacterControllerJump);
+	lua_register(L, "DisableCharacterControllerJump", DisableCharacterControllerJump);
+	lua_register(L, "EnablePhysicsDebugMode", EnablePhysicsDebugMode);
+	lua_register(L, "DisablePhysicsDebugMode", DisablePhysicsDebugMode);
+	lua_register(L, "SetCharacterControllerPosition", SetCharacterControllerPosition);
+	lua_register(L, "GetCharacterControllerPosition", GetCharacterControllerPosition);
 }

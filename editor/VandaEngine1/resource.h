@@ -16,9 +16,11 @@
 #define IDOK3                           3
 #define ID_REMOVE_TEXT                  3
 #define ID_INSERT                       3
+#define IDOFFICIALWEBSITE               3
 #define ID_BUTTON_WATER_NORMAL          4
 #define ID_DELETE                       4
 #define IDCANCEL2                       4
+#define IDEMAILME                       4
 #define IDATTACH                        5
 #define ID_NEW_PACKAGE                  5
 #define IDDETACH                        6
@@ -365,6 +367,7 @@
 #define IDB_BITMAP12                    508
 #define IDB_BITMAP_SCRIPT_UTILITY_LIGHT 508
 #define IDB_BITMAP_COFFEE               509
+#define IDB_BITMAP_VANDA_LOGO_DARK      512
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -494,6 +497,7 @@
 #define IDC_EDIT_PHYSX                  1036
 #define IDC_EDIT_CHARACTER_SPEED        1036
 #define IDC_EDIT_CAMERA_MAX_FOV         1036
+#define IDC_EDIT_CHARACTER_WALKSPEED    1036
 #define IDC_EDIT18                      1037
 #define IDC_EDIT_PHYSX_DENSITY          1037
 #define IDC_EDIT_CHARACTER_JUMP_POWER   1037
@@ -539,6 +543,7 @@
 #define IDC_GAMEOBJECTS                 1042
 #define IDC_BUTTON_COPY_PREFAB_INSTANCE_ANIMATION_NAME 1042
 #define IDC_BUTTON_COPY_RESOURCE_FILE   1042
+#define IDC_EDIT_CHARACTER_RUNSPEED     1042
 #define IDC_EDIT_SPOT_DIRECTION_Z       1043
 #define IDC_BTN_COLLADA                 1043
 #define IDC_WELCOME_BUTTON_UNCHECK      1043
@@ -1277,7 +1282,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        510
+#define _APS_NEXT_RESOURCE_VALUE        513
 #define _APS_NEXT_COMMAND_VALUE         33099
 #define _APS_NEXT_CONTROL_VALUE         1294
 #define _APS_NEXT_SYMED_VALUE           101

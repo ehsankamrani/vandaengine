@@ -1814,5 +1814,8 @@
     <Image Include="Assets\Icon\Welcome\coffee.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Icon\Welcome\vanda_logo.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

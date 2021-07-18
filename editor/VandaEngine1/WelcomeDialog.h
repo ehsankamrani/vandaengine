@@ -59,5 +59,8 @@ public:
 	afx_msg void OnStnClickedStaticRunPublishedDemo();
 	CCustomButton m_btnDonateNow;
 	afx_msg void OnBnClickedDonate();
-	CHyperLink m_vandaEngineWebsite;
+	CCustomButton m_btnOpenWebsite;
+	CCustomButton m_btnEmailMe;
+	afx_msg void OnBnClickedEmailme();
+	afx_msg void OnBnClickedOfficialwebsite();
 };

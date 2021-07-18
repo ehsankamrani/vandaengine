@@ -912,7 +912,13 @@ NxActor* CNovodex::CreateGroundPlane(CFloat groundHeight)
 
 CVoid CNovodex::ReleaseGroundPlane()
 {
-	gPhysXscene->releaseActor(*m_planeGroundActor);
+	if (m_planeGroundActor != NULL)
+		gPhysXscene->releaseActor(*m_planeGroundActor);
+	m_planeGroundActor = NULL;
+
+	if (m_groundBox != NULL)
+		gPhysXscene->releaseActor(*m_groundBox);
+	m_groundBox = NULL;
 }
 
 CVoid CNovodex::rotateX( NxActor* actor,NxReal angle  )
@@ -1057,7 +1063,7 @@ CVoid CNovodex::InitCharacterControllers(CFloat XPos, CFloat YPos, CFloat ZPos, 
 	desc.interactionFlag	= NXIF_INTERACTION_INCLUDE;
 	desc.callback		= &gControllerHitReport;
 	
-	gControllers = gCM->createController(gPhysXscene, desc);
+	gControllers = (NxCapsuleController*)gCM->createController(gPhysXscene, desc);
 }
 
 CVoid CNovodex::ReleaseCharacterControllers()

@@ -3001,6 +3001,128 @@ CInt GetPhysicsCameraAngle(lua_State *L)
 	return 0;
 }
 
+CInt SetPhysicsCameraTilt(lua_State *L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraTilt()", COLOR_RED);
+		return 0;
+	}
+	if (g_camera)
+	{
+		CFloat value = (CFloat)lua_tonumber(L, 1);
+		g_camera->m_perspectiveCameraTilt = value;
+		g_camera->m_perspectiveCurrentCameraTilt = value;
+	}
+	return 0;
+}
+
+CInt SetPhysicsCameraMaxTilt(lua_State *L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraMaxTilt()", COLOR_RED);
+		return 0;
+	}
+	if (g_camera)
+	{
+		CFloat value = (CFloat)lua_tonumber(L, 1);
+		g_camera->m_perspectiveCameraMaxTilt = value;
+	}
+	return 0;
+}
+
+CInt SetPhysicsCameraMinTilt(lua_State *L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraMinTilt()", COLOR_RED);
+		return 0;
+	}
+	if (g_camera)
+	{
+		CFloat value = (CFloat)lua_tonumber(L, 1);
+		g_camera->m_perspectiveCameraMinTilt = value;
+	}
+	return 0;
+}
+
+CInt GetPhysicsCameraTilt(lua_State *L)
+{
+	if (g_camera)
+	{
+		lua_pushnumber(L, g_camera->m_perspectiveCurrentCameraTilt);
+		return 1;
+	}
+
+	return 0;
+}
+
+CInt GetPhysicsCameraMaxTilt(lua_State *L)
+{
+	if (g_camera)
+	{
+		lua_pushnumber(L, g_camera->m_perspectiveCameraMaxTilt);
+		return 1;
+	}
+
+	return 0;
+}
+
+CInt GetPhysicsCameraMinTilt(lua_State *L)
+{
+	if (g_camera)
+	{
+		lua_pushnumber(L, g_camera->m_perspectiveCameraMinTilt);
+		return 1;
+	}
+
+	return 0;
+}
+
+CInt SetPhysicsCameraYaw(lua_State *L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraYaw()", COLOR_RED);
+		return 0;
+	}
+	if (g_camera)
+	{
+		CFloat value = (CFloat)lua_tonumber(L, 1);
+		g_camera->m_perspectiveCameraYaw = NxMath::degToRad(value) /*+ NxMath::degToRad(180.f)*/;
+	}
+
+	return 0;
+}
+
+CInt GetPhysicsCameraYaw(lua_State *L)
+{
+	if (g_camera)
+	{
+		lua_pushnumber(L, NxMath::radToDeg(g_camera->m_perspectiveCameraYaw));
+		return 1;
+	}
+	
+	return 0;
+}
+
 CInt LoadResource(lua_State *L)
 {
 	if (g_testScript)
@@ -7972,6 +8094,712 @@ CInt DisablePrefabInstanceMaterial(lua_State* L)
 	return 0;
 }
 
+
+CInt SetPhysicsRestitution(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsRestitution()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetPhysicsRestitution() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fDefaultRestitution = value;
+	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
+	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
+	}
+
+	return 0;
+}
+
+CInt SetPhysicsSkinWidth(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsSkinWidth()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetPhysicsSkinWidth() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fDefaultSkinWidth = value;
+	gPhysicsSDK->setParameter(NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth);
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+		currentActor->getShapes()[0]->setSkinWidth(g_physXProperties.m_fDefaultSkinWidth);
+	}
+
+	return 0;
+}
+
+CInt SetPhysicsStaticFriction(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsStaticFriction()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetPhysicsStaticFriction() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fDefaultStaticFriction = value;
+	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
+	defaultMaterial->setStaticFriction(g_physXProperties.m_fDefaultStaticFriction);
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
+	}
+
+	return 0;
+}
+
+CInt SetPhysicsDynamicFriction(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsDynamicFriction()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetPhysicsDynamicFriction() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fDefaultDynamicFriction = value;
+	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
+	defaultMaterial->setDynamicFriction(g_physXProperties.m_fDefaultDynamicFriction);
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
+	}
+
+	return 0;
+}
+
+CInt EnablePhysicsGravity(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+
+	g_physXProperties.m_bApplyGravity = CTrue;
+	g_multipleView->m_nx->m_defaultGravity = NxVec3(g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ);
+	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->m_defaultGravity.x, g_multipleView->m_nx->m_defaultGravity.y, g_multipleView->m_nx->m_defaultGravity.z));
+
+	return 0;
+}
+
+CInt DisablePhysicsGravity(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+
+	g_physXProperties.m_bApplyGravity = CFalse;
+	g_multipleView->m_nx->m_defaultGravity = NxVec3(0.0f, 0.0f, 0.0f);
+	gPhysXscene->setGravity(NxVec3(0.0f));
+
+	return 0;
+}
+
+CInt SetPhysicsGravity(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetPhysicsGravity()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value1 = (CFloat)lua_tonumber(L, 1);
+	CFloat value2 = (CFloat)lua_tonumber(L, 2);
+	CFloat value3 = (CFloat)lua_tonumber(L, 3);
+
+	g_physXProperties.m_fGravityX = value1;
+	g_physXProperties.m_fGravityY = value2;
+	g_physXProperties.m_fGravityZ = value3;
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+
+	if (g_physXProperties.m_bApplyGravity)
+	{
+		g_multipleView->m_nx->m_defaultGravity = NxVec3(g_physXProperties.m_fGravityX, g_physXProperties.m_fGravityY, g_physXProperties.m_fGravityZ);
+		gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->m_defaultGravity.x, g_multipleView->m_nx->m_defaultGravity.y, g_multipleView->m_nx->m_defaultGravity.z));
+	}
+
+	return 0;
+}
+
+CInt EnablePhysicsGroundPlane(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	g_physXProperties.m_bGroundPlane = CTrue;
+
+	g_multipleView->m_nx->ReleaseGroundPlane();
+
+	g_multipleView->m_nx->CreateGroundPlane(g_physXProperties.m_fGroundHeight);
+	NxVec3 rot0(0, 0, 0);
+	NxVec3 rot1(0, 0, 0);
+	NxVec3 rot2(0, 0, 0);
+	NxMat33 rot(rot0, rot1, rot2);
+	g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(EPSILON);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
+	return 0;
+}
+
+CInt DisablePhysicsGroundPlane(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	g_physXProperties.m_bGroundPlane = CFalse;
+
+	g_multipleView->m_nx->ReleaseGroundPlane();
+
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(EPSILON);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
+	return 0;
+}
+
+CInt SetPhysicGroundHeight(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicGroundHeight()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+	g_physXProperties.m_fGroundHeight = value;
+	
+	if (g_physXProperties.m_bGroundPlane)
+	{
+		g_multipleView->m_nx->ReleaseGroundPlane();
+
+		g_multipleView->m_nx->CreateGroundPlane(g_physXProperties.m_fGroundHeight);
+		NxVec3 rot0(0, 0, 0);
+		NxVec3 rot1(0, 0, 0);
+		NxVec3 rot2(0, 0, 0);
+		NxMat33 rot(rot0, rot1, rot2);
+		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+	}
+
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(EPSILON);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
+	return 0;
+}
+
+CInt SetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetDistanceBetweenPhysicsCameraAndCharacterController()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetDistanceBetweenPhysicsCameraAndCharacterController() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCameraCharacterDistance = value;
+	g_multipleView->m_nx->gDesiredDistance = value;
+
+	return 0;
+}
+
+CInt SetCharacterControllerCapsuleRadius(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerCapsuleRadius()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerCapsuleRadius() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCapsuleRadius = value;
+	g_multipleView->m_nx->gControllers->setRadius(g_physXProperties.m_fCapsuleRadius);
+
+	return 0;
+}
+
+CInt SetCharacterControllerCapsuleHeight(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerCapsuleHeight()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerCapsuleHeight() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCapsuleHeight = value;
+	g_multipleView->m_nx->gControllers->setHeight(g_physXProperties.m_fCapsuleHeight);
+
+	return 0;
+}
+
+CInt SetCharacterControllerForcePower(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerForcePower()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerForcePower() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCharacterPower = value;
+
+	return 0;
+}
+
+CInt SetCharacterControllerWalkSpeed(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerWalkSpeed()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerWalkSpeed() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCharacterWalkSpeed = value;
+	g_multipleView->m_nx->gCharacterWalkSpeed = g_physXProperties.m_fCharacterWalkSpeed;
+
+	return 0;
+}
+
+CInt SetCharacterControllerRunSpeed(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerRunSpeed()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerRunSpeed() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCharacterRunSpeed = value;
+	g_multipleView->m_nx->gCharacterRunSpeed = g_physXProperties.m_fCharacterRunSpeed;
+
+	return 0;
+}
+
+CInt SetCharacterControllerSkinWidth(lua_State* L)
+{
+	return 0;
+}
+
+CInt SetCharacterControllerStepOffset(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerStepOffset()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerStepOffset() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fCharacterStepOffset = value;
+	g_multipleView->m_nx->gControllers->setStepOffset(g_physXProperties.m_fCharacterStepOffset);
+
+	return 0;
+}
+
+CInt SetCharacterControllerSlopeLimit(lua_State* L)
+{
+	return 0;
+}
+
+CInt SetCharacterControllerJumpPower(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetCharacterControllerJumpPower()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value = (CFloat)lua_tonumber(L, 1);
+
+	if (value < 0.0f)
+	{
+		PrintInfo("\nSetCharacterControllerJumpPower() Error: argument must be greater than 0", COLOR_RED);
+		return 0;
+	}
+
+	g_physXProperties.m_fJumpPower = value;
+
+	return 0;
+}
+
+CInt EnableCharacterControllerJump(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	g_physXProperties.m_bJumping = CTrue;
+
+	return 0;
+}
+
+CInt DisableCharacterControllerJump(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	g_physXProperties.m_bJumping = CFalse;
+
+	return 0;
+}
+
+CInt EnablePhysicsDebugMode(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	g_physXProperties.m_bDebugMode = CTrue;
+	g_multipleView->m_nx->debugMode = g_physXProperties.m_bDebugMode;
+
+	return 0;
+}
+
+CInt DisablePhysicsDebugMode(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	g_physXProperties.m_bDebugMode = CFalse;
+	g_multipleView->m_nx->debugMode = g_physXProperties.m_bDebugMode;
+
+	return 0;
+}
+
+CInt SetCharacterControllerPosition(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetCharacterControllerPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat value1 = (CFloat)lua_tonumber(L, 1);
+	CFloat value2 = (CFloat)lua_tonumber(L, 2);
+	CFloat value3 = (CFloat)lua_tonumber(L, 3);
+
+	NxExtendedVec3 nxPos(value1, value2, value3);
+	g_multipleView->m_nx->SetCharacterPos(nxPos);
+
+	return 0;
+}
+
+CInt GetCharacterControllerPosition(lua_State* L)
+{
+	if (!gPhysXscene)
+	{
+		return 0;
+	}
+
+	if (g_testScript)
+		return 0;
+
+	CFloat x = g_multipleView->m_nx->GetFilteredCharacterPos().x;
+	CFloat y = g_multipleView->m_nx->GetFilteredCharacterPos().y;
+	CFloat z = g_multipleView->m_nx->GetFilteredCharacterPos().z;
+
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	lua_pushnumber(L, z);
+
+	return 3;
+}
+
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
 
@@ -12567,7 +13395,7 @@ CVoid CMultipleWindows::ProcessInputs()
 		if (forceApplied)
 			m_idleCounter = 0.0f;
 
-		if( g_physXProperties.m_bApplyGravity && g_physXProperties.m_bJumping)
+		if( /*g_physXProperties.m_bApplyGravity &&*/ g_physXProperties.m_bJumping)
 			if( g_multipleView->m_inputSystem->KeyDown( DIK_SPACE ) )
 				if (!g_multipleView->m_nx->gJump)
 				{

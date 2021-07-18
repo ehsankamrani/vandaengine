@@ -52,6 +52,14 @@ private:
 	CChar ActivateEngineCamera[MAX_URI_SIZE];
 	CChar SetPhysicsCameraAngle[MAX_URI_SIZE];
 	CChar GetPhysicsCameraAngle[MAX_URI_SIZE];
+	CChar SetPhysicsCameraTilt[MAX_URI_SIZE];
+	CChar SetPhysicsCameraMaxTilt[MAX_URI_SIZE];
+	CChar SetPhysicsCameraMinTilt[MAX_URI_SIZE];
+	CChar GetPhysicsCameraTilt[MAX_URI_SIZE];
+	CChar GetPhysicsCameraMaxTilt[MAX_URI_SIZE];
+	CChar GetPhysicsCameraMinTilt[MAX_URI_SIZE];
+	CChar SetPhysicsCameraYaw[MAX_URI_SIZE];
+	CChar GetPhysicsCameraYaw[MAX_URI_SIZE];
 
 	CChar LoadResource[MAX_URI_SIZE];
 	CChar DeleteResource[MAX_URI_SIZE];
@@ -137,6 +145,33 @@ private:
 	CChar SetPrefabInstanceTransparency[MAX_URI_SIZE];
 	CChar EnablePrefabInstanceMaterial[MAX_URI_SIZE];
 	CChar DisablePrefabInstanceMaterial[MAX_URI_SIZE];
+
+	CChar SetPhysicsRestitution[MAX_URI_SIZE];
+	CChar SetPhysicsSkinWidth[MAX_URI_SIZE];
+	CChar SetPhysicsStaticFriction[MAX_URI_SIZE];
+	CChar SetPhysicsDynamicFriction[MAX_URI_SIZE];
+	CChar EnablePhysicsGravity[MAX_URI_SIZE];
+	CChar DisablePhysicsGravity[MAX_URI_SIZE];
+	CChar SetPhysicsGravity[MAX_URI_SIZE];
+	CChar EnablePhysicsGroundPlane[MAX_URI_SIZE];
+	CChar DisablePhysicsGroundPlane[MAX_URI_SIZE];
+	CChar SetPhysicGroundHeight[MAX_URI_SIZE];
+	CChar SetDistanceBetweenPhysicsCameraAndCharacterController[MAX_URI_SIZE];
+	CChar SetCharacterControllerCapsuleRadius[MAX_URI_SIZE];
+	CChar SetCharacterControllerCapsuleHeight[MAX_URI_SIZE];
+	CChar SetCharacterControllerForcePower[MAX_URI_SIZE];
+	CChar SetCharacterControllerWalkSpeed[MAX_URI_SIZE];
+	CChar SetCharacterControllerRunSpeed[MAX_URI_SIZE];
+	CChar SetCharacterControllerSkinWidth[MAX_URI_SIZE];
+	CChar SetCharacterControllerStepOffset[MAX_URI_SIZE];
+	CChar SetCharacterControllerSlopeLimit[MAX_URI_SIZE];
+	CChar SetCharacterControllerJumpPower[MAX_URI_SIZE];
+	CChar EnableCharacterControllerJump[MAX_URI_SIZE];
+	CChar DisableCharacterControllerJump[MAX_URI_SIZE];
+	CChar EnablePhysicsDebugMode[MAX_URI_SIZE];
+	CChar DisablePhysicsDebugMode[MAX_URI_SIZE];
+	CChar SetCharacterControllerPosition[MAX_URI_SIZE];
+	CChar GetCharacterControllerPosition[MAX_URI_SIZE];
 
 public:
 	afx_msg void OnBnClickedCancel();

@@ -686,7 +686,9 @@ private:
 	CDOFProperties m_dofProperties;
 	CFogProperties m_fogProperties;
 	CShadowProperties m_shadowProperties;
+	CPhysXProperties m_physicsProperties;
 	std::vector<CInstanceLight*>m_engineLights;
+	CUpdateCamera* m_camera;
 
 public:
 	CRichEditCtrl m_rich;

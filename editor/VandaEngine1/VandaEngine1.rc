@@ -87,7 +87,7 @@ IDB_BITMAP_PHYSXEDITOR_UP BITMAP                  "Assets\\Icon\\PhysX Editor\\P
 IDB_BITMAP_PHYSXEDITOR_DOWN BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Down.bmp"
 IDB_BITMAP_PHYSXEDITOR_DISABLE BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Disable.bmp"
 IDB_BITMAP_LINK_UP      BITMAP                  "Assets\\Icon\\Welcome\\link.bmp"
-IDB_BITMAP_WELCOME_VERSION BITMAP                  "Assets\\Icon\\Welcome\\Welcome_version.bmp"
+IDB_BITMAP_WELCOME_VERSION BITMAP                  "F:\\New Engine\\VandaEngine\\editor\\VandaEngine1\\Assets\\Icon\\Welcome\\Welcome_version.bmp"
 IDB_BITMAP_WELCOME_SEPARATOR BITMAP                  "Assets\\Icon\\Welcome\\Seperator.bmp"
 IDB_BITMAP_LIGHT_DISABLE BITMAP                  "Assets\\Icon\\Light\\Light_Disable.bmp"
 IDB_BITMAP_WATER_DISABLE BITMAP                  "Assets\\Icon\\Water\\Water_Disable.bmp"
@@ -184,6 +184,7 @@ IDB_BITMAP_SCRIPT_UTILITY_STATIC_SOUND BITMAP                  "Assets\\Icon\\De
 IDB_BITMAP_SCRIPT_UTILITY_CAMERA BITMAP                  "Assets\\Icon\\Default\\Script Utility\\camera.bmp"
 IDB_BITMAP_SCRIPT_UTILITY_LIGHT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\light.bmp"
 IDB_BITMAP_COFFEE       BITMAP                  "Assets\\Icon\\Welcome\\coffee.bmp"
+IDB_BITMAP_VANDA_LOGO_DARK BITMAP                  "Assets\\Icon\\Welcome\\vanda_logo.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -211,13 +212,13 @@ BEGIN
     LTEXT           "Name",IDC_STATIC,204,12,21,8
 END
 
-IDD_DIALOG_EDIT_GENERAL_PHYSX_PROPERTIES DIALOGEX 0, 0, 319, 225
+IDD_DIALOG_EDIT_GENERAL_PHYSX_PROPERTIES DIALOGEX 0, 0, 319, 256
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "General PhysX Options"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,205,203,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,262,203,50,14
+    DEFPUSHBUTTON   "OK",IDOK,205,234,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,262,234,50,14
     CONTROL         "Debug Mode",IDC_CHECK_DEBUG_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,51,56,10
     CONTROL         "Apply Gravity",IDC_CHECK_APPLY_GRAVITY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,84,59,10
     LTEXT           "Distance between main camera and character",IDC_STATIC,15,118,147,8
@@ -226,8 +227,8 @@ BEGIN
     LTEXT           "Y",IDC_STATIC,171,85,8,8
     LTEXT           "Z",IDC_STATIC,238,85,8,8
     GROUPBOX        "Gravity",IDC_STATIC,7,72,305,29
-    GROUPBOX        "Character Controller",IDC_STATIC,7,105,305,92
-    CONTROL         "Jumping",IDC_CHECK_JUMP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,178,42,10
+    GROUPBOX        "Character Controller",IDC_STATIC,7,105,305,118
+    CONTROL         "Jumping",IDC_CHECK_JUMP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,201,42,10
     GROUPBOX        "General",IDC_STATIC,7,3,305,65
     LTEXT           "Default Restitution",IDC_STATIC,15,18,61,8
     LTEXT           "Default Static Friction",IDC_STATIC,136,18,72,8
@@ -247,20 +248,22 @@ BEGIN
     EDITTEXT        IDC_EDIT_CHARACTER_HEIGHT,171,136,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_CHARACTER_POWER,266,115,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_CAMERA_CHARACTER_DISTANCE,171,115,40,14,ES_AUTOHSCROLL
-    LTEXT           "Walk Speed",IDC_STATIC,223,139,38,8
-    EDITTEXT        IDC_EDIT_CHARACTER_SPEED,266,136,40,14,ES_AUTOHSCROLL
-    LTEXT           "Jump Power",IDC_STATIC,123,178,40,8
-    EDITTEXT        IDC_EDIT_CHARACTER_JUMP_POWER,171,176,40,14,ES_AUTOHSCROLL
-    LTEXT           "Slope Limit",IDC_STATIC,227,159,34,8
-    EDITTEXT        IDC_EDIT_CHARACTER_SLOPE_LIMIT,266,156,40,14,ES_AUTOHSCROLL
-    LTEXT           "Skin Width",IDC_STATIC,14,159,34,8
-    EDITTEXT        IDC_EDIT_CHARACTER_SKIN_WIDTH,68,156,40,14,ES_AUTOHSCROLL
+    LTEXT           "Walk Speed",IDC_STATIC,13,180,38,8
+    EDITTEXT        IDC_EDIT_CHARACTER_WALKSPEED,68,177,40,14,ES_AUTOHSCROLL
+    LTEXT           "Jump Power",IDC_STATIC,119,201,40,8
+    EDITTEXT        IDC_EDIT_CHARACTER_JUMP_POWER,172,199,40,14,ES_AUTOHSCROLL
+    LTEXT           "Slope Limit",IDC_STATIC,13,159,39,8
+    EDITTEXT        IDC_EDIT_CHARACTER_SLOPE_LIMIT,68,156,40,14,ES_AUTOHSCROLL
+    LTEXT           "Skin Width",IDC_STATIC,222,139,34,8
+    EDITTEXT        IDC_EDIT_CHARACTER_SKIN_WIDTH,266,136,40,14,ES_AUTOHSCROLL
     LTEXT           "Step Offset",IDC_STATIC,119,158,38,8
     EDITTEXT        IDC_EDIT_CHARACTER_STEP_OFFSET,172,156,40,14,ES_AUTOHSCROLL
     CONTROL         "Ground Plane",IDC_CHECK_GROUND_PLANE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,93,51,56,10
     LTEXT           "Ground Height",IDC_STATIC,164,51,48,8
     EDITTEXT        IDC_EDIT_GROUND_HEIGHT,217,49,40,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Reset",IDC_BUTTON_RESET,143,203,50,14
+    PUSHBUTTON      "Reset",IDC_BUTTON_RESET,143,234,50,14
+    LTEXT           "Run Speed",IDC_STATIC,119,180,38,8
+    EDITTEXT        IDC_EDIT_CHARACTER_RUNSPEED,172,177,40,14,ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_NEW_EDIT_PROJECT DIALOGEX 0, 0, 183, 60
@@ -497,7 +500,7 @@ BEGIN
     GROUPBOX        "Character Controller",IDC_STATIC,7,141,220,107
     CONTROL         "Jumping",IDC_CHECK_JUMP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,227,42,10
     LTEXT           "Capsule Radius",IDC_STATIC,13,180,50,8
-    LTEXT           "Capsule Height",IDC_STATIC,118,180,54,8
+    LTEXT           "Capsule Height",IDC_STATIC,118,180,49,8
     LTEXT           "Force Power",IDC_STATIC,15,158,41,8
     EDITTEXT        IDC_EDIT_CHARACTER_RADIUS,68,178,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_CHARACTER_HEIGHT,171,178,40,14,ES_AUTOHSCROLL
@@ -507,7 +510,7 @@ BEGIN
     EDITTEXT        IDC_EDIT_WALK_CHARACTER_SPEED,55,18,40,14,ES_AUTOHSCROLL
     LTEXT           "Jump Power",IDC_STATIC,62,228,40,8
     EDITTEXT        IDC_EDIT_CHARACTER_JUMP_POWER,107,226,40,14,ES_AUTOHSCROLL
-    LTEXT           "Slope Limit",IDC_STATIC,121,157,34,8
+    LTEXT           "Slope Limit",IDC_STATIC,121,157,46,8
     EDITTEXT        IDC_EDIT_CHARACTER_SLOPE_LIMIT,171,155,40,14,ES_AUTOHSCROLL
     LTEXT           "Skin Width",IDC_STATIC,14,204,34,8
     EDITTEXT        IDC_EDIT_CHARACTER_SKIN_WIDTH,68,201,40,14,ES_AUTOHSCROLL
@@ -1189,10 +1192,11 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 312
         TOPMARGIN, 7
-        BOTTOMMARGIN, 217
+        BOTTOMMARGIN, 248
         HORZGUIDE, 17
         HORZGUIDE, 81
         HORZGUIDE, 136
+        HORZGUIDE, 177
     END
 
     IDD_DIALOG_NEW_EDIT_PROJECT, DIALOG
@@ -2261,47 +2265,47 @@ BEGIN
     DEFPUSHBUTTON   "Select...",IDC_BUTTON_BLOOM_COLOR,188,7,52,15
 END
 
-IDD_DIALOG_WELCOME DIALOGEX 0, 0, 322, 302
+IDD_DIALOG_WELCOME DIALOGEX 0, 0, 325, 327
 STYLE DS_SETFONT | DS_SETFOREGROUND | DS_CENTER | WS_POPUP
 FONT 10, "Lucida Sans Unicode", 400, 0, 0x0
 BEGIN
-    CONTROL         "OK",IDOK,"Button",BS_OWNERDRAW | WS_TABSTOP,280,278,39,16
-    CONTROL         "Check",IDC_WELCOME_BUTTON_CHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,267,12,12
-    LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,270,155,10
+    CONTROL         "OK",IDOK,"Button",BS_OWNERDRAW | WS_TABSTOP,275,303,39,16
+    CONTROL         "Check",IDC_WELCOME_BUTTON_CHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,266,12,12
+    LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,269,155,10
     CONTROL         "Help file!",IDC_WELCOME_BUTTON_HELP,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,272,56,8,8
-    CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,267,12,12
+    CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,266,12,12
     CONTROL         "Video",IDC_WELCOME_BUTTON_VIDEO,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,170,28,8,8
     CONTROL         "Tutorials",IDC_WELCOME_BUTTON_TUTORIALS,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,219,3,8,8
     CONTROL         "Overview",IDC_WELCOME_BUTTON_VANDA_OVERVIEW,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,179,43,8,8
     CONTROL         "Demo",IDC_WELCOME_BUTTON_RUN_DEMO_EDITOR,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,144,4,8,8
     CONTROL         "Demo",IDC_WELCOME_BUTTON_RUN_DEMO_PUBLISHED,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,144,18,8,8
     CONTROL         "Donate",IDC_WELCOME_BUTTON_DONATE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,241,70,8,8
-    LTEXT           "Introduction to Vanda Engine",IDC_STATIC_INTRODUCTION,195,28,124,11,NOT WS_VISIBLE
-    LTEXT           "How does Vanda Engine work",IDC_STATIC_VE_STRUCTURE,207,43,112,10,NOT WS_VISIBLE
-    LTEXT           "Tutorials",IDC_STATIC_TUTORIALS,286,3,33,10,NOT WS_VISIBLE
-    LTEXT           "Help",IDC_STATIC_HELP,299,56,20,10,NOT WS_VISIBLE
+    LTEXT           "Introduction to Vanda Engine",IDC_STATIC_INTRODUCTION,198,28,124,11,NOT WS_VISIBLE
+    LTEXT           "How does Vanda Engine work",IDC_STATIC_VE_STRUCTURE,210,43,112,10,NOT WS_VISIBLE
+    LTEXT           "Tutorials",IDC_STATIC_TUTORIALS,289,3,33,10,NOT WS_VISIBLE
+    LTEXT           "Help",IDC_STATIC_HELP,302,56,20,10,NOT WS_VISIBLE
     CONTROL         "Published_editor",IDC_STATIC_RUN_DEMO_IN_EDITOR,"Static",SS_LEFTNOWORDWRAP | SS_NOTIFY | NOT WS_VISIBLE | WS_GROUP,155,3,52,10
     LTEXT           "Published",IDC_STATIC_RUN_PUBLISHED_DEMO,154,18,33,10,SS_NOTIFY | NOT WS_VISIBLE
-    LTEXT           "Donate Now",IDC_STATIC_DONATE,273,70,46,10,NOT WS_VISIBLE
-    CONTROL         IDB_BITMAP8,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,64,252,156,8
+    LTEXT           "Donate Now",IDC_STATIC_DONATE,276,70,46,10,NOT WS_VISIBLE
+    CONTROL         IDB_BITMAP8,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,73,253,156,8
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 1.7.5",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 1.7.6",IDC_STATIC,7,33,60,8
     LTEXT           "© 2021 Ehsan Kamrani",IDC_STATIC,7,48,126,9
     LTEXT           "This program is licensed and distributed under MIT license",IDC_STATIC,8,64,197,9
-    CONTROL         IDB_BITMAP_COFFEE,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,228,134,84,89
-    LTEXT           "Welcom to Vanda Engine 1, a free and open source game engine",IDC_STATIC,8,133,209,9
-    LTEXT           "For Windows. I'm developing this software for years and my goal ",IDC_STATIC,8,147,206,9
-    LTEXT           "is to help people build game engines and 3d games for free.",IDC_STATIC,8,163,205,9
-    LTEXT           "Unfortunatelly, less than 1 in 1000 people who download this",IDC_STATIC,8,179,205,9
-    LTEXT           "game engine donate. If you like my work, please consider buying",IDC_STATIC,9,195,210,9
-    CONTROL         "Donate Now",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,113,230,62,16
-    LTEXT           "me a cup of coffee. Thank you! :)",IDC_STATIC,10,212,210,9
-    LTEXT           "https://vanda3d.org",IDC_STATIC_VANDA_ENGINE_WEBSITE,42,82,76,10
-    LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,64,103,167,9
-    LTEXT           "Website:",IDC_STATIC,10,82,29,8
-    LTEXT           "Email Me:",IDC_STATIC,174,82,35,8
-    LTEXT           "opentechno@hotmail.com",IDC_STATIC,211,82,88,8
-    CONTROL         IDB_BITMAP8,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,64,118,156,8
+    CONTROL         IDB_BITMAP_VANDA_LOGO_DARK,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,232,4,84,89
+    LTEXT           "Welcome to Vanda Engine 1, a free and open source game engine for Windows for personal and",IDC_STATIC,8,115,314,9
+    LTEXT           "commercial use. I'm developing this software for years and my goal is to help the students and",IDC_STATIC,8,129,314,9
+    LTEXT           " other enthusiast learn game engine programming and game development. While giant companies",IDC_STATIC,5,145,317,9
+    LTEXT           "are building engines with huge budgets and a lot of manpower, I am building this engine in my",IDC_STATIC,8,161,304,9
+    LTEXT           "room with an old computer and without budget. It will be appreciated if you donate to this ",IDC_STATIC,9,177,313,9
+    CONTROL         "Donate Now",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,53,229,62,16
+    LTEXT           "project so that I can buy the required software and books I need and hire people to produce free",IDC_STATIC,9,194,313,9
+    LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,73,85,167,9
+    CONTROL         IDB_BITMAP8,IDC_STATIC,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,73,100,156,8
+    CONTROL         "Open Website",IDOFFICIALWEBSITE,"Button",BS_OWNERDRAW | WS_TABSTOP,121,229,61,16
+    CONTROL         "Email Me",IDEMAILME,"Button",BS_OWNERDRAW | WS_TABSTOP,188,229,62,16
+    LTEXT           "You can always access this dialog from Help | About menu",IDC_STATIC,6,287,199,9
+    LTEXT           "2D and 3D assets and educational videos and tutorials for this engine. Thank you!",IDC_STATIC,9,210,294,9
 END
 
 IDD_DIALOG_OPTIONS DIALOGEX 0, 0, 211, 164
@@ -2450,7 +2454,7 @@ CAPTION "About Vanda Engine 1.6"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 1.7.5",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.7.6",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -2643,16 +2647,18 @@ BEGIN
     IDD_DIALOG_WELCOME, DIALOG
     BEGIN
         LEFTMARGIN, 2
-        RIGHTMARGIN, 319
+        RIGHTMARGIN, 322
         VERTGUIDE, 54
         VERTGUIDE, 132
         VERTGUIDE, 175
         VERTGUIDE, 197
         TOPMARGIN, 3
-        BOTTOMMARGIN, 294
+        BOTTOMMARGIN, 319
         HORZGUIDE, 28
         HORZGUIDE, 48
         HORZGUIDE, 66
+        HORZGUIDE, 79
+        HORZGUIDE, 230
     END
 
     IDD_DIALOG_OPTIONS, DIALOG
@@ -2996,12 +3002,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.7.5"
+            VALUE "FileVersion", "1.7.6"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.7.5"
+            VALUE "ProductVersion", "1.7.6"
         END
     END
     BLOCK "VarFileInfo"

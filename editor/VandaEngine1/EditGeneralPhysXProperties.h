@@ -58,7 +58,8 @@ public:
 	CString m_strCapsuleHeight;
 	CString m_strCharacterPower;
 	CString m_strJumpPower;
-	CString m_strCharacterSpeed;
+	CString m_strCharacterWalkSpeed;
+	CString m_strCharacterRunSpeed;
 	CString m_strCharacterSkinWidth;
 	CString m_strCharacterStepOffset;
 	CString m_strCharacterSlopeLimit;
@@ -77,6 +78,7 @@ public:
 	CFloat m_fCharacterPower;
 	CFloat m_fJumpPower;
 	CFloat m_fCharacterWalkSpeed;
+	CFloat m_fCharacterRunSpeed;
 	CFloat m_fCharacterSkinWidth;
 	CFloat m_fCharacterStepOffset;
 	CFloat m_fCharacterSlopeLimit;
@@ -85,9 +87,11 @@ public:
 	virtual void OnOK();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnEnChangeEditCharacterJumpPower();
-	afx_msg void OnEnChangeEditCharacterSpeed();
+	afx_msg void OnEnChangeEditCharacterWalkSpeed();
+	afx_msg void OnEnChangeEditCharacterRunspeed();
 	CEdit m_editBoxJumpPower;
-	CEdit m_editBoxCharacterSpeed;
+	CEdit m_editBoxCharacterWalkSpeed;
+	CEdit m_editBoxCharacterRunSpeed;
 	CEdit m_editBoxCharacterSkinWidth;
 	CEdit m_editBoxCharacterStepOffset;
 	CEdit m_editBoxCharacterSlopeLimit;

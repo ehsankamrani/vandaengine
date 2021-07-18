@@ -101,7 +101,7 @@ public:
 	CBool			  gJump;
 	UserAllocator* gAllocator;
 	NxControllerManager* gCM;
-	NxController* gControllers;
+	NxCapsuleController* gControllers;
 	NxF32             gTimestepMultiplier;
 	NxExtendedVec3	  gCharacterPos;
 	CBool			  bPushCharacter;

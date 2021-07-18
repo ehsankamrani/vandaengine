@@ -744,6 +744,7 @@
     <Image Include="Assets\Icon\WaterAttach\WaterAttach_Up.bmp" />
     <Image Include="Assets\Icon\Water\Water_Disable.bmp" />
     <Image Include="Assets\Icon\Welcome\coffee.bmp" />
+    <Image Include="Assets\Icon\Welcome\vanda_logo.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

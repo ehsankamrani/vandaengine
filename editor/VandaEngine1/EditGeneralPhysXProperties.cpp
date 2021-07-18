@@ -25,7 +25,8 @@ CEditGeneralPhysXProperties::CEditGeneralPhysXProperties(CWnd* pParent /*=NULL*/
 	, m_strCapsuleHeight(_T(""))
 	, m_strCharacterPower(_T(""))
 	, m_strJumpPower(_T(""))
-	, m_strCharacterSpeed(_T(""))
+	, m_strCharacterWalkSpeed(_T(""))
+	, m_strCharacterRunSpeed(_T(""))
 {
 
 }
@@ -52,7 +53,8 @@ void CEditGeneralPhysXProperties::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_HEIGHT, m_editBoxCapsuleHeight);
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_POWER, m_editBoxCharacterPower);
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_JUMP_POWER, m_editBoxJumpPower);
-	DDX_Control(pDX, IDC_EDIT_CHARACTER_SPEED, m_editBoxCharacterSpeed);
+	DDX_Control(pDX, IDC_EDIT_CHARACTER_WALKSPEED, m_editBoxCharacterWalkSpeed);
+	DDX_Control(pDX, IDC_EDIT_CHARACTER_RUNSPEED, m_editBoxCharacterRunSpeed);
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_SKIN_WIDTH, m_editBoxCharacterSkinWidth);
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_STEP_OFFSET, m_editBoxCharacterStepOffset);
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_SLOPE_LIMIT, m_editBoxCharacterSlopeLimit);
@@ -74,7 +76,8 @@ BEGIN_MESSAGE_MAP(CEditGeneralPhysXProperties, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_CHARACTER_HEIGHT, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterHeight)
 	ON_EN_CHANGE(IDC_EDIT_CHARACTER_POWER, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterPower)
 	ON_EN_CHANGE(IDC_EDIT_CHARACTER_JUMP_POWER, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterJumpPower)
-	ON_EN_CHANGE(IDC_EDIT_CHARACTER_SPEED, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterSpeed)
+	ON_EN_CHANGE(IDC_EDIT_CHARACTER_WALKSPEED, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterWalkSpeed)
+	ON_EN_CHANGE(IDC_EDIT_CHARACTER_RUNSPEED, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterRunspeed)
 	ON_EN_CHANGE(IDC_EDIT_CHARACTER_SKIN_WIDTH, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterSkinWidth)
 	ON_EN_CHANGE(IDC_EDIT_CHARACTER_STEP_OFFSET, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterStepOffset)
 	ON_EN_CHANGE(IDC_EDIT_CHARACTER_SLOPE_LIMIT, &CEditGeneralPhysXProperties::OnEnChangeEditCharacterSlopeLimit)
@@ -163,10 +166,16 @@ void CEditGeneralPhysXProperties::OnEnChangeEditCharacterJumpPower()
 }
 
 
-void CEditGeneralPhysXProperties::OnEnChangeEditCharacterSpeed()
+void CEditGeneralPhysXProperties::OnEnChangeEditCharacterWalkSpeed()
 {
-	m_editBoxCharacterSpeed.GetWindowTextA( m_strCharacterSpeed );
-	m_fCharacterWalkSpeed = atof( m_strCharacterSpeed );
+	m_editBoxCharacterWalkSpeed.GetWindowTextA(m_strCharacterWalkSpeed);
+	m_fCharacterWalkSpeed = atof(m_strCharacterWalkSpeed);
+}
+
+void CEditGeneralPhysXProperties::OnEnChangeEditCharacterRunspeed()
+{
+	m_editBoxCharacterRunSpeed.GetWindowTextA(m_strCharacterRunSpeed);
+	m_fCharacterRunSpeed = atof(m_strCharacterRunSpeed);
 }
 
 void CEditGeneralPhysXProperties::OnEnChangeEditCharacterPower()
@@ -180,7 +189,7 @@ void CEditGeneralPhysXProperties::OnOK()
 	if( m_strDefaultRestitution.IsEmpty() || m_strDefaultStaticFriction.IsEmpty() || m_strDefaultSkinWidth.IsEmpty() ||
 		m_strDefaultDynamicFriction.IsEmpty() || m_strGravityX.IsEmpty() || m_strGravityY.IsEmpty() || m_strGravityZ.IsEmpty() ||
 		m_strCameraCharacterDistance.IsEmpty() || m_strCapsuleRadius.IsEmpty() || m_strCapsuleHeight.IsEmpty() || 
-		m_strCharacterPower.IsEmpty() || m_strCharacterSpeed.IsEmpty() || m_strJumpPower.IsEmpty() || m_strCharacterSkinWidth.IsEmpty() ||
+		m_strCharacterPower.IsEmpty() || m_strCharacterWalkSpeed.IsEmpty() || m_strCharacterRunSpeed.IsEmpty() || m_strJumpPower.IsEmpty() || m_strCharacterSkinWidth.IsEmpty() ||
 		m_strCharacterSlopeLimit.IsEmpty() || m_strCharacterStepOffset.IsEmpty() || m_strGroundHeight.IsEmpty())
 	{
 		MessageBox( "Please enter valid data for all of the required fields", "Vanda Engine Error", MB_OK | MB_ICONERROR );
@@ -199,7 +208,8 @@ void CEditGeneralPhysXProperties::OnOK()
 		g_physXProperties.m_fCapsuleRadius = atof( m_strCapsuleRadius );
 		g_physXProperties.m_fCapsuleHeight = atof( m_strCapsuleHeight );
 		g_physXProperties.m_fCharacterPower = atof( m_strCharacterPower );
-		g_physXProperties.m_fCharacterWalkSpeed = atof( m_strCharacterSpeed );
+		g_physXProperties.m_fCharacterWalkSpeed = atof(m_strCharacterWalkSpeed);
+		g_physXProperties.m_fCharacterRunSpeed = atof(m_strCharacterRunSpeed);
 		g_physXProperties.m_fCharacterSkinWidth = atof(m_strCharacterSkinWidth);
 		g_physXProperties.m_fCharacterSlopeLimit = atof(m_strCharacterSlopeLimit);
 		g_physXProperties.m_fCharacterStepOffset = atof(m_strCharacterStepOffset);
@@ -262,7 +272,8 @@ BOOL CEditGeneralPhysXProperties::OnInitDialog()
 	m_strCapsuleRadius.Format( "%.2f", g_physXProperties.m_fCapsuleRadius);
 	m_strCapsuleHeight.Format( "%.2f", g_physXProperties.m_fCapsuleHeight);
 	m_strCharacterPower.Format( "%.2f", g_physXProperties.m_fCharacterPower);
-	m_strCharacterSpeed.Format( "%.2f", g_physXProperties.m_fCharacterWalkSpeed);
+	m_strCharacterWalkSpeed.Format("%.2f", g_physXProperties.m_fCharacterWalkSpeed);
+	m_strCharacterRunSpeed.Format("%.2f", g_physXProperties.m_fCharacterRunSpeed);
 	m_strCharacterSlopeLimit.Format("%.2f", g_physXProperties.m_fCharacterSlopeLimit);
 	m_strCharacterSkinWidth.Format("%.2f", g_physXProperties.m_fCharacterSkinWidth);
 	m_strCharacterStepOffset.Format("%.2f", g_physXProperties.m_fCharacterStepOffset);
@@ -280,7 +291,8 @@ BOOL CEditGeneralPhysXProperties::OnInitDialog()
 	m_fCapsuleRadius = atof( m_strCapsuleRadius );
 	m_fCapsuleHeight = atof( m_strCapsuleHeight );
 	m_fCharacterPower = atof( m_strCharacterPower );
-	m_fCharacterWalkSpeed = atof( m_strCharacterSpeed );
+	m_fCharacterWalkSpeed = atof(m_strCharacterWalkSpeed);
+	m_fCharacterRunSpeed = atof(m_strCharacterRunSpeed);
 	m_fCharacterSkinWidth = atof(m_strCharacterSkinWidth);
 	m_fCharacterStepOffset = atof(m_strCharacterStepOffset);
 	m_fCharacterSlopeLimit = atof(m_strCharacterSlopeLimit);
@@ -297,7 +309,8 @@ BOOL CEditGeneralPhysXProperties::OnInitDialog()
 	m_editBoxCapsuleRadius.SetWindowTextA(m_strCapsuleRadius);
 	m_editBoxCapsuleHeight.SetWindowTextA(m_strCapsuleHeight);
 	m_editBoxCharacterPower.SetWindowTextA(m_strCharacterPower);
-	m_editBoxCharacterSpeed.SetWindowTextA(m_strCharacterSpeed);
+	m_editBoxCharacterWalkSpeed.SetWindowTextA(m_strCharacterWalkSpeed);
+	m_editBoxCharacterRunSpeed.SetWindowTextA(m_strCharacterRunSpeed);
 	m_editBoxCharacterSlopeLimit.SetWindowTextA(m_strCharacterSlopeLimit);
 	m_editBoxCharacterSkinWidth.SetWindowTextA(m_strCharacterSkinWidth);
 	m_editBoxCharacterStepOffset.SetWindowTextA(m_strCharacterStepOffset);
@@ -382,7 +395,8 @@ void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 		m_strCapsuleRadius.Format("%.2f", g_physXProperties.m_fCapsuleRadius);
 		m_strCapsuleHeight.Format("%.2f", g_physXProperties.m_fCapsuleHeight);
 		m_strCharacterPower.Format("%.2f", g_physXProperties.m_fCharacterPower);
-		m_strCharacterSpeed.Format("%.2f", g_physXProperties.m_fCharacterWalkSpeed);
+		m_strCharacterWalkSpeed.Format("%.2f", g_physXProperties.m_fCharacterWalkSpeed);
+		m_strCharacterRunSpeed.Format("%.2f", g_physXProperties.m_fCharacterRunSpeed);
 		m_strCharacterSlopeLimit.Format("%.2f", g_physXProperties.m_fCharacterSlopeLimit);
 		m_strCharacterSkinWidth.Format("%.2f", g_physXProperties.m_fCharacterSkinWidth);
 		m_strCharacterStepOffset.Format("%.2f", g_physXProperties.m_fCharacterStepOffset);
@@ -400,7 +414,8 @@ void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 		m_fCapsuleRadius = atof(m_strCapsuleRadius);
 		m_fCapsuleHeight = atof(m_strCapsuleHeight);
 		m_fCharacterPower = atof(m_strCharacterPower);
-		m_fCharacterWalkSpeed = atof(m_strCharacterSpeed);
+		m_fCharacterWalkSpeed = atof(m_strCharacterWalkSpeed);
+		m_fCharacterRunSpeed = atof(m_strCharacterRunSpeed);
 		m_fCharacterSkinWidth = atof(m_strCharacterSkinWidth);
 		m_fCharacterStepOffset = atof(m_strCharacterStepOffset);
 		m_fCharacterSlopeLimit = atof(m_strCharacterSlopeLimit);
@@ -417,7 +432,8 @@ void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 		m_editBoxCapsuleRadius.SetWindowTextA(m_strCapsuleRadius);
 		m_editBoxCapsuleHeight.SetWindowTextA(m_strCapsuleHeight);
 		m_editBoxCharacterPower.SetWindowTextA(m_strCharacterPower);
-		m_editBoxCharacterSpeed.SetWindowTextA(m_strCharacterSpeed);
+		m_editBoxCharacterWalkSpeed.SetWindowTextA(m_strCharacterWalkSpeed);
+		m_editBoxCharacterRunSpeed.SetWindowTextA(m_strCharacterRunSpeed);
 		m_editBoxCharacterSlopeLimit.SetWindowTextA(m_strCharacterSlopeLimit);
 		m_editBoxCharacterSkinWidth.SetWindowTextA(m_strCharacterSkinWidth);
 		m_editBoxCharacterStepOffset.SetWindowTextA(m_strCharacterStepOffset);
@@ -447,3 +463,4 @@ void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 	}
 
 }
+

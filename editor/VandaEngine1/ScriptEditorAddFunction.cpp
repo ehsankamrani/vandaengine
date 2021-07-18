@@ -42,6 +42,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ActivateEngineCamera, "ActivateEngineCamera(string gameObjectCameraName, float endTime[optional])");
 	Cpy(SetPhysicsCameraAngle, "SetPhysicsCameraAngle(float angle)");
 	Cpy(GetPhysicsCameraAngle, "GetPhysicsCameraAngle()");
+	Cpy(SetPhysicsCameraTilt, "SetPhysicsCameraTilt(float tilt)");
+	Cpy(SetPhysicsCameraMaxTilt, "SetPhysicsCameraMaxTilt(float maxTilt)");
+	Cpy(SetPhysicsCameraMinTilt, "SetPhysicsCameraMinTilt(float minTilt)");
+	Cpy(GetPhysicsCameraTilt, "GetPhysicsCameraTilt()");
+	Cpy(GetPhysicsCameraMaxTilt, "GetPhysicsCameraMaxTilt()");
+	Cpy(GetPhysicsCameraMinTilt, "GetPhysicsCameraMinTilt()");
+	Cpy(SetPhysicsCameraYaw, "SetPhysicsCameraYaw(float yawDegree)");
+	Cpy(GetPhysicsCameraYaw, "GetPhysicsCameraYaw()");
 
 	Cpy(LoadResource, "LoadResource(string resourceDirectoryName, string resourceFileName)");
 	Cpy(DeleteResource, "DeleteResource(string resourceDirectoryName, string resourceFileName)");
@@ -126,6 +134,32 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(EnablePrefabInstanceMaterial, "EnablePrefabInstanceMaterial(string prefabInstanceName)");
 	Cpy(DisablePrefabInstanceMaterial, "DisablePrefabInstanceMaterial(string prefabInstanceName)");
 
+	Cpy(SetPhysicsRestitution, "SetPhysicsRestitution(float restitution)");
+	Cpy(SetPhysicsSkinWidth, "SetPhysicsSkinWidth(float skinWidth)");
+	Cpy(SetPhysicsStaticFriction, "SetPhysicsStaticFriction(float staticFriction)");
+	Cpy(SetPhysicsDynamicFriction, "SetPhysicsDynamicFriction(float dynamicFriction)");
+	Cpy(EnablePhysicsGravity, "EnablePhysicsGravity()");
+	Cpy(DisablePhysicsGravity, "DisablePhysicsGravity()");
+	Cpy(SetPhysicsGravity, "SetPhysicsGravity(float x, float y, float z)");
+	Cpy(EnablePhysicsGroundPlane, "EnablePhysicsGroundPlane()");
+	Cpy(DisablePhysicsGroundPlane, "DisablePhysicsGroundPlane()");
+	Cpy(SetPhysicGroundHeight, "SetPhysicGroundHeight(float height)");
+	Cpy(SetDistanceBetweenPhysicsCameraAndCharacterController, "SetDistanceBetweenPhysicsCameraAndCharacterController(float distance)");
+	Cpy(SetCharacterControllerCapsuleRadius, "SetCharacterControllerCapsuleRadius(float radius)");
+	Cpy(SetCharacterControllerCapsuleHeight, "SetCharacterControllerCapsuleHeight(float height)");
+	Cpy(SetCharacterControllerForcePower, "SetCharacterControllerForcePower(float forcePower)");
+	Cpy(SetCharacterControllerWalkSpeed, "SetCharacterControllerWalkSpeed(float speed)");
+	Cpy(SetCharacterControllerRunSpeed, "SetCharacterControllerRunSpeed(float speed)");
+	Cpy(SetCharacterControllerSkinWidth, "SetCharacterControllerSkinWidth(float skinWidth)");
+	Cpy(SetCharacterControllerStepOffset, "SetCharacterControllerStepOffset(float stepOffset)");
+	Cpy(SetCharacterControllerSlopeLimit, "SetCharacterControllerSlopeLimit(float slope)");
+	Cpy(SetCharacterControllerJumpPower, "SetCharacterControllerJumpPower(float jumpPower)");
+	Cpy(EnableCharacterControllerJump, "EnableCharacterControllerJump()");
+	Cpy(DisableCharacterControllerJump, "DisableCharacterControllerJump()");
+	Cpy(EnablePhysicsDebugMode, "EnablePhysicsDebugMode()");
+	Cpy(DisablePhysicsDebugMode, "DisablePhysicsDebugMode()");
+	Cpy(SetCharacterControllerPosition, "SetCharacterControllerPosition(float x, float y, float z)");
+	Cpy(GetCharacterControllerPosition, "GetCharacterControllerPosition()");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -276,6 +310,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "GetPhysicsCameraAngle"))
 		{
 			m_richFunctionName.SetWindowTextA(GetPhysicsCameraAngle);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraTilt);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraMaxTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraMaxTilt);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraMinTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraMinTilt);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraTilt);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraMaxTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraMaxTilt);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraMinTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraMinTilt);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraYaw"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraYaw);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraYaw"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraYaw);
 		}
 		else if (Cmp(szBuffer, "LoadResource"))
 		{
@@ -550,6 +616,110 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DisablePrefabInstanceMaterial);
 		}
+		else if (Cmp(szBuffer, "SetPhysicsRestitution"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsRestitution);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsSkinWidth"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsSkinWidth);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsStaticFriction"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsStaticFriction);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsDynamicFriction"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsDynamicFriction);
+		}
+		else if (Cmp(szBuffer, "EnablePhysicsGravity"))
+		{
+			m_richFunctionName.SetWindowTextA(EnablePhysicsGravity);
+		}
+		else if (Cmp(szBuffer, "DisablePhysicsGravity"))
+		{
+			m_richFunctionName.SetWindowTextA(DisablePhysicsGravity);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsGravity"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsGravity);
+		}
+		else if (Cmp(szBuffer, "EnablePhysicsGroundPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(EnablePhysicsGroundPlane);
+		}
+		else if (Cmp(szBuffer, "DisablePhysicsGroundPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(DisablePhysicsGroundPlane);
+		}
+		else if (Cmp(szBuffer, "SetPhysicGroundHeight"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicGroundHeight);
+		}
+		else if (Cmp(szBuffer, "SetDistanceBetweenPhysicsCameraAndCharacterController"))
+		{
+			m_richFunctionName.SetWindowTextA(SetDistanceBetweenPhysicsCameraAndCharacterController);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerCapsuleRadius"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerCapsuleRadius);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerCapsuleHeight"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerCapsuleHeight);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerForcePower"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerForcePower);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerWalkSpeed"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerWalkSpeed);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerRunSpeed"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerRunSpeed);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerSkinWidth"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerSkinWidth);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerStepOffset"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerStepOffset);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerSlopeLimit"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerSlopeLimit);
+		}
+		else if (Cmp(szBuffer, "SetCharacterControllerJumpPower"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerJumpPower);
+		}
+		else if (Cmp(szBuffer, "EnableCharacterControllerJump"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableCharacterControllerJump);
+		}
+		else if (Cmp(szBuffer, "DisableCharacterControllerJump"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableCharacterControllerJump);
+		}
+		else if (Cmp(szBuffer, "EnablePhysicsDebugMode"))
+		{
+			m_richFunctionName.SetWindowTextA(EnablePhysicsDebugMode);
+		}
+		else if (Cmp(szBuffer, "DisablePhysicsDebugMode"))
+		{
+			m_richFunctionName.SetWindowTextA(DisablePhysicsDebugMode);
+		}
+		if (Cmp(szBuffer, "SetCharacterControllerPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCharacterControllerPosition);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerPosition);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -598,7 +768,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("ActivateEngineCamera");
 	InsertItem("SetPhysicsCameraAngle");
 	InsertItem("GetPhysicsCameraAngle");
-	
+	InsertItem("SetPhysicsCameraTilt");
+	InsertItem("SetPhysicsCameraMinTilt");
+	InsertItem("SetPhysicsCameraMaxTilt");
+	InsertItem("GetPhysicsCameraTilt");
+	InsertItem("GetPhysicsCameraMinTilt");
+	InsertItem("GetPhysicsCameraMaxTilt");
+	InsertItem("SetPhysicsCameraYaw");
+	InsertItem("GetPhysicsCameraYaw");
+
 	InsertItem("LoadResource");
 	InsertItem("DeleteResource");
 	InsertItem("DeleteAllResources");
@@ -682,6 +860,33 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetPrefabInstanceTransparency");
 	InsertItem("EnablePrefabInstanceMaterial");
 	InsertItem("DisablePrefabInstanceMaterial");
+
+	InsertItem("SetPhysicsRestitution");
+	InsertItem("SetPhysicsSkinWidth");
+	InsertItem("SetPhysicsStaticFriction");
+	InsertItem("SetPhysicsDynamicFriction");
+	InsertItem("EnablePhysicsGravity");
+	InsertItem("DisablePhysicsGravity");
+	InsertItem("SetPhysicsGravity");
+	InsertItem("EnablePhysicsGroundPlane");
+	InsertItem("DisablePhysicsGroundPlane");
+	InsertItem("SetPhysicGroundHeight");
+	InsertItem("SetDistanceBetweenPhysicsCameraAndCharacterController");
+	InsertItem("SetCharacterControllerCapsuleRadius");
+	InsertItem("SetCharacterControllerCapsuleHeight");
+	InsertItem("SetCharacterControllerForcePower");
+	InsertItem("SetCharacterControllerWalkSpeed");
+	InsertItem("SetCharacterControllerRunSpeed");
+	//InsertItem("SetCharacterControllerSkinWidth");
+	InsertItem("SetCharacterControllerStepOffset");
+	//InsertItem("SetCharacterControllerSlopeLimit");
+	InsertItem("SetCharacterControllerJumpPower");
+	InsertItem("EnableCharacterControllerJump");
+	InsertItem("DisableCharacterControllerJump");
+	InsertItem("EnablePhysicsDebugMode");
+	InsertItem("DisablePhysicsDebugMode");
+	InsertItem("SetCharacterControllerPosition");
+	InsertItem("GetCharacterControllerPosition");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);
