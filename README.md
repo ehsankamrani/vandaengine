@@ -3,16 +3,16 @@ Open Source 3D Game Engine
 
 About Vanda Engine
 
-Vanda Engine is a free and open source development platform for Games and realtime interactive 3D on Windows. There are four modes in Vanda Engine: Prefab Mode, VScene Mode, GUI Mode, and Play Mode. Prefabs are the building block of Vanda Engine. You create your prefabs in Prefab mode. User Interfaces such as buttons and text are created in GUI mode. In VScene mode, you insert one or multiple instances of these prefabs and GUIs to build your level. Moreover, you can insert several built-in objects such as lights, sky, sounds, terrain, cameras and waters in your VScenes. In Prefab, GUI and VScene Modes, you can switch to Play Mode to play/test your scene.
+Vanda Engine is a free and open source 3D game engine for Windows. I'm developing this game engine for years to help the students and other enthusiast learn game engine programming and help them develop 3D games for free. While giant companies are building game engines with huge budget and a lot of manpower, I'm developing this free 3D game engine in my room with an old computer and no budget. 
 
-We have published step by step tutorials about Vanda Engine, 3D tools, and COLLADA format:
+I have published step by step tutorials about Vanda Engine, 3D tools, and COLLADA format:
 https://vanda3d.org/tutorials/
 
-Consider following us on Facebook to be informed about what we’re doing:
+Consider following Vanda Engine on Facebook to be informed about what I'm doing:
 https://facebook.com/vandaengine
 
-Check out our gallery to see how Vanda Engine is getting work done:
-https://vanda3d.org/ 
+To see the screenshots, please visit the following link:
+https://vanda3d.org/gallery 
 
 
 
