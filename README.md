@@ -7,7 +7,26 @@ https://vanda3d.org/tutorials/
 Consider following Vanda Engine on Facebook to be informed about what I'm doing:
 https://facebook.com/vandaengine
 
-Screenshot:
+- License
+Files of this project use MIT license:
+
+//Copyright (C) Ehsan Kamrani
+//
+This file is licensed and distributed under MIT license
+
+For more information about MIT license, please visit http://opensource.org/licenses/MIT
+
+- Compiler
+Microsoft Visual Studio 2013
+
+- Compiling the source code:
+https://vanda3d.org/compiling-the-source-code/
+
+- Contact info
+opentechno@hotmail.com
+
+- Screenshot:
+
 ![alt text](screenshots/image1.JPG "screenshot 1")
 
 ![alt text](screenshots/image2.JPG "screenshot 2")
@@ -18,25 +37,3 @@ Screenshot:
 
 
 
-License
-
-Files of this project use MIT license:
-
-//Copyright (C) Ehsan Kamrani
-//
-This file is licensed and distributed under MIT license
-
-
-For more information about MIT license, please visit http://opensource.org/licenses/MIT
-
-
-Compiler
-
-Microsoft Visual Studio 2013
-
-Compiling the source code:
-https://vanda3d.org/compiling-the-source-code/
-
-Contact info
-
-opentechno@hotmail.com
