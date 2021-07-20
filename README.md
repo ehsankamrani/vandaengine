@@ -1,8 +1,4 @@
 # vandaengine
-Open Source 3D Game Engine
-
-About Vanda Engine
-
 Vanda Engine is a free and open source 3D game engine for Windows. I'm developing this game engine for years to help the students and other enthusiast learn game engine programming and help them develop 3D games for free. While giant companies are building game engines with huge budget and a lot of manpower, I'm developing this free 3D game engine in my room with an old computer and no budget. 
 
 I have published step by step tutorials about Vanda Engine, 3D tools, and COLLADA format:
