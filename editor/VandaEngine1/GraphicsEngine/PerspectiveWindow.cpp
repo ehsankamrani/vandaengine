@@ -3106,7 +3106,7 @@ CInt SetPhysicsCameraYaw(lua_State *L)
 	if (g_camera)
 	{
 		CFloat value = (CFloat)lua_tonumber(L, 1);
-		g_camera->m_perspectiveCameraYaw = NxMath::degToRad(value) /*+ NxMath::degToRad(180.f)*/;
+		g_camera->m_perspectiveCameraYaw = NxMath::degToRad(value);
 	}
 
 	return 0;
