@@ -31,6 +31,11 @@ https://vanda3d.org/compiling-the-source-code/
 
 opentechno@hotmail.com
 
+**please buy me a coffee**
+It will be appreciated if you donate to this project to help me buy required software and books and pay the expenses of website domain and hosting. Thanks!
+
+https://vanda3d.org/donate/
+
 **Screenshot**
 
 ![alt text](screenshots/image1.JPG "screenshot 1")
