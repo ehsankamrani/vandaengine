@@ -160,6 +160,20 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(DisablePhysicsDebugMode, "DisablePhysicsDebugMode()");
 	Cpy(SetCharacterControllerPosition, "SetCharacterControllerPosition(float x, float y, float z)");
 	Cpy(GetCharacterControllerPosition, "GetCharacterControllerPosition()");
+
+	Cpy(SetMaxMultisampling, "SetMaxMultisampling(int numSamples)");
+	Cpy(SetMaxAnisotropicFiltering, "SetMaxAnisotropicFiltering(int max)");
+	Cpy(EnableVSync, "EnableVSync()");
+	Cpy(DisableVSync, "DisableVSync()");
+	Cpy(EnableWaterReflection, "EnableWaterReflection()");
+	Cpy(DisableWaterReflection, "DisableWaterReflection()");
+	Cpy(SetScreenResolution, "SetScreenResolution(int screenWidth)");
+	Cpy(SaveGeneralProperties, "SaveGeneralProperties()");
+	Cpy(GetMaxMultisampling, "GetMaxMultisampling()");
+	Cpy(GetMaxAnisotropicFiltering, "GetMaxAnisotropicFiltering()");
+	Cpy(IsVSyncEnabled, "IsVSyncEnabled()");
+	Cpy(IsWaterReflectionEnabled, "IsWaterReflectionEnabled()");
+	Cpy(GetScreenResolution, "GetScreenResolution()");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -720,6 +734,58 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetCharacterControllerPosition);
 		}
+		else if (Cmp(szBuffer, "SetMaxMultisampling"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMaxMultisampling);
+		}
+		else if (Cmp(szBuffer, "SetMaxAnisotropicFiltering"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMaxAnisotropicFiltering);
+		}
+		else if (Cmp(szBuffer, "EnableVSync"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableVSync);
+		}
+		else if (Cmp(szBuffer, "DisableVSync"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableVSync);
+		}
+		else if (Cmp(szBuffer, "EnableWaterReflection"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableWaterReflection);
+		}
+		else if (Cmp(szBuffer, "DisableWaterReflection"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableWaterReflection);
+		}
+		else if (Cmp(szBuffer, "SetScreenResolution"))
+		{
+			m_richFunctionName.SetWindowTextA(SetScreenResolution);
+		}
+		else if (Cmp(szBuffer, "SaveGeneralProperties"))
+		{
+			m_richFunctionName.SetWindowTextA(SaveGeneralProperties);
+		}
+		else if (Cmp(szBuffer, "GetMaxMultisampling"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMaxMultisampling);
+		}
+		else if (Cmp(szBuffer, "GetMaxAnisotropicFiltering"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMaxAnisotropicFiltering);
+		}
+		else if (Cmp(szBuffer, "IsVSyncEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsVSyncEnabled);
+		}
+		else if (Cmp(szBuffer, "IsWaterReflectionEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsWaterReflectionEnabled);
+		}
+		else if (Cmp(szBuffer, "GetScreenResolution"))
+		{
+			m_richFunctionName.SetWindowTextA(GetScreenResolution);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -887,6 +953,20 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("DisablePhysicsDebugMode");
 	InsertItem("SetCharacterControllerPosition");
 	InsertItem("GetCharacterControllerPosition");
+
+	InsertItem("SetMaxMultisampling");
+	InsertItem("SetMaxAnisotropicFiltering");
+	InsertItem("EnableVSync");
+	InsertItem("DisableVSync");
+	InsertItem("EnableWaterReflection");
+	InsertItem("DisableWaterReflection");
+	InsertItem("SetScreenResolution");
+	InsertItem("SaveGeneralProperties");
+	InsertItem("GetMaxMultisampling");
+	InsertItem("GetMaxAnisotropicFiltering");
+	InsertItem("IsVSyncEnabled");
+	InsertItem("IsWaterReflectionEnabled");
+	InsertItem("GetScreenResolution");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

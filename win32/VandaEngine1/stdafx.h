@@ -204,6 +204,20 @@ CInt DisablePhysicsDebugMode(lua_State* L);
 CInt SetCharacterControllerPosition(lua_State* L);
 CInt GetCharacterControllerPosition(lua_State* L);
 
+CInt SetMaxMultisampling(lua_State* L);
+CInt SetMaxAnisotropicFiltering(lua_State* L);
+CInt EnableVSync(lua_State* L);
+CInt DisableVSync(lua_State* L);
+CInt EnableWaterReflection(lua_State* L);
+CInt DisableWaterReflection(lua_State* L);
+CInt SetScreenResolution(lua_State* L);
+CInt SaveGeneralProperties(lua_State* L);
+CInt GetMaxMultisampling(lua_State* L);
+CInt GetMaxAnisotropicFiltering(lua_State* L);
+CInt IsVSyncEnabled(lua_State* L);
+CInt IsWaterReflectionEnabled(lua_State* L);
+CInt GetScreenResolution(lua_State* L);
+
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
 CVoid ShowLoadingScene(CChar* message = NULL);

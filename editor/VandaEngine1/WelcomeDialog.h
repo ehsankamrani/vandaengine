@@ -5,8 +5,6 @@
 #include "custombitmapbutton.h"
 #include "custombutton.h"
 #include "afxwin.h"
-#include "Common\HyperLink.h"
-#include "F:\New Engine\VandaEngine\editor\VandaEngine1\Common\HyperLink.h"
 
 // CWelcomeDialog dialog
 
@@ -26,41 +24,25 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CCustomBitmapButton m_btnVisitHelp;
 	virtual BOOL OnInitDialog();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	CCustomButton m_btnOK;
-	afx_msg void OnBnClickedWelcomeButtonHelp();
-	CCustomBitmapButton m_btnCheck;
-	CCustomBitmapButton m_btnUncheck;
 	afx_msg void OnBnClickedWelcomeButtonCheck();
 	afx_msg void OnBnClickedWelcomeButtonUncheck();
-	CCustomBitmapButton m_btnVideo;
-	CCustomBitmapButton m_btnTutorials;
-	afx_msg void OnBnClickedWelcomeButtonVideo();
-	afx_msg void OnBnClickedWelcomeButtonTutorials();
-	CCustomBitmapButton m_btnOverviewToVandaEngine1;
-	afx_msg void OnBnClickedWelcomeButtonVandaOverview();
-	CCustomBitmapButton m_btnRunDemoInEditor;
-	CCustomBitmapButton m_btnRunPublishedDemo;
-	CCustomBitmapButton m_btnDonate;
-	afx_msg void OnBnClickedWelcomeButtonRunDemoEditor();
-	afx_msg void OnBnClickedWelcomeButtonRunDemoPublished();
-	afx_msg void OnBnClickedWelcomeButtonDonate();
-	CHyperLink m_linkIntroduction;
-	CHyperLink m_linkVEStructure;
-	CHyperLink m_linkTutorials;
-	CHyperLink m_linkHelp;
-	//CHyperLink m_linkRunDemoInEditor;
-	//CHyperLink m_linkPublishedDemo;
-	CHyperLink m_linkDonate;
-	afx_msg void OnStnClickedStaticRunDemoInEditor();
-	afx_msg void OnStnClickedStaticRunPublishedDemo();
-	CCustomButton m_btnDonateNow;
 	afx_msg void OnBnClickedDonate();
-	CCustomButton m_btnOpenWebsite;
-	CCustomButton m_btnEmailMe;
 	afx_msg void OnBnClickedEmailme();
 	afx_msg void OnBnClickedOfficialwebsite();
+	afx_msg void OnBnClickedGithub();
+	afx_msg void OnBnClickedSourceforge();
+	afx_msg void OnBnClickedFacebook();
+
+	CCustomBitmapButton m_btnCheck;
+	CCustomBitmapButton m_btnUncheck;
+	CCustomButton m_btnOK;
+	CCustomButton m_btnDonateNow;
+	CCustomButton m_btnWebsite;
+	CCustomButton m_btnEmailMe;
+	CCustomButton m_btnGitHub;
+	CCustomButton m_btnSourceforge;
+	CCustomButton m_btnFacebook;
 };

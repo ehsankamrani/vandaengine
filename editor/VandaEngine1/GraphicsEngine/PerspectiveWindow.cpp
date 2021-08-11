@@ -8800,6 +8800,272 @@ CInt GetCharacterControllerPosition(lua_State* L)
 	return 3;
 }
 
+CInt SetMaxMultisampling(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetMaxMultisampling()", COLOR_RED);
+		return 0;
+	}
+
+	CInt value = (CInt)lua_tonumber(L, 1);
+
+	if (value == 0 || value == 2 || value == 4 || value == 8 || value == 16)
+	{
+		g_options.m_numSamples = value;
+	}
+	else
+	{
+		PrintInfo("\nSetMaxMultisampling() Error: Accepted values are 0, 2, 4, 8 or 16", COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt SetMaxAnisotropicFiltering(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetMaxAnisotropicFiltering()", COLOR_RED);
+		return 0;
+	}
+
+	CInt value = (CInt)lua_tonumber(L, 1);
+
+	if (value == 0 || value == 2 || value == 4 || value == 8 || value == 16)
+	{
+		if (GLEW_EXT_texture_filter_anisotropic)
+		{
+			g_options.m_anisotropy = value;
+		}
+		else
+		{
+			g_options.m_anisotropy = 0;
+		}
+	}
+	else
+	{
+		PrintInfo("\nSetMaxAnisotropicFiltering() Error: Accepted values are 0, 2, 4, 8 or 16", COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt EnableVSync(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (WGLEW_EXT_swap_control)
+	{
+		g_options.m_disableVSync = CFalse;
+		wglSwapIntervalEXT(1);
+	}
+
+	return 0;
+}
+
+CInt DisableVSync(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (WGLEW_EXT_swap_control)
+	{
+		g_options.m_disableVSync = CTrue;
+		wglSwapIntervalEXT(0);
+	}
+
+	return 0;
+}
+
+CInt EnableWaterReflection(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_render.m_useWaterReflection)
+	{
+		g_options.m_enableWaterReflection = CTrue;
+	}
+
+	return 0;
+}
+
+CInt DisableWaterReflection(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_render.m_useWaterReflection)
+	{
+		g_options.m_enableWaterReflection = CFalse;
+	}
+
+	return 0;
+}
+
+//Sets screen resolution
+//Accepted values are:
+//0    : Current resolution
+//800  : 800x600
+//1024 : 1024x768
+//1280 : 1280x720 — HD / 720p.
+//1920 : 1920x1080 — FHD(Full HD) / 1080p.
+//2560 : 2560x1440 — QHD / WQHD(Quad HD) / 1440p.
+//3840 : 3840x2160 — UHD(Ultra HD) / 4K 2160p.
+//7680 : 7680×4320 — FUHD(Full Ultra HD) / 8K 4320p.
+CInt SetScreenResolution(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetScreenResolution()", COLOR_RED);
+		return 0;
+	}
+
+	CInt value = (CInt)lua_tonumber(L, 1);
+
+	if (value == 0 || value == 800 || value == 1024 || value == 1280 || value == 1920 || value == 2560 || value == 3840 || value == 7680)
+	{
+		if (value == 0)
+		{
+			g_options.m_useCurrentResolution = CTrue;
+		}
+		else if (value == 800)
+		{
+			g_options.m_width = 800;
+			g_options.m_height = 600;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (value == 1024)
+		{
+			g_options.m_width = 1024;
+			g_options.m_height = 768;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (value == 1280)
+		{
+			g_options.m_width = 1280;
+			g_options.m_height = 720;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (value == 1920)
+		{
+			g_options.m_width = 1920;
+			g_options.m_height = 1080;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (value == 2560)
+		{
+			g_options.m_width = 2560;
+			g_options.m_height = 1440;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (value == 3840)
+		{
+			g_options.m_width = 3840;
+			g_options.m_height = 2160;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (value == 7680)
+		{
+			g_options.m_width = 7680;
+			g_options.m_height = 4320;
+			g_options.m_useCurrentResolution = CFalse;
+		}
+	}
+	else
+	{
+		PrintInfo("\nSetScreenResolution() Error: Accepted values are 0, 800, 1024, 1280, 1920, 2560, 3840 or 7680", COLOR_RED);
+	}
+	return 0;
+}
+
+//This function is only valid in Win32 project
+CInt SaveGeneralProperties(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	//FILE *filePtr;
+	//filePtr = fopen("Assets/config/conf_win32.dat", "wb");
+	//fwrite(&g_options, sizeof(COptions), 1, filePtr);
+	//fclose(filePtr);
+
+	return 0;
+}
+
+CInt GetMaxMultisampling(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	lua_pushnumber(L, g_options.m_numSamples);
+
+	return 1;
+}
+
+CInt GetMaxAnisotropicFiltering(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	lua_pushnumber(L, g_options.m_anisotropy);
+
+	return 1;
+}
+
+CInt IsVSyncEnabled(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_options.m_disableVSync)
+		lua_pushboolean(L, 0);
+	else
+		lua_pushboolean(L, 1);
+
+	return 1;
+}
+
+CInt IsWaterReflectionEnabled(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_options.m_enableWaterReflection)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+
+	return 1;
+}
+
+CInt GetScreenResolution(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_options.m_useCurrentResolution)
+		lua_pushnumber(L, 0); //current resolution
+	else
+		lua_pushnumber(L, g_options.m_width);
+
+	return 1;
+}
+
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
 

@@ -119,6 +119,7 @@ extern std::vector<CInstanceCamera*> g_engineCameraInstances;
 extern std::vector<CResourceFile*> g_resourceFiles;
 struct COptions
 {
+	CBool m_useCurrentResolution;
 	CInt m_width;
 	CInt m_height;
 	CInt m_numSamples;
@@ -132,8 +133,9 @@ struct COptions
 
 	COptions()
 	{
-		m_width = 640;
-		m_height = 480;
+		m_useCurrentResolution = CTrue;
+		m_width = 800;
+		m_height = 600;
 		m_numSamples = 4;
 		m_anisotropy = 4;
 		m_showStartupDialog = CTrue;

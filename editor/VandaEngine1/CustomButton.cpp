@@ -49,7 +49,7 @@ void CCustomButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	else
 	{
 		dc.FillSolidRect(rt, RGB(80, 80, 80));
-		dc.SetTextColor(RGB(180,150,0)); 
+		dc.SetTextColor(RGB(222, 122, 5));
 	}
 	CString strTemp;
 	GetWindowText(strTemp);

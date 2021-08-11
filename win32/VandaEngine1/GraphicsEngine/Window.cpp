@@ -41,7 +41,7 @@ bool CWindow::InitMultisample(HINSTANCE hInstance,HWND hWnd,PIXELFORMATDESCRIPTO
 		return false;
 	}
 
-	switch( g_options.m_numSamples )
+	switch ( /*g_options.m_numSamples*/g_window.m_numSamples)
 	{
 	case 2:
 		m_numSamples = 2;

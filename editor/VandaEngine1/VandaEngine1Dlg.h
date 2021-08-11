@@ -93,6 +93,9 @@ class CScene;
 
 struct COptions
 {
+	CBool m_useCurrentResolution;
+	CInt m_width;
+	CInt m_height;
 	CInt m_numSamples;
 	CInt m_anisotropy;
 	CBool m_showStartupDialog;
@@ -104,6 +107,9 @@ struct COptions
 
 	COptions()
 	{
+		m_useCurrentResolution = CTrue;
+		m_width = 800;
+		m_height = 600;
 		m_numSamples = 4;
 		m_anisotropy = 4;
 		m_showStartupDialog = CTrue;
@@ -116,6 +122,9 @@ struct COptions
 
 	CVoid Reset()
 	{
+		m_useCurrentResolution = CTrue;
+		m_width = 800;
+		m_height = 600;
 		m_numSamples = 4;
 		m_anisotropy = 4;
 		m_showStartupDialog = CTrue;
@@ -689,6 +698,7 @@ private:
 	CPhysXProperties m_physicsProperties;
 	std::vector<CInstanceLight*>m_engineLights;
 	CUpdateCamera* m_camera;
+	COptions m_options;
 
 public:
 	CRichEditCtrl m_rich;

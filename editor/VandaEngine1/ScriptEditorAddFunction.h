@@ -173,6 +173,20 @@ private:
 	CChar SetCharacterControllerPosition[MAX_URI_SIZE];
 	CChar GetCharacterControllerPosition[MAX_URI_SIZE];
 
+	CChar SetMaxMultisampling[MAX_URI_SIZE];
+	CChar SetMaxAnisotropicFiltering[MAX_URI_SIZE];
+	CChar EnableVSync[MAX_URI_SIZE];
+	CChar DisableVSync[MAX_URI_SIZE];
+	CChar EnableWaterReflection[MAX_URI_SIZE];
+	CChar DisableWaterReflection[MAX_URI_SIZE];
+	CChar SetScreenResolution[MAX_URI_SIZE];
+	CChar SaveGeneralProperties[MAX_URI_SIZE];
+	CChar GetMaxMultisampling[MAX_URI_SIZE];
+	CChar GetMaxAnisotropicFiltering[MAX_URI_SIZE];
+	CChar IsVSyncEnabled[MAX_URI_SIZE];
+	CChar IsWaterReflectionEnabled[MAX_URI_SIZE];
+	CChar GetScreenResolution[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

@@ -225,4 +225,18 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "DisablePhysicsDebugMode", DisablePhysicsDebugMode);
 	lua_register(L, "SetCharacterControllerPosition", SetCharacterControllerPosition);
 	lua_register(L, "GetCharacterControllerPosition", GetCharacterControllerPosition);
+
+	lua_register(L, "SetMaxMultisampling", SetMaxMultisampling);
+	lua_register(L, "SetMaxAnisotropicFiltering", SetMaxAnisotropicFiltering);
+	lua_register(L, "EnableVSync", EnableVSync);
+	lua_register(L, "DisableVSync", DisableVSync);
+	lua_register(L, "EnableWaterReflection", EnableWaterReflection);
+	lua_register(L, "DisableWaterReflection", DisableWaterReflection);
+	lua_register(L, "SetScreenResolution", SetScreenResolution);
+	lua_register(L, "SaveGeneralProperties", SaveGeneralProperties);
+	lua_register(L, "GetMaxMultisampling", GetMaxMultisampling);
+	lua_register(L, "GetMaxAnisotropicFiltering", GetMaxAnisotropicFiltering);
+	lua_register(L, "IsVSyncEnabled", IsVSyncEnabled);
+	lua_register(L, "IsWaterReflectionEnabled", IsWaterReflectionEnabled);
+	lua_register(L, "GetScreenResolution", GetScreenResolution);
 }

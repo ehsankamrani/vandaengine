@@ -168,7 +168,7 @@ void CWater::CreateReflectionTexture(int textureSize)
 
 	CInt m_numSamples;
 	if (g_window.m_windowGL.multiSampling)
-		m_numSamples = g_width * g_height *  g_options.m_numSamples;
+		m_numSamples = g_width * g_height *  /*g_options.m_numSamples*/g_window.m_numSamples;
 	else
 		m_numSamples = g_width * g_height;
 	CFloat percentage;
@@ -262,7 +262,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 	{
 		CInt m_numSamples;
 		if (g_window.m_windowGL.multiSampling)
-			m_numSamples = g_width * g_height *  g_options.m_numSamples;
+			m_numSamples = g_width * g_height *  /*g_options.m_numSamples*/g_window.m_numSamples;
 		else
 			m_numSamples = g_width * g_height;
 		CFloat percentage;

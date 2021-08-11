@@ -1453,7 +1453,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.7.6"));
+	SetWindowText(_T("Vanda Engine 1.7.7"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -2495,7 +2495,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	GetMenu()->EnableMenuItem(ID_TOOLS_CULLFACES, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED);
-	GetMenu()->EnableMenuItem(ID_TOOLS_IMPORTOPTIONS, MF_DISABLED | MF_GRAYED);
+	GetMenu()->EnableMenuItem(ID_MODIFY_IMPORTOPTIONS, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_GEOMETRY_AMBIENTCOLOR, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_DISABLED | MF_GRAYED);
 	GetMenu()->EnableMenuItem(ID_IMPORT_COLLADA, MF_DISABLED | MF_GRAYED);
@@ -3019,7 +3019,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3080,7 +3080,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.7.6 initialized successfully" );
+		PrintInfo( "\nVersion 1.7.7 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3269,7 +3269,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3355,7 +3355,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.6 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.7 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3429,7 +3429,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.6 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.7 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -5603,7 +5603,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if( wParam == ID_TOOLS_OPTIONS )
+	else if( wParam == ID_MODIFY_GENERAL_PROPERTIES )
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -5647,7 +5647,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if( wParam == ID_TOOLS_IMPORTOPTIONS )
+	else if (wParam == ID_MODIFY_IMPORTOPTIONS)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -6931,7 +6931,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_TOOLS_CULLFACES, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_IMPORTOPTIONS, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_MODIFY_IMPORTOPTIONS, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_MODIFY_CURRENT_VSCENE_PROPERTIES, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_GEOMETRY_AMBIENTCOLOR, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_ENABLED);
@@ -7288,7 +7288,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_TOOLS_CULLFACES, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_MATERIALEDITOR, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_PHYSXEDITOR, MF_DISABLED | MF_GRAYED);
-		ex_pMenu->EnableMenuItem(ID_TOOLS_IMPORTOPTIONS, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_MODIFY_IMPORTOPTIONS, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_MODIFY_CURRENT_VSCENE_PROPERTIES, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_GEOMETRY_AMBIENTCOLOR, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_TOOLS_GEOMETRYBASEDSELECTION, MF_DISABLED | MF_GRAYED);
@@ -7480,7 +7480,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.6 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.7 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7905,7 +7905,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.6 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7914,7 +7914,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.6 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.7 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -9720,7 +9720,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		Cpy(g_currentGUIPackageName, m_strNewGUIPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.6 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10543,7 +10543,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		Cpy(g_currentPrefabPackageName, m_strNewPrefabPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.6 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -12209,7 +12209,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13208,7 +13208,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.6 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -14931,7 +14931,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.6 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -16743,7 +16743,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -19184,6 +19184,19 @@ CVoid CVandaEngine1Dlg::ChangeSkyDomeProperties()
 
 void CVandaEngine1Dlg::OnClose()
 {
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+
 	//configuration
 	CChar ConfigPath[MAX_NAME_SIZE];
 	HRESULT result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, ConfigPath);
@@ -22587,6 +22600,21 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 	g_camera->m_perspectiveCameraMinTilt = m_camera->m_perspectiveCameraMinTilt;
 	g_camera->m_perspectiveCameraTilt = m_camera->m_perspectiveCameraTilt;
 
+	//Load general game properties
+	g_options = m_options;
+
+	if (WGLEW_EXT_swap_control)
+	{
+		if (g_options.m_disableVSync)
+		{
+			wglSwapIntervalEXT(0);
+		}
+		else
+		{
+			wglSwapIntervalEXT(1);
+		}
+	}
+
 	//Load DOF properties
 	g_dofProperties.m_enable = m_dofProperties.m_enable;
 	g_dofProperties.m_dofFocalDistance = m_dofProperties.m_dofFocalDistance;
@@ -22878,6 +22906,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	m_camera->m_perspectiveCameraMaxTilt = g_camera->m_perspectiveCameraMaxTilt;
 	m_camera->m_perspectiveCameraMinTilt = g_camera->m_perspectiveCameraMinTilt;
 	m_camera->m_perspectiveCameraTilt = g_camera->m_perspectiveCameraTilt;
+
+	//Save general game properties
+	m_options = g_options;
 
 	//Save DOF properties
 	m_dofProperties.m_enable = g_dofProperties.m_enable;

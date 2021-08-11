@@ -25,8 +25,11 @@
 #define ID_NEW_PACKAGE                  5
 #define IDDETACH                        6
 #define ID_DELETE_PACKAGE               6
+#define IDGITHUB                        6
 #define ID_RENAME_PACKAGE               7
+#define IDSOURCEFORGE                   7
 #define ID_ADD                          8
+#define IDFACEBOOK                      8
 #define ID_RENAME                       12
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
@@ -1277,13 +1280,17 @@
 #define ID_HELP_SCRIPT_REFERENCE_MANUAL 33096
 #define ID_EDIT_COPYSELECTEDOBJECTNAME  33097
 #define ID_PROJECT_DELETEPROJECTS       33098
+#define ID_MODIFY_OPTIONS               33099
+#define ID_MODIFY_GENERAL_OPTIONS       33100
+#define ID_MODIFY_GENERAL_PROPERTIES    33101
+#define ID_MODIFY_IMPORTOPTIONS         33102
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        513
-#define _APS_NEXT_COMMAND_VALUE         33099
+#define _APS_NEXT_COMMAND_VALUE         33103
 #define _APS_NEXT_CONTROL_VALUE         1294
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

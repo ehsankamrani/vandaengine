@@ -28,12 +28,15 @@
 #define IDC_ISOTROP_16                  1011
 #define IDC_VBO                         1012
 #define IDC_RES_CURRENT                 1013
-#define IDC_RES_1024                    1014
-#define IDC_RES_1280                    1015
-#define IDC_RES_1440                    1016
-#define IDC_RES_1680                    1017
-#define IDC_RES_800                     1018
-#define IDC_STATIC_LOGO                 1019
+#define IDC_RES_800                     1014
+#define IDC_RES_1024                    1015
+#define IDC_RES_1280                    1016
+#define IDC_RES_1920                    1017
+#define IDC_RES_2560                    1018
+#define IDC_RES_3840                    1019
+#define IDC_RES_7680                    1020
+#define IDC_STATIC_LOGO                 1021
+#define IDC_WATER_REFLECTION            1022
 #define IDC_STATIC                      -1
 
 // Next default values for new objects

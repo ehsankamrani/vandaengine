@@ -201,12 +201,6 @@ GLvoid CleanUp()
 	CDelete( g_main );
 
 	DeleteLoadingTexture();
-	//configuration
-	FILE *filePtr;
-	filePtr = fopen( "Assets/config/conf_win32.dat", "wb" );
-	fwrite( &g_options, sizeof( COptions ), 1, filePtr  );
-	fclose(filePtr);
-	////////////////
 
 }
 
@@ -431,32 +425,48 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch( message )
 	{
 	case WM_INITDIALOG:
-		SendMessage(hPic, STM_SETIMAGE, IMAGE_BITMAP, LPARAM(hBitmap)); 
-		switch( g_options.m_width )
+		SendMessage(hPic, STM_SETIMAGE, IMAGE_BITMAP, LPARAM(hBitmap));
+		if (g_options.m_useCurrentResolution)
 		{
-		case 800:
-            CheckRadioButton( hwnd, IDC_RES_CURRENT, IDC_RES_1680, IDC_RES_800 );
-			break;
-		case 1024:
-            CheckRadioButton( hwnd, IDC_RES_CURRENT, IDC_RES_1680, IDC_RES_1024 );
-			break;
-		case 1280:
-            CheckRadioButton( hwnd, IDC_RES_CURRENT, IDC_RES_1680, IDC_RES_1280 );
-			break;
-		case 1440:
-            CheckRadioButton( hwnd, IDC_RES_CURRENT, IDC_RES_1680, IDC_RES_1440 );
-			break;
-		case 1680:
-            CheckRadioButton( hwnd, IDC_RES_CURRENT, IDC_RES_1680, IDC_RES_1680 );
-			break;
-		default:
 			DEVMODE dmScreenSettings;												// device mode
-			EnumDisplaySettings (NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);	
+			EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
 			g_options.m_width = dmScreenSettings.dmPelsWidth;		// screen g_width
 			g_options.m_height = dmScreenSettings.dmPelsHeight;		// screen g_height
-            CheckRadioButton( hwnd, IDC_RES_CURRENT, IDC_RES_1680, IDC_RES_CURRENT );
-
-			break;
+			CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_CURRENT);
+		}
+		else
+		{
+			switch (g_options.m_width)
+			{
+			case 800:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_800);
+				break;
+			case 1024:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_1024);
+				break;
+			case 1280:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_1280);
+				break;
+			case 1920:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_1920);
+				break;
+			case 2560:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_2560);
+				break;
+			case 3840:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_3840);
+				break;
+			case 7680:
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_7680);
+				break;
+			default:
+				DEVMODE dmScreenSettings;												// device mode
+				EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
+				g_options.m_width = dmScreenSettings.dmPelsWidth;		// screen g_width
+				g_options.m_height = dmScreenSettings.dmPelsHeight;		// screen g_height
+				CheckRadioButton(hwnd, IDC_RES_CURRENT, IDC_RES_7680, IDC_RES_CURRENT);
+				break;
+			}
 		}
    		//load  multisampling from the config file
      
@@ -499,7 +509,7 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 
-   		//load  VSync data from the config file
+   		//load VSync data from the config file
 		if( g_options.m_disableVSync == CTrue )
 		{
 			SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_SETCHECK, BST_CHECKED, 0);
@@ -507,6 +517,16 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else
 		{
 			SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_SETCHECK, BST_UNCHECKED, 0);
+		}
+
+		//load water reflection data from the config file
+		if (g_options.m_enableWaterReflection == CTrue)
+		{
+			SendDlgItemMessage(hwnd, IDC_WATER_REFLECTION, BM_SETCHECK, BST_CHECKED, 0);
+		}
+		else
+		{
+			SendDlgItemMessage(hwnd, IDC_WATER_REFLECTION, BM_SETCHECK, BST_UNCHECKED, 0);
 		}
 
    		//load  FBO data from the config file
@@ -535,39 +555,74 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		if( wParam == IDCANCEL )
 			EndDialog( hwnd, 0 );
-		else if( wParam == IDOK )
-			EndDialog( hwnd, 1 );
+		else if (wParam == IDOK)
+		{
+			//configuration
+			FILE *filePtr;
+			filePtr = fopen("Assets/config/conf_win32.dat", "wb");
+			fwrite(&g_options, sizeof(COptions), 1, filePtr);
+			fclose(filePtr);
+			////////////////
+
+			EndDialog(hwnd, 1);
+		}
 		else if( wParam == IDC_RES_CURRENT )
 		{
 			DEVMODE dmScreenSettings;					// device mode
 			EnumDisplaySettings (NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);	
 			g_options.m_width = dmScreenSettings.dmPelsWidth;		// screen g_width
 			g_options.m_height = dmScreenSettings.dmPelsHeight;		// screen g_height
+
+			g_options.m_useCurrentResolution = CTrue;
 		}
 		else if( wParam == IDC_RES_800 )
 		{
 			g_options.m_width = 800;
 			g_options.m_height = 600;
+
+			g_options.m_useCurrentResolution = CFalse;
 		}
 		else if( wParam == IDC_RES_1024 )
 		{
 			g_options.m_width = 1024;
 			g_options.m_height = 768;
+
+			g_options.m_useCurrentResolution = CFalse;
 		}
 		else if( wParam == IDC_RES_1280 )
 		{
 			g_options.m_width = 1280;
-			g_options.m_height = 1024;
+			g_options.m_height = 720;
+
+			g_options.m_useCurrentResolution = CFalse;
 		}
-		else if( wParam == IDC_RES_1440 )
+		else if( wParam == IDC_RES_1920 )
 		{
-			g_options.m_width = 1440;
-			g_options.m_height = 900;
+			g_options.m_width = 1920;
+			g_options.m_height = 1080;
+
+			g_options.m_useCurrentResolution = CFalse;
 		}
-		else if( wParam == IDC_RES_1680 )
+		else if (wParam == IDC_RES_2560)
 		{
-			g_options.m_width = 1680;
-			g_options.m_height = 1050;
+			g_options.m_width = 2560;
+			g_options.m_height = 1440;
+
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (wParam == IDC_RES_3840)
+		{
+			g_options.m_width = 3840;
+			g_options.m_height = 2160;
+
+			g_options.m_useCurrentResolution = CFalse;
+		}
+		else if (wParam == IDC_RES_7680)
+		{
+			g_options.m_width = 7680;
+			g_options.m_height = 4320;
+
+			g_options.m_useCurrentResolution = CFalse;
 		}
 
 		//multisampling
@@ -599,6 +654,12 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_options.m_disableVSync = CTrue;
 		else if( SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 			g_options.m_disableVSync = CFalse;
+
+		//Water reflection
+		if (SendDlgItemMessage(hwnd, IDC_WATER_REFLECTION, BM_GETCHECK, 0, 0) == BST_CHECKED)
+			g_options.m_enableWaterReflection = CTrue;
+		else if (SendDlgItemMessage(hwnd, IDC_WATER_REFLECTION, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+			g_options.m_enableWaterReflection = CFalse;
 
 		//FBO
 		if (SendDlgItemMessage (hwnd, IDC_FBO, BM_GETCHECK, 0, 0) == BST_CHECKED)

@@ -446,7 +446,7 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glCullFace( GL_BACK );
 	glPopAttrib(); 
-	if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_numSamples && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && /*g_options.m_numSamples*/g_window.m_numSamples && g_options.m_enableFBO)
 		g_render.BindForWriting(g_main->m_mFboID);
 	else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
 		g_render.BindForWriting(g_main->m_fboID);
