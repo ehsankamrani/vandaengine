@@ -6,7 +6,7 @@
 #include "../Common/Utility.h"
 
 class CGUIButton;
-class CGUIBackground;
+class CGUIImage;
 class CGUIText;
 
 class CGUI
@@ -15,7 +15,7 @@ public:
 	CGUI();
 	~CGUI();
 	CVoid AddGUIButton(CGUIButton* button);
-	CVoid AddGUIBackground(CGUIBackground* background);
+	CVoid AddGUIImage(CGUIImage* image);
 	CVoid AddGUIText(CGUIText* text);
 
 	inline CVoid SetName(CChar* name) { Cpy(m_name, name); }
@@ -31,7 +31,7 @@ public:
 	inline CBool GetLoadedFromScript() { return m_loadedFromScript; }
 
 	std::vector<CGUIButton*> m_guiButtons;
-	std::vector<CGUIBackground*> m_guiBackgrounds;
+	std::vector<CGUIImage*> m_guiImages;
 	std::vector<CGUIText*> m_guiTexts;
 
 private:

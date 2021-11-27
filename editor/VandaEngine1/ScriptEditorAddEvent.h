@@ -36,7 +36,7 @@ public:
 	CChar m_onTriggerExitEventName[MAX_URI_SIZE];
 	CChar m_onSelectMouseLButtonDown[MAX_URI_SIZE];
 	CChar m_onSelectMouseRButtonDown[MAX_URI_SIZE];
-	CChar m_onSelectMouseHover[MAX_URI_SIZE];
+	CChar m_onSelectMouseEnter[MAX_URI_SIZE];
 	CChar m_onSelectEventName[MAX_URI_SIZE];
 
 	afx_msg void OnBnClickedCancel();

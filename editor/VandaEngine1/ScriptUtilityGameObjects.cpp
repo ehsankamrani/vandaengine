@@ -76,6 +76,9 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_LIGHT);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
+	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_TRIGGER);
+	m_engineObjectListImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
 
 	m_listGameObjectNames.SetImageList(&m_engineObjectListImage, LVSIL_SMALL);
 
@@ -171,6 +174,31 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 							m_richGameObjectName.SetSel(0, end);
 						}
 					}
+
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[vs].m_engineTriggerNames.size(); j++)
+					{
+						gameObjectIndex++;
+						int index = gameObjectIndex;
+						LVITEM lvItem;
+						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+						lvItem.iItem = index;
+						lvItem.iSubItem = 0;
+						lvItem.iImage = 3; //Trigger
+						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_engineTriggerNames[j].c_str();
+						m_listGameObjectNames.InsertItem(&lvItem);
+						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+						m_listGameObjectNames.EnsureVisible(index, FALSE);
+						m_listGameObjectNames.UpdateWindow();
+
+						if (gameObjectIndex == 0)
+						{
+							m_richGameObjectName.SetWindowTextA(lvItem.pszText);
+							CInt end = m_richGameObjectName.GetWindowTextLengthA();
+							m_richGameObjectName.SetSel(0, end);
+						}
+					}
+
 
 					foundTarget = CTrue;
 				}

@@ -381,16 +381,10 @@
     <ClCompile Include="AddGUIButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AddGUIBackground.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AddGUIText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUIEngine\GUIButton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUIEngine\GUIBackground.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUIEngine\GUIText.cpp">
@@ -415,12 +409,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ScriptEditor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AddStartupObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\Startup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ResourceFile.cpp">
@@ -496,6 +484,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ViewScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\VSceneScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddVSceneScriptObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddGUIImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIEngine\GUIImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -899,16 +899,10 @@
     <ClInclude Include="AddGUIButton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AddGUIBackground.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AddGUIText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUIEngine\GUIButton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GUIEngine\GUIBackground.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUIEngine\GUIText.h">
@@ -933,12 +927,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScriptEditor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AddStartupObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Startup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceFile.h">
@@ -1017,6 +1005,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ViewScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\VSceneScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddVSceneScriptObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddGUIImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIEngine\GUIImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1815,6 +1815,60 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Icon\Welcome\vanda_logo.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineObjectList\VSceneScript.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\trigger.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\GUIButton.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\GUIImage.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\GUIText.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Button_Disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Button_Down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Button_Focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Button_Up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Image_Disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Image_Down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Image_Focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI\GUI_Image_Up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\GUI List\GUIImage.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -258,9 +258,6 @@
     <ClCompile Include="physXEngine\MainCharacter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUIEngine\GUIBackground.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GUIEngine\GUIButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -268,9 +265,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUIEngine\GUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\Startup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ResourceFile.cpp">
@@ -289,6 +283,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsEngine\terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\VSceneScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIEngine\GUIImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -572,9 +572,6 @@
     <ClInclude Include="physXEngine\MainCharacter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUIEngine\GUIBackground.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GUIEngine\GUIButton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -582,9 +579,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUIEngine\GUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Startup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceFile.h">
@@ -606,6 +600,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScriptEngine\LuaForCpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\VSceneScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIEngine\GUIImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

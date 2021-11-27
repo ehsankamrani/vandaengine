@@ -38,6 +38,16 @@ public:
 	CChar* GetTempScriptPath() { return m_tempScriptPath; }
 	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
 
+	//functions to get and set script variables
+	CChar* GetScriptStringVariable(CChar* variableName);
+	CBool GetScriptBoolVariable(CChar* variableName);
+	CInt GetScriptIntVariable(CChar* variableName);
+	CDouble GetScriptDoubleVariable(CChar* variableName);
+	CVoid SetScriptStringVariable(CChar* variableName, CChar* value);
+	CVoid SetScriptBoolVariable(CChar* variableName, CBool value);
+	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
+	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
+
 private:
 	CTriggerType m_triggerType;
 	CChar m_name[MAX_NAME_SIZE];

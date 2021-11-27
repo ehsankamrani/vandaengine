@@ -1,6 +1,6 @@
 //Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
-// CAddAmbientSound.cpp : implementation file
+// CGUIButton.cpp : implementation file
 //
 #include "stdafx.h"
 #include "GUIButton.h"
@@ -306,13 +306,13 @@ CVoid CGUIButton::OnSelectMouseRButtonDownScript()
 	}
 }
 
-CVoid CGUIButton::OnSelectMouseHoverScript()
+CVoid CGUIButton::OnSelectMouseEnterScript()
 {
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
 
-		lua_getglobal(m_lua, "OnSelectMouseHover");
+		lua_getglobal(m_lua, "OnSelectMouseEnter");
 		if (lua_isfunction(m_lua, -1))
 		{
 			lua_pcall(m_lua, 0, 0, 0);
@@ -321,4 +321,73 @@ CVoid CGUIButton::OnSelectMouseHoverScript()
 		lua_settop(m_lua, 0);
 	}
 
+}
+
+CChar* CGUIButton::GetScriptStringVariable(CChar* variableName)
+{
+	CChar *s = NULL;
+	lua_getglobal(m_lua, variableName);
+	if (!lua_isnil(m_lua, -1))
+		s = _strdup(lua_tostring(m_lua, -1));
+	else
+		s = _strdup("");
+
+	lua_pop(m_lua, 1);
+	return s;
+}
+
+CBool CGUIButton::GetScriptBoolVariable(CChar* variableName)
+{
+	CInt value;
+	CBool result;
+	lua_getglobal(m_lua, variableName);
+	value = lua_toboolean(m_lua, -1);
+	if (value)
+		result = CTrue;
+	else
+		result = CFalse;
+	lua_pop(m_lua, 1);
+	return result;
+}
+
+CInt CGUIButton::GetScriptIntVariable(CChar* variableName)
+{
+	CInt value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tointeger(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CDouble CGUIButton::GetScriptDoubleVariable(CChar* variableName)
+{
+	CDouble value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tonumber(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CVoid CGUIButton::SetScriptStringVariable(CChar* variableName, CChar* value)
+{
+	lua_pushstring(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CGUIButton::SetScriptBoolVariable(CChar* variableName, CBool value)
+{
+	lua_pushboolean(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CGUIButton::SetScriptIntVariable(CChar* variableName, CInt value)
+{
+	lua_pushinteger(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CGUIButton::SetScriptDoubleVariable(CChar* variableName, CDouble value)
+{
+	lua_pushnumber(m_lua, value);
+	lua_setglobal(m_lua, variableName);
 }

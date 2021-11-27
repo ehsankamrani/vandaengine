@@ -75,7 +75,19 @@ void CAddTrigger::OnBnClickedOk()
 		Cpy(oldName, m_trigger->GetName());
 	for (std::vector<std::string>::iterator it = g_engineObjectNames.begin(); it != g_engineObjectNames.end(); it++)
 	{
-		if (!Cmp(oldName, (*it).c_str()) && Cmp((LPCSTR)name, (*it).c_str()))
+		CChar engineObjectCapsName[MAX_NAME_SIZE];
+		Cpy(engineObjectCapsName, (*it).c_str());
+		StringToUpper(engineObjectCapsName);
+
+		CChar currentObjectName[MAX_NAME_SIZE];
+		Cpy(currentObjectName, (LPCSTR)name);
+		StringToUpper(currentObjectName);
+
+		CChar oldObjectName[MAX_NAME_SIZE];
+		Cpy(oldObjectName, (LPCSTR)oldName);
+		StringToUpper(oldObjectName);
+
+		if (!Cmp(oldObjectName, engineObjectCapsName) && Cmp(currentObjectName, engineObjectCapsName))
 		{
 			MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;

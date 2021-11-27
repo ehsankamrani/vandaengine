@@ -187,6 +187,42 @@ private:
 	CChar IsWaterReflectionEnabled[MAX_URI_SIZE];
 	CChar GetScreenResolution[MAX_URI_SIZE];
 
+	CChar GetVSceneScriptStringVariable[MAX_URI_SIZE];
+	CChar GetVSceneScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetVSceneScriptIntVariable[MAX_URI_SIZE];
+	CChar GetVSceneScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetVSceneScriptStringVariable[MAX_URI_SIZE];
+	CChar SetVSceneScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetVSceneScriptIntVariable[MAX_URI_SIZE];
+	CChar SetVSceneScriptDoubleVariable[MAX_URI_SIZE];
+
+	CChar GetPrefabInstanceScriptStringVariable[MAX_URI_SIZE];
+	CChar GetPrefabInstanceScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetPrefabInstanceScriptIntVariable[MAX_URI_SIZE];
+	CChar GetPrefabInstanceScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetPrefabInstanceScriptStringVariable[MAX_URI_SIZE];
+	CChar SetPrefabInstanceScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetPrefabInstanceScriptIntVariable[MAX_URI_SIZE];
+	CChar SetPrefabInstanceScriptDoubleVariable[MAX_URI_SIZE];
+
+	CChar GetGUIButtonScriptStringVariable[MAX_URI_SIZE];
+	CChar GetGUIButtonScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetGUIButtonScriptIntVariable[MAX_URI_SIZE];
+	CChar GetGUIButtonScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetGUIButtonScriptStringVariable[MAX_URI_SIZE];
+	CChar SetGUIButtonScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetGUIButtonScriptIntVariable[MAX_URI_SIZE];
+	CChar SetGUIButtonScriptDoubleVariable[MAX_URI_SIZE];
+
+	CChar GetTriggerScriptStringVariable[MAX_URI_SIZE];
+	CChar GetTriggerScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetTriggerScriptIntVariable[MAX_URI_SIZE];
+	CChar GetTriggerScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetTriggerScriptStringVariable[MAX_URI_SIZE];
+	CChar SetTriggerScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetTriggerScriptIntVariable[MAX_URI_SIZE];
+	CChar SetTriggerScriptDoubleVariable[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

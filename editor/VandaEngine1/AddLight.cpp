@@ -500,8 +500,18 @@ void CAddLight::OnOK()
 	{
 		compare = CTrue;
 		if( m_editMode )
-			if( m_strLightName == m_strLightTempName )
+		{
+			CChar name[MAX_NAME_SIZE];
+			CChar tempName[MAX_NAME_SIZE];
+			Cpy(name, (LPCSTR)m_strLightName);
+			Cpy(tempName, (LPCSTR)m_strLightTempName);
+
+			StringToUpper(name);
+			StringToUpper(tempName);
+
+			if (Cmp(name, tempName))
 				compare = CFalse;
+		}
 	}
 	else
 		compare = CFalse;
@@ -510,9 +520,17 @@ void CAddLight::OnOK()
 	{
 		for( std::vector<std::string>::iterator it = g_engineObjectNames.begin(); it != g_engineObjectNames.end();it++ )
 		{
-			if( Cmp((LPCSTR)m_strLightName, (*it).c_str() ) )
+			CChar engineObjectCapsName[MAX_NAME_SIZE];
+			Cpy(engineObjectCapsName, (*it).c_str());
+			StringToUpper(engineObjectCapsName);
+
+			CChar currentObjectName[MAX_NAME_SIZE];
+			Cpy(currentObjectName, (LPCSTR)m_strLightName);
+			StringToUpper(currentObjectName);
+
+			if (Cmp(currentObjectName, engineObjectCapsName))
 			{
-				MessageBox( "This name already exist. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR );
+				MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 				return;
 			}
 		}

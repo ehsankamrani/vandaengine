@@ -446,7 +446,19 @@ void CAddMainCharacter::OnBnClickedOk()
 	{
 		for (std::vector<std::string>::iterator it = g_engineObjectNames.begin(); it != g_engineObjectNames.end(); it++)
 		{
-			if (!Cmp(m_oldName, (*it).c_str()) && Cmp((LPCTSTR)m_strName, (*it).c_str()))
+			CChar engineObjectCapsName[MAX_NAME_SIZE];
+			Cpy(engineObjectCapsName, (*it).c_str());
+			StringToUpper(engineObjectCapsName);
+
+			CChar currentObjectName[MAX_NAME_SIZE];
+			Cpy(currentObjectName, (LPCSTR)m_strName);
+			StringToUpper(currentObjectName);
+
+			CChar oldObjectName[MAX_NAME_SIZE];
+			Cpy(oldObjectName, (LPCSTR)m_oldName);
+			StringToUpper(oldObjectName);
+
+			if (!Cmp(oldObjectName, engineObjectCapsName) && Cmp(currentObjectName, engineObjectCapsName))
 			{
 				MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 				return;
@@ -457,7 +469,15 @@ void CAddMainCharacter::OnBnClickedOk()
 	{
 		for (std::vector<std::string>::iterator it = g_engineObjectNames.begin(); it != g_engineObjectNames.end(); it++)
 		{
-			if (Cmp((LPCTSTR)m_strName, (*it).c_str()))
+			CChar engineObjectCapsName[MAX_NAME_SIZE];
+			Cpy(engineObjectCapsName, (*it).c_str());
+			StringToUpper(engineObjectCapsName);
+
+			CChar currentObjectName[MAX_NAME_SIZE];
+			Cpy(currentObjectName, (LPCSTR)m_strName);
+			StringToUpper(currentObjectName);
+
+			if (Cmp(currentObjectName, engineObjectCapsName))
 			{
 				MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 				return;

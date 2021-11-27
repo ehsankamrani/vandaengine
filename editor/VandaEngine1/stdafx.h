@@ -262,3 +262,39 @@ CInt GetMaxAnisotropicFiltering(lua_State* L);
 CInt IsVSyncEnabled(lua_State* L);
 CInt IsWaterReflectionEnabled(lua_State* L);
 CInt GetScreenResolution(lua_State* L);
+
+CInt GetVSceneScriptStringVariable(lua_State* L);
+CInt GetVSceneScriptBoolVariable(lua_State* L);
+CInt GetVSceneScriptIntVariable(lua_State* L);
+CInt GetVSceneScriptDoubleVariable(lua_State* L);
+CInt SetVSceneScriptStringVariable(lua_State* L);
+CInt SetVSceneScriptBoolVariable(lua_State* L);
+CInt SetVSceneScriptIntVariable(lua_State* L);
+CInt SetVSceneScriptDoubleVariable(lua_State* L);
+
+CInt GetPrefabInstanceScriptStringVariable(lua_State* L);
+CInt GetPrefabInstanceScriptBoolVariable(lua_State* L);
+CInt GetPrefabInstanceScriptIntVariable(lua_State* L);
+CInt GetPrefabInstanceScriptDoubleVariable(lua_State* L);
+CInt SetPrefabInstanceScriptStringVariable(lua_State* L);
+CInt SetPrefabInstanceScriptBoolVariable(lua_State* L);
+CInt SetPrefabInstanceScriptIntVariable(lua_State* L);
+CInt SetPrefabInstanceScriptDoubleVariable(lua_State* L);
+
+CInt GetGUIButtonScriptStringVariable(lua_State* L);
+CInt GetGUIButtonScriptBoolVariable(lua_State* L);
+CInt GetGUIButtonScriptIntVariable(lua_State* L);
+CInt GetGUIButtonScriptDoubleVariable(lua_State* L);
+CInt SetGUIButtonScriptStringVariable(lua_State* L);
+CInt SetGUIButtonScriptBoolVariable(lua_State* L);
+CInt SetGUIButtonScriptIntVariable(lua_State* L);
+CInt SetGUIButtonScriptDoubleVariable(lua_State* L);
+
+CInt GetTriggerScriptStringVariable(lua_State* L);
+CInt GetTriggerScriptBoolVariable(lua_State* L);
+CInt GetTriggerScriptIntVariable(lua_State* L);
+CInt GetTriggerScriptDoubleVariable(lua_State* L);
+CInt SetTriggerScriptStringVariable(lua_State* L);
+CInt SetTriggerScriptBoolVariable(lua_State* L);
+CInt SetTriggerScriptIntVariable(lua_State* L);
+CInt SetTriggerScriptDoubleVariable(lua_State* L);

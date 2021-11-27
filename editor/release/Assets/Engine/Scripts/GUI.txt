@@ -6,6 +6,6 @@ function OnSelectMouseRButtonDown()
 
 end
 
-function OnSelectMouseHover()
+function OnSelectMouseEnter()
 
 end

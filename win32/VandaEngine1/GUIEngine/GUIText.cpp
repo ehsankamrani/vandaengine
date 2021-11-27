@@ -1,6 +1,6 @@
 //Copyright (C) 2021 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
-// CAddAmbientSound.cpp : implementation file
+// CGUIText.cpp : implementation file
 //
 #include "stdafx.h"
 #include "GUIText.h"

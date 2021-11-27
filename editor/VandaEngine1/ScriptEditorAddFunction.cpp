@@ -40,11 +40,11 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ActivateImportedCamera, "ActivateImportedCamera(string importedCameraFullName, float endTime[optional])");
 	Cpy(ActivateImportedCameraOfPrefabInstance, "ActivateImportedCameraOfPrefabInstance(string prefabInstanceName, string prefabCameraName, float endTime[optional])");
 	Cpy(ActivateEngineCamera, "ActivateEngineCamera(string gameObjectCameraName, float endTime[optional])");
-	Cpy(SetPhysicsCameraAngle, "SetPhysicsCameraAngle(float angle)");
+	Cpy(SetPhysicsCameraAngle, "SetPhysicsCameraAngle(float angleDegree)");
 	Cpy(GetPhysicsCameraAngle, "GetPhysicsCameraAngle()");
-	Cpy(SetPhysicsCameraTilt, "SetPhysicsCameraTilt(float tilt)");
-	Cpy(SetPhysicsCameraMaxTilt, "SetPhysicsCameraMaxTilt(float maxTilt)");
-	Cpy(SetPhysicsCameraMinTilt, "SetPhysicsCameraMinTilt(float minTilt)");
+	Cpy(SetPhysicsCameraTilt, "SetPhysicsCameraTilt(float tiltDegree)");
+	Cpy(SetPhysicsCameraMaxTilt, "SetPhysicsCameraMaxTilt(float maxTiltDegree)");
+	Cpy(SetPhysicsCameraMinTilt, "SetPhysicsCameraMinTilt(float minTiltDegree)");
 	Cpy(GetPhysicsCameraTilt, "GetPhysicsCameraTilt()");
 	Cpy(GetPhysicsCameraMaxTilt, "GetPhysicsCameraMaxTilt()");
 	Cpy(GetPhysicsCameraMinTilt, "GetPhysicsCameraMinTilt()");
@@ -174,6 +174,43 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(IsVSyncEnabled, "IsVSyncEnabled()");
 	Cpy(IsWaterReflectionEnabled, "IsWaterReflectionEnabled()");
 	Cpy(GetScreenResolution, "GetScreenResolution()");
+
+	Cpy(GetVSceneScriptStringVariable, "GetVSceneScriptStringVariable(string variable)");
+	Cpy(GetVSceneScriptBoolVariable, "GetVSceneScriptBoolVariable(string variable)");
+	Cpy(GetVSceneScriptIntVariable, "GetVSceneScriptIntVariable(string variable)");
+	Cpy(GetVSceneScriptDoubleVariable, "GetVSceneScriptDoubleVariable(string variable)");
+	Cpy(SetVSceneScriptStringVariable, "SetVSceneScriptStringVariable(string variable, string value )");
+	Cpy(SetVSceneScriptBoolVariable, "SetVSceneScriptBoolVariable(string variable, bool value)");
+	Cpy(SetVSceneScriptIntVariable, "SetVSceneScriptIntVariable(string variable, int value)");
+	Cpy(SetVSceneScriptDoubleVariable, "SetVSceneScriptDoubleVariable(string variable, double value)");
+
+	Cpy(GetPrefabInstanceScriptStringVariable, "GetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptBoolVariable, "GetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptIntVariable, "GetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptDoubleVariable, "GetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable)");
+	Cpy(SetPrefabInstanceScriptStringVariable, "SetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable, string value)");
+	Cpy(SetPrefabInstanceScriptBoolVariable, "SetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable, bool variable)");
+	Cpy(SetPrefabInstanceScriptIntVariable, "SetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable, int variable)");
+	Cpy(SetPrefabInstanceScriptDoubleVariable, "SetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable, double variable)");
+
+	Cpy(GetGUIButtonScriptStringVariable, "GetGUIButtonScriptStringVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptBoolVariable, "GetGUIButtonScriptBoolVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptIntVariable, "GetGUIButtonScriptIntVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptDoubleVariable, "GetGUIButtonScriptDoubleVariable(string GUIName, string buttonName, string variable)");
+	Cpy(SetGUIButtonScriptStringVariable, "SetGUIButtonScriptStringVariable(string GUIName, string buttonName, string variable, string value)");
+	Cpy(SetGUIButtonScriptBoolVariable, "SetGUIButtonScriptBoolVariable(string GUIName, string buttonName, string variable, bool value)");
+	Cpy(SetGUIButtonScriptIntVariable, "SetGUIButtonScriptIntVariable(string GUIName, string buttonName, vstring variable, int value)");
+	Cpy(SetGUIButtonScriptDoubleVariable, "SetGUIButtonScriptDoubleVariable(string GUIName, string buttonName, string variable, double value)");
+
+	Cpy(GetTriggerScriptStringVariable, "GetTriggerScriptStringVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptBoolVariable, "GetTriggerScriptBoolVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptIntVariable, "GetTriggerScriptIntVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptDoubleVariable, "GetTriggerScriptDoubleVariable(string triggerName, string variable)");
+	Cpy(SetTriggerScriptStringVariable, "SetTriggerScriptStringVariable(string triggerName, string variable, string value)");
+	Cpy(SetTriggerScriptBoolVariable, "SetTriggerScriptBoolVariable(string triggerName, string variable, bool value)");
+	Cpy(SetTriggerScriptIntVariable, "SetTriggerScriptIntVariable(string triggerName, string variable, int value)");
+	Cpy(SetTriggerScriptDoubleVariable, "SetTriggerScriptDoubleVariable(string triggerName, string variable, double value)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -786,6 +823,134 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetScreenResolution);
 		}
+		else if (Cmp(szBuffer, "GetVSceneScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVSceneScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetVSceneScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVSceneScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetVSceneScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVSceneScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetVSceneScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVSceneScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetVSceneScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVSceneScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetVSceneScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVSceneScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetVSceneScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVSceneScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetVSceneScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVSceneScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetPrefabInstanceScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPrefabInstanceScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "GetGUIButtonScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUIButtonScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetGUIButtonScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUIButtonScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetGUIButtonScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUIButtonScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetGUIButtonScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUIButtonScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetGUIButtonScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUIButtonScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetGUIButtonScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUIButtonScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetGUIButtonScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUIButtonScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetGUIButtonScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUIButtonScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "GetTriggerScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTriggerScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetTriggerScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTriggerScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetTriggerScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTriggerScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetTriggerScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTriggerScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetTriggerScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTriggerScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetTriggerScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTriggerScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetTriggerScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTriggerScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetTriggerScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTriggerScriptDoubleVariable);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -967,6 +1132,42 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("IsVSyncEnabled");
 	InsertItem("IsWaterReflectionEnabled");
 	InsertItem("GetScreenResolution");
+
+	InsertItem("GetVSceneScriptStringVariable");
+	InsertItem("GetVSceneScriptBoolVariable");
+	InsertItem("GetVSceneScriptIntVariable");
+	InsertItem("GetVSceneScriptDoubleVariable");
+	InsertItem("SetVSceneScriptStringVariable");
+	InsertItem("SetVSceneScriptBoolVariable");
+	InsertItem("SetVSceneScriptIntVariable");
+	InsertItem("SetVSceneScriptDoubleVariable");
+
+	InsertItem("GetPrefabInstanceScriptStringVariable");
+	InsertItem("GetPrefabInstanceScriptBoolVariable");
+	InsertItem("GetPrefabInstanceScriptIntVariable");
+	InsertItem("GetPrefabInstanceScriptDoubleVariable");
+	InsertItem("SetPrefabInstanceScriptStringVariable");
+	InsertItem("SetPrefabInstanceScriptBoolVariable");
+	InsertItem("SetPrefabInstanceScriptIntVariable");
+	InsertItem("SetPrefabInstanceScriptDoubleVariable");
+
+	InsertItem("GetGUIButtonScriptStringVariable");
+	InsertItem("GetGUIButtonScriptBoolVariable");
+	InsertItem("GetGUIButtonScriptIntVariable");
+	InsertItem("GetGUIButtonScriptDoubleVariable");
+	InsertItem("SetGUIButtonScriptStringVariable");
+	InsertItem("SetGUIButtonScriptBoolVariable");
+	InsertItem("SetGUIButtonScriptIntVariable");
+	InsertItem("SetGUIButtonScriptDoubleVariable");
+
+	InsertItem("GetTriggerScriptStringVariable");
+	InsertItem("GetTriggerScriptBoolVariable");
+	InsertItem("GetTriggerScriptIntVariable");
+	InsertItem("GetTriggerScriptDoubleVariable");
+	InsertItem("SetTriggerScriptStringVariable");
+	InsertItem("SetTriggerScriptBoolVariable");
+	InsertItem("SetTriggerScriptIntVariable");
+	InsertItem("SetTriggerScriptDoubleVariable");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

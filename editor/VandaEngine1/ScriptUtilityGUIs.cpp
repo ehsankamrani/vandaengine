@@ -28,12 +28,16 @@ void CScriptUtilityGUIs::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_GUIS, m_listGUI);
 	DDX_Control(pDX, IDC_STATIC_PROJECT_VSCENE_NAME, m_textProjectVSceneName);
 	DDX_Control(pDX, IDC_PHOTO, m_imageCtrl);
+	DDX_Control(pDX, IDC_LIST_GUI_ELEMENT, m_listSelectedGUIElement);
+	DDX_Control(pDX, IDC_RICHED_GUI_ELEMENT, m_richSelectedGUIElement);
 }
 
 
 BEGIN_MESSAGE_MAP(CScriptUtilityGUIs, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_COPY_GUI_NAME, &CScriptUtilityGUIs::OnBnClickedButtonCopyGuiName)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GUIS, &CScriptUtilityGUIs::OnLvnItemchangedListGuis)
+	ON_BN_CLICKED(IDC_BUTTON_COPY_GUI_ELEMENT_NAME, &CScriptUtilityGUIs::OnBnClickedButtonCopyGuiElementName)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GUI_ELEMENT, &CScriptUtilityGUIs::OnLvnItemchangedListGuiElement)
 END_MESSAGE_MAP()
 
 
@@ -59,6 +63,12 @@ void CScriptUtilityGUIs::OnBnClickedButtonCopyGuiName()
 void CScriptUtilityGUIs::OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	//Animations
+	for (int nItem = m_listSelectedGUIElement.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listSelectedGUIElement.DeleteItem(nItem);
+	}
 
 	int nSelected = -1;
 	POSITION p = m_listGUI.GetFirstSelectedItemPosition();
@@ -98,10 +108,85 @@ void CScriptUtilityGUIs::OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResul
 					{
 						for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames.size(); j++)
 						{
-							if (Cmp(szBuffer, g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].c_str()))
+							if (Cmp(szBuffer, g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_name))
 							{
-								Cpy(m_currentGUIPackageName, g_projects[pr]->m_vsceneObjectNames[vs].m_guiPackageNames[j].c_str());
-								Cpy(m_currentGUIName, g_projects[pr]->m_vsceneObjectNames[vs].m_guiPureNames[j].c_str());
+								Cpy(m_currentGUIPackageName, g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_guiPackageName);
+								Cpy(m_currentGUIName, g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_guiPureName);
+
+								CInt GUIElementsIndex = -1;
+
+								for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_buttonNames.size(); k++)
+								{
+									GUIElementsIndex++;
+									int index = GUIElementsIndex;
+									LVITEM lvItem;
+									lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+									lvItem.iItem = index;
+									lvItem.iSubItem = 0;
+									lvItem.iImage = 0;
+									lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_buttonNames[k].c_str();
+									m_listSelectedGUIElement.InsertItem(&lvItem);
+									m_listSelectedGUIElement.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+									m_listSelectedGUIElement.EnsureVisible(index, FALSE);
+									m_listSelectedGUIElement.UpdateWindow();
+
+									if (GUIElementsIndex == 0)
+									{
+										m_richSelectedGUIElement.SetWindowTextA(lvItem.pszText);
+										CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+										m_richSelectedGUIElement.SetSel(0, end);
+									}
+								}
+
+								for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_imageNames.size(); k++)
+								{
+									GUIElementsIndex++;
+									int index = GUIElementsIndex;
+									LVITEM lvItem;
+									lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+									lvItem.iItem = index;
+									lvItem.iSubItem = 0;
+									lvItem.iImage = 1;
+									lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_imageNames[k].c_str();
+									m_listSelectedGUIElement.InsertItem(&lvItem);
+									m_listSelectedGUIElement.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+									m_listSelectedGUIElement.EnsureVisible(index, FALSE);
+									m_listSelectedGUIElement.UpdateWindow();
+
+									if (GUIElementsIndex == 0)
+									{
+										m_richSelectedGUIElement.SetWindowTextA(lvItem.pszText);
+										CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+										m_richSelectedGUIElement.SetSel(0, end);
+									}
+								}
+
+								for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_textNames.size(); k++)
+								{
+									GUIElementsIndex++;
+									int index = GUIElementsIndex;
+									LVITEM lvItem;
+									lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+									lvItem.iItem = index;
+									lvItem.iSubItem = 0;
+									lvItem.iImage = 2;
+									lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_textNames[k].c_str();
+									m_listSelectedGUIElement.InsertItem(&lvItem);
+									m_listSelectedGUIElement.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+									m_listSelectedGUIElement.EnsureVisible(index, FALSE);
+									m_listSelectedGUIElement.UpdateWindow();
+
+									if (GUIElementsIndex == 0)
+									{
+										m_richSelectedGUIElement.SetWindowTextA(lvItem.pszText);
+										CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+										m_richSelectedGUIElement.SetSel(0, end);
+									}
+								}
+
 								break;
 							}
 						}
@@ -128,6 +213,12 @@ void CScriptUtilityGUIs::OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResul
 			DeleteObject(hOldBitmap);
 	}
 
+	if (m_listSelectedGUIElement.GetItemCount())
+	{
+		m_listSelectedGUIElement.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
+		m_listSelectedGUIElement.SetSelectionMark(0);
+	}
+
 	*pResult = 0;
 }
 
@@ -139,6 +230,28 @@ BOOL CScriptUtilityGUIs::OnInitDialog()
 	sprintf(text, "Project: %s - VScene: %s", m_projectName, m_VSceneName);
 	m_textProjectVSceneName.SetWindowTextA(text);
 
+	RECT tempGUIElementRect;
+	m_listSelectedGUIElement.GetClientRect(&tempGUIElementRect);
+	m_listSelectedGUIElement.InsertColumn(0, "GUI Elements", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempGUIElementRect.right - tempGUIElementRect.left) * 90 / 100);
+	m_listSelectedGUIElement.ShowWindow(SW_SHOW);
+	m_listSelectedGUIElement.UpdateWindow();
+
+	CBitmap cBmp;
+	CBitmap* cBmpMask = NULL;
+
+	m_GUIElementsImage.Create(32, 32, ILC_COLOR24, 10, 10);
+	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_GUI_BUTTON);
+	m_GUIElementsImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_GUI_IMAGE);
+	m_GUIElementsImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_GUI_TEXT);
+	m_GUIElementsImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+
+	m_listSelectedGUIElement.SetImageList(&m_GUIElementsImage, LVSIL_SMALL);
+
 	RECT tempRect;
 	m_listGUI.GetClientRect(&tempRect);
 	m_listGUI.InsertColumn(0, "GUIs", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempRect.right - tempRect.left) * 90 / 100);
@@ -146,6 +259,7 @@ BOOL CScriptUtilityGUIs::OnInitDialog()
 	m_listGUI.UpdateWindow();
 
 	CInt GUIIndex = -1;
+	CInt GUIElementsIndex = -1;
 
 	CBool foundTarget = CFalse;
 
@@ -169,7 +283,7 @@ BOOL CScriptUtilityGUIs::OnInitDialog()
 						lvItem.mask = LVIF_TEXT;
 						lvItem.iItem = index;
 						lvItem.iSubItem = 0;
-						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].c_str();
+						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_name;
 						m_listGUI.InsertItem(&lvItem);
 						m_listGUI.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
 
@@ -178,6 +292,78 @@ BOOL CScriptUtilityGUIs::OnInitDialog()
 
 						if (GUIIndex == 0)
 						{
+							for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_buttonNames.size(); k++)
+							{
+								GUIElementsIndex++;
+								int index = GUIElementsIndex;
+								LVITEM lvItem;
+								lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+								lvItem.iItem = index;
+								lvItem.iSubItem = 0;
+								lvItem.iImage = 0;
+								lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_buttonNames[k].c_str();
+								m_listSelectedGUIElement.InsertItem(&lvItem);
+								m_listSelectedGUIElement.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+								m_listSelectedGUIElement.EnsureVisible(index, FALSE);
+								m_listSelectedGUIElement.UpdateWindow();
+
+								if (GUIElementsIndex == 0)
+								{
+									m_richSelectedGUIElement.SetWindowTextA(lvItem.pszText);
+									CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+									m_richSelectedGUIElement.SetSel(0, end);
+								}
+							}
+
+							for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_imageNames.size(); k++)
+							{
+								GUIElementsIndex++;
+								int index = GUIElementsIndex;
+								LVITEM lvItem;
+								lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+								lvItem.iItem = index;
+								lvItem.iSubItem = 0;
+								lvItem.iImage = 1;
+								lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_imageNames[k].c_str();
+								m_listSelectedGUIElement.InsertItem(&lvItem);
+								m_listSelectedGUIElement.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+								m_listSelectedGUIElement.EnsureVisible(index, FALSE);
+								m_listSelectedGUIElement.UpdateWindow();
+
+								if (GUIElementsIndex == 0)
+								{
+									m_richSelectedGUIElement.SetWindowTextA(lvItem.pszText);
+									CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+									m_richSelectedGUIElement.SetSel(0, end);
+								}
+							}
+
+							for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_textNames.size(); k++)
+							{
+								GUIElementsIndex++;
+								int index = GUIElementsIndex;
+								LVITEM lvItem;
+								lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+								lvItem.iItem = index;
+								lvItem.iSubItem = 0;
+								lvItem.iImage = 2;
+								lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_guiNames[j].m_textNames[k].c_str();
+								m_listSelectedGUIElement.InsertItem(&lvItem);
+								m_listSelectedGUIElement.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+								m_listSelectedGUIElement.EnsureVisible(index, FALSE);
+								m_listSelectedGUIElement.UpdateWindow();
+
+								if (GUIElementsIndex == 0)
+								{
+									m_richSelectedGUIElement.SetWindowTextA(lvItem.pszText);
+									CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+									m_richSelectedGUIElement.SetSel(0, end);
+								}
+							}
+
 							m_richGUIName.SetWindowTextA(lvItem.pszText);
 							CInt end = m_richGUIName.GetWindowTextLengthA();
 							m_richGUIName.SetSel(0, end);
@@ -197,6 +383,12 @@ BOOL CScriptUtilityGUIs::OnInitDialog()
 	{
 		m_listGUI.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 		m_listGUI.SetSelectionMark(0);
+	}
+
+	if (m_listSelectedGUIElement.GetItemCount())
+	{
+		m_listSelectedGUIElement.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
+		m_listSelectedGUIElement.SetSelectionMark(0);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -229,4 +421,55 @@ CVoid CScriptUtilityGUIs::UpdatePreview()
 
 	m_imageCtrl.SetBitmap(m_hBitmap);
 
+}
+
+void CScriptUtilityGUIs::OnBnClickedButtonCopyGuiElementName()
+{
+	CString s;
+	m_richSelectedGUIElement.GetWindowTextA(s);
+	if (s.IsEmpty())
+		MessageBox("Please select a GUI element from the list!", "Error", MB_OK | MB_ICONERROR);
+	else
+	{
+		m_richSelectedGUIElement.Copy();
+		CChar message[MAX_URI_SIZE];
+		sprintf(message, "Item '%s' copied to clipboard", s);
+		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
+	}
+}
+
+
+void CScriptUtilityGUIs::OnLvnItemchangedListGuiElement(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	int nSelected = -1;
+	POSITION p = m_listSelectedGUIElement.GetFirstSelectedItemPosition();
+	while (p)
+	{
+		nSelected = m_listSelectedGUIElement.GetNextSelectedItem(p);
+	}
+	TCHAR szBuffer[1024];
+
+	if (nSelected >= 0)
+	{
+		DWORD cchBuf(1024);
+		LVITEM lvi;
+		lvi.iItem = nSelected;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = szBuffer;
+		lvi.cchTextMax = cchBuf;
+		m_listSelectedGUIElement.GetItem(&lvi);
+		*pResult = 0;
+
+		m_richSelectedGUIElement.SetWindowTextA(szBuffer);
+		CInt end = m_richSelectedGUIElement.GetWindowTextLengthA();
+		m_richSelectedGUIElement.SetSel(0, end);
+	}
+	else
+	{
+		m_richSelectedGUIElement.SetWindowTextA("");
+		m_richSelectedGUIElement.SetSel(0, 0);
+	}
 }

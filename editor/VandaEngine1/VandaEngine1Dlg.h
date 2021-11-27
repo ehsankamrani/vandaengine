@@ -18,13 +18,13 @@
 #include "SaveGUIDlg.h"
 #include "AddTrigger.h"
 #include "AddGUIButton.h"
-#include "AddGUIBackground.h"
+#include "AddGUIImage.h"
 #include "AddGUIText.h"
 #include "AddLight.h"
 #include "AddEngineCamera.h"
 #include "AddTerrain.h"
 #include "AddWater.h"
-#include "AddStartupObject.h"
+#include "AddVSceneScriptObject.h"
 #include "AddMultipleAnimations.h"
 #include "AddSkyDome.h"
 #include "AddAmbientSound.h"
@@ -68,7 +68,7 @@
 #include "AudioEngine/OpenALSoundBuffer.h"
 #include "AudioEngine/OpenALSoundSource.h"
 #include "AudioEngine/StaticSound.h"
-#include "GUIEngine/GUIBackground.h"
+#include "GUIEngine/GUIImage.h"
 #include "GUIEngine/GUIButton.h"
 #include "GUIEngine/GUIText.h"
 #include "GUIEngine/GUI.h"
@@ -84,7 +84,7 @@
 #include "CustomBitmapButton.h"
 #include "ScriptEngine/luaforcpp.h"
 #include "Common/Prefab.h"
-#include "Common/Startup.h"
+#include "Common/VSceneScript.h"
 #include "physXEngine\MainCharacter.h"
 #include "sceneProperties.h"
 #include "resourceFile.h"
@@ -153,6 +153,23 @@ struct CInstancePrefabNames
 	}
 };
 
+struct CGUINames
+{
+	CChar m_name[MAX_NAME_SIZE]; //Full GUI name
+	CChar m_guiPackageName[MAX_NAME_SIZE]; //Package name of GUI (used for image preview)
+	CChar m_guiPureName[MAX_NAME_SIZE]; //Pure GUI name (used for image preview)
+	std::vector<std::string> m_buttonNames;
+	std::vector<std::string> m_imageNames;
+	std::vector<std::string> m_textNames;
+
+	CVoid ClearNames()
+	{
+		m_buttonNames.clear();
+		m_imageNames.clear();
+		m_textNames.clear();
+	}
+
+};
 
 //mainly used in script editor and to test scripts in Prefab mode
 struct CVSceneObjectNames
@@ -162,10 +179,8 @@ struct CVSceneObjectNames
 	std::vector<std::string> m_importedCameraNames; //imported cameras in dae format of this VScene
 	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
 	std::vector<std::string> m_engineLightNames; //light names of this VScene
-
-	std::vector<std::string> m_guiNames; //Full GUI name of this VScene
-	std::vector<std::string> m_guiPackageNames; //Package name of GUI (used for image preview)
-	std::vector<std::string> m_guiPureNames; //Pure GUI name (used for image preview)
+	std::vector<std::string> m_engineTriggerNames; //Trigger names of this VScene
+	std::vector<CGUINames>m_guiNames; //GUIs of this VScene
 
 	CVoid ClearNames()
 	{
@@ -177,6 +192,10 @@ struct CVSceneObjectNames
 		m_importedCameraNames.clear();
 		m_engineCameraNames.clear();
 		m_engineLightNames.clear();
+		m_engineTriggerNames.clear();
+
+		for (CUInt i = 0; i < m_guiNames.size(); i++)
+			m_guiNames[i].ClearNames();
 		m_guiNames.clear();
 	}
 
@@ -461,7 +480,7 @@ struct CMenuVariables
 	CBool m_enableDynamicShadow; //deprecate; Moved to CShadowProperties::m_enable
 	CBool m_insertAndShowSky;
 	CBool m_insertAndShowTerrain;
-	CBool m_insertStartup;
+	CBool m_insertVSceneScript;
 	CBool m_insertAmbientSound;
 	CBool m_playAmbientSound;
 	CBool m_geometryBasedSelection;
@@ -488,7 +507,7 @@ struct CMenuVariables
 		m_enableDynamicShadow = CTrue;
 		m_insertAndShowSky = CFalse;
 		m_insertAndShowTerrain = CFalse;
-		m_insertStartup = CFalse;
+		m_insertVSceneScript = CFalse;
  		m_insertAmbientSound = CFalse;
 		m_playAmbientSound = CFalse;
 		m_geometryBasedSelection = CTrue;
@@ -722,7 +741,7 @@ protected:
 	CVoid OnMenuClickedInsertLight();
 	CVoid OnMenuClickedInsertStaticSound();
 	CVoid OnMenuClickedInsertSkyDome();
-	CVoid OnMenuClickedInsertStartup();
+	CVoid OnMenuClickedInsertVSceneScript();
 	CVoid OnMenuClickedInsertTerrain();
 	CVoid OnMenuClickedInsertEngineCamera();
 	CVoid OnMenuClickedWaterAttachment();
@@ -790,12 +809,12 @@ public:
 	CVoid ChangeAmbientSoundProperties();
 	CVoid ChangeSkyDomeProperties();
 	CVoid ChangeTerrainProperties();
-	CVoid ChangeStartupProperties();
+	CVoid ChangeVSceneScriptProperties();
 public:
 	CWaterAttachment* m_dlgWaterAttachment;
 	CAddTrigger* m_dlgAddTrigger;
 	CAddGUIButton* m_dlgAddGUIButton;
-	CAddGUIBackground* m_dlgAddGUIBackground;
+	CAddGUIImage* m_dlgAddGUIImage;
 	CAddGUIText* m_dlgAddGUIText;
 	CAddLight* m_dlgAddLight;
 	CAddEngineCamera* m_dlgAddEngineCamera;
@@ -998,9 +1017,9 @@ public:
 	afx_msg void OnBnClickedBtnColladaMultipleAnimations();
 	CCustomBitmapButton m_mainBtnGUIButton;
 	afx_msg void OnBnClickedBtnGuiButton();
-	afx_msg void OnBnClickedBtnGuiBackground();
+	afx_msg void OnBnClickedBtnGuiImages();
 	afx_msg void OnBnClickedBtnGuiText();
-	CCustomBitmapButton m_mainBtnGUIBackground;
+	CCustomBitmapButton m_mainBtnGUIImage;
 	CCustomBitmapButton m_mainBtnGUIText;
 	CListCtrl m_listBoxGUIElements;
 	afx_msg void OnBnClickedBtnRemoveGui();
@@ -1008,7 +1027,7 @@ public:
 
 	CBool m_askRemoveGUIElement;
 	CVoid ChangeGUIButtonProperties(CGUIButton* button);
-	CVoid ChangeGUIBackgroundProperties(CGUIBackground* background);
+	CVoid ChangeGUIImageProperties(CGUIImage* image);
 	CVoid ChangeGUITextProperties(CGUIText* text);
 
 	CCustomBitmapButton m_btnRemoveGUI;
@@ -1018,8 +1037,8 @@ public:
 	afx_msg void OnLvnItemchangedListGuiElements(NMHDR *pNMHDR, LRESULT *pResult);
 	CVoid SavePrefabFiles();
 	CVoid SaveGUIFiles();
-	CCustomBitmapButton m_mainBtnStartup;
-	afx_msg void OnBnClickedBtnStartup();
+	CCustomBitmapButton m_mainBtnVSceneScript;
+	afx_msg void OnBnClickedBtnVSceneScript();
 	CCustomBitmapButton m_mainBtnTerrain;
 	afx_msg void OnBnClickedInsertTerrain();
 	CCustomBitmapButton m_mainBtnEngineCamera;
@@ -1136,7 +1155,7 @@ extern CBool g_useGlobalAmbientColor;
 extern CVec4f g_defaultDirectionalLight;
 
 extern std::vector<CGUIButton*> g_guiButtons;
-extern std::vector<CGUIBackground*> g_guiBackgrounds;
+extern std::vector<CGUIImage*> g_guiImages;
 extern std::vector<CGUIText*> g_guiTexts;
 extern std::vector<CGUI*> g_guis;
 
@@ -1151,7 +1170,7 @@ extern COpenALSystem* g_soundSystem;
 extern std::vector<std::string> g_engineObjectNames;
 extern std::vector<std::string> g_guiNames;
 extern CUpdateCamera *g_camera;
-extern CStartUp* g_startup;
+extern CVSceneScript* g_VSceneScript;
 extern GLuint g_shaderType;
 extern CSkyDome *g_skyDome;   //Currently each map has just one sky, But I may decide to add extra layers later
 extern CTerrain *g_terrain;

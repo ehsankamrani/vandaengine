@@ -69,8 +69,18 @@ void CAddEngineCamera::OnBnClickedOk()
 	{
 		compare = CTrue;
 		if (!m_create)
-			if (m_strName == m_strTempName)
+		{
+			CChar name[MAX_NAME_SIZE];
+			CChar tempName[MAX_NAME_SIZE];
+			Cpy(name, (LPCSTR)m_strName);
+			Cpy(tempName, (LPCSTR)m_strTempName);
+
+			StringToUpper(name);
+			StringToUpper(tempName);
+
+			if (Cmp(name, tempName))
 				compare = CFalse;
+		}
 	}
 	else
 		compare = CFalse;
@@ -79,9 +89,17 @@ void CAddEngineCamera::OnBnClickedOk()
 	{
 		for (std::vector<std::string>::iterator it = g_engineObjectNames.begin(); it != g_engineObjectNames.end(); it++)
 		{
-			if (Cmp((LPCSTR)m_strName, (*it).c_str()))
+			CChar engineObjectCapsName[MAX_NAME_SIZE];
+			Cpy(engineObjectCapsName, (*it).c_str());
+			StringToUpper(engineObjectCapsName);
+
+			CChar currentObjectName[MAX_NAME_SIZE];
+			Cpy(currentObjectName, (LPCSTR)m_strName);
+			StringToUpper(currentObjectName);
+
+			if (Cmp(currentObjectName, engineObjectCapsName))
 			{
-				MessageBox("This name already exist. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+				MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 				return;
 			}
 		}

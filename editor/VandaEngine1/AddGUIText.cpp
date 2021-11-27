@@ -131,18 +131,46 @@ void CAddGUIText::OnBnClickedOk()
 		MessageBox("Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
-	for (std::vector<std::string>::iterator it = g_guiNames.begin(); it != g_guiNames.end(); it++)
+	CBool compare = CFalse;
+	if (!m_strName.IsEmpty())
 	{
+		compare = CTrue;
 		if (!m_create)
 		{
-			if (Cmp((LPCTSTR)m_strTempName, (*it).c_str()))
-				break;
+			CChar name[MAX_NAME_SIZE];
+			CChar tempName[MAX_NAME_SIZE];
+			Cpy(name, (LPCSTR)m_strName);
+			Cpy(tempName, (LPCSTR)m_strTempName);
+
+			StringToUpper(name);
+			StringToUpper(tempName);
+
+			if (Cmp(name, tempName))
+				compare = CFalse;
 		}
 
-		if (Cmp((LPCTSTR)m_strName, (*it).c_str()))
+	}
+	else
+		compare = CFalse;
+
+	if (compare)
+	{
+		for (std::vector<std::string>::iterator it = g_guiNames.begin(); it != g_guiNames.end(); it++)
 		{
-			MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-			return;
+			CChar engineObjectCapsName[MAX_NAME_SIZE];
+			Cpy(engineObjectCapsName, (*it).c_str());
+			StringToUpper(engineObjectCapsName);
+
+			CChar currentObjectName[MAX_NAME_SIZE];
+			Cpy(currentObjectName, (LPCSTR)m_strName);
+			StringToUpper(currentObjectName);
+
+
+			if (Cmp(currentObjectName, engineObjectCapsName))
+			{
+				MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+				return;
+			}
 		}
 	}
 	CInt currentSelection = m_comboType.GetCurSel();

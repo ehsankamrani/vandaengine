@@ -129,10 +129,10 @@ void CAddGUIButton::OnBnClickedButtonAddMainImg()
 		}
 		if (!foundTarget)
 		{
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
 				CChar name[MAX_NAME_SIZE];
-				Cpy(name, GetAfterPath(g_guiBackgrounds[i]->GetImagePath()));
+				Cpy(name, GetAfterPath(g_guiImages[i]->GetImagePath()));
 				GetWithoutDot(name);
 				if (Cmp(name, new_image_name))
 					foundTarget = CTrue;
@@ -277,10 +277,10 @@ void CAddGUIButton::OnBnClickedButtonAddLeftClkImg()
 
 		if (!foundTarget)
 		{
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
 				CChar name[MAX_NAME_SIZE];
-				Cpy(name, GetAfterPath(g_guiBackgrounds[i]->GetImagePath()));
+				Cpy(name, GetAfterPath(g_guiImages[i]->GetImagePath()));
 				GetWithoutDot(name);
 				if (Cmp(name, new_image_name))
 					foundTarget = CTrue;
@@ -438,10 +438,10 @@ void CAddGUIButton::OnBnClickedButtonAddHoverImg()
 
 		if (!foundTarget)
 		{
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
 				CChar name[MAX_NAME_SIZE];
-				Cpy(name, GetAfterPath(g_guiBackgrounds[i]->GetImagePath()));
+				Cpy(name, GetAfterPath(g_guiImages[i]->GetImagePath()));
 				GetWithoutDot(name);
 				if (Cmp(name, new_image_name))
 					foundTarget = CTrue;
@@ -599,10 +599,10 @@ void CAddGUIButton::OnBnClickedButtonAddRightClkImg()
 
 		if (!foundTarget)
 		{
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
 				CChar name[MAX_NAME_SIZE];
-				Cpy(name, GetAfterPath(g_guiBackgrounds[i]->GetImagePath()));
+				Cpy(name, GetAfterPath(g_guiImages[i]->GetImagePath()));
 				GetWithoutDot(name);
 				if (Cmp(name, new_image_name))
 					foundTarget = CTrue;
@@ -761,10 +761,10 @@ void CAddGUIButton::OnBnClickedButtonAddDisableImg()
 
 		if (!foundTarget)
 		{
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
 				CChar name[MAX_NAME_SIZE];
-				Cpy(name, GetAfterPath(g_guiBackgrounds[i]->GetImagePath()));
+				Cpy(name, GetAfterPath(g_guiImages[i]->GetImagePath()));
 				GetWithoutDot(name);
 				if (Cmp(name, new_image_name))
 					foundTarget = CTrue;
@@ -954,16 +954,46 @@ void CAddGUIButton::OnBnClickedOk()
 		return;
 	}
 
-	for (std::vector<std::string>::iterator it = g_guiNames.begin(); it != g_guiNames.end(); it++)
+	CBool compare = CFalse;
+	if (!m_strName.IsEmpty())
 	{
+		compare = CTrue;
 		if (!m_create)
-			if (Cmp((LPCTSTR)m_strTempName, (*it).c_str()))
-				break;
-
-		if (Cmp((LPCTSTR)m_strName, (*it).c_str()))
 		{
-			MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-			return;
+			CChar name[MAX_NAME_SIZE];
+			CChar tempName[MAX_NAME_SIZE];
+			Cpy(name, (LPCSTR)m_strName);
+			Cpy(tempName, (LPCSTR)m_strTempName);
+
+			StringToUpper(name);
+			StringToUpper(tempName);
+
+			if (Cmp(name, tempName))
+				compare = CFalse;
+		}
+
+	}
+	else
+		compare = CFalse;
+
+	if (compare)
+	{
+		for (std::vector<std::string>::iterator it = g_guiNames.begin(); it != g_guiNames.end(); it++)
+		{
+			CChar engineObjectCapsName[MAX_NAME_SIZE];
+			Cpy(engineObjectCapsName, (*it).c_str());
+			StringToUpper(engineObjectCapsName);
+
+			CChar currentObjectName[MAX_NAME_SIZE];
+			Cpy(currentObjectName, (LPCSTR)m_strName);
+			StringToUpper(currentObjectName);
+
+
+			if (Cmp(currentObjectName, engineObjectCapsName))
+			{
+				MessageBox("This name already exists. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+				return;
+			}
 		}
 	}
 	if (m_fPosX < 0.0f || m_fPosX > g_width)

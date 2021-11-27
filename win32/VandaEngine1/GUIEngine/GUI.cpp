@@ -4,7 +4,7 @@
 //
 
 #include "stdafx.h"
-#include "GUIBackground.h"
+#include "GUIImage.h"
 #include "GUIButton.h"
 #include "GUIText.h"
 #include "GUI.h"
@@ -21,9 +21,9 @@ CGUI::~CGUI()
 		CDelete(m_guiButtons[i]);
 	m_guiButtons.clear();
 
-	for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
-		CDelete(m_guiBackgrounds[i]);
-	m_guiBackgrounds.clear();
+	for (CUInt i = 0; i < m_guiImages.size(); i++)
+		CDelete(m_guiImages[i]);
+	m_guiImages.clear();
 
 	for (CUInt i = 0; i < m_guiTexts.size(); i++)
 		CDelete(m_guiTexts[i]);
@@ -35,9 +35,9 @@ CVoid CGUI::AddGUIButton(CGUIButton* button)
 	m_guiButtons.push_back(button); 
 }
 
-CVoid CGUI::AddGUIBackground(CGUIBackground* background)
+CVoid CGUI::AddGUIImage(CGUIImage* image)
 { 
-	m_guiBackgrounds.push_back(background);
+	m_guiImages.push_back(image);
 }
 
 CVoid CGUI::AddGUIText(CGUIText* text)

@@ -3015,8 +3015,8 @@ CInt SetPhysicsCameraTilt(lua_State *L)
 	if (g_camera)
 	{
 		CFloat value = (CFloat)lua_tonumber(L, 1);
-		g_camera->m_perspectiveCameraTilt = value;
-		g_camera->m_perspectiveCurrentCameraTilt = value;
+		g_camera->m_perspectiveCameraTilt = NxMath::degToRad(value);
+		g_camera->m_perspectiveCurrentCameraTilt = NxMath::degToRad(value);
 	}
 	return 0;
 }
@@ -3035,7 +3035,7 @@ CInt SetPhysicsCameraMaxTilt(lua_State *L)
 	if (g_camera)
 	{
 		CFloat value = (CFloat)lua_tonumber(L, 1);
-		g_camera->m_perspectiveCameraMaxTilt = value;
+		g_camera->m_perspectiveCameraMaxTilt = NxMath::degToRad(value);
 	}
 	return 0;
 }
@@ -3054,7 +3054,7 @@ CInt SetPhysicsCameraMinTilt(lua_State *L)
 	if (g_camera)
 	{
 		CFloat value = (CFloat)lua_tonumber(L, 1);
-		g_camera->m_perspectiveCameraMinTilt = value;
+		g_camera->m_perspectiveCameraMinTilt = NxMath::degToRad(value);
 	}
 	return 0;
 }
@@ -3063,7 +3063,7 @@ CInt GetPhysicsCameraTilt(lua_State *L)
 {
 	if (g_camera)
 	{
-		lua_pushnumber(L, g_camera->m_perspectiveCurrentCameraTilt);
+		lua_pushnumber(L, NxMath::radToDeg(g_camera->m_perspectiveCurrentCameraTilt));
 		return 1;
 	}
 
@@ -3074,7 +3074,7 @@ CInt GetPhysicsCameraMaxTilt(lua_State *L)
 {
 	if (g_camera)
 	{
-		lua_pushnumber(L, g_camera->m_perspectiveCameraMaxTilt);
+		lua_pushnumber(L, NxMath::radToDeg(g_camera->m_perspectiveCameraMaxTilt));
 		return 1;
 	}
 
@@ -3085,7 +3085,7 @@ CInt GetPhysicsCameraMinTilt(lua_State *L)
 {
 	if (g_camera)
 	{
-		lua_pushnumber(L, g_camera->m_perspectiveCameraMinTilt);
+		lua_pushnumber(L, NxMath::radToDeg(g_camera->m_perspectiveCameraMinTilt));
 		return 1;
 	}
 
@@ -3835,16 +3835,16 @@ CInt ShowGUI(lua_State *L)
 			{
 				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
 				{
-					CChar camera[MAX_NAME_SIZE];
-					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
-					StringToUpper(camera);
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
 
-					if (Cmp(camera, luaToString))
+					if (Cmp(name, luaToString))
 					{
 						foundTarget = CTrue;
 
 						CChar message[MAX_NAME_SIZE];
-						sprintf(message, "\nShowGUI() - Project '%s', VScene '%s', GUI '%s' will become visible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
+						sprintf(message, "\nShowGUI() - Project '%s', VScene '%s', GUI '%s' will become visible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
 						PrintInfo(message, COLOR_GREEN);
 
 						break;
@@ -3915,16 +3915,16 @@ CInt HideGUI(lua_State* L)
 			{
 				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
 				{
-					CChar camera[MAX_NAME_SIZE];
-					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
-					StringToUpper(camera);
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
 
-					if (Cmp(camera, luaToString))
+					if (Cmp(name, luaToString))
 					{
 						foundTarget = CTrue;
 
 						CChar message[MAX_NAME_SIZE];
-						sprintf(message, "\nHideGUI() - Project '%s', VScene '%s', GUI '%s' will become invisible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].c_str());
+						sprintf(message, "\nHideGUI() - Project '%s', VScene '%s', GUI '%s' will become invisible", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
 						PrintInfo(message, COLOR_GREEN);
 
 						break;
@@ -8915,7 +8915,7 @@ CInt DisableWaterReflection(lua_State* L)
 
 //Sets screen resolution
 //Accepted values are:
-//0    : Current resolution
+//0    : Current display resolution
 //800  : 800x600
 //1024 : 1024x768
 //1280 : 1280x720 — HD / 720p.
@@ -9059,12 +9059,2844 @@ CInt GetScreenResolution(lua_State* L)
 		return 0;
 
 	if (g_options.m_useCurrentResolution)
-		lua_pushnumber(L, 0); //current resolution
+		lua_pushnumber(L, 0); //current display resolution
 	else
 		lua_pushnumber(L, g_options.m_width);
 
 	return 1;
 }
+
+CInt GetVSceneScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVSceneScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar* value = NULL;
+	if (g_VSceneScript)
+	{
+		value = g_VSceneScript->GetScriptStringVariable(luaToString);
+	}
+	else
+	{
+		return 0;
+	}
+
+	lua_pushstring(L, value);
+
+	free(value);
+
+	return 1;
+}
+
+CInt GetVSceneScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVSceneScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool value;
+	if (g_VSceneScript)
+	{
+		value = g_VSceneScript->GetScriptBoolVariable(luaToString);
+	}
+	lua_pushboolean(L, value);
+
+	return 1;
+}
+
+CInt GetVSceneScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVSceneScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	if (g_VSceneScript)
+	{
+		value = g_VSceneScript->GetScriptIntVariable(luaToString);
+	}
+	lua_pushinteger(L, value);
+
+	return 1;
+}
+
+CInt GetVSceneScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVSceneScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	if (g_VSceneScript)
+	{
+		value = g_VSceneScript->GetScriptDoubleVariable(luaToString);
+	}
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt SetVSceneScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetVSceneScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar value[MAX_URI_SIZE];
+	Cpy(value, lua_tostring(L, 2));
+	if (g_VSceneScript)
+	{
+		g_VSceneScript->SetScriptStringVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetVSceneScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetVSceneScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool bValue;
+	CInt iValue;
+	iValue = lua_toboolean(L, 2);
+	if (iValue)
+		bValue = CTrue;
+	else
+		bValue = CFalse;
+	if (g_VSceneScript)
+	{
+		g_VSceneScript->SetScriptBoolVariable(luaToString, bValue);
+	}
+
+	return 0;
+}
+
+CInt SetVSceneScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetVSceneScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	value = lua_tointeger(L, 2);
+	if (g_VSceneScript)
+	{
+		g_VSceneScript->SetScriptIntVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetVSceneScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetVSceneScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	value = lua_tonumber(L, 2);
+	if (g_VSceneScript)
+	{
+		g_VSceneScript->SetScriptDoubleVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetPrefabInstanceScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				value = g_currentInstancePrefab->GetScriptStringVariable(variable);
+
+				lua_pushstring(L, value);
+
+				free(value);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetPrefabInstanceScriptStringVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetPrefabInstanceScriptStringVariable() will get '%s'variable of current prefab instance in VScene mode", lua_tostring(L, 2));
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetPrefabInstanceScriptStringVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetPrefabInstanceScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			value = g_instancePrefab[i]->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetPrefabInstanceScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetPrefabInstanceScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				value = g_currentInstancePrefab->GetScriptBoolVariable(variable);
+
+				lua_pushboolean(L, value);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetPrefabInstanceScriptBoolVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetPrefabInstanceScriptBoolVariable() will get '%s'variable of current prefab instance in VScene mode", lua_tostring(L, 2));
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetPrefabInstanceScriptBoolVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetPrefabInstanceScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			value = g_instancePrefab[i]->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetPrefabInstanceScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetPrefabInstanceScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				value = g_currentInstancePrefab->GetScriptIntVariable(variable);
+
+				lua_pushinteger(L, value);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetPrefabInstanceScriptIntVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetPrefabInstanceScriptIntVariable() will get '%s'variable of current prefab instance in VScene mode", lua_tostring(L, 2));
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetPrefabInstanceScriptIntVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetPrefabInstanceScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			value = g_instancePrefab[i]->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetPrefabInstanceScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetPrefabInstanceScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetPrefabInstanceScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				value = g_currentInstancePrefab->GetScriptDoubleVariable(variable);
+
+				lua_pushnumber(L, value);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetPrefabInstanceScriptDoubleVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetPrefabInstanceScriptDoubleVariable() will get '%s'variable of current prefab instance in VScene mode", lua_tostring(L, 2));
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetPrefabInstanceScriptDoubleVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetPrefabInstanceScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			value = g_instancePrefab[i]->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetPrefabInstanceScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetPrefabInstanceScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetScriptStringVariable(variable, value);
+
+				return 0;
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceScriptStringVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nSetPrefabInstanceScriptStringVariable() will set '%s' variable of current prefab instance to '%s' value in VScene mode ", lua_tostring(L, 2), value);
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetPrefabInstanceScriptStringVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetPrefabInstanceScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetScriptBoolVariable(variable, value);
+
+				return 0;
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceScriptBoolVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			if (value)
+				sprintf(message, "\nSetPrefabInstanceScriptBoolVariable() will set '%s' variable of current prefab instance to '%s' value in VScene mode ", lua_tostring(L, 2), "true");
+			else
+				sprintf(message, "\nSetPrefabInstanceScriptBoolVariable() will set '%s' variable of current prefab instance to '%s' value in VScene mode ", lua_tostring(L, 2), "false");
+
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						if (value)
+							sprintf(message, "\nSetPrefabInstanceScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), "true", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						else
+							sprintf(message, "\nSetPrefabInstanceScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), "false", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetPrefabInstanceScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetScriptIntVariable(variable, value);
+
+				return 0;
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceScriptIntVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nSetPrefabInstanceScriptIntVariable() will set '%s' variable of current prefab instance to '%d' value in VScene mode ", lua_tostring(L, 2), value);
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetPrefabInstanceScriptIntVariable(%s, %s, %d) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetPrefabInstanceScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetPrefabInstanceScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->SetScriptDoubleVariable(variable, value);
+
+				return 0;
+			}
+			else
+			{
+				PrintInfo("\nSetPrefabInstanceScriptDoubleVariable() Error: Couldn't find current prefab instance", COLOR_RED);
+				return 0;
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nSetPrefabInstanceScriptDoubleVariable() will set '%s' variable of current prefab instance to '%.2f' value in VScene mode ", lua_tostring(L, 2), value);
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetPrefabInstanceScriptDoubleVariable(%s, %s, %.2f) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), value , g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetPrefabInstanceScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetPrefabInstanceScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetGUIButtonScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for GetGUIButtonScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CChar* value = NULL;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUIButtonScriptStringVariable(%s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptStringVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptStringVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+			
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					value = g_guis[i]->m_guiButtons[j]->GetScriptStringVariable(variableName);
+
+					lua_pushstring(L, value);
+
+					free(value);
+
+					return 1;
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptStringVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptStringVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt GetGUIButtonScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for GetGUIButtonScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CBool value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUIButtonScriptBoolVariable(%s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptBoolVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptBoolVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					value = g_guis[i]->m_guiButtons[j]->GetScriptBoolVariable(variableName);
+
+					lua_pushboolean(L, value);
+
+					return 1;
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptBoolVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptBoolVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt GetGUIButtonScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for GetGUIButtonScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CInt value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUIButtonScriptIntVariable(%s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptIntVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptIntVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					value = g_guis[i]->m_guiButtons[j]->GetScriptIntVariable(variableName);
+
+					lua_pushinteger(L, value);
+
+					return 1;
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptIntVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptIntVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt GetGUIButtonScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for GetGUIButtonScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CDouble value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUIButtonScriptDoubleVariable(%s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					value = g_guis[i]->m_guiButtons[j]->GetScriptDoubleVariable(variableName);
+
+					lua_pushnumber(L, value);
+
+					return 1;
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt SetGUIButtonScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUIButtonScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 4));
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nSetGUIButtonScriptStringVariable(%s, %s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptStringVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptStringVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->SetScriptStringVariable(variableName, value);
+
+					return 0;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptStringVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptStringVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt SetGUIButtonScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUIButtonScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 4);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								if (value)
+									sprintf(message, "\nSetGUIButtonScriptBoolVariable(%s, %s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, "true", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								else
+									sprintf(message, "\nSetGUIButtonScriptBoolVariable(%s, %s, %s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, "false", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptBoolVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptBoolVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->SetScriptBoolVariable(variableName, value);
+
+					return 0;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptBoolVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptBoolVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt SetGUIButtonScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUIButtonScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CInt value;
+	value = lua_tointeger(L, 4);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nSetGUIButtonScriptIntVariable(%s, %s, %s, %d) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, value , g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptIntVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptIntVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->SetScriptIntVariable(variableName, value);
+
+					return 0;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptIntVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptIntVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt SetGUIButtonScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUIButtonScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CChar variableName[MAX_NAME_SIZE];
+	Cpy(variableName, lua_tostring(L, 3));
+
+	CDouble value;
+	value = lua_tonumber(L, 4);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nSetGUIButtonScriptDoubleVariable(%s, %s, %s, %.2f) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->SetScriptDoubleVariable(variableName, value);
+
+					return 0;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonScriptDoubleVariable() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	return 0;
+}
+
+CInt GetTriggerScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetTriggerScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigger Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetTriggerScriptStringVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetTriggerScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			value = g_triggers[i]->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetTriggerScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetTriggerScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetTriggerScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetTriggerScriptBoolVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetTriggerScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			value = g_triggers[i]->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetTriggerScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetTriggerScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetTriggerScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetTriggerScriptIntVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetTriggerScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			value = g_triggers[i]->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetTriggerScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetTriggerScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetTriggerScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetTriggerScriptDoubleVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetTriggerScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			value = g_triggers[i]->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetTriggerScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetTriggerScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetTriggerScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigger Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetTriggerScriptStringVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetTriggerScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			g_triggers[i]->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetTriggerScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetTriggerScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetTriggerScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigger Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						if (value)
+							sprintf(message, "\nSetTriggerScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), "true", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						else
+							sprintf(message, "\nSetTriggerScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), "false", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetTriggerScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			g_triggers[i]->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetTriggerScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetTriggerScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetTriggerScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigger Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetTriggerScriptIntVariable(%s, %s, %d) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetTriggerScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			g_triggers[i]->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetTriggerScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetTriggerScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetTriggerScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTrigger = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigger Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames.size(); j++)
+				{
+					CChar triggerName[MAX_NAME_SIZE];
+					Cpy(triggerName, g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+					StringToUpper(triggerName);
+
+					if (Cmp(triggerName, luaToString))
+					{
+						foundTrigger = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetTriggerScriptDoubleVariable(%s, %s, %.2f) will be executed for Project '%s', VScene '%s' : Trigger '%s'", triggerName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineTriggerNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTrigger)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetTriggerScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_triggers.size(); i++)
+	{
+		CChar triggerName[MAX_NAME_SIZE];
+		Cpy(triggerName, g_triggers[i]->GetName());
+		StringToUpper(triggerName);
+		if (Cmp(triggerName, luaToString))
+		{
+			foundTrigger = CTrue;
+			g_triggers[i]->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundTrigger)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetTriggerScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' trigger");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
@@ -9708,9 +12540,9 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 			CChar name[MAX_NAME_SIZE];
 
 			CBool foundTarget = CFalse;
-			for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+			for (CUInt k = 0; k < g_guiImages.size(); k++)
 			{
-				if (g_guiBackgrounds[k]->GetIndex() == m_selectedGUIIndex)
+				if (g_guiImages[k]->GetIndex() == m_selectedGUIIndex)
 				{
 					COLORREF color = COLOR_WHITE;
 					CHARFORMAT cf;
@@ -9724,11 +12556,11 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 
 					ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
 
-					ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiBackgrounds[k]->GetName());
+					ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiImages[k]->GetName());
 
 					CChar posX[MAX_NAME_SIZE];
 					CChar posY[MAX_NAME_SIZE];
-					CVec2f position = g_guiBackgrounds[k]->GetPosition();
+					CVec2f position = g_guiImages[k]->GetPosition();
 					sprintf(posX, "%.0f", position.x);
 					sprintf(posY, "%.0f", position.y);
 
@@ -9736,7 +12568,7 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 					ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(posY);
 
 					foundTarget = CTrue;
-					Cpy(name, g_guiBackgrounds[k]->GetName());
+					Cpy(name, g_guiImages[k]->GetName());
 				}
 			}
 			if (!foundTarget)
@@ -10504,7 +13336,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 					if (g_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 					{
 						if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
-							g_guiButtons[k]->OnSelectMouseHoverScript();
+							g_guiButtons[k]->OnSelectMouseEnterScript();
 					}
 					g_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
 				}
@@ -10535,7 +13367,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 						if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 						{
 							if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
-								g_guis[i]->m_guiButtons[k]->OnSelectMouseHoverScript();
+								g_guis[i]->m_guiButtons[k]->OnSelectMouseEnterScript();
 							
 						}
 
@@ -10561,15 +13393,15 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 			position.y = m_mousePosition.y - m_mouseOldPosition.y;
 
 			CBool foundTarget = CFalse;
-			for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+			for (CUInt k = 0; k < g_guiImages.size(); k++)
 			{
-				if (g_guiBackgrounds[k]->GetIndex() == m_selectedGUIIndex)
+				if (g_guiImages[k]->GetIndex() == m_selectedGUIIndex)
 				{
-					g_guiBackgrounds[k]->SetPosition2(position);
+					g_guiImages[k]->SetPosition2(position);
 
 					CChar posX[MAX_NAME_SIZE];
 					CChar posY[MAX_NAME_SIZE];
-					CVec2f position = g_guiBackgrounds[k]->GetPosition();
+					CVec2f position = g_guiImages[k]->GetPosition();
 					sprintf(posX, "%.0f", position.x);
 					sprintf(posY, "%.0f", position.y);
 
@@ -10814,9 +13646,9 @@ CVoid CMultipleWindows::DrawGUIMode()
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+	for (CUInt k = 0; k < g_guiImages.size(); k++)
 	{
-		g_guiBackgrounds[k]->Render();
+		g_guiImages[k]->Render();
 	}
 	for (CUInt k = 0; k < g_guiButtons.size(); k++)
 	{
@@ -11913,8 +14745,8 @@ CVoid CMultipleWindows::DrawPerspective()
 				if (!g_instancePrefab[i]->GetVisible()) continue;
 				g_instancePrefab[i]->UpdateScript();
 			}
-			if (g_startup)
-				g_startup->UpdateScript();
+			if (g_VSceneScript)
+				g_VSceneScript->UpdateScript();
 		}
 		else if (g_editorMode == eMODE_PREFAB)
 		{
@@ -16506,9 +19338,9 @@ CVoid CMultipleWindows::DrawGUI()
 	{
 		if (g_guis[i]->GetVisible())
 		{
-			for (CUInt j = 0; j < g_guis[i]->m_guiBackgrounds.size(); j++)
+			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
 			{
-				g_guis[i]->m_guiBackgrounds[j]->Render();
+				g_guis[i]->m_guiImages[j]->Render();
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 			{
@@ -17179,9 +20011,9 @@ CUInt CMultipleWindows::GetSelectedGUI()
 	if (g_editorMode == eMODE_GUI)
 	{
 		//render here
-		for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+		for (CUInt i = 0; i < g_guiImages.size(); i++)
 		{
-			g_guiBackgrounds[i]->Render(CTrue);
+			g_guiImages[i]->Render(CTrue);
 		}
 
 		//render here
@@ -17202,9 +20034,9 @@ CUInt CMultipleWindows::GetSelectedGUI()
 		{
 			if (g_guis[i]->GetVisible())
 			{
-				for (CUInt j = 0; j < g_guis[i]->m_guiBackgrounds.size(); j++)
+				for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
 				{
-					g_guis[i]->m_guiBackgrounds[j]->Render(CTrue);
+					g_guis[i]->m_guiImages[j]->Render(CTrue);
 				}
 				for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 				{

@@ -107,12 +107,12 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 		m_richScriptEditor.SetWindowTextA("");
 		m_changed = CFalse;
 	}
-	else if (wParam == ID_NEWSCRIPT_STARTUP)
+	else if (wParam == ID_NEWSCRIPT_VSCENE_SCRIPT)
 	{
 		if (!SaveChanges())
 			return CDialog::OnCommand(wParam, lParam);;
 		savePath.Empty();
-		LoadFile("Assets/Engine/Scripts/StartUp.txt");
+		LoadFile("Assets/Engine/Scripts/VSceneScript.txt");
 	}
 	else if (wParam == ID_NEWSCRIPT_PREFAB)
 	{

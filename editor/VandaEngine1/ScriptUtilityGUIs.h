@@ -37,4 +37,10 @@ public:
 	HBITMAP m_hBitmap;
 	CChar m_currentGUIPackageName[MAX_NAME_SIZE];
 	CChar m_currentGUIName[MAX_NAME_SIZE];
+	CListCtrl m_listSelectedGUIElement;
+	afx_msg void OnBnClickedButtonCopyGuiElementName();
+	CRichEditCtrl m_richSelectedGUIElement;
+	afx_msg void OnLvnItemchangedListGuiElement(NMHDR *pNMHDR, LRESULT *pResult);
+private:
+	CImageList m_GUIElementsImage;
 };

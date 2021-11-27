@@ -177,9 +177,9 @@ BOOL CMainCharacterProperties::OnInitDialog()
 	m_strDefaultFOV.Format("%.2f", m_camera->m_cameraManager->GetDefaultAngle());
 	m_strMinFOV.Format("%.2f", m_camera->m_cameraManager->GetMinAngle());
 	m_strMaxFOV.Format("%.2f", m_camera->m_cameraManager->GetMaxAngle());
-	m_strDefaultTilt.Format("%.2f", m_camera->m_perspectiveCameraTilt);
-	m_strMinTilt.Format("%.2f", m_camera->m_perspectiveCameraMinTilt);
-	m_strMaxTilt.Format("%.2f", m_camera->m_perspectiveCameraMaxTilt);
+	m_strDefaultTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraTilt));
+	m_strMinTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMinTilt));
+	m_strMaxTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMaxTilt));
 
 	m_fCameraCharacterDistance = atof(m_strCameraCharacterDistance);
 	m_fCapsuleRadius = atof(m_strCapsuleRadius);
@@ -277,9 +277,9 @@ void CMainCharacterProperties::OnBnClickedOk()
 		//m_camera->m_cameraManager->SetMinAngle(atof(m_strMinFOV));
 		//m_camera->m_cameraManager->SetMaxAngle(atof(m_strMaxFOV));
 
-		m_camera->m_perspectiveCameraTilt = atof(m_strDefaultTilt);
-		m_camera->m_perspectiveCameraMinTilt = atof(m_strMinTilt);
-		m_camera->m_perspectiveCameraMaxTilt = atof(m_strMaxTilt);
+		m_camera->m_perspectiveCameraTilt = NxMath::degToRad(atof(m_strDefaultTilt));
+		m_camera->m_perspectiveCameraMinTilt = NxMath::degToRad(atof(m_strMinTilt));
+		m_camera->m_perspectiveCameraMaxTilt = NxMath::degToRad(atof(m_strMaxTilt));
 
 		CInt checkState;
 		checkState = m_checkBoxJumping.GetCheck();
@@ -330,9 +330,9 @@ void CMainCharacterProperties::OnBnClickedButtonReset()
 		m_strDefaultFOV.Format("%.2f", m_camera->m_cameraManager->GetDefaultAngle());
 		m_strMinFOV.Format("%.2f", m_camera->m_cameraManager->GetMinAngle());
 		m_strMaxFOV.Format("%.2f", m_camera->m_cameraManager->GetMaxAngle());
-		m_strDefaultTilt.Format("%.2f", m_camera->m_perspectiveCameraTilt);
-		m_strMinTilt.Format("%.2f", m_camera->m_perspectiveCameraMinTilt);
-		m_strMaxTilt.Format("%.2f", m_camera->m_perspectiveCameraMaxTilt);
+		m_strDefaultTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraTilt));
+		m_strMinTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMinTilt));
+		m_strMaxTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMaxTilt));
 
 								
 		m_fCameraCharacterDistance = atof(m_strCameraCharacterDistance);
@@ -386,10 +386,10 @@ void CMainCharacterProperties::OnBnClickedButtonReset()
 		else
 			m_checkBoxJumping.SetCheck(BST_UNCHECKED);
 
-		if (m_physXProperties.m_bDebugMode)
-			m_checkBoxDebugMode.SetCheck(BST_CHECKED);
-		else
-			m_checkBoxDebugMode.SetCheck(BST_UNCHECKED);
+		//if (m_physXProperties.m_bDebugMode)
+		//	m_checkBoxDebugMode.SetCheck(BST_CHECKED);
+		//else
+		//	m_checkBoxDebugMode.SetCheck(BST_UNCHECKED);
 
 	}
 }

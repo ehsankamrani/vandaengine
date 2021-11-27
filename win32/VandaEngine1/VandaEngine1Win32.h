@@ -17,14 +17,14 @@
 #include "scenemanagerEngine/octree.h"
 #include "ScriptEngine/luaForCpp.h"
 #include "Common/prefab.h"
-#include "Common/Startup.h"
+#include "Common/VSceneScript.h"
 #include "physXEngine\MainCharacter.h"
 #include "AudioEngine/openAL.h"
 #include "AudioEngine/OpenALSystem.h"
 #include "AudioEngine/OpenALSoundBuffer.h"
 #include "AudioEngine/OpenALSoundSource.h"
 #include "AudioEngine/StaticSound.h"
-#include "GUIEngine/GUIBackground.h"
+#include "GUIEngine/GUIImage.h"
 #include "GUIEngine/GUIButton.h"
 #include "GUIEngine/GUIText.h"
 #include "GUIEngine/GUI.h"
@@ -46,7 +46,7 @@ struct CUpdateCamera;
 class COpenALSoundBuffer;
 class CInstanceCamera;
 class CGUIButton;
-class CGUIBackground;
+class CGUIImage;
 class CGUIText;
 //Edition.MaxVersion.MinVersion.BugFixes;
 //For example: RTI.1.0.0
@@ -72,7 +72,7 @@ extern std::vector<CPrefab*> g_prefab;
 extern std::vector<CGeometry *> g_geometries;
 extern std::vector<CInstancePrefab*>g_instancePrefab;
 extern std::vector<CGUIButton*> g_guiButtons;
-extern std::vector<CGUIBackground*> g_guiBackgrounds;
+extern std::vector<CGUIImage*> g_guiImages;
 extern std::vector<CGUIText*> g_guiTexts;
 extern std::vector<CGUI*> g_guis;
 
@@ -81,7 +81,7 @@ extern std::vector<CTrigger*> g_triggers;
 extern std::vector<CWater*> g_engineWaters; //We may use multiple water surfaces in our engine
 extern std::vector<CStaticSound*>g_engineStaticSounds;
 extern CUpdateCamera *g_camera;
-extern CStartUp* g_startup;
+extern CVSceneScript* g_VSceneScript;
 extern COctree* g_octree;
 extern CShadowMap* g_dynamicShadowMap;
 extern GLuint g_shaderType;
@@ -677,7 +677,7 @@ struct CDatabaseVariables
 	CBool m_enableDynamicShadow; //deprecate
 	CBool m_insertAndShowSky;
 	CBool m_insertAndShowTerrain;
-	CBool m_insertStartup;
+	CBool m_insertVSceneScript;
 	CBool m_insertAmbientSound;
 	CBool m_playAmbientSound;
 	CBool m_insertCharacter;
@@ -696,7 +696,7 @@ struct CDatabaseVariables
 		m_enableDynamicShadow = CFalse;
 		m_insertAndShowSky = CFalse;
 		m_insertAndShowTerrain = CFalse;
-		m_insertStartup = CFalse;
+		m_insertVSceneScript = CFalse;
 		m_insertAmbientSound = CFalse;
 		m_playAmbientSound = CFalse;
 		m_dof = CFalse;
@@ -717,7 +717,7 @@ struct CDatabaseVariables
 		m_showStatistics = CFalse;
 		m_enableDynamicShadow = CTrue;
 		m_insertAndShowSky = CFalse;
-		m_insertStartup = CFalse;
+		m_insertVSceneScript = CFalse;
 		m_insertAmbientSound = CFalse;
 		m_playAmbientSound = CFalse;
 		m_dof = CFalse;

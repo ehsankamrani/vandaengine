@@ -51,7 +51,7 @@ CPrefabProperties g_prefabProperties;
 CCameraProperties g_cameraProperties;
 
 std::vector<CGUIButton*> g_guiButtons;
-std::vector<CGUIBackground*> g_guiBackgrounds;
+std::vector<CGUIImage*> g_guiImages;
 std::vector<CGUIText*> g_guiTexts;
 std::vector<CGUI*> g_guis;
 
@@ -63,7 +63,7 @@ std::vector<CImage*>g_waterImages;
 std::vector<CStaticSound*>g_engineStaticSounds;
 CBool g_useOldRenderingStyle = CFalse;
 CUpdateCamera *g_camera = NULL;
-CStartUp* g_startup = NULL;
+CVSceneScript* g_VSceneScript = NULL;
 CSkyDome *g_skyDome = NULL;
 CTerrain *g_terrain = NULL;
 CBool g_renderShadow = CFalse;

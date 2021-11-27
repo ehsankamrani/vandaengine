@@ -125,7 +125,7 @@ CColor4f g_globalAmbientColor;
 CBool g_useGlobalAmbientColor = CFalse;
 
 std::vector<CGUIButton*> g_guiButtons;
-std::vector<CGUIBackground*> g_guiBackgrounds;
+std::vector<CGUIImage*> g_guiImages;
 std::vector<CGUIText*> g_guiTexts;
 std::vector<CGUI*> g_guis;
 
@@ -148,7 +148,7 @@ CBool g_updateOctree;
 CFloat g_elapsedTime;
 GLuint g_shaderType;
 CUpdateCamera *g_camera = NULL;
-CStartUp* g_startup = NULL;
+CVSceneScript* g_VSceneScript = NULL;
 CSkyDome *g_skyDome = NULL;
 CTerrain *g_terrain = NULL;
 NxExtendedVec3 g_characterPos;
@@ -999,7 +999,7 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	m_dlgWaterAttachment = NULL;
 	m_dlgAddTrigger = NULL;
 	m_dlgAddGUIButton = NULL;
-	m_dlgAddGUIBackground = NULL;
+	m_dlgAddGUIImage = NULL;
 	m_dlgAddGUIText = NULL;
 	m_dlgAddLight = NULL;
 	m_dlgAddEngineCamera = NULL;
@@ -1053,11 +1053,11 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	}
 	g_guiButtons.clear();
 
-	for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+	for (CUInt i = 0; i < g_guiImages.size(); i++)
 	{
-		CDelete(g_guiBackgrounds[i]);
+		CDelete(g_guiImages[i]);
 	}
-	g_guiBackgrounds.clear();
+	g_guiImages.clear();
 
 	for (CUInt i = 0; i < g_guiTexts.size(); i++)
 	{
@@ -1114,7 +1114,7 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 
 	CDelete(g_terrain);
 
-	CDelete(g_startup);
+	CDelete(g_VSceneScript);
 
 	for( std::vector<CInstanceLight*>::iterator it = g_engineLights.begin(); it != g_engineLights.end(); it++ )
 	{
@@ -1255,13 +1255,13 @@ CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_TRIGGER, m_mainBtnTrigger);
 	DDX_Control(pDX, IDC_BTN_COLLADA_MULTIPLE_ANIMATIONS, m_mainBtnImportColladaMultipleAnimations);
 	DDX_Control(pDX, IDC_BTN_GUI, m_mainBtnGUIButton);
-	DDX_Control(pDX, IDC_BTN_GUI_BACKGROUND, m_mainBtnGUIBackground);
+	DDX_Control(pDX, IDC_BTN_GUI_IMAGE, m_mainBtnGUIImage);
 	DDX_Control(pDX, IDC_BTN_GUI_TEXT, m_mainBtnGUIText);
 	DDX_Control(pDX, IDC_LIST_GUI_ELEMENTS, m_listBoxGUIElements);
 	DDX_Control(pDX, IDC_BTN_REMOVE_GUI, m_btnRemoveGUI);
 	DDX_Control(pDX, IDC_BTN_GUI_PROPERTIES, m_btnGUIProperties);
 	DDX_Control(pDX, IDC_BTN_GUI_PACKAGE, m_mainBtnGUIEditor);
-	DDX_Control(pDX, IDC_BTN_STARTUP, m_mainBtnStartup);
+	DDX_Control(pDX, IDC_BTN_VSCENE_SCRIPT, m_mainBtnVSceneScript);
 	DDX_Control(pDX, IDC_BTN_TERRAIN, m_mainBtnTerrain);
 	DDX_Control(pDX, IDC_BTN_ENGINE_CAMERA, m_mainBtnEngineCamera);
 	DDX_Control(pDX, IDC_BTN_PREFAB_SETTINGS, m_mainBtnPrefabSettings);
@@ -1332,13 +1332,13 @@ ON_BN_CLICKED(IDC_BTN_WATER_ATTACH, &CVandaEngine1Dlg::OnBnClickedBtnWaterAttach
 ON_BN_CLICKED(IDC_BTN_TRIGGER, &CVandaEngine1Dlg::OnBnClickedBtnTrigger)
 ON_BN_CLICKED(IDC_BTN_COLLADA_MULTIPLE_ANIMATIONS, &CVandaEngine1Dlg::OnBnClickedBtnColladaMultipleAnimations)
 ON_BN_CLICKED(IDC_BTN_GUI, &CVandaEngine1Dlg::OnBnClickedBtnGuiButton)
-ON_BN_CLICKED(IDC_BTN_GUI_BACKGROUND, &CVandaEngine1Dlg::OnBnClickedBtnGuiBackground)
+ON_BN_CLICKED(IDC_BTN_GUI_IMAGE, &CVandaEngine1Dlg::OnBnClickedBtnGuiImages)
 ON_BN_CLICKED(IDC_BTN_GUI_TEXT, &CVandaEngine1Dlg::OnBnClickedBtnGuiText)
 ON_BN_CLICKED(IDC_BTN_REMOVE_GUI, &CVandaEngine1Dlg::OnBnClickedBtnRemoveGui)
 ON_BN_CLICKED(IDC_BTN_GUI_PROPERTIES, &CVandaEngine1Dlg::OnBnClickedBtnGuiProperties)
 ON_BN_CLICKED(IDC_BTN_GUI_PACKAGE, &CVandaEngine1Dlg::OnBnClickedBtnGuiPackage)
 ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GUI_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangedListGuiElements)
-ON_BN_CLICKED(IDC_BTN_STARTUP, &CVandaEngine1Dlg::OnBnClickedBtnStartup)
+ON_BN_CLICKED(IDC_BTN_VSCENE_SCRIPT, &CVandaEngine1Dlg::OnBnClickedBtnVSceneScript)
 ON_BN_CLICKED(IDC_BTN_TERRAIN, &CVandaEngine1Dlg::OnBnClickedInsertTerrain)
 ON_BN_CLICKED(IDC_BTN_ENGINE_CAMERA, &CVandaEngine1Dlg::OnBnClickedBtnEngineCamera)
 ON_NOTIFY(LVN_ITEMCHANGING, IDC_LIST_SCENES, &CVandaEngine1Dlg::OnLvnItemchangingListScenes)
@@ -1422,7 +1422,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnTwitter, "www.twitter.com/Vanda_Engine");
 	m_pToolTip->AddTool(&m_mainBtnYoutube, "www.youtube.com/VandaEngine");
 
-	m_pToolTip->AddTool(&m_mainBtnStartup, "Create Startup");
+	m_pToolTip->AddTool(&m_mainBtnVSceneScript, "Create VScene Script");
 	m_pToolTip->AddTool(&m_mainBtnSky, "Create Sky");
 	m_pToolTip->AddTool(&m_mainBtnWater, "Create Water");
 	m_pToolTip->AddTool(&m_mainBtnAmbientSound, "Create Ambient Sound");
@@ -1433,7 +1433,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnTrigger, "Create Trigger");
 	m_pToolTip->AddTool(&m_mainBtnEngineCamera, "Create Camera");
 	m_pToolTip->AddTool(&m_mainBtnGUIButton, "Create Button");
-	m_pToolTip->AddTool(&m_mainBtnGUIBackground, "Create Background Image");
+	m_pToolTip->AddTool(&m_mainBtnGUIImage, "Create Image");
 	m_pToolTip->AddTool(&m_mainBtnGUIText, "Create Text");
 	m_pToolTip->AddTool(&m_mainBtnPrefabSettings, "Prefab Options");
 
@@ -1453,7 +1453,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.7.7"));
+	SetWindowText(_T("Vanda Engine 1.7.8"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -1753,16 +1753,16 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 
 
 	m_mainBtnGUIButton.MoveWindow(rcRect);
-	m_mainBtnGUIButton.LoadBitmaps(IDB_BITMAP_GUI_UP, IDB_BITMAP_GUI_DOWN, IDB_BITMAP_GUI_FOCUS, IDB_BITMAP_GUI_DISABLE);
+	m_mainBtnGUIButton.LoadBitmaps(IDB_BITMAP_GUI_BUTTON_UP, IDB_BITMAP_GUI_BUTTON_DOWN, IDB_BITMAP_GUI_BUTTON_FOCUS, IDB_BITMAP_GUI_BUTTON_DISABLE);
 	m_mainBtnGUIButton.ShowWindow(SW_HIDE);
 	m_mainBtnGUIButton.UpdateWindow();
 	m_mainBtnGUIButton.EnableWindow(FALSE);
 
-	m_mainBtnGUIBackground.MoveWindow(rcRect);
-	m_mainBtnGUIBackground.LoadBitmaps(IDB_BITMAP_GUI_BACKGROUND_UP, IDB_BITMAP_GUI_BACKGROUND_DOWN, IDB_BITMAP_GUI_BACKGROUND_FOCUS, IDB_BITMAP_GUI_BACKGROUND_DISABLE);
-	m_mainBtnGUIBackground.ShowWindow(SW_HIDE);
-	m_mainBtnGUIBackground.UpdateWindow();
-	m_mainBtnGUIBackground.EnableWindow(FALSE);
+	m_mainBtnGUIImage.MoveWindow(rcRect);
+	m_mainBtnGUIImage.LoadBitmaps(IDB_BITMAP_GUI_IMAGE_UP, IDB_BITMAP_GUI_IMAGE_DOWN, IDB_BITMAP_GUI_IMAGE_FOCUS, IDB_BITMAP_GUI_IMAGE_DISABLE);
+	m_mainBtnGUIImage.ShowWindow(SW_HIDE);
+	m_mainBtnGUIImage.UpdateWindow();
+	m_mainBtnGUIImage.EnableWindow(FALSE);
 
 	m_mainBtnGUIText.MoveWindow(rcRect);
 	m_mainBtnGUIText.LoadBitmaps(IDB_BITMAP_GUI_TEXT_UP, IDB_BITMAP_GUI_TEXT_DOWN, IDB_BITMAP_GUI_TEXT_FOCUS, IDB_BITMAP_GUI_TEXT_DISABLE);
@@ -1823,17 +1823,17 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	CFloat ButtonSize = 5.0f;
 	m_startLeftButtons = 7; //six.five percent
 
-	//Initialize main *Startup* button here
+	//Initialize main *VScene Script* button here
 	rcRect.left = 2 * m_horizontalPointFivePercent;
 	rcRect.right = rcRect.left + fivePercent;
 	rcRect.top = CInt(m_startLeftButtons * (windowRect.bottom - windowRect.top) / 100);
 	rcRect.bottom = rcRect.top + (ButtonSize * (windowRect.bottom - windowRect.top) / 100);
 
-	m_mainBtnStartup.MoveWindow(rcRect);
-	m_mainBtnStartup.LoadBitmaps(IDB_BITMAP_START_UP, IDB_BITMAP_START_DOWN, IDB_BITMAP_START_FOCUS, IDB_BITMAP_START_DISABLE);
-	m_mainBtnStartup.ShowWindow(SW_SHOW);
-	m_mainBtnStartup.UpdateWindow();
-	m_mainBtnStartup.EnableWindow(TRUE);
+	m_mainBtnVSceneScript.MoveWindow(rcRect);
+	m_mainBtnVSceneScript.LoadBitmaps(IDB_BITMAP_VSCENE_SCRIPT_UP, IDB_BITMAP_VSCENE_SCRIPT_DOWN, IDB_BITMAP_VSCENE_SCRIPT_FOCUS, IDB_BITMAP_VSCENE_SCRIPT_DISABLE);
+	m_mainBtnVSceneScript.ShowWindow(SW_SHOW);
+	m_mainBtnVSceneScript.UpdateWindow();
+	m_mainBtnVSceneScript.EnableWindow(TRUE);
 
 	//Initialize main *Sky* button here
 	previousRight = rcRect.right;
@@ -2065,7 +2065,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	cBmp.LoadBitmap(IDB_BITMAP_GUILIST_BUTTON);
 	m_guiListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
-	cBmp.LoadBitmap(IDB_BITMAP_GUILIST_BACKGROUND);
+	cBmp.LoadBitmap(IDB_BITMAP_GUILIST_IMAGE);
 	m_guiListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 	cBmp.LoadBitmap(IDB_BITMAP_GUILIST_TEXT);
@@ -2184,7 +2184,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_objectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 
-	cBmp.LoadBitmap(IDB_BITMAP_GUILIST_BACKGROUND);
+	cBmp.LoadBitmap(IDB_BITMAP_GUILIST_IMAGE);
 	m_objectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 
@@ -2264,7 +2264,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 
-	cBmp.LoadBitmap(IDB_BITMAP_OBJECTLIST_STARTUP);
+	cBmp.LoadBitmap(IDB_BITMAP_OBJECTLIST_VSCENE_SCRIPT);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 
@@ -3019,7 +3019,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3080,7 +3080,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.7.7 initialized successfully" );
+		PrintInfo( "\nVersion 1.7.8 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3269,7 +3269,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3355,7 +3355,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.7 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.8 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3429,7 +3429,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.7.7 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.7.8 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4201,7 +4201,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		SaveGUIFiles();
 
-		if( g_menu.m_insertStartup || g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
+		if( g_menu.m_insertVSceneScript || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 		{
 			CInt iResponse;
 			iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
@@ -4504,7 +4504,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if (wParam == ID_INSERT_STARTUP)
+	else if (wParam == ID_INSERT_VSCENE_SCRIPT)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -4542,7 +4542,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
-		OnMenuClickedInsertStartup();
+		OnMenuClickedInsertVSceneScript();
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CTrue);
 
@@ -4731,7 +4731,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if (wParam == ID_INSERT_GUI_BACKGROUND)
+	else if (wParam == ID_INSERT_GUI_IMAGE)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -4769,7 +4769,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CFalse);
-		OnBnClickedBtnGuiBackground();
+		OnBnClickedBtnGuiImages();
 		if (g_multipleView->m_enableTimer)
 			g_multipleView->EnableTimer(CTrue);
 
@@ -6705,7 +6705,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
-		m_mainBtnGUIBackground.MoveWindow(rcRect);
+		m_mainBtnGUIImage.MoveWindow(rcRect);
 
 		previousRight = rcRect.right;
 		rcRect.left = previousRight + m_horizontalPointFivePercent;
@@ -6743,8 +6743,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnGUIButton.ShowWindow(SW_SHOW);
 		m_mainBtnGUIButton.EnableWindow(TRUE);
 
-		m_mainBtnGUIBackground.ShowWindow(SW_SHOW);
-		m_mainBtnGUIBackground.EnableWindow(TRUE);
+		m_mainBtnGUIImage.ShowWindow(SW_SHOW);
+		m_mainBtnGUIImage.EnableWindow(TRUE);
 
 		m_mainBtnGUIText.ShowWindow(SW_SHOW);
 		m_mainBtnGUIText.EnableWindow(TRUE);
@@ -6766,7 +6766,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnPauseAnim.ShowWindow(SW_HIDE);
 		m_mainBtnPrefabSettings.ShowWindow(SW_HIDE);
 
-		m_mainBtnStartup.ShowWindow(SW_HIDE);
+		m_mainBtnVSceneScript.ShowWindow(SW_HIDE);
 		m_mainBtnSky.ShowWindow(SW_HIDE);
 		m_mainBtnWater.ShowWindow(SW_HIDE);
 		m_mainBtnStaticSound.ShowWindow(SW_HIDE);
@@ -6800,7 +6800,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		GetDlgItem(IDC_STATIC_Z)->ShowWindow(SW_HIDE);
 
 		m_mainBtnGUIButton.ShowWindow(SW_HIDE);
-		m_mainBtnGUIBackground.ShowWindow(SW_HIDE);
+		m_mainBtnGUIImage.ShowWindow(SW_HIDE);
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
@@ -6809,8 +6809,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 
 		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_DISABLED | MF_GRAYED);
 
-		ex_pMenu->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED | MF_GRAYED);
-		m_mainBtnStartup.ShowWindow(SW_HIDE);
+		ex_pMenu->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_DISABLED | MF_GRAYED);
+		m_mainBtnVSceneScript.ShowWindow(SW_HIDE);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_SKYDOME, MF_DISABLED | MF_GRAYED);
 		m_mainBtnSky.ShowWindow(SW_HIDE);
@@ -7078,7 +7078,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		GetDlgItem(IDC_STATIC_Z)->ShowWindow(SW_SHOW);
 
 		m_mainBtnGUIButton.ShowWindow(SW_HIDE);
-		m_mainBtnGUIBackground.ShowWindow(SW_HIDE);
+		m_mainBtnGUIImage.ShowWindow(SW_HIDE);
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
@@ -7087,8 +7087,8 @@ CVoid CVandaEngine1Dlg::SortButtons()
 
 		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_ENABLED);
 
-		ex_pMenu->EnableMenuItem(ID_INSERT_STARTUP, MF_ENABLED);
-		m_mainBtnStartup.ShowWindow(SW_SHOW);
+		ex_pMenu->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_ENABLED);
+		m_mainBtnVSceneScript.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_SKYDOME, MF_ENABLED);
 		m_mainBtnSky.ShowWindow(SW_SHOW);
@@ -7170,14 +7170,14 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		CFloat ButtonSize = 5.0f;
 		m_startLeftButtons = 7; //six.five percent
 
-		//Initialize main *Startup* button here
+		//Initialize main *Vscene Script* button here
 		rcRect.left = 2 * m_horizontalPointFivePercent;
 		rcRect.right = rcRect.left + fivePercent;
 		rcRect.top = CInt((CFloat)m_startLeftButtons * (windowRect.bottom - windowRect.top) / 100.0f);
 		rcRect.bottom = rcRect.top + (ButtonSize * CFloat(windowRect.bottom - windowRect.top) / 100.0f);
 
-		m_mainBtnStartup.MoveWindow(rcRect);
-		m_mainBtnStartup.UpdateWindow();
+		m_mainBtnVSceneScript.MoveWindow(rcRect);
+		m_mainBtnVSceneScript.UpdateWindow();
 
 		//Initialize main *Sky* button here
 		rcRect.top = CInt((m_startLeftButtons + ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100.0f);
@@ -7411,7 +7411,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		CInt iResponse;
 		if (askQuestion)
 		{
-			if (g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0)
+			if (g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0)
 				iResponse = MessageBox("Do you want to save your changes?", "Warning", MB_YESNOCANCEL | MB_ICONSTOP);
 		}
 		if (iResponse == IDYES) //save changes
@@ -7435,11 +7435,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		}
 		g_guiButtons.clear();
 
-		for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+		for (CUInt i = 0; i < g_guiImages.size(); i++)
 		{
-			CDelete(g_guiBackgrounds[i]);
+			CDelete(g_guiImages[i]);
 		}
-		g_guiBackgrounds.clear();
+		g_guiImages.clear();
 
 		for (CUInt i = 0; i < g_guiTexts.size(); i++)
 		{
@@ -7480,7 +7480,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.7 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.8 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7489,7 +7489,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	CInt iResponse;
 	if( askQuestion )
 	{ 
-		if (g_menu.m_insertStartup || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
+		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
 			iResponse = MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	}
 
@@ -7571,11 +7571,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	}
 	g_guiButtons.clear();
 
-	for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+	for (CUInt i = 0; i < g_guiImages.size(); i++)
 	{
-		CDelete(g_guiBackgrounds[i]);
+		CDelete(g_guiImages[i]);
 	}
-	g_guiBackgrounds.clear();
+	g_guiImages.clear();
 
 	for (CUInt i = 0; i < g_guiTexts.size(); i++)
 	{
@@ -7727,21 +7727,21 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		m_mainBtnTerrain.EnableWindow(TRUE);
 	}
 
-	g_menu.m_insertStartup = CFalse;
+	g_menu.m_insertVSceneScript = CFalse;
 	if (g_editorMode == eMODE_VSCENE)
 	{
-		CDelete(g_startup);
-		GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_ENABLED);
-		m_mainBtnStartup.EnableWindow(TRUE);
+		CDelete(g_VSceneScript);
+		GetMenu()->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_ENABLED);
+		m_mainBtnVSceneScript.EnableWindow(TRUE);
 	}
 
-	//g_menu.m_insertAndShowStartup = CFalse;
-	//CDelete(g_startup);
+	//g_menu.m_insertAndShowVSceneScript = CFalse;
+	//CDelete(g_VSceneScript);
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
-		GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_ENABLED);
-		m_mainBtnStartup.EnableWindow(TRUE);
+		GetMenu()->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_ENABLED);
+		m_mainBtnVSceneScript.EnableWindow(TRUE);
 	}
 
 	//delete ambient sound
@@ -7905,7 +7905,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.8 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7914,7 +7914,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.7.7 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.7.8 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -9106,8 +9106,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		CChar newExternalTexturesPath[MAX_NAME_SIZE];
 		sprintf(newExternalTexturesPath, "%s%s", newGUIName, "/Textures/");
 
-		CChar newExternalBackgroundTexturesPath[MAX_NAME_SIZE];
-		sprintf(newExternalBackgroundTexturesPath, "%s%s", newExternalTexturesPath, "Backgrounds/");
+		CChar newExternalImageTexturesPath[MAX_NAME_SIZE];
+		sprintf(newExternalImageTexturesPath, "%s%s", newExternalTexturesPath, "Images/");
 
 		CChar newExternalButtonTexturesPath[MAX_NAME_SIZE];
 		sprintf(newExternalButtonTexturesPath, "%s%s", newExternalTexturesPath, "Buttons/");
@@ -9125,8 +9125,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		CChar currentExternalTexturesPath[MAX_NAME_SIZE];
 		sprintf(currentExternalTexturesPath, "%s%s", currentGUIPath, "/Textures/");
 
-		CChar currentExternalBackgroundTexturesPath[MAX_NAME_SIZE];
-		sprintf(currentExternalBackgroundTexturesPath, "%s%s", currentExternalTexturesPath, "Backgrounds/");
+		CChar currentExternalImageTexturesPath[MAX_NAME_SIZE];
+		sprintf(currentExternalImageTexturesPath, "%s%s", currentExternalTexturesPath, "Images/");
 
 		CChar currentExternalButtonTexturesPath[MAX_NAME_SIZE];
 		sprintf(currentExternalButtonTexturesPath, "%s%s", currentExternalTexturesPath, "Buttons/");
@@ -9140,7 +9140,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 			CreateWindowsDirectory(newPackage);
 			CreateWindowsDirectory(newGUIName);
 			CreateWindowsDirectory(newExternalTexturesPath);
-			CreateWindowsDirectory(newExternalBackgroundTexturesPath);
+			CreateWindowsDirectory(newExternalImageTexturesPath);
 			CreateWindowsDirectory(newExternalButtonTexturesPath);
 			CreateWindowsDirectory(newScriptPath);
 		}
@@ -9148,19 +9148,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		if (saveAlgorithm == 1 || saveAlgorithm == 2)
 		{
 			//copy one file from src to dst
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
-				if (g_guiBackgrounds[i]->GetUpdateImage())
+				if (g_guiImages[i]->GetUpdateImage())
 				{
-					CopyOneFileToDstDirectory(g_guiBackgrounds[i]->GetImagePath(), newExternalBackgroundTexturesPath);
-					g_guiBackgrounds[i]->SetUpdateImage(CFalse);
+					CopyOneFileToDstDirectory(g_guiImages[i]->GetImagePath(), newExternalImageTexturesPath);
+					g_guiImages[i]->SetUpdateImage(CFalse);
 
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiBackgrounds[i]->GetImagePath());
+					CChar* srcFilePathAfterPath = GetAfterPath(g_guiImages[i]->GetImagePath());
 
 					CChar newFilePath[MAX_NAME_SIZE];
-					sprintf(newFilePath, "%s%s", newExternalBackgroundTexturesPath, srcFilePathAfterPath);
+					sprintf(newFilePath, "%s%s", newExternalImageTexturesPath, srcFilePathAfterPath);
 
-					g_guiBackgrounds[i]->SetImagePath(newFilePath);
+					g_guiImages[i]->SetImagePath(newFilePath);
 				}
 			}
 
@@ -9253,24 +9253,24 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		else if (saveAlgorithm == 3)
 		{
 			//copy all files from scr to dst
-			CopyAllFilesFromSrcToDstDirectory(currentExternalBackgroundTexturesPath, newExternalBackgroundTexturesPath);
+			CopyAllFilesFromSrcToDstDirectory(currentExternalImageTexturesPath, newExternalImageTexturesPath);
 			CopyAllFilesFromSrcToDstDirectory(currentExternalButtonTexturesPath, newExternalButtonTexturesPath);
 			CopyAllFilesFromSrcToDstDirectory(currentScriptPath, newScriptPath);
 
 			//copy one file from src to dst
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
-				if (g_guiBackgrounds[i]->GetUpdateImage())
+				if (g_guiImages[i]->GetUpdateImage())
 				{
-					CopyOneFileToDstDirectory(g_guiBackgrounds[i]->GetImagePath(), newExternalBackgroundTexturesPath);
-					g_guiBackgrounds[i]->SetUpdateImage(CFalse);
+					CopyOneFileToDstDirectory(g_guiImages[i]->GetImagePath(), newExternalImageTexturesPath);
+					g_guiImages[i]->SetUpdateImage(CFalse);
 
-					CChar* srcFilePathAfterPath = GetAfterPath(g_guiBackgrounds[i]->GetImagePath());
+					CChar* srcFilePathAfterPath = GetAfterPath(g_guiImages[i]->GetImagePath());
 
 					CChar newFilePath[MAX_NAME_SIZE];
-					sprintf(newFilePath, "%s%s", newExternalBackgroundTexturesPath, srcFilePathAfterPath);
+					sprintf(newFilePath, "%s%s", newExternalImageTexturesPath, srcFilePathAfterPath);
 
-					g_guiBackgrounds[i]->SetImagePath(newFilePath);
+					g_guiImages[i]->SetImagePath(newFilePath);
 
 				}
 			}
@@ -9365,22 +9365,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		HANDLE hFind;
 		WIN32_FIND_DATA data;
 
-		//remove deleted background files
+		//remove deleted image files
 
-		CChar ExternalBackgroundTexturesPath[MAX_NAME_SIZE];
-		sprintf(ExternalBackgroundTexturesPath, "%s%s", newExternalBackgroundTexturesPath, "*.*");
-		hFind = FindFirstFile(ExternalBackgroundTexturesPath, &data);
+		CChar ExternalImageTexturesPath[MAX_NAME_SIZE];
+		sprintf(ExternalImageTexturesPath, "%s%s", newExternalImageTexturesPath, "*.*");
+		hFind = FindFirstFile(ExternalImageTexturesPath, &data);
 		do
 		{
 			CChar filePath[MAX_NAME_SIZE];
-			sprintf(filePath, "%s%s", newExternalBackgroundTexturesPath, data.cFileName);
+			sprintf(filePath, "%s%s", newExternalImageTexturesPath, data.cFileName);
 			CBool foundTarget = CFalse;
 
 			//search for removed files
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
 				CChar textureWithoutDot[MAX_NAME_SIZE];
-				Cpy(textureWithoutDot, GetAfterPath(g_guiBackgrounds[i]->GetImagePath()));
+				Cpy(textureWithoutDot, GetAfterPath(g_guiImages[i]->GetImagePath()));
 				GetWithoutDot(textureWithoutDot);
 				Append(textureWithoutDot, ".dds");
 				if (Cmp(textureWithoutDot, data.cFileName))
@@ -9619,37 +9619,37 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 
 		}
 
-		CUInt numberOfGUIBackgrounds = g_guiBackgrounds.size();
-		fwrite(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+		CUInt numberOfGUIImages = g_guiImages.size();
+		fwrite(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-		for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+		for (CUInt i = 0; i < g_guiImages.size(); i++)
 		{
-			fwrite(g_guiBackgrounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_guiImages[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			if (askQuestion || Cmp(g_currentPackageAndGUIName, "\n")) //nothing has been saved
 			{
 				fwrite(m_strNewGUIPackageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fwrite(m_strNewGUIName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-				g_guiBackgrounds[i]->SetPackageName(m_strNewGUIPackageName);
-				g_guiBackgrounds[i]->SetGUIName(m_strNewGUIName);
+				g_guiImages[i]->SetPackageName(m_strNewGUIPackageName);
+				g_guiImages[i]->SetGUIName(m_strNewGUIName);
 			}
 			else
 			{
-				fwrite(g_guiBackgrounds[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-				fwrite(g_guiBackgrounds[i]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fwrite(g_guiImages[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fwrite(g_guiImages[i]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			}
 
-			CVec2f pos = g_guiBackgrounds[i]->GetPosition();
+			CVec2f pos = g_guiImages[i]->GetPosition();
 			pos.x /= (CFloat)g_width;
 			pos.y /= (CFloat)g_height;
 
 			fwrite(&pos, sizeof(CVec2f), 1, filePtr);
 
-			CInt size = g_guiBackgrounds[i]->GetSize();
+			CInt size = g_guiImages[i]->GetSize();
 			fwrite(&size, sizeof(CInt), 1, filePtr);
 
-			fwrite(g_guiBackgrounds[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_guiImages[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		}
 
 		CUInt numberOfGUITexts = g_guiTexts.size();
@@ -9720,7 +9720,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		Cpy(g_currentGUIPackageName, m_strNewGUIPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.8 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10543,7 +10543,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		Cpy(g_currentPrefabPackageName, m_strNewPrefabPackageName);
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.8 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10673,8 +10673,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar staticSoundPath[MAX_NAME_SIZE];
 		sprintf( staticSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Static/" );
 
-		CChar startupPath[MAX_NAME_SIZE];
-		sprintf(startupPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Startup/");
+		CChar VSceneScriptPath[MAX_NAME_SIZE];
+		sprintf(VSceneScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/VSceneScript/");
 
 		CChar skyPath[MAX_NAME_SIZE];
 		sprintf(skyPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sky/");
@@ -10723,8 +10723,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar currentStaticSoundPath[MAX_NAME_SIZE];
 		sprintf( currentStaticSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Static/" );
 
-		CChar currentStartupPath[MAX_NAME_SIZE];
-		sprintf(currentStartupPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Startup/");
+		CChar currentVSceneScriptPath[MAX_NAME_SIZE];
+		sprintf(currentVSceneScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/VSceneScript/");
 
 		CChar currentSkyPath[MAX_NAME_SIZE];
 		sprintf(currentSkyPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/");
@@ -10760,7 +10760,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory( ambientSoundPath );
 			RemoveAllFilesInDirectory(staticSoundPath);
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
-			RemoveAllFilesInDirectory(startupPath);
+			RemoveAllFilesInDirectory(VSceneScriptPath);
 			RemoveAllFilesInDirectory(skyPath);
 			RemoveAllFilesInDirectory(terrainPath);
 			RemoveAllFilesInDirectory(bannerPath);
@@ -10784,7 +10784,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory( ambientSoundPath );
 			CreateWindowsDirectory( staticSoundPath );
 			CreateWindowsDirectory(mainCharacterSoundPath);
-			CreateWindowsDirectory(startupPath);
+			CreateWindowsDirectory(VSceneScriptPath);
 			CreateWindowsDirectory(skyPath);
 			CreateWindowsDirectory(terrainPath);
 			CreateWindowsDirectory(bannerPath);
@@ -10840,19 +10840,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 			}
 
-			//startup
-			if (g_startup)
+			//VScene Script
+			if (g_VSceneScript)
 			{
-				if (g_startup->GetUpdateScript())
+				if (g_VSceneScript->GetUpdateScript())
 				{
-					CopyOneFileToDstDirectory(g_startup->GetScriptPath(), startupPath);
+					CopyOneFileToDstDirectory(g_VSceneScript->GetScriptPath(), VSceneScriptPath);
 				}
-				CChar* tempAfterPath = GetAfterPath(g_startup->GetScriptPath());
+				CChar* tempAfterPath = GetAfterPath(g_VSceneScript->GetScriptPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, startupPath);
+				Cpy(newPathAndName, VSceneScriptPath);
 				Append(newPathAndName, tempAfterPath);
-				g_startup->SetScriptPath(newPathAndName);
-				g_startup->SetUpdateScript(CFalse);
+				g_VSceneScript->SetScriptPath(newPathAndName);
+				g_VSceneScript->SetUpdateScript(CFalse);
 			}
 
 			//sky dome
@@ -11023,7 +11023,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CopyAllFilesFromSrcToDstDirectory(currentAmbientSoundPath, ambientSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentStaticSoundPath, staticSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
-			CopyAllFilesFromSrcToDstDirectory(currentStartupPath, startupPath);
+			CopyAllFilesFromSrcToDstDirectory(currentVSceneScriptPath, VSceneScriptPath);
 			CopyAllFilesFromSrcToDstDirectory(currentSkyPath, skyPath);
 			CopyAllFilesFromSrcToDstDirectory(currentTerrainPath, terrainPath);
 			CopyAllFilesFromSrcToDstDirectory(currentBannerPath, bannerPath);
@@ -11076,19 +11076,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 			}
 
-			//startup
-			if (g_startup)
+			//VScene Script
+			if (g_VSceneScript)
 			{
-				if (g_startup->GetUpdateScript())
+				if (g_VSceneScript->GetUpdateScript())
 				{
-					CopyOneFileToDstDirectory(g_startup->GetScriptPath(), startupPath);
+					CopyOneFileToDstDirectory(g_VSceneScript->GetScriptPath(), VSceneScriptPath);
 				}
-				CChar* tempAfterPath = GetAfterPath(g_startup->GetScriptPath());
+				CChar* tempAfterPath = GetAfterPath(g_VSceneScript->GetScriptPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, startupPath);
+				Cpy(newPathAndName, VSceneScriptPath);
 				Append(newPathAndName, tempAfterPath);
-				g_startup->SetScriptPath(newPathAndName);
-				g_startup->SetUpdateScript(CFalse);
+				g_VSceneScript->SetScriptPath(newPathAndName);
+				g_VSceneScript->SetUpdateScript(CFalse);
 			}
 
 			//sky
@@ -11386,18 +11386,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		m_deletedTriggerObjects.clear();
 
-		//Delete removed startup script
-		if (g_startup)
+		//Delete removed VScene script
+		if (g_VSceneScript)
 		{
-			CChar startupTempPath[MAX_NAME_SIZE];
-			sprintf(startupTempPath, "%s%s", startupPath, "*.*");
-			hFind = FindFirstFile(startupTempPath, &data);
+			CChar VSceneScriptTempPath[MAX_NAME_SIZE];
+			sprintf(VSceneScriptTempPath, "%s%s", VSceneScriptPath, "*.*");
+			hFind = FindFirstFile(VSceneScriptTempPath, &data);
 			do
 			{
-				CChar startupTempPath[MAX_NAME_SIZE];
-				sprintf(startupTempPath, "%s%s", startupPath, data.cFileName);
+				CChar VSceneScriptTempPath[MAX_NAME_SIZE];
+				sprintf(VSceneScriptTempPath, "%s%s", VSceneScriptPath, data.cFileName);
 				CBool foundTarget = CFalse;
-				if (Cmp(GetAfterPath(g_startup->GetScriptPath()), data.cFileName))
+				if (Cmp(GetAfterPath(g_VSceneScript->GetScriptPath()), data.cFileName))
 				{
 					foundTarget = CTrue;
 				}
@@ -11405,7 +11405,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				//Remove Files
 				if (!foundTarget)
 				{
-					if (!DeleteFile(startupTempPath))
+					if (!DeleteFile(VSceneScriptTempPath))
 					{
 						//CChar temp[MAX_NAME_SIZE];
 						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
@@ -11417,7 +11417,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 		else
 		{
-			RemoveAllFilesInDirectory(startupPath);
+			RemoveAllFilesInDirectory(VSceneScriptPath);
 		}
 
 		//Delete removed sky textures
@@ -12118,11 +12118,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		fwrite(&g_camera->m_perspectiveCameraMinTilt, sizeof(CFloat), 1, filePtr);
 		fwrite(&g_camera->m_perspectiveCameraMaxTilt, sizeof(CFloat), 1, filePtr);
 
-		fwrite(&g_menu.m_insertStartup, sizeof(CBool), 1, filePtr);
-		if (g_menu.m_insertStartup)
+		fwrite(&g_menu.m_insertVSceneScript, sizeof(CBool), 1, filePtr);
+		if (g_menu.m_insertVSceneScript)
 		{
-			fwrite(g_startup->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
-			fwrite(g_startup->GetScriptPath(), sizeof(CChar), MAX_URI_SIZE, filePtr);
+			fwrite(g_VSceneScript->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(g_VSceneScript->GetScriptPath(), sizeof(CChar), MAX_URI_SIZE, filePtr);
 		}
 
 		fclose( filePtr );
@@ -12209,7 +12209,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12372,6 +12372,17 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(engineLightName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 		}
 
+		//engine Triggers
+		CUInt engineTriggerSize = g_triggers.size();
+		fwrite(&engineTriggerSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_triggers.size(); i++)
+		{
+			CChar engineTriggerName[MAX_NAME_SIZE];
+			Cpy(engineTriggerName, g_triggers[i]->GetName());
+			fwrite(engineTriggerName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
 		//GUIs
 		CUInt GUISize = g_guis.size();
 		fwrite(&GUISize, sizeof(CUInt), 1, ObjectNamefilePtr);
@@ -12381,6 +12392,40 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(g_guis[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 			fwrite(g_guis[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 			fwrite(g_guis[i]->GetGUIName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+			//buttons
+			CUInt GUIButtonSize = g_guis[i]->m_guiButtons.size();
+			fwrite(&GUIButtonSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt j = 0; j < GUIButtonSize; j++)
+			{
+				CChar name[MAX_NAME_SIZE];
+				Cpy(name, g_guis[i]->m_guiButtons[j]->GetName());
+				fwrite(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			}
+
+			//Images
+			CUInt GUIImageSize = g_guis[i]->m_guiImages.size();
+			fwrite(&GUIImageSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt j = 0; j < GUIImageSize; j++)
+			{
+				CChar name[MAX_NAME_SIZE];
+				Cpy(name, g_guis[i]->m_guiImages[j]->GetName());
+				fwrite(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			}
+
+			//Texts
+			CUInt GUITextSize = g_guis[i]->m_guiTexts.size();
+			fwrite(&GUITextSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt j = 0; j < GUITextSize; j++)
+			{
+				CChar name[MAX_NAME_SIZE];
+				Cpy(name, g_guis[i]->m_guiTexts[j]->GetName());
+				fwrite(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			}
+
 		}
 
 		fclose(ObjectNamefilePtr);
@@ -12402,7 +12447,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 	CChar guiName[MAX_NAME_SIZE];
 	CChar guiFilePathAndName[MAX_NAME_SIZE];
 	CChar buttonTexturePath[MAX_NAME_SIZE];
-	CChar backgroundTexturePath[MAX_NAME_SIZE];
+	CChar imageTexturePath[MAX_NAME_SIZE];
 	CChar scriptPath[MAX_NAME_SIZE];
 
 	int nSelected = -1;
@@ -12487,8 +12532,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 		Cpy(buttonTexturePath, guiPath);
 		Append(buttonTexturePath, "Textures/Buttons/");
 
-		Cpy(backgroundTexturePath, guiPath);
-		Append(backgroundTexturePath, "Textures/Backgrounds/");
+		Cpy(imageTexturePath, guiPath);
+		Append(imageTexturePath, "Textures/Images/");
 
 		Cpy(scriptPath, guiPath);
 		Append(scriptPath, "Scripts/");
@@ -12530,7 +12575,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 		Cpy(ex_pVandaEngine1Dlg->m_strNewPackageAndGUIName, guiAndPackageName);
 
 		CUInt numberOfGUIButtons;
-		CUInt numberOfGUIBackgrounds;
+		CUInt numberOfGUIImages;
 		CUInt numberOfGUITexts;
 
 		fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
@@ -12696,9 +12741,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			new_gui->AddGUIButton(guiButton);
 		}
 
-		fread(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+		fread(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-		for (CUInt i = 0; i < numberOfGUIBackgrounds; i++)
+		for (CUInt i = 0; i < numberOfGUIImages; i++)
 		{
 			CChar name[MAX_NAME_SIZE];
 			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -12720,24 +12765,24 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 			CChar imagePath[MAX_NAME_SIZE];
 			fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-			CGUIBackground* guiBackground = CNew(CGUIBackground);
-			guiBackground->SetName(name);
-			guiBackground->SetPackageName(packageName);
-			guiBackground->SetGUIName(guiName);
-			guiBackground->SetSize(size);
+			CGUIImage* guiImage = CNew(CGUIImage);
+			guiImage->SetName(name);
+			guiImage->SetPackageName(packageName);
+			guiImage->SetGUIName(guiName);
+			guiImage->SetSize(size);
 
-			CChar backgroundImagePath[MAX_NAME_SIZE];
+			CChar guiImagePath[MAX_NAME_SIZE];
 			CChar afterPathFileName[MAX_NAME_SIZE];
 			Cpy(afterPathFileName, GetAfterPath(imagePath));
-			Cpy(backgroundImagePath, backgroundTexturePath);
-			Append(backgroundImagePath, afterPathFileName);
+			Cpy(guiImagePath, imageTexturePath);
+			Append(guiImagePath, afterPathFileName);
 
-			guiBackground->SetImagePath(backgroundImagePath);
+			guiImage->SetImagePath(guiImagePath);
 
-			guiBackground->LoadBackgroundImage();
-			guiBackground->SetPosition(pos);
+			guiImage->LoadGUIImage();
+			guiImage->SetPosition(pos);
 
-			new_gui->AddGUIBackground(guiBackground);
+			new_gui->AddGUIImage(guiImage);
 		}
 
 		fread(&numberOfGUITexts, sizeof(CUInt), 1, filePtr);
@@ -12820,7 +12865,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 	CChar guiName[MAX_NAME_SIZE];
 	CChar guiFilePathAndName[MAX_NAME_SIZE];
 	CChar buttonTexturePath[MAX_NAME_SIZE];
-	CChar backgroundTexturePath[MAX_NAME_SIZE];
+	CChar imageTexturePath[MAX_NAME_SIZE];
 	CChar scriptPath[MAX_NAME_SIZE];
 
 	int nSelected = -1;
@@ -12907,8 +12952,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		Cpy(buttonTexturePath, guiPath);
 		Append(buttonTexturePath, "Textures/Buttons/");
 
-		Cpy(backgroundTexturePath, guiPath);
-		Append(backgroundTexturePath, "Textures/Backgrounds/");
+		Cpy(imageTexturePath, guiPath);
+		Append(imageTexturePath, "Textures/Images/");
 
 		Cpy(scriptPath, guiPath);
 		Append(scriptPath, "Scripts/");
@@ -12937,7 +12982,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		Cpy(ex_pVandaEngine1Dlg->m_strNewPackageAndGUIName, guiAndPackageName);
 
 		CUInt numberOfGUIButtons;
-		CUInt numberOfGUIBackgrounds;
+		CUInt numberOfGUIImages;
 		CUInt numberOfGUITexts;
 
 		fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
@@ -13105,9 +13150,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			ex_pVandaEngine1Dlg->InsertItemToGUIList(name, eGUILIST_BUTTON);
 		}
 
-		fread(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+		fread(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-		for (CUInt i = 0; i < numberOfGUIBackgrounds; i++)
+		for (CUInt i = 0; i < numberOfGUIImages; i++)
 		{
 			CChar name[MAX_NAME_SIZE];
 			fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -13129,27 +13174,27 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 			CChar imagePath[MAX_NAME_SIZE];
 			fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-			CGUIBackground* guiBackground = CNew(CGUIBackground);
-			guiBackground->SetName(name);
-			guiBackground->SetPackageName(packageName);
-			guiBackground->SetGUIName(guiName);
-			guiBackground->SetSize(size);
+			CGUIImage* guiImage = CNew(CGUIImage);
+			guiImage->SetName(name);
+			guiImage->SetPackageName(packageName);
+			guiImage->SetGUIName(guiName);
+			guiImage->SetSize(size);
 
-			CChar backgroundImagePath[MAX_NAME_SIZE];
+			CChar guiImagePath[MAX_NAME_SIZE];
 			CChar afterPathFileName[MAX_NAME_SIZE];
 			Cpy(afterPathFileName, GetAfterPath(imagePath));
-			Cpy(backgroundImagePath, backgroundTexturePath);
-			Append(backgroundImagePath, afterPathFileName);
+			Cpy(guiImagePath, imageTexturePath);
+			Append(guiImagePath, afterPathFileName);
 
-			guiBackground->SetImagePath(backgroundImagePath);
+			guiImage->SetImagePath(guiImagePath);
 
-			guiBackground->LoadBackgroundImage();
-			guiBackground->SetPosition(pos);
+			guiImage->LoadGUIImage();
+			guiImage->SetPosition(pos);
 
-			g_guiBackgrounds.push_back(guiBackground);
+			g_guiImages.push_back(guiImage);
 			g_guiNames.push_back(name);
 
-			ex_pVandaEngine1Dlg->InsertItemToGUIList(name, eGUILIST_BACKGROUND);
+			ex_pVandaEngine1Dlg->InsertItemToGUIList(name, eGUILIST_IMAGE);
 
 		}
 
@@ -13208,7 +13253,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.8 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -14931,7 +14976,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.7 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.7.8 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -14982,7 +15027,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 {
 	CInt iResponse = IDNO;
-	if (askQuestion && (g_menu.m_insertStartup || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain))
+	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain))
 		iResponse= MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	else
 		iResponse = IDNO;
@@ -15485,7 +15530,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					CChar guiAndPackageName[MAX_NAME_SIZE];
 					CChar guiFilePathAndName[MAX_NAME_SIZE];
 					CChar buttonTexturePath[MAX_NAME_SIZE];
-					CChar backgroundTexturePath[MAX_NAME_SIZE];
+					CChar imageTexturePath[MAX_NAME_SIZE];
 					CChar scriptPath[MAX_NAME_SIZE];
 
 					Cpy(guiAndPackageName, packageName);
@@ -15503,8 +15548,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					Cpy(buttonTexturePath, guiPath);
 					Append(buttonTexturePath, "Textures/Buttons/");
 
-					Cpy(backgroundTexturePath, guiPath);
-					Append(backgroundTexturePath, "Textures/Backgrounds/");
+					Cpy(imageTexturePath, guiPath);
+					Append(imageTexturePath, "Textures/Images/");
 
 					Cpy(scriptPath, guiPath);
 					Append(scriptPath, "Scripts/");
@@ -15687,10 +15732,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						new_gui->AddGUIButton(guiButton);
 					}
 
-					CUInt numBackgrounds;
-					fread(&numBackgrounds, sizeof(CUInt), 1, filePtr);
+					CUInt numImages;
+					fread(&numImages, sizeof(CUInt), 1, filePtr);
 
-					for (CUInt j = 0; j < numBackgrounds; j++)
+					for (CUInt j = 0; j < numImages; j++)
 					{
 						CChar name[MAX_NAME_SIZE];
 						fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -15712,24 +15757,24 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 						CChar imagePath[MAX_NAME_SIZE];
 						fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-						CGUIBackground* guiBackground = CNew(CGUIBackground);
-						guiBackground->SetName(name);
-						guiBackground->SetPackageName(packageName);
-						guiBackground->SetGUIName(guiName);
-						guiBackground->SetSize(size);
+						CGUIImage* guiImage = CNew(CGUIImage);
+						guiImage->SetName(name);
+						guiImage->SetPackageName(packageName);
+						guiImage->SetGUIName(guiName);
+						guiImage->SetSize(size);
 
-						CChar backgroundImagePath[MAX_NAME_SIZE];
+						CChar guiImagePath[MAX_NAME_SIZE];
 						CChar afterPathFileName[MAX_NAME_SIZE];
 						Cpy(afterPathFileName, GetAfterPath(imagePath));
-						Cpy(backgroundImagePath, backgroundTexturePath);
-						Append(backgroundImagePath, afterPathFileName);
+						Cpy(guiImagePath, imageTexturePath);
+						Append(guiImagePath, afterPathFileName);
 
-						guiBackground->SetImagePath(backgroundImagePath);
+						guiImage->SetImagePath(guiImagePath);
 
-						guiBackground->LoadBackgroundImage();
-						guiBackground->SetPosition(pos);
+						guiImage->LoadGUIImage();
+						guiImage->SetPosition(pos);
 
-						new_gui->AddGUIBackground(guiBackground);
+						new_gui->AddGUIImage(guiImage);
 					}
 
 					CUInt numTexts;
@@ -16683,10 +16728,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraTilt;
 
-			//startup object
-			CBool insertStartup;
-			fread(&insertStartup, sizeof(CBool), 1, filePtr);
-			if (insertStartup)
+			//VScene Script object
+			CBool insertVSceneScript;
+			fread(&insertVSceneScript, sizeof(CBool), 1, filePtr);
+			if (insertVSceneScript)
 			{
 				CChar name[MAX_NAME_SIZE];
 				CChar path[MAX_URI_SIZE];
@@ -16697,18 +16742,18 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CChar* tempPath = GetAfterPath(path);
 				//Copy this to Win32 Project as well
 				CChar newPath[MAX_URI_SIZE];
-				sprintf(newPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Startup/", tempPath);
-				if (!g_startup)
-					g_startup = CNew(CStartUp);
-				g_startup->SetName(name);
-				g_startup->SetScriptPath(newPath);
-				g_startup->SetUpdateScript(CFalse);
+				sprintf(newPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/VSceneScript/", tempPath);
+				if (!g_VSceneScript)
+					g_VSceneScript = CNew(CVSceneScript);
+				g_VSceneScript->SetName(name);
+				g_VSceneScript->SetScriptPath(newPath);
+				g_VSceneScript->SetUpdateScript(CFalse);
 
-				g_menu.m_insertStartup = CTrue;
-				InsertItemToEngineObjectList(g_startup->GetName(), eENGINEOBJECTLIST_STARTUP);
-				ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
-				ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
-				g_engineObjectNames.push_back(g_startup->GetName());
+				g_menu.m_insertVSceneScript = CTrue;
+				InsertItemToEngineObjectList(g_VSceneScript->GetName(), eENGINEOBJECTLIST_VSCENESCRIPT);
+				ex_pVandaEngine1Dlg->m_mainBtnVSceneScript.EnableWindow(FALSE);
+				ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_DISABLED);
+				g_engineObjectNames.push_back(g_VSceneScript->GetName());
 				PumpMessages();
 				UpdateWindow();
 
@@ -16716,7 +16761,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			}
 			else
 			{
-				g_menu.m_insertStartup = CFalse;
+				g_menu.m_insertVSceneScript = CFalse;
 			}
 
 			//Set Cursor Path
@@ -16743,7 +16788,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -17081,12 +17126,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 		lvi.cchTextMax = cchBuf;
 		m_listBoxEngineObjects.GetItem(&lvi);
 
-		if (g_startup && Cmp(g_startup->GetName(), szBuffer))
+		if (g_VSceneScript && Cmp(g_VSceneScript->GetName(), szBuffer))
 		{
 			if (g_multipleView->m_enableTimer)
 				g_multipleView->EnableTimer(CFalse);
 
-			ChangeStartupProperties();
+			ChangeVSceneScriptProperties();
 
 			if (g_multipleView->m_enableTimer)
 			{
@@ -17408,12 +17453,12 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 					g_engineObjectNames.erase(g_engineObjectNames.begin() + i);
 			}
 
-			if (g_startup && Cmp(g_startup->GetName(), szBuffer))
+			if (g_VSceneScript && Cmp(g_VSceneScript->GetName(), szBuffer))
 			{
-				CDelete(g_startup);
-				g_menu.m_insertStartup = CFalse;
-				GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_ENABLED);
-				m_mainBtnStartup.EnableWindow(TRUE);
+				CDelete(g_VSceneScript);
+				g_menu.m_insertVSceneScript = CFalse;
+				GetMenu()->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_ENABLED);
+				m_mainBtnVSceneScript.EnableWindow(TRUE);
 
 				m_listBoxEngineObjects.DeleteItem(nSelected);
 
@@ -18868,14 +18913,14 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 		CDelete( m_dlgAddAmbientSound );
 }
 
-CVoid CVandaEngine1Dlg::ChangeStartupProperties()
+CVoid CVandaEngine1Dlg::ChangeVSceneScriptProperties()
 {
-	CAddStartupObject* m_dlgAddStartup = CNew(CAddStartupObject);
-	m_dlgAddStartup->SetCreate(CFalse);
-	m_dlgAddStartup->SetOldName(g_startup->GetName());
-	m_dlgAddStartup->SetName(g_startup->GetName());
-	m_dlgAddStartup->SetScriptPath(g_startup->GetScriptPath());
-	if (m_dlgAddStartup->DoModal() == IDOK)
+	CAddVSceneScriptObject* m_dlgAddVSceneScript = CNew(CAddVSceneScriptObject);
+	m_dlgAddVSceneScript->SetCreate(CFalse);
+	m_dlgAddVSceneScript->SetOldName(g_VSceneScript->GetName());
+	m_dlgAddVSceneScript->SetName(g_VSceneScript->GetName());
+	m_dlgAddVSceneScript->SetScriptPath(g_VSceneScript->GetScriptPath());
+	if (m_dlgAddVSceneScript->DoModal() == IDOK)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -18894,19 +18939,19 @@ CVoid CVandaEngine1Dlg::ChangeStartupProperties()
 		OnBnClickedBtnRemoveEngineObject();
 		m_askRemoveEngineObject = CTrue;
 
-		if (!g_startup)
-			g_startup = CNew(CStartUp);
-		g_startup->SetName(m_dlgAddStartup->GetName());
-		g_startup->SetScriptPath(m_dlgAddStartup->GetScriptPath());
-		g_startup->SetUpdateScript(m_dlgAddStartup->GetUpdateScript());
-		ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(g_startup->GetName(), eENGINEOBJECTLIST_STARTUP);
-		ex_pVandaEngine1Dlg->m_mainBtnStartup.EnableWindow(FALSE);
-		ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_STARTUP, MF_DISABLED);
-		g_menu.m_insertStartup = CTrue;
+		if (!g_VSceneScript)
+			g_VSceneScript = CNew(CVSceneScript);
+		g_VSceneScript->SetName(m_dlgAddVSceneScript->GetName());
+		g_VSceneScript->SetScriptPath(m_dlgAddVSceneScript->GetScriptPath());
+		g_VSceneScript->SetUpdateScript(m_dlgAddVSceneScript->GetUpdateScript());
+		ex_pVandaEngine1Dlg->InsertItemToEngineObjectList(g_VSceneScript->GetName(), eENGINEOBJECTLIST_VSCENESCRIPT);
+		ex_pVandaEngine1Dlg->m_mainBtnVSceneScript.EnableWindow(FALSE);
+		ex_pVandaEngine1Dlg->GetMenu()->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_DISABLED);
+		g_menu.m_insertVSceneScript = CTrue;
 		g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
 		g_transformObject = CFalse;
 		CChar name[MAX_NAME_SIZE];
-		Cpy(name, g_startup->GetName());
+		Cpy(name, g_VSceneScript->GetName());
 
 		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
 		{
@@ -18924,9 +18969,9 @@ CVoid CVandaEngine1Dlg::ChangeStartupProperties()
 		}
 		g_showArrow = CFalse;
 
-		g_engineObjectNames.push_back(g_startup->GetName());
+		g_engineObjectNames.push_back(g_VSceneScript->GetName());
 	}
-	CDelete(m_dlgAddStartup);
+	CDelete(m_dlgAddVSceneScript);
 }
 
 CVoid CVandaEngine1Dlg::ChangeTerrainProperties()
@@ -19219,7 +19264,7 @@ void CVandaEngine1Dlg::OnClose()
 	SaveGUIFiles();
 
 
-	if (g_menu.m_insertStartup || g_guiButtons.size() > 0 || g_guiBackgrounds.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
+	if (g_menu.m_insertVSceneScript || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 	{
 		CInt iResponse;
 		iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
@@ -20561,8 +20606,8 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 					for (CUInt i = 0; i < gui->m_guiButtons.size(); i++)
 						InsertItemToObjectList(gui->m_guiButtons[i]->GetName(), eOBJECTLIST_GUI_BUTTON);
 
-					for (CUInt i = 0; i < gui->m_guiBackgrounds.size(); i++)
-						InsertItemToObjectList(gui->m_guiBackgrounds[i]->GetName(), eOBJECTLIST_GUI_BACKGROUND);
+					for (CUInt i = 0; i < gui->m_guiImages.size(); i++)
+						InsertItemToObjectList(gui->m_guiImages[i]->GetName(), eOBJECTLIST_GUI_IMAGE);
 
 					for (CUInt i = 0; i < gui->m_guiTexts.size(); i++)
 						InsertItemToObjectList(gui->m_guiTexts[i]->GetName(), eOBJECTLIST_GUI_TEXT);
@@ -21307,8 +21352,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar originalCharacterSoundPath[MAX_NAME_SIZE];
 			sprintf(originalCharacterSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
 
-			CChar originalStartupPath[MAX_NAME_SIZE];
-			sprintf(originalStartupPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Startup/");
+			CChar originalVSceneScriptPath[MAX_NAME_SIZE];
+			sprintf(originalVSceneScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/VSceneScript/");
 
 			CChar originalSkyPath[MAX_NAME_SIZE];
 			sprintf(originalSkyPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sky/");
@@ -21371,12 +21416,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CreateWindowsDirectory(mainCharacterSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(originalCharacterSoundPath, mainCharacterSoundPath);
 
-			PrintInfo("\nPublishing Startup Object...");
+			PrintInfo("\nPublishing VScene Script Object...");
 
-			CChar startupPath[MAX_NAME_SIZE];
-			sprintf(startupPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Startup/");
-			CreateWindowsDirectory(startupPath);
-			CopyAllFilesFromSrcToDstDirectory(originalStartupPath, startupPath);
+			CChar VSceneScriptPath[MAX_NAME_SIZE];
+			sprintf(VSceneScriptPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/VSceneScript/");
+			CreateWindowsDirectory(VSceneScriptPath);
+			CopyAllFilesFromSrcToDstDirectory(originalVSceneScriptPath, VSceneScriptPath);
 
 			PrintInfo("\nPublishing Sky...");
 
@@ -22794,9 +22839,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	//load scripts in VScene mode
 	if (g_editorMode == eMODE_VSCENE)
 	{
-		//startup
-		if (g_startup)
-			if (g_startup->LoadLuaFile())
+		//VScene Script
+		if (g_VSceneScript)
+			g_VSceneScript->LoadLuaFile();
 
 		//guis
 		for (CUInt i = 0; i < g_guis.size(); i++)
@@ -23148,9 +23193,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 		}
 
-		//Load startup object
-		if (g_menu.m_insertStartup)
-			g_startup->InitScript();
+		//Load VScene Script object
+		if (g_menu.m_insertVSceneScript)
+			g_VSceneScript->InitScript();
 
 		if (g_currentVSceneProperties.m_isMenu)
 		{
@@ -23444,13 +23489,13 @@ void CVandaEngine1Dlg::OnEnChangeEditX()
 		if (g_multipleView->m_selectedGUIIndex != -1)
 		{
 			CBool foundTarget = CFalse;
-			for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+			for (CUInt k = 0; k < g_guiImages.size(); k++)
 			{
-				if (g_guiBackgrounds[k]->GetIndex() == g_multipleView->m_selectedGUIIndex)
+				if (g_guiImages[k]->GetIndex() == g_multipleView->m_selectedGUIIndex)
 				{
-					CVec2f pos = g_guiBackgrounds[k]->GetPosition();
+					CVec2f pos = g_guiImages[k]->GetPosition();
 					pos.x = val;
-					CVec2f newPos = g_guiBackgrounds[k]->SetPosition(pos);
+					CVec2f newPos = g_guiImages[k]->SetPosition(pos);
 
 					CChar posStr[MAX_NAME_SIZE];
 					sprintf(posStr, "%.0f", newPos.x);
@@ -23607,16 +23652,16 @@ void CVandaEngine1Dlg::OnEnChangeEditY()
 		if (g_multipleView->m_selectedGUIIndex != -1)
 		{
 			CBool foundTarget = CFalse;
-			for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+			for (CUInt k = 0; k < g_guiImages.size(); k++)
 			{
-				if (g_guiBackgrounds[k]->GetIndex() == g_multipleView->m_selectedGUIIndex)
+				if (g_guiImages[k]->GetIndex() == g_multipleView->m_selectedGUIIndex)
 				{
-					CVec2f pos = g_guiBackgrounds[k]->GetPosition();
+					CVec2f pos = g_guiImages[k]->GetPosition();
 					pos.y = val;
-					CVec2f newPos = g_guiBackgrounds[k]->SetPosition(pos);
+					CVec2f newPos = g_guiImages[k]->SetPosition(pos);
 
-					CFloat w = g_guiBackgrounds[k]->GetSize() *g_width / 100.0f;
-					CFloat h = (w / g_guiBackgrounds[k]->GetImage()->GetWidth()) * g_guiBackgrounds[k]->GetImage()->GetHeight();
+					CFloat w = g_guiImages[k]->GetSize() *g_width / 100.0f;
+					CFloat h = (w / g_guiImages[k]->GetImage()->GetWidth()) * g_guiImages[k]->GetImage()->GetHeight();
 
 					if (newPos.y > h)
 					{
@@ -24097,7 +24142,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiButton()
 }
 
 
-void CVandaEngine1Dlg::OnBnClickedBtnGuiBackground()
+void CVandaEngine1Dlg::OnBnClickedBtnGuiImages()
 {
 	if (g_multipleView->IsPlayGameMode())
 	{
@@ -24114,9 +24159,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiBackground()
 
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
-	m_dlgAddGUIBackground = CNew(CAddGUIBackground);
-	m_dlgAddGUIBackground->DoModal();
-	CDelete(m_dlgAddGUIBackground);
+	m_dlgAddGUIImage = CNew(CAddGUIImage);
+	m_dlgAddGUIImage->DoModal();
+	CDelete(m_dlgAddGUIImage);
 
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CTrue);
@@ -24281,12 +24326,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnRemoveGui()
 				}
 			}
 
-			for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+			for (CUInt i = 0; i < g_guiImages.size(); i++)
 			{
-				if (Cmp(g_guiBackgrounds[i]->GetName(), szBuffer))
+				if (Cmp(g_guiImages[i]->GetName(), szBuffer))
 				{
-					CDelete(g_guiBackgrounds[i]);
-					g_guiBackgrounds.erase(g_guiBackgrounds.begin() + i);
+					CDelete(g_guiImages[i]);
+					g_guiImages.erase(g_guiImages.begin() + i);
 
 					m_listBoxGUIElements.DeleteItem(nSelected);
 					g_multipleView->SetElapsedTimeFromBeginning();
@@ -24409,14 +24454,14 @@ void CVandaEngine1Dlg::OnBnClickedBtnGuiProperties()
 			}
 		}
 
-		for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+		for (CUInt i = 0; i < g_guiImages.size(); i++)
 		{
-			if (Cmp(g_guiBackgrounds[i]->GetName(), szBuffer))
+			if (Cmp(g_guiImages[i]->GetName(), szBuffer))
 			{
 				if (g_multipleView->m_enableTimer)
 					g_multipleView->EnableTimer(CFalse);
 
-				ChangeGUIBackgroundProperties(g_guiBackgrounds[i]);
+				ChangeGUIImageProperties(g_guiImages[i]);
 
 				if (g_multipleView->m_enableTimer)
 					g_multipleView->EnableTimer(CTrue);
@@ -24602,20 +24647,20 @@ CVoid CVandaEngine1Dlg::ChangeGUIButtonProperties(CGUIButton* button)
 
 }
 
-CVoid CVandaEngine1Dlg::ChangeGUIBackgroundProperties(CGUIBackground* background)
+CVoid CVandaEngine1Dlg::ChangeGUIImageProperties(CGUIImage* image)
 {
-	m_dlgAddGUIBackground = CNew(CAddGUIBackground);
-	m_dlgAddGUIBackground->SetCreate(CFalse);
-	m_dlgAddGUIBackground->SetName(background->GetName());
-	m_dlgAddGUIBackground->SetPosition(background->GetPosition());
-	m_dlgAddGUIBackground->SetImagePath(background->GetImagePath());
-	m_dlgAddGUIBackground->SetSize(background->GetSize());
-	m_dlgAddGUIBackground->SetUpdateImage(background->GetUpdateImage());
+	m_dlgAddGUIImage = CNew(CAddGUIImage);
+	m_dlgAddGUIImage->SetCreate(CFalse);
+	m_dlgAddGUIImage->SetName(image->GetName());
+	m_dlgAddGUIImage->SetPosition(image->GetPosition());
+	m_dlgAddGUIImage->SetImagePath(image->GetImagePath());
+	m_dlgAddGUIImage->SetSize(image->GetSize());
+	m_dlgAddGUIImage->SetUpdateImage(image->GetUpdateImage());
 
-	INT_PTR result = m_dlgAddGUIBackground->DoModal();
+	INT_PTR result = m_dlgAddGUIImage->DoModal();
 	if (result == IDOK)
 	{
-		CGUIBackground* guiBackground = CNew(CGUIBackground);
+		CGUIImage* guiImage = CNew(CGUIImage);
 		if (!Cmp(g_currentPackageAndGUIName, "\n"))
 		{
 			int nSelected = -1;
@@ -24636,12 +24681,12 @@ CVoid CVandaEngine1Dlg::ChangeGUIBackgroundProperties(CGUIBackground* background
 				lvi.cchTextMax = cchBuf;
 				m_listBoxGUIElements.GetItem(&lvi);
 
-				for (CUInt i = 0; i < g_guiBackgrounds.size(); i++)
+				for (CUInt i = 0; i < g_guiImages.size(); i++)
 				{
-					if (Cmp(g_guiBackgrounds[i]->GetName(), szBuffer))
+					if (Cmp(g_guiImages[i]->GetName(), szBuffer))
 					{
-						guiBackground->SetPackageName(g_guiBackgrounds[i]->GetPackageName());
-						guiBackground->SetGUIName(g_guiBackgrounds[i]->GetGUIName());
+						guiImage->SetPackageName(g_guiImages[i]->GetPackageName());
+						guiImage->SetGUIName(g_guiImages[i]->GetGUIName());
 					}
 				}
 			}
@@ -24650,20 +24695,20 @@ CVoid CVandaEngine1Dlg::ChangeGUIBackgroundProperties(CGUIBackground* background
 		OnBnClickedBtnRemoveGui();
 		m_askRemoveGUIElement = CTrue;
 
-		guiBackground->SetName(m_dlgAddGUIBackground->GetName());
-		guiBackground->SetPosition(m_dlgAddGUIBackground->GetPosition());
-		guiBackground->SetSize(m_dlgAddGUIBackground->GetSize());
-		guiBackground->SetImagePath(m_dlgAddGUIBackground->GetImagePath());
-		guiBackground->LoadBackgroundImage();
-		guiBackground->SetUpdateImage(m_dlgAddGUIBackground->GetUpdateImage());
-		g_guiBackgrounds.push_back(guiBackground);
-		g_guiNames.push_back(guiBackground->GetName());
-		ex_pVandaEngine1Dlg->InsertItemToGUIList(m_dlgAddGUIBackground->GetName(), eGUILIST_BACKGROUND);
+		guiImage->SetName(m_dlgAddGUIImage->GetName());
+		guiImage->SetPosition(m_dlgAddGUIImage->GetPosition());
+		guiImage->SetSize(m_dlgAddGUIImage->GetSize());
+		guiImage->SetImagePath(m_dlgAddGUIImage->GetImagePath());
+		guiImage->LoadGUIImage();
+		guiImage->SetUpdateImage(m_dlgAddGUIImage->GetUpdateImage());
+		g_guiImages.push_back(guiImage);
+		g_guiNames.push_back(guiImage->GetName());
+		ex_pVandaEngine1Dlg->InsertItemToGUIList(m_dlgAddGUIImage->GetName(), eGUILIST_IMAGE);
 
-		CDelete(m_dlgAddGUIBackground);
+		CDelete(m_dlgAddGUIImage);
 	}
 	else if (result == IDCANCEL)
-		CDelete(m_dlgAddGUIBackground);
+		CDelete(m_dlgAddGUIImage);
 }
 
 CVoid CVandaEngine1Dlg::ChangeGUITextProperties(CGUIText* text)
@@ -24732,10 +24777,10 @@ CVoid CVandaEngine1Dlg::ChangeGUITextProperties(CGUIText* text)
 		g_guiNames.push_back(guiText->GetName());
 		ex_pVandaEngine1Dlg->InsertItemToGUIList(guiText->GetName(), eGUILIST_TEXT);
 
-		CDelete(m_dlgAddGUIBackground);
+		CDelete(m_dlgAddGUIImage);
 	}
 	else if (result == IDCANCEL)
-		CDelete(m_dlgAddGUIBackground);
+		CDelete(m_dlgAddGUIImage);
 
 }
 
@@ -24823,11 +24868,11 @@ void CVandaEngine1Dlg::OnLvnItemchangedListGuiElements(NMHDR *pNMHDR, LRESULT *p
 
 
 		CBool foundTarget = CFalse;
-		for (CUInt k = 0; k < g_guiBackgrounds.size(); k++)
+		for (CUInt k = 0; k < g_guiImages.size(); k++)
 		{
-			if (Cmp(szBuffer, g_guiBackgrounds[k]->GetName()))
+			if (Cmp(szBuffer, g_guiImages[k]->GetName()))
 			{
-				g_multipleView->m_selectedGUIIndex = g_guiBackgrounds[k]->GetIndex();
+				g_multipleView->m_selectedGUIIndex = g_guiImages[k]->GetIndex();
 
 				COLORREF color = COLOR_WHITE;
 				CHARFORMAT cf;
@@ -24841,11 +24886,11 @@ void CVandaEngine1Dlg::OnLvnItemchangedListGuiElements(NMHDR *pNMHDR, LRESULT *p
 
 				ex_pStaticSelectedObject->SetSelectionCharFormat(cf);
 
-				ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiBackgrounds[k]->GetName());
+				ex_pVandaEngine1Dlg->m_staticSelectedObject.ReplaceSel(g_guiImages[k]->GetName());
 
 				CChar posX[MAX_NAME_SIZE];
 				CChar posY[MAX_NAME_SIZE];
-				CVec2f position = g_guiBackgrounds[k]->GetPosition();
+				CVec2f position = g_guiImages[k]->GetPosition();
 				sprintf(posX, "%.0f", position.x);
 				sprintf(posY, "%.0f", position.y);
 
@@ -25045,7 +25090,7 @@ CVoid CVandaEngine1Dlg::SaveGUIFiles()
 
 }
 
-void CVandaEngine1Dlg::OnBnClickedBtnStartup()
+void CVandaEngine1Dlg::OnBnClickedBtnVSceneScript()
 {
 	if (g_multipleView->IsPlayGameMode())
 	{
@@ -25094,7 +25139,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnStartup()
 
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CFalse);
-	OnMenuClickedInsertStartup();
+	OnMenuClickedInsertVSceneScript();
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CTrue);
 
@@ -25102,11 +25147,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnStartup()
 	g_multipleView->RenderWindow();
 }
 
-CVoid CVandaEngine1Dlg::OnMenuClickedInsertStartup()
+CVoid CVandaEngine1Dlg::OnMenuClickedInsertVSceneScript()
 {
-	CAddStartupObject* m_dlgStartup = CNew(CAddStartupObject);
-	m_dlgStartup->DoModal();
-	CDelete(m_dlgStartup);
+	CAddVSceneScriptObject* m_dlgVSceneScript = CNew(CAddVSceneScriptObject);
+	m_dlgVSceneScript->DoModal();
+	CDelete(m_dlgVSceneScript);
 }
 
 CVoid CVandaEngine1Dlg::OnMenuClickedInsertEngineCamera()
@@ -25692,25 +25737,72 @@ CVoid CVandaEngine1Dlg::LoadObjectNames()
 				VSceneObjectNames.m_engineLightNames.push_back(engineLightName);
 			}
 
+			//engine Triggers
+			CUInt engineTriggerSize;
+			fread(&engineTriggerSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < engineTriggerSize; i++)
+			{
+				CChar engineTriggerName[MAX_NAME_SIZE];
+				fread(engineTriggerName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				VSceneObjectNames.m_engineTriggerNames.push_back(engineTriggerName);
+			}
+
 			//GUIs
 			CUInt GUISize;
 			fread(&GUISize, sizeof(CUInt), 1, ObjectNamefilePtr);
 
 			for (CUInt i = 0; i < GUISize; i++)
 			{
+				CGUINames newGUIName;
+
 				CChar GUIName[MAX_NAME_SIZE];
 				fread(GUIName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
-				VSceneObjectNames.m_guiNames.push_back(GUIName);
+				Cpy(newGUIName.m_name, GUIName);
 
 				CChar GUIPackageName[MAX_NAME_SIZE];
 				fread(GUIPackageName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
-				VSceneObjectNames.m_guiPackageNames.push_back(GUIPackageName);
+				Cpy(newGUIName.m_guiPackageName, GUIPackageName);
 
 				CChar GUIPureName[MAX_NAME_SIZE];
 				fread(GUIPureName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
-				VSceneObjectNames.m_guiPureNames.push_back(GUIPureName);
+				Cpy(newGUIName.m_guiPureName, GUIPureName);
 
+				//buttons
+				CUInt GUIButtonSize;
+				fread(&GUIButtonSize, sizeof(CUInt), 1, ObjectNamefilePtr);
 
+				for (CUInt j = 0; j < GUIButtonSize; j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+					newGUIName.m_buttonNames.push_back(name);
+				}
+
+				//Images
+				CUInt GUIImageSize;
+				fread(&GUIImageSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+				for (CUInt j = 0; j < GUIImageSize; j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+					newGUIName.m_imageNames.push_back(name);
+				}
+
+				//Texts
+				CUInt GUITextSize;
+				fread(&GUITextSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+				for (CUInt j = 0; j < GUITextSize; j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+					newGUIName.m_textNames.push_back(name);
+				}
+
+				VSceneObjectNames.m_guiNames.push_back(newGUIName);
 			}
 
 			fclose(ObjectNamefilePtr);

@@ -1119,3 +1119,71 @@ CVLOD::CVLOD()
 	m_numVertices = 0;
 }
 
+CChar* CInstancePrefab::GetScriptStringVariable(CChar* variableName)
+{
+	CChar *s = NULL;
+	lua_getglobal(m_lua, variableName);
+	if (!lua_isnil(m_lua, -1))
+		s = _strdup(lua_tostring(m_lua, -1));
+	else
+		s = _strdup("");
+
+	lua_pop(m_lua, 1);
+	return s;
+}
+
+CBool CInstancePrefab::GetScriptBoolVariable(CChar* variableName)
+{
+	CInt value;
+	CBool result;
+	lua_getglobal(m_lua, variableName);
+	value = lua_toboolean(m_lua, -1);
+	if (value)
+		result = CTrue;
+	else
+		result = CFalse;
+	lua_pop(m_lua, 1);
+	return result;
+}
+
+CInt CInstancePrefab::GetScriptIntVariable(CChar* variableName)
+{
+	CInt value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tointeger(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CDouble CInstancePrefab::GetScriptDoubleVariable(CChar* variableName)
+{
+	CDouble value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tonumber(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CVoid CInstancePrefab::SetScriptStringVariable(CChar* variableName, CChar* value)
+{
+	lua_pushstring(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstancePrefab::SetScriptBoolVariable(CChar* variableName, CBool value)
+{
+	lua_pushboolean(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstancePrefab::SetScriptIntVariable(CChar* variableName, CInt value)
+{
+	lua_pushinteger(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstancePrefab::SetScriptDoubleVariable(CChar* variableName, CDouble value)
+{
+	lua_pushnumber(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}

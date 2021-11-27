@@ -239,4 +239,41 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "IsVSyncEnabled", IsVSyncEnabled);
 	lua_register(L, "IsWaterReflectionEnabled", IsWaterReflectionEnabled);
 	lua_register(L, "GetScreenResolution", GetScreenResolution);
+
+	lua_register(L, "GetVSceneScriptStringVariable", GetVSceneScriptStringVariable);
+	lua_register(L, "GetVSceneScriptBoolVariable", GetVSceneScriptBoolVariable);
+	lua_register(L, "GetVSceneScriptIntVariable", GetVSceneScriptIntVariable);
+	lua_register(L, "GetVSceneScriptDoubleVariable", GetVSceneScriptDoubleVariable);
+	lua_register(L, "SetVSceneScriptStringVariable", SetVSceneScriptStringVariable);
+	lua_register(L, "SetVSceneScriptBoolVariable", SetVSceneScriptBoolVariable);
+	lua_register(L, "SetVSceneScriptIntVariable", SetVSceneScriptIntVariable);
+	lua_register(L, "SetVSceneScriptDoubleVariable", SetVSceneScriptDoubleVariable);
+
+	lua_register(L, "GetPrefabInstanceScriptStringVariable", GetPrefabInstanceScriptStringVariable);
+	lua_register(L, "GetPrefabInstanceScriptBoolVariable", GetPrefabInstanceScriptBoolVariable);
+	lua_register(L, "GetPrefabInstanceScriptIntVariable", GetPrefabInstanceScriptIntVariable);
+	lua_register(L, "GetPrefabInstanceScriptDoubleVariable", GetPrefabInstanceScriptDoubleVariable);
+	lua_register(L, "SetPrefabInstanceScriptStringVariable", SetPrefabInstanceScriptStringVariable);
+	lua_register(L, "SetPrefabInstanceScriptBoolVariable", SetPrefabInstanceScriptBoolVariable);
+	lua_register(L, "SetPrefabInstanceScriptIntVariable", SetPrefabInstanceScriptIntVariable);
+	lua_register(L, "SetPrefabInstanceScriptDoubleVariable", SetPrefabInstanceScriptDoubleVariable);
+
+	lua_register(L, "GetGUIButtonScriptStringVariable", GetGUIButtonScriptStringVariable);
+	lua_register(L, "GetGUIButtonScriptBoolVariable", GetGUIButtonScriptBoolVariable);
+	lua_register(L, "GetGUIButtonScriptIntVariable", GetGUIButtonScriptIntVariable);
+	lua_register(L, "GetGUIButtonScriptDoubleVariable", GetGUIButtonScriptDoubleVariable);
+	lua_register(L, "SetGUIButtonScriptStringVariable", SetGUIButtonScriptStringVariable);
+	lua_register(L, "SetGUIButtonScriptBoolVariable", SetGUIButtonScriptBoolVariable);
+	lua_register(L, "SetGUIButtonScriptIntVariable", SetGUIButtonScriptIntVariable);
+	lua_register(L, "SetGUIButtonScriptDoubleVariable", SetGUIButtonScriptDoubleVariable);
+
+	lua_register(L, "GetTriggerScriptStringVariable", GetTriggerScriptStringVariable);
+	lua_register(L, "GetTriggerScriptBoolVariable", GetTriggerScriptBoolVariable);
+	lua_register(L, "GetTriggerScriptIntVariable", GetTriggerScriptIntVariable);
+	lua_register(L, "GetTriggerScriptDoubleVariable", GetTriggerScriptDoubleVariable);
+	lua_register(L, "SetTriggerScriptStringVariable", SetTriggerScriptStringVariable);
+	lua_register(L, "SetTriggerScriptBoolVariable", SetTriggerScriptBoolVariable);
+	lua_register(L, "SetTriggerScriptIntVariable", SetTriggerScriptIntVariable);
+	lua_register(L, "SetTriggerScriptDoubleVariable", SetTriggerScriptDoubleVariable);
+
 }

@@ -140,19 +140,19 @@ IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_FOCUS BITMAP                  "Assets\\Ic
 IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_UP BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Up.bmp"
 IDB_BITMAP_PLAYER_DISABLE BITMAP                  "Assets\\Icon\\Player\\Player_Disable.bmp"
 IDB_BITMAP_DEFAULT_PRF  BITMAP                  "Assets\\Icon\\Default\\Default_prf.bmp"
-IDB_BITMAP_GUI_DISABLE  BITMAP                  "Assets\\Icon\\GUI\\GUI_Disable.bmp"
-IDB_BITMAP_GUI_DOWN     BITMAP                  "Assets\\Icon\\GUI\\GUI_Down.bmp"
-IDB_BITMAP_GUI_FOCUS    BITMAP                  "Assets\\Icon\\GUI\\GUI_Focus.bmp"
-IDB_BITMAP_GUI_UP       BITMAP                  "Assets\\Icon\\GUI\\GUI_Up.bmp"
-IDB_BITMAP_GUI_BACKGROUND_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Background_Disable.bmp"
-IDB_BITMAP_GUI_BACKGROUND_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Background_Down.bmp"
-IDB_BITMAP_GUI_BACKGROUND_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Background_Focus.bmp"
-IDB_BITMAP_GUI_BACKGROUND_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Background_Up.bmp"
+IDB_BITMAP_GUI_BUTTON_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Disable.bmp"
+IDB_BITMAP_GUI_BUTTON_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Down.bmp"
+IDB_BITMAP_GUI_BUTTON_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Focus.bmp"
+IDB_BITMAP_GUI_BUTTON_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Up.bmp"
+IDB_BITMAP_GUI_IMAGE_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Disable.bmp"
+IDB_BITMAP_GUI_IMAGE_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Down.bmp"
+IDB_BITMAP_GUI_IMAGE_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Focus.bmp"
+IDB_BITMAP_GUI_IMAGE_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Up.bmp"
 IDB_BITMAP_GUI_TEXT_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Disable.bmp"
 IDB_BITMAP_GUI_TEXT_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Down.bmp"
 IDB_BITMAP_GUI_TEXT_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Focus.bmp"
 IDB_BITMAP_GUI_TEXT_UP  BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Up.bmp"
-IDB_BITMAP_GUILIST_BACKGROUND BITMAP                  "Assets\\Icon\\GUI List\\GUIBackground.bmp"
+IDB_BITMAP_GUILIST_IMAGE BITMAP                  "Assets\\Icon\\GUI List\\GUIImage.bmp"
 IDB_BITMAP_GUILIST_BUTTON BITMAP                  "Assets\\Icon\\GUI List\\GUIButton.bmp"
 IDB_BITMAP_GUILIST_TEXT BITMAP                  "Assets\\Icon\\GUI List\\GUIText.bmp"
 IDB_BITMAP_GUI_EDITOR_DISABLE BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Disable.bmp"
@@ -160,11 +160,7 @@ IDB_BITMAP_GUI_EDITOR_DOWN BITMAP                  "Assets\\Icon\\InsertGUI\\Ins
 IDB_BITMAP_GUI_EDITOR_FOCUS BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Focus.bmp"
 IDB_BITMAP_GUI_EDITOR_UP BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Up.bmp"
 IDB_BITMAP_DEFAULT_GUI  BITMAP                  "Assets\\Icon\\Default\\Default_gui.bmp"
-IDB_BITMAP_START_DISABLE BITMAP                  "Assets\\Icon\\Startup\\Start_Disable.bmp"
-IDB_BITMAP_START_DOWN   BITMAP                  "Assets\\Icon\\Startup\\Start_Down.bmp"
-IDB_BITMAP_START_FOCUS  BITMAP                  "Assets\\Icon\\Startup\\Start_Focus.bmp"
-IDB_BITMAP_START_UP     BITMAP                  "Assets\\Icon\\Startup\\Start_Up.bmp"
-IDB_BITMAP_OBJECTLIST_STARTUP BITMAP                  "Assets\\Icon\\EngineObjectList\\Start.bmp"
+IDB_BITMAP_OBJECTLIST_VSCENE_SCRIPT BITMAP                  "Assets\\Icon\\EngineObjectList\\VSceneScript.bmp"
 IDB_BITMAP_TERRAIN_UP   BITMAP                  "Assets\\Icon\\Terrain\\terrain_up.bmp"
 IDB_BITMAP_TERRAIN_FOCUS BITMAP                  "Assets\\Icon\\Terrain\\terrain_focus.bmp"
 IDB_BITMAP_TERRAIN_DOWN BITMAP                  "Assets\\Icon\\Terrain\\terrain_down.bmp"
@@ -185,6 +181,14 @@ IDB_BITMAP_SCRIPT_UTILITY_CAMERA BITMAP                  "Assets\\Icon\\Default\
 IDB_BITMAP_SCRIPT_UTILITY_LIGHT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\light.bmp"
 IDB_BITMAP_COFFEE       BITMAP                  "Assets\\Icon\\Welcome\\coffee.bmp"
 IDB_BITMAP_VANDA_LOGO_DARK BITMAP                  "Assets\\Icon\\Welcome\\vanda_logo.bmp"
+IDB_BITMAP_VSCENE_SCRIPT_UP BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Up.bmp"
+IDB_BITMAP_VSCENE_SCRIPT_FOCUS BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Focus.bmp"
+IDB_BITMAP_VSCENE_SCRIPT_DOWN BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Down.bmp"
+IDB_BITMAP_VSCENE_SCRIPT_DISABLE BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Disable.bmp"
+IDB_BITMAP_SCRIPT_UTILITY_TRIGGER BITMAP                  "Assets\\Icon\\Default\\Script Utility\\trigger.bmp"
+IDB_BITMAP_SCRIPT_UTILITY_GUI_BUTTON BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIButton.bmp"
+IDB_BITMAP_SCRIPT_UTILITY_GUI_IMAGE BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIImage.bmp"
+IDB_BITMAP_SCRIPT_UTILITY_GUI_TEXT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIText.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -519,7 +523,7 @@ BEGIN
     LTEXT           "Run Speed",IDC_STATIC,114,20,39,8
     EDITTEXT        IDC_EDIT_CHARACTER_RUN_SPEED,155,18,40,14,ES_AUTOHSCROLL
     GROUPBOX        "Speed",IDC_STATIC,7,7,220,31
-    CONTROL         "Debug Mode",IDC_CHECK_DEBUG_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,160,228,56,10
+    CONTROL         "Debug Mode",IDC_CHECK_DEBUG_MODE,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,247,181,56,10
     PUSHBUTTON      "Reset",IDC_BUTTON_RESET,258,255,50,14
     GROUPBOX        "Blending",IDC_STATIC,7,49,220,86
     LTEXT           "Idle Delay In",IDC_STATIC,16,69,42,8
@@ -609,9 +613,9 @@ BEGIN
     PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,364,238,50,14
 END
 
-IDD_DIALOG_GUI_BACKGROUND DIALOGEX 0, 0, 295, 150
+IDD_DIALOG_GUI_IMAGE DIALOGEX 0, 0, 295, 150
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "GUI Background"
+CAPTION "GUI Image"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,181,129,50,14
@@ -647,7 +651,7 @@ BEGIN
     COMBOBOX        IDC_COMBO_TYPE,57,99,173,52,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Color",IDC_STATIC,16,127,30,10
     EDITTEXT        IDC_EDIT_COLOR,57,124,157,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
-    DEFPUSHBUTTON   "Select...",IDC_BUTTON_COLOR,223,124,52,15
+    PUSHBUTTON      "Select...",IDC_BUTTON_COLOR,223,124,52,15
     LTEXT           "Position",IDC_STATIC,16,49,26,10
     EDITTEXT        IDC_EDIT_POS_X,57,46,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_POS_Y,118,46,40,14,ES_AUTOHSCROLL
@@ -738,15 +742,15 @@ BEGIN
     CONTROL         "",IDC_RICHED_SCRIPT_EDITOR,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,19,21,566,178
 END
 
-IDD_DIALOG_STARTUP_OBJECT DIALOGEX 0, 0, 380, 91
+IDD_DIALOG_VSCENE_SCRIPT_OBJECT DIALOGEX 0, 0, 380, 91
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Startup Object"
+CAPTION "VScene Script Object"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,268,70,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,323,70,50,14
     LTEXT           "Name",IDC_STATIC,14,13,23,13
-    EDITTEXT        IDC_EDIT_STARTUP_NAME,39,11,162,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_VSCENE_SCRIPT_NAME,39,11,162,13,ES_AUTOHSCROLL
     PUSHBUTTON      "Add...",IDC_BUTTON_ADD_SCRIPT,207,39,54,14
     PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_SCRIPT,267,39,50,14
     EDITTEXT        IDC_EDIT_SCRIPT,39,39,162,13,ES_AUTOHSCROLL | ES_READONLY
@@ -1012,20 +1016,25 @@ BEGIN
     CONTROL         "",IDC_RICHED_GAME_OBJECT_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,262,82,96,14
 END
 
-IDD_DIALOG_SCRIPT_UTILITY_GUIS DIALOGEX 0, 0, 395, 240
+IDD_DIALOG_SCRIPT_UTILITY_GUIS DIALOGEX 0, 0, 571, 277
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Script Utility - GUIs"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,338,219,50,14
-    CONTROL         "",IDC_LIST_GUIS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,49,231,146
-    GROUPBOX        "GUIs",IDC_STATIC,7,30,381,175
+    DEFPUSHBUTTON   "OK",IDOK,514,256,50,14
+    CONTROL         "",IDC_LIST_GUIS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,61,197,146
+    GROUPBOX        "GUIs",IDC_STATIC,7,30,557,213
     LTEXT           "Selected Project And VScene Names",IDC_STATIC_PROJECT_VSCENE_NAME,7,10,355,8
-    PUSHBUTTON      "Copy Selected GUI Name",IDC_BUTTON_COPY_GUI_NAME,258,141,117,14
-    CONTROL         "",IDC_RICHED_GUI_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,219,96,14
-    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,266,70,101,50,WS_EX_TRANSPARENT
-    LTEXT           "Selected GUI Preview",IDC_STATIC,258,48,68,8
-    GROUPBOX        "",IDC_STATIC,258,58,118,69
+    PUSHBUTTON      "Copy Selected GUI Name",IDC_BUTTON_COPY_GUI_NAME,15,219,91,14
+    CONTROL         "",IDC_RICHED_GUI_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,256,96,14
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,444,70,101,50,WS_EX_TRANSPARENT
+    LTEXT           "Selected GUI Preview",IDC_STATIC,437,44,68,8
+    GROUPBOX        "",IDC_STATIC,436,58,118,69
+    LTEXT           "GUIs",IDC_STATIC,16,44,17,8
+    CONTROL         "",IDC_LIST_GUI_ELEMENT,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,226,61,197,146
+    PUSHBUTTON      "Copy Selected Element",IDC_BUTTON_COPY_GUI_ELEMENT_NAME,226,219,91,14
+    LTEXT           "Selected GUI Elements",IDC_STATIC,227,44,72,8
+    CONTROL         "",IDC_RICHED_GUI_ELEMENT,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,123,256,96,14
 END
 
 IDD_DIALOG_SCRIPT_UTILITY_RESOURCES DIALOGEX 0, 0, 265, 325
@@ -1363,7 +1372,7 @@ BEGIN
         HORZGUIDE, 238
     END
 
-    IDD_DIALOG_GUI_BACKGROUND, DIALOG
+    IDD_DIALOG_GUI_IMAGE, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 288
@@ -1439,7 +1448,7 @@ BEGIN
         HORZGUIDE, 319
     END
 
-    IDD_DIALOG_STARTUP_OBJECT, DIALOG
+    IDD_DIALOG_VSCENE_SCRIPT_OBJECT, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 373
@@ -1567,9 +1576,10 @@ BEGIN
     IDD_DIALOG_SCRIPT_UTILITY_GUIS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 388
+        RIGHTMARGIN, 564
         TOPMARGIN, 7
-        BOTTOMMARGIN, 233
+        BOTTOMMARGIN, 270
+        HORZGUIDE, 44
     END
 
     IDD_DIALOG_SCRIPT_UTILITY_RESOURCES, DIALOG
@@ -1672,7 +1682,7 @@ BEGIN
     END
     POPUP "INSERT"
     BEGIN
-        MENUITEM "Background",                  ID_INSERT_GUI_BACKGROUND
+        MENUITEM "Image",                       ID_INSERT_GUI_IMAGE
         MENUITEM "Button",                      ID_INSERT_GUI_BUTTON
         MENUITEM "Text",                        ID_INSERT_GUI_TEXT
     END
@@ -1712,7 +1722,7 @@ BEGIN
         POPUP "New"
         BEGIN
             MENUITEM "Blank Script",                ID_NEWSCRIPT_BLANK
-            MENUITEM "StartUp Script",              ID_NEWSCRIPT_STARTUP
+            MENUITEM "VScene Script",               ID_NEWSCRIPT_VSCENE_SCRIPT
             MENUITEM "Prefab Script",               ID_NEWSCRIPT_PREFAB
             MENUITEM "Trigger Script",              ID_NEWSCRIPT_TRIGGER
             MENUITEM "GUI Script",                  ID_NEWSCRIPT_GUI
@@ -1942,13 +1952,13 @@ BEGIN
                     "Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,16,173,110,13
     CONTROL         "GUI Button",IDC_BTN_GUI,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,359,217,49,13
     CONTROL         "GUI Elements",IDC_STATIC_GUI_ELEMENTS,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,74,83,54,9
-    CONTROL         "GUI Background",IDC_BTN_GUI_BACKGROUND,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,356,237,60,13
+    CONTROL         "GUI Image",IDC_BTN_GUI_IMAGE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,356,237,60,13
     CONTROL         "GUI Text",IDC_BTN_GUI_TEXT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,356,258,60,13
     CONTROL         "",IDC_LIST_GUI_ELEMENTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_TABSTOP,74,91,103,37
     CONTROL         "Delete",IDC_BTN_REMOVE_GUI,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,82,133,46,12
     CONTROL         "Properties",IDC_BTN_GUI_PROPERTIES,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,134,133,46,12
     CONTROL         "GUI Package",IDC_BTN_GUI_PACKAGE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,97,239,51,13
-    CONTROL         "Startup",IDC_BTN_STARTUP,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,8,6,38,13
+    CONTROL         "VScript",IDC_BTN_VSCENE_SCRIPT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,8,6,38,13
     CONTROL         "Terrain",IDC_BTN_TERRAIN,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,52,152,38,13
     CONTROL         "Cam",IDC_BTN_ENGINE_CAMERA,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,102,152,38,13
     CONTROL         "Prefab Settings",IDC_BTN_PREFAB_SETTINGS,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,153,239,55,13
@@ -2274,7 +2284,7 @@ BEGIN
     LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
     CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 1.7.7",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 1.7.8",IDC_STATIC,7,33,60,8
     LTEXT           "© 2021 Ehsan Kamrani",IDC_STATIC,7,50,126,9
     CONTROL         "Donate",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
     LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
@@ -2432,7 +2442,7 @@ CAPTION "About Vanda Engine 1.6"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 1.7.7",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.7.8",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -2822,7 +2832,7 @@ BEGIN
     END
     POPUP "INSERT"
     BEGIN
-        MENUITEM "Startup...",                  ID_INSERT_STARTUP
+        MENUITEM "VScene Script...",            ID_INSERT_VSCENE_SCRIPT
         MENUITEM SEPARATOR
         MENUITEM "Sky Dome...",                 ID_INSERT_SKYDOME
         MENUITEM SEPARATOR
@@ -2973,12 +2983,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.7.7"
+            VALUE "FileVersion", "1.7.8"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.7.7"
+            VALUE "ProductVersion", "1.7.8"
         END
     END
     BLOCK "VarFileInfo"

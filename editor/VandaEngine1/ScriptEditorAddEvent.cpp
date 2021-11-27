@@ -25,7 +25,7 @@ CScriptEditorAddEvent::CScriptEditorAddEvent(CWnd* pParent /*=NULL*/)
 	Cpy(m_onTriggerExitEventName, "function OnTriggerExit(otherActorName)\n\nend\n");
 	Cpy(m_onSelectMouseLButtonDown, "function OnSelectMouseLButtonDown()\n\nend\n");
 	Cpy(m_onSelectMouseRButtonDown, "function OnSelectMouseRButtonDown()\n\nend\n");
-	Cpy(m_onSelectMouseHover, "function OnSelectMouseHover()\n\nend\n");
+	Cpy(m_onSelectMouseEnter, "function OnSelectMouseEnter()\n\nend\n");
 	Cpy(m_onSelectEventName, "function OnSelect()\n\nend\n");
 }
 
@@ -122,9 +122,9 @@ void CScriptEditorAddEvent::OnLvnItemchangedListEvents(NMHDR *pNMHDR, LRESULT *p
 		{
 			m_richEventName.SetWindowTextA(m_onSelectMouseRButtonDown);
 		}
-		else if (Cmp(szBuffer, "OnSelectMouseHover"))
+		else if (Cmp(szBuffer, "OnSelectMouseEnter"))
 		{
-			m_richEventName.SetWindowTextA(m_onSelectMouseHover);
+			m_richEventName.SetWindowTextA(m_onSelectMouseEnter);
 		}
 		else if (Cmp(szBuffer, "OnSelect"))
 		{
@@ -160,7 +160,7 @@ BOOL CScriptEditorAddEvent::OnInitDialog()
 	InsertItem("OnTriggerExit");
 	InsertItem("OnSelectMouseLButtonDown");
 	InsertItem("OnSelectMouseRButtonDown");
-	InsertItem("OnSelectMouseHover");
+	InsertItem("OnSelectMouseEnter");
 	InsertItem("OnSelect");
 
 	m_listEvents.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);

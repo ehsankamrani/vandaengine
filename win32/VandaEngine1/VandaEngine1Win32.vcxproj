@@ -106,7 +106,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Common\Prefab.cpp" />
-    <ClCompile Include="Common\Startup.cpp" />
+    <ClCompile Include="Common\VSceneScript.cpp" />
     <ClCompile Include="GraphicsEngine\Actions.cpp" />
     <ClCompile Include="GraphicsEngine\ActionsAPI.cpp" />
     <ClCompile Include="AudioEngine\AmbientSound.cpp" />
@@ -128,8 +128,8 @@
     <ClCompile Include="GraphicsEngine\Image.cpp" />
     <ClCompile Include="GraphicsEngine\terrain.cpp" />
     <ClCompile Include="GUIEngine\GUI.cpp" />
-    <ClCompile Include="GUIEngine\GUIBackground.cpp" />
     <ClCompile Include="GUIEngine\GUIButton.cpp" />
+    <ClCompile Include="GUIEngine\GUIImage.cpp" />
     <ClCompile Include="GUIEngine\GUIText.cpp" />
     <ClCompile Include="Icon.cpp" />
     <ClCompile Include="InputEngine\Input.cpp" />
@@ -203,7 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Prefab.h" />
-    <ClInclude Include="Common\Startup.h" />
+    <ClInclude Include="Common\VSceneScript.h" />
     <ClInclude Include="GraphicsEngine\Actions.h" />
     <ClInclude Include="AudioEngine\AmbientSound.h" />
     <ClInclude Include="GraphicsEngine\animation.h" />
@@ -227,8 +227,8 @@
     <ClInclude Include="GraphicsEngine\imageLib.h" />
     <ClInclude Include="GraphicsEngine\terrain.h" />
     <ClInclude Include="GUIEngine\GUI.h" />
-    <ClInclude Include="GUIEngine\GUIBackground.h" />
     <ClInclude Include="GUIEngine\GUIButton.h" />
+    <ClInclude Include="GUIEngine\GUIImage.h" />
     <ClInclude Include="GUIEngine\GUIText.h" />
     <ClInclude Include="Icon.h" />
     <ClInclude Include="InputEngine\Input.h" />

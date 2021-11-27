@@ -83,7 +83,12 @@ void CEditProjectVScenes::OnBnClickedDelete()
 			GetWithoutDot(VSceneNameWithoutDot);
 			CChar VScenePath[MAX_URI_SIZE];
 			sprintf(VScenePath, "%s%s", g_currentProjectPath, VSceneNameWithoutDot);
-			RemoveAllFilesAndFoldersInDirectory(VScenePath);
+			if (!RemoveAllFilesAndFoldersInDirectory(VScenePath))
+			{
+				CChar message[MAX_URI_SIZE];
+				sprintf(message, "Couldn't delete files in %s directory", VScenePath);
+				MessageBox(message);
+			}
 			for (CUInt i = 0; i < g_VSceneNamesOfCurrentProject.size(); i++)
 			{
 				if (Cmp(g_VSceneNamesOfCurrentProject[i].c_str(), szBuffer))

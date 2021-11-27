@@ -384,8 +384,8 @@ void CGUIDlg::OnBnClickedNewGUI()
 	CChar newExternalTexturesPath[MAX_NAME_SIZE];
 	sprintf(newExternalTexturesPath, "%s%s", newGUIName, "/Textures/");
 
-	CChar newExternalBackgroundTexturesPath[MAX_NAME_SIZE];
-	sprintf(newExternalBackgroundTexturesPath, "%s%s", newExternalTexturesPath, "Backgrounds/");
+	CChar newExternalImageTexturesPath[MAX_NAME_SIZE];
+	sprintf(newExternalImageTexturesPath, "%s%s", newExternalTexturesPath, "Images/");
 
 	CChar newExternalButtonTexturesPath[MAX_NAME_SIZE];
 	sprintf(newExternalButtonTexturesPath, "%s%s", newExternalTexturesPath, "Buttons/");
@@ -400,7 +400,7 @@ void CGUIDlg::OnBnClickedNewGUI()
 	CreateWindowsDirectory(newPackage);
 	CreateWindowsDirectory(newGUIName);
 	CreateWindowsDirectory(newExternalTexturesPath);
-	CreateWindowsDirectory(newExternalBackgroundTexturesPath);
+	CreateWindowsDirectory(newExternalImageTexturesPath);
 	CreateWindowsDirectory(newExternalButtonTexturesPath);
 	CreateWindowsDirectory(newScriptPath);
 
@@ -421,8 +421,8 @@ void CGUIDlg::OnBnClickedNewGUI()
 	CUInt numberOfGUIButtons = 0;
 	fwrite(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
 
-	CUInt numberOfGUIBackgrounds = 0;
-	fwrite(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+	CUInt numberOfGUIImages = 0;
+	fwrite(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
 	CUInt numberOfGUITexts = 0;
 	fwrite(&numberOfGUITexts, sizeof(CUInt), 1, filePtr);
@@ -929,7 +929,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 					if (j == 0)continue;
 
 					std::vector<CGUIButton*> m_guiButtons;
-					std::vector<CGUIBackground*> m_guiBackgrounds;
+					std::vector<CGUIImage*> m_guiImages;
 					std::vector<CGUIText*> m_guiTexts;
 
 					CChar m_strNewGUIName[MAX_NAME_SIZE];
@@ -944,8 +944,8 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 					CChar newExternalTexturesPath[MAX_NAME_SIZE];
 					sprintf(newExternalTexturesPath, "%s%s", newGUIName, "/Textures/");
 
-					CChar newExternalBackgroundTexturesPath[MAX_NAME_SIZE];
-					sprintf(newExternalBackgroundTexturesPath, "%s%s", newExternalTexturesPath, "Backgrounds/");
+					CChar newExternalImageTexturesPath[MAX_NAME_SIZE];
+					sprintf(newExternalImageTexturesPath, "%s%s", newExternalTexturesPath, "Images/");
 
 					CChar newExternalButtonTexturesPath[MAX_NAME_SIZE];
 					sprintf(newExternalButtonTexturesPath, "%s%s", newExternalTexturesPath, "Buttons/");
@@ -960,7 +960,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 					if (filePtr)
 					{
 						CUInt numberOfGUIButtons;
-						CUInt numberOfGUIBackgrounds;
+						CUInt numberOfGUIImages;
 						CUInt numberOfGUITexts;
 
 						fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
@@ -1082,9 +1082,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							m_guiButtons.push_back(guiButton);
 						}
 
-						fread(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+						fread(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-						for (CUInt i = 0; i < numberOfGUIBackgrounds; i++)
+						for (CUInt i = 0; i < numberOfGUIImages; i++)
 						{
 							CChar name[MAX_NAME_SIZE];
 							fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -1104,14 +1104,14 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							CChar imagePath[MAX_NAME_SIZE];
 							fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-							CGUIBackground* guiBackground = CNew(CGUIBackground);
-							guiBackground->SetName(name);
-							guiBackground->SetPackageName(packageName);
-							guiBackground->SetGUIName(guiName);
-							guiBackground->SetPosition(pos);
-							guiBackground->SetSize(size);
-							guiBackground->SetImagePath(imagePath);
-							m_guiBackgrounds.push_back(guiBackground);
+							CGUIImage* guiImage = CNew(CGUIImage);
+							guiImage->SetName(name);
+							guiImage->SetPackageName(packageName);
+							guiImage->SetGUIName(guiName);
+							guiImage->SetPosition(pos);
+							guiImage->SetSize(size);
+							guiImage->SetImagePath(imagePath);
+							m_guiImages.push_back(guiImage);
 
 						}
 
@@ -1160,16 +1160,16 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						fclose(filePtr);
 					}
 
-					for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
+					for (CUInt i = 0; i < m_guiImages.size(); i++)
 					{
-						m_guiBackgrounds[i]->SetUpdateImage(CFalse);
+						m_guiImages[i]->SetUpdateImage(CFalse);
 
-						CChar* srcFilePathAfterPath = GetAfterPath(m_guiBackgrounds[i]->GetImagePath());
+						CChar* srcFilePathAfterPath = GetAfterPath(m_guiImages[i]->GetImagePath());
 
 						CChar newFilePath[MAX_NAME_SIZE];
-						sprintf(newFilePath, "%s%s", newExternalBackgroundTexturesPath, srcFilePathAfterPath);
+						sprintf(newFilePath, "%s%s", newExternalImageTexturesPath, srcFilePathAfterPath);
 
-						m_guiBackgrounds[i]->SetImagePath(newFilePath);
+						m_guiImages[i]->SetImagePath(newFilePath);
 					}
 
 					for (CUInt i = 0; i < m_guiButtons.size(); i++)
@@ -1316,26 +1316,26 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 
 					}
 
-					CUInt numberOfGUIBackgrounds = m_guiBackgrounds.size();
-					fwrite(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+					CUInt numberOfGUIImages = m_guiImages.size();
+					fwrite(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-					for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
+					for (CUInt i = 0; i < m_guiImages.size(); i++)
 					{
-						fwrite(m_guiBackgrounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+						fwrite(m_guiImages[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 						fwrite(newPackageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						fwrite(m_strNewGUIName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-						m_guiBackgrounds[i]->SetPackageName(newPackageName);
-						m_guiBackgrounds[i]->SetGUIName(m_strNewGUIName);
+						m_guiImages[i]->SetPackageName(newPackageName);
+						m_guiImages[i]->SetGUIName(m_strNewGUIName);
 
-						CVec2f pos = m_guiBackgrounds[i]->GetPosition();
+						CVec2f pos = m_guiImages[i]->GetPosition();
 						fwrite(&pos, sizeof(CVec2f), 1, filePtr);
 
-						CInt size = m_guiBackgrounds[i]->GetSize();
+						CInt size = m_guiImages[i]->GetSize();
 						fwrite(&size, sizeof(CInt), 1, filePtr);
 
-						fwrite(m_guiBackgrounds[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+						fwrite(m_guiImages[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 					}
 
 					CUInt numberOfGUITexts = m_guiTexts.size();
@@ -1370,9 +1370,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						CDelete(m_guiButtons[i]);
 					m_guiButtons.clear();
 
-					for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
-						CDelete(m_guiBackgrounds[i]);
-					m_guiBackgrounds.clear();
+					for (CUInt i = 0; i < m_guiImages.size(); i++)
+						CDelete(m_guiImages[i]);
+					m_guiImages.clear();
 
 					for (CUInt i = 0; i < m_guiTexts.size(); i++)
 						CDelete(m_guiTexts[i]);
@@ -1576,7 +1576,7 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 					if (Cmp(g_guiPackagesAndNames[g][j].c_str(), m_guiNameDlg->GetNewName()))
 					{
 						std::vector<CGUIButton*> m_guiButtons;
-						std::vector<CGUIBackground*> m_guiBackgrounds;
+						std::vector<CGUIImage*> m_guiImages;
 						std::vector<CGUIText*> m_guiTexts;
 
 						CChar m_strNewGUIName[MAX_NAME_SIZE];
@@ -1591,8 +1591,8 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 						CChar newExternalTexturesPath[MAX_NAME_SIZE];
 						sprintf(newExternalTexturesPath, "%s%s", newGUIName, "/Textures/");
 
-						CChar newExternalBackgroundTexturesPath[MAX_NAME_SIZE];
-						sprintf(newExternalBackgroundTexturesPath, "%s%s", newExternalTexturesPath, "Backgrounds/");
+						CChar newExternalImageTexturesPath[MAX_NAME_SIZE];
+						sprintf(newExternalImageTexturesPath, "%s%s", newExternalTexturesPath, "Images/");
 
 						CChar newExternalButtonTexturesPath[MAX_NAME_SIZE];
 						sprintf(newExternalButtonTexturesPath, "%s%s", newExternalTexturesPath, "Buttons/");
@@ -1607,7 +1607,7 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 						if (filePtr)
 						{
 							CUInt numberOfGUIButtons;
-							CUInt numberOfGUIBackgrounds;
+							CUInt numberOfGUIImages;
 							CUInt numberOfGUITexts;
 
 							fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
@@ -1729,9 +1729,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								m_guiButtons.push_back(guiButton);
 							}
 
-							fread(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+							fread(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-							for (CUInt i = 0; i < numberOfGUIBackgrounds; i++)
+							for (CUInt i = 0; i < numberOfGUIImages; i++)
 							{
 								CChar name[MAX_NAME_SIZE];
 								fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -1751,14 +1751,14 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								CChar imagePath[MAX_NAME_SIZE];
 								fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-								CGUIBackground* guiBackground = CNew(CGUIBackground);
-								guiBackground->SetName(name);
-								guiBackground->SetPackageName(packageName);
-								guiBackground->SetGUIName(guiName);
-								guiBackground->SetPosition(pos);
-								guiBackground->SetSize(size);
-								guiBackground->SetImagePath(imagePath);
-								m_guiBackgrounds.push_back(guiBackground);
+								CGUIImage* guiImage = CNew(CGUIImage);
+								guiImage->SetName(name);
+								guiImage->SetPackageName(packageName);
+								guiImage->SetGUIName(guiName);
+								guiImage->SetPosition(pos);
+								guiImage->SetSize(size);
+								guiImage->SetImagePath(imagePath);
+								m_guiImages.push_back(guiImage);
 
 							}
 
@@ -1807,16 +1807,16 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							fclose(filePtr);
 						}
 
-						for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
+						for (CUInt i = 0; i < m_guiImages.size(); i++)
 						{
-							m_guiBackgrounds[i]->SetUpdateImage(CFalse);
+							m_guiImages[i]->SetUpdateImage(CFalse);
 
-							CChar* srcFilePathAfterPath = GetAfterPath(m_guiBackgrounds[i]->GetImagePath());
+							CChar* srcFilePathAfterPath = GetAfterPath(m_guiImages[i]->GetImagePath());
 
 							CChar newFilePath[MAX_NAME_SIZE];
-							sprintf(newFilePath, "%s%s", newExternalBackgroundTexturesPath, srcFilePathAfterPath);
+							sprintf(newFilePath, "%s%s", newExternalImageTexturesPath, srcFilePathAfterPath);
 
-							m_guiBackgrounds[i]->SetImagePath(newFilePath);
+							m_guiImages[i]->SetImagePath(newFilePath);
 						}
 
 						for (CUInt i = 0; i < m_guiButtons.size(); i++)
@@ -1964,26 +1964,26 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 
 						}
 
-						CUInt numberOfGUIBackgrounds = m_guiBackgrounds.size();
-						fwrite(&numberOfGUIBackgrounds, sizeof(CUInt), 1, filePtr);
+						CUInt numberOfGUIImages = m_guiImages.size();
+						fwrite(&numberOfGUIImages, sizeof(CUInt), 1, filePtr);
 
-						for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
+						for (CUInt i = 0; i < m_guiImages.size(); i++)
 						{
-							fwrite(m_guiBackgrounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+							fwrite(m_guiImages[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 							fwrite(newPackageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 							fwrite(m_strNewGUIName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
-							m_guiBackgrounds[i]->SetPackageName(newPackageName);
-							m_guiBackgrounds[i]->SetGUIName(m_strNewGUIName);
+							m_guiImages[i]->SetPackageName(newPackageName);
+							m_guiImages[i]->SetGUIName(m_strNewGUIName);
 
-							CVec2f pos = m_guiBackgrounds[i]->GetPosition();
+							CVec2f pos = m_guiImages[i]->GetPosition();
 							fwrite(&pos, sizeof(CVec2f), 1, filePtr);
 
-							CInt size = m_guiBackgrounds[i]->GetSize();
+							CInt size = m_guiImages[i]->GetSize();
 							fwrite(&size, sizeof(CInt), 1, filePtr);
 
-							fwrite(m_guiBackgrounds[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+							fwrite(m_guiImages[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						}
 
 						CUInt numberOfGUITexts = m_guiTexts.size();
@@ -2018,9 +2018,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							CDelete(m_guiButtons[i]);
 						m_guiButtons.clear();
 
-						for (CUInt i = 0; i < m_guiBackgrounds.size(); i++)
-							CDelete(m_guiBackgrounds[i]);
-						m_guiBackgrounds.clear();
+						for (CUInt i = 0; i < m_guiImages.size(); i++)
+							CDelete(m_guiImages[i]);
+						m_guiImages.clear();
 
 						for (CUInt i = 0; i < m_guiTexts.size(); i++)
 							CDelete(m_guiTexts[i]);
