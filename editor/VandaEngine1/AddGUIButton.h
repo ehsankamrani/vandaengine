@@ -77,6 +77,8 @@ public:
 
 	CString m_strSize;
 	CFloat m_fSize;
+	
+	CBool m_visible;
 
 	CString m_strScriptPath;
 	CString m_strPureScriptPath;
@@ -108,7 +110,7 @@ public:
 	CVoid SetName(CChar* name);
 	CVoid SetPosition(CVec2f pos);
 	CVoid SetSize(CFloat size);
-
+	CVoid SetVisible(CBool state);
 	CVoid SetMainImagePath(CChar* path);
 	CVoid SetLeftClickImagePath(CChar* path);
 	CVoid SetHoverImagePath(CChar* path);
@@ -134,6 +136,7 @@ public:
 	CChar* GetName();
 	CVec2f GetPosition();
 	CFloat GetSize();
+	CBool IsVisible();
 
 	CChar* GetMainImagePath();
 	CChar* GetLeftClickImagePath();

@@ -716,6 +716,9 @@ private:
 	CShadowProperties m_shadowProperties;
 	CPhysXProperties m_physicsProperties;
 	std::vector<CInstanceLight*>m_engineLights;
+	std::vector<CGUIButton*> m_guiButtons;
+	std::vector<CGUIImage*> m_guiImages;
+	std::vector<CGUIText*> m_guiTexts;
 	CUpdateCamera* m_camera;
 	COptions m_options;
 

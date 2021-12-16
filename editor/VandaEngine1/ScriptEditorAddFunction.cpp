@@ -211,6 +211,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetTriggerScriptIntVariable, "SetTriggerScriptIntVariable(string triggerName, string variable, int value)");
 	Cpy(SetTriggerScriptDoubleVariable, "SetTriggerScriptDoubleVariable(string triggerName, string variable, double value)");
 
+	Cpy(ShowGUIButton, "ShowGUIButton(string GUIName, string buttonName)");
+	Cpy(HideGUIButton, "HideGUIButton(string GUIName, string buttonName)");
+	Cpy(ShowGUIImage, "ShowGUIImage(string GUIName, string imageName)");
+	Cpy(HideGUIImage, "HideGUIImage(string GUIName, string imageName)");
+	Cpy(ShowGUIText, "ShowGUIText(string GUIName, string textName)");
+	Cpy(HideGUIText, "HideGUIText(string GUIName, string textName)");
+	Cpy(ScaleGUIButton, "ScaleGUIButton(string GUIName, string buttonName, double scaleValue)");
+	Cpy(ScaleGUIImage, "ScaleGUIImage(string GUIName, string imageName, double scaleValue)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -951,6 +960,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetTriggerScriptDoubleVariable);
 		}
+		else if (Cmp(szBuffer, "ShowGUIButton"))
+		{
+			m_richFunctionName.SetWindowTextA(ShowGUIButton);
+		}
+		else if (Cmp(szBuffer, "HideGUIButton"))
+		{
+			m_richFunctionName.SetWindowTextA(HideGUIButton);
+		}
+		else if (Cmp(szBuffer, "ShowGUIImage"))
+		{
+			m_richFunctionName.SetWindowTextA(ShowGUIImage);
+		}
+		else if (Cmp(szBuffer, "HideGUIImage"))
+		{
+			m_richFunctionName.SetWindowTextA(HideGUIImage);
+		}
+		else if (Cmp(szBuffer, "ShowGUIText"))
+		{
+			m_richFunctionName.SetWindowTextA(ShowGUIText);
+		}
+		else if (Cmp(szBuffer, "HideGUIText"))
+		{
+			m_richFunctionName.SetWindowTextA(HideGUIText);
+		}
+		else if (Cmp(szBuffer, "ScaleGUIButton"))
+		{
+			m_richFunctionName.SetWindowTextA(ScaleGUIButton);
+		}
+		else if (Cmp(szBuffer, "ScaleGUIImage"))
+		{
+			m_richFunctionName.SetWindowTextA(ScaleGUIImage);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1168,6 +1209,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetTriggerScriptBoolVariable");
 	InsertItem("SetTriggerScriptIntVariable");
 	InsertItem("SetTriggerScriptDoubleVariable");
+
+	InsertItem("ShowGUIButton");
+	InsertItem("HideGUIButton");
+	InsertItem("ShowGUIImage");
+	InsertItem("HideGUIImage");
+	InsertItem("ShowGUIText");
+	InsertItem("HideGUIText");
+	InsertItem("ScaleGUIButton");
+	InsertItem("ScaleGUIImage");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

@@ -9,6 +9,8 @@ CGUIImage::CGUIImage()
 {
 	m_image = NULL;
 	m_updateImage = CFalse;
+	m_visible = CTrue;
+	m_scale = 1.0;
 	SetIndex();
 }
 
@@ -32,7 +34,9 @@ CBool CGUIImage::LoadGUIImage()
 
 CVoid CGUIImage::Render(CBool selectionMode)
 {
-	CFloat w = m_size * g_width / 100.0f;
+	if (!m_visible) return;
+
+	CFloat w = m_scale * m_size * g_width / 100.0f;
 	CFloat h = (w / m_image->GetWidth()) * m_image->GetHeight();
 
 	if (selectionMode)

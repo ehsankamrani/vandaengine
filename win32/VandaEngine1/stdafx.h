@@ -254,6 +254,15 @@ CInt SetTriggerScriptBoolVariable(lua_State* L);
 CInt SetTriggerScriptIntVariable(lua_State* L);
 CInt SetTriggerScriptDoubleVariable(lua_State* L);
 
+CInt ShowGUIButton(lua_State* L);
+CInt HideGUIButton(lua_State* L);
+CInt ShowGUIImage(lua_State* L);
+CInt HideGUIImage(lua_State* L);
+CInt ShowGUIText(lua_State* L);
+CInt HideGUIText(lua_State* L);
+CInt ScaleGUIButton(lua_State* L);
+CInt ScaleGUIImage(lua_State* L);
+
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
 CVoid ShowLoadingScene(CChar* message = NULL);

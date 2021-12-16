@@ -182,7 +182,7 @@ CVoid CGUIDlg::InsertItemToGUIList(CChar* guiName, CUInt imgIndex)
 	lvItem.pszText = guiName;
 	m_listGUIs.InsertItem(&lvItem);
 
-	m_listGUIs.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE);
+	m_listGUIs.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE );
 	m_listGUIs.SetItemState(index, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listGUIs.SetSelectionMark(index);
 	m_listGUIs.EnsureVisible(index, FALSE);
@@ -852,8 +852,6 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 	m_guiNameDlg->SetInitialData(m_selectedPackageName, "\n", CTrue, CTrue);
 	if (IDOK == m_guiNameDlg->DoModal())
 	{
-		m_listGUIPackages.SetItemText(nSelected, 0, m_guiNameDlg->GetNewName());
-
 		CChar PackagePath[MAX_NAME_SIZE];
 
 		HRESULT doc_result_package = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, PackagePath);
@@ -878,7 +876,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 
 		rename(old_path, new_path);
 
-		//rename gui files
+		//rename gui and bmp files
 		for (CUInt i = 0; i < g_guiPackagesAndNames.size(); i++)
 		{
 			if (Cmp(g_guiPackagesAndNames[i].front().c_str(), m_guiNameDlg->GetNewName()))
@@ -886,6 +884,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 				for (CUInt j = 0; j < g_guiPackagesAndNames[i].size(); j++)
 				{
 					if (j == 0)continue;
+					//.gui
 					CChar guiOldPath[MAX_NAME_SIZE];
 					sprintf(guiOldPath, "%s%s%s%s%s%s%s%s%s", PackagePath, m_guiNameDlg->GetNewName(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", szBuffer, "_", g_guiPackagesAndNames[i][j].c_str(), ".gui");
 
@@ -893,6 +892,16 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 					sprintf(guiNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, m_guiNameDlg->GetNewName(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", m_guiNameDlg->GetNewName(), "_", g_guiPackagesAndNames[i][j].c_str(), ".gui");
 
 					rename(guiOldPath, guiNewPath);
+
+					//.bmp
+					CChar bmpOldPath[MAX_NAME_SIZE];
+					sprintf(bmpOldPath, "%s%s%s%s%s%s%s%s%s", PackagePath, m_guiNameDlg->GetNewName(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", szBuffer, "_", g_guiPackagesAndNames[i][j].c_str(), ".bmp");
+
+					CChar bmpNewPath[MAX_NAME_SIZE];
+					sprintf(bmpNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, m_guiNameDlg->GetNewName(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", m_guiNameDlg->GetNewName(), "_", g_guiPackagesAndNames[i][j].c_str(), ".bmp");
+
+					rename(bmpOldPath, bmpNewPath);
+
 				}
 				break;
 			}
@@ -982,6 +991,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							CInt size;
 							fread(&size, sizeof(CInt), 1, filePtr);
 
+							CBool isVisible;
+							fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 							CChar mainImagePath[MAX_NAME_SIZE];
 							fread(mainImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -1032,6 +1044,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							guiButton->SetGUIName(guiName);
 							guiButton->SetPosition(pos);
 							guiButton->SetSize(size);
+							guiButton->SetVisible(isVisible);
 							guiButton->SetMainImagePath(mainImagePath);
 
 							if (hasDisableImage)
@@ -1101,6 +1114,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							CInt size;
 							fread(&size, sizeof(CInt), 1, filePtr);
 
+							CBool isVisible;
+							fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 							CChar imagePath[MAX_NAME_SIZE];
 							fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -1110,6 +1126,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							guiImage->SetGUIName(guiName);
 							guiImage->SetPosition(pos);
 							guiImage->SetSize(size);
+							guiImage->SetVisible(isVisible);
 							guiImage->SetImagePath(imagePath);
 							m_guiImages.push_back(guiImage);
 
@@ -1134,6 +1151,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							CInt size;
 							fread(&size, sizeof(CInt), 1, filePtr);
 
+							CBool isVisible;
+							fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 							CChar text[MAX_URI_SIZE];
 							fread(text, sizeof(CChar), MAX_URI_SIZE, filePtr);
 
@@ -1149,6 +1169,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 							guiText->SetGUIName(guiName);
 							guiText->SetPosition(pos);
 							guiText->SetSize(size);
+							guiText->SetVisible(isVisible);
 							guiText->SetColor(color);
 							guiText->SetText(text);
 							guiText->SetType(font);
@@ -1277,6 +1298,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						CInt size = m_guiButtons[i]->GetSize();
 						fwrite(&size, sizeof(CInt), 1, filePtr);
 
+						CBool isVisible = m_guiButtons[i]->IsVisible();
+						fwrite(&isVisible, sizeof(CBool), 1, filePtr);
+
 						fwrite(m_guiButtons[i]->GetMainImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 						//disable image
@@ -1335,6 +1359,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						CInt size = m_guiImages[i]->GetSize();
 						fwrite(&size, sizeof(CInt), 1, filePtr);
 
+						CBool isVisible = m_guiImages[i]->IsVisible();
+						fwrite(&isVisible, sizeof(CBool), 1, filePtr);
+
 						fwrite(m_guiImages[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 					}
 
@@ -1356,6 +1383,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 
 						CInt size = m_guiTexts[i]->GetSize();
 						fwrite(&size, sizeof(CInt), 1, filePtr);
+
+						CBool isVisible = m_guiTexts[i]->IsVisible();
+						fwrite(&isVisible, sizeof(CBool), 1, filePtr);
 
 						fwrite(m_guiTexts[i]->GetText(), sizeof(CChar), MAX_URI_SIZE, filePtr);
 
@@ -1389,6 +1419,7 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 			}
 		}
 
+		m_listGUIPackages.SetItemText(nSelected, 0, m_guiNameDlg->GetNewName());
 	}
 	CDelete(m_guiNameDlg);
 }
@@ -1534,11 +1565,20 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 					if (j == 0) continue;
 					if (Cmp(g_guiPackagesAndNames[i][j].c_str(), m_guiNameDlg->GetNewName()))
 					{
+						//rename .gui file
 						CChar guiOldPath[MAX_NAME_SIZE];
 						sprintf(guiOldPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_guiPackagesAndNames[i].front().c_str(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", g_guiPackagesAndNames[i].front().c_str(), "_", szBuffer2, ".gui");
 						CChar guiNewPath[MAX_NAME_SIZE];
 						sprintf(guiNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_guiPackagesAndNames[i].front().c_str(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", g_guiPackagesAndNames[i].front().c_str(), "_", g_guiPackagesAndNames[i][j].c_str(), ".gui");
 						rename(guiOldPath, guiNewPath);
+
+						//rename .bmp file
+						CChar bmpOldPath[MAX_NAME_SIZE];
+						sprintf(bmpOldPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_guiPackagesAndNames[i].front().c_str(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", g_guiPackagesAndNames[i].front().c_str(), "_", szBuffer2, ".bmp");
+						CChar bmpNewPath[MAX_NAME_SIZE];
+						sprintf(bmpNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_guiPackagesAndNames[i].front().c_str(), "/", g_guiPackagesAndNames[i][j].c_str(), "/", g_guiPackagesAndNames[i].front().c_str(), "_", g_guiPackagesAndNames[i][j].c_str(), ".bmp");
+						rename(bmpOldPath, bmpNewPath);
+
 
 						foundTarget = CTrue;
 						break;
@@ -1629,6 +1669,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								CInt size;
 								fread(&size, sizeof(CInt), 1, filePtr);
 
+								CBool isVisible;
+								fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 								CChar mainImagePath[MAX_NAME_SIZE];
 								fread(mainImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -1679,6 +1722,7 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								guiButton->SetGUIName(guiName);
 								guiButton->SetPosition(pos);
 								guiButton->SetSize(size);
+								guiButton->SetVisible(isVisible);
 								guiButton->SetMainImagePath(mainImagePath);
 
 								if (hasDisableImage)
@@ -1748,6 +1792,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								CInt size;
 								fread(&size, sizeof(CInt), 1, filePtr);
 
+								CBool isVisible;
+								fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 								CChar imagePath[MAX_NAME_SIZE];
 								fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -1757,6 +1804,7 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								guiImage->SetGUIName(guiName);
 								guiImage->SetPosition(pos);
 								guiImage->SetSize(size);
+								guiImage->SetVisible(isVisible);
 								guiImage->SetImagePath(imagePath);
 								m_guiImages.push_back(guiImage);
 
@@ -1781,6 +1829,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								CInt size;
 								fread(&size, sizeof(CInt), 1, filePtr);
 
+								CBool isVisible;
+								fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 								CChar text[MAX_URI_SIZE];
 								fread(text, sizeof(CChar), MAX_URI_SIZE, filePtr);
 
@@ -1796,6 +1847,7 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 								guiText->SetGUIName(guiName);
 								guiText->SetPosition(pos);
 								guiText->SetSize(size);
+								guiText->SetVisible(isVisible);
 								guiText->SetColor(color);
 								guiText->SetText(text);
 								guiText->SetType(font);
@@ -1925,6 +1977,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							CInt size = m_guiButtons[i]->GetSize();
 							fwrite(&size, sizeof(CInt), 1, filePtr);
 
+							CBool isVisible = m_guiButtons[i]->IsVisible();
+							fwrite(&isVisible, sizeof(CBool), 1, filePtr);
+
 							fwrite(m_guiButtons[i]->GetMainImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 							//disable image
@@ -1983,6 +2038,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							CInt size = m_guiImages[i]->GetSize();
 							fwrite(&size, sizeof(CInt), 1, filePtr);
 
+							CBool isVisible = m_guiImages[i]->IsVisible();
+							fwrite(&isVisible, sizeof(CBool), 1, filePtr);
+
 							fwrite(m_guiImages[i]->GetImagePath(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 						}
 
@@ -2004,6 +2062,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 
 							CInt size = m_guiTexts[i]->GetSize();
 							fwrite(&size, sizeof(CInt), 1, filePtr);
+
+							CBool isVisible = m_guiTexts[i]->IsVisible();
+							fwrite(&isVisible, sizeof(CBool), 1, filePtr);
 
 							fwrite(m_guiTexts[i]->GetText(), sizeof(CChar), MAX_URI_SIZE, filePtr);
 

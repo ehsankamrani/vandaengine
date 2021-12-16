@@ -543,7 +543,7 @@ void CPrefabDlg::OnBnClickedRenamePrefab()
 		sprintf(new_path, "%s%s%s%s", PackagePath, szBuffer1, "/", m_prefabNameDlg->GetNewName());
 		rename(old_path, new_path);
 
-		//rename vpf files
+		//rename vpf and bmp files
 		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_prefabPackagesAndNames.size(); i++)
 		{
@@ -559,6 +559,12 @@ void CPrefabDlg::OnBnClickedRenamePrefab()
 						CChar vpfNewPath[MAX_NAME_SIZE];
 						sprintf(vpfNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_prefabPackagesAndNames[i].front().c_str(), "/", g_prefabPackagesAndNames[i][j].c_str(), "/", g_prefabPackagesAndNames[i].front().c_str(), "_", g_prefabPackagesAndNames[i][j].c_str(), ".vpf");
 						rename(vpfOldPath, vpfNewPath);
+
+						CChar bmpOldPath[MAX_NAME_SIZE];
+						sprintf(bmpOldPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_prefabPackagesAndNames[i].front().c_str(), "/", g_prefabPackagesAndNames[i][j].c_str(), "/", g_prefabPackagesAndNames[i].front().c_str(), "_", szBuffer2, ".bmp");
+						CChar bmpNewPath[MAX_NAME_SIZE];
+						sprintf(bmpNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_prefabPackagesAndNames[i].front().c_str(), "/", g_prefabPackagesAndNames[i][j].c_str(), "/", g_prefabPackagesAndNames[i].front().c_str(), "_", g_prefabPackagesAndNames[i][j].c_str(), ".bmp");
+						rename(bmpOldPath, bmpNewPath);
 
 						foundTarget = CTrue;
 						break;
@@ -676,8 +682,6 @@ void CPrefabDlg::OnBnClickedRenamePackage()
 	m_prefabNameDlg->SetInitialData(m_selectedPackageName, "\n", CTrue, CTrue);
 	if (IDOK == m_prefabNameDlg->DoModal())
 	{
-		m_listPrefabPackages.SetItemText(nSelected, 0, m_prefabNameDlg->GetNewName());
-
 		CChar PackagePath[MAX_NAME_SIZE];
 		HRESULT doc_result_package = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, PackagePath);
 		if (doc_result_package != S_OK)
@@ -695,7 +699,7 @@ void CPrefabDlg::OnBnClickedRenamePackage()
 		sprintf(new_path, "%s%s", PackagePath, m_prefabNameDlg->GetNewName());
 		rename(old_path, new_path);
 
-		//rename vpf files
+		//rename vpf and bmp files
 		for (CUInt i = 0; i < g_prefabPackagesAndNames.size(); i++)
 		{
 			if (Cmp(g_prefabPackagesAndNames[i].front().c_str(), m_prefabNameDlg->GetNewName()))
@@ -708,6 +712,13 @@ void CPrefabDlg::OnBnClickedRenamePackage()
 					CChar vpfNewPath[MAX_NAME_SIZE];
 					sprintf(vpfNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_prefabPackagesAndNames[i].front().c_str(), "/", g_prefabPackagesAndNames[i][j].c_str(), "/", g_prefabPackagesAndNames[i].front().c_str(), "_", g_prefabPackagesAndNames[i][j].c_str(), ".vpf");
 					rename(vpfOldPath, vpfNewPath);
+
+					CChar bmpOldPath[MAX_NAME_SIZE];
+					sprintf(bmpOldPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_prefabPackagesAndNames[i].front().c_str(), "/", g_prefabPackagesAndNames[i][j].c_str(), "/", szBuffer, "_", g_prefabPackagesAndNames[i][j].c_str(), ".bmp");
+					CChar bmpNewPath[MAX_NAME_SIZE];
+					sprintf(bmpNewPath, "%s%s%s%s%s%s%s%s%s", PackagePath, g_prefabPackagesAndNames[i].front().c_str(), "/", g_prefabPackagesAndNames[i][j].c_str(), "/", g_prefabPackagesAndNames[i].front().c_str(), "_", g_prefabPackagesAndNames[i][j].c_str(), ".bmp");
+					rename(bmpOldPath, bmpNewPath);
+
 				}
 				break;
 			}
@@ -719,6 +730,7 @@ void CPrefabDlg::OnBnClickedRenamePackage()
 		sprintf(PKG_new, "%s%s%s%s", PackagePath, "PKG/", m_prefabNameDlg->GetNewName(), ".pkg");
 		rename(PKG_old, PKG_new);
 
+		m_listPrefabPackages.SetItemText(nSelected, 0, m_prefabNameDlg->GetNewName());
 	}
 	CDelete(m_prefabNameDlg);
 }

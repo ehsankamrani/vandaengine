@@ -11,6 +11,8 @@ CGUIImage::CGUIImage()
 {
 	m_image = NULL;
 	m_updateImage = CFalse;
+	m_visible = CTrue;
+	m_scale = 1.0;
 	SetIndex();
 }
 
@@ -35,11 +37,13 @@ CBool CGUIImage::LoadGUIImage()
 
 CVoid CGUIImage::Render(CBool selectionMode)
 {
+	if (!m_visible) return;
+
 	CFloat w;
 	if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
-		w = m_size * g_width / 100.0f;
+		w = m_scale * m_size * g_width / 100.0f;
 	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
-		w = m_size * g_width / 200.0f;
+		w = m_scale * m_size * g_width / 200.0f;
 
 	CFloat h = (w / m_image->GetWidth() ) * m_image->GetHeight();
 
@@ -137,7 +141,7 @@ CVec2f CGUIImage::SetPosition(CVec2f pos)
 {
 	if (m_image)
 	{
-		CFloat w = m_size * g_width / 100.0f;
+		CFloat w = m_scale * m_size * g_width / 100.0f;
 		CFloat h = (w / m_image->GetWidth()) * m_image->GetHeight();
 
 		m_position.x = pos.x;
@@ -162,9 +166,9 @@ CVec2f CGUIImage::SetPosition(CVec2f pos)
 
 CVoid CGUIImage::SetPosition2(CVec2f pos)
 {
-	if (m_image)
+	if (m_image) 
 	{
-		CFloat w = m_size * g_width / 100.0f;
+		CFloat w = m_scale * m_size * g_width / 100.0f;
 		CFloat h = (w / m_image->GetWidth()) * m_image->GetHeight();
 
 		m_position.x += pos.x;

@@ -1142,6 +1142,11 @@ CVoid CAddGUIButton::SetSize(CFloat size)
 	m_strSize.Format("%.3f", m_fSize);
 }
 
+CVoid CAddGUIButton::SetVisible(CBool state)
+{
+	m_visible = state;
+}
+
 CVoid CAddGUIButton::SetMainImagePath(CChar* path)
 {
 	m_strMainImgPath = path;
@@ -1186,6 +1191,11 @@ CVec2f CAddGUIButton::GetPosition()
 CFloat CAddGUIButton::GetSize()
 {
 	return m_fSize;
+}
+
+CBool CAddGUIButton::IsVisible()
+{
+	return m_visible;
 }
 
 CChar* CAddGUIButton::GetMainImagePath()

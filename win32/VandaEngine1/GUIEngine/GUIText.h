@@ -13,6 +13,8 @@ private:
 	CChar m_name[MAX_NAME_SIZE];
 	CVec2f m_position;
 	CInt m_size;
+	CBool m_visible;
+	CFloat m_scale;
 	CFontType m_type;
 	CVec3f m_color;
 	CChar m_text[MAX_URI_SIZE];
@@ -26,6 +28,11 @@ public:
 	inline CVoid SetPackageName(CChar* name) { Cpy(m_packageName, name); }
 	inline CVoid SetGUIName(CChar* name) { Cpy(m_guiName, name); }
 	inline CVoid SetSize(CInt size) { m_size = size; }
+	inline CVoid SetScale(CFloat scale) { m_scale = scale; }
+	inline CVoid Show() { m_visible = CTrue; }
+	inline CVoid Hide() { m_visible = CFalse; }
+	inline CVoid SetVisible(CBool visible) { m_visible = visible; }
+	inline CBool IsVisible() { if (m_visible) return CTrue; else return CFalse; }
 	inline CVoid SetType(CFontType type) { m_type = type; }
 	inline CVoid SetText(CChar* text) { Cpy(m_text, text); }
 	inline CVoid SetColor(CVec3f color) { m_color = color; }

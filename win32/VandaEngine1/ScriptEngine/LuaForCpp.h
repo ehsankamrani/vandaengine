@@ -265,4 +265,12 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetTriggerScriptIntVariable", SetTriggerScriptIntVariable);
 	lua_register(L, "SetTriggerScriptDoubleVariable", SetTriggerScriptDoubleVariable);
 
+	lua_register(L, "ShowGUIButton", ShowGUIButton);
+	lua_register(L, "HideGUIButton", HideGUIButton);
+	lua_register(L, "ShowGUIImage", ShowGUIImage);
+	lua_register(L, "HideGUIImage", HideGUIImage);
+	lua_register(L, "ShowGUIText", ShowGUIText);
+	lua_register(L, "HideGUIText", HideGUIText);
+	lua_register(L, "ScaleGUIButton", ScaleGUIButton);
+	lua_register(L, "ScaleGUIImage", ScaleGUIImage);
 }

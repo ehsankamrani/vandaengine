@@ -14,6 +14,10 @@ private:
 	CChar m_name[MAX_NAME_SIZE];
 	CVec2f m_position;
 	CFloat m_size;
+
+	CBool m_visible;
+	CFloat m_scale;
+
 	CChar m_packageName[MAX_NAME_SIZE];
 	CChar m_guiName[MAX_NAME_SIZE];
 
@@ -31,6 +35,12 @@ public:
 	inline CVoid SetPackageName(CChar* name) { Cpy(m_packageName, name); }
 	inline CVoid SetGUIName(CChar* name) { Cpy(m_guiName, name); }
 	inline CVoid SetSize(CFloat size) { m_size = size; }
+
+	inline CVoid SetScale(CFloat scale) { m_scale = scale; }
+	inline CVoid Show() { m_visible = CTrue; }
+	inline CVoid Hide() { m_visible = CFalse; }
+	inline CVoid SetVisible(CBool visible) { m_visible = visible; }
+	inline CBool IsVisible() { if (m_visible) return CTrue; else return CFalse; }
 
 	inline CChar* GetName() { return m_name; }
 	inline CChar* GetPackageName() { return m_packageName; }

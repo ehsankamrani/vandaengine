@@ -8,6 +8,8 @@
 CGUIText::CGUIText()
 {
 	m_font = CNew(CFont);
+	m_visible = CTrue;
+	m_scale = 1.0;
 	SetIndex();
 }
 
@@ -46,6 +48,8 @@ CBool CGUIText::SetFont()
 
 void CGUIText::Render(CBool selectionMode)
 {
+	if (!m_visible) return;
+
 	if (selectionMode)
 		glPushName(m_nameIndex);
 

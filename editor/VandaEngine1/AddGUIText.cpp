@@ -72,6 +72,11 @@ CVoid CAddGUIText::SetSize(CFloat size)
 	m_strTextSize.Format("%.3f", m_fTextSize);
 }
 
+CVoid CAddGUIText::SetVisible(CBool state)
+{
+	m_visible = state;
+}
+
 CVoid CAddGUIText::SetColor(CVec3f color)
 {
 	m_fColor[0] = color.x;
@@ -106,6 +111,11 @@ CVec2f CAddGUIText::GetPosition()
 CFloat CAddGUIText::GetSize()
 {
 	return m_fTextSize;
+}
+
+CBool CAddGUIText::IsVisible()
+{
+	return m_visible;
 }
 
 CVec3f CAddGUIText::GetColor()

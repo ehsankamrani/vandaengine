@@ -37,6 +37,8 @@ public:
 	CString m_strPercentage;
 	CFloat m_fPercentage;
 
+	CBool m_visible;
+
 	CString m_strPosX;
 	CFloat m_fPosX;
 
@@ -48,11 +50,13 @@ public:
 	CVoid SetImagePath(CChar* path);
 	CVoid SetUpdateImage(CBool state);
 	CVoid SetSize(CFloat size);
+	CVoid SetVisible(CBool state);
 
 	CChar* GetName();
 	CVec2f GetPosition();
 	CChar* GetImagePath();
 	CFloat GetSize();
+	CBool IsVisible();
 
 	CBool GetUpdateImage();
 

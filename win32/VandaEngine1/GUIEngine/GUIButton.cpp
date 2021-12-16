@@ -28,6 +28,9 @@ CGUIButton::CGUIButton()
 	m_maxRightClickTimer = 0.1f;
 	m_maxLeftClickTimer = 0.1f;
 
+	m_visible = CTrue;
+	m_scale = 1.0;
+
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
@@ -115,7 +118,9 @@ CBool CGUIButton::LoadDisableImage()
 
 CVoid CGUIButton::Render(CBool selectionMode)
 {
-	CFloat w = m_size * g_width / 100.0f;
+	if (!m_visible) return;
+
+	CFloat w = m_scale * m_size * g_width / 100.0f;
 	CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
 
 	if (selectionMode)

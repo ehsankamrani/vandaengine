@@ -30,6 +30,9 @@ CGUIButton::CGUIButton()
 	m_maxRightClickTimer = 0.1f;
 	m_maxLeftClickTimer = 0.1f;
 
+	m_visible = CTrue;
+	m_scale = 1.0;
+
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
@@ -122,11 +125,13 @@ CBool CGUIButton::LoadDisableImage()
 
 CVoid CGUIButton::Render(CBool selectionMode)
 {
+	if (!m_visible) return;
+
 	CFloat w;
 	if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
-		w = m_size * g_width / 100.0f;
+		w = m_scale * m_size * g_width / 100.0f;
 	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
-		w = m_size * g_width / 200.0f;
+		w = m_scale * m_size * g_width / 200.0f;
 
 	CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
 
@@ -301,7 +306,7 @@ CVec2f CGUIButton::SetPosition(CVec2f pos)
 {
 	if (m_mainImage)
 	{
-		CFloat w = m_size * g_width / 100.0f;
+		CFloat w = m_scale * m_size * g_width / 100.0f;
 		CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
 
 		m_position.x = pos.x;
@@ -328,7 +333,7 @@ CVoid CGUIButton::SetPosition2(CVec2f pos)
 {
 	if (m_mainImage)
 	{
-		CFloat w = m_size * g_width / 100.0f;
+		CFloat w = m_scale * m_size * g_width / 100.0f;
 		CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
 
 		m_position.x += pos.x;

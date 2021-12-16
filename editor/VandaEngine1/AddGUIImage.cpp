@@ -225,6 +225,11 @@ CVoid CAddGUIImage::SetSize(CFloat size)
 	m_strPercentage.Format("%.3f", m_fPercentage);
 }
 
+CVoid CAddGUIImage::SetVisible(CBool state)
+{
+	m_visible = state;
+}
+
 CChar* CAddGUIImage::GetName()
 {
 	return m_strName.GetBuffer(m_strName.GetLength());
@@ -244,6 +249,11 @@ CChar* CAddGUIImage::GetImagePath()
 CFloat CAddGUIImage::GetSize()
 {
 	return m_fPercentage;
+}
+
+CBool CAddGUIImage::IsVisible()
+{
+	return m_visible;
 }
 
 CBool CAddGUIImage::GetUpdateImage()

@@ -36,6 +36,7 @@ public:
 	CString m_strText;
 	CString m_strTextSize;
 	CFloat m_fTextSize;
+	CBool m_visible;
 	afx_msg void OnBnClickedButtonColor();
 	CEdit m_editColor;
 	COLORREF m_color;
@@ -64,6 +65,8 @@ public:
 	CVoid SetName(CChar* name);
 	CVoid SetPosition(CVec2f pos);
 	CVoid SetSize(CFloat size);
+	CVoid SetVisible(CBool state);
+
 	CVoid SetColor(CVec3f color);
 	CVoid SetFontType(CFontType type);
 	CVoid SetText(CChar* text);
@@ -71,6 +74,7 @@ public:
 	CChar* GetName();
 	CVec2f GetPosition();
 	CFloat GetSize();
+	CBool IsVisible();
 	CVec3f GetColor();
 	CFontType GetFontType();
 	CChar* GetText();

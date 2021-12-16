@@ -8025,6 +8025,559 @@ CInt SetTriggerScriptDoubleVariable(lua_State* L)
 	return 0;
 }
 
+CInt ShowGUIButton(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for ShowGUIButton()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->Show();
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nShowGUIButton() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nShowGUIButton() Error: Couldn't find GUI button '", buttonName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt HideGUIButton(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for HideGUIButton()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->Hide();
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nHideGUIButton() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nHideGUIButton() Error: Couldn't find GUI button '", buttonName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ShowGUIImage(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for ShowGUIImage()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIImage = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar imageName[MAX_NAME_SIZE];
+	Cpy(imageName, lua_tostring(L, 2));
+	StringToUpper(imageName);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+			{
+				CChar image[MAX_NAME_SIZE];
+				Cpy(image, g_guis[i]->m_guiImages[j]->GetName());
+				StringToUpper(image);
+
+				if (Cmp(image, imageName))
+				{
+					foundGUIImage = CTrue;
+
+					g_guis[i]->m_guiImages[j]->Show();
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nShowGUIImage() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIImage)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nShowGUIImage() Error: Couldn't find GUI image '", imageName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt HideGUIImage(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for HideGUIImage()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIImage = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar imageName[MAX_NAME_SIZE];
+	Cpy(imageName, lua_tostring(L, 2));
+	StringToUpper(imageName);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+			{
+				CChar image[MAX_NAME_SIZE];
+				Cpy(image, g_guis[i]->m_guiImages[j]->GetName());
+				StringToUpper(image);
+
+				if (Cmp(image, imageName))
+				{
+					foundGUIImage = CTrue;
+
+					g_guis[i]->m_guiImages[j]->Hide();
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nHideGUIImage() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIImage)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nHideGUIImage() Error: Couldn't find GUI image '", imageName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ShowGUIText(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for ShowGUIText()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIText = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar textName[MAX_NAME_SIZE];
+	Cpy(textName, lua_tostring(L, 2));
+	StringToUpper(textName);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
+			{
+				CChar text[MAX_NAME_SIZE];
+				Cpy(text, g_guis[i]->m_guiTexts[j]->GetName());
+				StringToUpper(text);
+
+				if (Cmp(text, textName))
+				{
+					foundGUIText = CTrue;
+
+					g_guis[i]->m_guiTexts[j]->Show();
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nShowGUIText() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIText)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nShowGUIText() Error: Couldn't find GUI text '", textName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt HideGUIText(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for HideGUIText()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIText = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar textName[MAX_NAME_SIZE];
+	Cpy(textName, lua_tostring(L, 2));
+	StringToUpper(textName);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
+			{
+				CChar text[MAX_NAME_SIZE];
+				Cpy(text, g_guis[i]->m_guiTexts[j]->GetName());
+				StringToUpper(text);
+
+				if (Cmp(text, textName))
+				{
+					foundGUIText = CTrue;
+
+					g_guis[i]->m_guiTexts[j]->Hide();
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nHideGUIText() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIText)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nHideGUIText() Error: Couldn't find GUI text '", textName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ScaleGUIButton(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for ScaleGUIButton()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CFloat scale;
+	scale = lua_tonumber(L, 3);
+	if (scale < 1.0)
+	{
+		//PrintInfo("\nScaleGUIButton() Error: scale variable must be equal or greater than 1.0", COLOR_RED);
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->SetScale(scale);
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nScaleGUIButton() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nScaleGUIButton() Error: Couldn't find GUI button '", buttonName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ScaleGUIImage(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for ScaleGUIImage()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIImage = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar imageName[MAX_NAME_SIZE];
+	Cpy(imageName, lua_tostring(L, 2));
+	StringToUpper(imageName);
+
+	CFloat scale;
+	scale = lua_tonumber(L, 3);
+	if (scale < 1.0)
+	{
+		//PrintInfo("\nScaleGUIImage() Error: scale variable must be equal or greater than 1.0", COLOR_RED);
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+			{
+				CChar image[MAX_NAME_SIZE];
+				Cpy(image, g_guis[i]->m_guiImages[j]->GetName());
+				StringToUpper(image);
+
+				if (Cmp(image, imageName))
+				{
+					foundGUIImage = CTrue;
+
+					g_guis[i]->m_guiImages[j]->SetScale(scale);
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nScaleGUIImage() Error: Couldn't find GUI '", GUIName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIImage)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nScaleGUIImage() Error: Couldn't find GUI image '", imageName, "'");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+
 
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
@@ -11775,6 +12328,9 @@ CBool CMain::Load(CChar* pathName)
 			CInt size;
 			fread(&size, sizeof(CInt), 1, filePtr);
 
+			CBool isVisible;
+			fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 			CChar mainImagePath[MAX_NAME_SIZE];
 			fread(mainImagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -11830,6 +12386,7 @@ CBool CMain::Load(CChar* pathName)
 			guiButton->SetGUIName(guiName);
 			guiButton->SetPosition(pos);
 			guiButton->SetSize(size);
+			guiButton->SetVisible(isVisible);
 			guiButton->SetMainImagePath(finalMainImagePath);
 			guiButton->LoadMainImage();
 
@@ -11931,6 +12488,9 @@ CBool CMain::Load(CChar* pathName)
 			CInt size;
 			fread(&size, sizeof(CInt), 1, filePtr);
 
+			CBool isVisible;
+			fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 			CChar imagePath[MAX_NAME_SIZE];
 			fread(imagePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -11945,6 +12505,7 @@ CBool CMain::Load(CChar* pathName)
 			guiImage->SetGUIName(guiName);
 			guiImage->SetPosition(pos);
 			guiImage->SetSize(size);
+			guiImage->SetVisible(isVisible);
 			guiImage->SetImagePath(finalImagePath);
 			guiImage->LoadGUIImage();
 
@@ -11976,6 +12537,9 @@ CBool CMain::Load(CChar* pathName)
 			CInt size;
 			fread(&size, sizeof(CInt), 1, filePtr);
 
+			CBool isVisible;
+			fread(&isVisible, sizeof(CBool), 1, filePtr);
+
 			CChar text[MAX_URI_SIZE];
 			fread(text, sizeof(CChar), MAX_URI_SIZE, filePtr);
 
@@ -11991,6 +12555,7 @@ CBool CMain::Load(CChar* pathName)
 			guiText->SetGUIName(guiName);
 			guiText->SetPosition(pos);
 			guiText->SetSize(size);
+			guiText->SetVisible(isVisible);
 			guiText->SetColor(color);
 			guiText->SetText(text);
 			guiText->SetType(font);

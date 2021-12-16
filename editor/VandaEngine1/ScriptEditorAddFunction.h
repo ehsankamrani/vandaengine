@@ -223,6 +223,15 @@ private:
 	CChar SetTriggerScriptIntVariable[MAX_URI_SIZE];
 	CChar SetTriggerScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar ShowGUIButton[MAX_URI_SIZE];
+	CChar HideGUIButton[MAX_URI_SIZE];
+	CChar ShowGUIImage[MAX_URI_SIZE];
+	CChar HideGUIImage[MAX_URI_SIZE];
+	CChar ShowGUIText[MAX_URI_SIZE];
+	CChar HideGUIText[MAX_URI_SIZE];
+	CChar ScaleGUIButton[MAX_URI_SIZE];
+	CChar ScaleGUIImage[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };
