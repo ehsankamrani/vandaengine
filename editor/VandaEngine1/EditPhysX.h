@@ -1,3 +1,6 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 #include "afxwin.h"
 #include "afxcmn.h"
@@ -24,6 +27,22 @@ private:
 	CInt init_percentage;
 	CBool init_trigger;
 	CBool init_invisible;
+
+	CBool init_hasPhysicsMaterial;
+	CFloat init_physicsRestitution;
+	CFloat init_physicsStaticFriction;
+	CFloat init_physicsDynamicFriction;
+	CFloat init_physicsSkinWidth;
+
+	CString m_strPhysicsRestitution;
+	CString m_strPhysicsSkinWidth;
+	CString m_strPhysicsStaticFriction;
+	CString m_strPhysicsDynamicFriction;
+
+	CFloat m_fPhysicsRestitution;
+	CFloat m_fPhysicsSkinWidth;
+	CFloat m_fPhysicsStaticFriction;
+	CFloat m_fPhysicsDynamicFriction;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -57,4 +76,14 @@ public:
 	CButton m_checkBoxInvisible;
 	afx_msg void OnEnChangeEditPhysx();
 	afx_msg void OnBnClickedCancel();
+	afx_msg void OnEnChangeEditPhysicsRestitution();
+	afx_msg void OnEnChangeEditPhysicsStaticFriction();
+	afx_msg void OnEnChangeEditPhysicsSkinWidth();
+	afx_msg void OnEnChangeEditPhysicsDynamicFriction();
+	CEdit m_editPhysicsRestitution;
+	CEdit m_editPhysicsStaticFriction;
+	CEdit m_editPhysicsDynamicFriction;
+	CEdit m_editPhysicsSkinWidth;
+	CButton m_checkBoxHasPhysicsMaterial;
+	afx_msg void OnBnClickedCheckHasPhysicsMaterial();
 };

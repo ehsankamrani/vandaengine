@@ -1,3 +1,6 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 // SaveGUIDlg.cpp : implementation file
 //
 

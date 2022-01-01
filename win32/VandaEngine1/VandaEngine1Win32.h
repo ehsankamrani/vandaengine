@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -541,7 +541,7 @@ struct CPhysXProperties
 		m_fJumpPower = 7.0f;
 		m_fCharacterSlopeLimit = 45.0f;
 		m_fCharacterStepOffset = 0.1f;
-		m_fCharacterSkinWidth = 0.1f;
+		m_fCharacterSkinWidth = 0.01f;
 
 		m_bDebugMode = CFalse;
 		m_bJumping = m_bApplyGravity = CTrue;
@@ -567,7 +567,7 @@ struct CPhysXProperties
 		m_fJumpPower = 7.0f;
 		m_fCharacterSlopeLimit = 45.0f;
 		m_fCharacterStepOffset = 0.1f;
-		m_fCharacterSkinWidth = 0.1f;
+		m_fCharacterSkinWidth = 0.01f;
 
 		m_bDebugMode = CFalse;
 		m_bJumping = m_bApplyGravity = CTrue;
@@ -725,6 +725,7 @@ struct CDatabaseVariables
 	}
 
 };
+
 extern CDatabaseVariables g_databaseVariables;
 extern CShadowProperties g_shadowProperties;
 extern CPhysXProperties g_physXProperties;

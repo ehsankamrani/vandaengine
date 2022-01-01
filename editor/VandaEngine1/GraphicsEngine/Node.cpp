@@ -1,5 +1,5 @@
 //Original Work: Copyright 2006 Sony Computer Entertainment Inc.
-//Modified Work: Copyright (C) 2021 Ehsan Kamrani 
+//Modified Work: Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -319,10 +319,11 @@ CVoid CNode::SetupDiffuseTexture()
 CVoid CNode::CreateTrigger(CNovodex* nx)
 {
 	//triggers are static objects and have no animation	
+	CPhysXMaterial physicsMaterial;
 
 	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
 	{
-		GetScene()->GeneratePhysX(eLOD_TRIGGER, 0, 100, CTrue, CFalse, m_instanceGeometries[i] );
+		GetScene()->GeneratePhysX(eLOD_TRIGGER, 0, 100, CTrue, CFalse, physicsMaterial, m_instanceGeometries[i] );
 	}
 
 	// Update all the child nodes

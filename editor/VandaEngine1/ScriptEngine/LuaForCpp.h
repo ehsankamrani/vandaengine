@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -199,10 +199,10 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "EnablePrefabInstanceMaterial", EnablePrefabInstanceMaterial);
 	lua_register(L, "DisablePrefabInstanceMaterial", DisablePrefabInstanceMaterial);
 
-	lua_register(L, "SetPhysicsRestitution", SetPhysicsRestitution);
-	lua_register(L, "SetPhysicsSkinWidth", SetPhysicsSkinWidth);
-	lua_register(L, "SetPhysicsStaticFriction", SetPhysicsStaticFriction);
-	lua_register(L, "SetPhysicsDynamicFriction", SetPhysicsDynamicFriction);
+	lua_register(L, "SetPhysicsDefaultRestitution", SetPhysicsDefaultRestitution);
+	lua_register(L, "SetPhysicsDefaultSkinWidth", SetPhysicsDefaultSkinWidth);
+	lua_register(L, "SetPhysicsDefaultStaticFriction", SetPhysicsDefaultStaticFriction);
+	lua_register(L, "SetPhysicsDefaultDynamicFriction", SetPhysicsDefaultDynamicFriction);
 	lua_register(L, "EnablePhysicsGravity", EnablePhysicsGravity);
 	lua_register(L, "DisablePhysicsGravity", DisablePhysicsGravity);
 	lua_register(L, "SetPhysicsGravity", SetPhysicsGravity);

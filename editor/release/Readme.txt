@@ -1,5 +1,5 @@
-Vanda Engine 1.7.9
-Copyright (C) 2021 Ehsan Kamrani
+Vanda Engine 1.8.0
+Copyright (C) 2022 Ehsan Kamrani
 www.vanda3d.org
 www.facebook.com/vandaengine
 I removed Twitter account as it violates freedom of expression

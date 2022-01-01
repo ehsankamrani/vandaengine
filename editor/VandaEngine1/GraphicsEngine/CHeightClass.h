@@ -2,6 +2,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+//Modified work: Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #ifndef _CHEIGHTCLASS_H_
 #define _CHEIGHTCLASS_H_
 

@@ -1,4 +1,7 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -388,7 +391,7 @@ CVoid CNovodex::PostUpdateCharacter()
 }
 
 
-NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const NxReal radius, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic )
+NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const NxReal radius, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
 	// Add a single-shape actor to the scene
 	NxActorDesc actorDesc;
@@ -398,6 +401,18 @@ NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const N
 		bodyDesc.flags = NX_BF_KINEMATIC;
 	// The actor has one shape, a capsule
 	NxCapsuleShapeDesc capsuleDesc;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		capsuleDesc.materialIndex = newMaterial->getMaterialIndex();
+		capsuleDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	if( isTrigger && density == 0 && !isKinematic)
 		capsuleDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 
@@ -446,7 +461,7 @@ NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const N
 }
 
 
-NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic)
+NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
 	// Add a single-shape actor to the scene
 	NxActorDesc actorDesc;
@@ -455,6 +470,18 @@ NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const Nx
 		bodyDesc.flags = NX_BF_KINEMATIC;
 	// The actor has one shape, a sphere
 	NxSphereShapeDesc sphereDesc;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		sphereDesc.materialIndex = newMaterial->getMaterialIndex();
+		sphereDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	if( isTrigger && density == 0 && !isKinematic)
 		sphereDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 
@@ -497,14 +524,14 @@ NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const Nx
 	return actor;	
 }
 
-NxActor* CNovodex::CreateWallAdv(const NxVec3& pos, const NxReal length, const NxReal height, const NxReal Diameter, const NxReal xDegree, const NxReal yDegree, const NxReal zDegree, CBool noCameraHit ){
+NxActor* CNovodex::CreateWallAdv(const NxVec3& pos, const NxReal length, const NxReal height, const NxReal Diameter, const NxReal xDegree, const NxReal yDegree, const NxReal zDegree, CPhysXMaterial physicsMaterial, CBool noCameraHit ){
 
     NxActor* actor;
 	NxVec3 rot0( 0, 0, 0 );
 	NxVec3 rot1( 0, 0, 0 );
 	NxVec3 rot2( 0, 0, 0 );
 	NxMat33 rot( rot0, rot1, rot2 );
-	actor = CreateBox(pos, NxVec3( Diameter,height,length ), 10, rot, NULL, CFalse, CFalse );
+	actor = CreateBox(pos, NxVec3( Diameter,height,length ), 10, rot, NULL, CFalse, CFalse, physicsMaterial );
 	if(! noCameraHit )
         SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE);
 	else
@@ -528,7 +555,7 @@ NxActor* CNovodex::CreateWallAdv(const NxVec3& pos, const NxReal length, const N
 }
 
 
-NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic )
+NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
 	// Add a single-shape actor to the scene
 	NxActorDesc actorDesc;
@@ -537,6 +564,18 @@ NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxRe
 		bodyDesc.flags = NX_BF_KINEMATIC;
 	// The actor has one shape, a box
 	NxBoxShapeDesc boxDesc;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		boxDesc.materialIndex = newMaterial->getMaterialIndex();
+		boxDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	boxDesc.dimensions.set(boxDim.x,boxDim.y,boxDim.z);
 	if( isTrigger && density == 0 && !isKinematic)
 		boxDesc.shapeFlags |= NX_TRIGGER_ENABLE;
@@ -588,11 +627,23 @@ NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxRe
 }
 
 
-NxActor* CNovodex::CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxMat33 rotation, const CChar* name, CBool isKinematic )
+NxActor* CNovodex::CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxMat33 rotation, const CChar* name, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
 	NxActorDesc actorDesc;
 
 	NxBoxShapeDesc boxDesc;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		boxDesc.materialIndex = newMaterial->getMaterialIndex();
+		boxDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	boxDesc.dimensions = boxDim;
 	boxDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 
@@ -604,13 +655,25 @@ NxActor* CNovodex::CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxM
 	return actor;
 }
 
-NxActor* CNovodex::CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, const NxReal rDegree, const char* triggerName)
+NxActor* CNovodex::CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, const NxReal rDegree, const char* triggerName, CPhysXMaterial physicsMaterial)
 {
 	NxActor* actor;
 	NxActorDesc actorDesc;
  	NxMat33 rTemp;
 
 	NxBoxShapeDesc boxDesc;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		boxDesc.materialIndex = newMaterial->getMaterialIndex();
+		boxDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	boxDesc.dimensions = boxDim;
 	boxDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 
@@ -630,7 +693,7 @@ NxActor* CNovodex::CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, co
 	return actor;
 }
 
-NxActor* CNovodex::CreateConvexMesh( CInt vertexCount, CFloat* meshVertices, const NxVec3& pos,  NxMat33 rotation, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic )
+NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, const NxVec3& pos, NxMat33 rotation, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
 	NxActorDesc actorDesc;
 	NxBodyDesc bodyDesc;
@@ -655,7 +718,33 @@ NxActor* CNovodex::CreateConvexMesh( CInt vertexCount, CFloat* meshVertices, con
 
 	// The actor has one shape, a convex mesh
 	NxConvexShapeDesc convexShapeDesc;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		convexShapeDesc.materialIndex = newMaterial->getMaterialIndex();
+		convexShapeDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
+
 	NxConvexShapeDesc convexShapeDesc2;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		convexShapeDesc2.materialIndex = newMaterial->getMaterialIndex();
+		convexShapeDesc2.skinWidth = physicsMaterial.SkinWidth;
+	}
+
+
 	if( isTrigger && density == 0 && !isKinematic)
 		convexShapeDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 	if( isTrigger && density == 0 && !isKinematic)
@@ -780,7 +869,7 @@ CBool CNovodex::CookTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshV
 	}
 }
 
-NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, const CChar* name)
+NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, const CChar* name, CPhysXMaterial physicsMaterial)
 {
 	CChar temp[MAX_NAME_SIZE];
 	sprintf(temp, "%s%s.phx", path, name);
@@ -790,6 +879,18 @@ NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, 
 	// Create TriangleMesh above code segment.
 
 	NxTriangleMeshShapeDesc tmsd;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		tmsd.materialIndex = newMaterial->getMaterialIndex();
+		tmsd.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	if (isTrigger)
 		tmsd.shapeFlags |= NX_TRIGGER_ENABLE;
 
@@ -822,7 +923,7 @@ NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, 
 	return NULL;
 }
 
-NxActor* CNovodex::CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name )
+NxActor* CNovodex::CreateTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name, CPhysXMaterial physicsMaterial)
 {
 	// Create descriptor for triangle mesh
 	NxTriangleMeshDesc triangleMeshDesc;
@@ -858,6 +959,18 @@ NxActor* CNovodex::CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat*
 	// Create TriangleMesh above code segment.
 
 	NxTriangleMeshShapeDesc tmsd;
+
+	if (physicsMaterial.HasMaterial)
+	{
+		NxMaterialDesc materialDesc;
+		materialDesc.restitution = physicsMaterial.Restitution;
+		materialDesc.staticFriction = physicsMaterial.StaticFriction;
+		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
+		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+		tmsd.materialIndex = newMaterial->getMaterialIndex();
+		tmsd.skinWidth = physicsMaterial.SkinWidth;
+	}
+
 	if( isTrigger )
 		tmsd.shapeFlags |= NX_TRIGGER_ENABLE;
 
@@ -900,12 +1013,12 @@ NxActor* CNovodex::CreateGroundPlane(CFloat groundHeight)
 {
 	// Create a plane with default descriptor
 	NxPlaneShapeDesc planeDesc;
+	planeDesc.normal = NxVec3(0.0f, 1.0f, 0.0f);
 	planeDesc.d = groundHeight;
 	NxActorDesc actorDesc;
 	actorDesc.shapes.pushBack(&planeDesc);
 	m_planeGroundActor = gPhysXscene->createActor(actorDesc);
 	m_planeGroundActor->setName("physx_ground_plane");
-	//create cube actor
 	return m_planeGroundActor;
 }
 
@@ -1079,7 +1192,7 @@ NxU32 CNovodex::MoveCharacter( const NxVec3& dispVector, NxF32 elapsedTime, NxU3
 {
 	gControllerHitReport.SetgNbPts(0);
     NxF32 sharpness = 1.0f;
-    NxU32 collisionFlags;
+	NxU32 collisionFlags;
     NxVec3 d = dispVector * elapsedTime;
 
     if (heightDelta != 0.0f) 

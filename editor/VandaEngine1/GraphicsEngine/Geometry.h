@@ -1,5 +1,5 @@
 //Original Work: Copyright 2006 Sony Computer Entertainment Inc.
-//Modified Work: Copyright (C) 2021 Ehsan Kamrani 
+//Modified Work: Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -60,7 +60,7 @@ class CInstanceGeometry : public CInstance
 {
 public:
 	CInstanceGeometry() : m_abstractGeometry(0) { m_renderCount = 0; m_nameIndex = -1; m_hasPhysX = CFalse; Cpy(m_physXName, "\n"); m_lodAlgorithm = eLOD_NONE; m_prevLodAlgorithm = eLOD_NONE; m_physXDensity = 0.0f; m_physXPercentage = 50; m_physXCount = 0; m_firstUpdate = CTrue; m_isTrigger = CFalse; m_isInvisible = CFalse;
-	m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse;}
+	m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse; m_hasPhysicsMaterial = CFalse;}
 	~CInstanceGeometry() { 	m_parentTree.clear(); m_lights.clear();}
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 
@@ -87,6 +87,12 @@ public:
 	CBool m_hasPhysX;
 	CBool m_isTrigger;
 	CBool m_isInvisible;
+	////////////////physics material
+	CBool m_hasPhysicsMaterial;
+	CFloat m_physicsRestitution;
+	CFloat m_physicsStaticFriction;
+	CFloat m_physicsDynamicFriction;
+	CFloat m_physicsSkinWidth;
 	////////////////
 	CFloat m_physXDensity;
 	CInt m_physXPercentage;
@@ -98,6 +104,18 @@ public:
 	CChar* GetPhysXActorName() { return m_physXName; }
 	CFloat GetPhysXActorDensity() { return m_physXDensity; }
 	CBool GetHasPhysXActor() { return m_hasPhysX; }
+	//physics material
+	CBool HasPhysicsMaterial() { return m_hasPhysicsMaterial; }
+	CFloat GetPhysicsRestitution() { return m_physicsRestitution; }
+	CFloat GetPhysicsSkinWidth() { return m_physicsSkinWidth; }
+	CFloat GetPhysicsStaticFriction() { return m_physicsStaticFriction; }
+	CFloat GetPhysicsDynamicFriction() { return m_physicsDynamicFriction; }
+
+	CVoid EnablePhysicsMaterial(CBool state) { m_hasPhysicsMaterial = state; }
+	CVoid SetPhysicsRestitution(CFloat restitution) { m_physicsRestitution = restitution; }
+	CVoid SetPhysicsSkinWidth(CFloat skinWidth) { m_physicsSkinWidth = skinWidth; }
+	CVoid SetPhysicsStaticFriction(CFloat staticFriction) { m_physicsStaticFriction = staticFriction; }
+	CVoid SetPhysicsDynamicFriction(CFloat dynamicFriction) { m_physicsDynamicFriction = dynamicFriction; }
 };
 
 class CInstanceController : public CInstance

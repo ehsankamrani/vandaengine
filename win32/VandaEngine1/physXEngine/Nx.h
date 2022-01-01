@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -24,6 +24,7 @@
 #include <vector>
 #include <stdio.h>
 #include <Defines.h>
+
 //#include "TriggerReport.h"
 #define SKINWIDTH 0.01f
 
@@ -147,9 +148,9 @@ public:
 	CVoid PostUpdateCharacter();
 	CVoid SetupGLMatrix(const NxVec3& pos, const NxMat33& orient);
 	CBool CookTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, const CChar* path, const CChar* name);
-	NxActor* CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, const CChar* name);
-	NxActor* CreateTriangleMesh( CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name );
-	NxActor* CreateConvexMesh( CInt vertexCount, CFloat* meshVertices, const NxVec3& pos,  NxMat33 rotation, const NxReal densit, const CChar* name, CBool IsTrigger, CBool isKinematic );
+	NxActor* CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, const CChar* name, CPhysXMaterial physicsMaterial);
+	NxActor* CreateTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name, CPhysXMaterial physicsMaterial);
+	NxActor* CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, const NxVec3& pos, NxMat33 rotation, const NxReal densit, const CChar* name, CBool IsTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
 
 	CNovodex();
 	~CNovodex();
@@ -158,15 +159,10 @@ public:
 	CBool initNx(CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZCharacterPos, CFloat crtlRadius = 2.5f, CFloat ctrlHeight = 0.01f, CFloat crtSlopeLimit = cosf(NxMath::degToRad(45.0f)), CFloat crtSkinWidth = 0.1f, CFloat crtStepOffset = 0.1f, CBool createScene = CTrue);
 	CVoid releaseNx();
 
-	NxActor* CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic);
-	NxActor* CreateWall(const NxVec3& pos,const NxReal wlength,const NxReal height,const NxReal rDegree);
-	NxActor* CreateWall2(const NxVec3& pos,const NxReal length,const NxReal height,const NxReal rDegree);
-	NxActor* CreateWall3(const NxVec3& pos,const NxReal length,const NxReal height,const NxReal rDegree);
-	NxActor* CreateWall4(const NxVec3& pos,const NxReal wlength, const NxReal height,const NxReal rDegree);
-
-	NxActor* CreateWallAdv(const NxVec3& pos, const NxReal length, const NxReal height, const NxReal Diameter, const NxReal xDegree, const NxReal yDegree, const NxReal zDegree, CBool noCameraHit = false); // nocamerahit is used when we don't want to decrese the camera distance when a hit occures
-	NxActor* CreateSphere(const NxVec3& pos, const NxReal radius, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic);
-	NxActor* CreateCapsule(const NxVec3& pos, const NxReal height, const NxReal radius, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic );
+	NxActor* CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
+	NxActor* CreateWallAdv(const NxVec3& pos, const NxReal length, const NxReal height, const NxReal Diameter, const NxReal xDegree, const NxReal yDegree, const NxReal zDegree, CPhysXMaterial physicsMaterial, CBool noCameraHit = false); // nocamerahit is used when we don't want to decrese the camera distance when a hit occures
+	NxActor* CreateSphere(const NxVec3& pos, const NxReal radius, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
+	NxActor* CreateCapsule(const NxVec3& pos, const NxReal height, const NxReal radius, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
 	//	NxActor* CreateBridge(const NxVec3& pos, const NxVec3& boxDim,const NxReal rDegree);
 
 	NxActor* CreateGroundPlane(CFloat groundHeight);
@@ -181,8 +177,8 @@ public:
 	NxVec3 ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength, CBool forceMode);
 	NxVec3 ApplyForceToActorAtShape(NxActor* actor, NxShape* shape, const NxVec3& forceDir, const NxReal forceStrength, CBool forceMode, CBool shapeSelectMode);
 	NxVec3 ApplyVelocityToActor(NxActor* actor, const NxVec3& velDir, const NxReal velStrength, CBool velMode);
-	NxActor* CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxMat33 rotation, const CChar* name, CBool isKinematic );
-	NxActor* CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, const NxReal rDegree, const char* triggerName);
+	NxActor* CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxMat33 rotation, const CChar* name, CBool isKinematic, CPhysXMaterial physicsMaterial);
+	NxActor* CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, const NxReal rDegree, const char* triggerName, CPhysXMaterial physicsMaterial);
 	CVoid InitCharacterControllers(CFloat XPos, CFloat YPos, CFloat ZPos, CFloat radius, CFloat height, CFloat skinWidth, CFloat slopeLimit, CFloat stepOffset);
 	CVoid ReleaseCharacterControllers();
 	NxU32 MoveCharacter(const NxVec3& dispVector, NxF32 elapsedTime, NxU32 collisionGroups, NxF32 heightDelta);

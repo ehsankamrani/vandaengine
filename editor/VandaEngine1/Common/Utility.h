@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -181,6 +181,8 @@ inline CVoid CopyAllFilesFromSrcToDstDirectory(CChar* srcDirectory, CChar* dstDi
 	CChar path[MAX_NAME_SIZE];
 	sprintf( path, "%s%s", srcDirectory, "*.*" );
 	hFind = FindFirstFile( path, &data );
+	if (hFind == NULL) return;
+
 	do
 	{
 		CChar srcFilePath[MAX_NAME_SIZE];
@@ -188,7 +190,6 @@ inline CVoid CopyAllFilesFromSrcToDstDirectory(CChar* srcDirectory, CChar* dstDi
 
 		CChar dstFilePath[MAX_NAME_SIZE];
 		sprintf( dstFilePath, "%s%s", dstDirectory, data.cFileName );
-		//Remove Files
 
 		if( !CopyFile( srcFilePath, dstFilePath, FALSE) )
 		{

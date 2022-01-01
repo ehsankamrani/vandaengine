@@ -1,3 +1,6 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 // EditPhysX.cpp : implementation file
 //
 
@@ -32,6 +35,11 @@ void CEditPhysX::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_PHYSX_PERCENTAGE, m_physXPercentage);
 	DDX_Control(pDX, IDC_EDIT_PHYSX_DENSITY, m_physXDensity);
 	DDX_Control(pDX, IDC_CHECK_INVISIBLE, m_checkBoxInvisible);
+	DDX_Control(pDX, IDC_EDIT_PHYSICS_RESTITUTION, m_editPhysicsRestitution);
+	DDX_Control(pDX, IDC_EDIT_PHYSICS_STATIC_FRICTION, m_editPhysicsStaticFriction);
+	DDX_Control(pDX, IDC_EDIT_PHYSICS_DYNAMIC_FRICTION, m_editPhysicsDynamicFriction);
+	DDX_Control(pDX, IDC_EDIT_PHYSICS_SKIN_WIDTH, m_editPhysicsSkinWidth);
+	DDX_Control(pDX, IDC_CHECK_HAS_PHYSICS_MATERIAL, m_checkBoxHasPhysicsMaterial);
 }
 
 
@@ -43,6 +51,11 @@ BEGIN_MESSAGE_MAP(CEditPhysX, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_PHYSX_DENSITY, &CEditPhysX::OnEnChangeEditPhysxDensity)
 	ON_EN_CHANGE(IDC_EDIT_PHYSX, &CEditPhysX::OnEnChangeEditPhysx)
 	ON_BN_CLICKED(IDCANCEL, &CEditPhysX::OnBnClickedCancel)
+	ON_EN_CHANGE(IDC_EDIT_PHYSICS_RESTITUTION, &CEditPhysX::OnEnChangeEditPhysicsRestitution)
+	ON_EN_CHANGE(IDC_EDIT_PHYSICS_STATIC_FRICTION, &CEditPhysX::OnEnChangeEditPhysicsStaticFriction)
+	ON_EN_CHANGE(IDC_EDIT_PHYSICS_SKIN_WIDTH, &CEditPhysX::OnEnChangeEditPhysicsSkinWidth)
+	ON_EN_CHANGE(IDC_EDIT_PHYSICS_DYNAMIC_FRICTION, &CEditPhysX::OnEnChangeEditPhysicsDynamicFriction)
+	ON_BN_CLICKED(IDC_CHECK_HAS_PHYSICS_MATERIAL, &CEditPhysX::OnBnClickedCheckHasPhysicsMaterial)
 END_MESSAGE_MAP()
 
 
@@ -126,6 +139,13 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 	m_fDensity = atof( m_strDensity );
 	if( m_fDensity < 0.0f )
 		m_fDensity = 0.0f;
+
+	if (m_strDensity.IsEmpty())
+	{
+		MessageBoxA("Please specify a value for density.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if( m_fDensity > 0 && m_instanceGeometry && m_instanceGeometry->m_abstractGeometry->m_hasAnimation  ) 
 	{
 		MessageBoxA( "You can't assign a dynamic actor to an animated instanced geometry. Please set density to 0 and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
@@ -172,6 +192,56 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 		return;
 	}
 
+	CInt checkMaterialState;
+	CBool m_bHasPhysicsMaterial = CFalse;
+	checkMaterialState = m_checkBoxHasPhysicsMaterial.GetCheck();
+	if (checkMaterialState == BST_CHECKED)
+		m_bHasPhysicsMaterial = CTrue;
+
+	if (m_bHasPhysicsMaterial)
+	{
+		if (m_strPhysicsRestitution.IsEmpty())
+		{
+			MessageBox("Please specify a value for restitution", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_strPhysicsStaticFriction.IsEmpty())
+		{
+			MessageBox("Please specify a value for static friction", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_strPhysicsSkinWidth.IsEmpty())
+		{
+			MessageBox("Please specify a value for skin width", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_strPhysicsDynamicFriction.IsEmpty())
+		{
+			MessageBox("Please specify a value for dynamic friction", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fPhysicsRestitution < 0.0f || m_fPhysicsRestitution > 1.0f)
+		{
+			MessageBox("restitution must be between 0 and 1", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fPhysicsStaticFriction < 0.0)
+		{
+			MessageBox("static friction must be between 0 or higher", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fPhysicsDynamicFriction < 0.0)
+		{
+			MessageBox("dynamic friction must be between 0 or higher", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fPhysicsSkinWidth <= 0.0f)
+		{
+			MessageBox("skin width must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	m_physXPercentage.GetWindowTextA( m_strPercentage );
 	m_iPercentage = (CInt)atof( m_strPercentage );
 	if( m_iPercentage <= 0 )
@@ -195,16 +265,24 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 	else
 		m_bInvisible = CFalse;
 
+
 	for (CUInt i = 0; i < g_scene.size(); i++)
 	{
+		CPhysXMaterial physicsMaterial;
+		physicsMaterial.HasMaterial = m_bHasPhysicsMaterial;
+		physicsMaterial.Restitution = m_fPhysicsRestitution;
+		physicsMaterial.SkinWidth = m_fPhysicsSkinWidth;
+		physicsMaterial.StaticFriction = m_fPhysicsStaticFriction;
+		physicsMaterial.DynamicFriction = m_fPhysicsDynamicFriction;
+
 		if (m_fDensity > 0.0f)
 		{
 			if (CmpIn(g_scene[i]->GetName(), "_LOD1"))
-				index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible);
+				index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible, physicsMaterial);
 		}
 		else
 		{
-			index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible);
+			index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible, physicsMaterial);
 		}
 		if (index != -1)
 			break;
@@ -305,7 +383,14 @@ BOOL CEditPhysX::OnInitDialog()
 		init_percentage = m_instanceGeometry->m_physXPercentage;
 		init_trigger = m_instanceGeometry->m_isTrigger;
 		init_invisible = m_instanceGeometry->m_isInvisible;
+
+		init_hasPhysicsMaterial = m_instanceGeometry->HasPhysicsMaterial();
+		init_physicsRestitution = m_instanceGeometry->GetPhysicsRestitution();
+		init_physicsStaticFriction = m_instanceGeometry->GetPhysicsStaticFriction();
+		init_physicsDynamicFriction = m_instanceGeometry->GetPhysicsDynamicFriction();
+		init_physicsSkinWidth = m_instanceGeometry->GetPhysicsSkinWidth();
 	}
+
 	if( m_instanceGeometry && m_instanceGeometry->m_lodAlgorithm != eLOD_NONE )
 		m_comboPhysX.SetCurSel(m_instanceGeometry->m_lodAlgorithm);
 	else
@@ -328,6 +413,46 @@ BOOL CEditPhysX::OnInitDialog()
 
 	m_physXPercentage.SetWindowTextA( m_strPercentage );
 	m_physXDensity.SetWindowTextA( m_strDensity );
+
+	//material
+	if (m_instanceGeometry && m_instanceGeometry->HasPhysicsMaterial())
+	{
+		m_checkBoxHasPhysicsMaterial.SetCheck(BST_CHECKED);
+		m_editPhysicsRestitution.EnableWindow();
+		m_editPhysicsStaticFriction.EnableWindow();
+		m_editPhysicsDynamicFriction.EnableWindow();
+		m_editPhysicsSkinWidth.EnableWindow();
+
+		m_strPhysicsRestitution.Format("%.2f", m_instanceGeometry->GetPhysicsRestitution());
+		m_strPhysicsStaticFriction.Format("%.2f", m_instanceGeometry->GetPhysicsStaticFriction());
+		m_strPhysicsDynamicFriction.Format("%.2f", m_instanceGeometry->GetPhysicsDynamicFriction());
+		m_strPhysicsSkinWidth.Format("%.2f", m_instanceGeometry->GetPhysicsSkinWidth());
+
+		m_fPhysicsRestitution = atof(m_strPhysicsRestitution);
+		m_fPhysicsStaticFriction = atof(m_strPhysicsStaticFriction);
+		m_fPhysicsDynamicFriction = atof(m_strPhysicsDynamicFriction);
+		m_fPhysicsSkinWidth = atof(m_strPhysicsSkinWidth);
+
+		m_editPhysicsRestitution.SetWindowTextA(m_strPhysicsRestitution);
+		m_editPhysicsStaticFriction.SetWindowTextA(m_strPhysicsStaticFriction);
+		m_editPhysicsDynamicFriction.SetWindowTextA(m_strPhysicsDynamicFriction);
+		m_editPhysicsSkinWidth.SetWindowTextA(m_strPhysicsSkinWidth);
+	}
+	else
+	{
+		m_checkBoxHasPhysicsMaterial.SetCheck(BST_UNCHECKED);
+		m_editPhysicsRestitution.EnableWindow(FALSE);
+		m_editPhysicsStaticFriction.EnableWindow(FALSE);
+		m_editPhysicsDynamicFriction.EnableWindow(FALSE);
+		m_editPhysicsSkinWidth.EnableWindow(FALSE);
+
+		m_editPhysicsRestitution.SetWindowTextA("");
+		m_editPhysicsStaticFriction.SetWindowTextA("");
+		m_editPhysicsDynamicFriction.SetWindowTextA("");
+		m_editPhysicsSkinWidth.SetWindowTextA("");
+
+	}
+
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -364,13 +489,6 @@ CVoid CEditPhysX::RemovePhysXMesh()
 	}
 	if( found )
 	{
-		if( m_instanceGeometry->m_isTrigger )
-		{
-			m_instanceGeometry->m_isTrigger = CFalse;
-		}
-		
-		m_instanceGeometry->m_isInvisible = CFalse;
-
 		PrintInfo( "\nActor removed successfully" );
 		m_btnGeneratePhysX.EnableWindow( TRUE );
 		m_btnRemovePhysX.EnableWindow( FALSE );
@@ -442,14 +560,21 @@ void CEditPhysX::OnBnClickedCancel()
 	{
 		for (CUInt i = 0; i < g_scene.size(); i++)
 		{
+			CPhysXMaterial physicsMaterial;
+			physicsMaterial.HasMaterial = init_hasPhysicsMaterial;
+			physicsMaterial.Restitution = init_physicsRestitution;
+			physicsMaterial.SkinWidth = init_physicsSkinWidth;
+			physicsMaterial.StaticFriction = init_physicsStaticFriction;
+			physicsMaterial.DynamicFriction = init_physicsDynamicFriction;
+
 			if (init_density > 0.0f)
 			{
 				if (CmpIn(g_scene[i]->GetName(), "_LOD1"))
-					index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible);
+					index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible, physicsMaterial);
 			}
 			else
 			{
-				index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible);
+				index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible, physicsMaterial);
 			}
 			if (index != -1)
 				break;
@@ -470,4 +595,53 @@ void CEditPhysX::OnBnClickedCancel()
 	g_multipleView->RenderWindow();
 
 	CDialog::OnCancel();
+}
+
+
+void CEditPhysX::OnEnChangeEditPhysicsRestitution()
+{
+	m_editPhysicsRestitution.GetWindowTextA(m_strPhysicsRestitution);
+	m_fPhysicsRestitution = atof(m_strPhysicsRestitution);
+}
+
+
+void CEditPhysX::OnEnChangeEditPhysicsStaticFriction()
+{
+	m_editPhysicsStaticFriction.GetWindowTextA(m_strPhysicsStaticFriction);
+	m_fPhysicsStaticFriction = atof(m_strPhysicsStaticFriction);
+}
+
+
+void CEditPhysX::OnEnChangeEditPhysicsSkinWidth()
+{
+	m_editPhysicsSkinWidth.GetWindowTextA(m_strPhysicsSkinWidth);
+	m_fPhysicsSkinWidth = atof(m_strPhysicsSkinWidth);
+}
+
+
+void CEditPhysX::OnEnChangeEditPhysicsDynamicFriction()
+{
+	m_editPhysicsDynamicFriction.GetWindowTextA(m_strPhysicsDynamicFriction);
+	m_fPhysicsDynamicFriction = atof(m_strPhysicsDynamicFriction);
+}
+
+void CEditPhysX::OnBnClickedCheckHasPhysicsMaterial()
+{
+	CInt checkMaterialState;
+	CBool hasPhysicsMaterial = CFalse;
+	checkMaterialState = m_checkBoxHasPhysicsMaterial.GetCheck();
+	if (checkMaterialState == BST_CHECKED)
+	{
+		m_editPhysicsRestitution.EnableWindow();
+		m_editPhysicsStaticFriction.EnableWindow();
+		m_editPhysicsDynamicFriction.EnableWindow();
+		m_editPhysicsSkinWidth.EnableWindow();
+	}
+	else
+	{
+		m_editPhysicsRestitution.EnableWindow(FALSE);
+		m_editPhysicsStaticFriction.EnableWindow(FALSE);
+		m_editPhysicsDynamicFriction.EnableWindow(FALSE);
+		m_editPhysicsSkinWidth.EnableWindow(FALSE);
+	}
 }

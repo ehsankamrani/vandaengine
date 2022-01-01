@@ -1,3 +1,6 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 #include "afxcmn.h"
 
@@ -146,10 +149,10 @@ private:
 	CChar EnablePrefabInstanceMaterial[MAX_URI_SIZE];
 	CChar DisablePrefabInstanceMaterial[MAX_URI_SIZE];
 
-	CChar SetPhysicsRestitution[MAX_URI_SIZE];
-	CChar SetPhysicsSkinWidth[MAX_URI_SIZE];
-	CChar SetPhysicsStaticFriction[MAX_URI_SIZE];
-	CChar SetPhysicsDynamicFriction[MAX_URI_SIZE];
+	CChar SetPhysicsDefaultRestitution[MAX_URI_SIZE];
+	CChar SetPhysicsDefaultSkinWidth[MAX_URI_SIZE];
+	CChar SetPhysicsDefaultStaticFriction[MAX_URI_SIZE];
+	CChar SetPhysicsDefaultDynamicFriction[MAX_URI_SIZE];
 	CChar EnablePhysicsGravity[MAX_URI_SIZE];
 	CChar DisablePhysicsGravity[MAX_URI_SIZE];
 	CChar SetPhysicsGravity[MAX_URI_SIZE];

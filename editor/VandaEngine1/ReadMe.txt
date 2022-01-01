@@ -1,3 +1,7 @@
+//Vanda Engine version 1.8.0
+//Copyright (C) 2022 Ehsan Kamrani
+//This file is licensed and distributed under MIT license
+
 ================================================================================
     MICROSOFT FOUNDATION CLASS LIBRARY : VandaEngine Project Overview
 ===============================================================================

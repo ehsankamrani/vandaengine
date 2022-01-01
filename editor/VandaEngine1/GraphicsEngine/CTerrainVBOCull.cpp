@@ -9,7 +9,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 
-
+//Modified work: Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "CTerrainVBOCull.h"
@@ -905,7 +906,10 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorForCharacterController(CInt x, CI
 							//Load Chunk PhysX 
 							CChar chunkName[MAX_NAME_SIZE];
 							sprintf(chunkName, "terrain_%d_%d", x, z);
-							NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkName);
+
+							CPhysXMaterial physicsMaterial;
+
+							NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkName, physicsMaterial);
 							chunkArray[x][z].SetActor(actor);
 						}
 						else
@@ -999,7 +1003,10 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z
 													//Load Chunk PhysX 
 													CChar chunkName[MAX_NAME_SIZE];
 													sprintf(chunkName, "terrain_%d_%d", x, z);
-													NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkName);
+
+													CPhysXMaterial physicsMaterial;
+
+													NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkName, physicsMaterial);
 													chunkArray[x][z].SetActor(actor);
 												}
 												else

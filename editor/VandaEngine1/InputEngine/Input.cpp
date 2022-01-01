@@ -3,6 +3,10 @@
 
  Written for OpenGL Game Programming
  */
+
+//Modified work: Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "Input.h"
 #include "..//VandaEngine1Dlg.h"

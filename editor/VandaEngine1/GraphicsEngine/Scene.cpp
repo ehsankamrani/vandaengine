@@ -1,5 +1,5 @@
 //Original Work: Copyright 2006 Sony Computer Entertainment Inc.
-//Modified Work: Copyright (C) 2021 Ehsan Kamrani 
+//Modified Work: Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -144,7 +144,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 1.7.9");
+		zipClose(zipOpen, "Vanda Engine 1.8.0");
 		free(buf);
 		return -1;
 	}
@@ -157,7 +157,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 1.7.9");
+			//zipClose(zf, "Vanda Engine 1.8.0");
 			//free(buf);
 			//return -1;
    //     }
@@ -173,7 +173,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.7.9");
+				zipClose(zf, "Vanda Engine 1.8.0");
 				free(buf);
 				return -1;
 			}
@@ -188,7 +188,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.7.9");
+				zipClose(zf, "Vanda Engine 1.8.0");
 				free(buf);
 				return -1;
             }
@@ -198,7 +198,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 1.7.9");
+	zipClose(zf,"Vanda Engine 1.8.0");
     free(buf);
 	return 1;
 }
@@ -636,6 +636,7 @@ CVoid CScene::Destroy()
 						g_multipleView->m_nx->gControllers->reportSceneChanged();
 						m_instanceGeo->m_hasPhysX = CFalse;
 						Cpy( m_instanceGeo->m_physXName, "\n" );
+						m_instanceGeo->EnablePhysicsMaterial(CFalse);
 					}
 				}
 			}
@@ -1623,7 +1624,7 @@ CBool CScene::RemoveAction(CInt id)
 	return CTrue;
 }
 
-CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CInstanceGeometry* m_instanceGeo, CBool loadFromFile, CInstancePrefab* prefab)
+CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CPhysXMaterial physicsMaterial, CInstanceGeometry* m_instanceGeo, CBool loadFromFile, CInstancePrefab* prefab)
 {
 	CGeometry* m_geo = m_instanceGeo->m_abstractGeometry;
 
@@ -1784,7 +1785,7 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 	CBool failed = CFalse;
 	if (vertices != NULL && triangles != NULL && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH))
 	{
-		if (!g_multipleView->m_nx->CreateTriangleMesh((CInt)(vertices_temp.size() / 3), (CInt)(triangles_temp.size() / 3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName))
+		if (!g_multipleView->m_nx->CreateTriangleMesh((CInt)(vertices_temp.size() / 3), (CInt)(triangles_temp.size() / 3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName, physicsMaterial))
 			failed = CTrue;
 		else if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
@@ -1794,7 +1795,7 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 	}
 	else if (vertices != NULL && algorithm == eLOD_CONVEX_HULL)
 	{
-		if (!g_multipleView->m_nx->CreateConvexMesh((CInt)(vertices_temp.size() / 3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation))
+		if (!g_multipleView->m_nx->CreateConvexMesh((CInt)(vertices_temp.size() / 3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial))
 			failed = CTrue;
 		else if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
@@ -1819,6 +1820,12 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 			m_instanceGeo->m_physXPercentage = percentage;
 			m_instanceGeo->m_isTrigger = isTrigger;
 			m_instanceGeo->m_isInvisible = isInvisible;
+
+			m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+			m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+			m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+			m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+			m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
 
 			return m_instanceGeo->m_nameIndex;
 		}
@@ -1865,9 +1872,9 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 		DimZ = fabs(max.z - min.z) / 2.f;
 		////////////////
 		if (algorithm == eLOD_BOX)
-			g_multipleView->m_nx->CreateBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+			g_multipleView->m_nx->CreateBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
 		else
-			g_multipleView->m_nx->CreateTriggerBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+			g_multipleView->m_nx->CreateTriggerBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
 		if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
 		else if (g_editorMode == eMODE_VSCENE)
@@ -1878,6 +1885,12 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 		m_instanceGeo->m_physXPercentage = percentage;
 		m_instanceGeo->m_isTrigger = isTrigger;
 		m_instanceGeo->m_isInvisible = isInvisible;
+
+		m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+		m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+		m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+		m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+		m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
 
 		vertices_temp.clear();
 		triangles_temp.clear();
@@ -1903,7 +1916,7 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 			if (radius < length)
 				radius = length;
 		}
-		g_multipleView->m_nx->CreateSphere(NxVec3(PosX, PosY, PosZ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+		g_multipleView->m_nx->CreateSphere(NxVec3(PosX, PosY, PosZ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
 		if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
 		else if (g_editorMode == eMODE_VSCENE)
@@ -1914,6 +1927,12 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 		m_instanceGeo->m_physXPercentage = percentage;
 		m_instanceGeo->m_isTrigger = isTrigger;
 		m_instanceGeo->m_isInvisible = isInvisible;
+
+		m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+		m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+		m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+		m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+		m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
 
 		vertices_temp.clear();
 		triangles_temp.clear();
@@ -1988,7 +2007,7 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 		PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
 		PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
 
-		g_multipleView->m_nx->CreateCapsule(NxVec3(PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation);
+		g_multipleView->m_nx->CreateCapsule(NxVec3(PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
 		if (g_editorMode == eMODE_PREFAB)
 			sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
 		else if (g_editorMode == eMODE_VSCENE)
@@ -1999,6 +2018,12 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 		m_instanceGeo->m_physXPercentage = percentage;
 		m_instanceGeo->m_isTrigger = isTrigger;
 		m_instanceGeo->m_isInvisible = isInvisible;
+
+		m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+		m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+		m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+		m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+		m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
 
 		vertices_temp.clear();
 		triangles_temp.clear();
@@ -2013,4 +2038,549 @@ CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt perce
 	triangles = NULL;
 
 	return -1;
+}
+
+CInt CScene::GeneratePhysX(CPhysXAlgorithm algorithm, CFloat density, CInt percentage, CBool isTrigger, CBool isInvisible, CPhysXMaterial physicsMaterial)
+{
+	if (g_selectedName != -1)
+	{
+		for (CUInt geoCounter = 0; geoCounter < m_geometries.size(); geoCounter++)
+		{
+			CGeometry* m_geo = m_geometries[geoCounter];
+			CBool selected = CFalse;
+			CInstanceGeometry* m_instanceGeo;
+			for (CUInt k = 0; k < m_geo->m_instanceGeometries.size(); k++)
+			{
+				if (m_geo->m_instanceGeometries[k]->m_nameIndex == g_selectedName)
+				{
+					selected = CTrue;
+					m_instanceGeo = m_geo->m_instanceGeometries[k];
+					break;
+				}
+			}
+			if (!selected) //check for controllers
+			{
+				for (CUInt k = 0; k < m_geo->m_instanceControllers.size(); k++)
+				{
+					CInstanceGeometry* tempInstanceGeo = m_geo->m_instanceControllers[k]->m_instanceGeometry;
+					if (tempInstanceGeo->m_nameIndex == g_selectedName)
+					{
+						selected = CTrue;
+						m_instanceGeo = tempInstanceGeo;
+						break;
+					}
+				}
+			}
+
+			if (selected)
+			{
+				CGeometry* m_geo = m_instanceGeo->m_abstractGeometry;
+
+				if (m_geo->m_physx_points.size() == 0)
+				{
+					CUInt initialVertexCount = 0;
+					CUInt totalVertexCount = 0;
+					//DeIndex Mesh
+					for (CUInt groupCount = 0; groupCount < m_geo->m_groups.size(); groupCount++)
+					{
+						CPolyGroup* triangle = m_geo->m_groups[groupCount];
+						totalVertexCount += m_geo->m_groups[groupCount]->m_count * 3;
+						if (groupCount != 0)
+							initialVertexCount += m_geo->m_groups[groupCount - 1]->m_count * 3;
+
+
+						DeindexMesh(initialVertexCount, totalVertexCount, m_geo, triangle);
+					}
+				}
+
+				if (m_instanceGeo->m_abstractGeometry->m_collapseMap.num == 0 && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH))
+				{
+					PrintInfo("\nCalculating LOD...");
+					m_instanceGeo->m_abstractGeometry->CalculateLODInfo(algorithm);
+				}
+				else
+				{
+					if ((algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH) && (m_instanceGeo->m_prevLodAlgorithm == eLOD_LENGTH_CURVATURE ||
+						m_instanceGeo->m_prevLodAlgorithm == eLOD_LENGTH))
+					{
+						if (m_instanceGeo->m_prevLodAlgorithm != algorithm) //regenerate PhysX informations
+						{
+							PrintInfo("\nRegenerating LOD...");
+							m_instanceGeo->m_abstractGeometry->CalculateLODInfo(algorithm);
+						}
+
+					}
+
+				}
+				//Generate PhysX mesh////////////////
+				std::vector<CFloat> vertices_temp;
+				std::vector<CInt> triangles_temp;
+				CInt num_verts;
+				if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH)
+				{
+					num_verts = CInt(CFloat(m_geo->m_physx_points.size()) * (CFloat)((CFloat)percentage / 100.0f));
+					if (num_verts < 3) num_verts = 3;
+					m_geo->RegenerateIndex(num_verts, triangles_temp);
+				}
+				else
+				{
+					num_verts = CInt(m_geo->m_physx_points.size());
+				}
+				//Scale, Rotation and Translation Matrices for Convex Hulls, Box, Sphere, and Cylinder
+				CMatrix ZUpRotationForSkins;
+				CMatrixLoadIdentity(ZUpRotationForSkins);
+				CNode* tempParentNode = m_instanceGeo->m_node;
+				CBool foundTarget = CFalse;
+
+				CMatrix convexLocalToWorld;
+				const CMatrix *convex_ltow;
+				convex_ltow = m_instanceGeo->m_node->GetLocalToWorldMatrix();
+				CMatrixCopy(*convex_ltow, convexLocalToWorld);
+				CMatrix4x4Mult(convexLocalToWorld, ZUpRotationForSkins);
+				CMatrixCopy(ZUpRotationForSkins, convexLocalToWorld);
+
+				//decomp_affine;
+				AffineParts *parts = CNew(AffineParts);
+				HMatrix A;
+				CUInt k = 0;
+				for (CUInt i = 0; i < 4; i++)
+					for (CUInt j = 0; j < 4; j++)
+					{
+						A[j][i] = convexLocalToWorld[k];
+						k++;
+					}
+				decomp_affine(A, parts);
+				//rotation
+				CMatrix convexRotationMatrix;
+				CQuat convexQRotation(parts->q.x, parts->q.y, parts->q.z, parts->q.w);
+				CMatrixLoadIdentity(convexRotationMatrix);
+				CQuaternionToMatrix(&convexQRotation, convexRotationMatrix);
+
+				//////////////////////////SHEARING//////////////////////////////
+				CMatrix finalRS;
+				CMatrixLoadIdentity(finalRS);
+				//rotation scale
+				CMatrix convexRotationScaleMatrix;
+				CQuat convexQRotationScale(parts->u.x, parts->u.y, parts->u.z, parts->u.w);
+				CMatrixLoadIdentity(convexRotationScaleMatrix);
+				CQuaternionToMatrix(&convexQRotationScale, convexRotationScaleMatrix);
+				//transpose of rotation scale
+				CMatrix tConvexRotationScaleMatrix;
+				CMatrixLoadIdentity(tConvexRotationScaleMatrix);
+				CMatrixTranspose(convexRotationScaleMatrix, tConvexRotationScaleMatrix);
+				//scale factor
+				CMatrix convexScaleMatrix;
+				CVec4f convexScaleFactor(parts->f * parts->k.x, parts->f * parts->k.y, parts->f * parts->k.z, parts->f * parts->k.w);
+				CMatrixLoadIdentity(convexScaleMatrix);
+				CMatrix4x4Scale(convexScaleMatrix, convexScaleFactor);
+
+				//Compute UK(Ut) for possible shearing
+				CMatrix4x4Mult(convexRotationScaleMatrix, finalRS);
+				CMatrix4x4Mult(convexScaleMatrix, finalRS);
+				CMatrix4x4Mult(tConvexRotationScaleMatrix, finalRS);
+				///////////////////////////END OF SHEARING//////////////////////
+				CDelete(parts);
+
+				CVec3f convexPosition(convexLocalToWorld[12], convexLocalToWorld[13], convexLocalToWorld[14]);
+
+				NxVec3 NxConvexRow0(convexRotationMatrix[0], convexRotationMatrix[4], convexRotationMatrix[8]);
+				NxVec3 NxConvexRow1(convexRotationMatrix[1], convexRotationMatrix[5], convexRotationMatrix[9]);
+				NxVec3 NxConvexRow2(convexRotationMatrix[2], convexRotationMatrix[6], convexRotationMatrix[10]);
+				NxMat33 NxConvexMat33Rotation(NxConvexRow0, NxConvexRow1, NxConvexRow2);
+				////////////////
+				CMatrix PhysXMatrix;
+				CMatrixLoadIdentity(PhysXMatrix);
+				tempParentNode = m_instanceGeo->m_node;
+				foundTarget = CFalse;
+				for (CUInt i = 0; i < 16; i++)
+				{
+					PhysXMatrix[i] = m_instanceGeo->m_localToWorldMatrix[i];
+				}
+
+				for (CUInt i = 0; i < m_geo->m_physx_points.size(); i++)
+				{
+					CVec3f v = *(m_geo->m_physx_points[i]);
+
+					if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH)
+					{
+						CVec3f tv = *(m_geo->m_physx_points[i]);
+						CMatrixTransform(PhysXMatrix, v, tv);
+						vertices_temp.push_back(tv.x);
+						vertices_temp.push_back(tv.y);
+						vertices_temp.push_back(tv.z);
+					}
+					else
+					{
+						CVec3f tv = *(m_geo->m_physx_points[i]);
+						CMatrixTransform(finalRS, v, tv);
+						vertices_temp.push_back(tv.x);
+						vertices_temp.push_back(tv.y);
+						vertices_temp.push_back(tv.z);
+					}
+				}
+				CFloat* vertices = NULL;
+				CInt* triangles = NULL;
+				if (vertices_temp.size() > 0)
+					vertices = &vertices_temp[0];
+				if (triangles_temp.size() > 0)
+					triangles = &triangles_temp[0];
+				CBool failed = CFalse;
+				if (vertices != NULL && triangles != NULL && (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH))
+				{
+					if (!g_multipleView->m_nx->CreateTriangleMesh((CInt)(vertices_temp.size() / 3), (CInt)(triangles_temp.size() / 3), vertices, triangles, isTrigger, m_instanceGeo->m_physXName, physicsMaterial))
+						failed = CTrue;
+					else if (g_editorMode == eMODE_PREFAB)
+						sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					else if (g_editorMode == eMODE_VSCENE)
+						sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+
+				}
+				else if (vertices != NULL && algorithm == eLOD_CONVEX_HULL)
+				{
+					if (!g_multipleView->m_nx->CreateConvexMesh((CInt)(vertices_temp.size() / 3), vertices, NxVec3(convexPosition.x, convexPosition.y, convexPosition.z), NxConvexMat33Rotation, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial))
+						failed = CTrue;
+					else if (g_editorMode == eMODE_PREFAB)
+						sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					else if (g_editorMode == eMODE_VSCENE)
+						sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+				}
+				////////////////////////////////////////
+				if (algorithm == eLOD_LENGTH_CURVATURE || algorithm == eLOD_LENGTH || algorithm == eLOD_CONVEX_HULL)
+				{
+					vertices_temp.clear();
+					triangles_temp.clear();
+					vertices = NULL;
+					triangles = NULL;
+
+					if (!failed)
+					{
+						m_instanceGeo->m_lodAlgorithm = algorithm;
+						if (algorithm != eLOD_CONVEX_HULL)
+							m_instanceGeo->m_prevLodAlgorithm = algorithm;
+						m_instanceGeo->m_hasPhysX = CTrue;
+						m_instanceGeo->m_physXDensity = density;
+						m_instanceGeo->m_physXPercentage = percentage;
+						m_instanceGeo->m_isTrigger = isTrigger;
+						m_instanceGeo->m_isInvisible = isInvisible;
+						//material
+						m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+						m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+						m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+						m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+						m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
+
+						return m_instanceGeo->m_nameIndex;
+					}
+					else
+						return -1;
+
+				}
+				else if (algorithm == eLOD_BOX || algorithm == eLOD_TRIGGER)
+				{
+					CFloat DimX, DimY, DimZ;
+					CFloat PosX, PosY, PosZ;
+					PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x) / 2.f;
+					PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
+					PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
+
+					//scale: For all of vertexes of original mesh, multiply the SR matrix by each vertex and find the bouding box
+					CVec3f m_minAABB;
+					CVec3f m_maxAABB;
+					m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
+					m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
+
+					for (CUInt i = 0; i < vertices_temp.size() / 3; i++)
+					{
+						if (vertices_temp[i * 3] > m_maxAABB.x)
+							m_maxAABB.x = vertices_temp[i * 3];
+						if (vertices_temp[(i * 3) + 1] > m_maxAABB.y)
+							m_maxAABB.y = vertices_temp[(i * 3) + 1];
+						if (vertices_temp[(i * 3) + 2]  > m_maxAABB.z)
+							m_maxAABB.z = vertices_temp[(i * 3) + 2];
+
+						if (vertices_temp[i * 3] < m_minAABB.x)
+							m_minAABB.x = vertices_temp[i * 3];
+						if (vertices_temp[(i * 3) + 1] < m_minAABB.y)
+							m_minAABB.y = vertices_temp[(i * 3) + 1];
+						if (vertices_temp[(i * 3) + 2]  < m_minAABB.z)
+							m_minAABB.z = vertices_temp[(i * 3) + 2];
+					}
+
+
+					CVec3f min(m_minAABB.x, m_minAABB.y, m_minAABB.z);
+					CVec3f max(m_maxAABB.x, m_maxAABB.y, m_maxAABB.z);
+
+					DimX = fabs(max.x - min.x) / 2.f;
+					DimY = fabs(max.y - min.y) / 2.f;
+					DimZ = fabs(max.z - min.z) / 2.f;
+					////////////////
+					if (algorithm == eLOD_BOX)
+						g_multipleView->m_nx->CreateBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), density, NxConvexMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
+					else
+						g_multipleView->m_nx->CreateTriggerBox(NxVec3(PosX, PosY, PosZ), NxVec3(DimX, DimY, DimZ), NxConvexMat33Rotation, m_instanceGeo->m_physXName, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
+					if (g_editorMode == eMODE_PREFAB)
+						sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					else if (g_editorMode == eMODE_VSCENE)
+						sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					m_instanceGeo->m_lodAlgorithm = algorithm;
+					m_instanceGeo->m_hasPhysX = CTrue;
+					m_instanceGeo->m_physXDensity = density;
+					m_instanceGeo->m_physXPercentage = percentage;
+					m_instanceGeo->m_isTrigger = isTrigger;
+					m_instanceGeo->m_isInvisible = isInvisible;
+					//material
+					m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+					m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+					m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+					m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+					m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
+
+					vertices_temp.clear();
+					triangles_temp.clear();
+					vertices = NULL;
+					triangles = NULL;
+
+					return m_instanceGeo->m_nameIndex;
+				}
+				else if (algorithm == eLOD_SPHERE)
+				{
+					CFloat PosX, PosY, PosZ;
+					PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x) / 2.f;
+					PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
+					PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
+
+					CFloat radius = 0.0f;
+					for (CUInt i = 0; i < vertices_temp.size() / 3; i++)
+					{
+						CVec3f cPos(0, 0, 0);
+						CVec3f vPos;
+						vPos.x = vertices_temp[i * 3]; vPos.y = vertices_temp[(i * 3) + 1]; vPos.z = vertices_temp[(i * 3) + 2];
+						CFloat length = (vPos - cPos).Size();
+						if (radius < length)
+							radius = length;
+					}
+
+					g_multipleView->m_nx->CreateSphere(NxVec3(PosX, PosY, PosZ), radius, density, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
+					if (g_editorMode == eMODE_PREFAB)
+						sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					else if (g_editorMode == eMODE_VSCENE)
+						sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					m_instanceGeo->m_lodAlgorithm = algorithm;
+					m_instanceGeo->m_hasPhysX = CTrue;
+					m_instanceGeo->m_physXDensity = density;
+					m_instanceGeo->m_physXPercentage = percentage;
+					m_instanceGeo->m_isTrigger = isTrigger;
+					m_instanceGeo->m_isInvisible = isInvisible;
+					//material
+					m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+					m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+					m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+					m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+					m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
+
+					vertices_temp.clear();
+					triangles_temp.clear();
+					vertices = NULL;
+					triangles = NULL;
+
+					return m_instanceGeo->m_nameIndex;
+				}
+				else if (algorithm == eLOD_CAPSULE_METHOD1 || algorithm == eLOD_CAPSULE_METHOD2 || algorithm == eLOD_CAPSULE_METHOD3)
+				{
+					//For all of vertexes of original mesh, find the bouding box
+					CVec3f m_minAABB;
+					CVec3f m_maxAABB;
+					m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
+					m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
+
+					for (CUInt i = 0; i < vertices_temp.size() / 3; i++)
+					{
+						if (vertices_temp[i * 3] > m_maxAABB.x)
+							m_maxAABB.x = vertices_temp[i * 3];
+						if (vertices_temp[(i * 3) + 1] > m_maxAABB.y)
+							m_maxAABB.y = vertices_temp[(i * 3) + 1];
+						if (vertices_temp[(i * 3) + 2]  > m_maxAABB.z)
+							m_maxAABB.z = vertices_temp[(i * 3) + 2];
+
+						if (vertices_temp[i * 3] < m_minAABB.x)
+							m_minAABB.x = vertices_temp[i * 3];
+						if (vertices_temp[(i * 3) + 1] < m_minAABB.y)
+							m_minAABB.y = vertices_temp[(i * 3) + 1];
+						if (vertices_temp[(i * 3) + 2]  < m_minAABB.z)
+							m_minAABB.z = vertices_temp[(i * 3) + 2];
+					}
+
+
+					CFloat radius, height, PosX, PosY, PosZ;
+					if (algorithm == eLOD_CAPSULE_METHOD1)
+					{
+						CVec4f rot(1.0, .0, 0.0, 90.0);
+						CMatrix4x4RotateAngleAxis(convexRotationMatrix, rot);
+
+						radius = fabs(m_maxAABB.x - m_minAABB.x) / 2.f;
+						if (radius < fabs(m_maxAABB.y - m_minAABB.y) / 2.f)
+							radius = fabs(m_maxAABB.y - m_minAABB.y) / 2.f;
+
+						height = fabs(fabs(m_maxAABB.z - m_minAABB.z) - radius);
+					}
+					else if (algorithm == eLOD_CAPSULE_METHOD2)//second method
+					{
+						radius = fabs(m_maxAABB.x - m_minAABB.x) / 2.f;
+						if (radius < fabs(m_maxAABB.z - m_minAABB.z) / 2.f)
+							radius = fabs(m_maxAABB.z - m_minAABB.z) / 2.f;
+
+						height = fabs(fabs(m_maxAABB.y - m_minAABB.y) - radius);
+					}
+					else if (algorithm == eLOD_CAPSULE_METHOD3)//second method
+					{
+						CVec4f rot(0.0, 0.0, 1.0, 90.0);
+						CMatrix4x4RotateAngleAxis(convexRotationMatrix, rot);
+
+						radius = fabs(m_maxAABB.y - m_minAABB.y) / 2.f;
+						if (radius < fabs(m_maxAABB.z - m_minAABB.z) / 2.f)
+							radius = fabs(m_maxAABB.z - m_minAABB.z) / 2.f;
+
+						height = fabs(fabs(m_maxAABB.x - m_minAABB.x) - radius);
+					}
+					NxVec3 NxCapsuleRow0(convexRotationMatrix[0], convexRotationMatrix[4], convexRotationMatrix[8]);
+					NxVec3 NxCapsuleRow1(convexRotationMatrix[1], convexRotationMatrix[5], convexRotationMatrix[9]);
+					NxVec3 NxCapsuleRow2(convexRotationMatrix[2], convexRotationMatrix[6], convexRotationMatrix[10]);
+					NxMat33 NxCapsuleMat33Rotation(NxCapsuleRow0, NxCapsuleRow1, NxCapsuleRow2);
+
+					PosX = (m_instanceGeo->m_maxLocalToWorldAABB.x + m_instanceGeo->m_minLocalToWorldAABB.x) / 2.f;
+					PosY = (m_instanceGeo->m_maxLocalToWorldAABB.y + m_instanceGeo->m_minLocalToWorldAABB.y) / 2.f;
+					PosZ = (m_instanceGeo->m_maxLocalToWorldAABB.z + m_instanceGeo->m_minLocalToWorldAABB.z) / 2.f;
+					g_multipleView->m_nx->CreateCapsule(NxVec3(PosX, PosY, PosZ), height, radius, density, NxCapsuleMat33Rotation, m_instanceGeo->m_physXName, isTrigger, m_instanceGeo->m_abstractGeometry->m_hasAnimation, physicsMaterial);
+					if (g_editorMode == eMODE_PREFAB)
+						sprintf(m_instanceGeo->m_physXName, "%s%d", "PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					else if (g_editorMode == eMODE_VSCENE)
+						sprintf(m_instanceGeo->m_physXName, "%s%s%d", g_currentInstancePrefab->GetName(), "_PhysX_mesh_", m_instanceGeo->m_nameIndex);
+					m_instanceGeo->m_lodAlgorithm = algorithm;
+					m_instanceGeo->m_hasPhysX = CTrue;
+					m_instanceGeo->m_physXDensity = density;
+					m_instanceGeo->m_physXPercentage = percentage;
+					m_instanceGeo->m_isTrigger = isTrigger;
+					m_instanceGeo->m_isInvisible = isInvisible;
+					//material
+					m_instanceGeo->EnablePhysicsMaterial(physicsMaterial.HasMaterial);
+					m_instanceGeo->SetPhysicsRestitution(physicsMaterial.Restitution);
+					m_instanceGeo->SetPhysicsSkinWidth(physicsMaterial.SkinWidth);
+					m_instanceGeo->SetPhysicsStaticFriction(physicsMaterial.StaticFriction);
+					m_instanceGeo->SetPhysicsDynamicFriction(physicsMaterial.DynamicFriction);
+
+					vertices_temp.clear();
+					triangles_temp.clear();
+					vertices = NULL;
+					triangles = NULL;
+
+					return m_instanceGeo->m_nameIndex;
+				}
+				vertices_temp.clear();
+				triangles_temp.clear();
+				vertices = NULL;
+				triangles = NULL;
+
+				return -1;
+
+			} //if selected
+		}
+		return -1; //didn't find an instance geometry
+	}
+	return -1; //nothing selected
+}
+
+CBool CScene::RemovePhysX()
+{
+	if (g_selectedName != -1)
+	{
+		CBool m_setGeoName = CFalse;
+		for (CUInt geoCounter = 0; geoCounter < m_geometries.size(); geoCounter++)
+		{
+			CGeometry* m_geo = m_geometries[geoCounter];
+			CBool selected = CFalse;
+			CInstanceGeometry* m_instanceGeo;
+			for (CUInt k = 0; k < m_geo->m_instanceGeometries.size(); k++)
+			{
+				if (m_geo->m_instanceGeometries[k]->m_nameIndex == g_selectedName)
+				{
+					selected = CTrue;
+					m_instanceGeo = m_geo->m_instanceGeometries[k];
+					break;
+				}
+			}
+			if (!selected) //check for controllers
+			{
+				for (CUInt k = 0; k < m_geo->m_instanceControllers.size(); k++)
+				{
+					CInstanceGeometry* tempInstanceGeo = m_geo->m_instanceControllers[k]->m_instanceGeometry;
+					if (tempInstanceGeo->m_nameIndex == g_selectedName)
+					{
+						selected = CTrue;
+						m_instanceGeo = tempInstanceGeo;
+						break;
+					}
+				}
+			}
+
+			if (selected)
+			{
+				//Remove PhysX 
+				//for( CUInt i = 1; i < gPhysicsSDK->getNbScenes(); i++ )
+				//{
+				NxScene* tempScene = gPhysXscene/*gPhysicsSDK->getScene(i)*/;
+				if (tempScene)
+				{
+					for (CUInt j = 0; j < tempScene->getNbActors(); j++)
+					{
+						CChar actorName[MAX_URI_SIZE];
+						if (!tempScene->getActors()[j]->getName()) continue;
+						Cpy(actorName, tempScene->getActors()[j]->getName());
+						if (!Cmp(m_instanceGeo->m_physXName, "\n") && Cmp(actorName, m_instanceGeo->m_physXName))
+						{
+							//recomupte bounding box
+							CGeometry* tempGeometry = m_instanceGeo->m_abstractGeometry;
+
+							CVec3f src[8];
+							src[0].x = tempGeometry->m_minAABB.m_i; src[0].y = tempGeometry->m_minAABB.m_j; src[0].z = tempGeometry->m_minAABB.m_k;
+							src[1].x = tempGeometry->m_maxAABB.m_i; src[1].y = tempGeometry->m_minAABB.m_j; src[1].z = tempGeometry->m_maxAABB.m_k;
+							src[2].x = tempGeometry->m_maxAABB.m_i; src[2].y = tempGeometry->m_minAABB.m_j; src[2].z = tempGeometry->m_minAABB.m_k;
+							src[3].x = tempGeometry->m_minAABB.m_i; src[3].y = tempGeometry->m_minAABB.m_j; src[3].z = tempGeometry->m_maxAABB.m_k;
+							src[4].x = tempGeometry->m_maxAABB.m_i; src[4].y = tempGeometry->m_maxAABB.m_j; src[4].z = tempGeometry->m_minAABB.m_k;
+							src[5].x = tempGeometry->m_minAABB.m_i; src[5].y = tempGeometry->m_maxAABB.m_j; src[5].z = tempGeometry->m_minAABB.m_k;
+							src[6].x = tempGeometry->m_minAABB.m_i; src[6].y = tempGeometry->m_maxAABB.m_j; src[6].z = tempGeometry->m_maxAABB.m_k;
+							src[7].x = tempGeometry->m_maxAABB.m_i; src[7].y = tempGeometry->m_maxAABB.m_j; src[7].z = tempGeometry->m_maxAABB.m_k;
+
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[0], m_instanceGeo->m_localToWorldVertex[0]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[1], m_instanceGeo->m_localToWorldVertex[1]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[2], m_instanceGeo->m_localToWorldVertex[2]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[3], m_instanceGeo->m_localToWorldVertex[3]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[4], m_instanceGeo->m_localToWorldVertex[4]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[5], m_instanceGeo->m_localToWorldVertex[5]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[6], m_instanceGeo->m_localToWorldVertex[6]);
+							CMatrixTransform(m_instanceGeo->m_localToWorldMatrix, src[7], m_instanceGeo->m_localToWorldVertex[7]);
+							///////////////////////////
+
+							tempScene->releaseActor(*tempScene->getActors()[j]);
+							m_instanceGeo->m_hasPhysX = CFalse;
+							Cpy(m_instanceGeo->m_physXName, "\n");
+							m_instanceGeo->EnablePhysicsMaterial(CFalse);
+							if (m_instanceGeo->m_lodAlgorithm == eLOD_LENGTH_CURVATURE || m_instanceGeo->m_lodAlgorithm == eLOD_LENGTH)
+								m_instanceGeo->m_prevLodAlgorithm = m_instanceGeo->m_lodAlgorithm;
+							m_instanceGeo->m_lodAlgorithm = eLOD_NONE;
+
+							m_instanceGeo->m_isTrigger = CFalse;
+							m_instanceGeo->m_isInvisible = CFalse;
+							m_instanceGeo->m_physXDensity = 0.0f;
+
+							return CTrue;
+						}
+					}
+				}
+				else
+					return CFalse;
+				//}
+			}
+		} //for all of the geometries
+	} //if something was selected
+	return CFalse;
 }

@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -358,3 +358,17 @@ const CInt32 MAX_TEX_COORDS = 20;
 #define NR_DIR_LIGHTS 2
 #define NR_POINT_LIGHTS 2
 #define NR_SPOT_LIGHTS 1
+
+struct CPhysXMaterial
+{
+	CBool HasMaterial;
+	CFloat Restitution;
+	CFloat SkinWidth;
+	CFloat StaticFriction;
+	CFloat DynamicFriction;
+
+	CPhysXMaterial()
+	{
+		HasMaterial = CFalse;
+	}
+};

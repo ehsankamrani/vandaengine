@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 #ifndef __NX_DEBUG_RENDERER_H
 #define __NX_DEBUG_RENDERER_H

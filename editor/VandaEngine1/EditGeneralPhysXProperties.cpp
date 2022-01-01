@@ -1,3 +1,6 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 // EditGeneralPhysXProperties.cpp : implementation file
 //
 
@@ -196,6 +199,27 @@ void CEditGeneralPhysXProperties::OnOK()
 	}
 	else
 	{
+		if (m_fDefaultRestitution < 0.0f || m_fDefaultRestitution > 1.0f)
+		{
+			MessageBox("restitution must be between 0 and 1", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fDefaultStaticFriction < 0.0)
+		{
+			MessageBox("static friction must be between 0 or higher", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fDefaultDynamicFriction < 0.0)
+		{
+			MessageBox("dynamic friction must be between 0 or higher", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fDefaultSkinWidth <= 0.0f)
+		{
+			MessageBox("skin width must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
 		g_physXProperties.m_fDefaultRestitution = atof( m_strDefaultRestitution );
 		g_physXProperties.m_fDefaultStaticFriction = atof( m_strDefaultStaticFriction );
 		g_physXProperties.m_fDefaultSkinWidth = atof( m_strDefaultSkinWidth );
@@ -463,4 +487,3 @@ void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 	}
 
 }
-

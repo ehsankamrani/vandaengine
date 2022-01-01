@@ -1,3 +1,5 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 // ScriptEditorAddFunction.cpp : implementation file
 //
 
@@ -134,10 +136,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(EnablePrefabInstanceMaterial, "EnablePrefabInstanceMaterial(string prefabInstanceName)");
 	Cpy(DisablePrefabInstanceMaterial, "DisablePrefabInstanceMaterial(string prefabInstanceName)");
 
-	Cpy(SetPhysicsRestitution, "SetPhysicsRestitution(float restitution)");
-	Cpy(SetPhysicsSkinWidth, "SetPhysicsSkinWidth(float skinWidth)");
-	Cpy(SetPhysicsStaticFriction, "SetPhysicsStaticFriction(float staticFriction)");
-	Cpy(SetPhysicsDynamicFriction, "SetPhysicsDynamicFriction(float dynamicFriction)");
+	Cpy(SetPhysicsDefaultRestitution, "SetPhysicsDefaultRestitution(float restitution)");
+	Cpy(SetPhysicsDefaultSkinWidth, "SetPhysicsDefaultSkinWidth(float skinWidth)");
+	Cpy(SetPhysicsDefaultStaticFriction, "SetPhysicsDefaultStaticFriction(float staticFriction)");
+	Cpy(SetPhysicsDefaultDynamicFriction, "SetPhysicsDefaultDynamicFriction(float dynamicFriction)");
 	Cpy(EnablePhysicsGravity, "EnablePhysicsGravity()");
 	Cpy(DisablePhysicsGravity, "DisablePhysicsGravity()");
 	Cpy(SetPhysicsGravity, "SetPhysicsGravity(float x, float y, float z)");
@@ -676,21 +678,21 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DisablePrefabInstanceMaterial);
 		}
-		else if (Cmp(szBuffer, "SetPhysicsRestitution"))
+		else if (Cmp(szBuffer, "SetPhysicsDefaultRestitution"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPhysicsRestitution);
+			m_richFunctionName.SetWindowTextA(SetPhysicsDefaultRestitution);
 		}
-		else if (Cmp(szBuffer, "SetPhysicsSkinWidth"))
+		else if (Cmp(szBuffer, "SetPhysicsDefaultSkinWidth"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPhysicsSkinWidth);
+			m_richFunctionName.SetWindowTextA(SetPhysicsDefaultSkinWidth);
 		}
-		else if (Cmp(szBuffer, "SetPhysicsStaticFriction"))
+		else if (Cmp(szBuffer, "SetPhysicsDefaultStaticFriction"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPhysicsStaticFriction);
+			m_richFunctionName.SetWindowTextA(SetPhysicsDefaultStaticFriction);
 		}
-		else if (Cmp(szBuffer, "SetPhysicsDynamicFriction"))
+		else if (Cmp(szBuffer, "SetPhysicsDefaultDynamicFriction"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPhysicsDynamicFriction);
+			m_richFunctionName.SetWindowTextA(SetPhysicsDefaultDynamicFriction);
 		}
 		else if (Cmp(szBuffer, "EnablePhysicsGravity"))
 		{
@@ -1133,10 +1135,10 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("EnablePrefabInstanceMaterial");
 	InsertItem("DisablePrefabInstanceMaterial");
 
-	InsertItem("SetPhysicsRestitution");
-	InsertItem("SetPhysicsSkinWidth");
-	InsertItem("SetPhysicsStaticFriction");
-	InsertItem("SetPhysicsDynamicFriction");
+	InsertItem("SetPhysicsDefaultRestitution");
+	InsertItem("SetPhysicsDefaultSkinWidth");
+	InsertItem("SetPhysicsDefaultStaticFriction");
+	InsertItem("SetPhysicsDefaultDynamicFriction");
 	InsertItem("EnablePhysicsGravity");
 	InsertItem("DisablePhysicsGravity");
 	InsertItem("SetPhysicsGravity");

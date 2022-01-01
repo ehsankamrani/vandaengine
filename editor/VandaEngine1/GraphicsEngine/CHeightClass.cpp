@@ -1,6 +1,10 @@
 // height_class.cpp: implementation of the height_class class.
 //
 //////////////////////////////////////////////////////////////////////
+
+//Modified work: Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include <windows.h>
 #include <math.h>

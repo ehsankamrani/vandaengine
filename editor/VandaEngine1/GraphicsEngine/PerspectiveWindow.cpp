@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // PerspectiveWindow.cpp : implementation file
@@ -8095,7 +8095,7 @@ CInt DisablePrefabInstanceMaterial(lua_State* L)
 }
 
 
-CInt SetPhysicsRestitution(lua_State* L)
+CInt SetPhysicsDefaultRestitution(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
@@ -8116,7 +8116,7 @@ CInt SetPhysicsRestitution(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		PrintInfo("\nSetPhysicsRestitution() Error: argument must be greater than 0", COLOR_RED);
+		PrintInfo("\nSetPhysicsDefaultRestitution() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
@@ -8124,18 +8124,98 @@ CInt SetPhysicsRestitution(lua_State* L)
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+		{
+			for (CUInt i = 0; i < 3; i++)
+			{
+				if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+				{
+					CScene* scene = g_instancePrefab[p]->GetScene(i);
+					if (!scene) continue;
+					if (!scene->m_isTrigger)
+					{
+						for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+						{
+							if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+							{
+								if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+								{
+									physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+								}
+							}
+						}
+					}
+				}
+			}
+			if (g_instancePrefab[p]->GetHasCollider())
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(3);
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			CScene* scene = g_scene[i];
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
 	}
 
+	physics_actor_with_material.clear();
+
 	return 0;
 }
 
-CInt SetPhysicsSkinWidth(lua_State* L)
+CInt SetPhysicsDefaultSkinWidth(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
@@ -8148,7 +8228,7 @@ CInt SetPhysicsSkinWidth(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		PrintInfo("\nPlease specify 1 argument for SetPhysicsSkinWidth()", COLOR_RED);
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsDefaultSkinWidth()", COLOR_RED);
 		return 0;
 	}
 
@@ -8156,25 +8236,105 @@ CInt SetPhysicsSkinWidth(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		PrintInfo("\nSetPhysicsSkinWidth() Error: argument must be greater than 0", COLOR_RED);
+		PrintInfo("\nSetPhysicsDefaultSkinWidth() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
 	g_physXProperties.m_fDefaultSkinWidth = value;
 	gPhysicsSDK->setParameter(NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+		{
+			for (CUInt i = 0; i < 3; i++)
+			{
+				if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+				{
+					CScene* scene = g_instancePrefab[p]->GetScene(i);
+					if (!scene) continue;
+					if (!scene->m_isTrigger)
+					{
+						for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+						{
+							if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+							{
+								if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+								{
+									physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+								}
+							}
+						}
+					}
+				}
+			}
+			if (g_instancePrefab[p]->GetHasCollider())
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(3);
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			CScene* scene = g_scene[i];
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setSkinWidth(g_physXProperties.m_fDefaultSkinWidth);
 	}
 
+	physics_actor_with_material.clear();
+
 	return 0;
 }
 
-CInt SetPhysicsStaticFriction(lua_State* L)
+CInt SetPhysicsDefaultStaticFriction(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
@@ -8187,7 +8347,7 @@ CInt SetPhysicsStaticFriction(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		PrintInfo("\nPlease specify 1 argument for SetPhysicsStaticFriction()", COLOR_RED);
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsDefaultStaticFriction()", COLOR_RED);
 		return 0;
 	}
 
@@ -8195,7 +8355,7 @@ CInt SetPhysicsStaticFriction(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		PrintInfo("\nSetPhysicsStaticFriction() Error: argument must be greater than 0", COLOR_RED);
+		PrintInfo("\nSetPhysicsDefaultStaticFriction() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
@@ -8203,18 +8363,97 @@ CInt SetPhysicsStaticFriction(lua_State* L)
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setStaticFriction(g_physXProperties.m_fDefaultStaticFriction);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+		{
+			for (CUInt i = 0; i < 3; i++)
+			{
+				if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+				{
+					CScene* scene = g_instancePrefab[p]->GetScene(i);
+					if (!scene) continue;
+					if (!scene->m_isTrigger)
+					{
+						for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+						{
+							if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+							{
+								if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+								{
+									physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+								}
+							}
+						}
+					}
+				}
+			}
+			if (g_instancePrefab[p]->GetHasCollider())
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(3);
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			CScene* scene = g_scene[i];
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
 	}
 
+	physics_actor_with_material.clear();
+
 	return 0;
 }
 
-CInt SetPhysicsDynamicFriction(lua_State* L)
+CInt SetPhysicsDefaultDynamicFriction(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
@@ -8227,7 +8466,7 @@ CInt SetPhysicsDynamicFriction(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		PrintInfo("\nPlease specify 1 argument for SetPhysicsDynamicFriction()", COLOR_RED);
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsDefaultDynamicFriction()", COLOR_RED);
 		return 0;
 	}
 
@@ -8235,7 +8474,7 @@ CInt SetPhysicsDynamicFriction(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		PrintInfo("\nSetPhysicsDynamicFriction() Error: argument must be greater than 0", COLOR_RED);
+		PrintInfo("\nSetPhysicsDefaultDynamicFriction() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
@@ -8243,13 +8482,92 @@ CInt SetPhysicsDynamicFriction(lua_State* L)
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setDynamicFriction(g_physXProperties.m_fDefaultDynamicFriction);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+		{
+			for (CUInt i = 0; i < 3; i++)
+			{
+				if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+				{
+					CScene* scene = g_instancePrefab[p]->GetScene(i);
+					if (!scene) continue;
+					if (!scene->m_isTrigger)
+					{
+						for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+						{
+							if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+							{
+								if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+								{
+									physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+								}
+							}
+						}
+					}
+				}
+			}
+			if (g_instancePrefab[p]->GetHasCollider())
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(3);
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			CScene* scene = g_scene[i];
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+						{
+							physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
 	}
+
+	physics_actor_with_material.clear();
 
 	return 0;
 }
@@ -8362,7 +8680,10 @@ CInt EnablePhysicsGroundPlane(lua_State* L)
 	NxVec3 rot1(0, 0, 0);
 	NxVec3 rot2(0, 0, 0);
 	NxMat33 rot(rot0, rot1, rot2);
-	g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+
+	CPhysXMaterial physicsMaterial;
+
+	g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
 
 	g_multipleView->m_nx->gControllers->reportSceneChanged();
 	gPhysXscene->simulate(EPSILON);
@@ -8423,7 +8744,10 @@ CInt SetPhysicGroundHeight(lua_State* L)
 		NxVec3 rot1(0, 0, 0);
 		NxVec3 rot2(0, 0, 0);
 		NxMat33 rot(rot0, rot1, rot2);
-		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+
+		CPhysXMaterial physicsMaterial;
+
+		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
 	}
 
 	g_multipleView->m_nx->gControllers->reportSceneChanged();

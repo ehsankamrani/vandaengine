@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // stdafx.h : include file for standard system include files,
@@ -177,10 +177,10 @@ CInt SetPrefabInstanceTransparency(lua_State* L);
 CInt EnablePrefabInstanceMaterial(lua_State* L);
 CInt DisablePrefabInstanceMaterial(lua_State* L);
 
-CInt SetPhysicsRestitution(lua_State* L);
-CInt SetPhysicsSkinWidth(lua_State* L);
-CInt SetPhysicsStaticFriction(lua_State* L);
-CInt SetPhysicsDynamicFriction(lua_State* L);
+CInt SetPhysicsDefaultRestitution(lua_State* L);
+CInt SetPhysicsDefaultSkinWidth(lua_State* L);
+CInt SetPhysicsDefaultStaticFriction(lua_State* L);
+CInt SetPhysicsDefaultDynamicFriction(lua_State* L);
 CInt EnablePhysicsGravity(lua_State* L);
 CInt DisablePhysicsGravity(lua_State* L);
 CInt SetPhysicsGravity(lua_State* L);

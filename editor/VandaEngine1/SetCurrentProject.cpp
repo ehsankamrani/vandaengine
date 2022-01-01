@@ -1,3 +1,6 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 // SetCurrentProject.cpp : implementation file
 //
 
@@ -162,7 +165,7 @@ void CSetCurrentProject::OnOK()
 		}
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.7.9 (", szBuffer, " - ", m_currentVSceneNameWithoutDot, ")");
+		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.0 (", szBuffer, " - ", m_currentVSceneNameWithoutDot, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 		//save the changes to projects.dat
 		FILE *ProjectsFilePtr;

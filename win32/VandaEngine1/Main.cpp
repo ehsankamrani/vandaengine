@@ -1,4 +1,4 @@
-//Copyright (C) 2021 Ehsan Kamrani 
+//Copyright (C) 2022 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -5367,15 +5367,12 @@ CInt DisablePrefabInstanceMaterial(lua_State* L)
 	return 0;
 }
 
-CInt SetPhysicsRestitution(lua_State* L)
+CInt SetPhysicsDefaultRestitution(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
 		return 0;
 	}
-
-	//if (g_testScript)
-	//	return 0;
 
 	int argc = lua_gettop(L);
 	if (argc < 1)
@@ -5388,7 +5385,7 @@ CInt SetPhysicsRestitution(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		//PrintInfo("\nSetPhysicsRestitution() Error: argument must be greater than 0", COLOR_RED);
+		//PrintInfo("\nSetPhysicsDefaultRestitution() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
@@ -5396,31 +5393,83 @@ CInt SetPhysicsRestitution(lua_State* L)
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setRestitution(g_physXProperties.m_fDefaultRestitution);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+	{
+		for (CUInt i = 0; i < 3; i++)
+		{
+			if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(i);
+				if (!scene) continue;
+				if (!scene->m_isTrigger)
+				{
+					for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+					{
+						if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+						{
+							if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+							{
+								physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+							}
+						}
+					}
+				}
+			}
+		}
+		if (g_instancePrefab[p]->GetHasCollider())
+		{
+			CScene* scene = g_instancePrefab[p]->GetScene(3);
+			for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+			{
+				if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+				{
+					if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+					{
+						physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+					}
+				}
+			}
+		}
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
 	}
 
+	physics_actor_with_material.clear();
+
 	return 0;
 }
 
-CInt SetPhysicsSkinWidth(lua_State* L)
+CInt SetPhysicsDefaultSkinWidth(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
 		return 0;
 	}
 
-	//if (g_testScript)
-	//	return 0;
-
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for SetPhysicsSkinWidth()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for SetPhysicsDefaultSkinWidth()", COLOR_RED);
 		return 0;
 	}
 
@@ -5428,38 +5477,90 @@ CInt SetPhysicsSkinWidth(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		//PrintInfo("\nSetPhysicsSkinWidth() Error: argument must be greater than 0", COLOR_RED);
+		//PrintInfo("\nSetPhysicsDefaultSkinWidth() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
 	g_physXProperties.m_fDefaultSkinWidth = value;
 	gPhysicsSDK->setParameter(NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+	{
+		for (CUInt i = 0; i < 3; i++)
+		{
+			if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(i);
+				if (!scene) continue;
+				if (!scene->m_isTrigger)
+				{
+					for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+					{
+						if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+						{
+							if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+							{
+								physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+							}
+						}
+					}
+				}
+			}
+		}
+		if (g_instancePrefab[p]->GetHasCollider())
+		{
+			CScene* scene = g_instancePrefab[p]->GetScene(3);
+			for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+			{
+				if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+				{
+					if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+					{
+						physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+					}
+				}
+			}
+		}
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setSkinWidth(g_physXProperties.m_fDefaultSkinWidth);
 	}
 
+	physics_actor_with_material.clear();
+
 	return 0;
 }
 
-CInt SetPhysicsStaticFriction(lua_State* L)
+CInt SetPhysicsDefaultStaticFriction(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
 		return 0;
 	}
 
-	//if (g_testScript)
-	//	return 0;
-
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for SetPhysicsStaticFriction()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for SetPhysicsDefaultStaticFriction()", COLOR_RED);
 		return 0;
 	}
 
@@ -5467,7 +5568,7 @@ CInt SetPhysicsStaticFriction(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		//PrintInfo("\nSetPhysicsStaticFriction() Error: argument must be greater than 0", COLOR_RED);
+		//PrintInfo("\nSetPhysicsDefaultStaticFriction() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
@@ -5475,31 +5576,83 @@ CInt SetPhysicsStaticFriction(lua_State* L)
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setStaticFriction(g_physXProperties.m_fDefaultStaticFriction);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+	{
+		for (CUInt i = 0; i < 3; i++)
+		{
+			if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(i);
+				if (!scene) continue;
+				if (!scene->m_isTrigger)
+				{
+					for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+					{
+						if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+						{
+							if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+							{
+								physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+							}
+						}
+					}
+				}
+			}
+		}
+		if (g_instancePrefab[p]->GetHasCollider())
+		{
+			CScene* scene = g_instancePrefab[p]->GetScene(3);
+			for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+			{
+				if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+				{
+					if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+					{
+						physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+					}
+				}
+			}
+		}
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
 	}
 
+	physics_actor_with_material.clear();
+
 	return 0;
 }
 
-CInt SetPhysicsDynamicFriction(lua_State* L)
+CInt SetPhysicsDefaultDynamicFriction(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
 		return 0;
 	}
 
-	//if (g_testScript)
-	//	return 0;
-
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for SetPhysicsDynamicFriction()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for SetPhysicsDefaultDynamicFriction()", COLOR_RED);
 		return 0;
 	}
 
@@ -5507,7 +5660,7 @@ CInt SetPhysicsDynamicFriction(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		//PrintInfo("\nSetPhysicsDynamicFriction() Error: argument must be greater than 0", COLOR_RED);
+		//PrintInfo("\nSetPhysicsDefaultDynamicFriction() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
 	}
 
@@ -5515,13 +5668,68 @@ CInt SetPhysicsDynamicFriction(lua_State* L)
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
 	defaultMaterial->setDynamicFriction(g_physXProperties.m_fDefaultDynamicFriction);
 
+	std::vector<std::string>physics_actor_with_material;
+
+	for (CUInt p = 0; p < g_instancePrefab.size(); p++)
+	{
+		for (CUInt i = 0; i < 3; i++)
+		{
+			if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+			{
+				CScene* scene = g_instancePrefab[p]->GetScene(i);
+				if (!scene) continue;
+				if (!scene->m_isTrigger)
+				{
+					for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+					{
+						if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+						{
+							if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+							{
+								physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+							}
+						}
+					}
+				}
+			}
+		}
+		if (g_instancePrefab[p]->GetHasCollider())
+		{
+			CScene* scene = g_instancePrefab[p]->GetScene(3);
+			for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+			{
+				if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+				{
+					if (scene->m_instanceGeometries[j]->HasPhysicsMaterial())
+					{
+						physics_actor_with_material.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+					}
+				}
+			}
+		}
+	}
+
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
+		CBool skipActor = CFalse;
+		for (CUInt j = 0; j < physics_actor_with_material.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor_with_material[j].c_str()))
+			{
+				skipActor = CTrue;
+				break;
+			}
+		}
+		if (skipActor)
+			continue;
+
 		NxActor* currentActor = gPhysXscene->getActors()[i];
 		if (currentActor->isSleeping())
 			currentActor->wakeUp();
 		currentActor->getShapes()[0]->setMaterial(defaultMaterial->getMaterialIndex());
 	}
+
+	physics_actor_with_material.clear();
 
 	return 0;
 }
@@ -5634,7 +5842,9 @@ CInt EnablePhysicsGroundPlane(lua_State* L)
 	NxVec3 rot1(0, 0, 0);
 	NxVec3 rot2(0, 0, 0);
 	NxMat33 rot(rot0, rot1, rot2);
-	g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+
+	CPhysXMaterial physicsMaterial;
+	g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
 
 	g_nx->gControllers->reportSceneChanged();
 	gPhysXscene->simulate(EPSILON);
@@ -5695,7 +5905,10 @@ CInt SetPhysicGroundHeight(lua_State* L)
 		NxVec3 rot1(0, 0, 0);
 		NxVec3 rot2(0, 0, 0);
 		NxMat33 rot(rot0, rot1, rot2);
-		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+
+		CPhysXMaterial physicsMaterial;
+
+		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
 	}
 
 	g_nx->gControllers->reportSceneChanged();
@@ -11868,6 +12081,20 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 				fread(&isTrigger, 1, sizeof(CBool), filePtr);
 				fread(&isInvisible, 1, sizeof(CBool), filePtr);
 
+				//physics material
+				CBool hasPhysicsMaterial;
+				CFloat PhysicsRestitution;
+				CFloat SkinWidth;
+				CFloat StaticFriction;
+				CFloat DynamicFriction;
+
+				fread(&hasPhysicsMaterial, 1, sizeof(CBool), filePtr);
+				fread(&PhysicsRestitution, 1, sizeof(CFloat), filePtr);
+				fread(&SkinWidth, 1, sizeof(CFloat), filePtr);
+				fread(&StaticFriction, 1, sizeof(CFloat), filePtr);
+				fread(&DynamicFriction, 1, sizeof(CFloat), filePtr);
+				///////////////////
+
 				if (hasPhysX)
 				{
 					for (CUInt k = 0; k < tempScene->m_instanceGeometries.size(); k++)
@@ -11893,6 +12120,12 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 									tempScene->m_instanceGeometries[k]->m_physXPercentage = physXPercentage;
 									tempScene->m_instanceGeometries[k]->m_isTrigger = isTrigger;
 									tempScene->m_instanceGeometries[k]->m_isInvisible = isInvisible;
+
+									tempScene->m_instanceGeometries[k]->EnablePhysicsMaterial(hasPhysicsMaterial);
+									tempScene->m_instanceGeometries[k]->SetPhysicsRestitution(PhysicsRestitution);
+									tempScene->m_instanceGeometries[k]->SetPhysicsSkinWidth(SkinWidth);
+									tempScene->m_instanceGeometries[k]->SetPhysicsStaticFriction(StaticFriction);
+									tempScene->m_instanceGeometries[k]->SetPhysicsDynamicFriction(DynamicFriction);
 
 									//if (physXDensity > 0 || tempScene->m_instanceGeometries[k]->m_abstractGeometry->m_hasAnimation)
 									//	InsertItemToPhysXList(tempScene->m_instanceGeometries[k]->m_physXName, ePHYSXELEMENTLIST_DYNAMIC_RIGIDBODY);
@@ -13354,7 +13587,6 @@ CBool CMain::Load(CChar* pathName)
 
 		g_databaseVariables.m_insertVSceneScript = CTrue;
 
-		g_VSceneScript->InitScript();
 	}
 	else
 	{
@@ -13410,13 +13642,20 @@ CBool CMain::Load(CChar* pathName)
 				{
 					for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
 					{
+						CPhysXMaterial physicsMaterial;
+						physicsMaterial.HasMaterial = scene->m_instanceGeometries[k]->HasPhysicsMaterial();
+						physicsMaterial.Restitution = scene->m_instanceGeometries[k]->GetPhysicsRestitution();
+						physicsMaterial.SkinWidth = scene->m_instanceGeometries[k]->GetPhysicsSkinWidth();
+						physicsMaterial.StaticFriction = scene->m_instanceGeometries[k]->GetPhysicsStaticFriction();
+						physicsMaterial.DynamicFriction = scene->m_instanceGeometries[k]->GetPhysicsDynamicFriction();
+
 						if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
 						{
-							scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+							scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
 						}
 						else if (scene->m_instanceGeometries[k]->m_hasPhysX)
 						{
-							scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, NULL);
+							scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, NULL);
 						}
 					}
 					scene->m_update = CFalse;
@@ -13430,13 +13669,20 @@ CBool CMain::Load(CChar* pathName)
 			{
 				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
 				{
+					CPhysXMaterial physicsMaterial;
+					physicsMaterial.HasMaterial = scene->m_instanceGeometries[k]->HasPhysicsMaterial();
+					physicsMaterial.Restitution = scene->m_instanceGeometries[k]->GetPhysicsRestitution();
+					physicsMaterial.SkinWidth = scene->m_instanceGeometries[k]->GetPhysicsSkinWidth();
+					physicsMaterial.StaticFriction = scene->m_instanceGeometries[k]->GetPhysicsStaticFriction();
+					physicsMaterial.DynamicFriction = scene->m_instanceGeometries[k]->GetPhysicsDynamicFriction();
+
 					if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
 					{
-						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
 					}
 					else if (scene->m_instanceGeometries[k]->m_hasPhysX)
 					{
-						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, scene->m_instanceGeometries[k], CFalse, NULL);
+						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, NULL);
 					}
 				}
 				scene->m_update = CFalse;
@@ -13451,7 +13697,10 @@ CBool CMain::Load(CChar* pathName)
 		NxVec3 rot1(0, 0, 0);
 		NxVec3 rot2(0, 0, 0);
 		NxMat33 rot(rot0, rot1, rot2);
-		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight, 0.0f), NxVec3(2000.0f, 0.1f, 2000.0f), 0, rot, NULL, CFalse, CFalse);
+
+		CPhysXMaterial physicsMaterial;
+
+		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1f, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
 	}
 
 	//load the ambient sound if it exists
@@ -13498,6 +13747,9 @@ CBool CMain::Load(CChar* pathName)
 		g_databaseVariables.m_insertAmbientSound = CTrue;
 
 	}
+
+	if (g_VSceneScript)
+		g_VSceneScript->InitScript();
 
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	//{
@@ -15044,7 +15296,7 @@ CVoid CMain::DrawGUI()
 
 	g_font->StartRendering();
 	//g_font->Print( "Vanda Engine 1", 10.0f, 980.0f, 0.0f, 1.0f, 1.0f, 1.0f );
-	//g_font->Print( "Copyright (C) 2021 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
+	//g_font->Print( "Copyright (C) 2022 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "http://www.vandaengine.org", 10.0f, 920.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "Press F4 for help...", 10.0f, 890.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 

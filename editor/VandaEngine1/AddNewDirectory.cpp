@@ -1,7 +1,8 @@
+//Copyright (C) 2022 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
 // AddNewDirectory.cpp : implementation file
 //
-//Copyright (C) 2021 Ehsan Kamrani 
-//This file is licensed and distributed under MIT license
+
 #include "stdafx.h"
 #include "VandaEngine1.h"
 #include "AddNewDirectory.h"
