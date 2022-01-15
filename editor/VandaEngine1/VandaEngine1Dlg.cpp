@@ -1454,7 +1454,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.0"));
+	SetWindowText(_T("Vanda Engine 1.8.1"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3020,7 +3020,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3081,7 +3081,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.0 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.1 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3270,7 +3270,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3356,7 +3356,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.1 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3430,7 +3430,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.1 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4229,17 +4229,53 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					g_multipleView->EnableTimer( CTrue );
 
 				OnMenuClickedNew(CFalse);
+
+				if (g_editorMode == eMODE_VSCENE && g_options.m_showExitDialog)
+				{
+					CExitEditorDlg* exitDlg = CNew(CExitEditorDlg);
+					exitDlg->DoModal();
+				}
+
+				FILE *filePtr;
+				filePtr = fopen(ConfigPath, "wb");
+				fwrite(&g_options, sizeof(COptions), 1, filePtr);
+				fclose(filePtr);
+
 				PostQuitMessage( 0 );
 			}
 			else if (iResponse == IDNO)
 			{
 				OnMenuClickedNew(CFalse);
+
+				if (g_editorMode == eMODE_VSCENE && g_options.m_showExitDialog)
+				{
+					CExitEditorDlg* exitDlg = CNew(CExitEditorDlg);
+					exitDlg->DoModal();
+				}
+
+				FILE *filePtr;
+				filePtr = fopen(ConfigPath, "wb");
+				fwrite(&g_options, sizeof(COptions), 1, filePtr);
+				fclose(filePtr);
+
 				PostQuitMessage(0);
 			}
 		}
 		else
 		{
 			OnMenuClickedNew(CFalse);
+
+			if (g_editorMode == eMODE_VSCENE && g_options.m_showExitDialog)
+			{
+				CExitEditorDlg* exitDlg = CNew(CExitEditorDlg);
+				exitDlg->DoModal();
+			}
+
+			FILE *filePtr;
+			filePtr = fopen(ConfigPath, "wb");
+			fwrite(&g_options, sizeof(COptions), 1, filePtr);
+			fclose(filePtr);
+
 			PostQuitMessage(0);
 		}
 	}
@@ -7489,7 +7525,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.1 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7914,7 +7950,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7923,7 +7959,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.1 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -9741,7 +9777,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10580,7 +10616,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -12246,7 +12282,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13322,7 +13358,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15092,7 +15128,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -16916,7 +16952,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -19427,11 +19463,6 @@ void CVandaEngine1Dlg::OnClose()
 		Append( ConfigPath, "/Vanda/conf_editor.dat" );
 	}
 
-	FILE *filePtr;
-	filePtr = fopen( ConfigPath, "wb" );
-	fwrite( &g_options, sizeof( COptions ), 1, filePtr  );
-	fclose(filePtr);
-
 	SavePrefabFiles();
 
 	SaveGUIFiles();
@@ -19461,19 +19492,55 @@ void CVandaEngine1Dlg::OnClose()
 			if (g_multipleView->m_enableTimer)
 				g_multipleView->EnableTimer(CTrue);
 
+			if (g_editorMode == eMODE_VSCENE && g_options.m_showExitDialog)
+			{
+				CExitEditorDlg* exitDlg = CNew(CExitEditorDlg);
+				exitDlg->DoModal();
+			}
+
+			FILE *filePtr;
+			filePtr = fopen(ConfigPath, "wb");
+			fwrite(&g_options, sizeof(COptions), 1, filePtr);
+			fclose(filePtr);
+
 			PostQuitMessage( 0 );
 		}
 		else if (iResponse == IDNO)
 		{
 			OnMenuClickedNew(CFalse);
+
+			if (g_editorMode == eMODE_VSCENE && g_options.m_showExitDialog)
+			{
+				CExitEditorDlg* exitDlg = CNew(CExitEditorDlg);
+				exitDlg->DoModal();
+			}
+
+			FILE *filePtr;
+			filePtr = fopen(ConfigPath, "wb");
+			fwrite(&g_options, sizeof(COptions), 1, filePtr);
+			fclose(filePtr);
+
 			PostQuitMessage(0);
 		}
 	}
 	else
 	{
 		OnMenuClickedNew(CFalse);
+
+		if (g_editorMode == eMODE_VSCENE && g_options.m_showExitDialog)
+		{
+			CExitEditorDlg* exitDlg = CNew(CExitEditorDlg);
+			exitDlg->DoModal();
+		}
+
+		FILE *filePtr;
+		filePtr = fopen(ConfigPath, "wb");
+		fwrite(&g_options, sizeof(COptions), 1, filePtr);
+		fclose(filePtr);
+
 		PostQuitMessage(0);
 	}
+
 	CDialog::OnClose();
 }
 
@@ -22472,6 +22539,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		{
 			g_guiButtons[k]->SetVisible(m_guiButtons[k]->IsVisible());
 			g_guiButtons[k]->SetScale(1.0f);
+			g_guiButtons[k]->SetPosition(m_guiButtons[k]->GetPosition());
 			CDelete(m_guiButtons[k]);
 		}
 		m_guiButtons.clear();
@@ -22480,6 +22548,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		{
 			g_guiImages[k]->SetVisible(m_guiImages[k]->IsVisible());
 			g_guiImages[k]->SetScale(1.0f);
+			g_guiImages[k]->SetPosition(m_guiImages[k]->GetPosition());
 			CDelete(m_guiImages[k]);
 		}
 		m_guiImages.clear();
@@ -22488,6 +22557,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		{
 			g_guiTexts[k]->SetVisible(m_guiTexts[k]->IsVisible());
 			g_guiTexts[k]->SetScale(1.0f);
+			g_guiTexts[k]->SetPosition(m_guiTexts[k]->GetPosition());
 			CDelete(m_guiTexts[k]);
 		}
 		m_guiTexts.clear();
@@ -22695,18 +22765,21 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 			{
 				g_guis[i]->m_guiButtons[k]->SetVisible(m_guis[i]->m_guiButtons[k]->IsVisible());
 				g_guis[i]->m_guiButtons[k]->SetScale(1.0f);
+				g_guis[i]->m_guiButtons[k]->SetPosition(m_guis[i]->m_guiButtons[k]->GetPosition());
 			}
 
 			for (CUInt k = 0; k < m_guis[i]->m_guiImages.size(); k++)
 			{
 				g_guis[i]->m_guiImages[k]->SetVisible(m_guis[i]->m_guiImages[k]->IsVisible());
 				g_guis[i]->m_guiImages[k]->SetScale(1.0f);
+				g_guis[i]->m_guiImages[k]->SetPosition(m_guis[i]->m_guiImages[k]->GetPosition());
 			}
 
 			for (CUInt k = 0; k < m_guis[i]->m_guiTexts.size(); k++)
 			{
 				g_guis[i]->m_guiTexts[k]->SetVisible(m_guis[i]->m_guiTexts[k]->IsVisible());
 				g_guis[i]->m_guiTexts[k]->SetScale(1.0f);
+				g_guis[i]->m_guiTexts[k]->SetPosition(m_guis[i]->m_guiTexts[k]->GetPosition());
 			}
 
 			CDelete(m_guis[i]);
@@ -23034,6 +23107,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			CGUIButton* button = CNew(CGUIButton);
 			button->SetVisible(g_guiButtons[k]->IsVisible());
+			button->SetPosition(g_guiButtons[k]->GetPosition());
 			m_guiButtons.push_back(button);
 		}
 
@@ -23041,6 +23115,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			CGUIImage* image = CNew(CGUIImage);
 			image->SetVisible(g_guiImages[k]->IsVisible());
+			image->SetPosition(g_guiImages[k]->GetPosition());
 			m_guiImages.push_back(image);
 		}
 
@@ -23048,6 +23123,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			CGUIText* text = CNew(CGUIText);
 			text->SetVisible(g_guiTexts[k]->IsVisible());
+			text->SetPosition(g_guiTexts[k]->GetPosition());
 			m_guiTexts.push_back(text);
 		}
 		//end of save
@@ -23356,6 +23432,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			{
 				CGUIButton* button = CNew(CGUIButton);
 				button->SetVisible(g_guis[i]->m_guiButtons[k]->IsVisible());
+				button->SetPosition(g_guis[i]->m_guiButtons[k]->GetPosition());
 				new_gui->AddGUIButton(button);
 			}
 
@@ -23363,6 +23440,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			{
 				CGUIImage* image = CNew(CGUIImage);
 				image->SetVisible(g_guis[i]->m_guiImages[k]->IsVisible());
+				image->SetPosition(g_guis[i]->m_guiImages[k]->GetPosition());
 				new_gui->AddGUIImage(image);
 			}
 
@@ -23370,6 +23448,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			{
 				CGUIText* text = CNew(CGUIText);
 				text->SetVisible(g_guis[i]->m_guiTexts[k]->IsVisible());
+				text->SetPosition(g_guis[i]->m_guiTexts[k]->GetPosition());
 				new_gui->AddGUIText(text);
 			}
 

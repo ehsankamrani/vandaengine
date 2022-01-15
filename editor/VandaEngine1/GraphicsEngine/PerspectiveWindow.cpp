@@ -8115,10 +8115,10 @@ CInt SetPhysicsDefaultRestitution(lua_State* L)
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
 	if (value < 0.0f)
-	{
-		PrintInfo("\nSetPhysicsDefaultRestitution() Error: argument must be greater than 0", COLOR_RED);
-		return 0;
-	}
+		value = 0.0f;
+
+	if (value > 1.0f)
+		value = 1.0f;
 
 	g_physXProperties.m_fDefaultRestitution = value;
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
@@ -8235,10 +8235,7 @@ CInt SetPhysicsDefaultSkinWidth(lua_State* L)
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
 	if (value < 0.0f)
-	{
-		PrintInfo("\nSetPhysicsDefaultSkinWidth() Error: argument must be greater than 0", COLOR_RED);
-		return 0;
-	}
+		value = 0.0f;
 
 	g_physXProperties.m_fDefaultSkinWidth = value;
 	gPhysicsSDK->setParameter(NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth);
@@ -8354,10 +8351,7 @@ CInt SetPhysicsDefaultStaticFriction(lua_State* L)
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
 	if (value < 0.0f)
-	{
-		PrintInfo("\nSetPhysicsDefaultStaticFriction() Error: argument must be greater than 0", COLOR_RED);
-		return 0;
-	}
+		value = 0.0f;
 
 	g_physXProperties.m_fDefaultStaticFriction = value;
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
@@ -8473,10 +8467,7 @@ CInt SetPhysicsDefaultDynamicFriction(lua_State* L)
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
 	if (value < 0.0f)
-	{
-		PrintInfo("\nSetPhysicsDefaultDynamicFriction() Error: argument must be greater than 0", COLOR_RED);
-		return 0;
-	}
+		value = 0.0f;
 
 	g_physXProperties.m_fDefaultDynamicFriction = value;
 	NxMaterial* defaultMaterial = gPhysXscene->getMaterialFromIndex(0);
@@ -13404,6 +13395,918 @@ CInt ScaleGUIImage(lua_State* L)
 
 	return 0;
 }
+
+CInt SetGUIButtonPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUIButtonPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	CFloat x, y;
+	x = lua_tonumber(L, 3);
+	y = lua_tonumber(L, 4);
+	CVec2f pos(x, y);
+
+	if (g_editorMode == eMODE_GUI)
+	{
+		CChar guiName[MAX_NAME_SIZE];
+		sprintf(guiName, "GUI_%s", g_currentPackageAndGUIName);
+		StringToUpper(guiName);
+
+		if (Cmp(GUIName, guiName))
+		{
+			for (CUInt j = 0; j < g_guiButtons.size(); j++)
+			{
+				CChar btnName[MAX_NAME_SIZE];
+				Cpy(btnName, g_guiButtons[j]->GetName());
+				StringToUpper(btnName);
+
+				if (Cmp(buttonName, btnName))
+				{
+					g_guiButtons[j]->SetUnrestriedPosition(pos);
+					return 0;
+				}
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nSetGUIButtonPosition(%s, %s, %.2f, %.2f) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, x, y, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonPosition() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIButtonPosition() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					g_guis[i]->m_guiButtons[j]->SetUnrestriedPosition(pos);
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonPosition() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIButtonPosition() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetGUIImagePosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUIImagePosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIImage = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar imageName[MAX_NAME_SIZE];
+	Cpy(imageName, lua_tostring(L, 2));
+	StringToUpper(imageName);
+
+	CFloat x, y;
+	x = lua_tonumber(L, 3);
+	y = lua_tonumber(L, 4);
+	CVec2f pos(x, y);
+
+	if (g_editorMode == eMODE_GUI)
+	{
+		CChar guiName[MAX_NAME_SIZE];
+		sprintf(guiName, "GUI_%s", g_currentPackageAndGUIName);
+		StringToUpper(guiName);
+
+		if (Cmp(GUIName, guiName))
+		{
+			for (CUInt j = 0; j < g_guiImages.size(); j++)
+			{
+				CChar btnName[MAX_NAME_SIZE];
+				Cpy(btnName, g_guiImages[j]->GetName());
+				StringToUpper(btnName);
+
+				if (Cmp(imageName, btnName))
+				{
+					g_guiImages[j]->SetUnrestriedPosition(pos);
+					return 0;
+				}
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_imageNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_imageNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, imageName))
+							{
+								foundGUIImage = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nSetGUIImagePosition(%s, %s, %.2f, %.2f) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, imageName, x, y, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIImagePosition() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIImage)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIImagePosition() Error: Couldn't find GUI image '", imageName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+			{
+				CChar image[MAX_NAME_SIZE];
+				Cpy(image, g_guis[i]->m_guiImages[j]->GetName());
+				StringToUpper(image);
+
+				if (Cmp(image, imageName))
+				{
+					foundGUIImage = CTrue;
+
+					g_guis[i]->m_guiImages[j]->SetUnrestriedPosition(pos);
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIImagePosition() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIImage)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIImagePosition() Error: Couldn't find GUI image '", imageName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetGUITextPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetGUITextPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIText = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar textName[MAX_NAME_SIZE];
+	Cpy(textName, lua_tostring(L, 2));
+	StringToUpper(textName);
+
+	CFloat x, y;
+	x = lua_tonumber(L, 3);
+	y = lua_tonumber(L, 4);
+	CVec2f pos(x, y);
+
+	if (g_editorMode == eMODE_GUI)
+	{
+		CChar guiName[MAX_NAME_SIZE];
+		sprintf(guiName, "GUI_%s", g_currentPackageAndGUIName);
+		StringToUpper(guiName);
+
+		if (Cmp(GUIName, guiName))
+		{
+			for (CUInt j = 0; j < g_guiTexts.size(); j++)
+			{
+				CChar btnName[MAX_NAME_SIZE];
+				Cpy(btnName, g_guiTexts[j]->GetName());
+				StringToUpper(btnName);
+
+				if (Cmp(textName, btnName))
+				{
+					g_guiTexts[j]->SetUnrestriedPosition(pos);
+					return 0;
+				}
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_textNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_textNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, textName))
+							{
+								foundGUIText = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nSetGUITextPosition(%s, %s, %.2f, %.2f) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, textName, x, y, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUITextPosition() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIText)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUITextPosition() Error: Couldn't find GUI text '", textName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
+			{
+				CChar text[MAX_NAME_SIZE];
+				Cpy(text, g_guis[i]->m_guiTexts[j]->GetName());
+				StringToUpper(text);
+
+				if (Cmp(text, textName))
+				{
+					foundGUIText = CTrue;
+
+					g_guis[i]->m_guiTexts[j]->SetUnrestriedPosition(pos);
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUITextPosition() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIText)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUITextPosition() Error: Couldn't find GUI text '", textName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetGUIButtonPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetGUIButtonPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIButton = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar buttonName[MAX_NAME_SIZE];
+	Cpy(buttonName, lua_tostring(L, 2));
+	StringToUpper(buttonName);
+
+	if (g_editorMode == eMODE_GUI)
+	{
+		CChar guiName[MAX_NAME_SIZE];
+		sprintf(guiName, "GUI_%s", g_currentPackageAndGUIName);
+		StringToUpper(guiName);
+
+		if (Cmp(GUIName, guiName))
+		{
+			for (CUInt j = 0; j < g_guiButtons.size(); j++)
+			{
+				CChar btnName[MAX_NAME_SIZE];
+				Cpy(btnName, g_guiButtons[j]->GetName());
+				StringToUpper(btnName);
+
+				if (Cmp(buttonName, btnName))
+				{
+					CVec2f pos;
+					pos = g_guiButtons[j]->GetPosition();
+					lua_pushnumber(L, pos.x);
+					lua_pushnumber(L, pos.y);
+					return 2;
+				}
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_buttonNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, buttonName))
+							{
+								foundGUIButton = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUIButtonPosition(%s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonPosition() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIButton)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIButtonPosition() Error: Couldn't find GUI button '", buttonName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+			{
+				CChar button[MAX_NAME_SIZE];
+				Cpy(button, g_guis[i]->m_guiButtons[j]->GetName());
+				StringToUpper(button);
+
+				if (Cmp(button, buttonName))
+				{
+					foundGUIButton = CTrue;
+
+					CVec2f pos;
+					pos = g_guis[i]->m_guiButtons[j]->GetPosition();
+					lua_pushnumber(L, pos.x);
+					lua_pushnumber(L, pos.y);
+
+					return 2;
+
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonPosition() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIButton)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIButtonPosition() Error: Couldn't find GUI button '", buttonName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetGUIImagePosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetGUIImagePosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIImage = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar imageName[MAX_NAME_SIZE];
+	Cpy(imageName, lua_tostring(L, 2));
+	StringToUpper(imageName);
+
+	if (g_editorMode == eMODE_GUI)
+	{
+		CChar guiName[MAX_NAME_SIZE];
+		sprintf(guiName, "GUI_%s", g_currentPackageAndGUIName);
+		StringToUpper(guiName);
+
+		if (Cmp(GUIName, guiName))
+		{
+			for (CUInt j = 0; j < g_guiImages.size(); j++)
+			{
+				CChar btnName[MAX_NAME_SIZE];
+				Cpy(btnName, g_guiImages[j]->GetName());
+				StringToUpper(btnName);
+
+				if (Cmp(imageName, btnName))
+				{
+					CVec2f pos;
+					pos = g_guiImages[j]->GetPosition();
+					lua_pushnumber(L, pos.x);
+					lua_pushnumber(L, pos.y);
+
+					return 2;
+				}
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_imageNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_imageNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, imageName))
+							{
+								foundGUIImage = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUIImagePosition(%s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, imageName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIImagePosition() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIImage)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIImagePosition() Error: Couldn't find GUI image '", imageName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+			{
+				CChar image[MAX_NAME_SIZE];
+				Cpy(image, g_guis[i]->m_guiImages[j]->GetName());
+				StringToUpper(image);
+
+				if (Cmp(image, imageName))
+				{
+					foundGUIImage = CTrue;
+
+					CVec2f pos;
+					pos = g_guis[i]->m_guiImages[j]->GetPosition();
+					lua_pushnumber(L, pos.x);
+					lua_pushnumber(L, pos.y);
+					return 2;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIImagePosition() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIImage)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIImagePosition() Error: Couldn't find GUI image '", imageName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetGUITextPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetGUITextPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundGUI = CFalse;
+	CBool foundGUIText = CFalse;
+
+	CChar GUIName[MAX_NAME_SIZE];
+	Cpy(GUIName, lua_tostring(L, 1)); //GUI Name- First Argument
+	StringToUpper(GUIName);
+
+	CChar textName[MAX_NAME_SIZE];
+	Cpy(textName, lua_tostring(L, 2));
+	StringToUpper(textName);
+
+	if (g_editorMode == eMODE_GUI)
+	{
+		CChar guiName[MAX_NAME_SIZE];
+		sprintf(guiName, "GUI_%s", g_currentPackageAndGUIName);
+		StringToUpper(guiName);
+
+		if (Cmp(GUIName, guiName))
+		{
+			for (CUInt j = 0; j < g_guiTexts.size(); j++)
+			{
+				CChar btnName[MAX_NAME_SIZE];
+				Cpy(btnName, g_guiTexts[j]->GetName());
+				StringToUpper(btnName);
+
+				if (Cmp(textName, btnName))
+				{
+					CVec2f pos;
+					pos = g_guiTexts[j]->GetPosition();
+					lua_pushnumber(L, pos.x);
+					lua_pushnumber(L, pos.y);
+
+					return 2;
+				}
+			}
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, GUIName))
+					{
+						foundGUI = CTrue;
+						for (CUInt k = 0; k < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_textNames.size(); k++)
+						{
+							CChar name2[MAX_NAME_SIZE];
+							Cpy(name2, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_textNames[k].c_str());
+							StringToUpper(name2);
+
+							if (Cmp(name2, textName))
+							{
+								foundGUIText = CTrue;
+								CChar message[MAX_NAME_SIZE];
+								sprintf(message, "\nGetGUITextPosition(%s, %s) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, textName, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								PrintInfo(message, COLOR_GREEN);
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (!foundGUI)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUITextPosition() Error: Couldn't find GUI '", GUIName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		if (!foundGUIText)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUITextPosition() Error: Couldn't find GUI text '", textName, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, GUIName))
+		{
+			foundGUI = CTrue;
+
+			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
+			{
+				CChar text[MAX_NAME_SIZE];
+				Cpy(text, g_guis[i]->m_guiTexts[j]->GetName());
+				StringToUpper(text);
+
+				if (Cmp(text, textName))
+				{
+					foundGUIText = CTrue;
+
+					CVec2f pos;
+					pos = g_guis[i]->m_guiTexts[j]->GetPosition();
+					lua_pushnumber(L, pos.x);
+					lua_pushnumber(L, pos.y);
+
+					return 2;
+				}
+			}
+
+			break;
+		}
+	}
+	if (!foundGUI)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUITextPosition() Error: Couldn't find GUI '", GUIName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+	if (!foundGUIText)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUITextPosition() Error: Couldn't find GUI text '", textName, "'");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];

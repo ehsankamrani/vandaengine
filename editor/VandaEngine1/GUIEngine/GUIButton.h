@@ -67,6 +67,8 @@ public:
 
 	CVec2f SetPosition(CVec2f pos);
 	CVoid SetPosition2(CVec2f pos);
+	CVoid SetUnrestriedPosition(CVec2f pos) {m_position.x = pos.x;	m_position.y = pos.y;}
+
 	inline CVoid SetName(CChar* name) { Cpy(m_name, name); }
 	inline CVoid SetPackageName(CChar* name) { Cpy(m_packageName, name); }
 	inline CVoid SetGUIName(CChar* name) { Cpy(m_guiName, name); }

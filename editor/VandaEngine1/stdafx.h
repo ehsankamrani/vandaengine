@@ -307,3 +307,10 @@ CInt ShowGUIText(lua_State* L);
 CInt HideGUIText(lua_State* L);
 CInt ScaleGUIButton(lua_State* L);
 CInt ScaleGUIImage(lua_State* L);
+
+CInt SetGUIButtonPosition(lua_State* L);
+CInt SetGUIImagePosition(lua_State* L);
+CInt SetGUITextPosition(lua_State* L);
+CInt GetGUIButtonPosition(lua_State* L);
+CInt GetGUIImagePosition(lua_State* L);
+CInt GetGUITextPosition(lua_State* L);

@@ -72,6 +72,7 @@
 #include "GUIEngine/GUIButton.h"
 #include "GUIEngine/GUIText.h"
 #include "GUIEngine/GUI.h"
+#include "ExitEditorDlg.h"
 
 #include "scenemanagerEngine/octree.h"
 #include "PhysX.h"
@@ -99,6 +100,7 @@ struct COptions
 	CInt m_numSamples;
 	CInt m_anisotropy;
 	CBool m_showStartupDialog;
+	CBool m_showExitDialog;
 	CBool m_disableVSync;
 	CBool m_enableWaterReflection;
 	CBool m_enableShader;
@@ -113,6 +115,7 @@ struct COptions
 		m_numSamples = 4;
 		m_anisotropy = 4;
 		m_showStartupDialog = CTrue;
+		m_showExitDialog = CTrue;
 		m_disableVSync = CTrue;
 		m_enableWaterReflection = CTrue;
 		m_enableShader = CTrue;
@@ -128,6 +131,7 @@ struct COptions
 		m_numSamples = 4;
 		m_anisotropy = 4;
 		m_showStartupDialog = CTrue;
+		m_showExitDialog = CTrue;
 		m_disableVSync = CTrue;
 		m_enableWaterReflection = CTrue;
 		m_enableShader = CTrue;

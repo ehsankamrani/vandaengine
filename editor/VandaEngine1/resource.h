@@ -9,6 +9,7 @@
 #define ID_OPEN                         2
 #define ID_BUTTON_API_UTILITY           2
 #define IDDONATE                        2
+#define ID_OPEN_WEBSITE                 2
 #define ID_BUTTON_WATER_DUDV            3
 #define ID_BUTTON_AMBIENT_SOUND         3
 #define ID_ACIVATE_AND_RENDER           3
@@ -377,6 +378,7 @@
 #define IDB_BITMAP_SCRIPT_UTILITY_GUI_IMAGE 519
 #define IDB_BITMAP14                    520
 #define IDB_BITMAP_SCRIPT_UTILITY_GUI_TEXT 520
+#define IDD_DIALOG_EXIT_EDITOR          521
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -970,6 +972,8 @@
 #define IDC_EDIT_PHYSICS_SKIN_WIDTH     1297
 #define IDC_EDIT_PHYSICS_DYNAMIC_FRICTION 1298
 #define IDC_CHECK_HAS_PHYSICS_MATERIAL  1299
+#define IDC_EXIT_BUTTON_CHECK           1300
+#define IDC_EXIT_BUTTON_UNCHECK         1301
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1303,9 +1307,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        521
+#define _APS_NEXT_RESOURCE_VALUE        522
 #define _APS_NEXT_COMMAND_VALUE         33103
-#define _APS_NEXT_CONTROL_VALUE         1300
+#define _APS_NEXT_CONTROL_VALUE         1302
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -235,6 +235,13 @@ private:
 	CChar ScaleGUIButton[MAX_URI_SIZE];
 	CChar ScaleGUIImage[MAX_URI_SIZE];
 
+	CChar SetGUIButtonPosition[MAX_URI_SIZE];
+	CChar SetGUIImagePosition[MAX_URI_SIZE];
+	CChar SetGUITextPosition[MAX_URI_SIZE];
+	CChar GetGUIButtonPosition[MAX_URI_SIZE];
+	CChar GetGUIImagePosition[MAX_URI_SIZE];
+	CChar GetGUITextPosition[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

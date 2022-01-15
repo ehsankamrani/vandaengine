@@ -222,6 +222,13 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ScaleGUIButton, "ScaleGUIButton(string GUIName, string buttonName, double scaleValue)");
 	Cpy(ScaleGUIImage, "ScaleGUIImage(string GUIName, string imageName, double scaleValue)");
 
+	Cpy(SetGUIButtonPosition, "SetGUIButtonPosition(string GUIName, string buttonName, int x, int y)");
+	Cpy(SetGUIImagePosition, "SetGUIImagePosition(string GUIName, string imageName, int x, int y)");
+	Cpy(SetGUITextPosition, "SetGUITextPosition(string GUIName, string textName, int x, int y)");
+	Cpy(GetGUIButtonPosition, "GetGUIButtonPosition(string GUIName, string buttonName)");
+	Cpy(GetGUIImagePosition, "GetGUIImagePosition(string GUIName, string imageName)");
+	Cpy(GetGUITextPosition, "GetGUITextPosition(string GUIName, string textName)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -994,6 +1001,30 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(ScaleGUIImage);
 		}
+		else if (Cmp(szBuffer, "SetGUIButtonPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUIButtonPosition);
+		}
+		else if (Cmp(szBuffer, "SetGUIImagePosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUIImagePosition);
+		}
+		else if (Cmp(szBuffer, "SetGUITextPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGUITextPosition);
+		}
+		else if (Cmp(szBuffer, "GetGUIButtonPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUIButtonPosition);
+		}
+		else if (Cmp(szBuffer, "GetGUIImagePosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUIImagePosition);
+		}
+		else if (Cmp(szBuffer, "GetGUITextPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGUITextPosition);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1220,6 +1251,13 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("HideGUIText");
 	InsertItem("ScaleGUIButton");
 	InsertItem("ScaleGUIImage");
+
+	InsertItem("SetGUIButtonPosition");
+	InsertItem("SetGUIImagePosition");
+	InsertItem("SetGUITextPosition");
+	InsertItem("GetGUIButtonPosition");
+	InsertItem("GetGUIImagePosition");
+	InsertItem("GetGUITextPosition");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

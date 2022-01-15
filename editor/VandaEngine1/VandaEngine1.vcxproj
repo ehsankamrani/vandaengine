@@ -168,6 +168,7 @@
     <ClCompile Include="EditProjectProperties.cpp" />
     <ClCompile Include="EditProjectVScenes.cpp" />
     <ClCompile Include="EditVSceneName.cpp" />
+    <ClCompile Include="ExitEditorDlg.cpp" />
     <ClCompile Include="GraphicsEngine\Animation.cpp" />
     <ClCompile Include="GraphicsEngine\AviPlayer.cpp" />
     <ClCompile Include="GraphicsEngine\Base.cpp" />
@@ -334,6 +335,7 @@
     <ClInclude Include="EditProjectProperties.h" />
     <ClInclude Include="EditProjectVScenes.h" />
     <ClInclude Include="EditVSceneName.h" />
+    <ClInclude Include="ExitEditorDlg.h" />
     <ClInclude Include="GraphicsEngine\Animation.h" />
     <ClInclude Include="GraphicsEngine\Aviplayer.h" />
     <ClInclude Include="GraphicsEngine\Base.h" />

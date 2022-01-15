@@ -284,4 +284,12 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "HideGUIText", HideGUIText);
 	lua_register(L, "ScaleGUIButton", ScaleGUIButton);
 	lua_register(L, "ScaleGUIImage", ScaleGUIImage);
+
+	lua_register(L, "SetGUIButtonPosition", SetGUIButtonPosition);
+	lua_register(L, "SetGUIImagePosition", SetGUIImagePosition);
+	lua_register(L, "SetGUITextPosition", SetGUITextPosition);
+	lua_register(L, "GetGUIButtonPosition", GetGUIButtonPosition);
+	lua_register(L, "GetGUIImagePosition", GetGUIImagePosition);
+	lua_register(L, "GetGUITextPosition", GetGUITextPosition);
+
 }
