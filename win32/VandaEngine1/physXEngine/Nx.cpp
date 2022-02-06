@@ -17,7 +17,6 @@ CNovodex::CNovodex()
 	m_hasScene = CFalse; //imported scene from 3ds Max or Maya. by default I don't import a scene
 	m_groundBox = NULL;
 	m_currentMoveDirection = m_previousMoveDirection = IDLE;
-
 }
 
 CNovodex::~CNovodex()
@@ -51,7 +50,7 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 	gCharacterVec = NxVec3(1,0,0);
 	gCharacterWalkSpeed = g_physXProperties.m_fCharacterWalkSpeed;
 	gCharacterRunSpeed = g_physXProperties.m_fCharacterRunSpeed;
-	bFixedStep = true;
+	bFixedStep = CTrue;
 	gDesiredDistance = 3.f;
 	m_pushCharacter = CFalse;
 
@@ -80,8 +79,18 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 			gPhysXscene = gPhysicsSDK->createScene(sceneDesc);
 		}
 	}
-	gPhysXscene->setGroupCollisionFlag( GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue );
-	gPhysXscene->setGroupCollisionFlag( GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue );
+	gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+	gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_COLLIDABLE_NON_PUSHABLE, CFalse);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CFalse);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_DUMMY, CFalse);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_STATIC, CFalse);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_TRIGGER, CFalse);
+	gPhysXscene->setGroupCollisionFlag(GROUP_DUMMY, GROUP_GROUND, CFalse);
+
+	gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CFalse);
+
 	gPhysXscene->setUserTriggerReport(&gTriggerReport);
 
 	debugMode = true;
@@ -114,11 +123,10 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 
 	InitCharacterControllers( XCharacterPos, YCharacterPos, ZCharacterPos, crtlRadius, crtlHeight, crtSkinWidth, crtSlopeLimit, crtStepOffset);	
 	CFloat TimeStep = 1.0f / 60.0f;
-	if (bFixedStep)	
+	if (bFixedStep)
 		gPhysXscene->setTiming(TimeStep, 8, NX_TIMESTEP_FIXED);
 	else
 		gPhysXscene->setTiming(TimeStep, 8, NX_TIMESTEP_VARIABLE);
-
 
 	gCharacterPos.x = XCharacterPos;
 	gCharacterPos.y = YCharacterPos;
@@ -132,10 +140,10 @@ CVoid CNovodex::runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveD
 {
 	if( gPhysXscene )
 	{
-		// Run collision and dynamics for delta time since the last frame
 		gPhysXscene->simulate(elapsedTime);
 		gPhysXscene->flushStream();
 		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
 		// Update the box character's position according to by testing its
 		// axis-aligned bounding box against a copy of the current scene.
 		UpdateCharacter(forceDirection, forceSpeed, elapsedTime, moveDirection);
@@ -236,7 +244,7 @@ CVoid CNovodex::UpdateCharacter( NxVec3 forceDirection, CFloat forceSpeed, CFloa
 		break;
 	}
 
-	if (pushCharacter || bPushCharacter) //bPushCharater is specifed inside directionalForceFunction
+	if (pushCharacter || bPushCharacter) //bPushCharater is specifed inside ApplyForce function
 	{
 		//horizontalDisp.y = 0.0f;
 		horizontalDisp.normalize();
@@ -286,7 +294,7 @@ NxF32 CNovodex::cameraHit()
 		gWorldRay = worldRay;
 		if( shape )
 		{
-			if ( shape->getGroup() == GROUP_TRIGGER || shape->getGroup() == GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT )
+			if (shape->getGroup() == GROUP_TRIGGER || shape->getGroup() == GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT || shape->getGroup() == GROUP_DUMMY)
 				return gDesiredDistance;
 			else
 			{
@@ -371,11 +379,16 @@ CVoid CNovodex::StopJump()
 
 CVoid CNovodex::SetActorCollisionGroup(NxActor* actor, NxCollisionGroup group)
 {
-    NxShape*const* shapes = actor->getShapes();
-    NxU32 nShapes = actor->getNbShapes();
-    while (nShapes--)
-    {
-        shapes[nShapes]->setGroup(group);
+	actor->setGroup(group);
+	NxShape*const* shapes = actor->getShapes();
+	NxU32 nShapes = actor->getNbShapes();
+	while (nShapes--)
+	{
+		//do not set dummy shapes of triggers
+		if (group == GROUP_TRIGGER && shapes[nShapes]->getName() && Cmp(shapes[nShapes]->getName(), "dummy"))
+			shapes[nShapes]->setGroup(GROUP_DUMMY);
+		else
+			shapes[nShapes]->setGroup(group);
 	}
 }
 
@@ -397,7 +410,7 @@ NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const N
 	NxActorDesc actorDesc;
 	NxBodyDesc bodyDesc;
 	bodyDesc.setToDefault();
-	if( isKinematic )
+	if (isKinematic)
 		bodyDesc.flags = NX_BF_KINEMATIC;
 	// The actor has one shape, a capsule
 	NxCapsuleShapeDesc capsuleDesc;
@@ -413,23 +426,34 @@ NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const N
 		capsuleDesc.skinWidth = physicsMaterial.SkinWidth;
 	}
 
-	if( isTrigger && density == 0 && !isKinematic)
+	if (isTrigger && isKinematic)
+	{
+		NxCapsuleShapeDesc dummyShape;
+		dummyShape.name = "dummy";
+		NxF32 sizeinc = 1.01f;
+		dummyShape.height = height * sizeinc;
+		dummyShape.radius = radius * sizeinc;
+		dummyShape.group = GROUP_DUMMY;
+		actorDesc.shapes.pushBack(&dummyShape);
+	}
+
+	if (isTrigger && density == 0)
 		capsuleDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 
 	capsuleDesc.height = height;
 	capsuleDesc.radius = radius;
-	if( !isKinematic )
+	if (!isKinematic)
 	{
 		capsuleDesc.localPose.t = pos/*NxVec3(0.0f, radius + 0.5f * height, 0.0f )*/;
 		capsuleDesc.localPose.M = rotation;
 	}
 	actorDesc.shapes.pushBack(&capsuleDesc);
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = 10.0f; //none-zero density
 	}
-	else	if (density)
+	else if (density)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = density;
@@ -438,23 +462,28 @@ NxActor* CNovodex::CreateCapsule(const NxVec3& pos, const NxReal height, const N
 	{
 		actorDesc.body = NULL;
 	}
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.globalPose.t = pos;
 		actorDesc.globalPose.M = rotation;
 	}
 	actorDesc.name = name;
-	NxActor* actor = gPhysXscene->createActor(actorDesc);	
-	if( actor && actor->isDynamic() )
+	NxActor* actor = gPhysXscene->createActor(actorDesc);
+
+	if (actor && isTrigger)
 	{
-		if( !isKinematic )
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE );
+		SetActorCollisionGroup(actor, GROUP_TRIGGER);
+	}
+	else if (actor && actor->isDynamic())
+	{
+		if (!isKinematic)
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE);
 		else
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE );
-	}	
-	else if( isTrigger )
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE);
+	}
+	else if (actor) //static actor
 	{
-		SetActorCollisionGroup(actor, GROUP_TRIGGER );
+		SetActorCollisionGroup(actor, GROUP_STATIC);
 	}
 
 	return actor;
@@ -466,7 +495,7 @@ NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const Nx
 	// Add a single-shape actor to the scene
 	NxActorDesc actorDesc;
 	NxBodyDesc bodyDesc;
-	if( isKinematic )
+	if (isKinematic)
 		bodyDesc.flags = NX_BF_KINEMATIC;
 	// The actor has one shape, a sphere
 	NxSphereShapeDesc sphereDesc;
@@ -482,20 +511,30 @@ NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const Nx
 		sphereDesc.skinWidth = physicsMaterial.SkinWidth;
 	}
 
-	if( isTrigger && density == 0 && !isKinematic)
+	if (isTrigger && isKinematic)
+	{
+		NxSphereShapeDesc dummyShape;
+		dummyShape.name = "dummy";
+		NxF32 sizeinc = 1.01f;
+		dummyShape.radius = radius * sizeinc;
+		dummyShape.group = GROUP_DUMMY;
+		actorDesc.shapes.pushBack(&dummyShape);
+	}
+
+	if (isTrigger && density == 0)
 		sphereDesc.shapeFlags |= NX_TRIGGER_ENABLE;
 
 	sphereDesc.radius = radius;
-	if( !isKinematic )
+	if (!isKinematic)
 		sphereDesc.localPose.t = pos;
 	actorDesc.shapes.pushBack(&sphereDesc);
 
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = 10.0f; //none-zero density
 	}
-	else if (density )
+	else if (density)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = density;
@@ -504,63 +543,37 @@ NxActor* CNovodex::CreateSphere(const NxVec3& pos, const NxReal radius, const Nx
 	{
 		actorDesc.body = NULL;
 	}
-	if( isKinematic )
+	if (isKinematic)
 		actorDesc.globalPose.t = pos;
 	//actorDesc.globalPose.t = pos;
 	actorDesc.name = name;
 	NxActor* actor = gPhysXscene->createActor(actorDesc);
-	if( actor && actor->isDynamic() )
+
+	if (actor && isTrigger)
 	{
-		if( !isKinematic )
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE );
+		SetActorCollisionGroup(actor, GROUP_TRIGGER);
+	}
+	else if (actor && actor->isDynamic())
+	{
+		if (!isKinematic)
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE);
 		else
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE );
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE);
 	}
-	else if( isTrigger )
+	else if (actor) //static actor
 	{
-		SetActorCollisionGroup(actor, GROUP_TRIGGER );
+		SetActorCollisionGroup(actor, GROUP_STATIC);
 	}
-
-	return actor;	
-}
-
-NxActor* CNovodex::CreateWallAdv(const NxVec3& pos, const NxReal length, const NxReal height, const NxReal Diameter, const NxReal xDegree, const NxReal yDegree, const NxReal zDegree, CPhysXMaterial physicsMaterial, CBool noCameraHit ){
-
-    NxActor* actor;
-	NxVec3 rot0( 0, 0, 0 );
-	NxVec3 rot1( 0, 0, 0 );
-	NxVec3 rot2( 0, 0, 0 );
-	NxMat33 rot( rot0, rot1, rot2 );
-	actor = CreateBox(pos, NxVec3( Diameter,height,length ), 10, rot, NULL, CFalse, CFalse, physicsMaterial );
-	if(! noCameraHit )
-        SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE);
-	else
-        SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT);
-
-	NxMat33 tempMatrix;
-	NxMat33 globalOrientation;
-	globalOrientation = actor->getGlobalOrientation();
-	NxMat33 Mx = globalOrientation;
-	Mx.rotX( NxMath::degToRad(xDegree) );
-	tempMatrix = Mx;
-	NxMat33 My = globalOrientation;
-	My.rotY( NxMath::degToRad(yDegree) );
-	tempMatrix = My * tempMatrix;
-	NxMat33 Mz = globalOrientation;
-	Mz.rotZ( NxMath::degToRad(zDegree) );
-	tempMatrix = Mz * tempMatrix;
-	actor->setGlobalOrientation( tempMatrix );
 
 	return actor;
 }
-
 
 NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
 	// Add a single-shape actor to the scene
 	NxActorDesc actorDesc;
 	NxBodyDesc bodyDesc;
-	if( isKinematic )
+	if (isKinematic)
 		bodyDesc.flags = NX_BF_KINEMATIC;
 	// The actor has one shape, a box
 	NxBoxShapeDesc boxDesc;
@@ -576,25 +589,37 @@ NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxRe
 		boxDesc.skinWidth = physicsMaterial.SkinWidth;
 	}
 
-	boxDesc.dimensions.set(boxDim.x,boxDim.y,boxDim.z);
-	if( isTrigger && density == 0 && !isKinematic)
-		boxDesc.shapeFlags |= NX_TRIGGER_ENABLE;
+	boxDesc.dimensions.set(boxDim.x, boxDim.y, boxDim.z);
 
-	if( !isKinematic )
+	if (isTrigger && density == 0)
+	{
+		boxDesc.shapeFlags |= NX_TRIGGER_ENABLE;
+	}
+
+	if (!isKinematic)
 	{
 		boxDesc.localPose.t = pos;
 		boxDesc.localPose.M = rotation;
 	}
 
+	if (isTrigger && isKinematic)
+	{
+		NxBoxShapeDesc dummyShape;
+		dummyShape.name = "dummy";
+		NxF32 sizeinc = 1.01f;
+		dummyShape.dimensions.set(boxDim.x * sizeinc, boxDim.y * sizeinc, boxDim.z * sizeinc);
+		dummyShape.group = GROUP_DUMMY;
+		actorDesc.shapes.pushBack(&dummyShape);
+	}
 
 	actorDesc.shapes.pushBack(&boxDesc);
 
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = 10.0f; //none-zero density
 	}
-	else if (density )
+	else if (density)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = density;
@@ -603,33 +628,44 @@ NxActor* CNovodex::CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxRe
 	{
 		actorDesc.body = NULL;
 	}
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.globalPose.t = pos;
 		actorDesc.globalPose.M = rotation;
 	}
-	
+
 	actorDesc.name = name;
+
 	NxActor* actor = gPhysXscene->createActor(actorDesc);
-	if( actor && actor->isDynamic() )
+
+	if (actor && isTrigger)
 	{
-		if( !isKinematic )
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE );
+		SetActorCollisionGroup(actor, GROUP_TRIGGER);
+	}
+	else if (actor && actor->isDynamic())
+	{
+		if (!isKinematic)
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE);
 		else
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE );
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE);
 	}
-	else if( isTrigger )
+	else if (actor) //static actor
 	{
-		SetActorCollisionGroup(actor, GROUP_TRIGGER );
+		SetActorCollisionGroup(actor, GROUP_STATIC);
 	}
-	
+
 	return actor;
 }
 
 
 NxActor* CNovodex::CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxMat33 rotation, const CChar* name, CBool isKinematic, CPhysXMaterial physicsMaterial)
 {
+	// Add a single-shape actor to the scene
 	NxActorDesc actorDesc;
+	NxBodyDesc bodyDesc;
+
+	if (isKinematic)
+		bodyDesc.flags = NX_BF_KINEMATIC;
 
 	NxBoxShapeDesc boxDesc;
 
@@ -642,6 +678,26 @@ NxActor* CNovodex::CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxM
 		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
 		boxDesc.materialIndex = newMaterial->getMaterialIndex();
 		boxDesc.skinWidth = physicsMaterial.SkinWidth;
+	}
+
+	if (isKinematic)
+	{
+		actorDesc.body = &bodyDesc;
+		actorDesc.density = 10.0f; //none-zero density
+	}
+	else
+	{
+		actorDesc.body = NULL;
+	}
+
+	if (isKinematic)
+	{
+		NxBoxShapeDesc dummyShape;
+		dummyShape.name = "dummy";
+		NxF32 sizeinc = 1.01f;
+		dummyShape.dimensions.set(boxDim.x * sizeinc, boxDim.y * sizeinc, boxDim.z * sizeinc);
+		dummyShape.group = GROUP_DUMMY;
+		actorDesc.shapes.pushBack(&dummyShape);
 	}
 
 	boxDesc.dimensions = boxDim;
@@ -650,46 +706,9 @@ NxActor* CNovodex::CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxM
 	actorDesc.shapes.pushBack(&boxDesc);
 	actorDesc.globalPose.t = pos;
 	actorDesc.globalPose.M = rotation;
-	NxActor* actor = gPhysXscene->createActor(actorDesc); 
-	SetActorCollisionGroup( actor , GROUP_TRIGGER );
-	return actor;
-}
-
-NxActor* CNovodex::CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, const NxReal rDegree, const char* triggerName, CPhysXMaterial physicsMaterial)
-{
-	NxActor* actor;
-	NxActorDesc actorDesc;
- 	NxMat33 rTemp;
-
-	NxBoxShapeDesc boxDesc;
-
-	if (physicsMaterial.HasMaterial)
-	{
-		NxMaterialDesc materialDesc;
-		materialDesc.restitution = physicsMaterial.Restitution;
-		materialDesc.staticFriction = physicsMaterial.StaticFriction;
-		materialDesc.dynamicFriction = physicsMaterial.DynamicFriction;
-		NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
-		boxDesc.materialIndex = newMaterial->getMaterialIndex();
-		boxDesc.skinWidth = physicsMaterial.SkinWidth;
-	}
-
-	boxDesc.dimensions = boxDim;
-	boxDesc.shapeFlags |= NX_TRIGGER_ENABLE;
-
-	actorDesc.shapes.pushBack(&boxDesc);
-	actorDesc.globalPose.t = pos + NxVec3(0, boxDim.y, 0);
-	 
-	actor = gPhysXscene->createActor(actorDesc);	
-
-	actor->userData = (CVoid*)-1;
-	actor->setName(triggerName);
-
-	rTemp = actor->getGlobalOrientation();
-	rTemp.rotY(NxMath::degToRad(rDegree));
-	actor->setGlobalOrientation(rTemp);
-	SetActorCollisionGroup( actor, GROUP_TRIGGER );
-
+	actorDesc.name = name;
+	NxActor* actor = gPhysXscene->createActor(actorDesc);
+	SetActorCollisionGroup(actor, GROUP_TRIGGER);
 	return actor;
 }
 
@@ -697,23 +716,27 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 {
 	NxActorDesc actorDesc;
 	NxBodyDesc bodyDesc;
-	if( isKinematic )
+	if (isKinematic)
 		bodyDesc.flags = NX_BF_KINEMATIC;
 
 	// Create descriptor for triangle mesh
 	NxConvexMeshDesc convexDesc;
 
-	convexDesc.numVertices			= vertexCount;
-	convexDesc.pointStrideBytes		=  3 * sizeof(CFloat);
-	convexDesc.points				= meshVertices;
-	convexDesc.flags				= NX_CF_COMPUTE_CONVEX;
+	//NxMaterialDesc materialDesc;
+	//materialDesc.restitution = 0.0f;
+	//NxMaterial *newMaterial = gPhysXscene->createMaterial(materialDesc);
+
+	convexDesc.numVertices = vertexCount;
+	convexDesc.pointStrideBytes = 3 * sizeof(CFloat);
+	convexDesc.points = meshVertices;
+	convexDesc.flags = NX_CF_COMPUTE_CONVEX;
 
 	NxConvexMeshDesc convexDesc2;
 
-	convexDesc2.numVertices			= vertexCount;
-	convexDesc2.pointStrideBytes		=  3 * sizeof(CFloat);
-	convexDesc2.points				= meshVertices;
-	convexDesc2.flags				= NX_CF_COMPUTE_CONVEX | NX_CF_INFLATE_CONVEX;
+	convexDesc2.numVertices = vertexCount;
+	convexDesc2.pointStrideBytes = 3 * sizeof(CFloat);
+	convexDesc2.points = meshVertices;
+	convexDesc2.flags = NX_CF_COMPUTE_CONVEX | NX_CF_INFLATE_CONVEX;
 
 
 	// The actor has one shape, a convex mesh
@@ -730,7 +753,6 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 		convexShapeDesc.skinWidth = physicsMaterial.SkinWidth;
 	}
 
-
 	NxConvexShapeDesc convexShapeDesc2;
 
 	if (physicsMaterial.HasMaterial)
@@ -744,10 +766,9 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 		convexShapeDesc2.skinWidth = physicsMaterial.SkinWidth;
 	}
 
-
-	if( isTrigger && density == 0 && !isKinematic)
+	if (isTrigger && density == 0)
 		convexShapeDesc.shapeFlags |= NX_TRIGGER_ENABLE;
-	if( isTrigger && density == 0 && !isKinematic)
+	if (isTrigger && density == 0)
 		convexShapeDesc2.shapeFlags |= NX_TRIGGER_ENABLE;
 
 	//	convexShapeDesc.meshData = gPhysicsSDK->createConvexMesh(convexDesc);
@@ -757,18 +778,17 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 	MemoryWriteBuffer buf;
 
 	bool status = NxCookConvexMesh(convexDesc, buf/*upstream*/);
-	if( status )
+	if (status)
 	{
 		convexShapeDesc.meshData = gPhysicsSDK->createConvexMesh(MemoryReadBuffer(buf.data)/*downstream*/);
 		NxCloseCooking();
 
-		if( !isKinematic )
+		if (!isKinematic)
 		{
 			convexShapeDesc.localPose.t = pos;
 			convexShapeDesc.localPose.M = rotation;
 		}
-		if( !isKinematic && density > 0.0f )
-			convexShapeDesc.mass = density;
+
 		actorDesc.shapes.pushBack(&convexShapeDesc);
 	}
 	else
@@ -779,17 +799,16 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 		NxInitCooking();
 
 		status = NxCookConvexMesh(convexDesc2, buf/*upstream*/);
-		if( status )
+		if (status)
 		{
 			convexShapeDesc2.meshData = gPhysicsSDK->createConvexMesh(MemoryReadBuffer(buf.data)/*downstream*/);
 
-			if( !isKinematic )
+			if (!isKinematic)
 			{
 				convexShapeDesc2.localPose.t = pos;
 				convexShapeDesc2.localPose.M = rotation;
 			}
-			if( !isKinematic && density > 0.0f )
-				convexShapeDesc2.mass = density;
+
 			actorDesc.shapes.pushBack(&convexShapeDesc2);
 			NxCloseCooking();
 		}
@@ -801,7 +820,7 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 		}
 	}
 
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.body = &bodyDesc;
 		actorDesc.density = 10.0f;
@@ -815,26 +834,39 @@ NxActor* CNovodex::CreateConvexMesh(CInt vertexCount, CFloat* meshVertices, cons
 	{
 		actorDesc.body = NULL;
 	}
-	if( isKinematic )
+	if (isKinematic)
 	{
 		actorDesc.globalPose.t = pos;
 		actorDesc.globalPose.M = rotation;
 	}
-	actorDesc.name = name;
-	
-	NxActor *actor = gPhysXscene->createActor(actorDesc);
-	actor->setMass(density);
 
-	if( actor && actor->isDynamic() )
+	if (isTrigger && isKinematic)
 	{
-		if( !isKinematic )
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE );
-		else
-			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE );
+		NxBoxShapeDesc dummyShape;
+		dummyShape.name = "dummy";
+		dummyShape.dimensions.set(0.01f, 0.01f, 0.01f);
+		dummyShape.group = GROUP_DUMMY;
+		actorDesc.shapes.pushBack(&dummyShape);
 	}
-	else if( isTrigger )
+
+	actorDesc.name = name;
+
+	NxActor *actor = gPhysXscene->createActor(actorDesc);
+
+	if (actor && isTrigger)
 	{
-		SetActorCollisionGroup(actor, GROUP_TRIGGER );
+		SetActorCollisionGroup(actor, GROUP_TRIGGER);
+	}
+	else if (actor && actor->isDynamic())
+	{
+		if (!isKinematic)
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_PUSHABLE);
+		else
+			SetActorCollisionGroup(actor, GROUP_COLLIDABLE_NON_PUSHABLE);
+	}
+	else if (actor) //static actor
+	{
+		SetActorCollisionGroup(actor, GROUP_STATIC);
 	}
 
 	return actor;
@@ -917,6 +949,11 @@ NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, 
 		{
 			SetActorCollisionGroup(actor, GROUP_TRIGGER);
 		}
+		else
+		{
+			SetActorCollisionGroup(actor, GROUP_STATIC);
+		}
+
 		return actor;
 	}
 
@@ -1001,6 +1038,11 @@ NxActor* CNovodex::CreateTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* 
 		{
 			SetActorCollisionGroup(actor, GROUP_TRIGGER );
 		}
+		else
+		{
+			SetActorCollisionGroup(actor, GROUP_STATIC);
+		}
+
 		NxCloseCooking();
 		return actor;
 	}
@@ -1019,6 +1061,7 @@ NxActor* CNovodex::CreateGroundPlane(CFloat groundHeight)
 	actorDesc.shapes.pushBack(&planeDesc);
 	m_planeGroundActor = gPhysXscene->createActor(actorDesc);
 	m_planeGroundActor->setName("physx_ground_plane");
+	SetActorCollisionGroup(m_planeGroundActor, GROUP_GROUND);
 	return m_planeGroundActor;
 }
 
@@ -1087,16 +1130,22 @@ CVoid CNovodex::processInputs()
 {
 }
 
-NxVec3 CNovodex::ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength, CBool forceMode)
+NxVec3 CNovodex::ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength)
 {
 	NxVec3 forceVec = forceStrength*forceDir;
 
-	if (forceMode)
-		actor->addForce(forceVec);
-	else 
-		actor->addTorque(forceVec);
+	actor->addForce(forceVec, NX_IMPULSE, CTrue);
 
 	return forceVec;
+}
+
+NxVec3 CNovodex::ApplyTorqueToActor(NxActor* actor, const NxVec3& torqueDir, const NxReal torqueStrength)
+{
+	NxVec3 torqueVec = torqueStrength*torqueDir;
+
+	actor->addTorque(torqueVec, NX_IMPULSE, CTrue);
+
+	return torqueVec;
 }
 
 NxVec3 CNovodex::ApplyForceToActorAtShape(NxActor* actor, NxShape* shape, const NxVec3& forceDir, const NxReal forceStrength, CBool forceMode, CBool shapeSelectMode)
@@ -1278,7 +1327,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 	NxActor* otherActor = &otherShape.getActor();
 	otherName = (char *)otherActor->getName();
 
-	if (status & NX_TRIGGER_ON_ENTER & !otherName)
+	if (status & NX_TRIGGER_ON_ENTER)
 	{
 		// A body just entered the trigger area
 		//gNbTouchedBodies++;

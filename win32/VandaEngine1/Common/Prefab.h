@@ -44,6 +44,9 @@ public:
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
 
+	CVoid AddPhysicsForce(CFloat forceX, CFloat forceY, CFloat forceZ, CFloat forcePower);
+	CVoid AddPhysicsTorque(CFloat torqueX, CFloat torqueY, CFloat torqueZ, CFloat torquePower);
+
 private:
 	CChar m_name[MAX_NAME_SIZE];
 	CPrefab* m_prefab;

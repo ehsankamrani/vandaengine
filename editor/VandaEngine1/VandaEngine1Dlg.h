@@ -817,6 +817,8 @@ public:
 	CVoid ChangeSkyDomeProperties();
 	CVoid ChangeTerrainProperties();
 	CVoid ChangeVSceneScriptProperties();
+	CVoid FindGeometryInstancesRenderedByPhysics();
+
 public:
 	CWaterAttachment* m_dlgWaterAttachment;
 	CAddTrigger* m_dlgAddTrigger;

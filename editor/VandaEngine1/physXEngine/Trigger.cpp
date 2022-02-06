@@ -117,6 +117,21 @@ CVoid CTrigger::SetTriggerType(CTriggerType triggerType)
 CVoid CTrigger::SetInstancePrefab(CInstancePrefab* instancePrefab)
 {
 	m_instancePrefab = instancePrefab;
+
+	for (CUInt j = 0; j < 3; j++)
+	{
+		if (m_instancePrefab->GetPrefab()->GetHasLod(j))
+		{
+			CScene* scene = m_instancePrefab->GetScene(j);
+			if (scene)
+			{
+				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+				{
+					scene->m_instanceGeometries[k]->m_isInvisible = CTrue;
+				}
+			}
+		}
+	}
 }
 
 CTriggerType CTrigger::GetTriggerType()

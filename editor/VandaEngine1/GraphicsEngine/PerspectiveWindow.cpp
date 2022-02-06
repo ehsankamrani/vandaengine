@@ -379,9 +379,20 @@ CInt BlendCycle(lua_State *L)
 			if (g_currentInstancePrefab)
 			{
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 						scene->SetAnimationStatus(eANIM_PLAY);
@@ -433,8 +444,6 @@ CInt BlendCycle(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->SetAnimationStatus(eANIM_PLAY);
 
 				CChar luaToString2[MAX_NAME_SIZE];
@@ -537,9 +546,20 @@ CInt BlendCycle(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					scene->SetAnimationStatus(eANIM_PLAY);
@@ -618,9 +638,20 @@ CInt ClearCycle(lua_State *L)
 			if (g_currentInstancePrefab)
 			{
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 						scene->SetAnimationStatus(eANIM_PLAY);
@@ -673,8 +704,6 @@ CInt ClearCycle(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->SetAnimationStatus(eANIM_PLAY);
 
 				CChar luaToString2[MAX_NAME_SIZE];
@@ -778,9 +807,20 @@ CInt ClearCycle(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					scene->SetAnimationStatus(eANIM_PLAY);
@@ -860,9 +900,20 @@ CInt ExecuteAction(lua_State *L)
 			if (g_currentInstancePrefab)
 			{
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 						scene->SetAnimationStatus(eANIM_PLAY);
@@ -928,8 +979,6 @@ CInt ExecuteAction(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->SetAnimationStatus(eANIM_PLAY);
 
 				CChar luaToString2[MAX_NAME_SIZE];
@@ -1046,9 +1095,20 @@ CInt ExecuteAction(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					scene->SetAnimationStatus(eANIM_PLAY);
@@ -1139,9 +1199,20 @@ CInt ReverseExecuteAction(lua_State *L)
 			if (g_currentInstancePrefab)
 			{
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j)/* && g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 						scene->SetAnimationStatus(eANIM_PLAY);
@@ -1194,8 +1265,6 @@ CInt ReverseExecuteAction(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->SetAnimationStatus(eANIM_PLAY);
 
 				CChar luaToString2[MAX_NAME_SIZE];
@@ -1299,9 +1368,20 @@ CInt ReverseExecuteAction(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j)/* && g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					scene->SetAnimationStatus(eANIM_PLAY);
@@ -1384,9 +1464,20 @@ CInt RemoveAction(lua_State *L)
 			{
 				foundPrefabInstance = CTrue;
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 						scene->SetAnimationStatus(eANIM_PLAY);
@@ -1439,8 +1530,6 @@ CInt RemoveAction(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->SetAnimationStatus(eANIM_PLAY);
 
 				CChar luaToString2[MAX_NAME_SIZE];
@@ -1544,9 +1633,20 @@ CInt RemoveAction(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					scene->SetAnimationStatus(eANIM_PLAY);
@@ -1629,9 +1729,20 @@ CInt GetAnimationClipDuration(lua_State *L)
 			{
 				foundPrefabInstance = CTrue;
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j) /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 
@@ -1678,8 +1789,6 @@ CInt GetAnimationClipDuration(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				CChar luaToString2[MAX_NAME_SIZE];
 				Cpy(luaToString2, lua_tostring(L, 2));
 				StringToUpper(luaToString2);
@@ -1781,9 +1890,20 @@ CInt GetAnimationClipDuration(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 
@@ -2032,9 +2152,20 @@ CInt PauseAnimations(lua_State *L)
 			if (g_currentInstancePrefab)
 			{
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
-				for (CUInt j = 0; j < 3; j++)
+				for (CUInt j = 0; j < 4; j++)
 				{
-					if (prefab && prefab->GetHasLod(j)/* && g_currentInstancePrefab->GetSceneVisible(j)*/)
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
 						scene->SetAnimationStatus(eANIM_PAUSE);
@@ -2059,8 +2190,6 @@ CInt PauseAnimations(lua_State *L)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->SetAnimationStatus(eANIM_PAUSE);
 			}
 			return 0;
@@ -2109,9 +2238,20 @@ CInt PauseAnimations(lua_State *L)
 		{
 			foundPrefabInstance = CTrue;
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j)/* && g_instancePrefab[i]->GetSceneVisible(j)*/)
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					scene->SetAnimationStatus(eANIM_PAUSE);
@@ -8674,7 +8814,8 @@ CInt EnablePhysicsGroundPlane(lua_State* L)
 
 	CPhysXMaterial physicsMaterial;
 
-	g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+	g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.01, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+	g_multipleView->m_nx->SetActorCollisionGroup(g_multipleView->m_nx->m_groundBox, GROUP_GROUND);
 
 	g_multipleView->m_nx->gControllers->reportSceneChanged();
 	gPhysXscene->simulate(EPSILON);
@@ -8738,7 +8879,8 @@ CInt SetPhysicGroundHeight(lua_State* L)
 
 		CPhysXMaterial physicsMaterial;
 
-		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.01, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+		g_multipleView->m_nx->SetActorCollisionGroup(g_multipleView->m_nx->m_groundBox, GROUP_GROUND);
 	}
 
 	g_multipleView->m_nx->gControllers->reportSceneChanged();
@@ -14307,6 +14449,233 @@ CInt GetGUITextPosition(lua_State* L)
 	return 0;
 }
 
+CInt AddForceToCharacterController(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 5)
+	{
+		PrintInfo("\nPlease specify 5 arguments for AddForceToCharacterController()", COLOR_RED);
+		return 0;
+	}
+
+	g_multipleView->m_nx->bPushCharacter = CTrue;
+
+	g_multipleView->m_forceDirection.x = (CFloat)lua_tonumber(L, 1);
+	g_multipleView->m_forceDirection.y = (CFloat)lua_tonumber(L, 2);
+	g_multipleView->m_forceDirection.z = (CFloat)lua_tonumber(L, 3);
+
+	g_multipleView->m_forceSpeed = (CFloat)lua_tonumber(L, 4);
+
+	g_multipleView->m_forceDecreaseValue = (CFloat)lua_tonumber(L, 5);
+
+	return 0;
+}
+
+CInt AddForceToPrefabInstance(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 5)
+	{
+		PrintInfo("\nPlease specify 5 arguments for AddForceToPrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, lua_tostring(L, 1));
+	StringToUpper(name);
+
+	CFloat forceX = (CFloat)lua_tonumber(L, 2);
+	CFloat forceY = (CFloat)lua_tonumber(L, 3);
+	CFloat forceZ = (CFloat)lua_tonumber(L, 4);
+	CFloat forcePower = (CFloat)lua_tonumber(L, 5);
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", name))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->AddPhysicsForce(forceX, forceY, forceZ, forcePower);
+			}
+			else
+			{
+				PrintInfo("\nAddForceToPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nAddForceToPrefabInstance(%.2f, %.2f, %.2f, %.2f) will execute for current prefab instance", forceX, forceY, forceZ, forcePower);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, name))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : AddForceToPrefabInstance(%s, %.2f, %.2f, %.2f, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, forceX, forceY, forceZ, forcePower);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nAddForceToPrefabInstance() Error: %s%s%s", "Couldn't find '", name, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, name))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->AddPhysicsForce(forceX, forceY, forceZ, forcePower);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nAddForceToPrefabInstance() Error: %s%s%s", "Couldn't find '", name, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt AddTorqueToPrefabInstance(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 5)
+	{
+		PrintInfo("\nPlease specify 5 arguments for AddTorqueToPrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, lua_tostring(L, 1));
+	StringToUpper(name);
+
+	CFloat torqueX = (CFloat)lua_tonumber(L, 2);
+	CFloat torqueY = (CFloat)lua_tonumber(L, 3);
+	CFloat torqueZ = (CFloat)lua_tonumber(L, 4);
+	CFloat torquePower = (CFloat)lua_tonumber(L, 5);
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", name))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				g_currentInstancePrefab->AddPhysicsTorque(torqueX, torqueY, torqueZ, torquePower);
+			}
+			else
+			{
+				PrintInfo("\nAddTorqueToPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nAddTorqueToPrefabInstance(%.2f, %.2f, %.2f, %.2f) will execute for current prefab instance", torqueX, torqueY, torqueZ, torquePower);
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, name))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : AddTorqueToPrefabInstance(%s, %.2f, %.2f, %.2f, %.2f) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, torqueX, torqueY, torqueZ, torquePower);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nAddTorqueToPrefabInstance() Error: %s%s%s", "Couldn't find '", name, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, name))
+		{
+			foundPrefabInstance = CTrue;
+			g_instancePrefab[i]->AddPhysicsTorque(torqueX, torqueY, torqueZ, torquePower);
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nAddTorqueToPrefabInstance() Error: %s%s%s", "Couldn't find '", name, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
@@ -14345,6 +14714,13 @@ CMultipleWindows::CMultipleWindows()
 
 	m_fSelectionDistance = -1.f;
 	m_bSelectionDistance = CFalse;
+
+	m_forceSpeed = 0.0f;
+	m_forceDirection.x = 0.0;
+	m_forceDirection.y = 0.0;
+	m_forceDirection.z = 0.0;
+	m_forceDecreaseValue = 0.0f;
+
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -15465,6 +15841,10 @@ CVoid CMultipleWindows::OnLButtonUp(UINT nFlags, CPoint point)
 							{
 								if (g_instancePrefab[i]->GetPrefab()->GetHasLod(j))
 									ex_pVandaEngine1Dlg->InsertItemToObjectList(g_instancePrefab[i]->GetScene(j)->GetName(), eOBJECTLIST_SCENE);
+							}
+							if (g_instancePrefab[i]->GetHasCollider())
+							{
+								ex_pVandaEngine1Dlg->InsertItemToObjectList(g_instancePrefab[i]->GetScene(3)->GetName(), eOBJECTLIST_SCENE);
 							}
 
 							//Erase all items of m_listBoxEngineObjects
@@ -16645,8 +17025,6 @@ CVoid CMultipleWindows::CalculateDistances(CBool force)
 			for (CUInt i = 0; i < g_scene.size(); i++)
 			{
 				CScene* scene = g_scene[i];
-				if (CmpIn(scene->GetName(), "_COL"))
-					continue;
 				scene->CalculateDistances();
 			}
 		}
@@ -16666,6 +17044,24 @@ CVoid CMultipleWindows::DrawPerspective()
 			elapsedTime = timer.GetElapsedSeconds();
 		else
 			elapsedTime = timer.GetElapsedSeconds(CTrue); //start from the beginning
+
+		//if (elapsedTime > (1.0f / 60.0f))
+		//{
+		//	CFloat elapsed;
+		//	CInt steps = 1;
+
+		//	steps = (CInt)roundf(elapsedTime / (1.0f / 60.0f));
+
+		//	elapsed = (CFloat)steps * (1.0f / 60.0f);
+		//	gPhysXscene->setTiming(1.0f / 60.0f, steps, NX_TIMESTEP_FIXED);
+
+		//	elapsedTime = elapsed;
+		//}
+		//else
+		//{
+			gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
+		//}
+
 		g_elapsedTime = elapsedTime;
 		m_totalElapsedTime += elapsedTime;
 	
@@ -17787,9 +18183,21 @@ CVoid CMultipleWindows::ResetData()
 		{
 			g_instancePrefab[i]->SetRenderForQuery(CFalse);
 			g_instancePrefab[i]->SetRealTimeSceneCheckIsInFrustom(CTrue);
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (g_instancePrefab[i]->GetPrefab() && g_instancePrefab[i]->GetPrefab()->GetHasLod(j))
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (g_instancePrefab[i]->GetPrefab() && g_instancePrefab[i]->GetPrefab()->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (g_instancePrefab[i]->GetPrefab() && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+
+				if (condition)
 				{
 					CScene* scene = g_instancePrefab[i]->GetScene(j);
 					if (!scene) continue;
@@ -18074,29 +18482,28 @@ BOOL CMultipleWindows::PreTranslateMessage(MSG* pMsg)
 	return CWnd::PreTranslateMessage(pMsg);
 }
 
-//void CMultipleWindows::ApplyForce( NxVec3 forceDirection, CInt moveDirection, CFloat elapsedTime )
-//{
-//	if( m_physXVariables.m_applyDirectionalForce )
-//	{
-//		if( m_physXVariables.m_forceSpeedValue >= 0.0f )
-//		{
-//			m_nx->bPushCharacter = CTrue;
-//			m_nx->runPhysics( forceDirection, m_physXVariables.m_forceSpeedValue, moveDirection, elapsedTime );
-//		}
-//		else 
-//		{
-//			m_nx->bPushCharacter = CFalse;
-//			m_physXVariables.m_applyDirectionalForce = CFalse;
-//		}
-//		m_physXVariables.m_forceSpeedValue -= elapsedTime * m_physXVariables.m_forceDecreaseValue;
-//	}
-//	else
-//		m_nx->runPhysics( NxVec3( 0.0f, 0.0f, 0.0f ), 0.0f, moveDirection, elapsedTime );
-//}
-
 CVoid CMultipleWindows::ApplyForce( CInt direction, CFloat elapsedTime )
 {
-	m_nx->runPhysics( NxVec3( 0.0f, 0.0f, 0.0f ), 0.0f, direction, elapsedTime );
+	if (m_nx->bPushCharacter)
+	{
+		if (m_forceSpeed >= 0.0f)
+		{
+			m_nx->runPhysics(m_forceDirection, m_forceSpeed, direction, elapsedTime);
+			m_forceSpeed -= elapsedTime * m_forceDecreaseValue;
+		}
+		else
+		{
+			m_nx->bPushCharacter = false;
+			m_forceDirection.x = m_forceDirection.y = m_forceDirection.z = 0.0f;
+			m_forceSpeed = 0.0f;
+			m_forceDecreaseValue = 0.0f;
+
+			m_nx->runPhysics(NxVec3(0.0f, 0.0f, 0.0f), 0.0f, direction, elapsedTime);
+		}
+
+	}
+	else
+		m_nx->runPhysics(NxVec3(0.0f, 0.0f, 0.0f), 0.0f, direction, elapsedTime);
 }
 
 CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName)
@@ -18798,6 +19205,7 @@ CVoid CMultipleWindows::ProcessInputs()
 			//	m_tempMovement = CTrue;
 			//}
 		}
+
 		if (!forceApplied || !move)
 		{
 			if (!forceApplied)
@@ -19685,9 +20093,6 @@ CChar* CMultipleWindows::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseY
 			{
 				if (!g_scene[i]->m_isVisible) continue;
 
-				if (CmpIn(g_scene[i]->GetName(), "_COL"))
-					continue;
-
 				if (m_bSelectionDistance)
 				{
 					CFloat distanceFromCamera = 1000000000.f; //infinity
@@ -20158,18 +20563,30 @@ CVoid CMultipleWindows::UpdateDynamicPhysicsObjects()
 					{
 						scene = g_instancePrefab[i]->GetScene(j);
 						if (!scene) continue;
-						break;
+						g_render.SetScene(scene);
+
+						if (g_render.GetScene()->m_update)
+						{
+							g_render.GetScene()->Update();
+							g_render.GetScene()->m_update = CFalse;
+						}
+						g_render.GetScene()->UpdateDynamicPhysicsObjects();
 					}
 				}
-				g_render.SetScene(scene);
-
-				if (g_render.GetScene()->m_update)
+				//update collider
+				if (g_instancePrefab[i]->GetHasCollider())
 				{
-					g_render.GetScene()->Update();
-					g_render.GetScene()->m_update = CFalse;
-				}
-				g_render.GetScene()->UpdateDynamicPhysicsObjects();
+					scene = g_instancePrefab[i]->GetScene(3);
+					if (!scene) continue;
+					g_render.SetScene(scene);
 
+					if (g_render.GetScene()->m_update)
+					{
+						g_render.GetScene()->Update();
+						g_render.GetScene()->m_update = CFalse;
+					}
+					g_render.GetScene()->UpdateDynamicPhysicsObjects();
+				}
 			}
 		}
 		else
@@ -20203,14 +20620,26 @@ CVoid CMultipleWindows::UpdateAnimations(CBool init)
 			CScene* scene = NULL;
 
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-			for (CUInt j = 0; j < 3; j++)
+			for (CUInt j = 0; j < 4; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) /*&& (g_instancePrefab[i]->GetSceneVisible(j) || init)*/)
+				CBool update = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						update = CTrue;
+				}
+				else if( j == 3 )
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						update = CTrue;
+				}
+				if (update)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					if (!scene) continue;
 
 					g_render.SetScene(scene);
+
 					if (!g_render.GetScene()->m_isTrigger)
 					{
 						if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
@@ -20249,7 +20678,7 @@ CVoid CMultipleWindows::UpdateAnimations(CBool init)
 	{
 		for (CUInt i = 0; i < g_scene.size(); i++)
 		{
-			if (!g_scene[i]->m_isVisible) continue;
+			//if (!g_scene[i]->m_isVisible) continue;
 			g_render.SetScene(g_scene[i]);
 			if (!g_render.GetScene()->m_isTrigger)
 			{
@@ -20308,22 +20737,13 @@ CVoid CMultipleWindows::Render3DModelsControlledByPhysX(CBool sceneManager)
 			//			continue;
 			//	}
 			//}
-			CBool foundPhysX = CFalse;
-			if (gPhysXscene)
-			{
-				for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
-				{
-					if (!gPhysXscene->getActors()[j]->isSleeping())
-						foundPhysX = CTrue;
-				}
-			}
 
 			CScene* scene = NULL;
 
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
 			for (CUInt j = 0; j < 3; j++)
 			{
-				if (prefab && prefab->GetHasLod(j) && (g_instancePrefab[i]->GetSceneVisible(j) || foundPhysX))
+				if (prefab && prefab->GetHasLod(j) && g_instancePrefab[i]->GetSceneVisible(j))
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
 					break;
@@ -22091,9 +22511,9 @@ CVoid CMultipleWindows::ManageLODs()
 							g_instancePrefab[i]->ResetElapsedTime();
 						}
 					}
-					if (g_instancePrefab[i]->GetPrefab()->GetHasLod(2))
+					else if (g_instancePrefab[i]->GetSceneVisible(1))
 					{
-						if (g_instancePrefab[i]->GetSceneVisible(1))
+						if (g_instancePrefab[i]->GetPrefab()->GetHasLod(2))
 						{
 							if (g_instancePrefab[i]->GetScene(1) && g_instancePrefab[i]->GetScene(1)->m_hasAnimation)
 							{
@@ -22117,7 +22537,28 @@ CVoid CMultipleWindows::ManageLODs()
 					}
 					else if (g_instancePrefab[i]->GetSceneVisible(0))
 					{
-						if (g_instancePrefab[i]->GetPrefab()->GetHasLod(1))
+						if (g_instancePrefab[i]->GetPrefab()->GetHasLod(2))
+						{
+							if (g_instancePrefab[i]->GetScene(0) && g_instancePrefab[i]->GetScene(0)->m_hasAnimation)
+							{
+								for (CUInt j = 0; j < g_instancePrefab[i]->GetScene(0)->m_animationClips.size(); j++)
+								{
+									if (g_instancePrefab[i]->GetScene(2))
+									{
+										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentAnimationTime());
+										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentDelayInTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentDelayInTime());
+										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentDelayOutTime(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentDelayOutTime());
+										g_instancePrefab[i]->GetScene(2)->m_animationClips[j]->SetCurrentWeight(g_instancePrefab[i]->GetScene(0)->m_animationClips[j]->GetCurrentWeight());
+									}
+								}
+							}
+
+							g_instancePrefab[i]->SetSceneVisible(0, CFalse);
+							g_instancePrefab[i]->SetSceneVisible(1, CFalse);
+							g_instancePrefab[i]->SetSceneVisible(2, CTrue);
+							g_instancePrefab[i]->ResetElapsedTime();
+						}
+						else if (g_instancePrefab[i]->GetPrefab()->GetHasLod(1))
 						{
 							if (g_instancePrefab[i]->GetScene(0) && g_instancePrefab[i]->GetScene(0)->m_hasAnimation)
 							{
@@ -22264,7 +22705,6 @@ CVoid CMultipleWindows::SetDefaultLight()
 
 CVoid CMultipleWindows::UpdatePrefabInstanceBB()
 {
-	//If Prefab Instance is controlled by dynamic PhysX actor that isn't sleeping, update its BB (even if it's invisible)
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		CBool foundDynamicActorTarget = CFalse;
@@ -22273,9 +22713,22 @@ CVoid CMultipleWindows::UpdatePrefabInstanceBB()
 		{
 			if (g_instancePrefab[i]->GetIsControlledByPhysX())
 			{
-				for (CUInt s = 0; s < 3; s++)
+				for (CUInt s = 0; s < 4; s++)
 				{
-					if (g_instancePrefab[i]->GetPrefab()->GetHasLod(s))
+					CBool condition = CFalse;
+					CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+					if (s < 3)
+					{
+						if (prefab && g_instancePrefab[i]->GetPrefab()->GetHasLod(s))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_instancePrefab[i]->GetHasCollider())
+							condition = CTrue;
+					}
+
+					if (condition)
 					{
 						CScene* scene = g_instancePrefab[i]->GetScene(s);
 						if (!scene) continue;
@@ -22332,25 +22785,35 @@ CVoid CMultipleWindows::UpdatePrefabInstanceBB()
 		CScene* scene = NULL;
 
 		CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
-		for (CUInt j = 0; j < 3; j++)
+		for (CUInt j = 0; j < 4; j++)
 		{
-			if (prefab && prefab->GetHasLod(j))
+			CBool condition = CFalse;
+			if (j < 3)
+			{
+				if (prefab && g_instancePrefab[i]->GetPrefab()->GetHasLod(j))
+					condition = CTrue;
+			}
+			else
+			{
+				if (prefab && g_instancePrefab[i]->GetHasCollider())
+					condition = CTrue;
+			}
+
+			if (condition)
 			{
 				scene = g_instancePrefab[i]->GetScene(j);
 
 				if (!scene) continue;
 				if (scene->GetUpdateBB())
 				{
-					g_instancePrefab[i]->UpdateBoundingBox(CFalse);
 					scene->SetUpdateBB(CFalse);
 					foundTarget = CTrue;
-					break;
 				}
 			}
 		}
 
 		if (foundTarget)
-			continue;
+			g_instancePrefab[i]->UpdateBoundingBox(CFalse);
 	}
 }
 

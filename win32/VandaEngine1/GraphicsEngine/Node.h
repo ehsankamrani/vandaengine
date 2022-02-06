@@ -10,6 +10,10 @@
 #include "water.h"
 #include "../physxEngine/nx.h"
 #include "../common/utility.h"
+
+#include <iostream>
+#include <fstream>
+
 class CCamera;
 class CInstanceCamera;
 class CGeometry;
@@ -72,6 +76,7 @@ public:
 		m_name[0] = 0;
 		m_id[0] = 0;
 		m_sid[0] = 0;
+
 	}
 
 	~CNode()
@@ -125,6 +130,7 @@ protected:
 	
 	CVoid DrawLineToChildren(); 
 	CNode* GetNodeParent() { return m_parent; } 
+
 
 public:
 

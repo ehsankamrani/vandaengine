@@ -120,6 +120,9 @@ CVoid COctree::GetWorldDimensions()
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
 		g_render.SetScene( g_scene[i] );
+
+		if (CmpIn(g_render.GetScene()->GetName(), "_COL")) continue;
+
 		if( !g_render.GetScene()->m_isTrigger )
 		{
 			//if (g_scene[i]->m_hasAnimation)
@@ -128,7 +131,7 @@ CVoid COctree::GetWorldDimensions()
 			for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
 			{
 				//do not calculate trigger dimensions
-				if (g_scene[i]->m_instanceGeometries[j]->m_isTrigger || g_scene[i]->m_instanceGeometries[j]->m_isInvisible || g_scene[i]->m_instanceGeometries[j]->m_renderWithPhysX || g_scene[i]->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
+				if (g_scene[i]->m_instanceGeometries[j]->m_isInvisible || g_scene[i]->m_instanceGeometries[j]->m_renderWithPhysX || g_scene[i]->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
 					continue;
 				CInstanceGeometry* m_tempGeo = g_scene[i]->m_instanceGeometries[j];
 				if( !m_tempGeo->m_abstractGeometry->m_hasAnimation &&!( m_tempGeo->m_hasPhysX && m_tempGeo->m_physXDensity ) )
@@ -242,6 +245,9 @@ CBool COctree::AttachGeometriesToNode()
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
 		g_render.SetScene( g_scene[i]);
+
+		if (CmpIn(g_render.GetScene()->GetName(), "_COL")) continue;
+
 		if( !g_render.GetScene()->m_isTrigger )
 		{
 			for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
@@ -287,6 +293,8 @@ CVoid COctree::AttachLightsToGeometries()
 		{
 			for (CUInt k = 0; k < g_scene.size(); k++)
 			{
+				if (CmpIn(g_scene[k]->GetName(), "_COL")) continue;
+
 				if (!g_scene[k]->m_isTrigger)
 				{
 					for (CUInt l = 0; l < g_scene[k]->m_instanceGeometries.size(); l++)
@@ -362,6 +370,8 @@ CVoid COctree::ResetState()
 {
 	for( CUInt i = 0 ; i < g_scene.size(); i++ )
 	{
+		if (CmpIn(g_scene[i]->GetName(), "_COL")) continue;
+
 		for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
 		{
 			for( CUInt k = 0; k < g_scene[i]->m_instanceGeometries[j]->m_parentTree.size(); k++ )
@@ -376,6 +386,8 @@ CVoid COctree::ResetState()
 	//Detach lights
 	for (CUInt i = 0; i < g_scene.size(); i++)
 	{
+		if (CmpIn(g_scene[i]->GetName(), "_COL")) continue;
+
 		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
 		{
 			for (CUInt k = 0; k < g_scene[i]->m_instanceGeometries[j]->m_lights.size(); k++)
@@ -399,6 +411,9 @@ CVoid COctree::ResetOctreeGeoCount()
 	for( CUInt k = 0 ; k < g_scene.size(); k++ )
 	{
 		g_render.SetScene( g_scene[k] );
+
+		if (CmpIn(g_render.GetScene()->GetName(), "_COL")) continue;
+
 		if( !g_render.GetScene()->m_isTrigger )
 		{
 			for( CUInt l = 0; l < g_scene[k]->m_instanceGeometries.size(); l++ )

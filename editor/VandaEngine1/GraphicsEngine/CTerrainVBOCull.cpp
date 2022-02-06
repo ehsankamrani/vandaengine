@@ -964,9 +964,20 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z
 		{
 			if (!g_instancePrefab[p]->GetIsControlledByPhysX()) continue;
 
-			for (CUInt i = 0; i < 3; i++)
+			for (CUInt i = 0; i < 4; i++)
 			{
-				if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+				CBool checkState = CFalse;
+				if (i < 3)
+				{
+					if (g_instancePrefab[p]->GetPrefab()->GetHasLod(i))
+						checkState = CTrue;
+				}
+				else
+				{
+					if (g_instancePrefab[p]->GetHasCollider())
+						checkState = CTrue;
+				}
+				if (checkState)
 				{
 					CScene* scene = g_instancePrefab[p]->GetScene(i);
 					if (!scene) continue;

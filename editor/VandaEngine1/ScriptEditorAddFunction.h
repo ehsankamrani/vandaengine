@@ -242,6 +242,10 @@ private:
 	CChar GetGUIImagePosition[MAX_URI_SIZE];
 	CChar GetGUITextPosition[MAX_URI_SIZE];
 
+	CChar AddForceToCharacterController[MAX_URI_SIZE];
+	CChar AddForceToPrefabInstance[MAX_URI_SIZE];
+	CChar AddTorqueToPrefabInstance[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

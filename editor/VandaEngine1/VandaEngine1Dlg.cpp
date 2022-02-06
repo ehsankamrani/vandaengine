@@ -1454,7 +1454,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.1"));
+	SetWindowText(_T("Vanda Engine 1.8.2"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3020,7 +3020,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3081,7 +3081,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.1 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.2 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3270,7 +3270,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3356,7 +3356,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.2 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3430,7 +3430,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.2 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -6021,22 +6021,6 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			gPhysicsSDK->setParameter(NX_VISUALIZE_COLLISION_AABBS, 1);
 			GetMenu()->CheckMenuItem( ID_VIEW_BOUNDINGBOX, MF_CHECKED );
 
-			if (g_editorMode == eMODE_VSCENE)
-			{
-				for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-				{
-					g_instancePrefab[i]->UpdateBoundingBox(CFalse);
-					g_instancePrefab[i]->UpdateIsStaticOrAnimated();
-				}
-			}
-			else
-			{
-				for (CUInt i = 0; i < g_scene.size(); i++)
-				{
-					g_render.SetScene(g_scene[i]);
-					g_render.GetScene()->Update();
-				}
-			}
 			PrintInfo( "\nBounding boxes enabled" );
 		}
 		else
@@ -7525,7 +7509,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.1 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.2 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7950,7 +7934,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7959,7 +7943,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.2 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -9777,7 +9761,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -9819,6 +9803,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 	{
 		SetCapture();
 		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+
+		FindGeometryInstancesRenderedByPhysics();
 
 		if (askQuestion || Cmp(g_currentPackageAndPrefabName, "\n")) //nothing has been saved
 		{
@@ -10569,6 +10555,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, 1, sizeof(CInt), filePtr);
 				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_isTrigger, 1, sizeof(CBool), filePtr);
 				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_isInvisible, 1, sizeof(CBool), filePtr);
+				fwrite(&g_scene[i]->m_instanceGeometries[j]->m_renderWithPhysX, 1, sizeof(CBool), filePtr);
 
 				//physics material
 				CBool hasPhysicsMaterial = g_scene[i]->m_instanceGeometries[j]->HasPhysicsMaterial();
@@ -10616,7 +10603,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -12282,7 +12269,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13358,7 +13345,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -14100,6 +14087,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				CInt physXPercentage;
 				CBool isTrigger;
 				CBool isInvisible;
+				CBool renderWithPhysics;
+
 				fread(geoName, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
 				fread(instanceLocalToWorldMatrix, 1, sizeof(CMatrix), filePtr);
 				fread(&hasPhysX, 1, sizeof(CBool), filePtr);
@@ -14109,6 +14098,16 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				fread(&physXPercentage, 1, sizeof(CInt), filePtr);
 				fread(&isTrigger, 1, sizeof(CBool), filePtr);
 				fread(&isInvisible, 1, sizeof(CBool), filePtr);
+				fread(&renderWithPhysics, 1, sizeof(CBool), filePtr);
+
+				for (CUInt k = 0; k < tempScene->m_instanceGeometries.size(); k++)
+				{
+					if (Cmp(geoName, tempScene->m_instanceGeometries[k]->m_abstractGeometry->GetName()))
+					{
+						tempScene->m_instanceGeometries[k]->m_isInvisible = isInvisible;
+						tempScene->m_instanceGeometries[k]->m_renderWithPhysX = renderWithPhysics;
+					}
+				}
 
 				//physics material
 				CBool hasPhysicsMaterial;
@@ -14141,14 +14140,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 							}
 							if (equal)
 							{
-								//if (tempScene->GeneratePhysX(physXAlgorithm, physXDensity, physXPercentage, isTrigger, isInvisible, tempScene->m_instanceGeometries[k], CTrue))
+								//if (tempScene->GeneratePhysX(physXAlgorithm, physXDensity, physXPercentage, isTrigger, tempScene->m_instanceGeometries[k], CTrue))
 								//{
 									tempScene->m_instanceGeometries[k]->m_lodAlgorithm = physXAlgorithm;
 									tempScene->m_instanceGeometries[k]->m_hasPhysX = CTrue;
 									tempScene->m_instanceGeometries[k]->m_physXDensity = physXDensity;
 									tempScene->m_instanceGeometries[k]->m_physXPercentage = physXPercentage;
 									tempScene->m_instanceGeometries[k]->m_isTrigger = isTrigger;
-									tempScene->m_instanceGeometries[k]->m_isInvisible = isInvisible;
+									
 
 									tempScene->m_instanceGeometries[k]->EnablePhysicsMaterial(hasPhysicsMaterial);
 									tempScene->m_instanceGeometries[k]->SetPhysicsRestitution(PhysicsRestitution);
@@ -14212,6 +14211,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 				{
 					if (m_newInstancePrefab->GetPrefab()->GetHasLod(j))
 						InsertItemToObjectList(m_newInstancePrefab->GetScene(j)->GetName(), eOBJECTLIST_SCENE);
+				}
+				if (m_newInstancePrefab->GetHasCollider())
+				{
+					InsertItemToObjectList(m_newInstancePrefab->GetScene(3)->GetName(), eOBJECTLIST_SCENE);
 				}
 			}
 		}
@@ -15039,6 +15042,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				CInt physXPercentage;
 				CBool isTrigger;
 				CBool isInvisible;
+				CBool renderWithPhysics;
+
 				fread(geoName, 1, sizeof(CChar) * MAX_NAME_SIZE, filePtr);
 				fread(instanceLocalToWorldMatrix, 1, sizeof(CMatrix), filePtr);
 				fread(&hasPhysX, 1, sizeof(CBool), filePtr);
@@ -15048,7 +15053,16 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 				fread(&physXPercentage, 1, sizeof(CInt), filePtr);
 				fread(&isTrigger, 1, sizeof(CBool), filePtr);
 				fread(&isInvisible, 1, sizeof(CBool), filePtr);
+				fread(&renderWithPhysics, 1, sizeof(CBool), filePtr);
 
+				for (CUInt k = 0; k < tempScene->m_instanceGeometries.size(); k++)
+				{
+					if (Cmp(geoName, tempScene->m_instanceGeometries[k]->m_abstractGeometry->GetName()))
+					{
+						tempScene->m_instanceGeometries[k]->m_isInvisible = isInvisible;
+						tempScene->m_instanceGeometries[k]->m_renderWithPhysX = renderWithPhysics;
+					}
+				}
 				//physics material
 				CBool hasPhysicsMaterial;
 				CFloat PhysicsRestitution;
@@ -15111,7 +15125,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 
 			CPhysXMaterial physicsMaterial;
 
-			g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+			g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.01, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+			g_multipleView->m_nx->SetActorCollisionGroup(g_multipleView->m_nx->m_groundBox, GROUP_GROUND);
 		}
 
 		if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
@@ -15128,7 +15143,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15140,7 +15155,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		totalErrors = totalWarnings = 0;
 		if (g_scene.size() > 0)
 		{
-			for (CUInt i = 0; i < 3; i++)
+			for (CUInt i = 0; i < 4; i++)
 			{
 				if (g_scene[i])
 				{
@@ -16952,7 +16967,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -18075,6 +18090,8 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 			SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
 
 			CBool foundTarget = CFalse;
+			CBool foundSelectedGeometryTarget = CFalse;
+			CInt m_selectedName = g_selectedName;
 
 			if (g_editorMode == eMODE_VSCENE)
 			{
@@ -18105,9 +18122,20 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 							if (foundTarget)
 								break;
 						}
-						for (CUInt k = 0; k < 3; k++)
+						for (CUInt k = 0; k < 4; k++)
 						{
-							if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+							CBool condition = CFalse;
+							if (k < 3)
+							{
+								if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+									condition = CTrue;
+							}
+							else
+							{
+								if (g_instancePrefab[i]->GetHasCollider())
+									condition = CTrue;
+							}
+							if (condition)
 							{
 								CScene* scene = g_instancePrefab[i]->GetScene(k);
 								RemoveSelectedScene(scene->GetName(), scene->GetDocURI());
@@ -18145,7 +18173,6 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 							CDelete(g_guis[i]);
 							g_guis.erase(g_guis.begin() + i);
 
-
 							break;
 						}
 					}
@@ -18158,14 +18185,34 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 
 			if (g_editorMode == eMODE_PREFAB)
 			{
+				if (g_selectedName != -1)
+				{
+					for (CUInt i = 0; i < g_scene.size(); i++)
+					{
+						if (Cmp(g_scene[i]->GetName(), szBuffer))
+						{
+							for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+							{
+								if (g_selectedName == g_scene[i]->m_instanceGeometries[j]->m_nameIndex)
+								{
+									foundSelectedGeometryTarget = CTrue;
+									SetDialogData(CFalse);
+								}
+								if (foundSelectedGeometryTarget)
+									break;
+							}
+						}
+						if (foundSelectedGeometryTarget)
+							break;
+					}
+				}
 				RemoveSelectedScene(szBuffer);
+
 				if (g_scene.size() == 0)
 				{
 					g_prefabProperties.m_names.clear();
 					g_prefabProperties.m_clipIndex = 0;
 				}
-					
-				
 			}
 			else //vscene
 			{
@@ -18204,6 +18251,32 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 			}
 
 			SortSceneList( nSelected );
+
+			if (g_editorMode == eMODE_PREFAB)
+			{
+				if (!foundSelectedGeometryTarget)
+				{
+					CBool breakLoop = CFalse;
+					//reselect current selected geometry
+					for (CUInt j = 0; j < g_scene.size(); j++)
+					{
+						for (CUInt k = 0; k < g_scene[j]->m_instanceGeometries.size(); k++)
+						{
+							if (m_selectedName == g_scene[j]->m_instanceGeometries[k]->m_nameIndex)
+							{
+								g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = m_selectedName;
+								g_showArrow = CFalse;
+								g_transformObject = CFalse;
+								SetDialogData(CTrue, g_scene[j]->m_instanceGeometries[k], g_scene[j]->m_instanceGeometries[k]->m_abstractGeometry);
+								breakLoop = CTrue;
+								break;
+							}
+						}
+						if (breakLoop)
+							break;
+					}
+				}
+			}
 
 			g_multipleView->SetElapsedTimeFromBeginning();
 			g_multipleView->RenderWindow();
@@ -20831,6 +20904,10 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 					if (m_newInstancePrefab->GetPrefab()->GetHasLod(j))
 						InsertItemToObjectList(m_newInstancePrefab->GetScene(j)->GetName(), eOBJECTLIST_SCENE);
 				}
+				if (m_newInstancePrefab->GetHasCollider())
+				{
+					InsertItemToObjectList(m_newInstancePrefab->GetScene(3)->GetName(), eOBJECTLIST_SCENE);
+				}
 			}
 			else //search for GUIs
 			{
@@ -22680,6 +22757,16 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 							}
 						}
 					}
+					if (g_instancePrefab[j]->GetPrefab() && g_instancePrefab[j]->GetHasCollider())
+					{
+						CScene* scene = g_instancePrefab[j]->GetScene(3);
+						scene->SetAnimationStatus(eANIM_PLAY);
+						for (CInt l = 0; l < scene->GetNumClips(); l++)
+						{
+							scene->ClearCycle(l, 0.0f);
+							scene->RemoveAction(l);
+						}
+					}
 
 					//for (CUInt k = 0; k < 3; k++)
 					//{
@@ -23055,6 +23142,15 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		}
 
 		g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
+	}
+
+	//reset physics forces
+	if (g_multipleView->m_nx)
+	{
+		g_multipleView->m_nx->bPushCharacter = false;
+		g_multipleView->m_forceDirection.x = g_multipleView->m_forceDirection.y = g_multipleView->m_forceDirection.z = 0.0f;
+		g_multipleView->m_forceSpeed = 0.0f;
+		g_multipleView->m_forceDecreaseValue = 0.0f;
 	}
 
 	PrintInfo("\nPlay mode disabled");
@@ -23508,6 +23604,25 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 				}
 			}
 
+			if (prefab && g_instancePrefab[i]->GetHasCollider())
+			{
+				scene = g_instancePrefab[i]->GetScene(3);
+				if (scene->m_playAnimation)
+				{
+					scene->SetAnimationStatus(eANIM_PLAY);
+					if (scene->GetNumClips() > 0)
+					{
+						if (scene->m_loopAnimationAtStartup)
+							scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+						else
+							scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
+					}
+				}
+				for (CInt k = 0; k < scene->GetNumClips(); k++)
+				{
+					scene->m_animationClips[k]->SetCurrentTime(0.0f); //start from beginning
+				}
+			}
 		}
 
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -23665,7 +23780,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 		CPhysXMaterial physicsMaterial;
 
-		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.1, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+		g_multipleView->m_nx->m_groundBox = g_multipleView->m_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.01, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
+		g_multipleView->m_nx->SetActorCollisionGroup(g_multipleView->m_nx->m_groundBox, GROUP_GROUND);
 	}
 
 	g_multipleView->SetElapsedTimeFromBeginning();
@@ -26371,4 +26487,53 @@ void CVandaEngine1Dlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 			g_multipleView->m_notFocus = CFalse;
 	}
 	// TODO: Add your message handler code here
+}
+
+void CVandaEngine1Dlg::FindGeometryInstancesRenderedByPhysics()
+{
+	//find instance geometries that are controlled by physics
+	std::vector <CInstanceGeometry*> instance_geo_physx;
+
+	for (CUInt i = 0; i < g_scene.size(); i++)
+	{
+		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+		{
+			g_scene[i]->m_instanceGeometries[j]->m_renderWithPhysX = CFalse;
+		}
+	}
+
+	for (CUInt i = 0; i < g_scene.size(); i++)
+	{
+		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+		{
+			CGeometry * geometry = g_scene[i]->m_instanceGeometries[j]->m_abstractGeometry;
+
+			if (!geometry->m_hasAnimation && g_scene[i]->m_instanceGeometries[j]->m_hasPhysX && g_scene[i]->m_instanceGeometries[j]->m_physXDensity > 0)
+			{
+				instance_geo_physx.push_back(g_scene[i]->m_instanceGeometries[j]);
+			}
+		}
+	}
+
+	for (CUInt index = 0; index < instance_geo_physx.size(); index++)
+	{
+		CInstanceGeometry* m_instanceGeometry = instance_geo_physx[index];
+
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+			{
+				if (Cmp(m_instanceGeometry->m_abstractGeometry->GetName(), g_scene[i]->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
+				{
+					if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX && g_scene[i]->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+						continue;
+					if (g_scene[i]->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
+						continue;
+
+					g_scene[i]->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
+				}
+			}
+		}
+	}
+	instance_geo_physx.clear();
 }

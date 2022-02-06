@@ -86,4 +86,5 @@ public:
 	CEdit m_editPhysicsSkinWidth;
 	CButton m_checkBoxHasPhysicsMaterial;
 	afx_msg void OnBnClickedCheckHasPhysicsMaterial();
+	afx_msg void OnBnClickedOk();
 };

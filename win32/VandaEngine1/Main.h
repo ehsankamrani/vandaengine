@@ -177,6 +177,10 @@ public:
 
 	std::vector<std::string> m_tempAllPlayingSoundSources;
 
+	CFloat m_forceSpeed;
+	NxVec3 m_forceDirection;
+	CFloat m_forceDecreaseValue;
+
 private:
 	CBool ProcessInputs();
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);

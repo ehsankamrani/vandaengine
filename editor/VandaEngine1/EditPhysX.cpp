@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP(CEditPhysX, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_PHYSICS_SKIN_WIDTH, &CEditPhysX::OnEnChangeEditPhysicsSkinWidth)
 	ON_EN_CHANGE(IDC_EDIT_PHYSICS_DYNAMIC_FRICTION, &CEditPhysX::OnEnChangeEditPhysicsDynamicFriction)
 	ON_BN_CLICKED(IDC_CHECK_HAS_PHYSICS_MATERIAL, &CEditPhysX::OnBnClickedCheckHasPhysicsMaterial)
+	ON_BN_CLICKED(IDOK, &CEditPhysX::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -156,11 +157,6 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 		MessageBoxA("You can't assign a dynamic actor to a transformable prefab.\nPlease set density to 0 or deactivate IsTransformable in prefab properties dialog.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
-	if (g_scene.size() > 1 && m_fDensity > 0.0f)
-	{
-		MessageBoxA("We don't support dynamic PhysX actor for multiple LODs. Please remove LOD 2 and LOD 3 and try again", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-		return;
-	}
 	if( (algorithm == eLOD_LENGTH || algorithm == eLOD_LENGTH_CURVATURE ) && m_instanceGeometry && m_instanceGeometry->m_abstractGeometry->m_hasAnimation )
 	{
 		MessageBoxA( "You can't assign a triangulated PhysX shape to an animated instanced geometry. Please choose another shape and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
@@ -176,21 +172,33 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 	CInt isTrigger;
 	isTrigger = m_checkBoxTrigger.GetCheck();
 
-	if( isTrigger && m_instanceGeometry && m_instanceGeometry->m_abstractGeometry->m_hasAnimation)
-	{
-		MessageBoxA( "You can't assign a trigger to an animated instanced geometry or skin. Please uncheck trigger checkbox and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
-		return;
-	}
-	if (isTrigger && g_prefabProperties.m_isTransformable)
-	{
-		MessageBoxA("You can't assign a trigger to a transformable prefab.\nPlease uncheck trigger checkbox or deactivate IsTransformable in prefab properties dialog.", "Vanda Engine Error", MB_OK | MB_ICONERROR);
-		return;
-	}
 	if( isTrigger && m_fDensity)
 	{
 		MessageBoxA( "You can't create a dynamic trigger. Please set density to 0 or uncheck trigger checkbox.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
 	}
+
+	if (m_fDensity > 0)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+			{
+				if (g_selectedName != g_scene[i]->m_instanceGeometries[j]->m_nameIndex)
+				{
+					if (Cmp(g_scene[i]->m_instanceGeometries[j]->m_abstractGeometry->GetName(), m_instanceGeometry->m_abstractGeometry->GetName()))
+					{
+						if (g_scene[i]->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+						{
+							MessageBox("You can't create dynamic physics colliders for more than 1 LOD of the same geometry instance", "Vanda Engine Error", MB_OK);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	
 
 	CInt checkMaterialState;
 	CBool m_bHasPhysicsMaterial = CFalse;
@@ -275,15 +283,8 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 		physicsMaterial.StaticFriction = m_fPhysicsStaticFriction;
 		physicsMaterial.DynamicFriction = m_fPhysicsDynamicFriction;
 
-		if (m_fDensity > 0.0f)
-		{
-			if (CmpIn(g_scene[i]->GetName(), "_LOD1"))
-				index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible, physicsMaterial);
-		}
-		else
-		{
-			index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible, physicsMaterial);
-		}
+		index = g_scene[i]->GeneratePhysX(algorithm, m_fDensity, m_iPercentage, m_bIsTrigger, m_bInvisible, physicsMaterial);
+
 		if (index != -1)
 			break;
 	}
@@ -567,15 +568,8 @@ void CEditPhysX::OnBnClickedCancel()
 			physicsMaterial.StaticFriction = init_physicsStaticFriction;
 			physicsMaterial.DynamicFriction = init_physicsDynamicFriction;
 
-			if (init_density > 0.0f)
-			{
-				if (CmpIn(g_scene[i]->GetName(), "_LOD1"))
-					index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible, physicsMaterial);
-			}
-			else
-			{
-				index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible, physicsMaterial);
-			}
+			index = g_scene[i]->GeneratePhysX(init_algorithm, init_density, init_percentage, init_trigger, init_invisible, physicsMaterial);
+
 			if (index != -1)
 				break;
 		}
@@ -644,4 +638,21 @@ void CEditPhysX::OnBnClickedCheckHasPhysicsMaterial()
 		m_editPhysicsDynamicFriction.EnableWindow(FALSE);
 		m_editPhysicsSkinWidth.EnableWindow(FALSE);
 	}
+}
+
+
+void CEditPhysX::OnBnClickedOk()
+{
+	CInt isInvisible;
+	CBool m_bInvisible;
+	isInvisible = m_checkBoxInvisible.GetCheck();
+
+	if (isInvisible == BST_CHECKED)
+		m_bInvisible = CTrue;
+	else
+		m_bInvisible = CFalse;
+
+	m_instanceGeometry->m_isInvisible = m_bInvisible;
+
+	CDialog::OnOK();
 }

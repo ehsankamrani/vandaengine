@@ -347,6 +347,10 @@ public:
 
 	std::vector<std::string> m_tempAllPlayingSoundSources;
 
+	CFloat m_forceSpeed;
+	NxVec3 m_forceDirection;
+	CFloat m_forceDecreaseValue;
+
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_playGameMode;

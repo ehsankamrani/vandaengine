@@ -85,7 +85,6 @@ BOOL CSceneProperties::OnInitDialog()
 
 	//animated prefabs are always transformable
 	CBool foundDynamicPhysics = CFalse;
-	CBool foundTrigger = CFalse;
 	CBool foundIncompatiblePhysXAlgorithm = CFalse;
 
 	for (CUInt i = 0; i < g_scene.size(); i++)
@@ -115,21 +114,7 @@ BOOL CSceneProperties::OnInitDialog()
 		}
 	}
 
-	for (CUInt i = 0; i < g_scene.size(); i++)
-	{
-		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-		{
-			if (g_scene[i]->m_instanceGeometries[j]->m_isTrigger)
-			{
-				m_checkBoxTransformable.SetCheck(BST_UNCHECKED);
-				m_checkBoxTransformable.EnableWindow(FALSE);
-				foundTrigger = CTrue;
-				break;
-			}
-		}
-	}
-
-	if (!foundDynamicPhysics && !foundTrigger && !foundIncompatiblePhysXAlgorithm)
+	if (!foundDynamicPhysics && !foundIncompatiblePhysXAlgorithm)
 	{
 		if (g_prefabProperties.m_isTransformable)
 		{

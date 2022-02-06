@@ -43,6 +43,9 @@ enum GameGroup
 	GROUP_COLLIDABLE_PUSHABLE,
     GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT,
 	GROUP_TRIGGER,
+	GROUP_STATIC,
+	GROUP_DUMMY,
+	GROUP_GROUND,
 };
 
 
@@ -61,7 +64,8 @@ enum CMoveCharacter
 	IDLE,
 };
 
-#define COLLIDABLE_MASK	( 1<<GROUP_COLLIDABLE_NON_PUSHABLE) | (1<<GROUP_COLLIDABLE_PUSHABLE) | (1<<GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT)
+#define COLLIDABLE_MASK	(1<<GROUP_COLLIDABLE_NON_PUSHABLE) | (1<<GROUP_COLLIDABLE_PUSHABLE) | (1<<GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT) | (1<<GROUP_STATIC) | (1<<GROUP_GROUND)
+
 using namespace std;
 extern std::map< CUInt, NxMaterial* > g_physXMaterial;
 
@@ -160,7 +164,6 @@ public:
 	CVoid releaseNx();
 
 	NxActor* CreateBox(const NxVec3& pos, const NxVec3& boxDim, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
-	NxActor* CreateWallAdv(const NxVec3& pos, const NxReal length, const NxReal height, const NxReal Diameter, const NxReal xDegree, const NxReal yDegree, const NxReal zDegree, CPhysXMaterial physicsMaterial, CBool noCameraHit = false); // nocamerahit is used when we don't want to decrese the camera distance when a hit occures
 	NxActor* CreateSphere(const NxVec3& pos, const NxReal radius, const NxReal density, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
 	NxActor* CreateCapsule(const NxVec3& pos, const NxReal height, const NxReal radius, const NxReal density, NxMat33 rotation, const CChar* name, CBool isTrigger, CBool isKinematic, CPhysXMaterial physicsMaterial);
 	//	NxActor* CreateBridge(const NxVec3& pos, const NxVec3& boxDim,const NxReal rDegree);
@@ -174,11 +177,11 @@ public:
 	CVoid rotateZ( NxActor* actor, NxReal angle );
 
 	CVoid processInputs();
-	NxVec3 ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength, CBool forceMode);
+	NxVec3 ApplyForceToActor(NxActor* actor, const NxVec3& forceDir, const NxReal forceStrength);
+	NxVec3 ApplyTorqueToActor(NxActor* actor, const NxVec3& torqueDir, const NxReal torqueStrength);
 	NxVec3 ApplyForceToActorAtShape(NxActor* actor, NxShape* shape, const NxVec3& forceDir, const NxReal forceStrength, CBool forceMode, CBool shapeSelectMode);
 	NxVec3 ApplyVelocityToActor(NxActor* actor, const NxVec3& velDir, const NxReal velStrength, CBool velMode);
 	NxActor* CreateTriggerBox(const NxVec3& pos, const NxVec3& boxDim, NxMat33 rotation, const CChar* name, CBool isKinematic, CPhysXMaterial physicsMaterial);
-	NxActor* CreateTriggerWall(const NxVec3& pos, const NxVec3& boxDim, const NxReal rDegree, const char* triggerName, CPhysXMaterial physicsMaterial);
 	CVoid InitCharacterControllers(CFloat XPos, CFloat YPos, CFloat ZPos, CFloat radius, CFloat height, CFloat skinWidth, CFloat slopeLimit, CFloat stepOffset);
 	CVoid ReleaseCharacterControllers();
 	NxU32 MoveCharacter(const NxVec3& dispVector, NxF32 elapsedTime, NxU32 collisionGroups, NxF32 heightDelta);

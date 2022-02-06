@@ -292,4 +292,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetGUIImagePosition", GetGUIImagePosition);
 	lua_register(L, "GetGUITextPosition", GetGUITextPosition);
 
+	lua_register(L, "AddForceToCharacterController", AddForceToCharacterController);
+	lua_register(L, "AddForceToPrefabInstance", AddForceToPrefabInstance);
+	lua_register(L, "AddTorqueToPrefabInstance", AddTorqueToPrefabInstance);
 }

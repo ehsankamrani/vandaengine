@@ -835,11 +835,22 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 	CMatrix4x4Scale(m_instanceMatrix, scale);
 
 	g_currentInstancePrefab = this;
-	for (CUInt i = 0; i < 3; i++)
-	{
-		if (GetPrefab()->GetHasLod(i))
-		{
 
+	for (CUInt i = 0; i < 4; i++)
+	{
+		CBool condition = CFalse;
+		if (i < 3)
+		{
+			if (GetPrefab()->GetHasLod(i))
+				condition = CTrue;
+		}
+		else
+		{
+			if (GetHasCollider())
+				condition = CTrue;
+		}
+		if (condition)
+		{
 			CScene* scene = GetScene(i);
 			if (init)
 			{
@@ -850,7 +861,7 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 						scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
 					}
 					g_render.SetScene(scene);
-					scene->Update(0.00001);
+					scene->Update(0.00001, CTrue);
 				}
 			}
 			else if (scene && scene->m_isTransformable)
@@ -862,71 +873,91 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 			}
 		}
 	}
-	if (GetHasCollider())
-	{
-		CScene* scene = GetScene(3);
-		if (scene)
-		{
-			g_render.SetScene(scene);
-			scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
-			scene->Update(0.00001);
-		}
-	}
 
 	CPrefab* prefab = GetPrefab();
 	CScene* scene = NULL;
-	if (prefab  && prefab->GetHasLod(0))
-		scene = GetScene(0); //I assume that all scenes use the same bounding box
-	if (!scene) return;
 	std::vector <CInstanceGeometry*> geo_physx;
+	CInt InstanceGeoSize = 0;
 
-	for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+	for (CUInt i = 0; i < 4; i++)
 	{
-		CGeometry * geometry = scene->m_instanceGeometries[j]->m_abstractGeometry;
-
-		if ((/*g_currentCameraType == eCAMERA_PHYSX &&*/ !geometry->m_hasAnimation && scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0) && !init)
+		if (i < 3)
 		{
-			geo_physx.push_back(scene->m_instanceGeometries[j]);
-
-			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.x < m_minAABB.x)
-				m_minAABB.x = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.x;
-			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.y < m_minAABB.y)
-				m_minAABB.y = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.y;
-			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.z < m_minAABB.z)
-				m_minAABB.z = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.z;
-
-			if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.x > m_maxAABB.x)
-				m_maxAABB.x = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.x;
-			if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.y > m_maxAABB.y)
-				m_maxAABB.y = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.y;
-			if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.z > m_maxAABB.z)
-				m_maxAABB.z = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.z;
+			if (prefab && prefab->GetHasLod(i))
+				scene = GetScene(i);
 		}
-		else
+		else if (prefab && GetHasCollider())
 		{
-			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.x < m_minAABB.x)
-				m_minAABB.x = scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.x;
-			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.y < m_minAABB.y)
-				m_minAABB.y = scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.y;
-			if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.z < m_minAABB.z)
-				m_minAABB.z = scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.z;
+			scene = GetScene(i);
+		}
 
-			if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.x > m_maxAABB.x)
-				m_maxAABB.x = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.x;
-			if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.y > m_maxAABB.y)
-				m_maxAABB.y = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.y;
-			if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.z > m_maxAABB.z)
-				m_maxAABB.z = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.z;
+		if (!scene) continue;
+
+		for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+		{
+			CGeometry * geometry = scene->m_instanceGeometries[j]->m_abstractGeometry;
+
+			if ((!geometry->m_hasAnimation && scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0) && !init)
+			{
+				geo_physx.push_back(scene->m_instanceGeometries[j]);
+			}
 		}
 	}
 
-	if (scene->m_instanceGeometries.size() == 0)
+	for (CUInt i = 0; i < 3; i++)
+	{
+		if (prefab && prefab->GetHasLod(i))
+			scene = GetScene(i);
+
+		if (!scene) continue;
+
+		for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+		{
+			CGeometry * geometry = scene->m_instanceGeometries[j]->m_abstractGeometry;
+
+			if ((!geometry->m_hasAnimation && scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0) && !init)
+			{
+				if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.x < m_minAABB.x)
+					m_minAABB.x = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.x;
+				if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.y < m_minAABB.y)
+					m_minAABB.y = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.y;
+				if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.z < m_minAABB.z)
+					m_minAABB.z = scene->m_instanceGeometries[j]->m_minLocalToWorldAABBControlledByPhysX.z;
+
+				if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.x > m_maxAABB.x)
+					m_maxAABB.x = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.x;
+				if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.y > m_maxAABB.y)
+					m_maxAABB.y = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.y;
+				if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.z > m_maxAABB.z)
+					m_maxAABB.z = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABBControlledByPhysX.z;
+			}
+			else
+			{
+				if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.x < m_minAABB.x)
+					m_minAABB.x = scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.x;
+				if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.y < m_minAABB.y)
+					m_minAABB.y = scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.y;
+				if (scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.z < m_minAABB.z)
+					m_minAABB.z = scene->m_instanceGeometries[j]->m_minLocalToWorldAABB.z;
+
+				if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.x > m_maxAABB.x)
+					m_maxAABB.x = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.x;
+				if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.y > m_maxAABB.y)
+					m_maxAABB.y = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.y;
+				if (scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.z > m_maxAABB.z)
+					m_maxAABB.z = scene->m_instanceGeometries[j]->m_maxLocalToWorldAABB.z;
+			}
+			InstanceGeoSize++;
+		}
+
+	}
+
+	if (InstanceGeoSize == 0)
 	{
 		m_minAABB.x = m_maxAABB.x = 0.0f;
 		m_minAABB.y = m_maxAABB.y = 0.0f;
 		m_minAABB.z = m_maxAABB.z = 0.0f;
 	}
-
 	m_center = (m_minAABB + m_maxAABB) * 0.5f;
 	CFloat x, y, z;
 	x = fabs(m_maxAABB.x - m_minAABB.x) / 2.f;
@@ -943,48 +974,45 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 	m_boundingBox[6].x = m_minAABB.x; m_boundingBox[6].y = m_maxAABB.y; m_boundingBox[6].z = m_maxAABB.z;
 	m_boundingBox[7].x = m_maxAABB.x; m_boundingBox[7].y = m_maxAABB.y; m_boundingBox[7].z = m_maxAABB.z;
 
-	if (CTrue/*g_currentCameraType == eCAMERA_PHYSX*/)
+	scene = NULL;
+	if (geo_physx.size())
 	{
-		if (geo_physx.size())
+		for (CUInt l = 0; l < 4; l++)
 		{
-			if (prefab->GetHasLod(1))
-				scene = GetScene(1);
+			if (l < 3)
+			{
+				if (prefab && prefab->GetHasLod(l))
+					scene = GetScene(l);
+			}
+			else if (prefab && GetHasCollider())
+			{
+				scene = GetScene(l);
+			}
+			if (!scene) continue;
+
 			for (CUInt i = 0; i < geo_physx.size(); i++)
 			{
 				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
 				{
 					if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
 					{
+						if (scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+							continue;
+						if (scene->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
+							continue;
+
 						scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
 						CMatrix m;
 						CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
 						scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
 						g_render.SetScene(scene);
-						scene->Update(0.0f, CFalse);
+						scene->Update(0.0f, CFalse, CFalse);
 					}
 				}
 			}
-
-			if (prefab->GetHasLod(2))
-				scene = GetScene(2);
-			for (CUInt i = 0; i < geo_physx.size(); i++)
-			{
-				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
-				{
-					if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
-					{
-						scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
-						CMatrix m;
-						CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
-						scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
-						g_render.SetScene(scene);
-						scene->Update(0.0f, CFalse);
-					}
-				}
-			}
-
 		}
 	}
+
 	if (m_water)
 		UpdateBoundingBoxForWater(m_water->GetHeight());
 	geo_physx.clear();
@@ -1013,9 +1041,20 @@ CVec3f CInstancePrefab::GetCenter()
 CVoid CInstancePrefab::UpdateIsStaticOrAnimated()
 {
 	if (m_prefab == NULL) return;
-	for (CUInt i = 0; i < 3; i++)
+	for (CUInt i = 0; i < 4; i++)
 	{
-		if (GetPrefab()->GetHasLod(i))
+		CBool condition = CFalse;
+		if (i < 3)
+		{
+			if (GetPrefab()->GetHasLod(i))
+				condition = CTrue;
+		}
+		else if (GetHasCollider())
+		{
+			condition = CTrue;
+		}
+
+		if (condition)
 		{
 			CScene* scene = GetScene(i);
 			if (!scene) continue;
@@ -1112,5 +1151,122 @@ CVoid CInstancePrefab::SetScriptDoubleVariable(CChar* variableName, CDouble valu
 	lua_setglobal(m_lua, variableName);
 }
 
+CVoid CInstancePrefab::AddPhysicsForce(CFloat forceX, CFloat forceY, CFloat forceZ, CFloat forcePower)
+{
+	std::vector<std::string> physics_actor;
+
+	for (CUInt i = 0; i < 3; i++)
+	{
+		if (GetPrefab()->GetHasLod(i))
+		{
+			CScene* scene = GetScene(i);
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+						{
+							physics_actor.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+	if (GetHasCollider())
+	{
+		CScene* scene = GetScene(3);
+		for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+		{
+			if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+			{
+				if (scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+				{
+					physics_actor.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+				}
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		for (CUInt j = 0; j < physics_actor.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor[j].c_str()))
+			{
+				NxActor* currentActor = gPhysXscene->getActors()[i];
+
+				NxVec3 forceDir(forceX, forceY, forceZ);
+
+				g_nx->ApplyForceToActor(currentActor, forceDir, forcePower);
+			}
+		}
+
+	}
+
+	physics_actor.clear();
+}
+
+CVoid CInstancePrefab::AddPhysicsTorque(CFloat torqueX, CFloat torqueY, CFloat torqueZ, CFloat torquePower)
+{
+	std::vector<std::string> physics_actor;
+
+	for (CUInt i = 0; i < 3; i++)
+	{
+		if (GetPrefab()->GetHasLod(i))
+		{
+			CScene* scene = GetScene(i);
+			if (!scene) continue;
+			if (!scene->m_isTrigger)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+					{
+						if (scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+						{
+							physics_actor.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+						}
+					}
+				}
+			}
+		}
+	}
+	if (GetHasCollider())
+	{
+		CScene* scene = GetScene(3);
+		for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+		{
+			if (scene->m_instanceGeometries[j]->GetHasPhysXActor())
+			{
+				if (scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+				{
+					physics_actor.push_back(scene->m_instanceGeometries[j]->GetPhysXActorName());
+				}
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		for (CUInt j = 0; j < physics_actor.size(); j++)
+		{
+			if (gPhysXscene->getActors()[i]->getName() && Cmp(gPhysXscene->getActors()[i]->getName(), physics_actor[j].c_str()))
+			{
+				NxActor* currentActor = gPhysXscene->getActors()[i];
+
+				NxVec3 torqueDir(torqueX, torqueY, torqueZ);
+
+				g_nx->ApplyTorqueToActor(currentActor, torqueDir, torquePower);
+			}
+		}
+
+	}
+
+	physics_actor.clear();
+}
 
 

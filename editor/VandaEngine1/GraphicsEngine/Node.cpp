@@ -134,14 +134,24 @@ CVoid CNode::UpdatePhysX( CInstanceGeometry* geometry )
 					}
 					else
 					{
-						PosX = (geometry->m_maxLocalToWorldAABB.x + geometry->m_minLocalToWorldAABB.x) / 2.f;
-						PosY = (geometry->m_maxLocalToWorldAABB.y + geometry->m_minLocalToWorldAABB.y) / 2.f;
-						PosZ = (geometry->m_maxLocalToWorldAABB.z + geometry->m_minLocalToWorldAABB.z) / 2.f;
+						if (g_currentInstancePrefab)
+						{
+							PosX = (g_currentInstancePrefab->GetMaxAABB().x + g_currentInstancePrefab->GetMinAABB().x) / 2.f;
+							PosY = (g_currentInstancePrefab->GetMaxAABB().y + g_currentInstancePrefab->GetMinAABB().y) / 2.f;
+							PosZ = (g_currentInstancePrefab->GetMaxAABB().z + g_currentInstancePrefab->GetMinAABB().z) / 2.f;
+						}
+						else
+						{
+							PosX = (geometry->m_maxLocalToWorldAABB.x + geometry->m_minLocalToWorldAABB.x) / 2.f;
+							PosY = (geometry->m_maxLocalToWorldAABB.y + geometry->m_minLocalToWorldAABB.y) / 2.f;
+							PosZ = (geometry->m_maxLocalToWorldAABB.z + geometry->m_minLocalToWorldAABB.z) / 2.f;
+						}
 					}
 					NxVec3 globalPos(PosX, PosY, PosZ);
 					//remove decomposed data
 					CDelete(parts);
 					//////
+
 					gPhysXscene->getActors()[j]->moveGlobalPosition(globalPos);
 					gPhysXscene->getActors()[j]->moveGlobalOrientation(mat33);
 				}
@@ -183,18 +193,18 @@ CVoid CNode::UpdateBoundingBox( CInstanceGeometry* geometry, CInstancePrefab* pr
 	CMatrixTransform(combined, src[7], geometry->m_localToWorldVertex[7]);
 
 	CVec3f m_minLocalToWorld;
-	CVec3f m_maxLoaclToWorld;
+	CVec3f m_maxLocalToWorld;
 	m_minLocalToWorld.x = m_minLocalToWorld.y = m_minLocalToWorld.z = 100000000.0f;
-	m_maxLoaclToWorld.x = m_maxLoaclToWorld.y = m_maxLoaclToWorld.z = -100000000.0f;
+	m_maxLocalToWorld.x = m_maxLocalToWorld.y = m_maxLocalToWorld.z = -100000000.0f;
 
 	for( CUInt i = 0; i < 8; i++ )
 	{
-		if(  geometry->m_localToWorldVertex[i].x > m_maxLoaclToWorld.x )
-			m_maxLoaclToWorld.x =  geometry->m_localToWorldVertex[i].x;
-		if(  geometry->m_localToWorldVertex[i].y > m_maxLoaclToWorld.y )
-			m_maxLoaclToWorld.y =  geometry->m_localToWorldVertex[i].y;
-		if(  geometry->m_localToWorldVertex[i].z > m_maxLoaclToWorld.z )
-			m_maxLoaclToWorld.z =  geometry->m_localToWorldVertex[i].z;
+		if(  geometry->m_localToWorldVertex[i].x > m_maxLocalToWorld.x )
+			m_maxLocalToWorld.x =  geometry->m_localToWorldVertex[i].x;
+		if(  geometry->m_localToWorldVertex[i].y > m_maxLocalToWorld.y )
+			m_maxLocalToWorld.y =  geometry->m_localToWorldVertex[i].y;
+		if(  geometry->m_localToWorldVertex[i].z > m_maxLocalToWorld.z )
+			m_maxLocalToWorld.z =  geometry->m_localToWorldVertex[i].z;
 
 		if(  geometry->m_localToWorldVertex[i].x < m_minLocalToWorld.x )
 			m_minLocalToWorld.x =  geometry->m_localToWorldVertex[i].x;
@@ -204,8 +214,8 @@ CVoid CNode::UpdateBoundingBox( CInstanceGeometry* geometry, CInstancePrefab* pr
 			m_minLocalToWorld.z =  geometry->m_localToWorldVertex[i].z;
 	}
 	geometry->m_minLocalToWorldAABB = m_minLocalToWorld;
-	geometry->m_maxLocalToWorldAABB = m_maxLoaclToWorld;
-	geometry->m_center = (m_minLocalToWorld + m_maxLoaclToWorld ) * 0.5f;
+	geometry->m_maxLocalToWorldAABB = m_maxLocalToWorld;
+	geometry->m_center = (m_minLocalToWorld + m_maxLocalToWorld ) * 0.5f;
 	geometry->m_radius = sqrt( pow( geometry->m_minLocalToWorldAABB.x - geometry->m_center.x, 2) + 
 		pow( geometry->m_minLocalToWorldAABB.y - geometry->m_center.y, 2) +
 		pow( geometry->m_minLocalToWorldAABB.z - geometry->m_center.z, 2) );
@@ -822,18 +832,18 @@ CVoid CNode::UpdateDynamicPhysicsObjects(CNode* sceneRoot)
 								CMatrixTransform(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX, src[7], m_instanceGeometries[i]->m_localToWorldVertex[7]);
 
 								CVec3f m_minLocalToWorld;
-								CVec3f m_maxLoaclToWorld;
+								CVec3f m_maxLocalToWorld;
 								m_minLocalToWorld.x = m_minLocalToWorld.y = m_minLocalToWorld.z = 100000000.0f;
-								m_maxLoaclToWorld.x = m_maxLoaclToWorld.y = m_maxLoaclToWorld.z = -100000000.0f;
+								m_maxLocalToWorld.x = m_maxLocalToWorld.y = m_maxLocalToWorld.z = -100000000.0f;
 
 								for (CUInt k = 0; k< 8; k++)
 								{
-									if (m_instanceGeometries[i]->m_localToWorldVertex[k].x > m_maxLoaclToWorld.x)
-										m_maxLoaclToWorld.x = m_instanceGeometries[i]->m_localToWorldVertex[k].x;
-									if (m_instanceGeometries[i]->m_localToWorldVertex[k].y > m_maxLoaclToWorld.y)
-										m_maxLoaclToWorld.y = m_instanceGeometries[i]->m_localToWorldVertex[k].y;
-									if (m_instanceGeometries[i]->m_localToWorldVertex[k].z > m_maxLoaclToWorld.z)
-										m_maxLoaclToWorld.z = m_instanceGeometries[i]->m_localToWorldVertex[k].z;
+									if (m_instanceGeometries[i]->m_localToWorldVertex[k].x > m_maxLocalToWorld.x)
+										m_maxLocalToWorld.x = m_instanceGeometries[i]->m_localToWorldVertex[k].x;
+									if (m_instanceGeometries[i]->m_localToWorldVertex[k].y > m_maxLocalToWorld.y)
+										m_maxLocalToWorld.y = m_instanceGeometries[i]->m_localToWorldVertex[k].y;
+									if (m_instanceGeometries[i]->m_localToWorldVertex[k].z > m_maxLocalToWorld.z)
+										m_maxLocalToWorld.z = m_instanceGeometries[i]->m_localToWorldVertex[k].z;
 
 									if (m_instanceGeometries[i]->m_localToWorldVertex[k].x < m_minLocalToWorld.x)
 										m_minLocalToWorld.x = m_instanceGeometries[i]->m_localToWorldVertex[k].x;
@@ -843,7 +853,7 @@ CVoid CNode::UpdateDynamicPhysicsObjects(CNode* sceneRoot)
 										m_minLocalToWorld.z = m_instanceGeometries[i]->m_localToWorldVertex[k].z;
 								}
 								m_instanceGeometries[i]->m_minLocalToWorldAABBControlledByPhysX = m_minLocalToWorld;
-								m_instanceGeometries[i]->m_maxLocalToWorldAABBControlledByPhysX = m_maxLoaclToWorld;
+								m_instanceGeometries[i]->m_maxLocalToWorldAABBControlledByPhysX = m_maxLocalToWorld;
 								m_instanceGeometries[i]->m_center = (m_instanceGeometries[i]->m_minLocalToWorldAABBControlledByPhysX + m_instanceGeometries[i]->m_maxLocalToWorldAABBControlledByPhysX) * 0.5f;
 							}
 							m_instanceGeometries[i]->m_physXCount++;
@@ -867,6 +877,10 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 {
 	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
 	{
+		if (g_multipleView->IsPlayGameMode())
+			if (m_instanceGeometries[i]->m_isInvisible)
+				continue;
+
 		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
 		geometry->m_currentInstanceGeometry = m_instanceGeometries[i]; //used for selection color
 		CBool renderPhysXForFreeCamera = CFalse;
@@ -989,6 +1003,10 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 	{
 		for (CUInt i = 0; i < m_instanceGeometries.size(); i++)
 		{
+			if (g_multipleView->IsPlayGameMode())
+				if (m_instanceGeometries[i]->m_isInvisible)
+					continue;
+
 			g_render.ModelViewMatrix();
 			g_render.PushMatrix();
 
@@ -1102,8 +1120,9 @@ CVoid CNode::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool
 		if (g_multipleView->IsPlayGameMode())
 			if (m_instanceGeometries[i]->m_renderWithPhysX)
 				continue;
+
 		if (g_multipleView->IsPlayGameMode())
-			if (m_instanceGeometries[i]->m_isTrigger)
+			if (m_instanceGeometries[i]->m_isInvisible)
 				continue;
 
 		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
@@ -1352,6 +1371,11 @@ CVoid CNode::RenderSelectionMode(CNode* sceneRoot)
 {
 	for( CUInt i = 0; i < m_instanceGeometries.size(); i++ )
 	{
+		//do not render invisible geometries
+		if (g_multipleView->IsPlayGameMode())
+			if (m_instanceGeometries[i]->m_isInvisible)
+				continue;
+
 		g_render.PushMatrix();
 		if (m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0 && g_multipleView->IsPlayGameMode() && g_editorMode == eMODE_VSCENE)
 			g_render.MultMatrix(m_instanceGeometries[i]->m_localToWorldMatrixControlledByPhysX );
