@@ -232,6 +232,9 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(AddForceToCharacterController, "AddForceToCharacterController(float forceX, float forceY, float forceZ, float forceSpeed, float forceDecreaseValue)");
 	Cpy(AddForceToPrefabInstance, "AddForceToPrefabInstance(string prefabInstanceName, float forceX, float forceY, float forceZ, float forcePower)");
 	Cpy(AddTorqueToPrefabInstance, "AddTorqueToPrefabInstance(string prefabInstanceName, float torqueX, float torqueY, float torqueZ, float torquePower)");
+
+	Cpy(GetPhysicsActorGroup, "GetPhysicsActorGroup(string physicsActorName)");
+	Cpy(SetPhysicsCollisionFlags, "SetPhysicsCollisionFlags(string group1, string group2, bool flag)");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1040,7 +1043,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(AddTorqueToPrefabInstance);
 		}
-
+		else if (Cmp(szBuffer, "GetPhysicsActorGroup"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsActorGroup);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCollisionFlags"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCollisionFlags);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1278,6 +1288,9 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("AddForceToCharacterController");
 	InsertItem("AddForceToPrefabInstance");
 	InsertItem("AddTorqueToPrefabInstance");
+
+	InsertItem("GetPhysicsActorGroup");
+	InsertItem("SetPhysicsCollisionFlags");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

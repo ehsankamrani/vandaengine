@@ -1009,6 +1009,44 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 		}
 	}
 
+	scene = NULL;
+	if (geo_physx.size())
+	{
+		for (CUInt l = 0; l < 4; l++)
+		{
+			if (l < 3)
+			{
+				if (prefab && prefab->GetHasLod(l))
+					scene = GetScene(l);
+			}
+			else if (prefab && GetHasCollider())
+			{
+				scene = GetScene(l);
+			}
+			if (!scene) continue;
+
+			for (CUInt i = 0; i < geo_physx.size(); i++)
+			{
+				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
+				{
+					if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
+					{
+						if (scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
+							continue;
+						if (scene->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
+							continue;
+
+						scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
+						CMatrix m;
+						CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
+						scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
+						g_render.SetScene(scene);
+						scene->Update(0.0f, CFalse);
+					}
+				}
+			}
+		}
+	}
 
 	for (CUInt i = 0; i < 3; i++)
 	{
@@ -1079,45 +1117,6 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 	m_boundingBox[5].x = m_minAABB.x; m_boundingBox[5].y = m_maxAABB.y; m_boundingBox[5].z = m_minAABB.z;
 	m_boundingBox[6].x = m_minAABB.x; m_boundingBox[6].y = m_maxAABB.y; m_boundingBox[6].z = m_maxAABB.z;
 	m_boundingBox[7].x = m_maxAABB.x; m_boundingBox[7].y = m_maxAABB.y; m_boundingBox[7].z = m_maxAABB.z;
-
-	scene = NULL;
-	if (geo_physx.size())
-	{
-		for (CUInt l = 0; l < 4; l++)
-		{
-			if (l < 3)
-			{
-				if (prefab && prefab->GetHasLod(l))
-					scene = GetScene(l);
-			}
-			else if (prefab && GetHasCollider())
-			{
-				scene = GetScene(l);
-			}
-			if (!scene) continue;
-
-			for (CUInt i = 0; i < geo_physx.size(); i++)
-			{
-				for (CUInt j = 0; j < scene->m_instanceGeometries.size(); j++)
-				{
-					if (Cmp(geo_physx[i]->m_abstractGeometry->GetName(), scene->m_instanceGeometries[j]->m_abstractGeometry->GetName()))
-					{
-						if (scene->m_instanceGeometries[j]->m_hasPhysX && scene->m_instanceGeometries[j]->m_physXDensity > 0.0f)
-							continue;
-						if (scene->m_instanceGeometries[j]->m_abstractGeometry->m_hasAnimation)
-							continue;
-
-						scene->m_instanceGeometries[j]->m_renderWithPhysX = CTrue;
-						CMatrix m;
-						CMatrixCopy(geo_physx[i]->m_localToWorldMatrixControlledByPhysX, m);
-						scene->m_instanceGeometries[j]->m_node->SetLocalToWorldMatrix(&m);
-						g_render.SetScene(scene);
-						scene->Update(0.0f, CFalse);
-					}
-				}
-			}
-		}
-	}
 
 	if (m_water)
 		UpdateBoundingBoxForWater(m_water->GetHeight());

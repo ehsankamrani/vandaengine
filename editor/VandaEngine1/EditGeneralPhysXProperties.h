@@ -105,4 +105,13 @@ public:
 	CEdit m_editBoxGroundHeight;
 	afx_msg void OnEnChangeEditGroundHeight();
 	afx_msg void OnBnClickedButtonReset();
+	CButton m_checkBoxKinematicDynamic;
+	CButton m_checkBoxDynamicDynamic;
+	CButton m_checkBoxDynamicStatic;
+	CButton m_checkBoxDynamicGround;
+	CButton m_checkBoxTriggerTrigger;
+	CButton m_checkBoxTriggerKinematic;
+	CButton m_checkBoxTriggerStatic;
+	CButton m_checkBoxTriggerDynamic;
+	CButton m_checkBoxTriggerGround;
 };

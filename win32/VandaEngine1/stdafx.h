@@ -274,6 +274,8 @@ CInt AddForceToCharacterController(lua_State* L);
 CInt AddForceToPrefabInstance(lua_State* L);
 CInt AddTorqueToPrefabInstance(lua_State* L);
 
+CInt GetPhysicsActorGroup(lua_State* L);
+CInt SetPhysicsCollisionFlags(lua_State* L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();

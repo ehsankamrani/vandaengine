@@ -63,6 +63,15 @@ void CEditGeneralPhysXProperties::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CHARACTER_SLOPE_LIMIT, m_editBoxCharacterSlopeLimit);
 	DDX_Control(pDX, IDC_CHECK_GROUND_PLANE, m_checkBoxGroundPlane);
 	DDX_Control(pDX, IDC_EDIT_GROUND_HEIGHT, m_editBoxGroundHeight);
+	DDX_Control(pDX, IDC_CHECK_KINEMATIC_DYNAMIC, m_checkBoxKinematicDynamic);
+	DDX_Control(pDX, IDC_CHECK_DYNAMIC_DYNAMIC, m_checkBoxDynamicDynamic);
+	DDX_Control(pDX, IDC_CHECK_DYNAMIC_STATIC, m_checkBoxDynamicStatic);
+	DDX_Control(pDX, IDC_CHECK_DYNAMIC_GROUND, m_checkBoxDynamicGround);
+	DDX_Control(pDX, IDC_CHECK_TRIGGER_TRIGGER, m_checkBoxTriggerTrigger);
+	DDX_Control(pDX, IDC_CHECK_TRIGGER_KINEMATIC, m_checkBoxTriggerKinematic);
+	DDX_Control(pDX, IDC_CHECK_TRIGGER_STATIC, m_checkBoxTriggerStatic);
+	DDX_Control(pDX, IDC_CHECK_TRIGGER_DYNAMIC, m_checkBoxTriggerDynamic);
+	DDX_Control(pDX, IDC_CHECK_TRIGGER_GROUND, m_checkBoxTriggerGround);
 }
 
 
@@ -275,6 +284,98 @@ void CEditGeneralPhysXProperties::OnOK()
 		else
 			g_physXProperties.m_bJumping = CFalse;
 
+
+		//collision flags
+		checkState = m_checkBoxKinematicDynamic.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_kinematicDynamic = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_kinematicDynamic = CFalse;
+		}
+
+		checkState = m_checkBoxDynamicDynamic.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_dynamicDynamic = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_dynamicDynamic = CFalse;
+		}
+
+		checkState = m_checkBoxDynamicStatic.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_dynamicStatic = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_dynamicStatic = CFalse;
+		}
+
+		checkState = m_checkBoxDynamicGround.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_dynamicGround = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_dynamicGround = CFalse;
+		}
+
+		checkState = m_checkBoxTriggerTrigger.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_triggerTrigger = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_triggerTrigger = CFalse;
+		}
+
+		checkState = m_checkBoxTriggerKinematic.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_triggerKinematic = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_triggerKinematic = CFalse;
+		}
+
+		checkState = m_checkBoxTriggerStatic.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_triggerStatic = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_triggerStatic = CFalse;
+		}
+
+		checkState = m_checkBoxTriggerDynamic.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_triggerDynamic = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_triggerDynamic = CFalse;
+		}
+
+		checkState = m_checkBoxTriggerGround.GetCheck();
+		if (checkState == BST_CHECKED)
+		{
+			g_physXCollisionFlags.m_triggerGround = CTrue;
+		}
+		else
+		{
+			g_physXCollisionFlags.m_triggerGround = CFalse;
+		}
+
 		ex_pVandaEngine1Dlg->ResetPhysX(CFalse);
 		CDialog::OnOK();
 	}
@@ -362,6 +463,88 @@ BOOL CEditGeneralPhysXProperties::OnInitDialog()
 	else
 		m_checkBoxJumping.SetCheck( BST_UNCHECKED );
 
+	//collision flags
+	if (g_physXCollisionFlags.m_kinematicDynamic)
+	{
+		m_checkBoxKinematicDynamic.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxKinematicDynamic.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_dynamicDynamic)
+	{
+		m_checkBoxDynamicDynamic.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxDynamicDynamic.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_dynamicStatic)
+	{
+		m_checkBoxDynamicStatic.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxDynamicStatic.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_dynamicGround)
+	{
+		m_checkBoxDynamicGround.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxDynamicGround.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_triggerTrigger)
+	{
+		m_checkBoxTriggerTrigger.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxTriggerTrigger.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_triggerKinematic)
+	{
+		m_checkBoxTriggerKinematic.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxTriggerKinematic.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_triggerStatic)
+	{
+		m_checkBoxTriggerStatic.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxTriggerStatic.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_triggerDynamic)
+	{
+		m_checkBoxTriggerDynamic.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxTriggerDynamic.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_physXCollisionFlags.m_triggerGround)
+	{
+		m_checkBoxTriggerGround.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkBoxTriggerGround.SetCheck(BST_UNCHECKED);
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -398,8 +581,6 @@ void CEditGeneralPhysXProperties::OnEnChangeEditGroundHeight()
 	m_fGroundHeight = atof(m_strGroundHeight);
 
 }
-
-
 
 void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 {
@@ -484,6 +665,93 @@ void CEditGeneralPhysXProperties::OnBnClickedButtonReset()
 			m_checkBoxJumping.SetCheck(BST_CHECKED);
 		else
 			m_checkBoxJumping.SetCheck(BST_UNCHECKED);
+
+
+		//collision flags
+
+		g_physXCollisionFlags.Reset();
+
+		if (g_physXCollisionFlags.m_kinematicDynamic)
+		{
+			m_checkBoxKinematicDynamic.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxKinematicDynamic.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicDynamic)
+		{
+			m_checkBoxDynamicDynamic.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxDynamicDynamic.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicStatic)
+		{
+			m_checkBoxDynamicStatic.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxDynamicStatic.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicGround)
+		{
+			m_checkBoxDynamicGround.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxDynamicGround.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_triggerTrigger)
+		{
+			m_checkBoxTriggerTrigger.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxTriggerTrigger.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_triggerKinematic)
+		{
+			m_checkBoxTriggerKinematic.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxTriggerKinematic.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_triggerStatic)
+		{
+			m_checkBoxTriggerStatic.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxTriggerStatic.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_triggerDynamic)
+		{
+			m_checkBoxTriggerDynamic.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxTriggerDynamic.SetCheck(BST_UNCHECKED);
+		}
+
+		if (g_physXCollisionFlags.m_triggerGround)
+		{
+			m_checkBoxTriggerGround.SetCheck(BST_CHECKED);
+		}
+		else
+		{
+			m_checkBoxTriggerGround.SetCheck(BST_UNCHECKED);
+		}
+
 	}
 
 }

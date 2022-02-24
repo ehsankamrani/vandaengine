@@ -108,6 +108,7 @@ CChar m_strLoadingImg[MAX_NAME_SIZE];
 CDatabaseVariables g_databaseVariables;
 CShadowProperties g_shadowProperties;
 CPhysXProperties g_physXProperties;
+CPhysXCollisionFlags g_physXCollisionFlags;
 CDOFProperties g_dofProperties;
 CLightProperties g_lightProperties;
 CCurrentVSceneProperties g_currentVSceneProperties;

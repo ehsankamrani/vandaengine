@@ -295,4 +295,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "AddForceToCharacterController", AddForceToCharacterController);
 	lua_register(L, "AddForceToPrefabInstance", AddForceToPrefabInstance);
 	lua_register(L, "AddTorqueToPrefabInstance", AddTorqueToPrefabInstance);
+
+	lua_register(L, "GetPhysicsActorGroup", GetPhysicsActorGroup);
+	lua_register(L, "SetPhysicsCollisionFlags", SetPhysicsCollisionFlags);
 }

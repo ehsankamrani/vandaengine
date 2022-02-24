@@ -158,6 +158,7 @@ CBool g_useOldRenderingStyle = CFalse;
 CMenuVariables g_menu;
 CShadowProperties g_shadowProperties;
 CPhysXProperties g_physXProperties;
+CPhysXCollisionFlags g_physXCollisionFlags;
 CDOFProperties g_dofProperties;
 CFogProperties g_fogProperties;
 CBloomProperties g_bloomProperties;
@@ -952,9 +953,9 @@ END_MESSAGE_MAP()
 CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CVandaEngine1Dlg::IDD, pParent)
 {
-
+	m_progressCursor = LoadCursorFromFile("Assets/Engine/Icons/progress.ani");
 	SetCapture();
-	SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+	SetCursor(m_progressCursor);
 
 	m_pToolTip = NULL;
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_VANDAENGINE);
@@ -1454,7 +1455,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.2"));
+	SetWindowText(_T("Vanda Engine 1.8.3"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3020,7 +3021,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3081,7 +3082,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.2 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.3 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3270,7 +3271,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3356,7 +3357,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.2 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.3 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3430,7 +3431,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.2 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.3 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7509,7 +7510,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.2 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.3 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7539,7 +7540,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 
 	g_clickedNew = CTrue;
 	SetCapture();
-	SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+	SetCursor(m_progressCursor);
 
 	if (g_physXProperties.m_bDebugMode)
 		PrintInfo("\nPhysX debug deactivated");
@@ -7568,6 +7569,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	g_characterBlendingProperties.Reset();
 	g_shadowProperties.Reset();
 	g_physXProperties.Reset();
+	g_physXCollisionFlags.Reset();
 	g_menu.m_insertCharacter = CFalse;
 
 	if(!g_vandaDemo)
@@ -7934,7 +7936,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7943,7 +7945,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.2 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.3 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 	//clear the console
@@ -7967,7 +7969,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportColladaMultipleAnimations(CChar* file
 	Cpy(g_currentPrefabAndSceneName, "\n");
 
 	SetCapture();
-	SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+	SetCursor(m_progressCursor);
 	g_octree->ResetState();
 	g_importColladaImages = CTrue;
 
@@ -8272,7 +8274,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 		dlgWaiting->ShowWindow(SW_SHOW);
 
-		SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+		SetCursor(m_progressCursor);
 		g_octree->ResetState();
 		g_importColladaImages = CTrue;
 
@@ -8453,7 +8455,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportPhysX()
 		if( MessageBox( "Are you sure you want to replace the current PhysX scene with new PhysX scene?\nCurrent PhysX actors are lost", "Warning", MB_YESNO | MB_ICONWARNING) == IDYES )
 		{
 			SetCapture();
-			SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+			SetCursor(m_progressCursor);
 			CString fileName( dlgOpen.GetPathName() );
 			//for example this code converts 'test.nxb' to 'data\test\test.nxb'
 			//CChar fileWithoutDot[MAX_NAME_SIZE];
@@ -9087,7 +9089,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 	if (result == IDOK)
 	{
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		if (askQuestion || Cmp(g_currentPackageAndGUIName, "\n")) //nothing has been saved
 		{
@@ -9761,7 +9763,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -9802,7 +9804,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 	if (result == IDOK)
 	{
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		FindGeometryInstancesRenderedByPhysics();
 
@@ -10375,6 +10377,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 
 		fwrite(&g_shadowProperties, sizeof(CShadowProperties), 1, filePtr);
 		fwrite(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+		fwrite(&g_physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 		fwrite(&g_dofProperties, sizeof(CDOFProperties), 1, filePtr);
 		fwrite(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fwrite(&g_bloomProperties, sizeof(CBloomProperties), 1, filePtr);
@@ -10603,7 +10606,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10640,7 +10643,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 	if (result == IDOK)
 	{
 		SetCapture();
-		SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+		SetCursor(m_progressCursor);
 
 		if( Cmp( g_currentVSceneName, "\n" ) ) //nothing has been saved
 		{
@@ -11749,7 +11752,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		//save engine options
 
 		fwrite( &g_shadowProperties, sizeof( CShadowProperties ), 1, filePtr  );
-		fwrite( &g_physXProperties, sizeof( CPhysXProperties ), 1, filePtr );
+		fwrite(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+		fwrite(&g_physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 		fwrite( &g_dofProperties, sizeof( CDOFProperties ), 1, filePtr  );
 		fwrite( &g_fogProperties, sizeof( CFogProperties ), 1, filePtr  );
 		fwrite( &g_bloomProperties, sizeof( CBloomProperties ), 1, filePtr  );
@@ -12269,7 +12273,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12625,7 +12629,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertGUI()
 		PrintInfo(reportTemp, COLOR_RED_GREEN);
 
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		Cpy(g_currentGUIName, (CChar*)m_dlgGUIs->m_selectedGUIName.c_str()); //For save functions
 		Cpy(g_currentGUIPackageName, (CChar*)m_dlgGUIs->m_selectedPackageName.c_str()); //For save functions
@@ -13050,7 +13054,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		PrintInfo(reportTemp, COLOR_RED_GREEN);
 
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		Cpy(g_currentGUIName, (CChar*)m_dlgGUIs->m_selectedGUIName.c_str()); //For save functions
 		Cpy(g_currentGUIPackageName, (CChar*)m_dlgGUIs->m_selectedPackageName.c_str()); //For save functions
@@ -13345,7 +13349,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -13523,7 +13527,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		PrintInfo(reportTemp, COLOR_RED_GREEN);
 
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		if (!prefab)
 		{
@@ -13590,6 +13594,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		fread(&shadowProperties, sizeof(CShadowProperties), 1, filePtr);
 
 		CPhysXProperties physXProperties;
+		CPhysXCollisionFlags physXCollisionFlags;
 		CDOFProperties dofProperties;
 		CFogProperties fogProperties;
 		CBloomProperties bloomProperties;
@@ -13599,6 +13604,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 		CPathProperties pathProperties;
 		CCharacterBlendingProperties characterBlendingProperties;
 		fread(&physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+		fread(&physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 		fread(&dofProperties, sizeof(CDOFProperties), 1, filePtr);
 		fread(&fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fread(&bloomProperties, sizeof(CBloomProperties), 1, filePtr);
@@ -14379,7 +14385,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		PrintInfo(reportTemp, COLOR_RED_GREEN);
 
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		CChar engineName[MAX_NAME_SIZE];
 		fread(&engineName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -14449,6 +14455,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 
 		g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
 		fread(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+		fread(&g_physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 		ResetPhysX(); //reset the physX based on the g_physXProperties information
 		fread(&g_dofProperties, sizeof(CDOFProperties), 1, filePtr);
 		fread(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
@@ -15143,7 +15150,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.2 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15293,7 +15300,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			g_importColladaImages = CFalse;
 
 			SetCapture();
-			SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+			SetCursor(m_progressCursor);
 			Cpy(g_currentVSceneName, currentVSceneNameWithoutDot);
 			fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fread(&g_maxVersion, 1, sizeof(CInt), filePtr);
@@ -15339,6 +15346,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
 			fread(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+			fread(&g_physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 			ResetPhysX(); //reset the physX based on the g_physXProperties information
 			fread(&g_dofProperties, sizeof(CDOFProperties), 1, filePtr);
 			fread(&g_fogProperties, sizeof(CFogProperties), 1, filePtr);
@@ -16967,7 +16975,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -18087,7 +18095,7 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 			g_showArrow = CFalse;
 
 			SetCapture();
-			SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+			SetCursor(m_progressCursor);
 
 			CBool foundTarget = CFalse;
 			CBool foundSelectedGeometryTarget = CFalse;
@@ -19360,7 +19368,7 @@ CVoid CVandaEngine1Dlg::ChangeTerrainProperties()
 		if (g_terrain->GetCookPhysicsTriangles())
 		{
 			SetCapture();
-			SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+			SetCursor(m_progressCursor);
 
 			dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 			dlgWaiting->ShowWindow(SW_SHOW);
@@ -21224,6 +21232,95 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 			gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 		}
 	}
+
+	//collision flags
+	if (gPhysXscene)
+	{
+		if (g_physXCollisionFlags.m_kinematicDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicStatic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_STATIC, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_STATIC, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicGround)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_GROUND, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_GROUND, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerTrigger)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_TRIGGER, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_TRIGGER, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerKinematic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE, CTrue);
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE, CFalse);
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerStatic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_STATIC, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_STATIC, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerGround)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CFalse);
+		}
+	}
 }
 
 void CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx()
@@ -21426,7 +21523,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnBackupAllProjects()
 		PrintInfo("\nBacking Up All Projects...", COLOR_GREEN);
 
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
@@ -21524,7 +21621,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		}
 
 		SetCapture();
-		SetCursor( LoadCursorFromFile( "Assets/Engine/Icons/progress.ani") );
+		SetCursor(m_progressCursor);
 
 		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
@@ -22653,7 +22750,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 	}
 
 	SetCapture();
-	SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+	SetCursor(m_progressCursor);
 
 	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
@@ -23238,7 +23335,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	}
 
 	SetCapture();
-	SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+	SetCursor(m_progressCursor);
 
 	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
@@ -23443,6 +23540,96 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		abstract_light->SetShininess(g_engineLights[i]->m_abstractLight->GetShininess());
 
 		m_engineLights.push_back(instance_light);
+	}
+
+	if (g_editorMode == eMODE_VSCENE || g_editorMode == eMODE_PREFAB)
+	{
+		//collision flags
+		if (g_physXCollisionFlags.m_kinematicDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicStatic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_STATIC, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_STATIC, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicGround)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_GROUND, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_GROUND, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerTrigger)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_TRIGGER, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_TRIGGER, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerKinematic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE, CTrue);
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE, CFalse);
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerStatic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_STATIC, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_STATIC, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerGround)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CFalse);
+		}
+
 	}
 
 	if (g_editorMode == eMODE_VSCENE)
@@ -25901,7 +26088,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertTerrain()
 		}
 
 		SetCapture();
-		SetCursor(LoadCursorFromFile("Assets/Engine/Icons/progress.ani"));
+		SetCursor(m_progressCursor);
 
 		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);

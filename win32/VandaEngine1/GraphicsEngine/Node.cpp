@@ -386,18 +386,9 @@ CVoid CNode::UpdatePhysX( CInstanceGeometry* geometry )
 					}
 					else
 					{
-						if (g_currentInstancePrefab)
-						{
-							PosX = (g_currentInstancePrefab->GetMaxAABB().x + g_currentInstancePrefab->GetMinAABB().x) / 2.f;
-							PosY = (g_currentInstancePrefab->GetMaxAABB().y + g_currentInstancePrefab->GetMinAABB().y) / 2.f;
-							PosZ = (g_currentInstancePrefab->GetMaxAABB().z + g_currentInstancePrefab->GetMinAABB().z) / 2.f;
-						}
-						else
-						{
-							PosX = (geometry->m_maxLocalToWorldAABB.x + geometry->m_minLocalToWorldAABB.x) / 2.f;
-							PosY = (geometry->m_maxLocalToWorldAABB.y + geometry->m_minLocalToWorldAABB.y) / 2.f;
-							PosZ = (geometry->m_maxLocalToWorldAABB.z + geometry->m_minLocalToWorldAABB.z) / 2.f;
-						}
+						PosX = (geometry->m_maxLocalToWorldAABB.x + geometry->m_minLocalToWorldAABB.x) / 2.f;
+						PosY = (geometry->m_maxLocalToWorldAABB.y + geometry->m_minLocalToWorldAABB.y) / 2.f;
+						PosZ = (geometry->m_maxLocalToWorldAABB.z + geometry->m_minLocalToWorldAABB.z) / 2.f;
 					}
 					NxVec3 globalPos(PosX, PosY, PosZ);
 					//remove decomposed data

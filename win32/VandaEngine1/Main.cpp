@@ -9524,6 +9524,148 @@ CInt AddTorqueToPrefabInstance(lua_State* L)
 	return 0;
 }
 
+CInt GetPhysicsActorGroup(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetPhysicsActorGroup()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, lua_tostring(L, 1));
+	StringToUpper(name);
+
+	if (gPhysXscene)
+	{
+		for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
+		{
+			if (!gPhysXscene->getActors()[j]->getName()) continue; //main character
+
+			CChar actorName[MAX_NAME_SIZE];
+			Cpy(actorName, gPhysXscene->getActors()[j]->getName());
+			StringToUpper(actorName);
+
+			if (Cmp(name, actorName))
+			{
+				NxActor* currentActor = gPhysXscene->getActors()[j];
+
+				if (currentActor->getGroup() == GROUP_COLLIDABLE_NON_PUSHABLE || currentActor->getGroup() == GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT)
+				{
+					lua_pushstring(L, "KINEMATIC");
+				}
+				else if (currentActor->getGroup() == GROUP_COLLIDABLE_PUSHABLE)
+				{
+					lua_pushstring(L, "DYNAMIC");
+				}
+				else if (currentActor->getGroup() == GROUP_TRIGGER)
+				{
+					lua_pushstring(L, "TRIGGER");
+				}
+				else if (currentActor->getGroup() == GROUP_STATIC)
+				{
+					lua_pushstring(L, "STATIC");
+				}
+				else if (currentActor->getGroup() == GROUP_GROUND)
+				{
+					lua_pushstring(L, "GROUND");
+				}
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+CInt SetPhysicsCollisionFlags(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetPhysicsCollisionFlags()", COLOR_RED);
+		return 0;
+	}
+
+	if (!gPhysXscene)
+		return 0;
+
+	CChar name1[MAX_NAME_SIZE];
+	Cpy(name1, lua_tostring(L, 1));
+	StringToUpper(name1);
+
+	CChar name2[MAX_NAME_SIZE];
+	Cpy(name2, lua_tostring(L, 2));
+	StringToUpper(name2);
+
+	CBool bFlag;
+	CInt iFlag = lua_toboolean(L, 3);
+	if (iFlag)
+		bFlag = CTrue;
+	else
+		bFlag = CFalse;
+
+	std::vector <CInt> group1;
+	std::vector <CInt> group2;
+
+	if (Cmp(name1, "KINEMATIC"))
+	{
+		group1.push_back(GROUP_COLLIDABLE_NON_PUSHABLE);
+		group1.push_back(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT);
+	}
+	else if (Cmp(name1, "DYNAMIC"))
+	{
+		group1.push_back(GROUP_COLLIDABLE_PUSHABLE);
+	}
+	else if (Cmp(name1, "TRIGGER"))
+	{
+		group1.push_back(GROUP_TRIGGER);
+	}
+	else if (Cmp(name1, "STATIC"))
+	{
+		group1.push_back(GROUP_STATIC);
+	}
+	else if (Cmp(name1, "GROUND"))
+	{
+		group1.push_back(GROUP_GROUND);
+	}
+
+	if (Cmp(name2, "KINEMATIC"))
+	{
+		group2.push_back(GROUP_COLLIDABLE_NON_PUSHABLE);
+		group2.push_back(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT);
+	}
+	else if (Cmp(name2, "DYNAMIC"))
+	{
+		group2.push_back(GROUP_COLLIDABLE_PUSHABLE);
+	}
+	else if (Cmp(name2, "TRIGGER"))
+	{
+		group2.push_back(GROUP_TRIGGER);
+	}
+	else if (Cmp(name2, "STATIC"))
+	{
+		group2.push_back(GROUP_STATIC);
+	}
+	else if (Cmp(name2, "GROUND"))
+	{
+		group2.push_back(GROUP_GROUND);
+	}
+
+	for (CUInt i = 0; i < group1.size(); i++)
+	{
+		for (CUInt j = 0; j < group2.size(); j++)
+		{
+			gPhysXscene->setGroupCollisionFlag(group1[i], group2[j], bFlag);
+		}
+	}
+
+	return 0;
+}
+
 
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
@@ -12173,6 +12315,7 @@ CBool CMain::Reset()
 	g_characterBlendingProperties.Reset();
 	g_shadowProperties.Reset();
 	g_physXProperties.Reset();
+	g_physXCollisionFlags.Reset();
 	g_shadowProperties.m_enable = CTrue;
 	g_pathProperties.Reset();
 	g_extraTexturesNamingConventions.Reset();
@@ -12406,6 +12549,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		fread(&shadowProperties, sizeof(CShadowProperties), 1, filePtr);
 
 		CPhysXProperties physXProperties;
+		CPhysXCollisionFlags physXCollisionFlags;
 		CDOFProperties dofProperties;
 		CFogProperties fogProperties;
 		CBloomProperties bloomProperties;
@@ -12415,6 +12559,7 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		CPathProperties pathProperties;
 		CCharacterBlendingProperties characterBlendingProperties;
 		fread(&physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+		fread(&physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 		fread(&dofProperties, sizeof(CDOFProperties), 1, filePtr);
 		fread(&fogProperties, sizeof(CFogProperties), 1, filePtr);
 		fread(&bloomProperties, sizeof(CBloomProperties), 1, filePtr);
@@ -13021,6 +13166,7 @@ CBool CMain::Load(CChar* pathName)
 	g_dynamicShadowMap->split_weight = g_shadowProperties.m_shadowSplitWeight;
 
 	fread(&g_physXProperties, sizeof(CPhysXProperties), 1, filePtr);
+	fread(&g_physXCollisionFlags, sizeof(CPhysXCollisionFlags), 1, filePtr);
 	ResetPhysX(); //reset the physX based on the g_physXProperties information
 	//temprary disable gravity to avoid falling objects while laoding the scene:
 	gPhysXscene->setGravity(NxVec3(0.0f, 0.0f, 0.0f));
@@ -16387,7 +16533,94 @@ void CMain::ResetPhysX(CBool releaseActors)
 		}
 	}
 
+	if (gPhysXscene)
+	{
+		//collision flags
+		if (g_physXCollisionFlags.m_kinematicDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
 
+		if (g_physXCollisionFlags.m_dynamicDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicStatic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_STATIC, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_STATIC, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_dynamicGround)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_GROUND, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_COLLIDABLE_PUSHABLE, GROUP_GROUND, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerTrigger)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_TRIGGER, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_TRIGGER, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerKinematic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE, CTrue);
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE, CFalse);
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerStatic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_STATIC, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_STATIC, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerDynamic)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_PUSHABLE, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_COLLIDABLE_PUSHABLE, CFalse);
+		}
+
+		if (g_physXCollisionFlags.m_triggerGround)
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CTrue);
+		}
+		else
+		{
+			gPhysXscene->setGroupCollisionFlag(GROUP_TRIGGER, GROUP_GROUND, CFalse);
+		}
+	}
 }
 
 CVoid CMain::ManageLODs()

@@ -318,3 +318,6 @@ CInt GetGUITextPosition(lua_State* L);
 CInt AddForceToCharacterController(lua_State* L);
 CInt AddForceToPrefabInstance(lua_State* L);
 CInt AddTorqueToPrefabInstance(lua_State* L);
+
+CInt GetPhysicsActorGroup(lua_State* L);
+CInt SetPhysicsCollisionFlags(lua_State* L);

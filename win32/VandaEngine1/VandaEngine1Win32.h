@@ -575,6 +575,46 @@ struct CPhysXProperties
 	}
 };
 
+struct CPhysXCollisionFlags
+{
+	CBool m_kinematicDynamic;
+	CBool m_dynamicDynamic;
+	CBool m_dynamicStatic;
+	CBool m_dynamicGround;
+	CBool m_triggerTrigger;
+	CBool m_triggerKinematic;
+	CBool m_triggerStatic;
+	CBool m_triggerDynamic;
+	CBool m_triggerGround;
+
+	CPhysXCollisionFlags()
+	{
+		m_kinematicDynamic = CTrue;
+		m_dynamicDynamic = CTrue;
+		m_dynamicStatic = CTrue;
+		m_dynamicGround = CTrue;
+		m_triggerTrigger = CTrue;
+		m_triggerKinematic = CTrue;
+		m_triggerStatic = CTrue;
+		m_triggerDynamic = CTrue;
+		m_triggerGround = CFalse;
+	}
+
+	CVoid Reset()
+	{
+		m_kinematicDynamic = CTrue;
+		m_dynamicDynamic = CTrue;
+		m_dynamicStatic = CTrue;
+		m_dynamicGround = CTrue;
+		m_triggerTrigger = CTrue;
+		m_triggerKinematic = CTrue;
+		m_triggerStatic = CTrue;
+		m_triggerDynamic = CTrue;
+		m_triggerGround = CFalse;
+	}
+
+};
+
 struct CDOFProperties
 {
 	CBool m_enable;
@@ -729,6 +769,7 @@ struct CDatabaseVariables
 extern CDatabaseVariables g_databaseVariables;
 extern CShadowProperties g_shadowProperties;
 extern CPhysXProperties g_physXProperties;
+extern CPhysXCollisionFlags g_physXCollisionFlags;
 extern CDOFProperties g_dofProperties;
 extern CFogProperties g_fogProperties;
 extern CBloomProperties g_bloomProperties;

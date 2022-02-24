@@ -726,6 +726,7 @@ private:
 	CUpdateCamera* m_camera;
 	COptions m_options;
 
+	HCURSOR m_progressCursor;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );
@@ -1205,6 +1206,7 @@ extern CInt g_height;
 extern CMenuVariables g_menu;
 extern CShadowProperties g_shadowProperties;
 extern CPhysXProperties g_physXProperties;
+extern CPhysXCollisionFlags g_physXCollisionFlags;
 extern CDOFProperties g_dofProperties;
 extern CLightProperties g_lightProperties;
 extern CCurrentVSceneProperties g_currentVSceneProperties;

@@ -246,6 +246,9 @@ private:
 	CChar AddForceToPrefabInstance[MAX_URI_SIZE];
 	CChar AddTorqueToPrefabInstance[MAX_URI_SIZE];
 
+	CChar GetPhysicsActorGroup[MAX_URI_SIZE];
+	CChar SetPhysicsCollisionFlags[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };
