@@ -396,6 +396,11 @@ public:
 	CVoid InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
 	CVoid FinishPrefabSelection();
 
+	//This function is called inside OnBnClickedBtnPlayActive()
+	CVoid GeneratePrefabInstance(CPrefab* prefab, CChar* prefabInstanceName);
+	CVoid DeletePrefabInstance(CChar* prefabInstanceName);
+	///////////
+
 };
 
 extern CInt g_numLights;

@@ -249,6 +249,9 @@ private:
 	CChar GetPhysicsActorGroup[MAX_URI_SIZE];
 	CChar SetPhysicsCollisionFlags[MAX_URI_SIZE];
 
+	CChar GeneratePrefabInstance[MAX_URI_SIZE];
+	CChar DeletePrefabInstance[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

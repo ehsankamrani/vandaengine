@@ -242,6 +242,9 @@ void CGUIDlg::OnLvnItemchangedListPackages(NMHDR *pNMHDR, LRESULT *pResult)
 			return;
 		}
 
+		SetCapture();
+		SetCursor(ex_pVandaEngine1Dlg->m_progressCursor);
+
 		CBitmap* cBmpMask = NULL;
 
 		m_guiListImage.DeleteImageList();
@@ -277,6 +280,8 @@ void CGUIDlg::OnLvnItemchangedListPackages(NMHDR *pNMHDR, LRESULT *pResult)
 			Cpy(str, g_guiPackagesAndNames[index][i].c_str());
 			InsertItemToGUIList(str, i - 1);
 		}
+
+		ReleaseCapture();
 	}
 	*pResult = 0;
 }

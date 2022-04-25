@@ -407,6 +407,14 @@ inline CVoid CopyOneFileToDstDirectory(CChar* srcFilePath, CChar* dstDirectory)
 	}
 }
 
+inline CBool DirectoryExists(LPCTSTR szPath)
+{
+	DWORD dwAttrib = GetFileAttributes(szPath);
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+		(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
 struct CColor3f
 {
 	CFloat r,g,b;

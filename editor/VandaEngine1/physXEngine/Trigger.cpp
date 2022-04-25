@@ -10,6 +10,7 @@ CTrigger::CTrigger()
 	m_hasScript = CFalse;
 	m_updateScript = CFalse;
 	Cpy(m_script, "\n");
+	Cpy(m_lastScriptPath, "\n");
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
@@ -109,6 +110,15 @@ CChar* CTrigger::GetName()
 	return m_name;
 }
 
+CVoid CTrigger::SetLastName(CChar* name)
+{
+	Cpy(m_lastName, name);
+}
+
+CChar* CTrigger::GetLastName()
+{
+	return m_lastName;
+}
 CVoid CTrigger::SetTriggerType(CTriggerType triggerType)
 {
 	m_triggerType = triggerType;

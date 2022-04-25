@@ -73,7 +73,7 @@
 #include "GUIEngine/GUIText.h"
 #include "GUIEngine/GUI.h"
 #include "ExitEditorDlg.h"
-
+#include "AddPrefabResource.h"
 #include "scenemanagerEngine/octree.h"
 #include "PhysX.h"
 #include "physXEngine/Trigger.h"
@@ -141,7 +141,7 @@ struct COptions
 
 };
 
-//mainly used in script editor and to test scripts in Prefab mode
+//mainly used in script editor
 struct CInstancePrefabNames
 {
 	CChar m_name[MAX_NAME_SIZE];
@@ -155,6 +155,14 @@ struct CInstancePrefabNames
 		m_animationNames.clear();
 		m_cameraNames.clear();
 	}
+};
+
+//mainly used in script editor
+struct CPrefabNames
+{
+	CChar m_name[MAX_NAME_SIZE];
+	CChar m_packageName[MAX_NAME_SIZE];
+	CChar m_prefabName[MAX_NAME_SIZE];
 };
 
 struct CGUINames
@@ -179,6 +187,7 @@ struct CGUINames
 struct CVSceneObjectNames
 {
 	std::vector<CInstancePrefabNames>m_instancePrefabNames; //Prefab Instances of this VScene
+	std::vector<CPrefabNames>m_prefabNames; //Prefab Instances of this VScene
 	std::vector<std::string> m_staticSoundsNames; //static sounds of this VScene
 	std::vector<std::string> m_importedCameraNames; //imported cameras in dae format of this VScene
 	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
@@ -192,6 +201,7 @@ struct CVSceneObjectNames
 			m_instancePrefabNames[i].ClearNames();
 		m_instancePrefabNames.clear();
 
+		m_prefabNames.clear();
 		m_staticSoundsNames.clear();
 		m_importedCameraNames.clear();
 		m_engineCameraNames.clear();
@@ -712,6 +722,7 @@ protected:
 private:
 	std::vector<CStaticSound*>m_engineStaticSounds;
 	std::vector<CInstancePrefab*> m_instancePrefab;
+	std::vector<CPrefab*> m_prefab;
 	CCurrentVSceneProperties m_currentVSceneProperties;
 	std::vector<CGUI*> m_guis;
 	CBloomProperties m_bloomProperties;
@@ -725,8 +736,8 @@ private:
 	std::vector<CGUIText*> m_guiTexts;
 	CUpdateCamera* m_camera;
 	COptions m_options;
-
-	HCURSOR m_progressCursor;
+	CAddPrefabResource *m_dlgAddPrefabResource;
+	std::vector<CWater*> m_water;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );
@@ -742,6 +753,9 @@ public:
 	CVoid OnMenuClickedPrefab();
 	CVoid LoadObjectNames();
 	CVoid ClearObjectNames();
+
+	HCURSOR m_progressCursor;
+
 protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	CVoid OnMenuClickedImportCollada();
@@ -1133,6 +1147,7 @@ extern CButton* ex_pBtnTestModeDeactive;
 extern CButton* ex_pBtnPhysXEditor;
 extern std::vector<CScene*> g_scene;
 extern std::vector<CPrefab*> g_prefab;
+extern std::vector<CPrefab*> g_resourcePrefab;
 extern std::vector<CGeometry *> g_geometries;
 extern std::vector<CInstancePrefab*>g_instancePrefab;
 extern CBool g_importPrefab;

@@ -9666,6 +9666,302 @@ CInt SetPhysicsCollisionFlags(lua_State* L)
 	return 0;
 }
 
+CInt GeneratePrefabInstance(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 10)
+	{
+		//PrintInfo("\nPlease specify 10 arguments for GeneratePrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, lua_tostring(L, 1));
+	StringToUpper(name);
+
+	CFloat xPos = lua_tonumber(L, 2);
+	CFloat yPos = lua_tonumber(L, 3);
+	CFloat zPos = lua_tonumber(L, 4);
+	CVec3f pos(xPos, yPos, zPos);
+
+	CFloat xRot = lua_tonumber(L, 5);
+	CFloat yRot = lua_tonumber(L, 6);
+	CFloat zRot = lua_tonumber(L, 7);
+	CVec4f rot(xRot, yRot, zRot, 0.0f);
+
+	CFloat xScale = lua_tonumber(L, 8);
+	CFloat yScale = lua_tonumber(L, 9);
+	CFloat zScale = lua_tonumber(L, 10);
+	CVec3f scale(xScale, yScale, zScale);
+
+	CBool foundPrefab = CFalse;
+
+	static int index = 1;
+
+	CPrefab* currentPrefab = NULL;
+	for (CUInt i = 0; i < g_prefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_prefab[i]->GetName());
+		StringToUpper(prefabName);
+
+		if (Cmp(name, prefabName))
+		{
+			currentPrefab = g_prefab[i];
+			break;
+		}
+	}
+
+	if (!currentPrefab)
+	{
+		for (CUInt i = 0; i < g_resourcePrefab.size(); i++)
+		{
+			CChar prefabName[MAX_NAME_SIZE];
+			Cpy(prefabName, g_resourcePrefab[i]->GetName());
+			StringToUpper(prefabName);
+
+			if (Cmp(name, prefabName))
+			{
+				CPrefab* new_prefab = CNew(CPrefab);
+				new_prefab->SetName(g_resourcePrefab[i]->GetName());
+				new_prefab->SetPackageName(g_resourcePrefab[i]->GetPackageName());
+				new_prefab->SetPrefabName(g_resourcePrefab[i]->GetPrefabName());
+				g_prefab.push_back(new_prefab);
+				currentPrefab = new_prefab;
+				break;
+			}
+		}
+	}
+
+	if (!currentPrefab)
+	{
+		//CChar message[MAX_URI_SIZE];
+		//sprintf(message, "\nGeneratePrefabInstance() Error: Couldn't find '%s%s", lua_tostring(L, 1), "' prefab");
+		//PrintInfo(message, COLOR_RED);
+		return 0;
+	}
+
+	CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
+	g_currentInstancePrefab = new_instance_prefab;
+
+	CChar instanceName[MAX_NAME_SIZE];
+	sprintf(instanceName, "%i%s%s%s%s", index, "pi_", currentPrefab->GetPackageName(), "_", currentPrefab->GetPrefabName());
+	index++;
+
+	new_instance_prefab->SetName(instanceName);
+	new_instance_prefab->SetTranslate(pos);
+	new_instance_prefab->SetRotate(rot);
+	new_instance_prefab->SetScale(scale);
+
+	currentPrefab->AddInstance(new_instance_prefab);
+	currentPrefab->SetCurrentInstance(new_instance_prefab);
+	new_instance_prefab->SetPrefab(currentPrefab);
+	new_instance_prefab->SetNameIndex(); //for selection only
+	new_instance_prefab->GenQueryIndex();
+	new_instance_prefab->SetWater(NULL);
+	g_instancePrefab.push_back(new_instance_prefab);
+	Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
+	g_main->InsertPrefab(currentPrefab);
+	new_instance_prefab->UpdateBoundingBox(CTrue);
+	new_instance_prefab->CalculateDistance();
+	new_instance_prefab->UpdateIsStaticOrAnimated();
+	new_instance_prefab->SetLightCooked(CFalse);
+	new_instance_prefab->SetHasScript(currentPrefab->GetHasScript());
+	new_instance_prefab->SetScript(currentPrefab->GetScript());
+	if (new_instance_prefab->GetHasScript())
+	{
+		new_instance_prefab->LoadLuaFile();
+	}
+
+	if (new_instance_prefab->GetIsStatic())
+		g_octree->ResetState();
+
+	//generate physics
+	CScene* scene = NULL;
+
+	for (CUInt j = 0; j < 3; j++)
+	{
+		if (currentPrefab && currentPrefab->GetHasLod(j))
+		{
+			scene = new_instance_prefab->GetScene(j);
+			if (scene)
+			{
+				for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+				{
+					CPhysXMaterial physicsMaterial;
+					physicsMaterial.HasMaterial = scene->m_instanceGeometries[k]->HasPhysicsMaterial();
+					physicsMaterial.Restitution = scene->m_instanceGeometries[k]->GetPhysicsRestitution();
+					physicsMaterial.SkinWidth = scene->m_instanceGeometries[k]->GetPhysicsSkinWidth();
+					physicsMaterial.StaticFriction = scene->m_instanceGeometries[k]->GetPhysicsStaticFriction();
+					physicsMaterial.DynamicFriction = scene->m_instanceGeometries[k]->GetPhysicsDynamicFriction();
+
+					if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
+					{
+						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+					}
+					else if (scene->m_instanceGeometries[k]->m_hasPhysX)
+					{
+						scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, NULL);
+					}
+				}
+			}
+		}
+	}
+	if (g_currentInstancePrefab->GetHasCollider())
+	{
+		scene = new_instance_prefab->GetScene(3);
+		if (scene)
+		{
+			for (CUInt k = 0; k < scene->m_instanceGeometries.size(); k++)
+			{
+				CPhysXMaterial physicsMaterial;
+				physicsMaterial.HasMaterial = scene->m_instanceGeometries[k]->HasPhysicsMaterial();
+				physicsMaterial.Restitution = scene->m_instanceGeometries[k]->GetPhysicsRestitution();
+				physicsMaterial.SkinWidth = scene->m_instanceGeometries[k]->GetPhysicsSkinWidth();
+				physicsMaterial.StaticFriction = scene->m_instanceGeometries[k]->GetPhysicsStaticFriction();
+				physicsMaterial.DynamicFriction = scene->m_instanceGeometries[k]->GetPhysicsDynamicFriction();
+
+				if (scene->m_instanceGeometries[k]->m_hasPhysX && scene->m_controllers.size())
+				{
+					scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, g_currentInstancePrefab);
+				}
+				else if (scene->m_instanceGeometries[k]->m_hasPhysX)
+				{
+					scene->GeneratePhysX(scene->m_instanceGeometries[k]->m_lodAlgorithm, scene->m_instanceGeometries[k]->m_physXDensity, scene->m_instanceGeometries[k]->m_physXPercentage, scene->m_instanceGeometries[k]->m_isTrigger, scene->m_instanceGeometries[k]->m_isInvisible, physicsMaterial, scene->m_instanceGeometries[k], CFalse, NULL);
+				}
+			}
+		}
+	}
+
+	//update max radius
+	g_maxInstancePrefabRadius = -1.f;
+	for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+	{
+		if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+		{
+			if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+				g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+		}
+	}
+
+	lua_pushstring(L, instanceName);
+	return 1;
+}
+
+
+CInt DeletePrefabInstance(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for DeletePrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, lua_tostring(L, 1));
+	StringToUpper(name);
+
+	CBool foundPrefabInstance = CFalse;
+
+	CBool foundTarget = CFalse;
+	CPrefab* dstPrefab = NULL;
+	CBool isStatic = CFalse;
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar currentInstanceName[MAX_NAME_SIZE];
+		Cpy(currentInstanceName, g_instancePrefab[i]->GetName());
+		StringToUpper(currentInstanceName);
+
+		if (Cmp(currentInstanceName, name))
+		{
+			dstPrefab = g_instancePrefab[i]->GetPrefab();
+			isStatic = g_instancePrefab[i]->GetIsStatic();
+			//remove instance from prefab
+			for (CUInt j = 0; j < dstPrefab->GetNumInstances(); j++)
+			{
+				CBool foundTarget = CFalse;
+				if (Cmp(dstPrefab->GetInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+				{
+					dstPrefab->RemoveInstance(j);
+					foundTarget = CTrue;
+				}
+				if (foundTarget)
+					break;
+			}
+			for (CUInt k = 0; k < 4; k++)
+			{
+				CBool condition = CFalse;
+				if (k < 3)
+				{
+					if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+						condition = CTrue;
+				}
+				else
+				{
+					if (g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition)
+				{
+					CScene* scene = g_instancePrefab[i]->GetScene(k);
+					g_main->RemoveSelectedScene(scene->GetName(), scene->GetDocURI());
+				}
+			}
+
+			//remove it from water as well
+			for (CUInt k = 0; k < g_engineWaters.size(); k++)
+			{
+				for (CUInt l = 0; l < g_engineWaters[k]->GetNumPrefabInstances(); l++)
+				{
+					if (Cmp(g_engineWaters[k]->GetPrefabInstance(l)->GetName(), g_instancePrefab[i]->GetName()))
+						g_engineWaters[k]->RemovePrefabInstance(l);
+				}
+			}
+
+			CDelete(g_instancePrefab[i]);
+			g_instancePrefab.erase(g_instancePrefab.begin() + i);
+
+			foundTarget = CTrue;
+		}
+		if (foundTarget)
+			break;
+	}
+	if (foundTarget)
+	{
+		if (dstPrefab && dstPrefab->GetNumInstances() == 0)
+		{
+			//now remove the prefab
+			for (CUInt k = 0; k < g_prefab.size(); k++)
+			{
+				if (Cmp(dstPrefab->GetName(), g_prefab[k]->GetName()))
+				{
+					CDelete(g_prefab[k]);
+					g_prefab.erase(g_prefab.begin() + k);
+					break;
+				}
+			}
+		}
+		if (isStatic)
+			g_octree->ResetState();
+	}
+
+	//update max radius
+	g_maxInstancePrefabRadius = -1.f;
+	for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+	{
+		if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+		{
+			if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+				g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+		}
+	}
+
+	return 0;
+}
+
 
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
@@ -9688,7 +9984,7 @@ CMain::CMain()
 	m_cursorIcon = CNew(CIcon);
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
-	m_publishDebug = CFalse;
+	m_publishDebug = CTrue;
 	m_exitGame = CFalse;
 	m_mousePosition.x = (CFloat)g_width / 2.f;
 	m_mousePosition.y = (CFloat)g_height / 2.f;
@@ -10112,6 +10408,13 @@ CVoid CMain::Release()
 		CDelete(g_instancePrefab[i]);
 	}
 	g_instancePrefab.clear();
+
+	//clear prefab resource
+	for (CUInt i = 0; i < g_resourcePrefab.size(); i++)
+	{
+		CDelete(g_resourcePrefab[i]);
+	}
+	g_resourcePrefab.clear();
 
 	//Clear the vctor objects
 	g_scene.clear();
@@ -10665,10 +10968,43 @@ CBool CMain::Render()
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
+		g_instancePrefab[i]->InitScript();
 		g_instancePrefab[i]->UpdateScript();
 	}
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
+
+	if (g_updateOctree && g_scene.size() > 0)
+	{
+		//Force Update
+		//for( CUInt i = 0 ; i < g_scene.size(); i++ )
+		//{
+		//	g_render.SetScene( g_scene[i] );
+		//	g_render.GetScene()->m_update = CTrue;
+		//}
+
+		//update octree
+		Render3DModels(CTrue, NULL);
+		g_octree->Init();
+		g_octree->GetWorldDimensions();
+		g_octree->SetName("octree_root");
+		g_octree->SetLevel(0);
+		g_octree->AttachGeometriesToNode();
+		g_octree->AttachLightsToGeometries();
+		g_updateOctree = CFalse;
+
+		//update shadow max radius
+		g_maxInstancePrefabRadius = -1.f;
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+
+	}
 
 	RenderQueries();
 
@@ -10760,40 +11096,6 @@ CBool CMain::Render()
 		g_fogBlurPass = CFalse;
 		BlendFogWithScene();
 	}
-
-	if( g_updateOctree && g_scene.size() > 0 )
-	{
-		//Force Update
-		//for( CUInt i = 0 ; i < g_scene.size(); i++ )
-		//{
-		//	g_render.SetScene( g_scene[i] );
-		//	g_render.GetScene()->m_update = CTrue;
-		//}
-
-		//update octree
-		Render3DModels( CTrue, NULL );
-		g_octree->Init();
-		g_octree->GetWorldDimensions();
-		g_octree->SetName( "octree_root" );
-		g_octree->SetLevel(0);
-		g_octree->AttachGeometriesToNode();
-		g_octree->AttachLightsToGeometries();
-		g_updateOctree = CFalse;
-		g_main->RenderQueries(CTrue);
-
-		//update shadow max radius
-		g_maxInstancePrefabRadius = -1.f;
-		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-		{
-			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
-			{
-				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
-					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
-			}
-		}
-
-	}
-
 
 	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	{
@@ -12381,6 +12683,13 @@ CBool CMain::Reset()
 	}
 	g_instancePrefab.clear();
 
+	//clear prefab resource
+	for (CUInt i = 0; i < g_resourcePrefab.size(); i++)
+	{
+		CDelete(g_resourcePrefab[i]);
+	}
+	g_resourcePrefab.clear();
+
 	g_octree->ResetState();
 	g_render.SetScene( NULL );
 
@@ -13259,7 +13568,28 @@ CBool CMain::Load(CChar* pathName)
 
 	g_nx->ResetCharacterPos(characterPos);
 
-	//read prefabs here
+	//load prefab resources here
+	CUInt prefab_resource_size;
+	fread(&prefab_resource_size, sizeof(CUInt), 1, filePtr);
+	for (CUInt i = 0; i < prefab_resource_size; i++)
+	{
+		//read prefab data
+		CChar name[MAX_NAME_SIZE];
+		CChar package_name[MAX_NAME_SIZE];
+		CChar prefab_name[MAX_NAME_SIZE];
+		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(package_name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+		CPrefab* new_prefab = CNew(CPrefab);
+		new_prefab->SetName(name);
+		new_prefab->SetPackageName(package_name);
+		new_prefab->SetPrefabName(prefab_name);
+
+		g_resourcePrefab.push_back(new_prefab);
+	}
+
+	//load prefabs here
 	CUInt prefabSize;
 	fread(&prefabSize, sizeof(CUInt), 1, filePtr);
 	for (CUInt i = 0; i < prefabSize; i++)
@@ -13390,7 +13720,7 @@ CBool CMain::Load(CChar* pathName)
 			fread(&selectable, sizeof(CBool), 1, filePtr);
 			new_instance_prefab->SetSelectable(selectable);
 
-			new_prefab->SetInstance(new_instance_prefab);
+			new_prefab->AddInstance(new_instance_prefab);
 			new_prefab->SetCurrentInstance(new_instance_prefab);
 			new_instance_prefab->SetPrefab(new_prefab);
 			new_instance_prefab->SetNameIndex(); //for selection only
@@ -13954,7 +14284,7 @@ CBool CMain::Load(CChar* pathName)
 			{
 				if (Cmp(g_instancePrefab[k]->GetName(), instanceName))
 				{
-					water->m_instancePrefab.push_back(g_instancePrefab[k]);
+					water->AddPrefabInstance(g_instancePrefab[k]);
 					g_instancePrefab[k]->SetWater(water);
 					g_instancePrefab[k]->UpdateBoundingBoxForWater(waterHeight);
 				}
@@ -14267,7 +14597,7 @@ CBool CMain::Load(CChar* pathName)
 
 		CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
 		g_currentInstancePrefab = new_instance_prefab;
-		new_prefab->SetInstance(new_instance_prefab);
+		new_prefab->AddInstance(new_instance_prefab);
 		new_prefab->SetCurrentInstance(new_instance_prefab);
 		new_instance_prefab->SetPrefab(new_prefab);
 		new_instance_prefab->SetName(instance_name);
@@ -14391,7 +14721,7 @@ CBool CMain::Load(CChar* pathName)
 
 		CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
 		g_currentInstancePrefab = new_instance_prefab;
-		new_prefab->SetInstance(new_instance_prefab);
+		new_prefab->AddInstance(new_instance_prefab);
 		new_prefab->SetCurrentInstance(new_instance_prefab);
 		new_instance_prefab->SetPrefab(new_prefab);
 		new_instance_prefab->SetName(instance_name);
@@ -15383,15 +15713,15 @@ CVoid CMain::Render3DModelsControlledByPhysX(CBool sceneManager)
 CVoid CMain::Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneManager)
 {
 	//3D Model data
-	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
+	for (CUInt i = 0; i < water->GetNumPrefabInstances(); i++)
 	{
-		if (!water->m_instancePrefab[i]->GetVisible()) continue;
-		if (!water->m_instancePrefab[i]->GetIsControlledByPhysX()) continue;
-		g_currentInstancePrefab = water->m_instancePrefab[i];
+		if (!water->GetPrefabInstance(i)->GetVisible()) continue;
+		if (!water->GetPrefabInstance(i)->GetIsControlledByPhysX()) continue;
+		g_currentInstancePrefab = water->GetPrefabInstance(i);
 
 		CVec3f src[8];
-		CVec3f maxAABB = water->m_instancePrefab[i]->GetInverseMaxAABB();
-		CVec3f minAABB = water->m_instancePrefab[i]->GetInverseMinAABB();
+		CVec3f maxAABB = water->GetPrefabInstance(i)->GetInverseMaxAABB();
+		CVec3f minAABB = water->GetPrefabInstance(i)->GetInverseMinAABB();
 		src[0].x = minAABB.x; src[0].y = minAABB.y; src[0].z = minAABB.z;
 		src[1].x = maxAABB.x; src[1].y = minAABB.y; src[1].z = maxAABB.z;
 		src[2].x = maxAABB.x; src[2].y = minAABB.y; src[2].z = minAABB.z;
@@ -15411,16 +15741,16 @@ CVoid CMain::Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneM
 			g_currentInstancePrefab->SetRenderForWaterQuery(CTrue);
 		}
 
-		g_currentInstancePrefab = water->m_instancePrefab[i];
+		g_currentInstancePrefab = water->GetPrefabInstance(i);
 
 		CScene* scene = NULL;
 
-		CPrefab* prefab = water->m_instancePrefab[i]->GetPrefab();
+		CPrefab* prefab = water->GetPrefabInstance(i)->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) && water->m_instancePrefab[i]->GetSceneVisible(j))
+			if (prefab && prefab->GetHasLod(j) && water->GetPrefabInstance(i)->GetSceneVisible(j))
 			{
-				scene = water->m_instancePrefab[i]->GetScene(j);
+				scene = water->GetPrefabInstance(i)->GetScene(j);
 				break;
 			}
 		}
@@ -15654,15 +15984,15 @@ CVoid CMain::Render3DAnimatedModels(CBool sceneManager)
 CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 {
 	//3D Model data
-	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
+	for (CUInt i = 0; i < water->GetNumPrefabInstances(); i++)
 	{
-		if (!water->m_instancePrefab[i]->GetVisible()) continue;
-		if (!water->m_instancePrefab[i]->GetIsAnimated()) continue;
-		g_currentInstancePrefab = water->m_instancePrefab[i];
+		if (!water->GetPrefabInstance(i)->GetVisible()) continue;
+		if (!water->GetPrefabInstance(i)->GetIsAnimated()) continue;
+		g_currentInstancePrefab = water->GetPrefabInstance(i);
 
 		CVec3f src[8];
-		CVec3f maxAABB = water->m_instancePrefab[i]->GetInverseMaxAABB();
-		CVec3f minAABB = water->m_instancePrefab[i]->GetInverseMinAABB();
+		CVec3f maxAABB = water->GetPrefabInstance(i)->GetInverseMaxAABB();
+		CVec3f minAABB = water->GetPrefabInstance(i)->GetInverseMinAABB();
 		src[0].x = minAABB.x; src[0].y = minAABB.y; src[0].z = minAABB.z;
 		src[1].x = maxAABB.x; src[1].y = minAABB.y; src[1].z = maxAABB.z;
 		src[2].x = maxAABB.x; src[2].y = minAABB.y; src[2].z = minAABB.z;
@@ -15685,12 +16015,12 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 
 		CScene* scene = NULL;
 
-		CPrefab* prefab = water->m_instancePrefab[i]->GetPrefab();
+		CPrefab* prefab = water->GetPrefabInstance(i)->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) && water->m_instancePrefab[i]->GetSceneVisible(j))
+			if (prefab && prefab->GetHasLod(j) && water->GetPrefabInstance(i)->GetSceneVisible(j))
 			{
-				scene = water->m_instancePrefab[i]->GetScene(j);
+				scene = water->GetPrefabInstance(i)->GetScene(j);
 				break;
 			}
 		}
@@ -15731,7 +16061,7 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 			{
 				g_render.ModelViewMatrix();
 				g_render.PushMatrix();
-				g_render.MultMatrix(*(water->m_instancePrefab[i]->GetInstanceMatrix()));
+				g_render.MultMatrix(*(water->GetPrefabInstance(i)->GetInstanceMatrix()));
 			}
 			g_render.GetScene()->RenderAnimatedModels(sceneManager, CTrue); //render controller
 			if (g_currentInstancePrefab)
@@ -15975,9 +16305,9 @@ CVoid CMain::RenderQueries(CBool init)
 					g_render.PopMatrix();
 					glEndQuery(GL_SAMPLES_PASSED);
 
-					for (CUInt k = 0; k < g_engineWaters[j]->m_instancePrefab.size(); k++)
+					for (CUInt k = 0; k < g_engineWaters[j]->GetNumPrefabInstances(); k++)
 					{
-						g_currentInstancePrefab = g_engineWaters[j]->m_instancePrefab[k];
+						g_currentInstancePrefab = g_engineWaters[j]->GetPrefabInstance(k);
 
 						//to determine the LOD level of water, look at object, even if it's not inside the camera.
 						//if we have already rendered the object query, skip it
@@ -16197,14 +16527,14 @@ CVoid CMain::Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometrie
 CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* parentTreeNameOfGeometries)
 {
 	//3D Model data
-	for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
+	for (CUInt i = 0; i < water->GetNumPrefabInstances(); i++)
 	{
-		if (!water->m_instancePrefab[i]->GetVisible()) continue;
-		g_currentInstancePrefab = water->m_instancePrefab[i];
+		if (!water->GetPrefabInstance(i)->GetVisible()) continue;
+		g_currentInstancePrefab = water->GetPrefabInstance(i);
 
 		CVec3f src[8];
-		CVec3f maxAABB = water->m_instancePrefab[i]->GetInverseMaxAABB();
-		CVec3f minAABB = water->m_instancePrefab[i]->GetInverseMinAABB();
+		CVec3f maxAABB = water->GetPrefabInstance(i)->GetInverseMaxAABB();
+		CVec3f minAABB = water->GetPrefabInstance(i)->GetInverseMinAABB();
 		src[0].x = minAABB.x; src[0].y = minAABB.y; src[0].z = minAABB.z;
 		src[1].x = maxAABB.x; src[1].y = minAABB.y; src[1].z = maxAABB.z;
 		src[2].x = maxAABB.x; src[2].y = minAABB.y; src[2].z = minAABB.z;
@@ -16226,12 +16556,12 @@ CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* pa
 
 		CScene* scene = NULL;
 
-		CPrefab* prefab = water->m_instancePrefab[i]->GetPrefab();
+		CPrefab* prefab = water->GetPrefabInstance(i)->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) && water->m_instancePrefab[i]->GetSceneVisible(j))
+			if (prefab && prefab->GetHasLod(j) && water->GetPrefabInstance(i)->GetSceneVisible(j))
 			{
-				scene = water->m_instancePrefab[i]->GetScene(j);
+				scene = water->GetPrefabInstance(i)->GetScene(j);
 				break;
 			}
 		}

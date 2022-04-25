@@ -44,6 +44,7 @@ CWindow g_window;
 CRender g_render; //extern
 std::vector<CScene*> g_scene;
 std::vector<CPrefab*> g_prefab;
+std::vector<CPrefab*> g_resourcePrefab;
 std::vector<CGeometry *> g_geometries;
 std::vector<CInstancePrefab*>g_instancePrefab;
 CLODProperties g_instancePrefabLODPercent;

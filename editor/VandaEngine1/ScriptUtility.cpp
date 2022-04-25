@@ -9,6 +9,7 @@
 #include "ScriptUtility.h"
 #include "afxdialogex.h"
 #include "ScriptUtilityPrefabInstances.h"
+#include "ScriptUtilityPrefabs.h"
 #include "ScriptUtilityImportedCameras.h"
 #include "ScriptUtilityGameObjects.h"
 #include "ScriptUtilityGUIs.h"
@@ -55,6 +56,7 @@ BEGIN_MESSAGE_MAP(CScriptUtility, CDialog)
 	ON_BN_CLICKED(IDC_ALL_GUI_ITEMS, &CScriptUtility::OnBnClickedAllGuiItems)
 	ON_BN_CLICKED(IDC_GUIs, &CScriptUtility::OnBnClickedGuis)
 	ON_BN_CLICKED(IDOK, &CScriptUtility::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_PREFABS, &CScriptUtility::OnBnClickedPrefabs)
 END_MESSAGE_MAP()
 
 
@@ -311,4 +313,21 @@ void CScriptUtility::OnBnClickedOk()
 	if (g_multipleView->m_enableTimer)
 		g_multipleView->EnableTimer(CTrue);
 	CDialog::OnOK();
+}
+
+
+void CScriptUtility::OnBnClickedPrefabs()
+{
+	CString projectName;
+	CString VSceneName;
+	m_comboProject.GetLBText(m_comboProject.GetCurSel(), projectName);
+	m_comboVScene.GetLBText(m_comboVScene.GetCurSel(), VSceneName);
+
+	CScriptUtilityPrefabs* dlg = CNew(CScriptUtilityPrefabs);
+	dlg->SetSelectedProjectAndVSceneNames(projectName.GetBuffer(projectName.GetLength()), VSceneName.GetBuffer(VSceneName.GetLength()));
+	dlg->DoModal();
+	CDelete(dlg);
+
+	projectName.ReleaseBuffer();
+	VSceneName.ReleaseBuffer();
 }

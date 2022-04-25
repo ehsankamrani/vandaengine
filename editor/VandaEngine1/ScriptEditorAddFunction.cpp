@@ -235,6 +235,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(GetPhysicsActorGroup, "GetPhysicsActorGroup(string physicsActorName)");
 	Cpy(SetPhysicsCollisionFlags, "SetPhysicsCollisionFlags(string group1, string group2, bool flag)");
+
+	Cpy(GeneratePrefabInstance, "GeneratePrefabInstance(string prefabName, float XPos, float YPos, float ZPos, float XRot, float YRot, float ZRot, float XScale, float YScale, float ZScale)");
+	Cpy(DeletePrefabInstance, "DeletePrefabInstance(string prefabInstanceName)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1051,6 +1055,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetPhysicsCollisionFlags);
 		}
+		else if (Cmp(szBuffer, "GeneratePrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(GeneratePrefabInstance);
+		}
+		else if (Cmp(szBuffer, "DeletePrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(DeletePrefabInstance);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1291,6 +1303,9 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 
 	InsertItem("GetPhysicsActorGroup");
 	InsertItem("SetPhysicsCollisionFlags");
+
+	InsertItem("GeneratePrefabInstance");
+	InsertItem("DeletePrefabInstance");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

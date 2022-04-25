@@ -139,11 +139,18 @@ public:
 	CChar m_strDuDvMap[MAX_NAME_SIZE];
 	CChar m_strNormalMap[MAX_NAME_SIZE];
 	CUInt m_waterTexture[ MAX_WATER_TEXTURES ];
-	std::vector<CInstancePrefab*> m_instancePrefab;
 	CVec3f m_sidePoint[4]; //each water has four vertexes
 
-	CVoid SetInstancePrefab(CInstancePrefab* instance) { m_instancePrefab.push_back(instance); }
 	CImage *GetWaterImage( const CChar * name );
+
+	CUInt GetNumPrefabInstanceNames();
+	CVoid AddPrefabInstanceName(CChar* name);
+	const CChar* GetPrefabInstanceName(CUInt index);
+
+	CUInt GetNumPrefabInstances();
+	CVoid AddPrefabInstance(CInstancePrefab* instance);
+	CVoid RemovePrefabInstance(CUInt index);
+	CInstancePrefab* GetPrefabInstance(CUInt index);
 
 private:
 	CImage *m_dudvMapImg;
@@ -152,6 +159,9 @@ private:
 	CUInt m_rbID[ MAX_WATER_TEXTURES ]; //each texture has its own FBO ID
 
 	CInt m_nameIndex; //selection
+
+	std::vector <std::string> m_instanceName;
+	std::vector<CInstancePrefab*> m_instancePrefab;
 
 private:
 	// This loads all of our animation textures and stores them in our texture array

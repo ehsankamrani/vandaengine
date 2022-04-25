@@ -94,6 +94,7 @@ private:
 	CFloat m_fEmissionColor[4];
 	CFloat m_fShininess, m_fTransparency;
 	CBool m_enableMaterial;
+	CBool m_scriptInitialized;
 
 public:
 	CVoid SetName(CChar* name);
@@ -179,7 +180,7 @@ public:
 	CVoid SetSelectable(CBool set) { m_isSelectable = set; }
 	CBool LoadLuaFile();
 	CVoid ResetLua();
-	CVoid InitScript();
+	CVoid InitScript(CBool reset = CFalse);
 	CVoid UpdateScript();
 	CVoid OnTriggerEnterScript(CChar *otherActorName);
 	CVoid OnTriggerStayScript(CChar *otherActorName);
@@ -187,6 +188,7 @@ public:
 	CVoid OnSelectScript();
 	CBool GetHasScript() { return m_hasScript; }
 	CVoid SetHasScript(CBool set) { m_hasScript = set; }
+	CBool IsScriptInitialized() { return m_scriptInitialized; }
 
 	//Material
 	CFloat* GetAmbient() { return m_fAmbientColor; }
@@ -238,8 +240,8 @@ private:
 	CVLOD* m_lod[3]; //up to 3 LODs
 	CBool m_hasLod[3];
 	std::vector <CInstancePrefab*> m_instance;
+	std::vector <std::string> m_instanceName;
 	CInstancePrefab* m_currentInstance;
-	CUInt m_instanceIndex;
 	CBool m_hasScript;
 	CChar m_script[MAX_NAME_SIZE];
 
@@ -248,8 +250,9 @@ public:
 	CVoid SetPackageName(CChar* name);
 	CVoid SetPrefabName(CChar* name);
 	CVoid SetHasLod(CUInt index);
-	CVoid SetInstance(CInstancePrefab* instance);
+	CVoid AddInstance(CInstancePrefab* instance);
 	CVoid SetCurrentInstance(CInstancePrefab* instance);
+	CVoid AddInstanceName(CChar* name);
 
 	CVoid RemoveInstance(CUInt index);
 
@@ -258,9 +261,10 @@ public:
 	CChar* GetPrefabName();
 	CBool GetHasLod(CUInt index);
 	CUInt GetNumInstances();
-	CUInt GetInstanceIndex();
+	CUInt GetNumInstanceNames();
 	CInstancePrefab* GetInstance(CUInt index);
 	CInstancePrefab* GetCurrentInstance();
+	const CChar* GetInstanceName(CUInt index);
 	CVLOD* GetLOD(CInt index);
 	CBool GetHasScript() { return m_hasScript; }
 	CVoid SetHasScript(CBool set) { m_hasScript = set; }

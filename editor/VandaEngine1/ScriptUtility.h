@@ -46,4 +46,5 @@ public:
 	HBITMAP m_hBitmap;
 	CVoid UpdatePreview();
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedPrefabs();
 };

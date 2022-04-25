@@ -19,6 +19,7 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
+
 #pragma comment(lib, "shfolder.lib")
 
 #ifdef _DEBUG
@@ -96,6 +97,7 @@ std::vector<COpenALSoundBuffer*>g_soundBuffers;
 CRender g_render; //extern
 std::vector<CScene*> g_scene;
 std::vector<CPrefab*> g_prefab;
+std::vector<CPrefab*> g_resourcePrefab;
 std::vector<CGeometry *> g_geometries;
 std::vector<CInstancePrefab*> g_instancePrefab;
 CBool g_importPrefab = CFalse;
@@ -1032,6 +1034,11 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	m_dlgGUIs = NULL;
 	m_dlgSavePrefabs = NULL;
 	m_camera = CNew(CUpdateCamera);
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		m_dlgAddPrefabResource = CNew(CAddPrefabResource);
+	}
 }
 
 CVandaEngine1Dlg::~CVandaEngine1Dlg()
@@ -1092,6 +1099,13 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 		CDelete(g_instancePrefab[i]);
 	}
 	g_instancePrefab.clear();
+
+	//clear prefab resource
+	for (CUInt i = 0; i < g_resourcePrefab.size(); i++)
+	{
+		CDelete(g_resourcePrefab[i]);
+	}
+	g_resourcePrefab.clear();
 
 	if( g_multipleView->m_nx->m_hasScene )
 	{
@@ -1197,6 +1211,12 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	g_resourceFiles.clear();
 
 	CDelete(m_camera);
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		CDelete(m_dlgAddPrefabResource);
+	}
+
 }
 
 CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
@@ -1411,8 +1431,8 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnPrevAnim, "Previous Animation");
 	m_pToolTip->AddTool(&m_mainBtnPlayAnim, "Play Animation");
 	m_pToolTip->AddTool(&m_mainBtnPauseAnim, "Pause Animation");
-	m_pToolTip->AddTool(&m_mainBtnPrefab, "Open Prefab Editor");
-	m_pToolTip->AddTool(&m_mainBtnGUIEditor, "Open GUI Editor");
+	m_pToolTip->AddTool(&m_mainBtnPrefab, "Open Prefab List");
+	m_pToolTip->AddTool(&m_mainBtnGUIEditor, "Open GUI List");
 	m_pToolTip->AddTool(&m_mainBtnTranslate, "Translate");
 	m_pToolTip->AddTool(&m_mainBtnRotate, "Rotate");
 	m_pToolTip->AddTool(&m_mainBtnScale, "Scale");
@@ -1455,7 +1475,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.3"));
+	SetWindowText(_T("Vanda Engine 1.8.4"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3021,7 +3041,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3082,7 +3102,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.3 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.4 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3178,7 +3198,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		OnBnClickedBtnScale();
 	}
-	else if (wParam == ID_EDIT_COPYSELECTEDOBJECTNAME)
+	else if (wParam == ID_COPY_SELECTEDOBJECTNAME)
 	{
 		CString s;
 		m_staticSelectedObject.GetWindowTextA(s);
@@ -3191,7 +3211,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			m_richSelectedObjectName.Copy();
 
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\nObject name '%s' copied to clipboard", s.GetBuffer(s.GetLength()));
+			sprintf(temp, "\nobject name '%s' copied to clipboard", s.GetBuffer(s.GetLength()));
 			PrintInfo(temp);
 			s.ReleaseBuffer();
 		}
@@ -3271,7 +3291,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3357,7 +3377,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.3 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.4 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3431,7 +3451,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.3 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.4 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4865,7 +4885,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if (wParam == ID_PREFAB_EDITOR || wParam == ID_INSERT_PREFAB)
+	else if (wParam == ID_PREFAB_LIST)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -4910,8 +4930,51 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
+	else if (wParam == ID_PREFAB_PREFAB_RESOURCE)
+	{
+		if (g_multipleView->IsPlayGameMode())
+		{
+			if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
 
-	else if (wParam == ID_GUI_EDITOR || wParam == ID_INSERT_GUI)
+			}
+			else
+			{
+				return CFalse;
+			}
+		}
+		else
+		{
+			if (g_currentCameraType == eCAMERA_COLLADA || g_currentCameraType == eCAMERA_ENGINE)
+			{
+				if (MessageBox("Activate Default Free Camera?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+				{
+					g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+					g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+					for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+						g_engineCameraInstances[c]->SetActive(CFalse);
+
+					g_multipleView->RenderWindow();
+
+				}
+				else
+				{
+					return CFalse;
+				}
+
+			}
+		}
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CFalse);
+
+		m_dlgAddPrefabResource->DoModal();
+
+		if (g_multipleView->m_enableTimer)
+			g_multipleView->EnableTimer(CTrue);
+	}
+	else if (wParam == ID_GUI_LIST)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -6835,7 +6898,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_btnSceneProperties.ShowWindow(SW_HIDE);
 		m_btnRemoveScene.ShowWindow(SW_SHOW);
 
-		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_GUI_LIST, MF_DISABLED | MF_GRAYED);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_DISABLED | MF_GRAYED);
 		m_mainBtnVSceneScript.ShowWindow(SW_HIDE);
@@ -6863,9 +6926,6 @@ CVoid CVandaEngine1Dlg::SortButtons()
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_TERRAIN, MF_DISABLED | MF_GRAYED);
 		m_mainBtnTerrain.ShowWindow(SW_HIDE);
-
-		ex_pMenu->EnableMenuItem(ID_INSERT_GUI, MF_DISABLED | MF_GRAYED);
-		m_mainBtnGUIEditor.ShowWindow(SW_HIDE);
 
 		ex_pMenu->EnableMenuItem(ID_TOOLS_WATERATTACHMENT, MF_DISABLED | MF_GRAYED);
 		m_mainBtnTrigger.ShowWindow(SW_HIDE);
@@ -6938,6 +6998,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_PUBLISH_PROJECT, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_SETCURRENT, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITCURRENT, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_PREFAB_PREFAB_RESOURCE, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_DELETEPROJECTS, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITVSCENESOFCURRENTPROJECT, MF_DISABLED | MF_GRAYED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_ADDRESOURCETOCURRENTPROJECT, MF_DISABLED | MF_GRAYED);
@@ -7113,7 +7174,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_btnSceneProperties.ShowWindow(SW_SHOW);
 		m_btnRemoveScene.ShowWindow(SW_SHOW);
 
-		ex_pMenu->EnableMenuItem(ID_GUI_EDITOR, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_GUI_LIST, MF_ENABLED);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_VSCENE_SCRIPT, MF_ENABLED);
 		m_mainBtnVSceneScript.ShowWindow(SW_SHOW);
@@ -7144,9 +7205,6 @@ CVoid CVandaEngine1Dlg::SortButtons()
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_TERRAIN, MF_ENABLED);
 		m_mainBtnTerrain.ShowWindow(SW_SHOW);
-
-		ex_pMenu->EnableMenuItem(ID_INSERT_GUI, MF_ENABLED);
-		m_mainBtnGUIEditor.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_TOOLS_WATERATTACHMENT, MF_ENABLED);
 		m_mainBtnTrigger.ShowWindow(SW_SHOW);
@@ -7300,6 +7358,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_PROJECT_SETCURRENT, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_DELETEPROJECTS, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITCURRENT, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_PREFAB_PREFAB_RESOURCE, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_EDITVSCENESOFCURRENTPROJECT, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_ADDRESOURCETOCURRENTPROJECT, MF_ENABLED);
 		ex_pMenu->EnableMenuItem(ID_PROJECT_BACKUPPROJECTS, MF_ENABLED);
@@ -7510,7 +7569,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.3 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.4 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7644,6 +7703,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		CDelete(g_instancePrefab[i]);
 	}
 	g_instancePrefab.clear();
+
+	//clear prefab resource
+	for (CUInt i = 0; i < g_resourcePrefab.size(); i++)
+	{
+		CDelete(g_resourcePrefab[i]);
+	}
+	g_resourcePrefab.clear();
 
 	g_octree->ResetState();
 	g_render.SetScene( NULL );
@@ -7936,7 +8002,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.4 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -7945,9 +8011,16 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.3 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.4 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		CDelete(m_dlgAddPrefabResource);
+		m_dlgAddPrefabResource = CNew(CAddPrefabResource);
+	}
+
 	//clear the console
 	ex_pRichEdit->SetWindowTextA( "" );
 	g_selectedName = -1;
@@ -9763,7 +9836,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.4 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10606,7 +10679,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.4 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10758,15 +10831,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		sprintf(rootTriggersScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/");
 
 		std::vector<std::string> scriptPath;
+		std::vector<std::string> scriptFolderName;
 
 		for (CUInt j = 0; j < g_triggers.size(); j++)
 		{
 			if (g_triggers[j]->GetHasScript())
 			{
 				CChar tempScriptPath[MAX_NAME_SIZE];
-				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetInstancePrefab()->GetName());
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetName());
 				scriptPath.push_back(tempScriptPath);
+				scriptFolderName.push_back(g_triggers[j]->GetName());
 				g_triggers[j]->SetTempScriptPath(tempScriptPath);
+
+				//last script path
+				CChar tempLastScriptPath[MAX_NAME_SIZE];
+				sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetLastName());
+				g_triggers[j]->SetLastScriptPath(tempLastScriptPath);
 			}
 		}
 
@@ -10803,15 +10883,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		CChar rootCurrentScriptPath[MAX_NAME_SIZE];
 		sprintf(rootCurrentScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/");
+
 		std::vector<std::string> currentScriptPath;
+		std::vector<std::string> currentScriptFolderName;
 
 		for (CUInt j = 0; j < g_triggers.size(); j++)
 		{
 			if (g_triggers[j]->GetHasScript())
 			{
 				CChar tempCurrentScriptPath[MAX_NAME_SIZE];
-				sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetInstancePrefab()->GetName());
+				sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetName());
 				currentScriptPath.push_back(tempCurrentScriptPath);
+				currentScriptFolderName.push_back(g_triggers[j]->GetName());
 				g_triggers[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
 			}
 		}
@@ -10888,19 +10971,60 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_vsceneMenuCursor.SetCursorPath(newCursorPathAndName);
 
 			//scripts
+
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
-				if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_triggers[j]->GetLastName(), g_triggers[j]->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_triggers[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_triggers[j]->GetLastScriptPath(), currentTempPath);
+					RemoveAllFilesAndFoldersInDirectory(g_triggers[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_triggers[j]->GetLastScriptPath());
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_triggers[j]->GetScript(), tempScriptPath);
+						g_triggers[j]->SetUpdateScript(CFalse);
+					}
+				}
+				else if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
 				{
 					CopyOneFileToDstDirectory(g_triggers[j]->GetScript(), g_triggers[j]->GetTempScriptPath());
 					g_triggers[j]->SetUpdateScript(CFalse);
-
-					CChar* TempAfterPath = GetAfterPath(g_triggers[j]->GetScript());
-					CChar NewPathAndName[MAX_NAME_SIZE];
-					Cpy(NewPathAndName, g_triggers[j]->GetTempScriptPath());
-					Append(NewPathAndName, TempAfterPath);
-					g_triggers[j]->SetScript(NewPathAndName);
 				}
+
+				CChar* TempAfterPath = GetAfterPath(g_triggers[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_triggers[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_triggers[j]->SetScript(NewPathAndName);
+				g_triggers[j]->SetLastName(g_triggers[j]->GetName());
+			}
+
+			for (CUInt j = 0; j < g_triggers.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, rootTriggersScriptPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
 			}
 
 			//VScene Script
@@ -11126,17 +11250,57 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//scripts
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
-				if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_triggers[j]->GetLastName(), g_triggers[j]->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_triggers[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_triggers[j]->GetLastScriptPath(), currentTempPath);
+					RemoveAllFilesAndFoldersInDirectory(g_triggers[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_triggers[j]->GetLastScriptPath());
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_triggers[j]->GetScript(), tempScriptPath);
+						g_triggers[j]->SetUpdateScript(CFalse);
+					}
+				}
+				else if (g_triggers[j]->GetHasScript() && g_triggers[j]->GetUpdateScript())
 				{
 					CopyOneFileToDstDirectory(g_triggers[j]->GetScript(), g_triggers[j]->GetTempScriptPath());
 					g_triggers[j]->SetUpdateScript(CFalse);
-
-					CChar* TempAfterPath = GetAfterPath(g_triggers[j]->GetScript());
-					CChar NewPathAndName[MAX_NAME_SIZE];
-					Cpy(NewPathAndName, g_triggers[j]->GetTempScriptPath());
-					Append(NewPathAndName, TempAfterPath);
-					g_triggers[j]->SetScript(NewPathAndName);
 				}
+
+				CChar* TempAfterPath = GetAfterPath(g_triggers[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_triggers[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_triggers[j]->SetScript(NewPathAndName);
+				g_triggers[j]->SetLastName(g_triggers[j]->GetName());
+			}
+
+			for (CUInt j = 0; j < g_triggers.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, rootTriggersScriptPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
 			}
 
 			//VScene Script
@@ -11403,10 +11567,13 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				CBool foundTarget = CFalse;
 				for (CUInt j = 0; j < g_triggers.size(); j++)
 				{
-					if (g_triggers[j]->GetHasScript() && Cmp(GetAfterPath(g_triggers[j]->GetScript()), data.cFileName))
+					if (Cmp(g_triggers[j]->GetName(), scriptFolderName[sc].c_str()))
 					{
-						foundTarget = CTrue;
-						break;
+						if (g_triggers[j]->GetHasScript() && Cmp(GetAfterPath(g_triggers[j]->GetScript()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
 					}
 				}
 
@@ -11424,15 +11591,16 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			FindClose(hFind);
 		}
 
+		scriptPath.clear();
+		scriptFolderName.clear();
+
 		//Delete removed trigger object's folders
 		for (CUInt k = 0; k < m_deletedTriggerObjects.size(); k++)
 		{
 			CBool foundTarget = CFalse;
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
-				CInstancePrefab* currentInstancePrefab = g_triggers[j]->GetInstancePrefab();
-
-				if (Cmp(m_deletedTriggerObjects[k].c_str(), currentInstancePrefab->GetName()))
+				if (Cmp(m_deletedTriggerObjects[k].c_str(), g_triggers[j]->GetName()))
 				{
 					foundTarget = CTrue;
 					break;
@@ -11800,6 +11968,16 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		fwrite(&g_cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
 		fwrite(&cameraInstanceZoom, sizeof(CFloat), 1, filePtr);
 
+		//Save prefab resources here
+		CUInt pr_resource_size = m_dlgAddPrefabResource->m_prefabs.size();
+		fwrite(&pr_resource_size, sizeof(CUInt), 1, filePtr);
+		for (CUInt i = 0; i < pr_resource_size; i++)
+		{
+			fwrite(m_dlgAddPrefabResource->m_prefabs[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(m_dlgAddPrefabResource->m_prefabs[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(m_dlgAddPrefabResource->m_prefabs[i]->GetPrefabName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		}
+
 		//save prefabs here
 		CUInt pr_size = 0;
 		for (CUInt i = 0; i < g_prefab.size(); i++)
@@ -11990,10 +12168,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&g_engineWaters[i]->m_fWaterUV, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineWaters[i]->m_isVisible, sizeof(CBool), 1, filePtr);
 
-			CInt tempInstancePrefabCount = (CInt)g_engineWaters[i]->m_instancePrefab.size();
+			CInt tempInstancePrefabCount = (CInt)g_engineWaters[i]->GetNumPrefabInstances();
 			fwrite( &tempInstancePrefabCount, sizeof( CInt ), 1, filePtr );
-			for( CUInt j = 0; j < g_engineWaters[i]->m_instancePrefab.size(); j++ )
-				fwrite( g_engineWaters[i]->m_instancePrefab[j]->GetName(), sizeof( CChar ), MAX_NAME_SIZE, filePtr );
+			for (CUInt j = 0; j < g_engineWaters[i]->GetNumPrefabInstances(); j++)
+				fwrite( g_engineWaters[i]->GetPrefabInstance(j)->GetName(), sizeof( CChar ), MAX_NAME_SIZE, filePtr );
 		}
 
 		//save engine lights
@@ -12273,7 +12451,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12293,14 +12471,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			ReleaseCapture();
 			return;
 		}
-		CUInt Size = g_prefab.size();
-		fwrite(&Size, sizeof(CUInt), 1, PackageFilePtr);
+		CUInt prefab_size = g_prefab.size();
+		fwrite(&prefab_size, sizeof(CUInt), 1, PackageFilePtr);
 		for (CUInt i = 0; i < g_prefab.size(); i++)
 		{
 			//write prefab data
 			fwrite(g_prefab[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 			fwrite(g_prefab[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 			fwrite(g_prefab[i]->GetPrefabName(), sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+		}
+		CUInt prefab_resource_size = m_dlgAddPrefabResource->m_prefabs.size();
+		fwrite(&prefab_resource_size, sizeof(CUInt), 1, PackageFilePtr);
+		for (CUInt i = 0; i < m_dlgAddPrefabResource->m_prefabs.size(); i++)
+		{
+			//write prefab data
+			fwrite(m_dlgAddPrefabResource->m_prefabs[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+			fwrite(m_dlgAddPrefabResource->m_prefabs[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+			fwrite(m_dlgAddPrefabResource->m_prefabs[i]->GetPrefabName(), sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 		}
 		fclose(PackageFilePtr);
 
@@ -12316,7 +12503,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			ReleaseCapture();
 			return;
 		}
-		Size = g_guis.size();
+		CUInt Size = g_guis.size();
 		fwrite(&Size, sizeof(CUInt), 1, PackageFilePtr);
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -12394,6 +12581,51 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 
 		}
+
+		std::vector<CPrefab*> m_prefab;
+
+		for (CUInt i = 0; i < g_prefab.size(); i++)
+		{
+			m_prefab.push_back(g_prefab[i]);
+		}
+
+		for (CUInt i = 0; i < m_dlgAddPrefabResource->m_prefabs.size(); i++)
+		{
+			CBool foundName = CFalse;
+			CChar prefab_resource_name[MAX_NAME_SIZE];
+			Cpy(prefab_resource_name, m_dlgAddPrefabResource->m_prefabs[i]->GetName());
+			for (CUInt j = 0; j < g_prefab.size(); j++)
+			{
+				CChar prefab_name[MAX_NAME_SIZE];
+				Cpy(prefab_name, g_prefab[j]->GetName());
+
+				if (Cmp(prefab_resource_name, prefab_name))
+				{
+					foundName = CTrue;
+					break;
+				}
+			}
+			if (!foundName)
+				m_prefab.push_back(m_dlgAddPrefabResource->m_prefabs[i]);
+		}
+		//prefabs
+		CUInt prefabSizes = m_prefab.size();
+		fwrite(&prefabSizes, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < m_prefab.size(); i++)
+		{
+			//prefab name
+			fwrite(m_prefab[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+			//package name
+			fwrite(m_prefab[i]->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+			//prefab name
+			fwrite(m_prefab[i]->GetPrefabName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		m_prefab.clear();
+
 		//static sounds
 		CUInt staticSoundSize = g_engineStaticSounds.size();
 		fwrite(&staticSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
@@ -13349,7 +13581,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.4 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -13557,11 +13789,36 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 			m_newPrefab->SetName(prefabAndPackageName);
 			m_newPrefab->SetPackageName(packageName);
 			m_newPrefab->SetPrefabName(prefabName);
-			m_newPrefab->SetInstance(m_newInstancePrefab);
+			m_newPrefab->AddInstance(m_newInstancePrefab);
 			m_newPrefab->SetCurrentInstance(m_newInstancePrefab);
 			m_newInstancePrefab->SetPrefab(m_newPrefab);
+
+			CBool instanceNameFound;
+			int index = 1;
 			CChar instanceName[MAX_NAME_SIZE];
-			sprintf(instanceName, "%i%s%s", m_newPrefab->GetInstanceIndex(), "_", m_newPrefab->GetName());
+
+			for (;;)
+			{
+				CChar name[MAX_NAME_SIZE];
+				sprintf(name, "%i%s%s", index, "_", m_newPrefab->GetName());
+
+				instanceNameFound = CFalse;
+
+				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				{
+					if (Cmp(name, g_instancePrefab[j]->GetName()))
+					{
+						instanceNameFound = CTrue;
+						break;
+					}
+				}
+				index++;
+				if (!instanceNameFound)
+				{
+					Cpy(instanceName, name);
+					break;
+				}
+			}
 
 			m_newInstancePrefab->SetName(instanceName);
 			Cpy(g_currentInstancePrefabName, instanceName);
@@ -15150,7 +15407,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.3 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.4 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15488,7 +15745,30 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			}
 			g_multipleView->m_nx->ResetCharacterPos(characterPos);
 
-			//read prefabs here
+			//load prefab resources here
+			CUInt prefab_resource_size;
+			fread(&prefab_resource_size, sizeof(CUInt), 1, filePtr);
+			for (CUInt i = 0; i < prefab_resource_size; i++)
+			{
+				//read prefab data
+				CChar name[MAX_NAME_SIZE];
+				CChar package_name[MAX_NAME_SIZE];
+				CChar prefab_name[MAX_NAME_SIZE];
+				fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(package_name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+				CPrefab* new_prefab = CNew(CPrefab);
+				new_prefab->SetName(name);
+				new_prefab->SetPackageName(package_name);
+				new_prefab->SetPrefabName(prefab_name);
+
+				g_resourcePrefab.push_back(new_prefab);
+
+				m_dlgAddPrefabResource->PushPrefab(new_prefab);
+			}
+
+			//load prefabs here
 			CUInt prefabSize;
 			fread(&prefabSize, sizeof(CUInt), 1, filePtr);
 			for (CUInt i = 0; i < prefabSize; i++)
@@ -15608,7 +15888,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					fread(&selectable, sizeof(CBool), 1, filePtr);
 					new_instance_prefab->SetSelectable(selectable);
 
-					new_prefab->SetInstance(new_instance_prefab);
+					new_prefab->AddInstance(new_instance_prefab);
 					new_prefab->SetCurrentInstance(new_instance_prefab);
 					new_instance_prefab->SetPrefab(new_prefab);
 					new_instance_prefab->SetNameIndex(); //for selection only
@@ -16237,7 +16517,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					{
 						if (Cmp(g_instancePrefab[k]->GetName(), instanceName))
 						{
-							water->m_instancePrefab.push_back(g_instancePrefab[k]);
+							water->AddPrefabInstance(g_instancePrefab[k]);
 							g_instancePrefab[k]->SetWater(water);
 							g_instancePrefab[k]->UpdateBoundingBoxForWater(waterHeight);
 						}
@@ -16677,10 +16957,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				}
 
 				new_trigger->SetName(trigger_name);
+				new_trigger->SetLastName(trigger_name);
 
 				CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
 				g_currentInstancePrefab = new_instance_prefab;
-				new_prefab->SetInstance(new_instance_prefab);
+				new_prefab->AddInstance(new_instance_prefab);
 				new_prefab->SetCurrentInstance(new_instance_prefab);
 				new_instance_prefab->SetPrefab(new_prefab);
 				new_instance_prefab->SetName(instance_name);
@@ -16800,7 +17081,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				CInstancePrefab* new_instance_prefab = CNew(CInstancePrefab);
 				g_currentInstancePrefab = new_instance_prefab;
-				new_prefab->SetInstance(new_instance_prefab);
+				new_prefab->AddInstance(new_instance_prefab);
 				new_prefab->SetCurrentInstance(new_instance_prefab);
 				new_instance_prefab->SetPrefab(new_prefab);
 				new_instance_prefab->SetName(instance_name);
@@ -16975,7 +17256,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -18153,10 +18434,10 @@ CVoid CVandaEngine1Dlg::OnBnClickedBtnRemoveScene()
 						//remove it from water as well
 						for (CUInt k = 0; k < g_engineWaters.size(); k++)
 						{
-							for (CUInt l = 0; l < g_engineWaters[k]->m_instancePrefab.size(); l++)
+							for (CUInt l = 0; l < g_engineWaters[k]->GetNumPrefabInstances(); l++)
 							{
-								if (Cmp(g_engineWaters[k]->m_instancePrefab[l]->GetName(), g_instancePrefab[i]->GetName()))
-									g_engineWaters[k]->m_instancePrefab.erase(g_engineWaters[k]->m_instancePrefab.begin() + l);
+								if (Cmp(g_engineWaters[k]->GetPrefabInstance(l)->GetName(), g_instancePrefab[i]->GetName()))
+									g_engineWaters[k]->RemovePrefabInstance(l);
 							}
 						}
 
@@ -18873,9 +19154,9 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 
 		std::vector<CInstancePrefab*> instancePrefab;
 
-		for (CUInt i = 0; i < water->m_instancePrefab.size(); i++)
+		for (CUInt i = 0; i < water->GetNumPrefabInstances(); i++)
 		{
-			instancePrefab.push_back(water->m_instancePrefab[i]);
+			instancePrefab.push_back(water->GetPrefabInstance(i));
 		}
 
 		m_askRemoveEngineObject = CFalse;
@@ -18900,7 +19181,7 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 
 		for (CUInt i = 0; i < instancePrefab.size(); i++)
 		{
-			water->m_instancePrefab.push_back(instancePrefab[i]);
+			water->AddPrefabInstance(instancePrefab[i]);
 		}
 
 		//save functions/////////////////////////////////
@@ -21900,9 +22181,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 				PrintInfo("Publish failed.", COLOR_RED);
 				return;
 			}
-			CUInt size = -1;
-			fread(&size, sizeof(CUInt), 1, PackageFilePtr);
-			for (CUInt i = 0; i < size; i++)
+			CUInt prefab_size = -1;
+			fread(&prefab_size, sizeof(CUInt), 1, PackageFilePtr);
+			for (CUInt i = 0; i < prefab_size; i++)
 			{
 				CChar name[MAX_NAME_SIZE];
 				CChar package_name[MAX_NAME_SIZE];
@@ -21928,6 +22209,35 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 					m_prefabNames.push_back(prefab_name);
 				}
 			}
+			CUInt prefab_resource_size = -1;
+			fread(&prefab_resource_size, sizeof(CUInt), 1, PackageFilePtr);
+			for (CUInt i = 0; i < prefab_resource_size; i++)
+			{
+				CChar name[MAX_NAME_SIZE];
+				CChar package_name[MAX_NAME_SIZE];
+				CChar prefab_name[MAX_NAME_SIZE];
+				//write prefab data
+				fread(name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+				fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+				fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < m_packagePrefabNames.size(); j++)
+				{
+					if (Cmp(name, m_packagePrefabNames[j].c_str()))
+					{
+						foundTarget = CTrue;
+						break;
+					}
+				}
+				if (!foundTarget)
+				{
+					m_packagePrefabNames.push_back(name);
+					m_packageNames.push_back(package_name);
+					m_prefabNames.push_back(prefab_name);
+				}
+			}
+
 			fclose(PackageFilePtr);
 
 			FILE *guiPackageFilePtr;
@@ -21944,7 +22254,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 				PrintInfo("Publish failed.", COLOR_RED);
 				return;
 			}
-			size = -1;
+			CUInt size = -1;
 			fread(&size, sizeof(CUInt), 1, guiPackageFilePtr);
 			for (CUInt i = 0; i < size; i++)
 			{
@@ -22808,7 +23118,181 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		m_engineStaticSounds.clear();
 		//End of load static sound parameters//////
 
-		//Load prefab instance parameters
+		//Load prefabs here
+		//first, delete prefabs that were created at runtime
+
+		std::vector <std::string> prefab_name;
+		for (CUInt i = 0; i < g_prefab.size(); i++)
+		{
+			CBool foundPrefab = CFalse;
+			for (CUInt j = 0; j < m_prefab.size(); j++)
+			{
+				if (Cmp(g_prefab[i]->GetName(), m_prefab[j]->GetName()))
+				{
+					foundPrefab = CTrue;
+					break;
+				}
+			}
+			if (!foundPrefab)
+			{
+				prefab_name.push_back(g_prefab[i]->GetName());
+			}
+		}
+
+		for (CUInt i = 0; i < prefab_name.size(); i++)
+		{
+			CChar name[MAX_NAME_SIZE];
+			Cpy(name, prefab_name[i].c_str());
+
+			for (CUInt j = 0; j < g_prefab.size(); j++)
+			{
+				if (Cmp(name, g_prefab[j]->GetName()))
+				{
+					CDelete(g_prefab[j]);
+					g_prefab.erase(g_prefab.begin() + j);
+				}
+			}
+		}
+		prefab_name.clear();
+
+		std::vector <CPrefab*> new_prefab;
+		//now add prefabs that were deleted at runtime
+		for (CUInt i = 0; i < m_prefab.size(); i++)
+		{
+			CBool foundPrefab = CFalse;
+			for (CUInt j = 0; j < g_prefab.size(); j++)
+			{
+				if (Cmp(m_prefab[i]->GetName(), g_prefab[j]->GetName()))
+				{
+					foundPrefab = CTrue;
+					break;
+				}
+			}
+			if (!foundPrefab)
+			{
+				CPrefab* prefab = CNew(CPrefab);
+				prefab->SetName(m_prefab[i]->GetName());
+				prefab->SetPackageName(m_prefab[i]->GetPackageName());
+				prefab->SetPrefabName(m_prefab[i]->GetPrefabName());
+				new_prefab.push_back(prefab);
+			}
+		}
+
+		for (CUInt i = 0; i < new_prefab.size(); i++)
+			g_prefab.push_back(new_prefab[i]);
+
+		new_prefab.clear();
+
+		//first, delete prefab instances that were created at runtime
+		std::vector<std::string> instance_name;
+
+		for (CUInt i = 0; i < g_prefab.size(); i++)
+		{
+			for (CUInt j = 0; j < m_prefab.size(); j++)
+			{
+				if (Cmp(g_prefab[i]->GetName(), m_prefab[j]->GetName()))
+				{
+					for (CUInt k = 0; k < g_prefab[i]->GetNumInstances(); k++)
+					{
+						CBool foundPrefabInstance = CFalse;
+
+						for (CUInt l = 0; l < m_prefab[j]->GetNumInstanceNames(); l++)
+						{
+							if (Cmp(g_prefab[i]->GetInstance(k)->GetName(), m_prefab[j]->GetInstanceName(l)))
+							{
+								foundPrefabInstance = CTrue;
+								break;
+							}
+						}
+						if (!foundPrefabInstance)
+						{
+							instance_name.push_back(g_prefab[i]->GetInstance(k)->GetName());
+						}
+					}
+				}
+			}
+		}
+
+		for (CUInt i = 0; i < instance_name.size(); i++)
+		{
+			CChar name[MAX_NAME_SIZE];
+			Cpy(name, instance_name[i].c_str());
+			g_multipleView->DeletePrefabInstance(name);
+		}
+		instance_name.clear();
+
+
+		//now add prefab instances that were deleted at runtime
+		for (CUInt i = 0; i < m_prefab.size(); i++)
+		{
+			for (CUInt j = 0; j < g_prefab.size(); j++)
+			{
+				if (Cmp(m_prefab[i]->GetName(), g_prefab[j]->GetName()))
+				{
+					for (CUInt k = 0; k < m_prefab[i]->GetNumInstanceNames(); k++)
+					{
+						CBool foundPrefabInstance = CFalse;
+						for (CUInt l = 0; l < g_prefab[j]->GetNumInstances(); l++)
+						{
+							if (Cmp(m_prefab[i]->GetInstanceName(k), g_prefab[j]->GetInstance(l)->GetName()))
+							{
+								foundPrefabInstance = CTrue;
+								break;
+							}
+						}
+						if (!foundPrefabInstance)
+						{
+							new_prefab.push_back(g_prefab[j]);
+							instance_name.push_back((CChar*)m_prefab[i]->GetInstanceName(k));
+						}
+					}
+				}
+			}
+		}
+
+		for (CUInt i = 0; i < new_prefab.size(); i++)
+		{
+			CChar name[MAX_NAME_SIZE];
+			Cpy(name, instance_name[i].c_str());
+			g_multipleView->GeneratePrefabInstance(new_prefab[i], name);
+		}
+		new_prefab.clear();
+		instance_name.clear();
+
+		//now delete m_prefab
+		for (CUInt i = 0; i < m_prefab.size(); i++)
+		{
+			CDelete(m_prefab[i]);
+		}
+		m_prefab.clear();
+
+		//delete prefabs that have no instance
+		for (CUInt i = 0; i < g_prefab.size(); i++)
+		{
+			if (g_prefab[i]->GetNumInstances() == 0)
+			{
+				prefab_name.push_back(g_prefab[i]->GetName());
+			}
+		}
+
+		for (CUInt i = 0; i < prefab_name.size(); i++)
+		{
+			CChar name[MAX_NAME_SIZE];
+			Cpy(name, prefab_name[i].c_str());
+
+			for (CUInt j = 0; j < g_prefab.size(); j++)
+			{
+				if (Cmp(name, g_prefab[j]->GetName()))
+				{
+					CDelete(g_prefab[j]);
+					g_prefab.erase(g_prefab.begin() + j);
+				}
+			}
+		}
+		prefab_name.clear();
+		/////////////
+
+		//Load prefab instances parameters
 		for (CUInt i = 0; i < m_instancePrefab.size(); i++)
 		{
 			for (CUInt j = 0; j < g_instancePrefab.size(); j++)
@@ -22935,6 +23419,129 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 				}
 			}
 		}
+
+		//Load water information here
+		//First, delete prefab instances that were created at runtime
+		std::vector<std::string> water_instance_name;
+		std::vector <CWater*> water;
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			for (CUInt j = 0; j < m_water.size(); j++)
+			{
+				if (Cmp(g_engineWaters[i]->GetName(), m_water[j]->GetName()))
+				{
+					for (CUInt k = 0; k < g_engineWaters[i]->GetNumPrefabInstances(); k++)
+					{
+						CBool foundPrefabInstance = CFalse;
+
+						for (CUInt l = 0; l < m_water[j]->GetNumPrefabInstanceNames(); l++)
+						{
+							if (Cmp(g_engineWaters[i]->GetPrefabInstance(k)->GetName(), m_water[j]->GetPrefabInstanceName(l)))
+							{
+								foundPrefabInstance = CTrue;
+								break;
+							}
+						}
+						if (!foundPrefabInstance)
+						{
+							water.push_back(g_engineWaters[i]);
+							water_instance_name.push_back(g_engineWaters[i]->GetPrefabInstance(k)->GetName());
+						}
+					}
+				}
+			}
+		}
+
+		for (CUInt i = 0; i < water.size(); i++)
+		{
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				if (Cmp(water[i]->GetName(), g_engineWaters[j]->GetName()))
+				{
+					CWater* current_water = g_engineWaters[j];
+
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, water_instance_name[i].c_str());
+					for (CUInt l = 0; l < current_water->GetNumPrefabInstances(); l++)
+					{
+						if (Cmp(name, current_water->GetPrefabInstance(l)->GetName()))
+						{
+							current_water->RemovePrefabInstance(j);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		water_instance_name.clear();
+		water.clear();
+
+		//now add prefab instances that were deleted at runtime
+		for (CUInt i = 0; i < m_water.size(); i++)
+		{
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				if (Cmp(m_water[i]->GetName(), g_engineWaters[j]->GetName()))
+				{
+					for (CUInt k = 0; k < m_water[i]->GetNumPrefabInstanceNames(); k++)
+					{
+						CBool foundPrefabInstance = CFalse;
+						for (CUInt l = 0; l < g_engineWaters[j]->GetNumPrefabInstances(); l++)
+						{
+							if (Cmp(m_water[i]->GetPrefabInstanceName(k), g_engineWaters[j]->GetPrefabInstance(l)->GetName()))
+							{
+								foundPrefabInstance = CTrue;
+								break;
+							}
+						}
+						if (!foundPrefabInstance)
+						{
+							water.push_back(g_engineWaters[j]);
+							water_instance_name.push_back((CChar*)m_water[i]->GetPrefabInstanceName(k));
+						}
+					}
+				}
+			}
+		}
+
+		for (CUInt i = 0; i < water.size(); i++)
+		{
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				if (Cmp(water[i]->GetName(), g_engineWaters[j]->GetName()))
+				{
+					CWater* current_water = g_engineWaters[j];
+
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, water_instance_name[i].c_str());
+
+					for (CUInt k = 0; k < g_instancePrefab.size(); k++)
+					{
+						if (Cmp(g_instancePrefab[k]->GetName(), name))
+						{
+							current_water->AddPrefabInstance(g_instancePrefab[k]);
+							g_instancePrefab[k]->SetWater(current_water);
+							g_instancePrefab[k]->UpdateBoundingBoxForWater(current_water->GetHeight());
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		water_instance_name.clear();
+		water.clear();
+
+		//now delete m_water
+		for (CUInt i = 0; i < m_water.size(); i++)
+		{
+			CDelete(m_water[i]);
+		}
+		m_water.clear();
+
 		//Load Current VScene info
 		g_currentVSceneProperties.m_isMenu = m_currentVSceneProperties.m_isMenu;
 		g_currentVSceneProperties.m_cursorSize = m_currentVSceneProperties.m_cursorSize;
@@ -23125,6 +23732,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 				scene->SetAnimationStatus(eANIM_PAUSE);
 			}
 		}
+	}
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		g_octree->ResetState();
 	}
 
 	//Load PhysX properties
@@ -23389,7 +24001,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
 			if (g_instancePrefab[i]->GetHasScript())
+			{
 				g_instancePrefab[i]->LoadLuaFile();
+			}
 		}
 	}
 
@@ -23647,6 +24261,56 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			m_engineStaticSounds.push_back(m_staticSound);
 		}
 
+		//Save water information
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			CWater* new_water = CNew(CWater);
+			new_water->SetName(g_engineWaters[i]->GetName());
+
+			for (CUInt j = 0; j < g_engineWaters[i]->GetNumPrefabInstances(); j++)
+			{
+				new_water->AddPrefabInstanceName(g_engineWaters[i]->GetPrefabInstance(j)->GetName());
+			}
+			m_water.push_back(new_water);
+		}
+
+		//Save prefabs
+		for (CUInt i = 0; i < g_prefab.size(); i++)
+		{
+			CPrefab* new_prefab = CNew(CPrefab);
+			new_prefab->SetName(g_prefab[i]->GetName());
+			new_prefab->SetPrefabName(g_prefab[i]->GetPrefabName());
+			new_prefab->SetPackageName(g_prefab[i]->GetPackageName());
+
+			for (CUInt j = 0; j < g_prefab[i]->GetNumInstances(); j++)
+			{
+				new_prefab->AddInstanceName(g_prefab[i]->GetInstance(j)->GetName());
+			}
+			m_prefab.push_back(new_prefab);
+		}
+
+		for (CUInt i = 0; i < g_resourcePrefab.size(); i++)
+		{
+			CBool foundTarget = CFalse;
+			for (CUInt j = 0; j < g_prefab.size(); j++)
+			{
+				if (Cmp(g_resourcePrefab[i]->GetName(), g_prefab[j]->GetName()))
+				{
+					foundTarget = CTrue;
+					break;
+				}
+			}
+			if (!foundTarget)
+			{
+				CPrefab* new_prefab = CNew(CPrefab);
+				new_prefab->SetName(g_resourcePrefab[i]->GetName());
+				new_prefab->SetPrefabName(g_resourcePrefab[i]->GetPrefabName());
+				new_prefab->SetPackageName(g_resourcePrefab[i]->GetPackageName());
+
+				m_prefab.push_back(new_prefab);
+			}
+		}
+
 		//Save prefab instances
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
@@ -23886,7 +24550,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
-			g_instancePrefab[i]->InitScript();
+			g_instancePrefab[i]->InitScript(CTrue); //reset
 		}
 	}
 	else if (g_editorMode == eMODE_PREFAB)
@@ -26494,6 +27158,36 @@ CVoid CVandaEngine1Dlg::LoadObjectNames()
 
 				VSceneObjectNames.m_instancePrefabNames.push_back(newPrefabInstance);
 			}
+
+			//prefabs
+			CUInt prefabSize;
+			fread(&prefabSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < prefabSize; i++)
+			{
+				CPrefabNames newPrefab;
+
+				//prefab name
+				CChar name[MAX_NAME_SIZE];
+				fread(name, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				Cpy(newPrefab.m_name, name);
+
+				//package name- used for loading image preview
+				CChar packageName[MAX_NAME_SIZE];
+				fread(packageName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				Cpy(newPrefab.m_packageName, packageName);
+
+				//prefab name- used for loading image preview
+				CChar prefabName[MAX_NAME_SIZE];
+				fread(prefabName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				Cpy(newPrefab.m_prefabName, prefabName);
+
+				VSceneObjectNames.m_prefabNames.push_back(newPrefab);
+			}
+
 			//static sounds
 			CUInt staticSoundSize;
 			fread(&staticSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);

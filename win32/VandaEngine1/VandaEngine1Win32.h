@@ -69,6 +69,7 @@ extern std::vector<COpenALSoundBuffer*>g_soundBuffers;
 extern CChar g_currentPassword[MAX_NAME_SIZE];
 extern std::vector<CScene*> g_scene;
 extern std::vector<CPrefab*> g_prefab;
+extern std::vector<CPrefab*> g_resourcePrefab;
 extern std::vector<CGeometry *> g_geometries;
 extern std::vector<CInstancePrefab*>g_instancePrefab;
 extern std::vector<CGUIButton*> g_guiButtons;

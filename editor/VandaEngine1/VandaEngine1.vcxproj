@@ -144,6 +144,7 @@
     <ClCompile Include="AddMainCharacter.cpp" />
     <ClCompile Include="AddMultipleAnimations.cpp" />
     <ClCompile Include="AddNewDirectory.cpp" />
+    <ClCompile Include="AddPrefabResource.cpp" />
     <ClCompile Include="AddResource.cpp" />
     <ClCompile Include="AddSkyDome.cpp" />
     <ClCompile Include="AddStaticSound.cpp" />
@@ -271,6 +272,7 @@
     <ClCompile Include="ScriptUtilityGUIs.cpp" />
     <ClCompile Include="ScriptUtilityImportedCameras.cpp" />
     <ClCompile Include="ScriptUtilityPrefabInstances.cpp" />
+    <ClCompile Include="ScriptUtilityPrefabs.cpp" />
     <ClCompile Include="ScriptUtilityResources.cpp" />
     <ClCompile Include="SelectAnimationClips.cpp" />
     <ClCompile Include="SelectCamera.cpp" />
@@ -311,6 +313,7 @@
     <ClInclude Include="AddMainCharacter.h" />
     <ClInclude Include="AddMultipleAnimations.h" />
     <ClInclude Include="AddNewDirectory.h" />
+    <ClInclude Include="AddPrefabResource.h" />
     <ClInclude Include="AddResource.h" />
     <ClInclude Include="AddSkyDome.h" />
     <ClInclude Include="AddStaticSound.h" />
@@ -447,6 +450,7 @@
     <ClInclude Include="ScriptUtilityGUIs.h" />
     <ClInclude Include="ScriptUtilityImportedCameras.h" />
     <ClInclude Include="ScriptUtilityPrefabInstances.h" />
+    <ClInclude Include="ScriptUtilityPrefabs.h" />
     <ClInclude Include="ScriptUtilityResources.h" />
     <ClInclude Include="SelectAnimationClips.h" />
     <ClInclude Include="SelectCamera.h" />

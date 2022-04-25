@@ -17,10 +17,13 @@ public:
 	CVoid SetTriggerType(CTriggerType);
 	CVoid SetInstancePrefab(CInstancePrefab* instancePrefab);
 	CVoid SetName(CChar* name);
+	CChar* GetName();
+
+	CVoid SetLastName(CChar* name);
+	CChar* GetLastName();
 
 	CTriggerType GetTriggerType();
 	CInstancePrefab* GetInstancePrefab();
-	CChar* GetName();
 	CVoid OnTriggerEnterScript(CChar *otherActorName);
 	CVoid OnTriggerStayScript(CChar *otherActorName);
 	CVoid OnTriggerExitScript(CChar *otherActorName);
@@ -29,6 +32,9 @@ public:
 	CBool GetHasScript() { return m_hasScript; }
 	CVoid SetScript(CChar* script) { Cpy(m_script, script); }
 	CChar* GetScript() { return m_script; }
+	CVoid SetLastScriptPath(CChar* script) { Cpy(m_lastScriptPath, script); }
+	CChar* GetLastScriptPath() { return m_lastScriptPath; }
+
 	CVoid SetUpdateScript(CBool set) { m_updateScript = set; }
 	CBool GetUpdateScript() { return m_updateScript; }
 
@@ -51,11 +57,13 @@ public:
 private:
 	CTriggerType m_triggerType;
 	CChar m_name[MAX_NAME_SIZE];
+	CChar m_lastName[MAX_NAME_SIZE];
 	CInstancePrefab* m_instancePrefab;
 	CBool m_hasScript;
-	CChar m_script[MAX_NAME_SIZE];
+	CChar m_script[MAX_URI_SIZE];
 	CBool m_updateScript;
-	CChar m_tempScriptPath[MAX_NAME_SIZE];
-	CChar m_tempCurrentScriptPath[MAX_NAME_SIZE];
+	CChar m_tempScriptPath[MAX_URI_SIZE];
+	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
+	CChar m_lastScriptPath[MAX_URI_SIZE];
 	lua_State* m_lua;
 };

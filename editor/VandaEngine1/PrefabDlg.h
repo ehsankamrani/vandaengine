@@ -23,6 +23,11 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CBool m_prefabResourceMode;
+	CPrefab* m_selectedPrefab;
+
 public:
 	std::string m_selectedPackageName;
 	std::string m_selectedPrefabName;
@@ -59,4 +64,7 @@ public:
 	CVoid InserItemToPropertiesList(char * properties);
 	CButton m_btnDeletePrefabPackage;
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	CVoid SetPrefabResourceMode(CBool state) { m_prefabResourceMode = state; }
+	CBool GetPrefabResourceMode() { return m_prefabResourceMode; }
+	CPrefab* GetSelectedPrefab() { return m_selectedPrefab; }
 };

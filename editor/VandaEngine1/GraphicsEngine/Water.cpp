@@ -32,6 +32,7 @@ CWater::~CWater()
 	glDeleteRenderbuffersEXT(MAX_WATER_TEXTURES, m_rbID );
 	glDeleteQueries(1, &m_queryIndex);
 	m_VSceneList.clear(); //save functions
+	m_instanceName.clear();
 }
 
 GLuint CWater::GetQueryIndex()
@@ -611,4 +612,39 @@ CImage *CWater::GetWaterImage( const CChar * name )
 			return g_waterImages[i];
 	}
 	return NULL;
+}
+
+CUInt CWater::GetNumPrefabInstanceNames()
+{
+	return m_instanceName.size();
+}
+
+CVoid CWater::AddPrefabInstanceName(CChar* name)
+{
+	m_instanceName.push_back(name);
+}
+
+const CChar* CWater::GetPrefabInstanceName(CUInt index)
+{
+	return m_instanceName[index].c_str();
+}
+
+CUInt CWater::GetNumPrefabInstances()
+{
+	return m_instancePrefab.size();
+}
+
+CVoid CWater::AddPrefabInstance(CInstancePrefab* instance)
+{
+	m_instancePrefab.push_back(instance);
+}
+
+CVoid CWater::RemovePrefabInstance(CUInt index)
+{
+	m_instancePrefab.erase(m_instancePrefab.begin() + index);
+}
+
+CInstancePrefab* CWater::GetPrefabInstance(CUInt index)
+{
+	return m_instancePrefab[index];
 }

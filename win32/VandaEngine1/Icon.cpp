@@ -50,6 +50,7 @@ CVoid CIcon::Render(CVec2f pos)
 
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_image->GetId());
 
 	if (m_image->GetFormat() == 4)
@@ -58,7 +59,6 @@ CVoid CIcon::Render(CVec2f pos)
 		glAlphaFunc(GL_GREATER, 0);
 	}
 
-	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	glTexCoord2d(0, 1);  glVertex3f(pos.x - (w / 2.0f), pos.y + (h / 2.0f), -1.0f);
 	glTexCoord2d(1, 1);  glVertex3f(pos.x + w - (w / 2.0f), pos.y + (h / 2.0f), -1.0f);

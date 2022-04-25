@@ -20,6 +20,8 @@ CPrefabDlg::CPrefabDlg(CWnd* pParent /*=NULL*/)
 	m_packageIndex = -1;
 	m_prefabIndex = -1;
 	m_selectForMainCharacter = CFalse;
+	m_prefabResourceMode = CFalse;
+	m_selectedPrefab = CNew(CPrefab);
 }
 
 CPrefabDlg::~CPrefabDlg()
@@ -34,6 +36,8 @@ CPrefabDlg::~CPrefabDlg()
 	{
 		m_listPrefabs.DeleteItem(nItem);
 	}
+
+	CDelete(m_selectedPrefab);
 }
 
 void CPrefabDlg::DoDataExchange(CDataExchange* pDX)
@@ -79,7 +83,74 @@ void CPrefabDlg::OnBnClickedInsert()
 			return;
 		}
 	}
-	if (m_selectForMainCharacter)
+	if (m_prefabResourceMode)
+	{
+		int nSelected = -1;
+		POSITION p = m_listPrefabPackages.GetFirstSelectedItemPosition();
+		while (p)
+		{
+			nSelected = m_listPrefabPackages.GetNextSelectedItem(p);
+		}
+		if (nSelected >= 0)
+		{
+			TCHAR szBuffer[1024];
+			DWORD cchBuf(1024);
+			LVITEM lvi;
+			lvi.iItem = nSelected;
+			lvi.iSubItem = 0;
+			lvi.mask = LVIF_TEXT;
+			lvi.pszText = szBuffer;
+			lvi.cchTextMax = cchBuf;
+			m_listPrefabPackages.GetItem(&lvi);
+			m_selectedPackageName = szBuffer;
+		}
+		else
+		{
+			MessageBox("Please select a package!", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
+			return;
+		}
+
+		nSelected = -1;
+		p = m_listPrefabs.GetFirstSelectedItemPosition();
+		while (p)
+		{
+			nSelected = m_listPrefabs.GetNextSelectedItem(p);
+		}
+		if (nSelected >= 0)
+		{
+			TCHAR szBuffer[1024];
+			DWORD cchBuf(1024);
+			LVITEM lvi;
+			lvi.iItem = nSelected;
+			lvi.iSubItem = 0;
+			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
+			lvi.pszText = szBuffer;
+			lvi.cchTextMax = cchBuf;
+			m_listPrefabs.GetItem(&lvi);
+
+			m_selectedPrefabName = szBuffer;
+
+		}
+		else
+		{
+			MessageBox("Please select an item!", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
+			return;
+		}
+		CChar selectedPackageName[MAX_NAME_SIZE];
+		CChar selectedPrefabName[MAX_NAME_SIZE];
+		CChar selectedPackagePrefabName[MAX_NAME_SIZE];
+
+		Cpy(selectedPackageName, m_selectedPackageName.c_str());
+		Cpy(selectedPrefabName, m_selectedPrefabName.c_str());
+		sprintf(selectedPackagePrefabName, "%s_%s", selectedPackageName, selectedPrefabName);
+
+		m_selectedPrefab->SetPackageName(selectedPackageName);
+		m_selectedPrefab->SetPrefabName(selectedPrefabName);
+		m_selectedPrefab->SetName(selectedPackagePrefabName);
+		
+		OnOK();
+	}
+	else if (m_selectForMainCharacter)
 	{
 		int nSelected = -1;
 		POSITION p = m_listPrefabPackages.GetFirstSelectedItemPosition();
@@ -262,9 +333,9 @@ void CPrefabDlg::OnBnClickedDelete()
 					PrintInfo("Delete failed.", COLOR_RED);
 					return;
 				}
-				CUInt size = -1;
-				fread(&size, sizeof(CUInt), 1, PackageFilePtr);
-				for (CUInt k = 0; k < size; k++)
+				CUInt prefab_size = -1;
+				fread(&prefab_size, sizeof(CUInt), 1, PackageFilePtr);
+				for (CUInt k = 0; k < prefab_size; k++)
 				{
 					CChar name[MAX_NAME_SIZE];
 					CChar package_name[MAX_NAME_SIZE];
@@ -274,7 +345,7 @@ void CPrefabDlg::OnBnClickedDelete()
 					fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 					fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 
-					if (Cmp(prefab_name, m_selectedPrefabName.c_str()))
+					if (Cmp(package_name, m_selectedPackageName.c_str()) && Cmp(prefab_name, m_selectedPrefabName.c_str()))
 					{
 						CChar preafbName[MAX_NAME_SIZE];
 						sprintf(preafbName, "This prefab is used by %s/%s.\nYou can not delete this prefab.", g_projects[i]->m_name, g_projects[i]->m_sceneNames[j].c_str());
@@ -283,6 +354,29 @@ void CPrefabDlg::OnBnClickedDelete()
 						return;
 					}
 				}
+				CUInt prefab_resource_size = -1;
+				fread(&prefab_resource_size, sizeof(CUInt), 1, PackageFilePtr);
+				for (CUInt k = 0; k < prefab_resource_size; k++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					CChar package_name[MAX_NAME_SIZE];
+					CChar prefab_name[MAX_NAME_SIZE];
+					//write prefab data
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+					fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+					fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+
+					if (Cmp(package_name, m_selectedPackageName.c_str()) && Cmp(prefab_name, m_selectedPrefabName.c_str()))
+					{
+						CChar preafbName[MAX_NAME_SIZE];
+						sprintf(preafbName, "This prefab is used by %s/%s - [prefab resource].\nYou can not delete this prefab.", g_projects[i]->m_name, g_projects[i]->m_sceneNames[j].c_str());
+						MessageBox(preafbName, "Vanda Engine Error", MB_OK | MB_ICONERROR);
+						fclose(PackageFilePtr);
+						return;
+					}
+				}
+
+
 				fclose(PackageFilePtr);
 			}
 		}
@@ -493,9 +587,9 @@ void CPrefabDlg::OnBnClickedRenamePrefab()
 					PrintInfo("Delete failed.", COLOR_RED);
 					return;
 				}
-				CUInt size = -1;
-				fread(&size, sizeof(CUInt), 1, PackageFilePtr);
-				for (CUInt k = 0; k < size; k++)
+				CUInt prefab_size = -1;
+				fread(&prefab_size, sizeof(CUInt), 1, PackageFilePtr);
+				for (CUInt k = 0; k < prefab_size; k++)
 				{
 					CChar name[MAX_NAME_SIZE];
 					CChar package_name[MAX_NAME_SIZE];
@@ -505,7 +599,7 @@ void CPrefabDlg::OnBnClickedRenamePrefab()
 					fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 					fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
 
-					if (Cmp(prefab_name, m_selectedPrefabName.c_str()))
+					if (Cmp(package_name, m_selectedPackageName.c_str()) && Cmp(prefab_name, m_selectedPrefabName.c_str()))
 					{
 						CChar preafbName[MAX_NAME_SIZE];
 						sprintf(preafbName, "This prefab is used by %s/%s.\nYou can not delete this prefab.", g_projects[i]->m_name, g_projects[i]->m_sceneNames[j].c_str());
@@ -514,6 +608,28 @@ void CPrefabDlg::OnBnClickedRenamePrefab()
 						return;
 					}
 				}
+				CUInt prefab_resource_size = -1;
+				fread(&prefab_resource_size, sizeof(CUInt), 1, PackageFilePtr);
+				for (CUInt k = 0; k < prefab_resource_size; k++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					CChar package_name[MAX_NAME_SIZE];
+					CChar prefab_name[MAX_NAME_SIZE];
+					//write prefab data
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+					fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+					fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+
+					if (Cmp(package_name, m_selectedPackageName.c_str()) && Cmp(prefab_name, m_selectedPrefabName.c_str()))
+					{
+						CChar preafbName[MAX_NAME_SIZE];
+						sprintf(preafbName, "This prefab is used by %s/%s - [prefab resource].\nYou can not delete this prefab.", g_projects[i]->m_name, g_projects[i]->m_sceneNames[j].c_str());
+						MessageBox(preafbName, "Vanda Engine Error", MB_OK | MB_ICONERROR);
+						fclose(PackageFilePtr);
+						return;
+					}
+				}
+
 				fclose(PackageFilePtr);
 			}
 		}
@@ -656,9 +772,9 @@ void CPrefabDlg::OnBnClickedRenamePackage()
 				PrintInfo("Rename failed.", COLOR_RED);
 				return;
 			}
-			CUInt size = -1;
-			fread(&size, sizeof(CUInt), 1, PackageFilePtr);
-			for (CUInt k = 0; k < size; k++)
+			CUInt prefab_size = -1;
+			fread(&prefab_size, sizeof(CUInt), 1, PackageFilePtr);
+			for (CUInt k = 0; k < prefab_size; k++)
 			{
 				CChar name[MAX_NAME_SIZE];
 				CChar package_name[MAX_NAME_SIZE];
@@ -677,6 +793,28 @@ void CPrefabDlg::OnBnClickedRenamePackage()
 					return;
 				}
 			}
+			CUInt prefab_resource_size = -1;
+			fread(&prefab_resource_size, sizeof(CUInt), 1, PackageFilePtr);
+			for (CUInt k = 0; k < prefab_resource_size; k++)
+			{
+				CChar name[MAX_NAME_SIZE];
+				CChar package_name[MAX_NAME_SIZE];
+				CChar prefab_name[MAX_NAME_SIZE];
+				//write prefab data
+				fread(name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+				fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+				fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+
+				if (Cmp(package_name, m_selectedPackageName.c_str()))
+				{
+					CChar packageName[MAX_NAME_SIZE];
+					sprintf(packageName, "This package is used by %s/%s - [prefab resource].\nYou can not rename this package.", g_projects[i]->m_name, g_projects[i]->m_sceneNames[j].c_str());
+					MessageBox(packageName, "Vanda Engine Error", MB_OK | MB_ICONERROR);
+					fclose(PackageFilePtr);
+					return;
+				}
+			}
+
 			fclose(PackageFilePtr);
 		}
 	}
@@ -788,9 +926,9 @@ void CPrefabDlg::OnBnClickedDeletePackage()
 					PrintInfo("Delete failed.", COLOR_RED);
 					return;
 				}
-				CUInt size = -1;
-				fread(&size, sizeof(CUInt), 1, PackageFilePtr);
-				for (CUInt k = 0; k < size; k++)
+				CUInt prefab_size = -1;
+				fread(&prefab_size, sizeof(CUInt), 1, PackageFilePtr);
+				for (CUInt k = 0; k < prefab_size; k++)
 				{
 					CChar name[MAX_NAME_SIZE];
 					CChar package_name[MAX_NAME_SIZE];
@@ -809,6 +947,28 @@ void CPrefabDlg::OnBnClickedDeletePackage()
 						return;
 					}
 				}
+				CUInt prefab_resource_size = -1;
+				fread(&prefab_resource_size, sizeof(CUInt), 1, PackageFilePtr);
+				for (CUInt k = 0; k < prefab_resource_size; k++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					CChar package_name[MAX_NAME_SIZE];
+					CChar prefab_name[MAX_NAME_SIZE];
+					//write prefab data
+					fread(name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+					fread(package_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+					fread(prefab_name, sizeof(CChar), MAX_NAME_SIZE, PackageFilePtr);
+
+					if (Cmp(package_name, m_selectedPackageName.c_str()))
+					{
+						CChar packageName[MAX_NAME_SIZE];
+						sprintf(packageName, "This package is used by %s/%s - [prefab resource].\nYou can not delete this package.", g_projects[i]->m_name, g_projects[i]->m_sceneNames[j].c_str());
+						MessageBox(packageName, "Vanda Engine Error", MB_OK | MB_ICONERROR);
+						fclose(PackageFilePtr);
+						return;
+					}
+				}
+
 				fclose(PackageFilePtr);
 			}
 		}
@@ -879,7 +1039,11 @@ BOOL CPrefabDlg::OnInitDialog()
 		menu.Detach();
 	}
 
-	if (g_editorMode == eMODE_PREFAB)
+	if (m_prefabResourceMode)
+	{
+		m_btnInsertPrefab.SetWindowTextA("Add Resource");
+	}
+	else if (g_editorMode == eMODE_PREFAB)
 	{
 		m_btnInsertPrefab.SetWindowTextA("Open Prefab");
 	}
@@ -1071,6 +1235,9 @@ void CPrefabDlg::OnLvnItemchangedListPrefabsProjects(NMHDR *pNMHDR, LRESULT *pRe
 			return;
 		}
 
+		SetCapture();
+		SetCursor(ex_pVandaEngine1Dlg->m_progressCursor);
+
 		CBitmap* cBmpMask = NULL;
 
 		m_prefabListImage.DeleteImageList();
@@ -1105,6 +1272,8 @@ void CPrefabDlg::OnLvnItemchangedListPrefabsProjects(NMHDR *pNMHDR, LRESULT *pRe
 			Cpy(str, g_prefabPackagesAndNames[index][i].c_str());
 			InsertItemToPrefabList(str, i - 1);
 		}
+
+		ReleaseCapture();
 	}
 	*pResult = 0;
 }

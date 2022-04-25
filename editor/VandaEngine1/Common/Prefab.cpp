@@ -18,7 +18,6 @@ CPrefab::CPrefab()
 		m_hasLod[i] = CFalse;
 	}
 	m_lod[0]->m_isVisible = CTrue;
-	m_instanceIndex = 0;
 	m_currentInstance = NULL;
 	m_hasScript = CFalse;
 	Cpy(m_script, "\n");
@@ -30,6 +29,8 @@ CPrefab::~CPrefab()
 	{
 		CDelete(m_lod[i]);
 	}
+	m_instance.clear();
+	m_instanceName.clear();
 }
 
 CVoid CPrefab::SetName(CChar* name)
@@ -72,10 +73,14 @@ CChar* CPrefab::GetPrefabName()
 	return m_prefabName;
 }
 
-CVoid CPrefab::SetInstance(CInstancePrefab* instance)
+CVoid CPrefab::AddInstance(CInstancePrefab* instance)
 {
 	m_instance.push_back(instance);
-	m_instanceIndex++;
+}
+
+CVoid CPrefab::AddInstanceName(CChar* name)
+{
+	m_instanceName.push_back(name);
 }
 
 CVoid CInstancePrefab::ResetLua()
@@ -94,9 +99,12 @@ CBool CInstancePrefab::LoadLuaFile()
 	return CTrue;
 }
 
-CVoid CInstancePrefab::InitScript()
+CVoid CInstancePrefab::InitScript(CBool reset)
 {
-	if (m_hasScript)
+	if (reset)
+		m_scriptInitialized = CFalse;
+
+	if (m_hasScript && !m_scriptInitialized)
 	{
 		g_currentInstancePrefab = this;
 
@@ -107,6 +115,7 @@ CVoid CInstancePrefab::InitScript()
 		}
 
 		lua_settop(m_lua, 0);
+		m_scriptInitialized = CTrue;
 	}
 }
 
@@ -199,6 +208,12 @@ CInstancePrefab* CPrefab::GetInstance(CUInt index)
 	return m_instance[index];
 }
 
+const CChar* CPrefab::GetInstanceName(CUInt index)
+{
+	return m_instanceName[index].c_str();
+}
+
+
 CVoid CPrefab::SetCurrentInstance(CInstancePrefab* instance)
 {
 	m_currentInstance = instance;
@@ -220,9 +235,9 @@ CUInt CPrefab::GetNumInstances()
 	return m_instance.size();
 }
 
-CUInt CPrefab::GetInstanceIndex()
+CUInt CPrefab::GetNumInstanceNames()
 {
-	return m_instanceIndex;
+	return m_instanceName.size();
 }
 
 CVLOD* CPrefab::GetLOD(CInt index)
@@ -282,6 +297,7 @@ CInstancePrefab::CInstancePrefab()
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
+	m_scriptInitialized = CFalse;
 }
 
 CInstancePrefab::~CInstancePrefab()

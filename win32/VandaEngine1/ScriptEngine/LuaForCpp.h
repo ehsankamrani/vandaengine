@@ -287,4 +287,7 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "GetPhysicsActorGroup", GetPhysicsActorGroup);
 	lua_register(L, "SetPhysicsCollisionFlags", SetPhysicsCollisionFlags);
+
+	lua_register(L, "GeneratePrefabInstance", GeneratePrefabInstance);
+	lua_register(L, "DeletePrefabInstance", DeletePrefabInstance);
 }

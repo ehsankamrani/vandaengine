@@ -171,4 +171,7 @@ public:
 
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	CButton m_checkboxEnableMaterial;
+	afx_msg void OnBnClickedButtonCopyPrefabName();
+	CRichEditCtrl m_richPrefabName;
+	CStatic m_textPrefabName;
 };

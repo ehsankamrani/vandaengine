@@ -50,6 +50,8 @@ void CEditPrefab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SHININESS, m_editBoxShininess);
 	DDX_Control(pDX, IDC_EDIT_TRANSPARENCY, m_editBoxTransparency);
 	DDX_Control(pDX, IDC_PREFAB_INSTANCE_MATERIAL_ENABLECHECK, m_checkboxEnableMaterial);
+	DDX_Control(pDX, IDC_RICHED_PREFAB_NAME, m_richPrefabName);
+	DDX_Control(pDX, IDC_STATIC_PREFAB_NAME, m_textPrefabName);
 }
 
 
@@ -76,6 +78,7 @@ BEGIN_MESSAGE_MAP(CEditPrefab, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_SHININESS, &CEditPrefab::OnEnChangeEditShininess)
 	ON_EN_CHANGE(IDC_EDIT_TRANSPARENCY, &CEditPrefab::OnEnChangeEditTransparency)
 	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_BUTTON_COPY_PREFAB_NAME, &CEditPrefab::OnBnClickedButtonCopyPrefabName)
 END_MESSAGE_MAP()
 
 
@@ -222,8 +225,14 @@ BOOL CEditPrefab::OnInitDialog()
 		//prefab instance name
 		m_textPrefabInstanceName.SetWindowTextA(m_instancePrefab->GetName());
 		m_richPrefabInstanceName.SetWindowTextA(m_instancePrefab->GetName());
-		CInt end = m_richPrefabInstanceName.GetWindowTextLengthA();
-		m_richPrefabInstanceName.SetSel(0, end);
+		CInt end1 = m_richPrefabInstanceName.GetWindowTextLengthA();
+		m_richPrefabInstanceName.SetSel(0, end1);
+
+		//prefab name
+		m_textPrefabName.SetWindowTextA(m_instancePrefab->GetPrefab()->GetName());
+		m_richPrefabName.SetWindowTextA(m_instancePrefab->GetPrefab()->GetName());
+		CInt end2 = m_richPrefabName.GetWindowTextLengthA();
+		m_richPrefabName.SetSel(0, end2);
 
 		CInt prefabInstanceAnimationIndex = -1;
 		CInt prefabInstanceCameraIndex = -1;
@@ -432,6 +441,21 @@ void CEditPrefab::OnBnClickedButtonCopyPrefabInstanceName()
 		m_richPrefabInstanceName.Copy();
 		CChar message[MAX_URI_SIZE];
 		sprintf(message, "prefab instance name '%s' copied to clipboard", s);
+		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
+	}
+}
+
+void CEditPrefab::OnBnClickedButtonCopyPrefabName()
+{
+	CString s;
+	m_richPrefabName.GetWindowTextA(s);
+	if (s.IsEmpty())
+		MessageBox("Couldn't find the prefab name!", "Error", MB_OK | MB_ICONERROR);
+	else
+	{
+		m_richPrefabName.Copy();
+		CChar message[MAX_URI_SIZE];
+		sprintf(message, "prefab name '%s' copied to clipboard", s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -729,3 +753,4 @@ HBRUSH CEditPrefab::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 	return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 }
+

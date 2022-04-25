@@ -480,12 +480,6 @@ CVoid CScene::Destroy()
 		m_cameraInstances.erase(m_cameraInstances.begin());
 	}
 
-	while (!g_resourceFiles.empty())
-	{
-		CDelete(g_resourceFiles[0]);
-		g_resourceFiles.erase(g_resourceFiles.begin());
-	}
-
 	while(!m_cameras.empty())
 	{
 		CDelete( m_cameras[0] ); 

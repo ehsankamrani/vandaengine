@@ -66,11 +66,29 @@ void CAddTrigger::OnBnClickedOk()
 
 	if (m_strTriggerName.IsEmpty())
 	{
-		MessageBox("Please select a name for new trigger", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
+		MessageBox("Please select a name for this trigger", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
 		return;
 	}
+
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please select a script for this trigger", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
+		return;
+	}
+
 	CChar name[MAX_NAME_SIZE];
 	Cpy(name, (LPCTSTR)m_strTriggerName);
+
+	std::string s(name);
+	int n = s.length();
+	if (n > 3)
+	{
+		if (s[0] == 't' && s[1] == 'e' && s[2] == 'm' && s[3] == 'p')
+		{
+			MessageBox("temp string at the beginning of trigger name is not allowed", "Vanda Engine Error", MB_OK | MB_ICONINFORMATION);
+			return;
+		}
+	}
 
 	CChar oldName[MAX_NAME_SIZE];
 	Cpy(oldName, "\n");
@@ -121,6 +139,11 @@ void CAddTrigger::OnBnClickedOk()
 	else
 		new_trigger = CNew(CTrigger);
 	new_trigger->SetName(name);
+
+	if (!m_trigger)
+	{
+		new_trigger->SetLastName(name);
+	}
 
 	CChar packageName[MAX_NAME_SIZE];
 	CChar prefabName[MAX_NAME_SIZE];
@@ -183,6 +206,8 @@ void CAddTrigger::OnBnClickedOk()
 	{
 		g_selectedName = new_trigger->GetInstancePrefab()->GetNameIndex();
 	}
+
+	new_trigger->GetInstancePrefab()->SetName(name);
 
 	if (m_trigger)
 	{
