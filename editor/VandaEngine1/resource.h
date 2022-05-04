@@ -381,6 +381,8 @@
 #define IDD_DIALOG_EXIT_EDITOR          521
 #define IDD_DIALOG_ADD_PREFAB_RESOURCE  522
 #define IDD_DIALOG_SCRIPT_UTILITY_PREFABS 523
+#define IDB_BITMAP16                    524
+#define IDB_BITMAP_SCRIPT_UTILITY_WATER 524
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -1323,7 +1325,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        524
+#define _APS_NEXT_RESOURCE_VALUE        525
 #define _APS_NEXT_COMMAND_VALUE         33111
 #define _APS_NEXT_CONTROL_VALUE         1305
 #define _APS_NEXT_SYMED_VALUE           101

@@ -193,6 +193,7 @@ struct CVSceneObjectNames
 	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
 	std::vector<std::string> m_engineLightNames; //light names of this VScene
 	std::vector<std::string> m_engineTriggerNames; //Trigger names of this VScene
+	std::vector<std::string> m_engineWaterNames; //Water names of this VScene
 	std::vector<CGUINames>m_guiNames; //GUIs of this VScene
 
 	CVoid ClearNames()
@@ -207,6 +208,7 @@ struct CVSceneObjectNames
 		m_engineCameraNames.clear();
 		m_engineLightNames.clear();
 		m_engineTriggerNames.clear();
+		m_engineWaterNames.clear();
 
 		for (CUInt i = 0; i < m_guiNames.size(); i++)
 			m_guiNames[i].ClearNames();

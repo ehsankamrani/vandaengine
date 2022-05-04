@@ -526,6 +526,7 @@ CVoid CWater::SetNormalMap( CString fileName, CBool updateSharedImages ) {
 	m_normalMapImg = image;
 
 };
+
 CVoid CWater::SetName( CString name  ) { 
 	Cpy( m_strWaterName, (char*)name.GetBuffer(name.GetLength()) );
 	name.ReleaseBuffer();

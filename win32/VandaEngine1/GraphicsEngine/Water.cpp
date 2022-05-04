@@ -480,9 +480,8 @@ CVoid CWater::SetNormalMap( CChar* fileName ) {
 
 };
 
-CVoid CWater::SetName( CString name  ) { 
-	Cpy( m_strWaterName, (char*)name.GetBuffer(name.GetLength()) );
-	name.ReleaseBuffer();
+CVoid CWater::SetName( CChar* name  ) { 
+	Cpy( m_strWaterName, name);
 }
 
 CVoid CWater::SetResult(GLint result)

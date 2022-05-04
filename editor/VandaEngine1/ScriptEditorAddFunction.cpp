@@ -239,6 +239,9 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GeneratePrefabInstance, "GeneratePrefabInstance(string prefabName, float XPos, float YPos, float ZPos, float XRot, float YRot, float ZRot, float XScale, float YScale, float ZScale)");
 	Cpy(DeletePrefabInstance, "DeletePrefabInstance(string prefabInstanceName)");
 
+	Cpy(AttachPrefabInstanceToWater, "AttachPrefabInstanceToWater(string prefabInstanceName, string waterObjectName)");
+	Cpy(DetachPrefabInstanceFromWater, "DetachPrefabInstanceFromWater(string prefabInstanceName, string waterObjectName)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1063,6 +1066,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DeletePrefabInstance);
 		}
+		else if (Cmp(szBuffer, "AttachPrefabInstanceToWater"))
+		{
+			m_richFunctionName.SetWindowTextA(AttachPrefabInstanceToWater);
+		}
+		else if (Cmp(szBuffer, "DetachPrefabInstanceFromWater"))
+		{
+			m_richFunctionName.SetWindowTextA(DetachPrefabInstanceFromWater);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1306,6 +1317,9 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 
 	InsertItem("GeneratePrefabInstance");
 	InsertItem("DeletePrefabInstance");
+
+	InsertItem("AttachPrefabInstanceToWater");
+	InsertItem("DetachPrefabInstanceFromWater");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

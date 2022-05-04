@@ -324,3 +324,6 @@ CInt SetPhysicsCollisionFlags(lua_State* L);
 
 CInt GeneratePrefabInstance(lua_State* L);
 CInt DeletePrefabInstance(lua_State* L);
+
+CInt AttachPrefabInstanceToWater(lua_State* L);
+CInt DetachPrefabInstanceFromWater(lua_State* L);

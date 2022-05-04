@@ -1889,5 +1889,8 @@
     <Image Include="Assets\Icon\GUI List\GUIImage.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\water.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

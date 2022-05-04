@@ -9962,6 +9962,254 @@ CInt DeletePrefabInstance(lua_State* L)
 	return 0;
 }
 
+CInt AttachPrefabInstanceToWater(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for AttachPrefabInstanceToWater()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar prefabInstanceName[MAX_NAME_SIZE];
+	Cpy(prefabInstanceName, lua_tostring(L, 1));
+	StringToUpper(prefabInstanceName);
+
+	if (lua_tostring(L, 2) == NULL) return 0;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 2));
+	StringToUpper(waterName);
+
+	CBool foundPrefabInstance = CFalse;
+	CBool foundWater = CFalse;
+
+	if (Cmp(prefabInstanceName, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			foundPrefabInstance = CTrue;
+
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				CChar currentWaterName[MAX_NAME_SIZE];
+				Cpy(currentWaterName, g_engineWaters[i]->GetName());
+				StringToUpper(currentWaterName);
+
+				if (Cmp(waterName, currentWaterName))
+				{
+					foundWater = CTrue;
+
+					CBool isCurrentPrefabInstanceAttached = CFalse;
+					for (CUInt j = 0; j < g_engineWaters[i]->GetNumPrefabInstances(); j++)
+					{
+						if (Cmp(g_engineWaters[i]->GetPrefabInstance(j)->GetName(), g_currentInstancePrefab->GetName()))
+						{
+							isCurrentPrefabInstanceAttached = CTrue;
+							break;
+						}
+					}
+					if (!isCurrentPrefabInstanceAttached)
+					{
+						g_engineWaters[i]->AddPrefabInstance(g_currentInstancePrefab);
+						g_currentInstancePrefab->SetWater(g_engineWaters[i]);
+						g_currentInstancePrefab->UpdateBoundingBoxForWater(g_engineWaters[i]->GetHeight());
+					}
+
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			CChar currentWaterName[MAX_NAME_SIZE];
+			Cpy(currentWaterName, g_engineWaters[i]->GetName());
+			StringToUpper(currentWaterName);
+
+			if (Cmp(waterName, currentWaterName))
+			{
+				foundWater = CTrue;
+
+				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				{
+					CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+					Cpy(currentPrefabInstanceName, g_instancePrefab[j]->GetName());
+					StringToUpper(currentPrefabInstanceName);
+
+					if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+					{
+						foundPrefabInstance = CTrue;
+
+						CBool isCurrentPrefabInstanceAttached = CFalse;
+						for (CUInt k = 0; k < g_engineWaters[i]->GetNumPrefabInstances(); k++)
+						{
+							if (Cmp(g_engineWaters[i]->GetPrefabInstance(k)->GetName(), g_instancePrefab[j]->GetName()))
+							{
+								isCurrentPrefabInstanceAttached = CTrue;
+								break;
+							}
+						}
+						if (!isCurrentPrefabInstanceAttached)
+						{
+							g_engineWaters[i]->AddPrefabInstance(g_instancePrefab[j]);
+							g_instancePrefab[j]->SetWater(g_engineWaters[i]);
+							g_instancePrefab[j]->UpdateBoundingBoxForWater(g_engineWaters[i]->GetHeight());
+						}
+
+						break;
+					}
+				}
+
+				break;
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "AttachPrefabInstanceToWater() warning : Couldn't find '", lua_tostring(L, 1), "' prefab instance");
+		//PrintInfo(temp, COLOR_RED);
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "AttachPrefabInstanceToWater() warning : Couldn't find '", lua_tostring(L, 2), "' water");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt DetachPrefabInstanceFromWater(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for DetachPrefabInstanceFromWater()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar prefabInstanceName[MAX_NAME_SIZE];
+	Cpy(prefabInstanceName, lua_tostring(L, 1));
+	StringToUpper(prefabInstanceName);
+
+	if (lua_tostring(L, 2) == NULL) return 0;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 2));
+	StringToUpper(waterName);
+
+	CBool foundPrefabInstance = CFalse;
+	CBool foundWater = CFalse;
+
+	if (Cmp(prefabInstanceName, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			foundPrefabInstance = CTrue;
+
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				CChar currentWaterName[MAX_NAME_SIZE];
+				Cpy(currentWaterName, g_engineWaters[i]->GetName());
+				StringToUpper(currentWaterName);
+
+				if (Cmp(waterName, currentWaterName))
+				{
+					foundWater = CTrue;
+
+					CBool isCurrentPrefabInstanceAttached = CFalse;
+					CInt index = -1;
+					for (CUInt j = 0; j < g_engineWaters[i]->GetNumPrefabInstances(); j++)
+					{
+						if (Cmp(g_engineWaters[i]->GetPrefabInstance(j)->GetName(), g_currentInstancePrefab->GetName()))
+						{
+							isCurrentPrefabInstanceAttached = CTrue;
+							index = j;
+							break;
+						}
+					}
+					if (isCurrentPrefabInstanceAttached)
+					{
+						g_engineWaters[i]->RemovePrefabInstance(index);
+						g_currentInstancePrefab->SetWater(NULL);
+					}
+
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			CChar currentWaterName[MAX_NAME_SIZE];
+			Cpy(currentWaterName, g_engineWaters[i]->GetName());
+			StringToUpper(currentWaterName);
+
+			if (Cmp(waterName, currentWaterName))
+			{
+				foundWater = CTrue;
+
+				for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+				{
+					CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+					Cpy(currentPrefabInstanceName, g_instancePrefab[j]->GetName());
+					StringToUpper(currentPrefabInstanceName);
+
+					if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+					{
+						foundPrefabInstance = CTrue;
+
+						CBool isCurrentPrefabInstanceAttached = CFalse;
+						CInt index = -1;
+						for (CUInt k = 0; k < g_engineWaters[i]->GetNumPrefabInstances(); k++)
+						{
+							if (Cmp(g_engineWaters[i]->GetPrefabInstance(k)->GetName(), g_instancePrefab[j]->GetName()))
+							{
+								isCurrentPrefabInstanceAttached = CTrue;
+								index = k;
+								break;
+							}
+						}
+						if (isCurrentPrefabInstanceAttached)
+						{
+							g_engineWaters[i]->RemovePrefabInstance(index);
+							g_instancePrefab[j]->SetWater(NULL);
+						}
+
+						break;
+					}
+				}
+
+				break;
+			}
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "DetachPrefabInstanceFromWater() warning : Couldn't find '", lua_tostring(L, 1), "' prefab instance");
+		//PrintInfo(temp, COLOR_RED);
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "DetachPrefabInstanceFromWater() warning : Couldn't find '", lua_tostring(L, 2), "' water");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
 
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
@@ -9984,7 +10232,7 @@ CMain::CMain()
 	m_cursorIcon = CNew(CIcon);
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
-	m_publishDebug = CTrue;
+	m_publishDebug = CFalse;
 	m_exitGame = CFalse;
 	m_mousePosition.x = (CFloat)g_width / 2.f;
 	m_mousePosition.y = (CFloat)g_height / 2.f;

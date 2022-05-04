@@ -301,4 +301,8 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "GeneratePrefabInstance", GeneratePrefabInstance);
 	lua_register(L, "DeletePrefabInstance", DeletePrefabInstance);
+
+	lua_register(L, "AttachPrefabInstanceToWater", AttachPrefabInstanceToWater);
+	lua_register(L, "DetachPrefabInstanceFromWater", DetachPrefabInstanceFromWater);
+
 }

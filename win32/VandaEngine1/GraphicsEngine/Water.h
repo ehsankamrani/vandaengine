@@ -59,7 +59,7 @@ public:
 	CVoid SetDuDvMapName(CChar* name);
 	CVoid SetNormalMapName(CChar* name);
 
-	CVoid SetName( CString name  );
+	CVoid SetName( CChar* name  );
 	CVoid SetDuDvMap( CChar* mapName );
 	CVoid SetNormalMap( CChar* mapName );
 	CVoid SetPos( CFloat* pos ) { m_fWaterCPos[0] = pos[0]; m_fWaterCPos[1] = pos[1]; m_fWaterCPos[2] = pos[2]; }

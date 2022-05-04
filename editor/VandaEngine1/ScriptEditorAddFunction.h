@@ -252,6 +252,9 @@ private:
 	CChar GeneratePrefabInstance[MAX_URI_SIZE];
 	CChar DeletePrefabInstance[MAX_URI_SIZE];
 
+	CChar AttachPrefabInstanceToWater[MAX_URI_SIZE];
+	CChar DetachPrefabInstanceFromWater[MAX_URI_SIZE];
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

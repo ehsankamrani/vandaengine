@@ -670,6 +670,7 @@
     <Image Include="Assets\Icon\Default\Script Utility\GUIText.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\light.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\trigger.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\water.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_disable.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_down.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_focus.bmp" />
