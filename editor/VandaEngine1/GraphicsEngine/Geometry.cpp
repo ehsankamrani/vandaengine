@@ -622,6 +622,21 @@ CVoid CPolyGroup::SetupMaterialForDrawFromGameEngine(CGeometryColor color)
 
 CVoid CPolyGroup::Draw(CNode *parentNode, CInstance * instance, CGeometryColor color, CBool hasDiffuse )
 {
+	CFloat transparency = m_fTransparency; //default value is the transparency of polygroup
+
+	if (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab && g_currentInstancePrefab->IsMaterialEnabled())
+	{
+		transparency = g_currentInstancePrefab->GetTransparency();
+	}
+
+	if (g_multipleView->m_checkBlending)
+	{
+		if (transparency < 1.0f && !g_multipleView->m_renderBlending)
+			return;
+		else if (transparency >= 1.0f && g_multipleView->m_renderBlending)
+			return;
+	}
+
 	if (m_setMatFromCollada)
 	{
 		/*cfxMaterial* currentMaterial = */SetupMaterialForDrawFromCOLLADA(parentNode, instance, color, hasDiffuse);
@@ -630,13 +645,6 @@ CVoid CPolyGroup::Draw(CNode *parentNode, CInstance * instance, CGeometryColor c
 	else
 	{
 		SetupMaterialForDrawFromGameEngine(color);
-	}
-
-	CFloat transparency = m_fTransparency; //default value is the transparency of polygroup
-
-	if (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab && g_currentInstancePrefab->IsMaterialEnabled())
-	{
-		transparency = g_currentInstancePrefab->GetTransparency();
 	}
 
 	if (transparency < 1.0f)
@@ -1722,6 +1730,85 @@ CVoid CGeometry::DrawSkinnedSelectionMode(CNode *parentNode, CInstance * instanc
 
 CVoid CGeometry::Draw(CNode *parentNode, CInstance * instance)
 {
+	if (g_multipleView->m_pushTransparentGeometry)
+	{
+		CInt numTransparentPolys = 0;
+		for (CUInt i = 0; i < m_groups.size(); i++)
+		{
+			CFloat transparency = m_groups[i]->m_fTransparency;
+
+			if (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab && g_currentInstancePrefab->IsMaterialEnabled())
+			{
+				transparency = g_currentInstancePrefab->GetTransparency();
+			}
+
+			if (transparency < 1.0f)
+			{
+				numTransparentPolys++;
+			}
+		}
+		if (numTransparentPolys > 0) //push prefab instance and geometry
+		{
+			CTransparentGeometry transparent_geometry;
+
+			if (g_editorMode == eMODE_VSCENE)
+			{
+				if (g_currentInstancePrefab)
+				{
+					transparent_geometry.m_instancePrefab = g_currentInstancePrefab;
+					transparent_geometry.m_scene = g_render.GetScene();
+					transparent_geometry.m_instanceGeometry = m_currentInstanceGeometry;
+					g_multipleView->AddTransparentGeometry(transparent_geometry);
+				}
+			}
+			else if (g_editorMode == eMODE_PREFAB)
+			{
+				if (g_render.GetScene())
+				{
+					transparent_geometry.m_scene = g_render.GetScene();
+					transparent_geometry.m_instanceGeometry = m_currentInstanceGeometry;
+					g_multipleView->AddTransparentGeometry(transparent_geometry);
+				}
+			}
+		}
+
+		if (numTransparentPolys == m_groups.size()) //this geometry is transparent
+		{
+			if (m_skinData && m_updateSkin)
+			{
+				if (m_updateSkin)
+				{
+					// copy the skinned matrices from the joint nodes 
+					m_skinData->UpdateCombinedMats();
+
+					// use the gemetry normals 
+					if (!m_skinData->GetBindNormals() && !m_bindNormals)
+					{
+						m_bindNormals = CNewData(CVec3f, m_vertexcount);
+						memcpy(m_bindNormals, m_normals, m_vertexcount * sizeof(CVec3f));
+						m_bindPoints = CNewData(CVec3f, m_vertexcount);
+						memcpy(m_bindPoints, m_points, m_vertexcount * sizeof(CVec3f));
+					}
+
+					m_skinMatrixStack = m_skinData->m_skinningMats;
+					m_skinMatrixStack3x4 = m_skinData->m_skinningMats3x4;
+					SetSkins(m_skinData->GetJointCount());
+
+					if (g_render.UsingVBOs() && g_options.m_enableVBO)
+					{
+						//g_render.CopyVBOData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints],m_points, m_vertexcount*3*sizeof(CFloat));
+						//g_render.CopyVBOData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoNormals],m_normals, m_vertexcount*3*sizeof(CFloat));
+						//glBufferSubData is faster than glBufferData, since it doesn't need freeing and reallocating the memory
+						g_render.CopyVBOSubData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoPoints], m_points, 0, m_vertexcount * 3 * sizeof(CFloat));
+						g_render.CopyVBOSubData(GL_ARRAY_BUFFER, m_VBOIDs[eGeoNormals], m_normals, 0, m_vertexcount * 3 * sizeof(CFloat));
+					}
+
+					m_updateSkin = CFalse;
+				}
+			}
+			return;
+		}
+	}
 
 	SetRender();
   	if ( m_skinData )
@@ -2279,3 +2366,14 @@ CGeometry::~CGeometry()
 	}
 }
 
+CVoid CInstanceGeometry::CalculateDistance()
+{
+	if (g_camera)
+	{
+		CFloat x = g_camera->m_perspectiveCameraPos.x - m_center.x;
+		CFloat y = g_camera->m_perspectiveCameraPos.y - m_center.y;
+		CFloat z = g_camera->m_perspectiveCameraPos.z - m_center.z;
+
+		m_distanceFromCamera = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+	}
+}

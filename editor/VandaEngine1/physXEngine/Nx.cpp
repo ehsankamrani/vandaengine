@@ -136,13 +136,13 @@ CVoid CNovodex::runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveD
 {
 	if( gPhysXscene )
 	{
-		gPhysXscene->simulate(elapsedTime);
-		gPhysXscene->flushStream();
-		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
-
 		// Update the box character's position according to by testing its
 		// axis-aligned bounding box against a copy of the current scene.
 		UpdateCharacter(forceDirection, forceSpeed, elapsedTime, moveDirection);
+
+		gPhysXscene->simulate(elapsedTime);
+		gPhysXscene->flushStream();
+		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
 		// Update the box character's position according to results
 		// gathered from the updated scene
@@ -183,7 +183,7 @@ CVoid CNovodex::UpdateCharacter( NxVec3 forceDirection, CFloat forceSpeed, CFloa
 	gPhysXscene->getGravity(gravity);
 	NxVec3 disp = gravity;
 	CFloat vdisp = 0.0f;
-	gCharacterPos = GetFilteredCharacterPos();
+	gCharacterPos = GetRawCharacterPos();
     
 	NxVec3 horizontalDisp;
 	CFloat verticalDisp = 0.0f;
@@ -273,7 +273,7 @@ NxF32 CNovodex::cameraHit()
 	{
 		NxShape* characterShape = GetCharacterActor()->getShapes()[0];
 
-		NxExtendedVec3 cpos = GetFilteredCharacterPos();	// First character = player
+		NxExtendedVec3 cpos = GetRawCharacterPos();	// First character = player
 
 		NxRay worldRay;
 		worldRay.orig.x	= (NxReal)cpos.x;
@@ -315,7 +315,7 @@ CVoid CNovodex::GetCameraAndCharacterPositions( const CFloat pitch, const CFloat
     dist = cameraHit();
 	if(dist>gDesiredDistance)	dist = gDesiredDistance;
 
-	NxExtendedVec3 cpos = GetFilteredCharacterPos();
+	NxExtendedVec3 cpos = GetRawCharacterPos();
 
 	NxVec3 cameraGoal((NxReal)cpos.x, (NxReal)cpos.y, (NxReal)cpos.z);
 
@@ -1241,7 +1241,7 @@ NxU32 CNovodex::MoveCharacter( const NxVec3& dispVector, NxF32 elapsedTime, NxU3
 	{
 		d.y+=heightDelta;
 	}
-    gControllers->move(d, collisionGroups, 0.001f, collisionFlags, sharpness);
+	gControllers->move(d, collisionGroups, 0.000001f, collisionFlags, sharpness);
 
     return collisionFlags;
 }

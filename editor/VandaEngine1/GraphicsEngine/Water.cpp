@@ -7,7 +7,7 @@
 #include "render.h"
 #include "scene.h"
 #include "../VandaEngine1Dlg.h"
-
+#include "PerspectiveWindow.h"
 
 const float kNormalMapScale = 0.25f;
 
@@ -196,9 +196,24 @@ void CWater::CreateReflectionTexture(int textureSize)
 				g_multipleView->SetDefaultLight();
 
 			g_renderForWater = CTrue;
+
+			g_multipleView->m_checkBlending = CTrue;
+			g_multipleView->m_renderBlending = CFalse;
+			g_multipleView->m_pushTransparentGeometry = CTrue;
+
 			g_multipleView->Render3DModelsForWater(this, CFalse, NULL);
 			g_multipleView->Render3DAnimatedModelsForWater(this, CFalse);
 			g_multipleView->Render3DModelsControlledByPhysXForWater(this, CFalse);
+
+			g_multipleView->m_renderBlending = CTrue;
+			g_multipleView->m_pushTransparentGeometry = CFalse;
+
+			g_multipleView->CalculateAndSort3DTransparentModelDistances();
+			g_multipleView->Render3DTransparentModelsForWater(this);
+
+			g_multipleView->m_checkBlending = CFalse;
+			g_multipleView->RemoveTransparentGeometries();
+
 			g_renderForWater = CFalse;
 		}
 
@@ -271,7 +286,6 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 {
 	if (g_multipleView->IsPlayGameMode())
 	{
-
 		CInt m_numSamples;
 		CInt width, height;
 		if (g_menu.m_justPerspective)
@@ -462,7 +476,6 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 		glEnable( GL_CULL_FACE );
 		glDisable(GL_TEXTURE_2D);
 	}
-
 }
 
 CVoid CWater::SetDuDvMap( CString fileName, CBool updateSharedImages ) { 

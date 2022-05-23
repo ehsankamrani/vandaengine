@@ -335,6 +335,7 @@ GLvoid COpenGLUtility::DrawCWBoxWithQuads( CVector &min, CVector &max )
 
 GLvoid COpenGLUtility::DrawCWBoxWithLines( CVector &min, CVector &max, CVector color )
 {
+	glUseProgram(0);
 	glPushAttrib( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT );
     glDisable( GL_BLEND );
 	glDisable( GL_FOG );

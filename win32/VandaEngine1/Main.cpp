@@ -6421,9 +6421,9 @@ CInt GetCharacterControllerPosition(lua_State* L)
 	//if (g_testScript)
 	//	return 0;
 
-	CFloat x = g_nx->GetFilteredCharacterPos().x;
-	CFloat y = g_nx->GetFilteredCharacterPos().y;
-	CFloat z = g_nx->GetFilteredCharacterPos().z;
+	CFloat x = g_nx->GetRawCharacterPos().x;
+	CFloat y = g_nx->GetRawCharacterPos().y;
+	CFloat z = g_nx->GetRawCharacterPos().z;
 
 	lua_pushnumber(L, x);
 	lua_pushnumber(L, y);
@@ -10245,6 +10245,7 @@ CMain::CMain()
 	m_forceDirection.y = 0.0;
 	m_forceDirection.z = 0.0;
 	m_forceDecreaseValue = 0.0f;
+	m_pushTransparentGeometry = CFalse;
 }
 
 CMain::~CMain()
@@ -10801,8 +10802,6 @@ CBool CMain::Render()
 		return CTrue;
 	g_numVerts = 0; //debug info
 
-	if (GetExitGame()) return CFalse; //exit game 
-
 	if (!g_currentVSceneProperties.m_isPause)
 	{
 		elapsedTime = g_timer->GetElapsedSeconds();
@@ -10821,13 +10820,25 @@ CBool CMain::Render()
 		//}
 		//else
 		//{
-			gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
+		gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
 		//}
 
 		g_elapsedTime = elapsedTime;
 		m_totalElapsedTime += elapsedTime;
+	}
 
-		//use multithreading for animations
+	if (!m_loadScene)
+		if (!ProcessInputs())
+			return CFalse;
+
+	UpdateCharacterTransformations();
+	UpdatePrefabInstanceTransformations();
+
+	if (GetExitGame()) return CFalse; //exit game 
+
+	if (!g_currentVSceneProperties.m_isPause)
+	{
+		//use multithreading for animationsr
 		/*std::thread t1(&CMain::*/UpdateAnimations();/*, this, false)*/;
 		//t1.join();
 		UpdateDynamicPhysicsObjects();
@@ -11129,9 +11140,11 @@ CBool CMain::Render()
 
 	}
 
-	if( !m_loadScene )
-		if(!ProcessInputs() )
-			return CFalse;
+	//render sky
+	if (g_databaseVariables.m_insertAndShowSky)
+	{
+		g_skyDome->RenderDome();
+	}
 
 	//render waters here
 	CVec3f cameraPos( g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z );
@@ -11258,10 +11271,13 @@ CBool CMain::Render()
 
 	ManageLODs();
 
-	Draw3DObjects();
-
 	if (g_databaseVariables.m_insertAndShowTerrain)
 		RenderTerrain();
+
+	Draw3DObjects();
+
+	g_currentInstancePrefab = NULL;
+
 
 	if (g_databaseVariables.m_showBoundingBox)
 	{
@@ -11303,6 +11319,39 @@ CBool CMain::Render()
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		g_fogBlurPass = CTrue;
 
+		//render water
+		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+		{
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				CVec3f waterPoints[4];
+				waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x; waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y; waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
+				waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x; waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y; waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
+				waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x; waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y; waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
+				waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x; waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y; waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
+
+				if (g_camera->m_cameraManager->IsBoxInFrustum(waterPoints, 4))
+				{
+					glUseProgram(g_render.m_waterFogBlurProgram);
+					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalDistance"), m_dof.m_focalDistance);
+					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalRange"), m_dof.m_focalRange);
+					if (g_fogProperties.m_enable && useFog)
+						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CTrue);
+					else
+						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CFalse);
+					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
+					glUseProgram(0);
+				}
+			}
+		}
+
+		if (g_databaseVariables.m_insertAndShowTerrain)
+			RenderTerrain(CFalse);
+
+		m_checkBlending = CFalse;
+		m_renderBlending = CFalse;
+		m_pushTransparentGeometry = CFalse;
+
 		//g_octree->Render();
 		g_main->RenderBakedOctree3DModels();
 		if (g_databaseVariables.m_showBoundingBox)
@@ -11313,34 +11362,11 @@ CBool CMain::Render()
 		Render3DAnimatedModels( CTrue);
 		Render3DModelsControlledByPhysX();
 		RenderCharacter(CFalse);
-		if (g_databaseVariables.m_insertAndShowTerrain)
-			RenderTerrain();
 
-		//render water
-		if ( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
-		{
- 			for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
-			{
-				CVec3f waterPoints[4];
-				waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x;waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y;waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
-				waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x;waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y;waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
-				waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x;waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y;waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
-				waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x;waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y;waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
+		m_renderBlending = CTrue;
 
-				if( g_camera->m_cameraManager->IsBoxInFrustum( waterPoints, 4 ) )
-				{
-					glUseProgram( g_render.m_waterFogBlurProgram );
-					glUniform1f(glGetUniformLocation( g_render.m_waterFogBlurProgram , "focalDistance"), m_dof.m_focalDistance);
-					glUniform1f(glGetUniformLocation( g_render.m_waterFogBlurProgram , "focalRange"), m_dof.m_focalRange);
-					if( g_fogProperties.m_enable && useFog )
-						glUniform1i(glGetUniformLocation( g_render.m_waterFogBlurProgram , "enableFog"), CTrue );
-					else
-						glUniform1i(glGetUniformLocation( g_render.m_waterFogBlurProgram , "enableFog"), CFalse );
-					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime );
-					glUseProgram( 0 );
-				}
-			}
-		}
+		Render3DTransparentModels();
+
 		g_fogBlurPass = CFalse;
 		BlendFogWithScene();
 	}
@@ -11383,11 +11409,6 @@ CBool CMain::Render()
 		{
 			g_render.GetScene()->m_updateAnimation = CTrue;
 		}
-	}
-
-	if( g_databaseVariables.m_insertAndShowSky )
-	{
-		g_skyDome->RenderDome();
 	}
 
 	if( g_physXProperties.m_bDebugMode )
@@ -11588,6 +11609,8 @@ CVoid CMain::ResetData()
 			}
 		}
 	}
+
+	RemoveTransparentGeometries();
 	g_currentInstancePrefab = NULL;
 }
 
@@ -16025,6 +16048,113 @@ CVoid CMain::Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneM
 
 }
 
+CVoid CMain::Render3DTransparentModels()
+{
+	for (CUInt i = 0; i < m_transparentGeometries.size(); i++)
+	{
+		g_currentInstancePrefab = m_transparentGeometries[i].m_instancePrefab;
+		CScene* scene = m_transparentGeometries[i].m_scene;
+		g_render.SetScene(scene);
+		g_currentInstancePrefab->SetLight();
+
+		CGeometry* geometry = m_transparentGeometries[i].m_instanceGeometry->m_abstractGeometry;
+
+		if (m_transparentGeometries[i].m_instanceGeometry->m_hasPhysX && m_transparentGeometries[i].m_instanceGeometry->m_physXDensity > 0.0f) //render with physics
+		{
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+
+			g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrixControlledByPhysX);
+
+			geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
+			geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+
+			g_render.PopMatrix();
+		}
+		else
+		{
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+
+			g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrix);
+			geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
+			geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+
+			g_render.PopMatrix();
+		}
+	}
+}
+
+CVoid CMain::Render3DTransparentModelsForWater(CWater* water)
+{
+	for (CUInt i = 0; i < m_transparentGeometries.size(); i++)
+	{
+		CBool foundTarget = CFalse;
+		CInt index = -1;
+		for (CUInt j = 0; j < water->GetNumPrefabInstances(); j++)
+		{
+			g_currentInstancePrefab = water->GetPrefabInstance(j);
+
+			if (g_currentInstancePrefab == m_transparentGeometries[i].m_instancePrefab)
+			{
+				foundTarget = CTrue;
+				index = i;
+
+				CScene* scene = NULL;
+
+				CPrefab* prefab = water->GetPrefabInstance(j)->GetPrefab();
+				for (CUInt k = 0; k < 3; k++)
+				{
+					if (prefab && prefab->GetHasLod(k) && water->GetPrefabInstance(j)->GetSceneVisible(k))
+					{
+						scene = water->GetPrefabInstance(j)->GetScene(k);
+						break;
+					}
+				}
+				if (!scene) continue;
+				g_render.SetScene(scene);
+
+				break;
+			}
+		}
+		if (!foundTarget)
+			continue;
+
+		g_currentInstancePrefab->SetLight();
+
+		for (CUInt j = 0; j < g_render.GetScene()->m_instanceGeometries.size(); j++)
+		{
+			CGeometry* geometry = g_render.GetScene()->m_instanceGeometries[j]->m_abstractGeometry;
+
+			if (g_render.GetScene()->m_instanceGeometries[j] == m_transparentGeometries[index].m_instanceGeometry)
+			{
+				if (g_render.GetScene()->m_instanceGeometries[j]->m_hasPhysX && g_render.GetScene()->m_instanceGeometries[j]->m_physXDensity > 0.0f) //render with physics
+				{
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+
+					g_render.MultMatrix(g_render.GetScene()->m_instanceGeometries[j]->m_localToWorldMatrixControlledByPhysX);
+
+					geometry->Draw(NULL, g_render.GetScene()->m_instanceGeometries[j]);
+
+					g_render.PopMatrix();
+				}
+				else
+				{
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+
+					g_render.MultMatrix(g_render.GetScene()->m_instanceGeometries[j]->m_localToWorldMatrix);
+
+					geometry->Draw(NULL, g_render.GetScene()->m_instanceGeometries[j]);
+
+					g_render.PopMatrix();
+				}
+			}
+		}
+	}
+}
+
 CVoid CMain::RenderCharacter(CBool sceneManager)
 {
 	if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON) return;
@@ -16034,66 +16164,11 @@ CVoid CMain::RenderCharacter(CBool sceneManager)
 	//3D Model data
 	if (!g_mainCharacter)
 		return;
-	g_nx->gCharacterPos = g_nx->GetFilteredCharacterPos();
 
 	g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
 
 	if (!g_currentInstancePrefab->GetVisible()) return;
 	g_currentInstancePrefab->SetLight();
-
-	static CFloat lerpFactor = 0.0f;
-
-	CFloat y = (CFloat)g_nx->gCharacterPos.y - (g_physXProperties.m_fCapsuleHeight * 0.5f) - g_physXProperties.m_fCapsuleRadius - g_physXProperties.m_fCharacterSkinWidth;
-
-	CVec3f trans(g_nx->gCharacterPos.x, y, g_nx->gCharacterPos.z);
-
-	g_mainCharacter->GetInstancePrefab()->SetTranslate(trans);
-	if (g_nx->m_pushCharacter)
-	{
-
-		CFloat y = NxMath::radToDeg(atan2(g_nx->m_horizontalDisp.x, g_nx->m_horizontalDisp.z));
-		if (y < 0.0f)
-			y = 360.0f + y;
-		if (y == 360.0f)
-			y = 0.0f;
-		if (g_nx->m_previousMoveDirection != g_nx->m_currentMoveDirection)
-		{
-			m_characterRotationTransition = CTrue;
-			lerpFactor = 0.0f;
-		}
-		else if (!m_characterRotationTransition)
-		{
-			g_mainCharacter->SetCurrentRotation(y);
-		}
-		if (m_characterRotationTransition)
-		{
-			//find the shortest path to rotate
-			if (g_mainCharacter->GetCurrentRotation() > y)
-			{
-				if (g_mainCharacter->GetCurrentRotation() - y > 360 + y - g_mainCharacter->GetCurrentRotation())
-					y = y + 360.0f;
-			}
-			else if (g_mainCharacter->GetCurrentRotation() < y)
-			{
-				if (y - g_mainCharacter->GetCurrentRotation() > 360 + g_mainCharacter->GetCurrentRotation() - y)
-					g_mainCharacter->SetCurrentRotation(g_mainCharacter->GetCurrentRotation() + 360.0f);
-			}
-
-			g_mainCharacter->SetCurrentRotation(Lerp(g_mainCharacter->GetCurrentRotation(), y, lerpFactor));
-			lerpFactor += 2.0f * elapsedTime;
-			//if it's equal to y, stop the transition
-			if (fabs(g_mainCharacter->GetCurrentRotation() - y) <= elapsedTime)
-			{
-				m_characterRotationTransition = CFalse;
-				lerpFactor = 0.0f;
-			}
-		}
-
-		CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
-
-		m_previousCharacterRotation = y;
-		g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
-	}
 
 	//if (m_bQuery)
 	//{
@@ -16163,6 +16238,7 @@ CVoid CMain::RenderCharacter(CBool sceneManager)
 		}
 
 	}
+	
 }
 
 
@@ -16326,8 +16402,15 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 	}
 }
 
-CVoid CMain::RenderTerrain()
+CVoid CMain::RenderTerrain(CBool useFBO)
 {
+	if (useFBO && !g_useOldRenderingStyle && g_options.m_enableFBO && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+	{
+		if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && /*g_options.m_numSamples*/g_window.m_numSamples && g_options.m_enableFBO)
+			g_render.BindForWriting(m_mFboID);
+		else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
+			g_render.BindForWriting(m_fboID);
+	}
 	if (!g_terrain) return;
 	if (g_engineLights.size() == 0)
 		SetDefaultLight();
@@ -17529,10 +17612,22 @@ CVoid CMain::Draw3DObjects()
 		if (g_engineLights.size() == 0)
 			SetDefaultLight();
 
-		g_main->RenderBakedOctree3DModels();
-		g_main->Render3DAnimatedModels(CTrue);
-		g_main->Render3DModelsControlledByPhysX();
-		g_main->RenderCharacter(CFalse);
+		m_checkBlending = CTrue;
+		m_renderBlending = CFalse;
+		m_pushTransparentGeometry = CTrue;
+
+		RenderBakedOctree3DModels();
+		Render3DAnimatedModels(CTrue);
+		Render3DModelsControlledByPhysX();
+		RenderCharacter(CFalse);
+
+		m_renderBlending = CTrue;
+		m_pushTransparentGeometry = CFalse;
+
+		CalculateAndSort3DTransparentModelDistances();
+		Render3DTransparentModels();
+
+		m_checkBlending = CFalse;
 
 		++g_numLights;
 		//g_octree->ResetOctreeGeoCount();
@@ -17878,4 +17973,137 @@ CFloat CMain::GetCursorY()
 {
 	CFloat posY = CFloat(g_height - g_main->m_mousePosition.y);
 	return posY;
+}
+
+CVoid CMain::UpdateCharacterTransformations()
+{
+	if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON) return;
+
+	if (!g_databaseVariables.m_insertCharacter)
+		return;
+
+	if (!g_mainCharacter)
+		return;
+
+	static CFloat lerpFactor = 0.0f;
+
+	g_nx->gCharacterPos = g_nx->GetRawCharacterPos();
+	CFloat y = (CFloat)g_nx->gCharacterPos.y - (g_physXProperties.m_fCapsuleHeight * 0.5f) - g_physXProperties.m_fCapsuleRadius - g_physXProperties.m_fCharacterSkinWidth;
+	CVec3f translate(g_nx->gCharacterPos.x, y, g_nx->gCharacterPos.z);
+
+	g_mainCharacter->GetInstancePrefab()->SetTranslate(translate);
+	if (g_nx->m_pushCharacter)
+	{
+		CFloat y = NxMath::radToDeg(atan2(g_nx->m_horizontalDisp.x, g_nx->m_horizontalDisp.z));
+		if (y < 0.0f)
+			y = 360.0f + y;
+		if (y == 360.0f)
+			y = 0.0f;
+		if (g_nx->m_previousMoveDirection != g_nx->m_currentMoveDirection)
+		{
+			m_characterRotationTransition = CTrue;
+			lerpFactor = 0.0f;
+		}
+		else if (!m_characterRotationTransition)
+		{
+			g_mainCharacter->SetCurrentRotation(y);
+		}
+		if (m_characterRotationTransition)
+		{
+			//find the shortest path to rotate
+			if (g_mainCharacter->GetCurrentRotation() > y)
+			{
+				if (g_mainCharacter->GetCurrentRotation() - y > 360 + y - g_mainCharacter->GetCurrentRotation())
+					y = y + 360.0f;
+			}
+			else if (g_mainCharacter->GetCurrentRotation() < y)
+			{
+				if (y - g_mainCharacter->GetCurrentRotation() > 360 + g_mainCharacter->GetCurrentRotation() - y)
+					g_mainCharacter->SetCurrentRotation(g_mainCharacter->GetCurrentRotation() + 360.0f);
+			}
+
+			g_mainCharacter->SetCurrentRotation(Lerp(g_mainCharacter->GetCurrentRotation(), y, lerpFactor));
+			lerpFactor += 2.0 * elapsedTime; //total: 0.5
+			//if it's equal to y, stop the transition
+			if (fabs(g_mainCharacter->GetCurrentRotation() - y) <= elapsedTime)
+			{
+				m_characterRotationTransition = CFalse;
+				lerpFactor = 0.0f;
+			}
+		}
+
+		CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
+
+		m_previousCharacterRotation = y;
+		g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
+	}
+
+	CVec4f trans(g_mainCharacter->GetInstancePrefab()->GetTranslate().x, g_mainCharacter->GetInstancePrefab()->GetTranslate().y, g_mainCharacter->GetInstancePrefab()->GetTranslate().z, 1.0f);
+	CVec4f scale(g_mainCharacter->GetInstancePrefab()->GetScale().x, g_mainCharacter->GetInstancePrefab()->GetScale().y, g_mainCharacter->GetInstancePrefab()->GetScale().z, 1.0f);
+	CVec4f rotx(1.0f, 0.0f, 0.0f, g_mainCharacter->GetInstancePrefab()->GetRotate().x);
+	CVec4f roty(0.0f, 1.0f, 0.0f, g_mainCharacter->GetInstancePrefab()->GetRotate().y);
+	CVec4f rotz(0.0f, 0.0f, 1.0f, g_mainCharacter->GetInstancePrefab()->GetRotate().z);
+	CMatrixLoadIdentity((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix());
+	CMatrix4x4Translate((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), trans);
+	CMatrix4x4RotateAngleAxis((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), rotx);
+	CMatrix4x4RotateAngleAxis((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), roty);
+	CMatrix4x4RotateAngleAxis((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), rotz);
+	CMatrix4x4Scale((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), scale);
+}
+
+CVoid CMain::UpdatePrefabInstanceTransformations()
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CInstancePrefab* currentInstance = g_instancePrefab[i];
+
+		if (Cmp(currentInstance->GetName(), "VANDA_MAIN_CHARACTER")) continue;
+
+		CVec4f trans(currentInstance->GetTranslate().x, currentInstance->GetTranslate().y, currentInstance->GetTranslate().z, 1.0f);
+		CVec4f scale(currentInstance->GetScale().x, currentInstance->GetScale().y, currentInstance->GetScale().z, 1.0f);
+		CVec4f rotx(1.0f, 0.0f, 0.0f, currentInstance->GetRotate().x);
+		CVec4f roty(0.0f, 1.0f, 0.0f, currentInstance->GetRotate().y);
+		CVec4f rotz(0.0f, 0.0f, 1.0f, currentInstance->GetRotate().z);
+		CMatrixLoadIdentity((CFloat*)currentInstance->GetInstanceMatrix());
+		CMatrix4x4Translate((CFloat*)currentInstance->GetInstanceMatrix(), trans);
+		CMatrix4x4RotateAngleAxis((CFloat*)currentInstance->GetInstanceMatrix(), rotx);
+		CMatrix4x4RotateAngleAxis((CFloat*)currentInstance->GetInstanceMatrix(), roty);
+		CMatrix4x4RotateAngleAxis((CFloat*)currentInstance->GetInstanceMatrix(), rotz);
+		CMatrix4x4Scale((CFloat*)currentInstance->GetInstanceMatrix(), scale);
+
+		for (CUInt i = 0; i < 4; i++)
+		{
+			CBool condition = CFalse;
+			if (i < 3)
+			{
+				if (currentInstance->GetPrefab()->GetHasLod(i))
+					condition = CTrue;
+			}
+			else
+			{
+				if (currentInstance->GetHasCollider())
+					condition = CTrue;
+			}
+			if (condition)
+			{
+				CScene* scene = currentInstance->GetScene(i);
+				if (scene && scene->m_isTransformable)
+				{
+					if (scene->m_controllers.size() == 0)
+					{
+						scene->m_sceneRoot->SetLocalMatrix(currentInstance->GetInstanceMatrix());
+					}
+				}
+			}
+		}
+	}
+}
+
+CVoid CMain::CalculateAndSort3DTransparentModelDistances()
+{
+	for (CUInt i = 0; i < m_transparentGeometries.size(); i++)
+	{
+		m_transparentGeometries[i].m_instanceGeometry->CalculateDistance();
+	}
+	std::sort(m_transparentGeometries.begin(), m_transparentGeometries.end(), SortTransparentGeometry());
 }

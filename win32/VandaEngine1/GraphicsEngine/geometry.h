@@ -19,6 +19,7 @@
 #include "../common/list.h"
 #include "../VandaEngine1Win32.h"
 #include "../scenemanagerEngine/octree.h"
+#include "Prefab.h"
 class CMaterial;
 class CGeometry;
 class CInstanceMaterial;
@@ -58,8 +59,9 @@ class CInstanceGeometry : public CInstance
 public:
 	CInstanceGeometry() : m_abstractGeometry(0) {
 		m_renderCount = 0; m_nameIndex = -1; m_hasPhysX = CFalse; Cpy(m_physXName, "\n");	m_lodAlgorithm = eLOD_NONE; m_prevLodAlgorithm = eLOD_NONE; m_physXDensity = 0.0f; m_physXPercentage = 50; m_physXCount = 0; m_firstUpdate = CTrue; m_isTrigger = CFalse; m_isInvisible = CFalse;
-	m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse;  m_hasPhysicsMaterial = CFalse;}
-	~CInstanceGeometry() { 	m_parentTree.clear(); }
+		m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse;  m_hasPhysicsMaterial = CFalse; m_isController = CFalse;
+		CMatrixLoadIdentity(m_localToWorldMatrix); 	CMatrixLoadIdentity(m_localToWorldMatrixControlledByPhysX); CMatrixLoadIdentity(m_firstLocalToWorldMatrix);	}
+	~CInstanceGeometry() { m_parentTree.clear(); }
 	//We delete CGeometry object insied CScene destructor
 	CGeometry *m_abstractGeometry;	// The abstract geometry where the original data is stored
 	std::vector<COctree*>m_parentTree;
@@ -97,6 +99,7 @@ public:
 	CPhysXAlgorithm m_prevLodAlgorithm;
 	CBool m_renderWithPhysX;
 	CNode* m_node; //instance geometry is attached to this node
+	CBool m_isController;
 	CChar* GetPhysXActorName() { return m_physXName; }
 	CFloat GetPhysXActorDensity() { return m_physXDensity; }
 	CBool GetHasPhysXActor() { return m_hasPhysX; }
@@ -112,6 +115,9 @@ public:
 	CVoid SetPhysicsSkinWidth(CFloat skinWidth) { m_physicsSkinWidth = skinWidth; }
 	CVoid SetPhysicsStaticFriction(CFloat staticFriction) { m_physicsStaticFriction = staticFriction; }
 	CVoid SetPhysicsDynamicFriction(CFloat dynamicFriction) { m_physicsDynamicFriction = dynamicFriction; }
+	CVoid SetDistanceFromCamera(CFloat distance) { m_distanceFromCamera = distance; }
+	CFloat GetDistanceFromCamera() { return m_distanceFromCamera; }
+	CVoid CalculateDistance();
 };
 
 class CInstanceController : public CInstance
@@ -671,6 +677,9 @@ public:
 
 	std::vector<CVec3f*>m_physx_points;
 	std::vector<CTriangles*> m_physx_triangles;
+	CInstanceGeometry* m_currentInstanceGeometry; 
+	std::vector<CInstanceGeometry*> m_instanceGeometries;
+	std::vector<CInstanceController*> m_instanceControllers;
 
 	//To get required shader data. I get this data inside the editor.
 	CChar m_strNormalMap[MAX_NAME_SIZE];
@@ -960,8 +969,6 @@ protected:
 	CVoid AddVertexBinding( const CChar * curName, const CChar * newName, const CChar * sematic ); 
 	inline CVoid SetVerticesReady() { m_verticesSet = CTrue; } 
 
-	CVoid Draw(CNode *parentNode, CInstance * instance);
-
 	CVoid SetRender();
 	CVoid ResetStates();
 	
@@ -986,6 +993,21 @@ public:
 			return CFalse; 
 	}
 	CVoid GetJointsForWeights( CJoint *& Joints, CInt & NumJoints );
+
+	CVoid Draw(CNode *parentNode, CInstance * instance);
 };
 
+struct CTransparentGeometry
+{
+	CInstancePrefab* m_instancePrefab;
+	CScene* m_scene;
+	CInstanceGeometry* m_instanceGeometry;
+};
 
+struct SortTransparentGeometry
+{
+	inline bool operator() (const CTransparentGeometry& struct1, const CTransparentGeometry& struct2)
+	{
+		return (struct1.m_instanceGeometry->GetDistanceFromCamera() > struct2.m_instanceGeometry->GetDistanceFromCamera());
+	}
+};

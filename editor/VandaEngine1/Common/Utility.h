@@ -2,7 +2,7 @@
 //This file is licensed and distributed under MIT license
 
 #pragma once
-
+#include "Defines.h"
 #include "../graphicsEngine/OpenGL.h"
 #include <io.h> 
 #include <sys/types.h>
@@ -14,7 +14,7 @@
 #include <boost/serialization/string.hpp>
 #include <iostream>
 #include <sstream>
-#include "Defines.h"
+
 
 #define EPSILON 2.5e-8 
 #define INFINITE_DISTANCE 1000000

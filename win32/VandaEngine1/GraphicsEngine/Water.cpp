@@ -186,9 +186,24 @@ void CWater::CreateReflectionTexture(int textureSize)
 				g_main->SetDefaultLight();
 
 			g_renderForWater = CTrue;
+
+			g_main->m_checkBlending = CTrue;
+			g_main->m_renderBlending = CFalse;
+			g_main->m_pushTransparentGeometry = CTrue;
+
 			g_main->Render3DModelsForWater(this, CFalse, NULL);
 			g_main->Render3DAnimatedModelsForWater(this, CFalse);
 			g_main->Render3DModelsControlledByPhysXForWater(this, CFalse);
+
+			g_main->m_renderBlending = CTrue;
+			g_main->m_pushTransparentGeometry = CFalse;
+
+			g_main->CalculateAndSort3DTransparentModelDistances();
+			g_main->Render3DTransparentModelsForWater(this);
+
+			g_main->m_checkBlending = CFalse;
+			g_main->RemoveTransparentGeometries();
+
 			g_renderForWater = CFalse;
 		}
 	}

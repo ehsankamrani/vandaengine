@@ -9,6 +9,7 @@
 #include "GraphicsEngine/image.h"
 #include "GraphicsEngine/shadowMap.h"
 #include "GraphicsEngine/simplefont.h"
+#include "GraphicsEngine/geometry.h"
 #include "inputEngine/input.h"
 #include "timerEngine/timer.h"
 #include "physXEngine/nx.h"

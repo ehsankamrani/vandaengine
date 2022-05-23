@@ -81,6 +81,8 @@ CVoid CSkyDome::Destroy()
 
 CVoid CSkyDome::RenderDome()
 {
+	glUseProgram(0);
+
 	glMatrixMode(GL_MODELVIEW);
 	g_render.PushMatrix();
 

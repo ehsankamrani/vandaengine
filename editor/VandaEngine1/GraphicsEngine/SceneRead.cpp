@@ -971,6 +971,7 @@ CNode * CScene::ReadNode( domNodeRef node, CNode * parentNode )
 
 		tempNode->m_instanceControllers.push_back(instanceController);
 		instanceController->m_instanceGeometry->m_node = tempNode;
+		instanceController->m_instanceGeometry->m_isController = CTrue;
 		m_instanceGeometries.push_back( instanceController->m_instanceGeometry );
 		instanceController->m_instanceGeometry->m_abstractGeometry->m_instanceControllers.push_back(instanceController);
 		PrintInfo( "\nController added successfully", COLOR_WHITE );

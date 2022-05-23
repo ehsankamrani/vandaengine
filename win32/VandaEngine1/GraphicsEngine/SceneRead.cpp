@@ -893,6 +893,7 @@ CNode * CScene::ReadNode( domNodeRef node, CNode * parentNode )
 		tempNode->m_instanceGeometries.push_back(instanceGeometry);
 		instanceGeometry->m_node = tempNode;
 		m_instanceGeometries.push_back( instanceGeometry );
+		instanceGeometry->m_abstractGeometry->m_instanceGeometries.push_back(instanceGeometry);
 		//PrintInfo( "Geometry added successfully\n", COLOR_WHITE );
 	}
 
@@ -907,7 +908,9 @@ CNode * CScene::ReadNode( domNodeRef node, CNode * parentNode )
 		instanceController->m_parent = tempNode;
 		tempNode->m_instanceControllers.push_back(instanceController);
 		instanceController->m_instanceGeometry->m_node = tempNode;
+		instanceController->m_instanceGeometry->m_isController = CTrue;
 		m_instanceGeometries.push_back( instanceController->m_instanceGeometry );
+		instanceController->m_instanceGeometry->m_abstractGeometry->m_instanceControllers.push_back(instanceController);
 		//PrintInfo( "Controller added successfully\n", COLOR_WHITE );
 	}
 

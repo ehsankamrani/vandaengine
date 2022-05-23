@@ -2,7 +2,6 @@
 //This file is licensed and distributed under MIT license
 
 #pragma once
-#include "VandaEngine1Win32.h"
 #include "inputEngine/input.h"
 #include "timerEngine/timer.h"
 #include "graphicsEngine/render.h"
@@ -26,6 +25,7 @@
 #include "AudioEngine/StaticSound.h"
 #include "AudioEngine/AmbientSound.h"
 #include "Icon.h"
+#include "Defines.h"
 
 struct CPhysXVariables
 {
@@ -80,12 +80,14 @@ public:
 	float far_bound[MAX_SPLITS];
 	CVec3f free_dae_cam_pos, free_dae_cam_at;
 
-	CVoid RenderTerrain();
+	CVoid RenderTerrain(CBool useFBO = CTrue);
 	CVoid RenderQueries(CBool init = CFalse);
 	CVoid RenderBakedOctree3DModels();
 	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue);
 	CVoid Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* parentTreeNameOfGeometries);
 	CVoid Render3DAnimatedModels(CBool sceneManager);
+	CVoid Render3DTransparentModels();
+	CVoid Render3DTransparentModelsForWater(CWater* water);
 	CVoid RenderCharacter(CBool sceneManager);
 	CVoid Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager);
 	CVoid Render3DModelsControlledByPhysX(CBool sceneManager = CTrue);
@@ -181,6 +183,17 @@ public:
 	NxVec3 m_forceDirection;
 	CFloat m_forceDecreaseValue;
 
+	CBool m_renderBlending;
+	CBool m_checkBlending;
+	CBool m_pushTransparentGeometry;
+
+	CVoid AddTransparentGeometry(CTransparentGeometry geometry) { m_transparentGeometries.push_back(geometry); }
+	CVoid RemoveTransparentGeometries()
+	{
+		m_transparentGeometries.clear();
+	}
+	std::vector<CTransparentGeometry> m_transparentGeometries;
+
 private:
 	CBool ProcessInputs();
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
@@ -203,6 +216,7 @@ private:
 	CFloat m_fSelectionDistance;
 	CBool m_bSelectionDistance;
 	CChar m_selectedPrefabInstanceName[MAX_NAME_SIZE];
+	std::vector<CTransparentGeometry> m_sortedTransparentGoemetries;
 
 	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE], m_selectedPrefabName;//selection
 
@@ -225,7 +239,9 @@ public:
 	CChar* SelectPrefabInstances(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
 	CVoid InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos, CDouble selectionWidth, CDouble selectionHeight);
 	CVoid FinishPrefabSelection();
-
+	CVoid UpdateCharacterTransformations();
+	CVoid UpdatePrefabInstanceTransformations();
 	CFloat GetCursorX();
 	CFloat GetCursorY();
+	CVoid CalculateAndSort3DTransparentModelDistances();
 };

@@ -21,6 +21,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include "Prefab.h"
 
 class CMaterial;
 class CGeometry;
@@ -60,7 +61,8 @@ class CInstanceGeometry : public CInstance
 {
 public:
 	CInstanceGeometry() : m_abstractGeometry(0) { m_renderCount = 0; m_nameIndex = -1; m_hasPhysX = CFalse; Cpy(m_physXName, "\n"); m_lodAlgorithm = eLOD_NONE; m_prevLodAlgorithm = eLOD_NONE; m_physXDensity = 0.0f; m_physXPercentage = 50; m_physXCount = 0; m_firstUpdate = CTrue; m_isTrigger = CFalse; m_isInvisible = CFalse;
-	m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse; m_hasPhysicsMaterial = CFalse;}
+	m_distanceFromCamera = 0.0f; m_radius = 0.0f; m_renderWithPhysX = CFalse; m_hasPhysicsMaterial = CFalse; m_isController = CFalse; 
+	CMatrixLoadIdentity(m_localToWorldMatrix); 	CMatrixLoadIdentity(m_localToWorldMatrixControlledByPhysX); CMatrixLoadIdentity(m_firstLocalToWorldMatrix);	}
 	~CInstanceGeometry() { 	m_parentTree.clear(); m_lights.clear();}
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 
@@ -101,6 +103,7 @@ public:
 	CInt m_physXCount;
 	CBool m_renderWithPhysX;
 	CNode* m_node; //instance geometry is attached to this node
+	CBool m_isController;
 	CChar* GetPhysXActorName() { return m_physXName; }
 	CFloat GetPhysXActorDensity() { return m_physXDensity; }
 	CBool GetHasPhysXActor() { return m_hasPhysX; }
@@ -116,6 +119,9 @@ public:
 	CVoid SetPhysicsSkinWidth(CFloat skinWidth) { m_physicsSkinWidth = skinWidth; }
 	CVoid SetPhysicsStaticFriction(CFloat staticFriction) { m_physicsStaticFriction = staticFriction; }
 	CVoid SetPhysicsDynamicFriction(CFloat dynamicFriction) { m_physicsDynamicFriction = dynamicFriction; }
+	CVoid SetDistanceFromCamera(CFloat distance) { m_distanceFromCamera = distance; }
+	CFloat GetDistanceFromCamera() { return m_distanceFromCamera; }
+	CVoid CalculateDistance();
 };
 
 class CInstanceController : public CInstance
@@ -970,8 +976,6 @@ protected:
 
 	 // Draw function iterates all the polygroups in the geometry and draws them
 
-	CVoid Draw(CNode *parentNode, CInstance * instance);
-
 	CVoid SetupGlossTexture(CNode *parentNode, CInstance * instance)
 	{
 		CBool m_setGeoName = CFalse;
@@ -1180,6 +1184,22 @@ public:
 			return CFalse; 
 	}
 	CVoid GetJointsForWeights( CJoint *& Joints, CInt & NumJoints );
+
+	CVoid Draw(CNode *parentNode, CInstance * instance);
+
 };
 
+struct CTransparentGeometry
+{
+	CInstancePrefab* m_instancePrefab;
+	CScene* m_scene;
+	CInstanceGeometry* m_instanceGeometry;
+};
 
+struct SortTransparentGeometry
+{
+	inline bool operator() (const CTransparentGeometry& struct1, const CTransparentGeometry& struct2)
+	{
+		return (struct1.m_instanceGeometry->GetDistanceFromCamera() > struct2.m_instanceGeometry->GetDistanceFromCamera());
+	}
+};

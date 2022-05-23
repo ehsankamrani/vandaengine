@@ -884,7 +884,7 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 		}
 		if (!geometry->m_hasAnimation && m_instanceGeometries[i]->m_hasPhysX && m_instanceGeometries[i]->m_physXDensity > 0.0f &&!renderPhysXForFreeCamera)
 		{
-			if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForQuery()) || (g_editorMode == eMODE_VSCENE && g_renderShadow))
+			if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForQuery()) || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForWaterQuery()) || (g_editorMode == eMODE_VSCENE && g_renderShadow))
 			{
 				g_render.ModelViewMatrix();
 				g_render.PushMatrix();
@@ -895,12 +895,14 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 				{
 					if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 					{
+						geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 						geometry->Draw(this, m_instanceGeometries[i]);
 						g_numVerts += geometry->m_vertexcount;
 					}
 				}
 				else
 				{
+					geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 					geometry->Draw(this, m_instanceGeometries[i]);
 					g_numVerts += geometry->m_vertexcount;
 				}
@@ -910,7 +912,7 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 		}
 		else if (m_instanceGeometries[i]->m_renderWithPhysX || renderPhysXForFreeCamera)// render without octree. Make sure that we don't render meshes controlled by PhysX
 		{
-			if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForQuery()) || (g_editorMode == eMODE_VSCENE && g_renderShadow))
+			if (g_editorMode == eMODE_PREFAB || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForQuery()) || (g_editorMode == eMODE_VSCENE && g_currentInstancePrefab->GetRenderForWaterQuery()) || (g_editorMode == eMODE_VSCENE && g_renderShadow))
 			{
 				if (!m_instanceGeometries[i]->m_abstractGeometry->m_hasAnimation)
 				{
@@ -924,7 +926,7 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 						if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 						{
 							//EnableShader(m_instanceGeometries[i]);
-
+							geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 							geometry->Draw(this, m_instanceGeometries[i]);
 							g_numVerts += geometry->m_vertexcount;
 						}
@@ -932,7 +934,7 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 					else if (!(m_instanceGeometries[i]->m_physXDensity && m_instanceGeometries[i]->m_hasPhysX) || renderPhysXForFreeCamera)
 					{
 						//EnableShader(m_instanceGeometries[i]);
-
+						geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 						geometry->Draw(this, m_instanceGeometries[i]);
 						g_numVerts += geometry->m_vertexcount;
 					}
@@ -1015,12 +1017,14 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 				{
 					if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceGeometries[i]->m_localToWorldVertex[0], 8))
 					{
+						geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 						geometry->Draw(this, m_instanceGeometries[i]);
 						g_numVerts += geometry->m_vertexcount;
 					}
 				}
 				else
 				{
+					geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 					geometry->Draw(this, m_instanceGeometries[i]);
 					g_numVerts += geometry->m_vertexcount;
 				}
@@ -1050,12 +1054,14 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 				{
 					if (g_camera->m_cameraManager->IsBoxInFrustum(&m_instanceControllers[i]->m_instanceGeometry->m_localToWorldVertex[0], 8))
 					{
+						geometry->m_currentInstanceGeometry = m_instanceControllers[i]->m_instanceGeometry;
 						geometry->Draw(this, m_instanceControllers[i]);
 						g_numVerts += geometry->m_vertexcount;
 					}
 				}
 				else
 				{
+					geometry->m_currentInstanceGeometry = m_instanceControllers[i]->m_instanceGeometry;
 					geometry->Draw(this, m_instanceControllers[i]);
 					g_numVerts += geometry->m_vertexcount;
 				}
@@ -1140,7 +1146,10 @@ CVoid CNode::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool
 							else
 							{
 								if (drawGeometry)
+								{
+									geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 									geometry->Draw(this, m_instanceGeometries[i]);
+								}
 								g_numVerts += geometry->m_vertexcount;
 							}
 						}
@@ -1157,7 +1166,10 @@ CVoid CNode::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool
 						else
 						{
 							if (drawGeometry)
+							{
+								geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 								geometry->Draw(this, m_instanceGeometries[i]);
+							}
 							g_numVerts += geometry->m_vertexcount;
 						}
 					}
@@ -1188,7 +1200,10 @@ CVoid CNode::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool
 						else
 						{
 							if (drawGeometry)
+							{
+								geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 								geometry->Draw(this, m_instanceGeometries[i]);
+							}
 							g_numVerts += geometry->m_vertexcount;
 						}
 					}
@@ -1208,7 +1223,10 @@ CVoid CNode::Render(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool
 					else
 					{
 						if (drawGeometry)
+						{
+							geometry->m_currentInstanceGeometry = m_instanceGeometries[i];
 							geometry->Draw(this, m_instanceGeometries[i]);
+						}
 						g_numVerts += geometry->m_vertexcount;
 					}
 				}

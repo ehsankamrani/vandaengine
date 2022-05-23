@@ -627,3 +627,4 @@ struct CPhysXMaterial
 		HasMaterial = CFalse;
 	}
 };
+

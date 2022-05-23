@@ -837,38 +837,38 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 	m_minAABB.x = m_minAABB.y = m_minAABB.z = 100000000.0f;
 	m_maxAABB.x = m_maxAABB.y = m_maxAABB.z = -100000000.0f;
 
-	CVec4f trans(m_translate.x, m_translate.y, m_translate.z, 1.0f);
-	CVec4f scale(m_scale.x, m_scale.y, m_scale.z, 1.0f);
-	CVec4f rotx(1.0f, 0.0f, 0.0f, m_rotate.x);
-	CVec4f roty(0.0f, 1.0f, 0.0f, m_rotate.y);
-	CVec4f rotz(0.0f, 0.0f, 1.0f, m_rotate.z);
-	CMatrixLoadIdentity(m_instanceMatrix);
-	CMatrix4x4Translate(m_instanceMatrix, trans);
-	CMatrix4x4RotateAngleAxis(m_instanceMatrix, rotx);
-	CMatrix4x4RotateAngleAxis(m_instanceMatrix, roty);
-	CMatrix4x4RotateAngleAxis(m_instanceMatrix, rotz);
-	CMatrix4x4Scale(m_instanceMatrix, scale);
-
 	g_currentInstancePrefab = this;
 
-	for (CUInt i = 0; i < 4; i++)
+	if (init)
 	{
-		CBool condition = CFalse;
-		if (i < 3)
+		CVec4f trans(m_translate.x, m_translate.y, m_translate.z, 1.0f);
+		CVec4f scale(m_scale.x, m_scale.y, m_scale.z, 1.0f);
+		CVec4f rotx(1.0f, 0.0f, 0.0f, m_rotate.x);
+		CVec4f roty(0.0f, 1.0f, 0.0f, m_rotate.y);
+		CVec4f rotz(0.0f, 0.0f, 1.0f, m_rotate.z);
+		CMatrixLoadIdentity(m_instanceMatrix);
+		CMatrix4x4Translate(m_instanceMatrix, trans);
+		CMatrix4x4RotateAngleAxis(m_instanceMatrix, rotx);
+		CMatrix4x4RotateAngleAxis(m_instanceMatrix, roty);
+		CMatrix4x4RotateAngleAxis(m_instanceMatrix, rotz);
+		CMatrix4x4Scale(m_instanceMatrix, scale);
+
+		for (CUInt i = 0; i < 4; i++)
 		{
-			if (GetPrefab()->GetHasLod(i))
-				condition = CTrue;
-		}
-		else
-		{
-			if (GetHasCollider())
-				condition = CTrue;
-		}
-		if (condition)
-		{
-			CScene* scene = GetScene(i);
-			if (init)
+			CBool condition = CFalse;
+			if (i < 3)
 			{
+				if (GetPrefab()->GetHasLod(i))
+					condition = CTrue;
+			}
+			else
+			{
+				if (GetHasCollider())
+					condition = CTrue;
+			}
+			if (condition)
+			{
+				CScene* scene = GetScene(i);
 				if (scene)
 				{
 					if (scene->m_controllers.size() == 0)
@@ -877,13 +877,6 @@ CVoid CInstancePrefab::UpdateBoundingBox(CBool init)
 					}
 					g_render.SetScene(scene);
 					scene->Update(0.00001, CTrue);
-				}
-			}
-			else if (scene && scene->m_isTransformable)
-			{
-				if (scene->m_controllers.size() == 0)
-				{
-					scene->m_sceneRoot->SetLocalMatrix(&m_instanceMatrix);
 				}
 			}
 		}

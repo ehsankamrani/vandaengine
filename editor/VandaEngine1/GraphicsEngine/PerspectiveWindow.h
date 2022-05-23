@@ -17,6 +17,8 @@
 #include "..\GraphicsEngine/SimpleFont.h"
 #include "../MouseTranslationController.h"
 #include "..\\Icon.h"
+#include "Defines.h"
+
 // CMultipleWindows
 
 struct CUpdateCamera
@@ -188,7 +190,7 @@ public:
 	CVoid ResetData();
 	CVoid DrawJustPerspectiveBorders();
 	CVoid DrawBordersAndUI();
-	CVoid RenderTerrain();
+	CVoid RenderTerrain(CBool useFBO = CTrue);
 	CVoid RenderQueries(CBool init = CFalse);
 	CVoid RenderBakedOctree3DModels();
 	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue );
@@ -199,6 +201,8 @@ public:
 	CVoid Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneManager = CTrue);
 	CVoid GenerateMenuCursorTexture(char* fileName);
 	CVoid DeleteMenuCursorTexture();
+	CVoid Render3DTransparentModels();
+	CVoid Render3DTransparentModelsForWater(CWater* water);
 	CVoid RenderCharacter(CBool sceneManager);
 	CVoid ManageLODs();
 	CVoid Draw3DObjects();
@@ -351,6 +355,17 @@ public:
 	NxVec3 m_forceDirection;
 	CFloat m_forceDecreaseValue;
 
+	CBool m_renderBlending;
+	CBool m_checkBlending;
+	CBool m_pushTransparentGeometry;
+
+	CVoid AddTransparentGeometry(CTransparentGeometry geometry) { m_transparentGeometries.push_back(geometry); }
+	CVoid RemoveTransparentGeometries()
+	{ 
+		m_transparentGeometries.clear();
+	}
+	std::vector<CTransparentGeometry> m_transparentGeometries;
+
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_playGameMode;
@@ -361,7 +376,7 @@ private:
 	CFloat m_fSelectionDistance;
 	CBool m_bSelectionDistance;
 	CChar m_selectedPrefabInstanceName[MAX_NAME_SIZE];
-
+	std::vector<CTransparentGeometry> m_sortedTransparentGoemetries;
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );
@@ -399,6 +414,9 @@ public:
 	//This function is called inside OnBnClickedBtnPlayActive()
 	CVoid GeneratePrefabInstance(CPrefab* prefab, CChar* prefabInstanceName);
 	CVoid DeletePrefabInstance(CChar* prefabInstanceName);
+	CVoid UpdateCharacterTransformations();
+	CVoid UpdatePrefabInstanceTransformations();
+	CVoid CalculateAndSort3DTransparentModelDistances();
 	///////////
 
 };

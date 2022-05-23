@@ -8,6 +8,7 @@
 #include <boost/serialization/string.hpp>
 #include <iostream>
 #include <sstream>
+#include "Defines.h"
 
 #define EPSILON 2.5e-8 
 #define INFINITE_DISTANCE 1000000
