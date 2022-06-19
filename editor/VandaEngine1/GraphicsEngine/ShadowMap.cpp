@@ -359,6 +359,13 @@ void CShadowMap::MakeShadowMap(float cam_pos[3], float cam_view[3], float light_
 			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
 			{
 				g_currentInstancePrefab = g_instancePrefab[j];
+
+				if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
+				{
+					if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON && g_multipleView->IsPlayGameMode())
+						continue;
+				}
+
 				CPrefab* prefab = g_instancePrefab[j]->GetPrefab();
 				CScene* scene = NULL;
 

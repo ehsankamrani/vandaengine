@@ -192,13 +192,13 @@ GLvoid CCamera::UpdateCameraPosDir(const NxVec3& cameraPos, const NxVec3& charac
 	g_render.IdentityMatrix();
 	if ((!g_mainCharacter) || (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON))
 	{
-		gluLookAt(cameraPos.x, cameraPos.y + g_physXProperties.m_fCapsuleHeight, cameraPos.z, //Eye position
+		gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, //Eye position
 			characterPos.x, characterPos.y + g_physXProperties.m_fCapsuleHeight + y_offset, characterPos.z,    //At position 
 			0.0f, 1.0f, 0.0f);           //Direction of the viewer
 	}
 	else
 	{
-		gluLookAt(cameraPos.x, cameraPos.y + (g_physXProperties.m_fCapsuleHeight /*/ 2.0f*/), cameraPos.z, //Eye position
+		gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, //Eye position
 			characterPos.x, characterPos.y + (g_physXProperties.m_fCapsuleHeight / 2.0f) + y_offset, characterPos.z,    //At position 
 			0.0f, 1.0f, 0.0f);           //Direction of the viewer
 	}

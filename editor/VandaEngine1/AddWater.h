@@ -28,6 +28,8 @@ public:
 	CString m_strWaterSpeed;
 	CString m_strWaterUV;
 	CString m_strWaterScale;
+	CString m_strWaterTransparency;
+	CString m_strWaterFogDensity;
 	CString m_strWaterCX;
 	CString m_strWaterCY;
 	CString m_strWaterCZ;
@@ -40,9 +42,10 @@ public:
 	CFloat m_fWaterSpeed;
 	CFloat m_fWaterUV;
 	CFloat m_fWaterScale;
+	CFloat m_fWaterTransparency;
+	CFloat m_fWaterFogDensity;
 	CFloat m_fWaterCPos[3];
 	CFloat m_fWaterLPos[3];
-
 	CBool m_editMode;
 	//####public interface####	
 	//The user just needs to use these functions
@@ -52,11 +55,14 @@ public:
 	CFloat GetSpeed() { return m_fWaterSpeed; }
 	CFloat GetUV(){ return m_fWaterUV; }
 	CFloat GetScale() { return m_fWaterScale; }
+	CFloat GetTransparency() { return m_fWaterTransparency; }
+	CFloat GetFogDensity() { return m_fWaterFogDensity; }
 	CChar* GetName() { return (CChar*)m_strWaterName.GetBuffer(m_strWaterName.GetLength()); m_strWaterName.ReleaseBuffer(); }
 	CChar* GetTempName() { return (CChar*)m_strTempWaterName.GetBuffer(m_strTempWaterName.GetLength()); m_strTempWaterName.ReleaseBuffer(); }
 	CChar* GetDuDvMap() {return (CChar*)m_strDuDvMap.GetBuffer(m_strDuDvMap.GetLength()); m_strDuDvMap.ReleaseBuffer(); }
 	CChar* GetNormalMap() {return (CChar*)m_strNormalMap.GetBuffer(m_strNormalMap.GetLength()); m_strNormalMap.ReleaseBuffer(); }
 	CBool GetVisible() { return m_isVisible; }
+	CFloat* GetColor() { return m_fWaterColor; }
 
 	CVoid SetCreate( CBool create )
 	{
@@ -123,6 +129,18 @@ public:
 		sprintf( temp, "%.3f", scale );
 		m_strWaterScale = temp;
 	}
+	CVoid SetTransparency(CFloat transparency)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%.3f", transparency);
+		m_strWaterTransparency = temp;
+	}
+	CVoid SetFogDensity(CFloat density)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%.3f", density);
+		m_strWaterFogDensity = temp;
+	}
 	CVoid SetEditMode( CBool editMode )
 	{
 		m_editMode = editMode;
@@ -132,6 +150,13 @@ public:
 	{
 		m_isVisible = isVisible;
 	}
+	CVoid SetColor(CFloat* color)
+	{
+		m_fWaterColor[0] = color[0];
+		m_fWaterColor[1] = color[1];
+		m_fWaterColor[2] = color[2];
+	}
+
 // Dialog Data
 	enum { IDD = IDD_DIALOG_ADD_WATER };
 
@@ -144,6 +169,9 @@ private:
 
 	afx_msg void OnBnClickedButtonWaterNormal();
 
+	COLORREF m_waterColor;
+	CBrush m_waterColorBrush;
+	CFloat m_fWaterColor[3];
 
 protected:
 	virtual void OnOK();
@@ -220,4 +248,11 @@ public:
 public:
 	afx_msg void OnEnChangeEditWaterLightZ();
 	CButton m_checkIsVisible;
+	CEdit m_editBoxTransparency;
+	afx_msg void OnEnChangeEditWaterTransparency();
+	afx_msg void OnBnClickedButtonWaterColor();
+	CEdit m_editBoxWaterColor;
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	CEdit m_editBoxFogDensity;
+	afx_msg void OnEnChangeEditWaterFogDensity();
 };

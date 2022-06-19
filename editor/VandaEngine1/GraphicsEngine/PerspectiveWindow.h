@@ -201,7 +201,7 @@ public:
 	CVoid Render3DModelsControlledByPhysXForWater(CWater* water, CBool sceneManager = CTrue);
 	CVoid GenerateMenuCursorTexture(char* fileName);
 	CVoid DeleteMenuCursorTexture();
-	CVoid Render3DTransparentModels();
+	CVoid Render3DTransparentModels(CBool renderTop = CTrue);
 	CVoid Render3DTransparentModelsForWater(CWater* water);
 	CVoid RenderCharacter(CBool sceneManager);
 	CVoid ManageLODs();
@@ -417,6 +417,9 @@ public:
 	CVoid UpdateCharacterTransformations();
 	CVoid UpdatePrefabInstanceTransformations();
 	CVoid CalculateAndSort3DTransparentModelDistances();
+	CVoid RenderWaters();
+	CBool DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInstance, CWater* water);
+	CBool IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane);
 	///////////
 
 };

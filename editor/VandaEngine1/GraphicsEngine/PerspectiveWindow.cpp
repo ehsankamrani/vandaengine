@@ -18020,21 +18020,26 @@ CVoid CMultipleWindows::DrawPerspective()
 		m_translationController->Update((int)m_translateMousePosition.x, (int)m_translateMousePosition.y);
 	}
 
+	if (!g_currentVSceneProperties.m_isPause)
+	{
+		UpdatePrefabInstanceTransformations();
+
+		//use multithreading for animations
+		/*std::thread t1(&CMain::*/UpdateAnimations();/*, this, false)*/;
+		//t1.join();
+	}
+
 	//Process  inputs
 	if (!m_translationController->Initialized())
 		ProcessInputs();
 
 	UpdateCharacterTransformations();
-	UpdatePrefabInstanceTransformations();
 
-	//Update timer
 	if (!g_currentVSceneProperties.m_isPause)
 	{
-		//use multithreading for animations
-		/*std::thread t1(&CMain::*/UpdateAnimations();/*, this, false)*/;
-		//t1.join();
 		UpdateDynamicPhysicsObjects();
 	}
+
 	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 		g_render.BindForWriting(m_mFboID);
 	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
@@ -18235,7 +18240,7 @@ CVoid CMultipleWindows::DrawPerspective()
 		if (!instanceCamera)
 		{
 			cam_pos[0] = g_camera->m_perspectiveCameraPos.x;
-			cam_pos[1] = g_camera->m_perspectiveCameraPos.y + g_physXProperties.m_fCapsuleHeight;
+			cam_pos[1] = g_camera->m_perspectiveCameraPos.y;
 			cam_pos[2] = g_camera->m_perspectiveCameraPos.z;
 
 			cam_dir[0] = g_camera->m_perspectiveCharacterPos.x - cam_pos[0];
@@ -18411,30 +18416,6 @@ CVoid CMultipleWindows::DrawPerspective()
 	//render waters here
 	CVec3f cameraPos( g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z );
 
-	if ( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
-	{
-		for (CUInt i = 0; i < g_engineWaters.size(); i++)
-		{
-			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
-
-			if (g_multipleView->IsPlayGameMode())
-			{
-				if (g_engineWaters[i]->GetVisible() && g_engineWaters[i]->GetQueryVisible())
-				{
-					glUseProgram(g_render.m_waterProgram);
-					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
-					glUseProgram(0);
-				}
-			}
-			else if (g_engineWaters[i]->GetQueryVisible())
-			{
-				glUseProgram(g_render.m_waterProgram);
-				g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
-				glUseProgram(0);
-			}
-		}
-	}
-
 	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	{
 		glActiveTexture(GL_TEXTURE7 );
@@ -18602,7 +18583,7 @@ CVoid CMultipleWindows::DrawPerspective()
 	else 
 		useFog = CTrue;
 
-	if ((g_fogProperties.m_enable && useFog) || (g_dofProperties.m_enable && g_polygonMode == ePOLYGON_FILL))
+	if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog) || (g_dofProperties.m_enable && g_polygonMode == ePOLYGON_FILL))
 	{
 		if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 			g_render.BindForWriting(m_mFboIDFogDof);
@@ -18612,34 +18593,13 @@ CVoid CMultipleWindows::DrawPerspective()
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		g_fogBlurPass = CTrue;
 
+		if (g_menu.m_insertAndShowSky)
+		{
+			g_skyDome->RenderDome();
+		}
+
 		if (g_menu.m_insertAndShowTerrain)
 			RenderTerrain(CFalse);
-
-		//render water
-		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-		{
-			for (CUInt i = 0; i < g_engineWaters.size(); i++)
-			{
-				CVec3f waterPoints[4];
-				waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x; waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y; waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
-				waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x; waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y; waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
-				waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x; waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y; waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
-				waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x; waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y; waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
-
-				if (g_camera->m_cameraManager->IsBoxInFrustum(waterPoints, 4))
-				{
-					glUseProgram(g_render.m_waterFogBlurProgram);
-					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalDistance"), m_dof.m_focalDistance);
-					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalRange"), m_dof.m_focalRange);
-					if (g_fogProperties.m_enable && useFog)
-						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CTrue);
-					else
-						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CFalse);
-					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
-					glUseProgram(0);
-				}
-			}
-		}
 
 		m_checkBlending = CFalse;
 		m_renderBlending = CFalse;
@@ -18661,7 +18621,55 @@ CVoid CMultipleWindows::DrawPerspective()
 
 		m_renderBlending = CTrue;
 
-		Render3DTransparentModels();
+		CBool condition = CFalse;
+
+		CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			CFloat xmin, xmax, zmin, zmax;
+			xmin = g_engineWaters[i]->m_sidePoint[0].x; zmin = g_engineWaters[i]->m_sidePoint[0].z;
+			xmax = g_engineWaters[i]->m_sidePoint[2].x; zmax = g_engineWaters[i]->m_sidePoint[2].z;
+
+			if (cameraPos.x > xmin && cameraPos.x < xmax && cameraPos.z > zmin && cameraPos.z < zmax)
+			{
+				CVec4f waterPlane(0.0f, 1.0f, 0.0f, g_engineWaters[i]->m_fWaterCPos[1]);
+				if (!IsCameraAboveWater(cameraPos, waterPlane))
+				{
+					condition = CTrue;
+					break;
+				}
+			}
+		}
+
+		Render3DTransparentModels(condition);
+
+		//render water
+		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+		{
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				CVec3f waterPoints[4];
+				waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x; waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y; waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
+				waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x; waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y; waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
+				waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x; waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y; waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
+				waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x; waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y; waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
+
+				if (g_camera->m_cameraManager->IsBoxInFrustum(waterPoints, 4))
+				{
+					glUseProgram(g_render.m_waterFogBlurProgram);
+					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalDistance"), m_dof.m_focalDistance);
+					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalRange"), m_dof.m_focalRange);
+					if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
+						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CTrue);
+					else
+						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CFalse);
+					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
+					glUseProgram(0);
+				}
+			}
+		}
+
+		Render3DTransparentModels(!condition);
 
 		g_fogBlurPass = CFalse;
 		BlendFogWithScene();
@@ -19715,7 +19723,10 @@ CBool CMultipleWindows::IsJumping(CBool &isInList)
 	g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
 	if (!g_currentInstancePrefab)
 		return CFalse;
-	if (!g_currentInstancePrefab->GetVisible()) return CFalse;
+
+	if (g_mainCharacter->GetCameraType() != ePHYSX_CAMERA_FIRST_PERSON)
+		if (!g_currentInstancePrefab->GetVisible())
+			return CFalse;
 
 	std::vector<std::string> jumpName = g_mainCharacter->GetJumpName();
 
@@ -19805,7 +19816,6 @@ CBool CMultipleWindows::GetJumpCurrentEndDuration(CFloat& duration)
 
 CVoid CMultipleWindows::ProcessInputs()
 {
-
 	m_inputSystem->Update();
 
 	CInt dx, dy;
@@ -19886,7 +19896,7 @@ CVoid CMultipleWindows::ProcessInputs()
 	if (m_notFocus) return;
 	if(m_loadScene) return;
 
-	if (m_lockInput || m_isMenu)
+	if ((m_lockInput || m_isMenu) && IsPlayGameMode())
 	{
 		ApplyForce(IDLE, elapsedTime);
 		EnableIdleAnimations();
@@ -20336,7 +20346,7 @@ CVoid CMultipleWindows::ProcessInputs()
 						}
 						if( dy > 0 ) 
 						{
-							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.01f;
+							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
 							if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
 								g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMaxTilt;
 							else if (g_camera->m_perspectiveCurrentCameraTilt < g_camera->m_perspectiveCameraMinTilt)
@@ -20346,7 +20356,7 @@ CVoid CMultipleWindows::ProcessInputs()
 						}
 						else if( dy < 0 )
 						{
-							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.01f;
+							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
 							if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
 								g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMaxTilt;
 							else if (g_camera->m_perspectiveCurrentCameraTilt < g_camera->m_perspectiveCameraMinTilt)
@@ -21597,6 +21607,8 @@ CVoid CMultipleWindows::UpdateAnimations(CBool init)
 
 			g_currentInstancePrefab = g_instancePrefab[i];
 
+			if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER")) continue;
+
 			CScene* scene = NULL;
 
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
@@ -21850,44 +21862,163 @@ CVoid CMultipleWindows::Render3DModelsControlledByPhysXForWater(CWater* water, C
 
 }
 
-CVoid CMultipleWindows::Render3DTransparentModels()
+CVoid CMultipleWindows::Render3DTransparentModels(CBool renderTop)
 {
 	if (g_editorMode == eMODE_VSCENE)
 	{
-		for (CUInt i = 0; i < m_transparentGeometries.size(); i++)
+		if (!renderTop)
 		{
-			g_currentInstancePrefab = m_transparentGeometries[i].m_instancePrefab;
-			CScene* scene = m_transparentGeometries[i].m_scene;
-			g_render.SetScene(scene);
-			g_currentInstancePrefab->SetLight();
+			if (g_engineWaters.size() == 0)
+				return;
 
-			CGeometry* geometry = m_transparentGeometries[i].m_instanceGeometry->m_abstractGeometry;
-
-			if (m_transparentGeometries[i].m_instanceGeometry->m_hasPhysX && m_transparentGeometries[i].m_instanceGeometry->m_physXDensity > 0.0f) //render with physics
+			for (CUInt i = 0; i < m_transparentGeometries.size(); i++)
 			{
-				g_render.ModelViewMatrix();
-				g_render.PushMatrix();
+				CBool foundTarget = CFalse;
+				int index = -1;
+				for (CUInt j = 0; j < g_engineWaters.size(); j++)
+				{
+					if (g_multipleView->IsPlayGameMode())
+					{
+						if (g_engineWaters[j]->GetVisible() && g_engineWaters[j]->GetQueryVisible())
+						{
+							if (DoesGeometryInstanceIntersectsWater(m_transparentGeometries[i].m_instanceGeometry, g_engineWaters[j]))
+							{
+								index = j;
+								foundTarget = CTrue;
+								break;
+							}
+						}
+					}
+					else if (g_engineWaters[j]->GetQueryVisible())
+					{
+						if (DoesGeometryInstanceIntersectsWater(m_transparentGeometries[i].m_instanceGeometry, g_engineWaters[j]))
+						{
+							index = j;
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+				if (!foundTarget)
+					continue;
 
-				if (g_multipleView->IsPlayGameMode())
-					g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrixControlledByPhysX);
+				CDouble plane[4] = { 0.0, -1.0, 0.0, g_engineWaters[index]->m_fWaterCPos[1] };
+				glEnable(GL_CLIP_PLANE0);
+				glClipPlane(GL_CLIP_PLANE0, plane);
+
+				g_currentInstancePrefab = m_transparentGeometries[i].m_instancePrefab;
+				CScene* scene = m_transparentGeometries[i].m_scene;
+				g_render.SetScene(scene);
+				g_currentInstancePrefab->SetLight();
+
+				CGeometry* geometry = m_transparentGeometries[i].m_instanceGeometry->m_abstractGeometry;
+
+				if (m_transparentGeometries[i].m_instanceGeometry->m_hasPhysX && m_transparentGeometries[i].m_instanceGeometry->m_physXDensity > 0.0f) //render with physics
+				{
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+
+					if (g_multipleView->IsPlayGameMode())
+						g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrixControlledByPhysX);
+					else
+						g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrix);
+
+					geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
+					geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+
+					g_render.PopMatrix();
+				}
 				else
+				{
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+
 					g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrix);
+					geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
+					geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
 
-				geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
-				geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+					g_render.PopMatrix();
+				}
 
-				g_render.PopMatrix();
+				glDisable(GL_CLIP_PLANE0);
 			}
-			else
+		}
+		else
+		{
+			for (CUInt i = 0; i < m_transparentGeometries.size(); i++)
 			{
-				g_render.ModelViewMatrix();
-				g_render.PushMatrix();
+				CBool foundTarget = CFalse;
+				int index = -1;
+				for (CUInt j = 0; j < g_engineWaters.size(); j++)
+				{
+					if (g_multipleView->IsPlayGameMode())
+					{
+						if (g_engineWaters[j]->GetVisible() && g_engineWaters[j]->GetQueryVisible())
+						{
+							if (DoesGeometryInstanceIntersectsWater(m_transparentGeometries[i].m_instanceGeometry, g_engineWaters[j]))
+							{
+								index = j;
+								foundTarget = CTrue;
+								break;
+							}
+						}
+					}
+					else if (g_engineWaters[j]->GetQueryVisible())
+					{
+						if (DoesGeometryInstanceIntersectsWater(m_transparentGeometries[i].m_instanceGeometry, g_engineWaters[j]))
+						{
+							index = j;
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
 
-				g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrix);
-				geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
-				geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+				if (foundTarget)
+				{
+					CDouble plane[4] = { 0.0, 1.0, 0.0, -g_engineWaters[index]->m_fWaterCPos[1] };
+					glEnable(GL_CLIP_PLANE0);
+					glClipPlane(GL_CLIP_PLANE0, plane);
+				}
 
-				g_render.PopMatrix();
+				g_currentInstancePrefab = m_transparentGeometries[i].m_instancePrefab;
+				CScene* scene = m_transparentGeometries[i].m_scene;
+				g_render.SetScene(scene);
+				g_currentInstancePrefab->SetLight();
+
+				CGeometry* geometry = m_transparentGeometries[i].m_instanceGeometry->m_abstractGeometry;
+
+				if (m_transparentGeometries[i].m_instanceGeometry->m_hasPhysX && m_transparentGeometries[i].m_instanceGeometry->m_physXDensity > 0.0f) //render with physics
+				{
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+
+					if (g_multipleView->IsPlayGameMode())
+						g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrixControlledByPhysX);
+					else
+						g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrix);
+
+					geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
+					geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+
+					g_render.PopMatrix();
+				}
+				else
+				{
+					g_render.ModelViewMatrix();
+					g_render.PushMatrix();
+
+					g_render.MultMatrix(m_transparentGeometries[i].m_instanceGeometry->m_localToWorldMatrix);
+					geometry->m_currentInstanceGeometry = m_transparentGeometries[i].m_instanceGeometry;
+					geometry->Draw(NULL, m_transparentGeometries[i].m_instanceGeometry);
+
+					g_render.PopMatrix();
+				}
+
+				if (foundTarget)
+				{
+					glDisable(GL_CLIP_PLANE0);
+				}
 			}
 		}
 	}
@@ -22422,7 +22553,7 @@ CVoid CMultipleWindows::RenderTerrain(CBool useFBO)
 			else
 				useFog = CTrue;
 
-			if (g_fogProperties.m_enable && useFog)
+			if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
 				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
 			else
 				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
@@ -23780,8 +23911,47 @@ CVoid CMultipleWindows::Draw3DObjects()
 		m_pushTransparentGeometry = CFalse;
 
 		CalculateAndSort3DTransparentModelDistances();
-		Render3DTransparentModels();
 
+		CBool condition = CFalse;
+		g_waterFogProperties.m_enable = CFalse;
+		CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			CFloat xmin, xmax, zmin, zmax;
+			xmin = g_engineWaters[i]->m_sidePoint[0].x; zmin = g_engineWaters[i]->m_sidePoint[0].z;
+			xmax = g_engineWaters[i]->m_sidePoint[2].x; zmax = g_engineWaters[i]->m_sidePoint[2].z;
+
+			if (cameraPos.x > xmin && cameraPos.x < xmax && cameraPos.z > zmin && cameraPos.z < zmax)
+			{
+				CVec4f waterPlane(0.0f, 1.0f, 0.0f, g_engineWaters[i]->m_fWaterCPos[1]);
+				if (!IsCameraAboveWater(cameraPos, waterPlane))
+				{
+					condition = CTrue;
+					g_waterFogProperties.m_enable = CTrue;
+					CFog fog;
+					fog.SetColor(g_engineWaters[i]->GetColor());
+					fog.SetDensity(g_engineWaters[i]->GetFogDensity());
+					break;
+				}
+			}
+		}
+
+		if (!condition) //we didn't find any active cameras under water
+		{
+			g_waterFogProperties.m_enable = CFalse;
+			if (g_fogProperties.m_enable)
+			{
+				CFog fog;
+				fog.SetColor(g_fogProperties.m_fogColor);
+				fog.SetDensity(g_fogProperties.m_fogDensity);
+			}
+		}
+
+		Render3DTransparentModels(condition);
+
+		RenderWaters();
+
+		Render3DTransparentModels(!condition); 
 		m_checkBlending = CFalse;
 
 		++g_numLights;
@@ -24245,6 +24415,54 @@ CVoid CMultipleWindows::UpdateCharacterTransformations()
 	CMatrix4x4RotateAngleAxis((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), roty);
 	CMatrix4x4RotateAngleAxis((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), rotz);
 	CMatrix4x4Scale((CFloat*)g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix(), scale);
+
+	g_currentInstancePrefab = g_mainCharacter->GetInstancePrefab();
+
+	if (!g_mainCharacter->GetInstancePrefab()->GetVisible()) return;
+	if (!g_mainCharacter->GetInstancePrefab()->GetIsAnimated()) return;
+
+	CScene* scene = NULL;
+
+	CPrefab* prefab = g_mainCharacter->GetInstancePrefab()->GetPrefab();
+	for (CUInt j = 0; j < 3; j++)
+	{
+		CBool update = CFalse;
+		if (prefab && prefab->GetHasLod(j))
+			update = CTrue;
+
+		if (update)
+		{
+			scene = g_mainCharacter->GetInstancePrefab()->GetScene(j);
+			if (!scene) continue;
+
+			g_render.SetScene(scene);
+
+			if (!g_render.GetScene()->m_isTrigger)
+			{
+				if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
+				{
+					if ((m_enableTimer && g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists()))
+					{
+						g_render.GetScene()->Update(elapsedTime);
+						g_render.GetScene()->m_updateAnimation = CFalse;
+						g_render.GetScene()->m_update = CFalse;
+						g_render.GetScene()->SetUpdateBB(CTrue);
+					} //if
+					else if (g_render.GetScene()->m_update)
+					{
+						g_render.GetScene()->Update();
+						g_render.GetScene()->m_update = CFalse;
+					} //else
+
+				} //if
+				else if (g_render.GetScene()->m_update)
+				{
+					g_render.GetScene()->Update();
+					g_render.GetScene()->m_update = CFalse;
+				} //else
+			} //if
+		}
+	}
 }
 
 CVoid CMultipleWindows::UpdatePrefabInstanceTransformations()
@@ -24302,4 +24520,75 @@ CVoid CMultipleWindows::CalculateAndSort3DTransparentModelDistances()
 		m_transparentGeometries[i].m_instanceGeometry->CalculateDistance();
 	}
 	std::sort(m_transparentGeometries.begin(), m_transparentGeometries.end(), SortTransparentGeometry());
+}
+
+CVoid CMultipleWindows::RenderWaters()
+{
+	//render waters here
+	CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
+
+	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+	{
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
+
+			if (g_multipleView->IsPlayGameMode())
+			{
+				if (g_engineWaters[i]->GetVisible() && g_engineWaters[i]->GetQueryVisible())
+				{
+					glUseProgram(g_render.m_waterProgram);
+					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
+					glUseProgram(0);
+				}
+			}
+			else if (g_engineWaters[i]->GetQueryVisible())
+			{
+				glUseProgram(g_render.m_waterProgram);
+				g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
+				glUseProgram(0);
+			}
+		}
+	}
+}
+
+CBool CMultipleWindows::DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInstance, CWater* water)
+{
+	CFloat xmin, xmax, ymin, ymax;
+	xmin = water->m_sidePoint[0].x; ymin = water->m_sidePoint[0].z;
+	xmax = water->m_sidePoint[2].x; ymax = water->m_sidePoint[2].z;
+
+	CInstanceGeometry* current_geometry = geometryInstance;
+	CVec2f v1, v2, v3, v4;
+	if (g_multipleView->IsPlayGameMode() && current_geometry->m_hasPhysX && current_geometry->m_physXDensity > 0.0f)
+	{
+		v1.x = current_geometry->m_minLocalToWorldAABBControlledByPhysX.x; v1.y = current_geometry->m_minLocalToWorldAABBControlledByPhysX.z;
+		v2.x = current_geometry->m_minLocalToWorldAABBControlledByPhysX.x; v2.y = current_geometry->m_maxLocalToWorldAABBControlledByPhysX.z;
+		v3.x = current_geometry->m_maxLocalToWorldAABBControlledByPhysX.x; v3.y = current_geometry->m_maxLocalToWorldAABBControlledByPhysX.z;
+		v4.x = current_geometry->m_maxLocalToWorldAABBControlledByPhysX.x; v4.y = current_geometry->m_minLocalToWorldAABBControlledByPhysX.z;
+	}
+	else
+	{
+		v1.x = current_geometry->m_minLocalToWorldAABB.x; v1.y = current_geometry->m_minLocalToWorldAABB.z;
+		v2.x = current_geometry->m_minLocalToWorldAABB.x; v2.y = current_geometry->m_maxLocalToWorldAABB.z;
+		v3.x = current_geometry->m_maxLocalToWorldAABB.x; v3.y = current_geometry->m_maxLocalToWorldAABB.z;
+		v4.x = current_geometry->m_maxLocalToWorldAABB.x; v4.y = current_geometry->m_minLocalToWorldAABB.z;
+	}
+
+	if ((v1.x > xmin && v1.x < xmax && v1.y > ymin && v1.y < ymax) ||
+		(v2.x > xmin && v2.x < xmax && v2.y > ymin && v2.y < ymax) ||
+		(v3.x > xmin && v3.x < xmax && v3.y > ymin && v3.y < ymax) ||
+		(v4.x > xmin && v4.x < xmax && v4.y > ymin && v4.y < ymax))
+	{
+		return CTrue;
+	}
+	return CFalse;
+}
+
+CBool CMultipleWindows::IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane)
+{
+	if (cameraPos.x * waterPlane.x + cameraPos.y * waterPlane.y + cameraPos.z * waterPlane.z - waterPlane.w >= 0.0f)
+		return CTrue;
+	else
+		return CFalse;
 }

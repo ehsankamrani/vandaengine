@@ -175,11 +175,11 @@ float CShadowMap::ApplyCropMatrix(frustum &f, vec3f cam_pos)
 	float shad_proj[16];
 	float shad_crop[16];
 	float shad_mvp[16];
-	float maxX = -1000.0f;
-    float maxY = -1000.0f;
+	float maxX = -2000.0f;
+    float maxY = -2000.0f;
 	float maxZ;
-    float minX =  1000.0f;
-    float minY =  1000.0f;
+    float minX =  2000.0f;
+    float minY =  2000.0f;
 	float minZ;
 
 	matrix4<float> nv_mvp;
@@ -363,6 +363,13 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
 			{
 				g_currentInstancePrefab = g_instancePrefab[j];
+
+				if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER"))
+				{
+					if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON)
+						continue;
+				}
+
 				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
 				CScene* scene = NULL;
 

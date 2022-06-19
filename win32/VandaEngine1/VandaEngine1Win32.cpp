@@ -115,6 +115,7 @@ CLightProperties g_lightProperties;
 CCurrentVSceneProperties g_currentVSceneProperties;
 CCharacterBlendingProperties g_characterBlendingProperties;
 CFogProperties g_fogProperties;
+CFogProperties g_waterFogProperties;
 CBloomProperties g_bloomProperties;
 CPathProperties g_pathProperties;
 CExtraTexturesNamingConventions g_extraTexturesNamingConventions;

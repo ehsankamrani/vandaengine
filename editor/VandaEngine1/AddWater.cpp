@@ -27,13 +27,26 @@ CAddWater::~CAddWater()
 
 BOOL CAddWater::OnInitDialog()
 {
+	if (m_create)
+	{
+		m_waterColor = RGB(58, 122, 186);
+	}
+	else if (m_editMode)
+	{
+		m_waterColor = RGB((CInt)(m_fWaterColor[0] * 255), (CInt)(m_fWaterColor[1] * 255), (CInt)(m_fWaterColor[2] * 255));
+	}
+	m_waterColorBrush.CreateSolidBrush(m_waterColor);
+
 	CDialog::OnInitDialog();
+
 	if( m_create )
 	{
 		m_strWaterSpeed = "0.08f";
 		m_strWaterUV = "4.0f";
 		m_strWaterScale = "20.0f";
-		
+		m_strWaterTransparency = "0.5f";
+		m_strWaterFogDensity = "0.1f";
+
 		m_strWaterCX = "0.0f";
 		m_strWaterCY = "0.0f";
 		m_strWaterCZ = "0.0f";
@@ -41,6 +54,10 @@ BOOL CAddWater::OnInitDialog()
 		m_strWaterLX = "25.0f";
 		m_strWaterLY = "3.0f";
 		m_strWaterLZ = "25.0f";
+
+		m_fWaterColor[0] = 0.2274f;
+		m_fWaterColor[1] = 0.4784f;
+		m_fWaterColor[2] = 0.7294f;
 
 		m_strWaterHeight = "0.0f";
 		CChar DuDvPath[MAX_NAME_SIZE];
@@ -60,6 +77,8 @@ BOOL CAddWater::OnInitDialog()
 	m_editBoxSpeed.SetWindowTextA( m_strWaterSpeed );
 	m_editBoxUV.SetWindowTextA( m_strWaterUV );
 	m_editBoxScale.SetWindowTextA( m_strWaterScale );
+	m_editBoxTransparency.SetWindowTextA(m_strWaterTransparency);
+	m_editBoxFogDensity.SetWindowTextA(m_strWaterFogDensity);
 	m_editBoxCX.SetWindowTextA( m_strWaterCX );
 	m_editBoxCY.SetWindowTextA( m_strWaterCY );
 	m_editBoxCZ.SetWindowTextA( m_strWaterCZ );
@@ -95,6 +114,9 @@ void CAddWater::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WATER_LIGHT_Y, m_editBoxLY);
 	DDX_Control(pDX, IDC_EDIT_WATER_LIGHT_Z, m_editBoxLZ);
 	DDX_Control(pDX, IDC_CHECK_IS_WATER_VISIBLE, m_checkIsVisible);
+	DDX_Control(pDX, IDC_EDIT_WATER_TRANSPARENCY, m_editBoxTransparency);
+	DDX_Control(pDX, IDC_EDIT_WATER_COLOR, m_editBoxWaterColor);
+	DDX_Control(pDX, IDC_EDIT_WATER_FOG_DENSITy, m_editBoxFogDensity);
 }
 
 
@@ -112,6 +134,10 @@ BEGIN_MESSAGE_MAP(CAddWater, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_WATER_LIGHT_X, &CAddWater::OnEnChangeEditWaterLightX)
 	ON_EN_CHANGE(IDC_EDIT_WATER_LIGHT_Y, &CAddWater::OnEnChangeEditWaterLightY)
 	ON_EN_CHANGE(IDC_EDIT_WATER_LIGHT_Z, &CAddWater::OnEnChangeEditWaterLightZ)
+	ON_EN_CHANGE(IDC_EDIT_WATER_TRANSPARENCY, &CAddWater::OnEnChangeEditWaterTransparency)
+	ON_BN_CLICKED(IDC_BUTTON_WATER_COLOR, &CAddWater::OnBnClickedButtonWaterColor)
+	ON_WM_CTLCOLOR()
+	ON_EN_CHANGE(IDC_EDIT_WATER_FOG_DENSITy, &CAddWater::OnEnChangeEditWaterFogDensity)
 END_MESSAGE_MAP()
 
 
@@ -210,9 +236,9 @@ void CAddWater::OnOK()
 
 	// TODO: Add your specialized code here and/or call the base class
 	if( m_strNormalMap.IsEmpty() || m_strDuDvMap.IsEmpty() || m_strWaterName.IsEmpty() || m_strWaterHeight.IsEmpty() ||
-		m_strWaterSpeed.IsEmpty() || m_strWaterUV.IsEmpty() || m_strWaterScale.IsEmpty() || m_strWaterCX.IsEmpty() ||
-		m_strWaterCY.IsEmpty() || m_strWaterCZ.IsEmpty() || m_strWaterLX.IsEmpty() || m_strWaterLY.IsEmpty() || 
-		m_strWaterLZ.IsEmpty() )
+		m_strWaterSpeed.IsEmpty() || m_strWaterUV.IsEmpty() || m_strWaterScale.IsEmpty() || m_strWaterTransparency.IsEmpty() ||
+		m_strWaterFogDensity.IsEmpty() || m_strWaterCX.IsEmpty() || m_strWaterCY.IsEmpty() || m_strWaterCZ.IsEmpty() ||
+		m_strWaterLX.IsEmpty() || m_strWaterLY.IsEmpty() || m_strWaterLZ.IsEmpty())
 			MessageBox( "Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 	else
 		CDialog::OnOK();
@@ -246,7 +272,6 @@ void CAddWater::OnEnChangeEditWaterHeight()
 {
 	m_editBoxHeight.GetWindowTextA( m_strWaterHeight );
 	m_fWaterHeight = atof( m_strWaterHeight );
-
 }
 
 void CAddWater::OnEnChangeEditWaterSpeed()
@@ -303,3 +328,44 @@ void CAddWater::OnEnChangeEditWaterLightZ()
 	m_fWaterLPos[2] = atof( m_strWaterLZ );
 }
 
+
+
+void CAddWater::OnEnChangeEditWaterTransparency()
+{
+	m_editBoxTransparency.GetWindowTextA(m_strWaterTransparency);
+	m_fWaterTransparency = atof(m_strWaterTransparency);
+}
+
+
+void CAddWater::OnBnClickedButtonWaterColor()
+{
+	CColorDialog dlg;
+	if (dlg.DoModal() == IDOK)
+	{
+		m_waterColor = dlg.GetColor();
+		m_fWaterColor[0] = (CFloat)GetRValue(m_waterColor) / 255.f;
+		m_fWaterColor[1] = (CFloat)GetGValue(m_waterColor) / 255.f;
+		m_fWaterColor[2] = (CFloat)GetBValue(m_waterColor) / 255.f;
+		m_waterColorBrush.CreateSolidBrush(m_waterColor);
+		m_editBoxWaterColor.RedrawWindow();
+	}
+}
+
+
+HBRUSH CAddWater::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	switch (pWnd->GetDlgCtrlID())
+	{
+	case IDC_EDIT_WATER_COLOR:
+		pDC->SetBkColor(m_waterColor);
+		return m_waterColorBrush;
+	}
+	return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+}
+
+
+void CAddWater::OnEnChangeEditWaterFogDensity()
+{
+	m_editBoxFogDensity.GetWindowTextA(m_strWaterFogDensity);
+	m_fWaterFogDensity = atof(m_strWaterFogDensity);
+}

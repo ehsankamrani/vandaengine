@@ -499,10 +499,12 @@
 #define IDC_BTN_DELETE_DIFFUSE          1033
 #define IDC_EDIT_CHARACTER_HEIGHT       1033
 #define IDC_BTN_GUI_PROPERTIES          1033
+#define IDC_EDIT_WATER_TRANSPARENCY     1033
 #define IDC_EDIT15                      1034
 #define IDC_EDIT_SPOT_DIRECTION_X       1034
 #define IDC_EDIT_PHYSX_PERCENTAGE       1034
 #define IDC_EDIT_CHARACTER_POWER        1034
+#define IDC_EDIT_WATER_FOG_DENSITy      1034
 #define IDC_EDIT16                      1035
 #define IDC_EDIT_SHININESS              1035
 #define IDC_BTN_DELETE_PHYSX            1035
@@ -995,6 +997,8 @@
 #define IDC_BUTTON_COPY_PREFAB_NAME     1302
 #define IDC_RICHED_PREFAB_NAME          1303
 #define IDC_LIST_PREFAB_NAMES           1304
+#define IDC_EDIT_WATER_COLOR            1305
+#define IDC_BUTTON_WATER_COLOR          1306
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1327,7 +1331,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        525
 #define _APS_NEXT_COMMAND_VALUE         33111
-#define _APS_NEXT_CONTROL_VALUE         1305
+#define _APS_NEXT_CONTROL_VALUE         1307
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

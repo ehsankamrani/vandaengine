@@ -331,6 +331,8 @@ CVoid CNovodex::GetCameraAndCharacterPositions( const CFloat pitch, const CFloat
 	}
 
 	cameraPos = cameraGoal;
+
+	cameraPos.y += g_physXProperties.m_fCapsuleHeight;
 }
 
 NxReal CNovodex::updateTime()

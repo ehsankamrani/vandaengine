@@ -369,8 +369,8 @@ struct CShadowProperties
 		m_shadowNearClipPlane = 0.1f;
 		m_shadowFarClipPlane = 70.f;
 		m_shadowType = eSHADOW_PCF_GAUSSIAN;
-		m_shadowSplits = eSHADOW_3_SPLITS; //3 splits
-		m_shadowResolution = eSHADOW_2048;
+		m_shadowSplits = eSHADOW_4_SPLITS; //4 splits
+		m_shadowResolution = eSHADOW_4096;
 		m_intensity = 0.5f;
 		m_enable = CFalse;
 		Cpy( m_directionalLightName, "\n" );
@@ -382,8 +382,8 @@ struct CShadowProperties
 		m_shadowNearClipPlane = 0.1f;
 		m_shadowFarClipPlane = 70.f;
 		m_shadowType = eSHADOW_PCF_GAUSSIAN;
-		m_shadowSplits = eSHADOW_3_SPLITS; //3 splits
-		m_shadowResolution = eSHADOW_2048;
+		m_shadowSplits = eSHADOW_4_SPLITS; //4 splits
+		m_shadowResolution = eSHADOW_4096;
 		m_intensity = 0.5f;
 		m_enable = CFalse;
 		Cpy( m_directionalLightName, "\n" );
@@ -1229,6 +1229,7 @@ extern CLightProperties g_lightProperties;
 extern CCurrentVSceneProperties g_currentVSceneProperties;
 extern CCharacterBlendingProperties g_characterBlendingProperties;
 extern CFogProperties g_fogProperties;
+extern CFogProperties g_waterFogProperties;
 extern CPathProperties g_pathProperties;
 extern CExtraTexturesNamingConventions g_extraTexturesNamingConventions;
 extern CBloomProperties g_bloomProperties;

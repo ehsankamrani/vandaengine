@@ -689,9 +689,6 @@ void CTerrainVBOCull::draw(bool boundingBox)
 			ManagePhysXTriangleActorsForPrefabInstance(x, z);
 			ManagePhysXTriangleActorForCharacterController(x, z);
 
-			if (!g_camera->m_cameraManager->IsSphereInFrustum(chunkArray[x][z].center.x, chunkArray[x][z].center.y, chunkArray[x][z].center.z, chunkArray[x][z].radius))
-				continue;
-
 			glPushMatrix();
 			glLoadMatrixf(lightMatrix);
 			SetLight(chunkArray[x][z].min_t, chunkArray[x][z].max_t, &chunkArray[x][z]);
@@ -749,6 +746,8 @@ void CTerrainVBOCull::draw(bool boundingBox)
 				glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), num_spot_lights);
 			}
 
+			if (!g_camera->m_cameraManager->IsSphereInFrustum(chunkArray[x][z].center.x, chunkArray[x][z].center.y, chunkArray[x][z].center.z, chunkArray[x][z].radius))
+				continue;
 
 			// bind the buffer and draw the chunk.
 

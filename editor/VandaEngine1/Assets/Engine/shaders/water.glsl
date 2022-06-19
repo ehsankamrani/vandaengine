@@ -1,8 +1,8 @@
-//Copyright (C) 2020 Ehsan Kamrani
+//Copyright (C) 2023 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 [vert]
 
-#version 110
+#version 130
 varying vec4 refrCoords; 
 varying vec4 normCoords; 
 varying vec4 viewCoords;
@@ -37,6 +37,7 @@ void main()
 	lightTangetSpace.z = dot(lightDir, normal);
 	lightTangetSpace.w = 1.0;
 
+	gl_TexCoord[0] = gl_MultiTexCoord0;
 	refrCoords = gl_MultiTexCoord1;
 	normCoords = gl_MultiTexCoord2;
 
@@ -47,7 +48,7 @@ void main()
 }
 [frag]
 
-#version 110
+#version 130
 
 varying vec4 refrCoords; 
 varying vec4 normCoords; 
@@ -61,7 +62,7 @@ uniform sampler2D normalMap;
 uniform sampler2D dudvMap;
 uniform sampler2D depthMap;
 uniform vec4 waterColor;
-
+uniform bool renderAboveWater;
 void main()
 {
 	const float kShine = 128.0;
@@ -86,19 +87,31 @@ void main()
 	projCoord += dudvColor;
 	projCoord = clamp(projCoord, 0.001, 0.999);
 	
-	vec4 reflectionColor  = texture2D(reflection, projCoord.xy);
-	vec4 refractionColor  = texture2D(refraction, projCoord.xy);
 	vec4 depthValue = texture2D(depthMap, projCoord.xy);
 		
 	vec4 invDepth = 1.0 - depthValue;
-	refractionColor *= invertedFresnel * invDepth;
-	refractionColor +=  waterColor * depthValue * invertedFresnel;
-
-	reflectionColor *= fresnelTerm;
 
 	vec4 localView = normalize(viewTangetSpace);		
 	float intensity = max(0.0, dot(lightReflection, localView) );
 	vec4 specular = vec4(pow(intensity, kShine));
 
-	gl_FragColor = vec4(refractionColor.xyz + reflectionColor.xyz + specular.xyz, 0.0); 
+	if(renderAboveWater)
+	{
+		vec4 refractionColor  = texture2D(refraction, projCoord.xy);
+		refractionColor *= invertedFresnel * invDepth;
+		refractionColor +=  waterColor * depthValue * invertedFresnel;
+
+		vec4 reflectionColor  = texture2D(reflection, projCoord.xy);
+		reflectionColor *= fresnelTerm;
+		gl_FragColor = vec4(refractionColor.xyz + reflectionColor.xyz + specular.xyz, 0.0); 
+	}
+	else
+	{
+		vec4 refractionColor  = texture2D(refraction, gl_TexCoord[0].xy);
+		refractionColor *= invertedFresnel * invDepth;
+		refractionColor +=  waterColor * depthValue * invertedFresnel;
+
+		vec4 color = waterColor * fresnelTerm;
+		gl_FragColor = vec4(refractionColor.xyz + color.xyz + specular.xyz, 0.0); 
+	}
 }

@@ -287,6 +287,29 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 			|| percentage < g_instancePrefabLODPercent.m_waterInvisiblePercent)
 			return;
 	}
+
+	//if camera is above water?
+	CBool renderAboveWater = CTrue;
+	CFloat xmin, xmax, zmin, zmax;
+	xmin = m_sidePoint[0].x; zmin = m_sidePoint[0].z;
+	xmax = m_sidePoint[2].x; zmax = m_sidePoint[2].z;
+
+	if (cameraPos.x > xmin && cameraPos.x < xmax && cameraPos.z > zmin && cameraPos.z < zmax)
+	{
+		CVec4f waterPlane(0.0f, 1.0f, 0.0f, m_fWaterCPos[1]);
+		if (!g_main->IsCameraAboveWater(cameraPos, waterPlane))
+		{
+			renderAboveWater = CFalse;
+		}
+	}
+
+	if (renderAboveWater && m_fWaterTransparency < 1.0f)
+	{
+		glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+		glEnable(GL_BLEND);
+		glBlendColor(1.0f, 1.0f, 1.0f, m_fWaterTransparency);
+	}
+
 	if( g_fogBlurPass )
 	{
 		glDisable( GL_CULL_FACE );
@@ -348,7 +371,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 		// Give the variable "waterColor" a blue color
 		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "waterColor");
-		glUniform4fARB(uniform, 0.1f, 0.2f, 0.3f, 1.0f); 
+		glUniform4fARB(uniform, m_fWaterColor[0], m_fWaterColor[1], m_fWaterColor[2], 1.0f);
 
 		// We don't use lighting, but we do need to calculate
 		// the diffuse and specular lighting on the water to increase realism.
@@ -363,6 +386,9 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "cameraPos");
 		glUniform4fARB(uniform, cameraPos.x, cameraPos.y, cameraPos.z, 1.0f); 
 	
+		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "renderAboveWater");
+		glUniform1i(uniform, renderAboveWater);
+
 		// Create a static variable for the movement of the water
 		static float move = 0.0f;
 
@@ -451,6 +477,10 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 		glDisable(GL_TEXTURE_2D);
 	}
 
+	if (renderAboveWater && m_fWaterTransparency < 1.0f)
+	{
+		glDisable(GL_BLEND);
+	}
 }
 
 CVoid CWater::SetDuDvMap( CChar* fileName ) { 

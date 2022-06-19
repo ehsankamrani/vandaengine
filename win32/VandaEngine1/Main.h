@@ -86,7 +86,7 @@ public:
 	CVoid Render3DModels(CBool sceneManager, CChar* parentTreeNameOfGeometries, CBool checkVisibility = CFalse, CBool drawGeometry = CTrue);
 	CVoid Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* parentTreeNameOfGeometries);
 	CVoid Render3DAnimatedModels(CBool sceneManager);
-	CVoid Render3DTransparentModels();
+	CVoid Render3DTransparentModels(CBool renderTop = CTrue);
 	CVoid Render3DTransparentModelsForWater(CWater* water);
 	CVoid RenderCharacter(CBool sceneManager);
 	CVoid Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager);
@@ -244,4 +244,7 @@ public:
 	CFloat GetCursorX();
 	CFloat GetCursorY();
 	CVoid CalculateAndSort3DTransparentModelDistances();
+	CVoid RenderWaters();
+	CBool DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInstance, CWater* water);
+	CBool IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane);
 };

@@ -163,6 +163,7 @@ CPhysXProperties g_physXProperties;
 CPhysXCollisionFlags g_physXCollisionFlags;
 CDOFProperties g_dofProperties;
 CFogProperties g_fogProperties;
+CFogProperties g_waterFogProperties;
 CBloomProperties g_bloomProperties;
 CLightProperties g_lightProperties;
 CCurrentVSceneProperties g_currentVSceneProperties;
@@ -1475,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.5.1"));
+	SetWindowText(_T("Vanda Engine 1.8.6"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3041,7 +3042,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.5.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3102,7 +3103,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.5.1 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.6 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3291,7 +3292,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.5.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3377,7 +3378,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.5.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.6 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3451,7 +3452,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.5.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.6 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7569,7 +7570,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.5.1 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.6 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8002,7 +8003,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.5.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.6 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8011,7 +8012,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.5.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.6 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -8994,6 +8995,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertWater()
 		water->SetPos( m_dlgAddWater->GetPos() );
 		water->SetLightPos( m_dlgAddWater->GetLightPos() );
 		water->SetScale( m_dlgAddWater->GetScale() );
+		water->SetTransparency(m_dlgAddWater->GetTransparency());
+		water->SetFogDensity(m_dlgAddWater->GetFogDensity());
+		water->SetColor(m_dlgAddWater->GetColor());
 		water->SetSpeed( m_dlgAddWater->GetSpeed() );
 		water->SetVisible(m_dlgAddWater->GetVisible());
 		water->SetUV( m_dlgAddWater->GetUV() );
@@ -9836,7 +9840,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.5.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.6 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10679,7 +10683,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.5.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.6 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -12164,7 +12168,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( g_engineWaters[i]->m_fWaterLPos, sizeof( CFloat ), 3, filePtr );
 			fwrite( &g_engineWaters[i]->m_fWaterHeight, sizeof( CFloat ), 1, filePtr );
 			fwrite( &g_engineWaters[i]->m_fWaterSpeed, sizeof( CFloat ), 1, filePtr );
-			fwrite( &g_engineWaters[i]->m_fWaterScale, sizeof( CFloat ), 1, filePtr );
+			fwrite(&g_engineWaters[i]->m_fWaterScale, sizeof(CFloat), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_fWaterTransparency, sizeof(CFloat), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_fWaterFogDensity, sizeof(CFloat), 1, filePtr);
+			fwrite(g_engineWaters[i]->m_fWaterColor, sizeof(CFloat), 3, filePtr);
 			fwrite(&g_engineWaters[i]->m_fWaterUV, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineWaters[i]->m_isVisible, sizeof(CBool), 1, filePtr);
 
@@ -12451,7 +12458,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.5.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13592,7 +13599,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.5.1 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.6 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15418,7 +15425,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.5.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.6 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -16499,7 +16506,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CChar strWaterName[MAX_NAME_SIZE];
 			CFloat waterPos[3];
 			CFloat waterLightPos[3];
-			CFloat waterHeight, waterSpeed, waterScale, waterUV;
+			CFloat waterHeight, waterSpeed, waterScale, waterUV, waterTransparency, waterFogDensity;
+			CFloat waterColor[3];
 			CBool waterVisible;
 			fread( &tempWaterCount, sizeof( CInt ), 1, filePtr );
 			for( CInt i = 0 ; i < tempWaterCount; i++ )
@@ -16514,8 +16522,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread( waterLightPos, sizeof( CFloat ), 3, filePtr );
 				fread( &waterHeight, sizeof( CFloat ), 1, filePtr );
 				fread( &waterSpeed, sizeof( CFloat ), 1, filePtr );
-				fread( &waterScale, sizeof( CFloat ), 1, filePtr );
-				fread( &waterUV, sizeof( CFloat ), 1, filePtr );
+				fread(&waterScale, sizeof(CFloat), 1, filePtr);
+				fread(&waterTransparency, sizeof(CFloat), 1, filePtr);
+				fread(&waterFogDensity, sizeof(CFloat), 1, filePtr);
+				fread(waterColor, sizeof(CFloat), 3, filePtr);
+				fread(&waterUV, sizeof(CFloat), 1, filePtr);
 				fread(&waterVisible, sizeof(CBool), 1, filePtr);
 
 				fread(&tempInstancePrefabWaterCount, sizeof(CInt), 1, filePtr);
@@ -16554,8 +16565,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				water->SetNormalMap( normalPath );
 				water->SetHeight( waterHeight );
 				water->SetSpeed( waterSpeed );
-				water->SetScale( waterScale );
-				water->SetUV( waterUV );
+				water->SetScale(waterScale);
+				water->SetTransparency(waterTransparency);
+				water->SetFogDensity(waterFogDensity);
+				water->SetColor(waterColor);
+				water->SetUV(waterUV);
 				water->SetPos( waterPos );
 				water->SetVisible(waterVisible);
 				water->SetLightPos( waterLightPos );
@@ -17267,7 +17281,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.5.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -19134,7 +19148,10 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 	m_dlgAddWater->SetDuDvMapName( DuDvName );
 	m_dlgAddWater->SetNormalMapName( NormalName );
 	m_dlgAddWater->SetHeight( water->GetHeight() );
-	m_dlgAddWater->SetScale( water->GetScale() );
+	m_dlgAddWater->SetScale(water->GetScale());
+	m_dlgAddWater->SetTransparency(water->GetTransparency());
+	m_dlgAddWater->SetFogDensity(water->GetFogDensity());
+	m_dlgAddWater->SetColor(water->GetColor());
 	m_dlgAddWater->SetUV( water->GetUV() );
 	m_dlgAddWater->SetLightPos( water->GetLightPos() );
 	m_dlgAddWater->SetPos( water->GetPos() );
@@ -19181,7 +19198,10 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 		water->SetPos( m_dlgAddWater->GetPos() );
 		water->SetLightPos( m_dlgAddWater->GetLightPos() );
 		water->SetHeight( m_dlgAddWater->GetHeight() );
-		water->SetScale( m_dlgAddWater->GetScale() );
+		water->SetScale(m_dlgAddWater->GetScale());
+		water->SetTransparency(m_dlgAddWater->GetTransparency());
+		water->SetFogDensity(m_dlgAddWater->GetFogDensity());
+		water->SetColor(m_dlgAddWater->GetColor());
 		water->SetUV( m_dlgAddWater->GetUV() );
 		water->SetSpeed( m_dlgAddWater->GetSpeed() );
 		water->SetVisible(m_dlgAddWater->GetVisible());
@@ -23977,10 +23997,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraTilt;
 	/*g_camera->m_perspectiveCameraYaw = */g_camera->m_perspectiveCameraPitch = 0.0f;
 
-	for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
-	{
-		g_engineCameraInstances[c]->SetActive(CFalse);
-	}
+	//for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+	//{
+	//	g_engineCameraInstances[c]->SetActive(CFalse);
+	//}
 
 	//deselect all items
 	g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
@@ -24077,8 +24097,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
 	ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("\n");
 
-	g_render.SetActiveInstanceCamera(NULL);
-	g_currentCameraType = eCAMERA_PHYSX;
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+	{
+		g_render.SetActiveInstanceCamera(NULL);
+		g_currentCameraType = eCAMERA_PHYSX;
+	}
 	m_mainBtnTestActive.ShowWindow(SW_SHOW);
 	m_mainBtnTestActive.EnableWindow(TRUE);
 	m_mainBtnTestActive.UpdateWindow();
@@ -24418,6 +24441,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 		if (g_mainCharacter)
 		{
+			g_multipleView->SetPlayGameMode(CTrue);
+			CBool isSceneVisible = g_mainCharacter->GetInstancePrefab()->GetSceneVisible(0);
+			g_mainCharacter->GetInstancePrefab()->SetSceneVisible(0, CTrue);
+			CFloat idleDelayIn = g_characterBlendingProperties.m_idleDelayIn;
+			g_characterBlendingProperties.m_idleDelayIn = 0.0f;
 			g_multipleView->m_characterRotationTransition = CTrue;
 			g_multipleView->ManageCharacterBlends("idle");
 			m_initCharacterRotate = g_mainCharacter->GetInstancePrefab()->GetRotate();
@@ -24427,6 +24455,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
 			g_camera->m_perspectiveCameraYaw = NxMath::degToRad(m_initCharacterRotate.y) + NxMath::degToRad(180.f);
 			g_multipleView->m_idleCounter = 0.0f;
+			g_characterBlendingProperties.m_idleDelayIn = idleDelayIn;
+			g_mainCharacter->GetInstancePrefab()->SetSceneVisible(0, isSceneVisible);
+			g_multipleView->SetPlayGameMode(CFalse);
 		}
 
 		//g_multipleView->RenderWindow();

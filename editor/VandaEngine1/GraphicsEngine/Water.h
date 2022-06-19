@@ -42,6 +42,9 @@ public:
 	CFloat m_fWaterSpeed;
 	CFloat m_fWaterUV;
 	CFloat m_fWaterScale;
+	CFloat m_fWaterTransparency;
+	CFloat m_fWaterColor[3];
+	CFloat m_fWaterFogDensity;
 	CBool m_isVisible;
 	GLint m_result;
 
@@ -151,6 +154,15 @@ public:
 	CVoid AddPrefabInstance(CInstancePrefab* instance);
 	CVoid RemovePrefabInstance(CUInt index);
 	CInstancePrefab* GetPrefabInstance(CUInt index);
+	
+	CFloat GetTransparency() { return m_fWaterTransparency; }
+	CVoid SetTransparency(CFloat value) { m_fWaterTransparency = value; }
+
+	CFloat* GetColor() { return m_fWaterColor; }
+	CVoid SetColor(CFloat* color) { m_fWaterColor[0] = color[0];  m_fWaterColor[1] = color[1]; m_fWaterColor[2] = color[2]; }
+
+	CFloat GetFogDensity() { return m_fWaterFogDensity; }
+	CVoid SetFogDensity(CFloat value) { m_fWaterFogDensity = value; }
 
 private:
 	CImage *m_dudvMapImg;

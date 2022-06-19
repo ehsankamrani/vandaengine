@@ -44,11 +44,11 @@ CVoid CStaticSound::RenderIcon(CBool selectionMode)
 
 CStaticSound::~CStaticSound()
 {
-	alSourceStop(m_source->GetSource());
-	alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE);
-
 	if (m_buffer)
 	{
+		alSourceStop(m_source->GetSource());
+		alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE);
+
 		CInt counter = 0;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{

@@ -83,13 +83,32 @@ CVoid CSkyDome::Destroy()
 
 CVoid CSkyDome::RenderDome()
 {
-	glUseProgram(0);
+	if (g_fogBlurPass)
+	{
+		g_shaderType = g_render.m_fogBlurProgram;
+		glUseProgram(g_shaderType);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_multipleView->m_dof.m_focalRange);
+		CBool useFog;
+		if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+			useFog = CFalse;
+		else
+			useFog = CTrue;
 
+		if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
+		else
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
+	}
+	else
+	{
+		glUseProgram(0);
+	}
 	glMatrixMode( GL_MODELVIEW );
 	g_render.PushMatrix();
 	glTranslatef( m_position[0], m_position[1], m_position[2] );
 
-	glPushAttrib( GL_LIGHTING_BIT );
+	glPushAttrib( GL_LIGHTING_BIT);
 	glDisable( GL_LIGHTING );
 	//glDisable(GL_DEPTH_TEST);
 	int i;

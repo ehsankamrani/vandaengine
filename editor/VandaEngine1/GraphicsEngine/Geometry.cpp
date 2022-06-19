@@ -215,7 +215,7 @@ CVoid CPolyGroup::EnableShader()
 			else
 				useFog = CTrue;
 
-			if (g_fogProperties.m_enable && useFog)
+			if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
 				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
 			else
 				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);

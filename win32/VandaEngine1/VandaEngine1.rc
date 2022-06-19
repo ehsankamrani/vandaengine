@@ -75,12 +75,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.8.5.1"
+            VALUE "FileVersion", "1.8.6"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2022 Vanda Engine.  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.8.5.1"
+            VALUE "ProductVersion", "1.8.6"
         END
     END
     BLOCK "VarFileInfo"
@@ -101,7 +101,7 @@ CAPTION "About"
 FONT 8, "System"
 BEGIN
     ICON            107,IDC_MYICON,14,9,16,16
-    LTEXT           "VandaEngine Version 1.8.5.1",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.8.6",IDC_STATIC,49,10,119,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2022",IDC_STATIC,49,20,119,8
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
 END
