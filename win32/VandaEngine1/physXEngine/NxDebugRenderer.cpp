@@ -9,7 +9,7 @@ NX_INLINE CVoid setupColor(NxU32 color)
 	NxF32 Blue	= NxF32((color)&0xff)/255.0f;
 	NxF32 Green	= NxF32((color>>8)&0xff)/255.0f;
 	NxF32 Red	= NxF32((color>>16)&0xff)/255.0f;
-	glColor3f(Red, Green, Blue);
+	glColor4f(Red, Green, Blue, 0.0f);
 }
 
 CVoid DebugRenderer::renderData(const NxDebugRenderable& data) const

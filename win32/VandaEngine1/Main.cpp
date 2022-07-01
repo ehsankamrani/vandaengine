@@ -10596,17 +10596,9 @@ CBool CMain::Init()
 CVoid CMain::Release()
 {
 	glDeleteTextures(eGBUFFER_NUM_TEXTURES, &m_textureTarget[0] );								
-	glDeleteTextures(1, &m_textureTargetSwapLights);								
-	glDeleteTextures(1, &m_textureTargetSumLighting);								
-	glDeleteTextures(1, &m_textureFogDof);								
 
 	glDeleteFramebuffersEXT( 1, &m_mFboID );
-	glDeleteFramebuffersEXT( 1, &m_mFboID2 );
 	glDeleteFramebuffersEXT( 1, &m_fboID );
-	glDeleteFramebuffersEXT( 1, &m_fboID2 );
-	glDeleteFramebuffersEXT( 1, &m_fboIDSum );
-	glDeleteFramebuffersEXT( 1, &m_fboIDFogDof );
-	glDeleteFramebuffersEXT( 1, &m_mFboIDFogDof );
 	CDelete(g_mainCharacter);
 
 	//remove gui
@@ -11260,7 +11252,7 @@ CBool CMain::Render()
 	g_currentInstancePrefab = NULL;
 
 
-	if (g_databaseVariables.m_showBoundingBox)
+	if (g_databaseVariables.m_showPrefabBoundingBox)
 	{
 		COpenGLUtility g_glUtil;
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -11271,6 +11263,15 @@ CBool CMain::Render()
 			g_glUtil.DrawCWBoxWithLines(min, max, lineColor);
 		}
 	}
+
+	if (g_databaseVariables.m_showTerrainBoundingBox)
+	{
+		if (g_databaseVariables.m_insertAndShowTerrain)
+			if (g_terrain->GetTerrain())
+				g_terrain->GetTerrain()->DrawBoundingBox();
+	}
+
+
 	if (g_databaseVariables.m_showOctree)
 	{
 		g_octree->Render(CFalse, CFalse);
@@ -11283,101 +11284,6 @@ CBool CMain::Render()
 
 	g_currentInstanceLight = NULL;
 	g_totalLights = g_numLights;
-
-	CBool useFog;
-	if( g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader())
-		useFog = CFalse;
-	else 
-		useFog = CTrue;
-
-	if( ( g_fogProperties.m_enable || g_waterFogProperties.m_enable || g_dofProperties.m_enable ) && useFog )
-	{
-		if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && /*g_options.m_numSamples*/g_window.m_numSamples && g_options.m_enableFBO)
-			g_render.BindForWriting(m_mFboIDFogDof);
-		else if(!g_useOldRenderingStyle && g_options.m_enableFBO )
-			g_render.BindForWriting( m_fboIDFogDof );
-		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		g_fogBlurPass = CTrue;
-
-		if (g_databaseVariables.m_insertAndShowSky)
-		{
-			g_skyDome->RenderDome();
-		}
-
-		if (g_databaseVariables.m_insertAndShowTerrain)
-			RenderTerrain(CFalse);
-
-		m_checkBlending = CFalse;
-		m_renderBlending = CFalse;
-		m_pushTransparentGeometry = CFalse;
-
-		//g_octree->Render();
-		g_main->RenderBakedOctree3DModels();
-		if (g_databaseVariables.m_showBoundingBox)
-		{
-			g_octree->Render(CFalse, CFalse);
-		}
-
-		Render3DAnimatedModels( CTrue);
-		Render3DModelsControlledByPhysX();
-		RenderCharacter(CFalse);
-
-		m_renderBlending = CTrue;
-
-		CBool condition = CFalse;
-
-		CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
-		for (CUInt i = 0; i < g_engineWaters.size(); i++)
-		{
-			CFloat xmin, xmax, zmin, zmax;
-			xmin = g_engineWaters[i]->m_sidePoint[0].x; zmin = g_engineWaters[i]->m_sidePoint[0].z;
-			xmax = g_engineWaters[i]->m_sidePoint[2].x; zmax = g_engineWaters[i]->m_sidePoint[2].z;
-
-			if (cameraPos.x > xmin && cameraPos.x < xmax && cameraPos.z > zmin && cameraPos.z < zmax)
-			{
-				CVec4f waterPlane(0.0f, 1.0f, 0.0f, g_engineWaters[i]->m_fWaterCPos[1]);
-				if (!IsCameraAboveWater(cameraPos, waterPlane))
-				{
-					condition = CTrue;
-					break;
-				}
-			}
-		}
-
-		Render3DTransparentModels(condition);
-
-		//render water
-		if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-		{
-			for (CUInt i = 0; i < g_engineWaters.size(); i++)
-			{
-				CVec3f waterPoints[4];
-				waterPoints[0].x = g_engineWaters[i]->m_sidePoint[0].x; waterPoints[0].y = g_engineWaters[i]->m_sidePoint[0].y; waterPoints[0].z = g_engineWaters[i]->m_sidePoint[0].z;
-				waterPoints[1].x = g_engineWaters[i]->m_sidePoint[1].x; waterPoints[1].y = g_engineWaters[i]->m_sidePoint[1].y; waterPoints[1].z = g_engineWaters[i]->m_sidePoint[1].z;
-				waterPoints[2].x = g_engineWaters[i]->m_sidePoint[2].x; waterPoints[2].y = g_engineWaters[i]->m_sidePoint[2].y; waterPoints[2].z = g_engineWaters[i]->m_sidePoint[2].z;
-				waterPoints[3].x = g_engineWaters[i]->m_sidePoint[3].x; waterPoints[3].y = g_engineWaters[i]->m_sidePoint[3].y; waterPoints[3].z = g_engineWaters[i]->m_sidePoint[3].z;
-
-				if (g_camera->m_cameraManager->IsBoxInFrustum(waterPoints, 4))
-				{
-					glUseProgram(g_render.m_waterFogBlurProgram);
-					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalDistance"), m_dof.m_focalDistance);
-					glUniform1f(glGetUniformLocation(g_render.m_waterFogBlurProgram, "focalRange"), m_dof.m_focalRange);
-					if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
-						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CTrue);
-					else
-						glUniform1i(glGetUniformLocation(g_render.m_waterFogBlurProgram, "enableFog"), CFalse);
-					g_engineWaters[i]->RenderWater(cameraPos, elapsedTime);
-					glUseProgram(0);
-				}
-			}
-		}
-
-		Render3DTransparentModels(!condition);
-
-		g_fogBlurPass = CFalse;
-		BlendFogWithScene();
-	}
 
 	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	{
@@ -12029,16 +11935,27 @@ CBool CMain::ProcessInputs()
 		if (g_input.KeyUp(DIK_V))
 			vKeyDown = CFalse;
 
-		//bounding box
+		//Prefab bounding box
 		static CBool bKeyDown = CFalse;
 
 		if (g_input.KeyDown(DIK_B) && !bKeyDown)
 		{
 			bKeyDown = CTrue;
-			g_databaseVariables.m_showBoundingBox = !g_databaseVariables.m_showBoundingBox;
+			g_databaseVariables.m_showPrefabBoundingBox = !g_databaseVariables.m_showPrefabBoundingBox;
 		}
 		if (g_input.KeyUp(DIK_B))
 			bKeyDown = CFalse;
+
+		//Terrain bounding box
+		static CBool tKeyDown = CFalse;
+
+		if (g_input.KeyDown(DIK_T) && !tKeyDown)
+		{
+			tKeyDown = CTrue;
+			g_databaseVariables.m_showTerrainBoundingBox = !g_databaseVariables.m_showTerrainBoundingBox;
+		}
+		if (g_input.KeyUp(DIK_T))
+			tKeyDown = CFalse;
 
 		//octree
 		static CBool nKeyDown = CFalse;
@@ -14380,7 +14297,7 @@ CBool CMain::Load(CChar* pathName)
 		CChar path[MAX_NAME_SIZE];
 		CInt slices, sides;
 		CFloat dampening, radius, position[3];
-		CBool exponential;
+		CBool exponential, fog;
 		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(path, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&slices, sizeof(CInt), 1, filePtr);
@@ -14389,6 +14306,7 @@ CBool CMain::Load(CChar* pathName)
 		fread(position, sizeof(CFloat), 3, filePtr);
 		fread(&dampening, sizeof(CFloat), 1, filePtr);
 		fread(&exponential, sizeof(CBool), 1, filePtr);
+		fread(&fog, sizeof(CBool), 1, filePtr);
 
 		g_skyDome = CNew(CSkyDome);
 		CChar skyPath[MAX_NAME_SIZE];
@@ -14404,6 +14322,7 @@ CBool CMain::Load(CChar* pathName)
 		g_skyDome->SetPosition(position);
 		g_skyDome->SetDampening(dampening);
 		g_skyDome->SetExponential(exponential);
+		g_skyDome->SetFog(fog);
 		g_skyDome->Initialize();
 		g_databaseVariables.m_insertAndShowSky = CTrue;
 	}
@@ -15570,34 +15489,6 @@ CBool CMain::InitFBOs( CInt channels, CInt type )
 		g_render.BindFBO(0);
 		g_render.BindRenderBuffer(0);
 
-		//second multisample FBO for multi light passes
-		m_mFboID2 = g_render.GenerateFBO();
-		g_render.BindFBO( m_mFboID2 );
-		m_rbDepthMID2 = g_render.GenerateRenderBuffer();
-		g_render.BindRenderBuffer( m_rbDepthMID2 );
-		g_render.RenderbufferDepthStorageMultisample( numSamples, g_width, g_height );
-		g_render.AttachDepthToFBO( m_rbDepthMID2 );
-
-		m_rbColorID2 = g_render.GenerateRenderBuffer();
-		g_render.BindRenderBuffer( m_rbColorID2 );
-		g_render.RenderbufferColorStorageMultisample( numSamples, type, g_width, g_height );
-		g_render.AttachRenderBufferToFBOColor( m_rbColorID2, 0 );
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-		status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-		switch(status)
-		{
-			case GL_FRAMEBUFFER_COMPLETE_EXT:
-				break;
-			default:
-				MessageBoxA( NULL, "CMain::InitFBo(): An error occured while creating the FBO", "Vanda Engine 1 Error",  MB_OK | MB_ICONERROR);
-				break;
-		}
-
-		g_render.BindFBO(0);
-		g_render.BindRenderBuffer(0);
-
 	}
 
 	for( CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++ )
@@ -15643,126 +15534,6 @@ CBool CMain::InitFBOs( CInt channels, CInt type )
 			break;
 	}
 
-	//second FBO for multi light passes
-	glGenTextures(1, &m_textureTargetSwapLights );								
-	glBindTexture(GL_TEXTURE_2D, m_textureTargetSwapLights );					
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, g_width, g_height, 0, GL_RGBA, GL_FLOAT, NULL);	
-  	glTexImage2D(GL_TEXTURE_2D, 0, channels, g_width, g_height, 0, type, GL_UNSIGNED_BYTE, NULL );
-
-	m_fboID2 = g_render.GenerateFBO();
-	g_render.BindFBO( m_fboID2 );
-
-	g_render.Attach2DTextureToFBOColor( m_textureTargetSwapLights, 0 );
-
-	m_rbDepthIDSwapLights = g_render.GenerateRenderBuffer();
-	g_render.BindRenderBuffer( m_rbDepthIDSwapLights );
-	g_render.RenderbufferStorage( g_width, g_height );
-	g_render.AttachDepthToFBO( m_rbDepthIDSwapLights );
-
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch(status)
-	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
-		default:
-			MessageBoxA( NULL, "CMain::InitFBo(): An error occured while creating the FBO", "Vanda Engine 1 Error",  MB_OK | MB_ICONERROR);
-			break;
-	}
-
-	//Final FBO for multi light passes
-	glGenTextures(1, &m_textureTargetSumLighting );								
-	glBindTexture(GL_TEXTURE_2D, m_textureTargetSumLighting );					
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, g_width, g_height, 0, GL_RGBA, GL_FLOAT, NULL);	
-   	glTexImage2D(GL_TEXTURE_2D, 0, channels, g_width, g_height, 0, type, GL_UNSIGNED_BYTE, NULL );
-
-	m_fboIDSum = g_render.GenerateFBO();
-	g_render.BindFBO( m_fboIDSum );
-	g_render.Attach2DTextureToFBOColor( m_textureTargetSumLighting, 0 );
-
-	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch(status)
-	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
-		default:
-			MessageBoxA( NULL, "CMain::InitFBo(): An error occured while creating the FBO", "Vanda Engine 1 Error",  MB_OK | MB_ICONERROR);
-			break;
-	}
-
-	g_render.BindFBO( 0 );
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-
-
-	// FBO for fog and depth of field
-	glGenTextures(1, &m_textureFogDof );								
-	glBindTexture(GL_TEXTURE_2D, m_textureFogDof );					
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, g_width, g_height, 0, GL_RGBA, GL_FLOAT, NULL);	
-   	glTexImage2D(GL_TEXTURE_2D, 0, channels, g_width, g_height, 0, type, GL_UNSIGNED_BYTE, NULL );
-
-	m_fboIDFogDof = g_render.GenerateFBO();
-	g_render.BindFBO( m_fboIDFogDof );
-	g_render.Attach2DTextureToFBOColor( m_textureFogDof, 0 );
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-	m_rbDepthIDFogDof = g_render.GenerateRenderBuffer();
-	g_render.BindRenderBuffer( m_rbDepthIDFogDof );
-	g_render.RenderbufferStorage( g_width, g_height );
-	g_render.AttachDepthToFBO( m_rbDepthIDFogDof );
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch(status)
-	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
-		default:
-			MessageBoxA( NULL, "CMain::InitFBo(): An error occured while creating the FBO", "Vanda Engine 1 Error",  MB_OK | MB_ICONERROR);
-			break;
-	}
-
-	//Multisample FBO for depth and DOF
-	m_mFboIDFogDof = g_render.GenerateFBO();
-	g_render.BindFBO( m_mFboIDFogDof );
-
-	m_rbColorIDFogDof = g_render.GenerateRenderBuffer();
-	g_render.BindRenderBuffer( m_rbColorIDFogDof );
-	g_render.RenderbufferColorStorageMultisample( numSamples, type, g_width, g_height );
-	g_render.AttachRenderBufferToFBOColor( m_rbColorIDFogDof, 0 );
-
-	m_rbMDepthIDFogDof = g_render.GenerateRenderBuffer();
-	g_render.BindRenderBuffer( m_rbMDepthIDFogDof );
-	g_render.RenderbufferDepthStorageMultisample( numSamples, g_width, g_height );
-	g_render.AttachDepthToFBO( m_rbMDepthIDFogDof );
-
-	glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
-
-	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch(status)
-	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
-		default:
-			MessageBoxA( NULL, "CMain::InitFBo(): An error occured while creating the FBO", "Vanda Engine 1 Error",  MB_OK | MB_ICONERROR);
-			break;
-	}
-
-	//g_render.BindFBO(0);
 	g_render.BindFBO( 0 );
 	g_render.BindRenderBuffer(0);
 
@@ -15771,7 +15542,6 @@ CBool CMain::InitFBOs( CInt channels, CInt type )
 	return CTrue;
 
 }
-
 
 CVoid CMain::SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar)
 {
@@ -16541,8 +16311,10 @@ CVoid CMain::RenderTerrain(CBool useFBO)
 
 	if (g_options.m_enableShader && g_render.UsingShader())
 	{
-		if (g_fogBlurPass)
-			g_shaderType = g_render.m_fogBlurProgram;
+		if (g_renderForWater)
+		{
+			g_shaderType = g_render.m_terrainProgram;
+		}
 		else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
 		{
 			if (false/*m_hasNormalMap*/) //currently no normal map
@@ -16613,40 +16385,36 @@ CVoid CMain::RenderTerrain(CBool useFBO)
 			}
 		}
 		else
+		{
 			g_shaderType = g_render.m_terrainProgram;
-
-		if (g_fogBlurPass)
-		{
-			glUseProgram(g_shaderType);
-			glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
-			glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
-			CBool useFog;
-			if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
-				useFog = CFalse;
-			else
-				useFog = CTrue;
-
-			if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
-				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
-			else
-				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
 		}
+
+		glUseProgram(g_shaderType);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
+		CBool useFog;
+		if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+			useFog = CFalse;
 		else
-		{
-			glUseProgram(g_shaderType);
-			glUniform1i(glGetUniformLocation(g_shaderType, "image1"), 0);
-			glUniform1i(glGetUniformLocation(g_shaderType, "image2"), 1);
-			glUniform1i(glGetUniformLocation(g_shaderType, "image3"), 2);
-			glUniform1i(glGetUniformLocation(g_shaderType, "shadowMap"), 3);
-			glUniform1i(glGetUniformLocation(g_shaderType, "image1Normal"), 4);
-			glUniform1i(glGetUniformLocation(g_shaderType, "image2Normal"), 5);
-			glUniform1i(glGetUniformLocation(g_shaderType, "image3Normal"), 6);
+			useFog = CTrue;
 
-			glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
-			glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
-			glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
-			glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
-		}
+		if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
+		else
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
+
+		glUniform1i(glGetUniformLocation(g_shaderType, "image1"), 0);
+		glUniform1i(glGetUniformLocation(g_shaderType, "image2"), 1);
+		glUniform1i(glGetUniformLocation(g_shaderType, "image3"), 2);
+		glUniform1i(glGetUniformLocation(g_shaderType, "shadowMap"), 3);
+		glUniform1i(glGetUniformLocation(g_shaderType, "image1Normal"), 4);
+		glUniform1i(glGetUniformLocation(g_shaderType, "image2Normal"), 5);
+		glUniform1i(glGetUniformLocation(g_shaderType, "image3Normal"), 6);
+
+		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
+		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
+		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
+		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
 	}
 	else
 	{
@@ -16654,11 +16422,10 @@ CVoid CMain::RenderTerrain(CBool useFBO)
 	}
 
 	if (g_terrain->GetTerrain())
-		g_terrain->GetTerrain()->draw(CFalse);
+		g_terrain->GetTerrain()->draw();
 	if (g_terrain->GetTerrainTexture())
 		g_terrain->GetTerrainTexture()->disableTextures();
 }
-
 
 CVoid CMain::RenderQueries(CBool init)
 {
@@ -17033,7 +16800,7 @@ CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* pa
 			{
 				glUseProgram(0);
 			}
-			//if (g_databaseVariables.m_showBoundingBox)
+			//if (g_databaseVariables.m_showPrefabBoundingBox)
 			//{
 			//	g_render.GetScene()->RenderAABBWithLines();
 			//}
@@ -17816,74 +17583,6 @@ CVoid CMain::SetDefaultLight()
 	glLightf ( GL_LIGHT0, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f );
 		
 	g_numLights++;
-}
-
-CVoid CMain::BlendFogWithScene()
-{
-	if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && /*g_options.m_numSamples*/g_window.m_numSamples && g_options.m_enableFBO)
-	{
-		g_render.BindForReading( m_mFboID );
-		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		g_render.BindForWriting( m_fboID );
-		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-		g_render.BindForReading( m_mFboIDFogDof );
-		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		g_render.BindForWriting( m_fboIDFogDof );
-		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	}
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glBindTexture(GL_TEXTURE_2D, m_textureTarget[0]);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glBindTexture(GL_TEXTURE_2D, m_textureFogDof);
-
-	g_render.BindForWriting( m_fboIDSum );
-
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(g_render.m_blendTexturesProgram);
-	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "tex_unit_0"), 0 );
-	glUniform1i( glGetUniformLocation(g_render.m_blendTexturesProgram, "tex_unit_1"), 1 );
-
-	glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
-	gluOrtho2D(0, g_width, 0, g_height);
-	glMatrixMode(GL_MODELVIEW); glPushMatrix();	glLoadIdentity();
-	glBegin(GL_QUADS);
-	glTexCoord2i(0,	0);	glVertex2i(0, 0); 
-	glTexCoord2i(1, 0);	glVertex2i(g_width, 0);
-	glTexCoord2i(1, 1);	glVertex2i(g_width, g_height);
-	glTexCoord2i(0, 1);	glVertex2i(0, g_height);
-	glEnd();
-	glFlush();
-
-	glMatrixMode(GL_PROJECTION); glPopMatrix();
-	glMatrixMode(GL_MODELVIEW); glPopMatrix();
-	//glActiveTextureARB(GL_TEXTURE0_ARB);
-	//glBindTexture(GL_TEXTURE_2D, 0);
-	//glActiveTextureARB(GL_TEXTURE1_ARB);
-	//glBindTexture(GL_TEXTURE_2D, 0);
-	glUseProgram(0);
-	g_render.BindFBO(0);
-
-	//copy  sum to the default FBO
-	g_render.BindForReading( m_fboIDSum );
-	glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-	if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && /*g_options.m_numSamples*/g_window.m_numSamples && g_options.m_enableFBO)
-	{
-		g_render.BindForWriting( m_mFboID );
-	}
-	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-	{
-		g_render.BindForWriting( m_fboID );
-	}
-	glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-
-	if ( g_render.UsingFBOs() && g_options.m_enableFBO )
-		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
 }
 
 CVoid CMain::ResetPhysXCounts()

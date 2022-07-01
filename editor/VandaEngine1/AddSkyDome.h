@@ -26,7 +26,7 @@ protected:
 	CFloat m_iSkyDomeSides;
 	CFloat m_iSkyDomeSlices;
 	CBool m_bSkyDomeExponential;
-
+	CBool m_fog;
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 
@@ -45,6 +45,7 @@ public:
 	CInt GetSlices() { return m_iSkyDomeSlices; }
 	CFloat GetDampening() { return m_fSkyDomeDampening; }
 	CBool GetExponential() { return m_bSkyDomeExponential; }
+	CBool GetFog() { return m_fog; }
 
 	CVoid SetPos( CFloat* pos )
 	{
@@ -115,6 +116,7 @@ public:
 		m_bSkyDomeExponential = exponential;
 	}
 	//#######################
+	CVoid SetFog(CBool set) { m_fog = set; }
 
 	CEdit m_editBoxSkyDomeName;
 	CEdit m_editBoxSkyDomeData;
@@ -157,4 +159,5 @@ public:
 	virtual INT_PTR DoModal();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnEnChangeEditSkydomPath();
+	CButton m_checkBoxEnableFog;
 };

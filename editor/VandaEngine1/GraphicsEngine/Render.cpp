@@ -18,20 +18,29 @@ CVoid CRender::Init()
 	m_scene = NULL;
 	m_selectedScene = NULL;
 	m_selectedInstancePrefab = NULL;
+
 	m_shaderProgram = 0;
 	m_waterShaderProgram = 0;
+	m_shader_normalProgram = 0;
+	m_deferredProgram = 0;
+	m_blendTexturesProgram = 0;
 	m_waterProgram = 0;
-	m_glowProgram = 0;
 	m_blurProgram = 0;
+	m_glowProgram = 0;
+	m_terrainProgram = 0;
+	m_terrainNormalMapLayerProgram = 0;
+	m_terrainDiffuseLayerProgram = 0;
+	m_terrainOtherLayerProgram = 0;
+
 	m_shad_single_hl_prog = 0;
 	m_shad_single_prog = 0;
 	m_shad_multi_prog = 0;
 	m_shad_multi_noleak_prog = 0;
-    m_shad_pcf_prog = 0;
-    m_shad_pcf_trilin_prog = 0;
-    m_shad_pcf_4tap_prog = 0;
-    m_shad_pcf_8tap_prog = 0;
-    m_shad_pcf_gaussian_prog = 0;
+	m_shad_pcf_prog = 0;
+	m_shad_pcf_trilin_prog = 0;
+	m_shad_pcf_4tap_prog = 0;
+	m_shad_pcf_8tap_prog = 0;
+	m_shad_pcf_gaussian_prog = 0;
 
 	m_terrain_shad_single_prog = 0;
 	m_terrain_shad_multi_prog = 0;
@@ -42,9 +51,38 @@ CVoid CRender::Init()
 	m_terrain_shad_pcf_8tap_prog = 0;
 	m_terrain_shad_pcf_gaussian_prog = 0;
 
+	//+ normal map
+	m_shad_single_hl_normal_prog = 0;
+	m_shad_single_normal_prog = 0;
+	m_shad_multi_normal_prog = 0;
+	m_shad_multi_noleak_normal_prog = 0;
+	m_shad_pcf_normal_prog = 0;
+	m_shad_pcf_trilin_normal_prog = 0;
+	m_shad_pcf_4tap_normal_prog = 0;
+	m_shad_pcf_8tap_normal_prog = 0;
+	m_shad_pcf_gaussian_normal_prog = 0;
+
 	m_shad_view_depth = 0;
+
+	//layers
+	m_shaderColorMapLayerProgram = 0;
+	m_shaderNormalMapLayerProgram = 0;
+	m_shaderGlossMapLayerProgram = 0;
+	m_shaderDirtMapLayerProgram = 0;
+	m_shaderAlphaMapLayerProgram = 0;
+	m_shaderPositionLayerProgram = 0;
+	m_shaderNormalLayerProgram = 0;
+
+	m_iconProgram = 0;
+
+	m_arrowProgram = 0;
+
+	m_skyProgram = 0;
+
 	for( CUInt i = 0; i < 4; i++ )
 		m_dofProgram[i] = 0;
+
+	/////////
 
 	//m_cgInitialized = InitCg();
 	SupportForVBOs();
@@ -195,43 +233,6 @@ CVoid CRender::Init()
 		{
 			PrintInfo( "\nglow shader loaded successfully", COLOR_WHITE );
 
-		}
-
-		m_fogBlurProgram = LoadShaderProgram( "Assets/Engine/shaders/fog_blur.glsl", infoLog);
-		if( m_fogBlurProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/fog_blur.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nfog_blur shader loaded successfully", COLOR_WHITE );
-		}
-
-		//water fog blur
-		m_waterFogBlurProgram = LoadShaderProgram( "Assets/Engine/shaders/water_fog_blur.glsl", infoLog);
-		if( m_waterFogBlurProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/water_fog_blur.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nwater_fog_blur shader loaded successfully", COLOR_WHITE );
 		}
 
 		//terrain Program
@@ -1052,6 +1053,62 @@ CVoid CRender::Init()
 			m_shaderAvailable = CTrue;
 		}
 
+		m_iconProgram = LoadShaderProgram("Assets/Engine/shaders/icon.glsl", infoLog);
+		if (m_iconProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/icon.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nIcon shader loaded successfully", COLOR_WHITE);
+
+		}
+
+		m_arrowProgram = LoadShaderProgram("Assets/Engine/shaders/arrow.glsl", infoLog);
+		if (m_arrowProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/arrow.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nArrow shader loaded successfully", COLOR_WHITE);
+
+		}
+
+		m_skyProgram = LoadShaderProgram("Assets/Engine/shaders/sky.glsl", infoLog);
+		if (m_skyProgram == 0)
+		{
+			if (infoLog.c_str())
+			{
+				PrintShaderLog("\n");
+				PrintShaderLog(infoLog.c_str());
+			}
+			PrintInfo("\nCouldn't load shader : Assets/Engine/shaders/sky.glsl", COLOR_RED);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			PrintInfo("\nSky shader loaded successfully", COLOR_WHITE);
+
+		}
 
 		infoLog.erase();
 		m_shaderAvailable = CTrue;
@@ -1166,8 +1223,6 @@ CVoid CRender::Destroy()
 	glDeleteProgram( m_waterProgram );
 	glDeleteProgram( m_blurProgram );
 	glDeleteProgram( m_glowProgram );
-	glDeleteProgram( m_fogBlurProgram );
-	glDeleteProgram( m_waterFogBlurProgram );
 	glDeleteProgram(m_terrainProgram);
 	glDeleteProgram(m_terrainNormalMapLayerProgram);
 	glDeleteProgram(m_terrainDiffuseLayerProgram);
@@ -1219,6 +1274,12 @@ CVoid CRender::Destroy()
 
 	glDeleteProgram( m_blendTexturesProgram );
 	glDeleteProgram( m_deferredProgram );
+
+	glDeleteProgram(m_iconProgram);
+
+	glDeleteProgram(m_arrowProgram);
+
+	glDeleteProgram(m_skyProgram);
 }
 
 CBool CRender::DestroyCg()
@@ -1881,15 +1942,6 @@ CBool CRender::SetInstanceLight( CInstanceLight * lightInstance, CInt lightNumbe
 				{
 					g_defaultDirectionalLight.x = lightDirNormalized[0]; g_defaultDirectionalLight.y = lightDirNormalized[1]; g_defaultDirectionalLight.z = lightDirNormalized[2]; g_defaultDirectionalLight.w = 1.0f;
 				}
-				if( !g_dofProperties.m_debug &&  g_menu.m_showLightIcons )
-				{
-					//render direction
-					g_render.ModelViewMatrix();
-					g_render.PushMatrix();
-					g_render.MultMatrix(localmatrix);
-					g_negativeZArrow->Render(CFalse);
-					g_render.PopMatrix();
-				}
 			}
 			else
 			{
@@ -1958,17 +2010,6 @@ CBool CRender::SetInstanceLight( CInstanceLight * lightInstance, CInt lightNumbe
 		
 				glLightfv( GL_LIGHT0+lightNumber, GL_POSITION,		(GLfloat*)&Position );
 				glLightfv( GL_LIGHT0+lightNumber, GL_SPOT_DIRECTION, (GLfloat*) &newdirection );
-
-				if( !g_dofProperties.m_debug &&  g_menu.m_showLightIcons )
-				{
-					//render direction
-					g_render.ModelViewMatrix();
-					g_render.PushMatrix();
-					g_render.MultMatrix(localmatrix);
-					g_negativeZArrow->Render(CFalse);
-					g_glUtil.DrawCone( 1,  1, 10, 10,  lightInstance->m_abstractLight->GetDiffuse() );
-					g_render.PopMatrix();
-				}
 			}
 			else
 			{
@@ -1986,19 +2027,6 @@ CBool CRender::SetInstanceLight( CInstanceLight * lightInstance, CInt lightNumbe
 				CVec3f normal;
 				normal = normal.CrossProduct( &v0, &v1 );
 				normal.Normalize();
-
-				if( !g_dofProperties.m_debug &&  g_menu.m_showLightIcons )
-				{
-					//render direction
-					g_render.ModelViewMatrix();
-					g_render.PushMatrix();
-					glTranslatef( lightInstance->m_abstractLight->GetPosition()[0], lightInstance->m_abstractLight->GetPosition()[1], lightInstance->m_abstractLight->GetPosition()[2] );
-					glRotatef( theta, normal.x, normal.y, normal.z );
-					g_negativeZArrow->Render(CFalse);
-					g_glUtil.DrawCone( 1,  1, 10, 10,  lightInstance->m_abstractLight->GetDiffuse() );
-					g_render.PopMatrix();
-				}
-
 			}
 			glLightfv( GL_LIGHT0+lightNumber, GL_AMBIENT , lightInstance->m_abstractLight->GetAmbient() );
 			glLightfv( GL_LIGHT0+lightNumber, GL_DIFFUSE, lightInstance->m_abstractLight->GetDiffuse() );

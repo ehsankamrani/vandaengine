@@ -38,9 +38,7 @@ CVoid CPolyGroup::EnableShader()
 {
 	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-		if (g_fogBlurPass)
-			g_shaderType = g_render.m_fogBlurProgram;
-		else if (g_materialChannels != eCHANNELS_ALL)//render layers in editor (View | Layers menu). this piece of code is not available in Win32 project
+		if (g_materialChannels != eCHANNELS_ALL)//render layers in editor (View | Layers menu). this piece of code is not available in Win32 project
 		{
 			switch (g_materialChannels)
 			{
@@ -155,7 +153,7 @@ CVoid CPolyGroup::EnableShader()
 		CInt num_point_lights = 0;
 		CInt num_spot_lights = 0;
 		CInt num_dir_lights = 0;
-		//I support up to NR_DIR_LIGHTS directional light, up to NR_POINT_LIGHTS point lights, and up to NR_SPOT_LIGHT spot lights for each object
+		//I support up to NR_DIR_LIGHTS directional light, up to NR_POINT_LIGHTS point lights, and up to NR_SPOT_LIGHTS spot lights for each object
 		if (g_engineLights.size() == 0 || g_editorMode == eMODE_PREFAB)
 		{
 			glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000);
@@ -185,10 +183,10 @@ CVoid CPolyGroup::EnableShader()
 						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), g_currentInstanceLight->GetRadius());
 					else if (num_point_lights == 2)
 						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), g_currentInstanceLight->GetRadius());
-					else if (num_point_lights == 3)
-						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
-					else if (num_point_lights == 4)
-						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
+					//else if (num_point_lights == 3)
+					//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
+					//else if (num_point_lights == 4)
+					//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
 				}
 
 				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
@@ -204,27 +202,25 @@ CVoid CPolyGroup::EnableShader()
 			glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), num_spot_lights);
 		}
 
-		if (g_fogBlurPass)
-		{
-			glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
-			glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_multipleView->m_dof.m_focalRange);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_multipleView->m_dof.m_focalRange);
 
-			CBool useFog;
-			if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
-				useFog = CFalse;
-			else
-				useFog = CTrue;
+		CBool useFog;
+		if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+			useFog = CFalse;
+		else
+			useFog = CTrue;
 
-			if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
-				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
-			else
-				glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
+		if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
+		else
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
 
-		}
 	}
 	else
 	{
-		glUseProgram(0);
+		if (!g_multipleView->m_renderArrow)
+			glUseProgram(0);
 	}
 
 }

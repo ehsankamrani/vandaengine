@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani
+//Copyright (C) 2022 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 [vert]
 
@@ -11,6 +11,8 @@ varying vec4 lightTangetSpace;
 
 uniform vec4 lightPos, cameraPos;
 
+varying float Blur;
+uniform float focalDistance, focalRange;
 
 void main()
 {
@@ -44,6 +46,20 @@ void main()
 	// This calculates our current projection coordinates
 	viewCoords = gl_ModelViewProjectionMatrix * gl_Vertex;
 
+	vec4 vPos;
+    vPos = gl_ModelViewMatrix * gl_Vertex;
+
+    //DOF data
+    float distance = abs(-vPos.z - focalDistance);
+    if( distance < focalRange )
+    {
+		Blur = 0.0;
+	}
+	else
+	{
+   		Blur = clamp( (distance - focalRange) / focalRange, 0.0, 1.0);
+   	}
+
 	gl_Position = viewCoords;
 }
 [frag]
@@ -63,6 +79,12 @@ uniform sampler2D dudvMap;
 uniform sampler2D depthMap;
 uniform vec4 waterColor;
 uniform bool renderAboveWater;
+
+varying float Blur;
+uniform bool enableFog;
+
+out vec4 myVec40;
+
 void main()
 {
 	const float kShine = 128.0;
@@ -95,6 +117,8 @@ void main()
 	float intensity = max(0.0, dot(lightReflection, localView) );
 	vec4 specular = vec4(pow(intensity, kShine));
 
+	vec4 finalColor;
+
 	if(renderAboveWater)
 	{
 		vec4 refractionColor  = texture2D(refraction, projCoord.xy);
@@ -103,7 +127,7 @@ void main()
 
 		vec4 reflectionColor  = texture2D(reflection, projCoord.xy);
 		reflectionColor *= fresnelTerm;
-		gl_FragColor = vec4(refractionColor.xyz + reflectionColor.xyz + specular.xyz, 0.0); 
+		finalColor = vec4(refractionColor.xyz + reflectionColor.xyz + specular.xyz, 0.0); 
 	}
 	else
 	{
@@ -112,6 +136,23 @@ void main()
 		refractionColor +=  waterColor * depthValue * invertedFresnel;
 
 		vec4 color = waterColor * fresnelTerm;
-		gl_FragColor = vec4(refractionColor.xyz + color.xyz + specular.xyz, 0.0); 
+		finalColor = vec4(refractionColor.xyz + color.xyz + specular.xyz, 0.0); 
 	}
+
+	if( enableFog )
+	{
+		//Compute the fog here
+		const float LOG2 = 1.442695; 
+		float z = gl_FragCoord.z / gl_FragCoord.w;
+		float fogFactor = exp2( -gl_Fog.density * 
+			   gl_Fog.density * 
+			   z * 
+			   z * 
+			   LOG2 );
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+	
+		myVec40 = vec4(mix(gl_Fog.color, finalColor, fogFactor ).rgb, Blur);
+	}
+	else
+		myVec40 = vec4(finalColor.r, finalColor.g, finalColor.b, Blur);
 }

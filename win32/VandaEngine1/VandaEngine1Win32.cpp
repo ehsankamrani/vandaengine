@@ -120,7 +120,6 @@ CBloomProperties g_bloomProperties;
 CPathProperties g_pathProperties;
 CExtraTexturesNamingConventions g_extraTexturesNamingConventions;
 COptions g_options;
-CBool g_fogBlurPass = CFalse;
 CVec4f g_defaultDirectionalLight;
 CInstanceLight* g_currentInstanceLight = NULL;
 CBool g_firstPass;

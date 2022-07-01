@@ -85,9 +85,9 @@ public:
 	GLuint m_shad_view_depth;
 
 	GLuint m_blendTexturesProgram;
-	GLuint m_fogBlurProgram;
-	GLuint m_waterFogBlurProgram;
 	GLuint m_terrainProgram;
+
+	GLuint m_skyProgram;
 
 	CBool m_useVBOs;  //deprecate; Moved to COptions::m_enableVBO
 	CBool m_VBOsAvailable; 

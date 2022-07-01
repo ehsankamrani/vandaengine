@@ -150,7 +150,7 @@ void CBloom::CreateRuntimeTexture( int textureWidth, int textureHeight, int scen
 	if ( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
 	{
 		glUseProgram(g_render.m_glowProgram);
-		glUniform1i(glGetUniformLocation( g_render.m_blurProgram , "tex_unit_0"), 0 );
+		glUniform1i(glGetUniformLocation(g_render.m_glowProgram, "tex_unit_0"), 0);
 	}
 	g_render.BindFBO(m_fboID);
 

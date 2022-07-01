@@ -81,27 +81,19 @@ CVoid CSkyDome::Destroy()
 
 CVoid CSkyDome::RenderDome()
 {
-	if (g_fogBlurPass)
-	{
-		g_shaderType = g_render.m_fogBlurProgram;
-		glUseProgram(g_shaderType);
-		glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
-		glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
-		CBool useFog;
-		if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
-			useFog = CFalse;
-		else
-			useFog = CTrue;
-
-		if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
-			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
-		else
-			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
-	}
+	glUseProgram(g_render.m_skyProgram);
+	glUniform1f(glGetUniformLocation(g_render.m_skyProgram, "focalDistance"), g_main->m_dof.m_focalDistance);
+	glUniform1f(glGetUniformLocation(g_render.m_skyProgram, "focalRange"), g_main->m_dof.m_focalRange);
+	CBool useFog;
+	if (!m_fog || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+		useFog = CFalse;
 	else
-	{
-		glUseProgram(0);
-	}
+		useFog = CTrue;
+
+	if (g_fogProperties.m_enable && useFog)
+		glUniform1i(glGetUniformLocation(g_render.m_skyProgram, "enableFog"), CTrue);
+	else
+		glUniform1i(glGetUniformLocation(g_render.m_skyProgram, "enableFog"), CFalse);
 
 	glMatrixMode(GL_MODELVIEW);
 	g_render.PushMatrix();

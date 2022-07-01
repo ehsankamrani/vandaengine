@@ -994,167 +994,163 @@ CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 {
 	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-		if (g_fogBlurPass)
-			g_shaderType = g_render.m_fogBlurProgram;
+		
+		if (g_renderForWater)
+		{
+			g_shaderType = g_render.m_waterShaderProgram; //currently I support low quality water reflection
+		}
+		else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
+		{
+			if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
+			{
+				switch (g_shadowProperties.m_shadowType)
+				{
+				case eSHADOW_SINGLE_HL:
+					g_shaderType = g_render.m_shad_single_hl_normal_prog;
+					break;
+				case eSHADOW_SINGLE:
+					g_shaderType = g_render.m_shad_single_normal_prog;
+					break;
+				case eSHADOW_MULTI_LEAK:
+					g_shaderType = g_render.m_shad_multi_normal_prog;
+					break;
+				case eSHADOW_MULTI_NOLEAK:
+					g_shaderType = g_render.m_shad_multi_noleak_normal_prog;
+					break;
+				case eSHADOW_PCF:
+					g_shaderType = g_render.m_shad_pcf_normal_prog;
+					break;
+				case eSHADOW_PCF_TRILIN:
+					g_shaderType = g_render.m_shad_pcf_trilin_normal_prog;
+					break;
+				case eSHADOW_PCF_4TAP:
+					g_shaderType = g_render.m_shad_pcf_4tap_normal_prog;
+					break;
+				case eSHADOW_PCF_8TAP:
+					g_shaderType = g_render.m_shad_pcf_8tap_normal_prog;
+					break;
+				case eSHADOW_PCF_GAUSSIAN:
+					g_shaderType = g_render.m_shad_pcf_gaussian_normal_prog;
+					break;
+				}
+			}
+			else
+			{
+				switch (g_shadowProperties.m_shadowType)
+				{
+				case eSHADOW_SINGLE_HL:
+					g_shaderType = g_render.m_shad_single_hl_prog;
+					break;
+				case eSHADOW_SINGLE:
+					g_shaderType = g_render.m_shad_single_prog;
+					break;
+				case eSHADOW_MULTI_LEAK:
+					g_shaderType = g_render.m_shad_multi_prog;
+					break;
+				case eSHADOW_MULTI_NOLEAK:
+					g_shaderType = g_render.m_shad_multi_noleak_prog;
+					break;
+				case eSHADOW_PCF:
+					g_shaderType = g_render.m_shad_pcf_prog;
+					break;
+				case eSHADOW_PCF_TRILIN:
+					g_shaderType = g_render.m_shad_pcf_trilin_prog;
+					break;
+				case eSHADOW_PCF_4TAP:
+					g_shaderType = g_render.m_shad_pcf_4tap_prog;
+					break;
+				case eSHADOW_PCF_8TAP:
+					g_shaderType = g_render.m_shad_pcf_8tap_prog;
+					break;
+				case eSHADOW_PCF_GAUSSIAN:
+					g_shaderType = g_render.m_shad_pcf_gaussian_prog;
+					break;
+				}
+			}
+		}
+		else if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
+			g_shaderType = g_render.m_shader_normalProgram;
 		else
-			if (g_renderForWater)
+			g_shaderType = g_render.m_shaderProgram;
+
+		glUseProgram(g_shaderType);
+		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
+		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
+		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
+		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
+
+		CInt num_point_lights = 0;
+		CInt num_spot_lights = 0;
+		CInt num_dir_lights = 0;
+		//I support up to NR_DIR_LIGHTS directional light, up to NR_POINT_LIGHTS point lights, and up to NR_SPOT_LIGHTS spot lights for each object
+		if (g_engineLights.size() == 0)
+		{
+			glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), 0);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), 0);
+
+		}
+		else
+		{
+			//I support up to 1 directional light, up to 4 point lights, and up to 3 spot lights for each object
+			for (CUInt i = 0; i < g_currentInstancePrefab->GetTotalLights(); i++)
 			{
-				g_shaderType = g_render.m_waterShaderProgram; //currently I support low quality water reflection
-			}
-			else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
-			{
-				if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
+				CInstanceLight *instanceLight = g_currentInstancePrefab->m_lights[i];
+				g_currentInstanceLight = instanceLight;
+
+				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
 				{
-					switch (g_shadowProperties.m_shadowType)
-					{
-					case eSHADOW_SINGLE_HL:
-						g_shaderType = g_render.m_shad_single_hl_normal_prog;
-						break;
-					case eSHADOW_SINGLE:
-						g_shaderType = g_render.m_shad_single_normal_prog;
-						break;
-					case eSHADOW_MULTI_LEAK:
-						g_shaderType = g_render.m_shad_multi_normal_prog;
-						break;
-					case eSHADOW_MULTI_NOLEAK:
-						g_shaderType = g_render.m_shad_multi_noleak_normal_prog;
-						break;
-					case eSHADOW_PCF:
-						g_shaderType = g_render.m_shad_pcf_normal_prog;
-						break;
-					case eSHADOW_PCF_TRILIN:
-						g_shaderType = g_render.m_shad_pcf_trilin_normal_prog;
-						break;
-					case eSHADOW_PCF_4TAP:
-						g_shaderType = g_render.m_shad_pcf_4tap_normal_prog;
-						break;
-					case eSHADOW_PCF_8TAP:
-						g_shaderType = g_render.m_shad_pcf_8tap_normal_prog;
-						break;
-					case eSHADOW_PCF_GAUSSIAN:
-						g_shaderType = g_render.m_shad_pcf_gaussian_normal_prog;
-						break;
-					}
+					if (Cmp(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName()))
+						glUniform1i(glGetUniformLocation(g_shaderType, "defaultDirLightIndex"), i);
+
+					num_dir_lights++;
 				}
-				else
+
+				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_POINT)
 				{
-					switch (g_shadowProperties.m_shadowType)
-					{
-					case eSHADOW_SINGLE_HL:
-						g_shaderType = g_render.m_shad_single_hl_prog;
-						break;
-					case eSHADOW_SINGLE:
-						g_shaderType = g_render.m_shad_single_prog;
-						break;
-					case eSHADOW_MULTI_LEAK:
-						g_shaderType = g_render.m_shad_multi_prog;
-						break;
-					case eSHADOW_MULTI_NOLEAK:
-						g_shaderType = g_render.m_shad_multi_noleak_prog;
-						break;
-					case eSHADOW_PCF:
-						g_shaderType = g_render.m_shad_pcf_prog;
-						break;
-					case eSHADOW_PCF_TRILIN:
-						g_shaderType = g_render.m_shad_pcf_trilin_prog;
-						break;
-					case eSHADOW_PCF_4TAP:
-						g_shaderType = g_render.m_shad_pcf_4tap_prog;
-						break;
-					case eSHADOW_PCF_8TAP:
-						g_shaderType = g_render.m_shad_pcf_8tap_prog;
-						break;
-					case eSHADOW_PCF_GAUSSIAN:
-						g_shaderType = g_render.m_shad_pcf_gaussian_prog;
-						break;
-					}
+					num_point_lights++;
+					if (num_point_lights == 1)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), g_currentInstanceLight->GetRadius());
+					else if (num_point_lights == 2)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), g_currentInstanceLight->GetRadius());
+					//else if (num_point_lights == 3)
+					//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
+					//else if (num_point_lights == 4)
+					//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
+				}
+
+				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
+				{
+					num_spot_lights++;
+					if (num_spot_lights == 1)
+						glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[0]"), g_currentInstanceLight->GetRadius());
 				}
 			}
-			else if (instanceGeometry->m_abstractGeometry->m_hasNormalMap)
-				g_shaderType = g_render.m_shader_normalProgram;
-			else
-				g_shaderType = g_render.m_shaderProgram;
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), num_dir_lights);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), num_point_lights);
+			glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), num_spot_lights);
+		}
 
-			glUseProgram(g_shaderType);
-			glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
-			glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
-			glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
-			glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
+		//if num lights is 0 use default light
+		//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000.0f);
+		//	glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
+		//	glUniform1f(glGetUniformLocation(g_shaderType, "pointLight"), CTrue);
 
-			CInt num_point_lights = 0;
-			CInt num_spot_lights = 0;
-			CInt num_dir_lights = 0;
-			if (g_engineLights.size() == 0)
-			{
-				glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000);
-				glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), 0);
-				glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
-				glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), 0);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
+		glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
 
-			}
-			else
-			{
-				//I support up to 1 directional light, up to 4 point lights, and up to 3 spot lights for each object
-				for (CUInt i = 0; i < g_currentInstancePrefab->GetTotalLights(); i++)
-				{
-					CInstanceLight *instanceLight = g_currentInstancePrefab->m_lights[i];
-					g_currentInstanceLight = instanceLight;
+		CBool useFog;
+		if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+			useFog = CFalse;
+		else
+			useFog = CTrue;
 
-					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
-					{
-						if (Cmp(g_shadowProperties.m_directionalLightName, instanceLight->m_abstractLight->GetName()))
-							glUniform1i(glGetUniformLocation(g_shaderType, "defaultDirLightIndex"), i);
+		if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
+		else
+			glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
 
-						num_dir_lights++;
-					}
-
-					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_POINT)
-					{
-						num_point_lights++;
-						if (num_point_lights == 1)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), g_currentInstanceLight->GetRadius());
-						else if (num_point_lights == 2)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), g_currentInstanceLight->GetRadius());
-						else if (num_point_lights == 3)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
-						else if (num_point_lights == 4)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
-					}
-
-					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
-					{
-						num_spot_lights++;
-						if (num_spot_lights == 1)
-							glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[0]"), g_currentInstanceLight->GetRadius());
-					}
-				}
-				glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), num_dir_lights);
-				glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), num_point_lights);
-				glUniform1i(glGetUniformLocation(g_shaderType, "nr_spot_lights"), num_spot_lights);
-			}
-
-			//if num lights is 0 use default light
-			//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000.0f);
-			//	glUniform1i(glGetUniformLocation(g_shaderType, "nr_point_lights"), 1);
-			//	glUniform1f(glGetUniformLocation(g_shaderType, "pointLight"), CTrue);
-
-			if (g_fogBlurPass)
-			{
-				glUniform1f(glGetUniformLocation(g_shaderType, "focalDistance"), g_main->m_dof.m_focalDistance);
-				glUniform1f(glGetUniformLocation(g_shaderType, "focalRange"), g_main->m_dof.m_focalRange);
-
-				CBool useFog;
-				if ((g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
-					useFog = CFalse;
-				else
-					useFog = CTrue;
-
-				if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
-					glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CTrue);
-				else
-					glUniform1i(glGetUniformLocation(g_shaderType, "enableFog"), CFalse);
-
-			}
 	}
 	else
 	{

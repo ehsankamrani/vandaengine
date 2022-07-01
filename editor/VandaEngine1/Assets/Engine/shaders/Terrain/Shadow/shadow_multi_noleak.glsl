@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani
+//Copyright (C) 2022 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 [vert]
 
@@ -10,7 +10,7 @@ uniform int nr_dir_lights;
 varying vec3 lightDir[NR_DIR_LIGHTS];
 
 //Point Light
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 1  
 uniform int nr_point_lights;
 varying float pointLightDist[NR_POINT_LIGHTS];
 varying vec3 pointLightPos[NR_POINT_LIGHTS];
@@ -29,6 +29,9 @@ varying float alpha1;
 varying float alpha2;
 
 varying vec4 vPos;
+
+varying float Blur;
+uniform float focalDistance, focalRange;
 
 void main()
 {
@@ -88,6 +91,22 @@ void main()
 		light_index++;
 	}	
 
+    // fix of the clipping bug for both Nvidia and ATi
+    #ifdef __GLSL_CG_DATA_TYPES
+    gl_ClipVertex = vPos;
+    #endif
+
+    //DOF data
+    float distance = abs(-vPos.z - focalDistance);
+    if( distance < focalRange )
+    {
+		Blur = 0.0;
+	}
+	else
+	{
+   		Blur = clamp( (distance - focalRange) / focalRange, 0.0, 1.0);
+   	}
+
     gl_Position = gl_ProjectionMatrix * vPos;
 }
 
@@ -104,7 +123,7 @@ varying vec3 lightDir[NR_DIR_LIGHTS];
 uniform int defaultDirLightIndex;
 
 //Point Light
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 1  
 uniform int nr_point_lights;
 varying float pointLightDist[NR_POINT_LIGHTS];
 varying vec3 pointLightPos[NR_POINT_LIGHTS];
@@ -131,6 +150,9 @@ uniform sampler2D image3Normal;
 uniform sampler2D shadowMap;
 varying float alpha1;
 varying float alpha2;
+
+varying float Blur;
+uniform bool enableFog;
 
 out vec4 myVec40;
 //shadow
@@ -348,7 +370,22 @@ void main()
 	finalColor = mix(color2, color1, alpha1);
 	finalColor = mix(color3, finalColor, alpha2);	
 
-	myVec40 = vec4(finalColor.rgb, 0.0);
+	if( enableFog )
+	{
+		//Compute the fog here
+		const float LOG2 = 1.442695; 
+		float z = gl_FragCoord.z / gl_FragCoord.w;
+		float fogFactor = exp2( -gl_Fog.density * 
+			   gl_Fog.density * 
+			   z * 
+			   z * 
+			   LOG2 );
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+	
+		myVec40 = vec4(mix(gl_Fog.color, finalColor, fogFactor ).rgb, Blur);
+	}
+	else
+		myVec40 = vec4(finalColor.r, finalColor.g, finalColor.b, Blur);
 }
 
 

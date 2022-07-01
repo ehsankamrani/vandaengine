@@ -105,7 +105,6 @@ public:
 	CVoid Draw3DObjects();
 	CVoid SetDefaultLight();
 
-	CVoid BlendFogWithScene();
 	CVoid ResetPhysXCounts();
 	CVoid UpdatePrefabInstanceBB();
 
@@ -150,28 +149,9 @@ public:
 	CUInt m_rbDepthID; //attach a render buffer to the depth buffer of multisample FBO
 	CUInt m_rbColorID[eGBUFFER_NUM_TEXTURES]; //attach a render buffer to the color buffers of multisample FBO
 
-	CUInt m_mFboID2; //multisample FBO 
-	CUInt m_rbDepthMID2; //attach a render buffer to the depth buffer of multisample FBO
-	CUInt m_rbColorID2; //attach a render buffer to the color buffers of multisample FBO
-
 	CUInt m_fboID; //each texture has its own FBO ID
 	CUInt m_textureTarget[eGBUFFER_NUM_TEXTURES];
 	CUInt m_rbDepthID2; //It's used when multisampling is disabled
-
-	CUInt m_fboID2; //each texture has its own FBO ID
-	CUInt m_textureTargetSwapLights;
-	CUInt m_rbDepthIDSwapLights; //It's used when multisampling is disabled
-
-	CUInt m_fboIDSum; //each texture has its own FBO ID
-	CUInt m_textureTargetSumLighting;
-
-	CUInt m_fboIDFogDof;
-	CUInt m_textureFogDof;
-	CUInt m_rbDepthIDFogDof;
-
-	CUInt m_rbColorIDFogDof;
-	CUInt m_mFboIDFogDof;
-	CUInt m_rbMDepthIDFogDof;
 
 	CBool InitFBOs( CInt channels, CInt type );
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );

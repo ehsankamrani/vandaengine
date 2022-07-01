@@ -59,8 +59,6 @@ public:
 	GLuint m_waterProgram;
 	GLuint m_blurProgram;
 	GLuint m_glowProgram;
-	GLuint m_fogBlurProgram;
-	GLuint m_waterFogBlurProgram;
 	GLuint m_terrainProgram;
 	GLuint m_terrainNormalMapLayerProgram;
 	GLuint m_terrainDiffuseLayerProgram;
@@ -109,6 +107,13 @@ public:
 	GLuint m_shaderPositionLayerProgram;
 	GLuint m_shaderNormalLayerProgram;
 
+	GLuint m_iconProgram;
+
+	GLuint m_arrowProgram;
+
+	GLuint m_skyProgram;
+
+	//////////
 
 	CBool m_useVBOs; //deprecate; Moved to COptions::m_enableVBO
 	CBool m_VBOsAvailable; 

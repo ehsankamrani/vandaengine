@@ -19,6 +19,7 @@ CAddSkyDome::CAddSkyDome(CWnd* pParent /*=NULL*/)
 	m_bSkyDomeExponential = CFalse;
 	m_create = CFalse;
 	m_editMode = CFalse;
+	m_fog = CFalse;
 }
 
 CAddSkyDome::~CAddSkyDome()
@@ -38,6 +39,7 @@ void CAddSkyDome::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_SKYDOM_EXPONENTIAL, m_comboSkyDomeExponential);
 	DDX_Control(pDX, IDC_EDIT_SKYDOME_RADIUS, m_editBoxSkyDomeRadius);
 	DDX_Control(pDX, IDC_EDIT_SKYDOME_DAMPENING, m_editBoxSkyDomeDampening);
+	DDX_Control(pDX, IDC_FOG_ENABLECHECK, m_checkBoxEnableFog);
 }
 
 
@@ -100,6 +102,11 @@ BOOL CAddSkyDome::OnInitDialog()
 	m_editBoxSkyDomeRadius.SetWindowTextA( m_strSkyDomeRadius );
 	m_editBoxSkyDomeDampening.SetWindowTextA( m_strSkyDomeDampening );
 
+	if (m_fog)
+		m_checkBoxEnableFog.SetCheck(BST_CHECKED);
+	else
+		m_checkBoxEnableFog.SetCheck(BST_UNCHECKED);
+
 	m_strSkyDomeTempName = m_strSkyDomeName;
 
 	return TRUE;
@@ -148,6 +155,13 @@ void CAddSkyDome::OnOK()
 		}
 	}
 	
+	CInt checkState;
+	checkState = m_checkBoxEnableFog.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_fog = CTrue;
+	else
+		m_fog = CFalse;
+
 	if(	m_strSkyDomePosX.IsEmpty() || m_strSkyDomePosY.IsEmpty() || m_strSkyDomePosZ.IsEmpty() || m_strSkyDomeName.IsEmpty() 
 		|| m_strSkyDomePath.IsEmpty() || m_strSkyDomeSides.IsEmpty() || m_strSkyDomeSlices.IsEmpty() ||	m_strSkyDomeDampening.IsEmpty()
 		|| m_strSkyDomeRadius.IsEmpty() )

@@ -52,6 +52,9 @@ CDouble CInstanceLight::GetRadius()
 
 CBool CInstanceLight::RenderExtents()
 {
+	if (!g_menu.m_showLightIcons)
+		return CFalse;
+		
 	CVec4f  Position;
 	if( m_parent )
 	{
@@ -73,20 +76,19 @@ CBool CInstanceLight::RenderExtents()
 			return false;
 		case eLIGHTTYPE_POINT:
 
-			if( g_menu.m_showLightIcons )
+			if( m_parent )
 			{
-				if( m_parent )
-				{
-					CFloat* p = (GLfloat*)&Position;
-					CFloat* c = m_abstractLight->GetDiffuse();
-					g_glUtil.DrawSphere( radius, 10, 10, p, c );
-				}
-				else
-				{
-					CFloat* p = m_abstractLight->GetPosition();
-					CFloat* c = m_abstractLight->GetDiffuse();
-					g_glUtil.DrawSphere( radius, 10, 10, p, c );
-				}
+				CFloat* p = (GLfloat*)&Position;
+				CFloat* c = m_abstractLight->GetDiffuse();
+				c[3] = 0.0f;
+				g_glUtil.DrawSphere( radius, 10, 10, p, c );
+			}
+			else
+			{
+				CFloat* p = m_abstractLight->GetPosition();
+				CFloat* c = m_abstractLight->GetDiffuse();
+				c[3] = 0.0f;
+				g_glUtil.DrawSphere( radius, 10, 10, p, c );
 			}
 			return true;
 		case eLIGHTTYPE_SPOT:
@@ -94,12 +96,14 @@ CBool CInstanceLight::RenderExtents()
 			{
 				CFloat* p = (GLfloat*)&Position;
 				CFloat* c = m_abstractLight->GetDiffuse();
+				c[3] = 0.0f;
 				g_glUtil.DrawSphere(radius, 10, 10, p, c);
 			}
 			else
 			{
 				CFloat* p = m_abstractLight->GetPosition();
 				CFloat* c = m_abstractLight->GetDiffuse();
+				c[3] = 0.0f;
 				g_glUtil.DrawSphere(radius, 10, 10, p, c);
 			}
 			return true;

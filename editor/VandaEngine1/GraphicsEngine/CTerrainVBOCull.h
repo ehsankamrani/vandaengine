@@ -275,7 +275,7 @@ class CTerrainVBOCull
 		//
 		///	Purpose: Draws the VBO's for the heightmap.
 		//////////////////////////////////////////////////////////
-		void draw(bool boundingBox = CFalse);
+		void draw();
 
 		void resetPhysXActors();
 		//draw chunks for dynamic shadow here
@@ -294,6 +294,8 @@ class CTerrainVBOCull
 
 		CVoid ManagePhysXTriangleActorForCharacterController(CInt x, CInt z);
 		CVoid ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z);
+
+		CVoid DrawBoundingBox();
 };
 
 #endif

@@ -93,7 +93,7 @@ public:
 	GLvoid DrawCone( GLdouble base, GLint height, GLint slices, GLint stacks, CFloat* diffuseColor );
 	GLvoid DrawQuad( CFloat* p );
 	GLvoid DrawSimpleBox(CVec3f min, CVec3f max);
-	GLvoid Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint texID, CFloat sizex, CFloat sizey, CFloat r = 1.0, CFloat g = 1.0, CFloat b = 1.0);
+	GLvoid Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint texID, CFloat sizex, CFloat sizey, CFloat r = 1.0, CFloat g = 1.0, CFloat b = 1.0, CBool renderEngineIcon = CTrue);
 	GLvoid BillboardingWithUserVectors( CFloat centerX, CFloat centerY, CFloat centerZ, GLuint texID, CFloat sizeX, CFloat sizeY,  CVector& up,  CVector& right );
     GLvoid StencilPattern( CInt n, CFloat* array, COpenGLShape type, CInt bit );
 	CInt WriteTGAFile( CChar *fileName, CInt16 CInt width, CInt16 CInt height, CUChar* imageData );

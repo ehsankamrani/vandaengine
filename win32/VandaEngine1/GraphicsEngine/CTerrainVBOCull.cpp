@@ -417,7 +417,7 @@ CVoid CTerrainVBOCull::SetLight(CVec3f minAABB, CVec3f maxAABB, chunk* chunkArra
 			{
 				chunkArray->m_lights[point_light_index + directional_light_index] = g_engineLights[i];
 				point_light_index++;
-				if (point_light_index >= NR_POINT_LIGHTS)
+				if (point_light_index >= NR_TERRAIN_POINT_LIGHTS)
 					break;
 			}
 		}
@@ -431,7 +431,7 @@ CVoid CTerrainVBOCull::SetLight(CVec3f minAABB, CVec3f maxAABB, chunk* chunkArra
 			{
 				chunkArray->m_lights[spot_light_index + point_light_index + directional_light_index] = g_engineLights[i];
 				spot_light_index++;
-				if (spot_light_index >= NR_SPOT_LIGHTS)
+				if (spot_light_index >= NR_TERRAIN_SPOT_LIGHTS)
 					break;
 			}
 		}
@@ -589,7 +589,7 @@ void CTerrainVBOCull::resetPhysXActors()
 //
 ///	Purpose: Draws the VBO's for the heightmap.
 //////////////////////////////////////////////////////////
-void CTerrainVBOCull::draw(bool boundingBox)
+void CTerrainVBOCull::draw()
 {
 	if (bufferVertList == 0)
 		return;
@@ -693,7 +693,7 @@ void CTerrainVBOCull::draw(bool boundingBox)
 			CInt num_point_lights = 0;
 			CInt num_spot_lights = 0;
 			CInt num_dir_lights = 0;
-			//I support up to NR_DIR_LIGHTS directional light, up to NR_POINT_LIGHTS point lights, and up to NR_SPOT_LIGHT spot lights for each object
+			//I support up to NR_DIR_LIGHTS directional light, up to NR_TERRAIN_POINT_LIGHTS point lights, and up to NR_TERRAIN_SPOT_LIGHTS spot lights for each chunk
 			if (g_engineLights.size() == 0)
 			{
 				glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), 1000000);
@@ -721,12 +721,12 @@ void CTerrainVBOCull::draw(bool boundingBox)
 						num_point_lights++;
 						if (num_point_lights == 1)
 							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), instanceLight->GetRadius());
-						else if (num_point_lights == 2)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), instanceLight->GetRadius());
-						else if (num_point_lights == 3)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), instanceLight->GetRadius());
-						else if (num_point_lights == 4)
-							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), instanceLight->GetRadius());
+						//else if (num_point_lights == 2)
+						//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), instanceLight->GetRadius());
+						//else if (num_point_lights == 3)
+						//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), instanceLight->GetRadius());
+						//else if (num_point_lights == 4)
+						//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), instanceLight->GetRadius());
 					}
 
 					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
@@ -748,75 +748,6 @@ void CTerrainVBOCull::draw(bool boundingBox)
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, chunkArray[x][z].bufferTriList);
 			glDrawElements(GL_TRIANGLE_STRIP, numElements, GL_UNSIGNED_INT, 0);
-
-			// Draw the bounding box.
-			if (boundingBox)
-			{
-				glPushAttrib(GL_ENABLE_BIT);
-				glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-				glUseProgram(0);
-				// Disable the texture units.
-				glActiveTextureARB(GL_TEXTURE3_ARB);
-				glDisable(GL_TEXTURE_2D);
-
-				glActiveTextureARB(GL_TEXTURE2_ARB);
-				glDisable(GL_TEXTURE_2D);
-
-				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glDisable(GL_TEXTURE_2D);
-
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glDisable(GL_TEXTURE_2D);
-
-				glDisable(GL_LIGHTING);
-				glDisable(GL_MULTISAMPLE);
-				glLineWidth(0.5f);
-
-				float maxX = chunkArray[x][z].maxX;
-				float maxY = chunkArray[x][z].maxY;
-				float maxZ = chunkArray[x][z].maxZ;
-				float minX = chunkArray[x][z].minX;
-				float minY = chunkArray[x][z].minY;
-				float minZ = chunkArray[x][z].minZ;
-
-				glColor3f(1.0f, 1.0f, 1.0f);
-				glBegin(GL_LINES);
-				glVertex3f(maxX, maxY, maxZ);
-				glVertex3f(minX, maxY, maxZ);
-				glVertex3f(minX, maxY, maxZ);
-				glVertex3f(minX, maxY, minZ);
-
-				glVertex3f(minX, maxY, minZ);
-				glVertex3f(maxX, maxY, minZ);
-				glVertex3f(maxX, maxY, minZ);
-				glVertex3f(maxX, maxY, maxZ);
-
-				glVertex3f(maxX, minY, maxZ);
-				glVertex3f(minX, minY, maxZ);
-				glVertex3f(minX, minY, maxZ);
-				glVertex3f(minX, minY, minZ);
-
-				glVertex3f(minX, minY, minZ);
-				glVertex3f(maxX, minY, minZ);
-				glVertex3f(maxX, minY, minZ);
-				glVertex3f(maxX, minY, maxZ);
-
-				glVertex3f(maxX, maxY, maxZ);
-				glVertex3f(maxX, minY, maxZ);
-				glVertex3f(maxX, maxY, minZ);
-				glVertex3f(maxX, minY, minZ);
-
-				glVertex3f(minX, maxY, minZ);
-				glVertex3f(minX, minY, minZ);
-				glVertex3f(minX, maxY, maxZ);
-				glVertex3f(minX, minY, maxZ);
-
-				glEnd();
-				glPopAttrib();
-				glUseProgram(g_shaderType);
-
-			}
 		}
 	}
 	if (m_updateMinMaxCenter)
@@ -1060,4 +991,66 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z
 		}
 	}
 
+}
+
+CVoid CTerrainVBOCull::DrawBoundingBox()
+{
+	// Loop through the chunks.
+	for (int z = 0; z < Height / (ChunkHeight - 1); z++)
+	{
+		for (int x = 0; x < Width / (ChunkWidth - 1); x++)
+		{
+			if (!g_camera->m_cameraManager->IsSphereInFrustum(chunkArray[x][z].center.x, chunkArray[x][z].center.y, chunkArray[x][z].center.z, chunkArray[x][z].radius))
+				continue;
+
+			glPushAttrib(GL_ENABLE_BIT);
+			glUseProgram(0);
+
+			glDisable(GL_LIGHTING);
+			glDisable(GL_MULTISAMPLE);
+			glLineWidth(0.5f);
+
+			float maxX = chunkArray[x][z].maxX;
+			float maxY = chunkArray[x][z].maxY;
+			float maxZ = chunkArray[x][z].maxZ;
+			float minX = chunkArray[x][z].minX;
+			float minY = chunkArray[x][z].minY;
+			float minZ = chunkArray[x][z].minZ;
+
+			glColor4f(1.0f, 1.0f, 0.0f, 0.0f);
+			glBegin(GL_LINES);
+			glVertex3f(maxX, maxY, maxZ);
+			glVertex3f(minX, maxY, maxZ);
+			glVertex3f(minX, maxY, maxZ);
+			glVertex3f(minX, maxY, minZ);
+
+			glVertex3f(minX, maxY, minZ);
+			glVertex3f(maxX, maxY, minZ);
+			glVertex3f(maxX, maxY, minZ);
+			glVertex3f(maxX, maxY, maxZ);
+
+			glVertex3f(maxX, minY, maxZ);
+			glVertex3f(minX, minY, maxZ);
+			glVertex3f(minX, minY, maxZ);
+			glVertex3f(minX, minY, minZ);
+
+			glVertex3f(minX, minY, minZ);
+			glVertex3f(maxX, minY, minZ);
+			glVertex3f(maxX, minY, minZ);
+			glVertex3f(maxX, minY, maxZ);
+
+			glVertex3f(maxX, maxY, maxZ);
+			glVertex3f(maxX, minY, maxZ);
+			glVertex3f(maxX, maxY, minZ);
+			glVertex3f(maxX, minY, minZ);
+
+			glVertex3f(minX, maxY, minZ);
+			glVertex3f(minX, minY, minZ);
+			glVertex3f(minX, maxY, maxZ);
+			glVertex3f(minX, minY, maxZ);
+
+			glEnd();
+			glPopAttrib();
+		}
+	}
 }

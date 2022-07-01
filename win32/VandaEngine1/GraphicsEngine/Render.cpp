@@ -17,20 +17,25 @@ CVoid CRender::Init()
 
 	m_scene = NULL;
 	m_selectedScene = NULL;
+
 	m_shaderProgram = 0;
 	m_waterShaderProgram = 0;
+	m_shader_normalProgram = 0;
+	m_blendTexturesProgram = 0;
 	m_waterProgram = 0;
-	m_glowProgram = 0;
 	m_blurProgram = 0;
+	m_glowProgram = 0;
+	m_terrainProgram = 0;
+
 	m_shad_single_hl_prog = 0;
 	m_shad_single_prog = 0;
 	m_shad_multi_prog = 0;
 	m_shad_multi_noleak_prog = 0;
-    m_shad_pcf_prog = 0;
-    m_shad_pcf_trilin_prog = 0;
-    m_shad_pcf_4tap_prog = 0;
-    m_shad_pcf_8tap_prog = 0;
-    m_shad_pcf_gaussian_prog = 0;
+	m_shad_pcf_prog = 0;
+	m_shad_pcf_trilin_prog = 0;
+	m_shad_pcf_4tap_prog = 0;
+	m_shad_pcf_8tap_prog = 0;
+	m_shad_pcf_gaussian_prog = 0;
 
 	m_terrain_shad_single_prog = 0;
 	m_terrain_shad_multi_prog = 0;
@@ -41,10 +46,26 @@ CVoid CRender::Init()
 	m_terrain_shad_pcf_8tap_prog = 0;
 	m_terrain_shad_pcf_gaussian_prog = 0;
 
+	//+ normal map
+	m_shad_single_hl_normal_prog = 0;
+	m_shad_single_normal_prog = 0;
+	m_shad_multi_normal_prog = 0;
+	m_shad_multi_noleak_normal_prog = 0;
+	m_shad_pcf_normal_prog = 0;
+	m_shad_pcf_trilin_normal_prog = 0;
+	m_shad_pcf_4tap_normal_prog = 0;
+	m_shad_pcf_8tap_normal_prog = 0;
+	m_shad_pcf_gaussian_normal_prog = 0;
+
 	m_shad_view_depth = 0;
 
-	for( CUInt i = 0; i < 4; i++ )
+	m_skyProgram = 0;
+
+	for (CUInt i = 0; i < 4; i++)
 		m_dofProgram[i] = 0;
+
+	/////////
+
 	//m_cgInitialized = InitCg();
 	SupportForVBOs();
 	SupportForFBOs();
@@ -200,33 +221,6 @@ CVoid CRender::Init()
 		else
 		{
 			//PrintInfo( "glow shader loaded successfully\n", COLOR_WHITE );
-		}
-
-		m_fogBlurProgram = LoadShaderProgram( "Assets/Engine/shaders/fog_blur.glsl", infoLog);
-		if( m_fogBlurProgram == 0 )
-		{
-			MessageBoxA( NULL, "Couldn't load shader : Assets/Engine/shaders/fog_blur.glsl", "Vanda Engine 1 Error", MB_OK | MB_ICONERROR);
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			//PrintInfo( "\nfog_blur shader loaded successfully", COLOR_WHITE );
-		}
-
-		//water fog blur
-		m_waterFogBlurProgram = LoadShaderProgram( "Assets/Engine/shaders/water_fog_blur.glsl", infoLog);
-		if( m_waterFogBlurProgram == 0 )
-		{
-			MessageBoxA( NULL, "Couldn't load shader : Assets/Engine/shaders/water_fog_blur.glsl", "Vanda Engine 1 Error", MB_OK | MB_ICONERROR);
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			//PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/water_fog_blur.glsl", COLOR_RED );
 		}
 
 		//terrain
@@ -641,6 +635,20 @@ CVoid CRender::Init()
 			//PrintInfo("\nshadow/shadow_normal/shadow_pcf_gaussian_normal shader loaded successfully", COLOR_WHITE);
 		}
 
+		//sky
+		m_skyProgram = LoadShaderProgram("Assets/Engine/shaders/sky.glsl", infoLog);
+		if (m_skyProgram == 0)
+		{
+			MessageBoxA(NULL, "Couldn't load shader : Assets/Engine/shaders/sky.glsl", "Vanda Engine 1 Error", MB_OK | MB_ICONERROR);
+			infoLog.erase();
+			m_shaderAvailable = CFalse;
+			return;
+		}
+		else
+		{
+			//PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/sky.glsl", COLOR_RED );
+		}
+
 		infoLog.erase();
 		m_shaderAvailable = CTrue;
 	}
@@ -750,8 +758,6 @@ CVoid CRender::Destroy()
 	glDeleteProgram(m_waterProgram);
 	glDeleteProgram(m_blurProgram);
 	glDeleteProgram(m_glowProgram);
-	glDeleteProgram(m_fogBlurProgram);
-	glDeleteProgram(m_waterFogBlurProgram);
 	glDeleteProgram(m_terrainProgram);
 	glDeleteProgram(m_dofProgram[0]);
 	glDeleteProgram(m_dofProgram[1]);
@@ -791,6 +797,7 @@ CVoid CRender::Destroy()
 
 	glDeleteProgram(m_blendTexturesProgram);
 
+	glDeleteProgram(m_skyProgram);
 }
 
 CBool CRender::DestroyCg()

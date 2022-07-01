@@ -359,6 +359,9 @@ const CInt32 MAX_TEX_COORDS = 20;
 #define NR_POINT_LIGHTS 2
 #define NR_SPOT_LIGHTS 1
 
+#define NR_TERRAIN_POINT_LIGHTS 1
+#define NR_TERRAIN_SPOT_LIGHTS 1
+
 struct CPhysXMaterial
 {
 	CBool HasMaterial;

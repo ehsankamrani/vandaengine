@@ -91,7 +91,7 @@ GLvoid CCamera::SetPerspective()
 	//Switch to projection matrix
 	g_render.ProjectionMatrix();
 	g_render.IdentityMatrix();
-	gluPerspective( m_angle, (GLdouble)viewport[2] / (GLdouble)viewport[3], 0.1, 3000.0 );
+	gluPerspective( m_angle, (GLdouble)viewport[2] / (GLdouble)viewport[3], 0.01, 3000.0 );
 	//Return back to model-view matrix
 	g_render.ModelViewMatrix();
 }
@@ -114,7 +114,7 @@ GLvoid CCamera::SetPerspective( GLdouble Far )
 	//Switch to projection matrix
 	g_render.ProjectionMatrix();
 	g_render.IdentityMatrix();
-	gluPerspective( m_angle, (GLdouble)viewport[2] / (GLdouble)viewport[3], 0.1f, Far );
+	gluPerspective( m_angle, (GLdouble)viewport[2] / (GLdouble)viewport[3], 0.01f, Far );
 	//Return back to model-view matrix
 	g_render.ModelViewMatrix();
 }

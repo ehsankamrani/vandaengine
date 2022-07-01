@@ -490,7 +490,9 @@ struct CMenuVariables
 	CBool m_showSoundIcons;
 	CBool m_showWaterIcons;
 	CBool m_showSkyIcon;
-	CBool m_showBoundingBox;
+	CBool m_showPrefabBoundingBox;
+	CBool m_showPhysicsBoundingBox;
+	CBool m_showTerrainBoundingBox;
 	CBool m_showOctree;
 	CBool m_showDynamicShadowDepthTexture;
 	CBool m_enableDynamicShadow; //deprecate; Moved to CShadowProperties::m_enable
@@ -517,7 +519,9 @@ struct CMenuVariables
 		m_showWaterIcons = CTrue;
 		m_showSkyIcon = CTrue;
 		m_showCameraIcons = CTrue;
-		m_showBoundingBox = CFalse;
+		m_showPrefabBoundingBox = CFalse;
+		m_showPhysicsBoundingBox = CFalse;
+		m_showTerrainBoundingBox = CFalse;
 		m_showOctree = CFalse;
 		m_showDynamicShadowDepthTexture = CFalse;
 		m_enableDynamicShadow = CTrue;

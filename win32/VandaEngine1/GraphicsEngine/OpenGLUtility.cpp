@@ -341,7 +341,7 @@ GLvoid COpenGLUtility::DrawCWBoxWithLines( CVector &min, CVector &max, CVector c
 	glDisable( GL_FOG );
 	glDisable( GL_LIGHTING );
 	glDisable( GL_TEXTURE_2D );
-	glColor3f( color.m_i, color.m_j, color.m_k );
+	glColor4f( color.m_i, color.m_j, color.m_k, 0.0f );
 	glLineWidth( 1.0f );
 	
 	glBegin( GL_LINE_LOOP );

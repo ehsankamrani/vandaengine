@@ -195,16 +195,28 @@ GLvoid COpenGLUtility::StencilPattern( CInt n, CFloat* pArray, COpenGLShape type
 }
 
 
-GLvoid COpenGLUtility::Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint texID, CFloat sizex, CFloat sizey, CFloat r, CFloat g, CFloat b )
+GLvoid COpenGLUtility::Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint texID, CFloat sizex, CFloat sizey, CFloat r, CFloat g, CFloat b, CBool renderEngineIcon )
 {
-	glUseProgram(0);
-	glPushAttrib( GL_ENABLE_BIT | GL_CURRENT_BIT );
-	glEnable( GL_ALPHA_TEST );
-	glAlphaFunc( GL_GREATER, 0 );
+	if (renderEngineIcon)
+	{
+		glUseProgram(g_render.m_iconProgram);
+		glUniform1i(glGetUniformLocation(g_render.m_iconProgram, "tex_unit_0"), 0);
+		glUniform1f(glGetUniformLocation(g_render.m_iconProgram, "red"), r);
+		glUniform1f(glGetUniformLocation(g_render.m_iconProgram, "green"), g);
+		glUniform1f(glGetUniformLocation(g_render.m_iconProgram, "blue"), b);
 
-	glEnable( GL_BLEND );
-	glDisable( GL_LIGHTING );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glDisable(GL_BLEND);
+	}
+	else
+	{
+		glUseProgram(0);
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		glDisable(GL_LIGHTING);
+	}
+
 	CFloat mat[16];
 	glGetFloatv( GL_MODELVIEW_MATRIX, mat );
 
@@ -212,7 +224,7 @@ GLvoid COpenGLUtility::Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint tex
 	CVector up( mat[1], mat[5], mat[9] );
 	CVector p( p1, p2, p3 );
 
-	glColor3f( r, g, b );
+	glColor3f(r, g, b);
 	glActiveTexture( GL_TEXTURE0 );
 	glMatrixMode( GL_TEXTURE );
 	glLoadIdentity();
@@ -344,7 +356,7 @@ GLvoid COpenGLUtility::DrawCWBoxWithLines( CVector &min, CVector &max, CVector c
 	glDisable( GL_LIGHTING );
 	glDisable( GL_MULTISAMPLE );
 	glDisable( GL_TEXTURE_2D );
-	glColor3f( color.m_i, color.m_j, color.m_k );
+	glColor4f( color.m_i, color.m_j, color.m_k, 0.0f );
 	glLineWidth( 0.5f );
 	
 	glBegin( GL_LINE_LOOP );

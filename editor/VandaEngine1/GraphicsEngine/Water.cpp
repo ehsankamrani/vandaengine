@@ -162,6 +162,10 @@ void CWater::CreateReflectionTexture(int textureSize)
 		g_skyDome->RenderDome();
 	}
 	
+	g_renderForWater = CTrue;
+	g_multipleView->RenderTerrain(CFalse);
+	g_renderForWater = CFalse;
+
 	CInt m_numSamples;
 	CInt width, height;
 	if (g_menu.m_justPerspective)
@@ -335,173 +339,173 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 		glBlendColor(1.0f, 1.0f, 1.0f, m_fWaterTransparency);
 	}
 
-	if( g_fogBlurPass )
-	{
-		glDisable( GL_CULL_FACE );
-		glBegin( GL_QUADS );
-		glVertex3f(m_sidePoint[0].x, m_sidePoint[0].y, m_sidePoint[0].z);
-		glVertex3f(m_sidePoint[1].x, m_sidePoint[1].y, m_sidePoint[1].z);
-		glVertex3f(m_sidePoint[2].x, m_sidePoint[2].y, m_sidePoint[2].z);
-		glVertex3f(m_sidePoint[3].x, m_sidePoint[3].y, m_sidePoint[3].z);
-		glEnd();
-		glEnable( GL_CULL_FACE );
-	}
-	else
-	{
-		glDisable( GL_CULL_FACE );
- 		// Turn on the first texture unit and bind the REFLECTION texture
-		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D); 
-		glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_REFLECTION_ID]);
+	glDisable( GL_CULL_FACE );
+ 	// Turn on the first texture unit and bind the REFLECTION texture
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D); 
+	glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_REFLECTION_ID]);
 
-		// Turn on the second texture unit and bind the REFRACTION texture
-		glActiveTexture(GL_TEXTURE1);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_REFRACTION_ID]);
+	// Turn on the second texture unit and bind the REFRACTION texture
+	glActiveTexture(GL_TEXTURE1);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_REFRACTION_ID]);
 
-		// Turn on the third texture unit and bind the NORMAL MAP texture
-		glActiveTexture(GL_TEXTURE2);
-		glEnable(GL_TEXTURE_2D); 
-		glBindTexture(GL_TEXTURE_2D, m_normalMapImg->GetId() );
+	// Turn on the third texture unit and bind the NORMAL MAP texture
+	glActiveTexture(GL_TEXTURE2);
+	glEnable(GL_TEXTURE_2D); 
+	glBindTexture(GL_TEXTURE_2D, m_normalMapImg->GetId() );
 
-		// Turn on the fourth texture unit and bind the DUDV MAP texture
-		glActiveTexture(GL_TEXTURE3);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, m_dudvMapImg->GetId() );
+	// Turn on the fourth texture unit and bind the DUDV MAP texture
+	glActiveTexture(GL_TEXTURE3);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_dudvMapImg->GetId() );
 
-		// Turn on the fifth texture unit and bind the DEPTH texture
-		glActiveTexture(GL_TEXTURE4);
-		glEnable(GL_TEXTURE_2D); 
-		glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_DEPTH_ID]);
+	// Turn on the fifth texture unit and bind the DEPTH texture
+	glActiveTexture(GL_TEXTURE4);
+	glEnable(GL_TEXTURE_2D); 
+	glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_DEPTH_ID]);
 
-		// Set the variable "reflection" to correspond to the first texture unit
-		GLint uniform = glGetUniformLocationARB(g_render.m_waterProgram, "reflection"); 
-		glUniform1iARB(uniform, 0); //second paramter is the texture unit 
+	// Set the variable "reflection" to correspond to the first texture unit
+	GLint uniform = glGetUniformLocationARB(g_render.m_waterProgram, "reflection"); 
+	glUniform1iARB(uniform, 0); //second paramter is the texture unit 
 
-		// Set the variable "refraction" to correspond to the second texture unit
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "refraction");
-		glUniform1iARB(uniform, 1); 
+	// Set the variable "refraction" to correspond to the second texture unit
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "refraction");
+	glUniform1iARB(uniform, 1); 
 
-		// Set the variable "normalMap" to correspond to the third texture unit
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "normalMap");
-		glUniform1iARB(uniform, 2);
+	// Set the variable "normalMap" to correspond to the third texture unit
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "normalMap");
+	glUniform1iARB(uniform, 2);
 
-		// Set the variable "dudvMap" to correspond to the fourth texture unit
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "dudvMap"); 
-		glUniform1iARB(uniform, 3);
+	// Set the variable "dudvMap" to correspond to the fourth texture unit
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "dudvMap"); 
+	glUniform1iARB(uniform, 3);
 
-		// Set the variable "depthMap" to correspond to the fifth texture unit
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "depthMap");
-		glUniform1iARB(uniform, 4); 
+	// Set the variable "depthMap" to correspond to the fifth texture unit
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "depthMap");
+	glUniform1iARB(uniform, 4); 
 
-		// Give the variable "waterColor" a blue color
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "waterColor");
-		glUniform4fARB(uniform, m_fWaterColor[0], m_fWaterColor[1], m_fWaterColor[2], 1.0f);
+	// Give the variable "waterColor" a blue color
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "waterColor");
+	glUniform4fARB(uniform, m_fWaterColor[0], m_fWaterColor[1], m_fWaterColor[2], 1.0f);
 
-		// We don't use lighting, but we do need to calculate
-		// the diffuse and specular lighting on the water to increase realism.
-		// position the light so it's near the light in the sky box texture.
-		CVec3f lightPos(m_fWaterLPos[0], m_fWaterLPos[1], m_fWaterLPos[2]);
+	// We don't use lighting, but we do need to calculate
+	// the diffuse and specular lighting on the water to increase realism.
+	// position the light so it's near the light in the sky box texture.
+	CVec3f lightPos(m_fWaterLPos[0], m_fWaterLPos[1], m_fWaterLPos[2]);
 
-		// Give the variable "lightPos" our hard coded light position
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "lightPos");
-		glUniform4fARB(uniform, lightPos.x, lightPos.y, lightPos.z, 1.0f); 
+	// Give the variable "lightPos" our hard coded light position
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "lightPos");
+	glUniform4fARB(uniform, lightPos.x, lightPos.y, lightPos.z, 1.0f); 
 
-		// Give the variable "cameraPos" our camera position
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "cameraPos");
-		glUniform4fARB(uniform, cameraPos.x, cameraPos.y, cameraPos.z, 1.0f); 
+	// Give the variable "cameraPos" our camera position
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "cameraPos");
+	glUniform4fARB(uniform, cameraPos.x, cameraPos.y, cameraPos.z, 1.0f); 
 	
-		uniform = glGetUniformLocationARB(g_render.m_waterProgram, "renderAboveWater");
-		glUniform1i(uniform, renderAboveWater);
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "renderAboveWater");
+	glUniform1i(uniform, renderAboveWater);
 
-		// Create a static variable for the movement of the water
-		static float move = 0.0f;
+	glUniform1f(glGetUniformLocation(g_render.m_waterProgram, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
+	glUniform1f(glGetUniformLocation(g_render.m_waterProgram, "focalRange"), g_multipleView->m_dof.m_focalRange);
 
-		// Use this variable for the normal map and make it slower
-		// than the refraction map's speed.  We want the refraction
-		// map to be jittery, but not the normal map's waviness.
-		float move2 = move * kNormalMapScale;
+	CBool useFog;
+	if (g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+		useFog = CFalse;
+	else
+		useFog = CTrue;
 
-		// Set the refraction map's UV coordinates to our global g_WaterUV
-		float refrUV = m_fWaterUV;
+	if ((g_fogProperties.m_enable && useFog) || (g_waterFogProperties.m_enable && useFog))
+		glUniform1i(glGetUniformLocation(g_render.m_waterProgram, "enableFog"), CTrue);
+	else
+		glUniform1i(glGetUniformLocation(g_render.m_waterProgram, "enableFog"), CFalse);
 
-		// Set our normal map's UV scale and shrink it by kNormalMapScale
-		float normalUV = m_fWaterUV * kNormalMapScale;
+	// Create a static variable for the movement of the water
+	static float move = 0.0f;
 
-		// Move the water by our global speed
-		CBool isMoving = CTrue;
-		if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
-			isMoving = CFalse;
+	// Use this variable for the normal map and make it slower
+	// than the refraction map's speed.  We want the refraction
+	// map to be jittery, but not the normal map's waviness.
+	float move2 = move * kNormalMapScale;
 
-		if (isMoving)
-			move += m_fWaterSpeed * elapsedTime;
+	// Set the refraction map's UV coordinates to our global g_WaterUV
+	float refrUV = m_fWaterUV;
 
-		glUseProgram( g_render.m_waterProgram );
+	// Set our normal map's UV scale and shrink it by kNormalMapScale
+	float normalUV = m_fWaterUV * kNormalMapScale;
 
-	   // Draw our huge water quad
-		glBegin(GL_QUADS);
+	// Move the water by our global speed
+	CBool isMoving = CTrue;
+	if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
+		isMoving = CFalse;
 
-		// The back left vertex for the water
-		glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, m_fWaterUV);				// Reflection texture				
-		glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, refrUV - move);			// Refraction texture
-		glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, normalUV + move2);		// Normal map texture
-		glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
-		glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
-		glVertex3f(m_sidePoint[0].x, m_sidePoint[0].y, m_sidePoint[0].z);
+	if (isMoving)
+		move += m_fWaterSpeed * elapsedTime;
 
-		// The front left vertex for the water
-		glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, 0.0f);					// Reflection texture
-		glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, 0.0f - move);			// Refraction texture
-		glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, 0.0f + move2);			// Normal map texture
-		glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
-		glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
-		glVertex3f(m_sidePoint[1].x, m_sidePoint[1].y, m_sidePoint[1].z);
+	glUseProgram( g_render.m_waterProgram );
 
-		// The front right vertex for the water
-		glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, 0.0f);				// Reflection texture
-		glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV, 0.0f - move);			// Refraction texture
-		glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV, 0.0f + move2);		// Normal map texture
-		glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
-		glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
-		glVertex3f(m_sidePoint[2].x, m_sidePoint[2].y, m_sidePoint[2].z);
+	// Draw our huge water quad
+	glBegin(GL_QUADS);
 
-		// The back right vertex for the water
-		glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, m_fWaterUV);		// Reflection texture
-		glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV, refrUV - move);		// Refraction texture
-		glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV, normalUV + move2);	// Normal map texture
-		glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
-		glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
-		glVertex3f(m_sidePoint[3].x, m_sidePoint[3].y, m_sidePoint[3].z);
+	// The back left vertex for the water
+	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, m_fWaterUV);				// Reflection texture				
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, refrUV - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, normalUV + move2);		// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
+	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
+	glVertex3f(m_sidePoint[0].x, m_sidePoint[0].y, m_sidePoint[0].z);
 
-		glEnd();
-		// Turn the fifth multi-texture pass off
-		glActiveTexture(GL_TEXTURE4);		
-		glBindTexture( GL_TEXTURE_2D, 0 );
-		glDisable(GL_TEXTURE_2D);
+	// The front left vertex for the water
+	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, 0.0f);					// Reflection texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, 0.0f - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, 0.0f + move2);			// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
+	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
+	glVertex3f(m_sidePoint[1].x, m_sidePoint[1].y, m_sidePoint[1].z);
 
-		// Turn the fourth multi-texture pass off
-		glActiveTexture(GL_TEXTURE3);		
-		glBindTexture( GL_TEXTURE_2D, 0 );
-		glDisable(GL_TEXTURE_2D);
+	// The front right vertex for the water
+	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, 0.0f);				// Reflection texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV, 0.0f - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV, 0.0f + move2);		// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
+	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
+	glVertex3f(m_sidePoint[2].x, m_sidePoint[2].y, m_sidePoint[2].z);
 
-		// Turn the third multi-texture pass off
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture( GL_TEXTURE_2D, 0 );
-		glDisable(GL_TEXTURE_2D);
+	// The back right vertex for the water
+	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, m_fWaterUV);		// Reflection texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV, refrUV - move);		// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV, normalUV + move2);	// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
+	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
+	glVertex3f(m_sidePoint[3].x, m_sidePoint[3].y, m_sidePoint[3].z);
 
-		// Turn the second multi-texture pass off
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture( GL_TEXTURE_2D, 0 );
-		glDisable(GL_TEXTURE_2D);
+	glEnd();
+	// Turn the fifth multi-texture pass off
+	glActiveTexture(GL_TEXTURE4);		
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glDisable(GL_TEXTURE_2D);
 
-		// Turn the first multi-texture pass off
-		glActiveTexture(GL_TEXTURE0);	
-		glBindTexture( GL_TEXTURE_2D, 0 );
-		glDisable(GL_TEXTURE_2D);
+	// Turn the fourth multi-texture pass off
+	glActiveTexture(GL_TEXTURE3);		
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glDisable(GL_TEXTURE_2D);
 
-		glEnable( GL_CULL_FACE );
-		glDisable(GL_TEXTURE_2D);
-	}
+	// Turn the third multi-texture pass off
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glDisable(GL_TEXTURE_2D);
+
+	// Turn the second multi-texture pass off
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glDisable(GL_TEXTURE_2D);
+
+	// Turn the first multi-texture pass off
+	glActiveTexture(GL_TEXTURE0);	
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable( GL_CULL_FACE );
+	glDisable(GL_TEXTURE_2D);
 
 	if (renderAboveWater && m_fWaterTransparency < 1.0f)
 	{
@@ -606,8 +610,6 @@ CVoid CWater::SetDuDvMapName(CChar* name) {
 
 CVoid CWater::RenderIcon(CBool selectionMode)
 {
-	glUseProgram(0);
-
 	if (selectionMode)
 	{
 		glPushName(m_nameIndex);

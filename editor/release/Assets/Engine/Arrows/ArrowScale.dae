@@ -175,7 +175,7 @@
         <technique sid="common">
           <phong>
             <emission>
-              <color>0 0 0 1</color>
+              <color>0.5294118 0.4313726 0.03137255 1</color>
             </emission>
             <ambient>
               <color>0.5294118 0.4313726 0.03137255 1</color>

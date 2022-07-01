@@ -713,7 +713,8 @@ struct CDatabaseVariables
 	CBool m_showPerspectiveGrids;
 	CBool m_showLightPositions;
 	CBool m_showSoundPositions;
-	CBool m_showBoundingBox;
+	CBool m_showPrefabBoundingBox;
+	CBool m_showTerrainBoundingBox;
 	CBool m_showOctree;
 	CBool m_showStatistics;
 	CBool m_enableDynamicShadow; //deprecate
@@ -732,7 +733,8 @@ struct CDatabaseVariables
 		m_showPerspectiveGrids = CFalse;
 		m_showLightPositions = CFalse;
 		m_showSoundPositions = CFalse;
-		m_showBoundingBox = CFalse;
+		m_showPrefabBoundingBox = CFalse;
+		m_showTerrainBoundingBox = CFalse;
 		m_showOctree = CFalse;
 		m_showStatistics = CFalse;
 		m_enableDynamicShadow = CFalse;
@@ -754,7 +756,8 @@ struct CDatabaseVariables
 		m_showPerspectiveGrids = CFalse;
 		m_showLightPositions = CFalse;
 		m_showSoundPositions = CFalse;
-		m_showBoundingBox = CFalse;
+		m_showPrefabBoundingBox = CFalse;
+		m_showTerrainBoundingBox = CFalse;
 		m_showOctree = CFalse;
 		m_showStatistics = CFalse;
 		m_enableDynamicShadow = CTrue;
@@ -785,7 +788,6 @@ extern COptions g_options;
 extern CVec4f g_defaultDirectionalLight;
 extern CInstanceLight* g_currentInstanceLight;
 extern CBool g_firstPass;
-extern CBool g_fogBlurPass;
 extern CInt g_sceneManagerObjectsPerSplit;
 extern CLODProperties g_instancePrefabLODPercent;
 extern CPrefabProperties g_prefabProperties;

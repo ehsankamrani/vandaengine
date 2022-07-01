@@ -30,6 +30,7 @@ public:
 	CVoid SetSides( CInt numSides ) { m_numSides = numSides; }
 	CVoid SetSlices( CInt numSlices ) { m_numSlices = numSlices; }
 	CVoid SetExponential( CBool exponential ) { m_exponential = exponential; }
+	CVoid SetFog(CBool set) { m_fog = set; }
 
 	CChar* GetName() { return m_name; }
 	CChar* GetPath() { return m_path; }
@@ -39,6 +40,7 @@ public:
 	CInt GetSides() { return m_numSides; }
 	CInt GetSlices() { return m_numSlices; }
 	CBool GetExponential() { return m_exponential; }
+	CBool GetFog() { return m_fog; }
 
 	CVoid RenderIcon(CBool selectionMode = CFalse);
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; } //selection
@@ -91,6 +93,7 @@ public:
 	CFloat m_position[3];
 	CFloat m_dampening;
 	CBool m_exponential;
+	CBool m_fog;
 	CInt m_numIndices;
 
 private:

@@ -1,4 +1,4 @@
-//Copyright (C) 2020 Ehsan Kamrani
+//Copyright (C) 2022 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 [vert]
 
@@ -18,6 +18,10 @@ varying vec3 pointLightPos[NR_POINT_LIGHTS];
 varying vec3 viewDir;
 varying vec3 normal;
 uniform bool enableDirtMap;
+
+varying float Blur;
+uniform float focalDistance, focalRange;
+
 void main()
 {
     gl_TexCoord[0] = gl_MultiTexCoord0;
@@ -54,6 +58,17 @@ void main()
     gl_ClipVertex = vPos;
     #endif
 
+    //DOF data
+    float distance = abs(-vPos.z - focalDistance);
+    if( distance < focalRange )
+    {
+		Blur = 0.0;
+	}
+	else
+	{
+   		Blur = clamp( (distance - focalRange) / focalRange, 0.0, 1.0);
+   	}
+
     gl_Position = gl_ProjectionMatrix * vPos;
 }
 
@@ -87,6 +102,9 @@ uniform sampler2D alphaMap;
 uniform sampler2D heightMap;
 uniform sampler2D glossMap;
 uniform sampler2D dirtMap;
+
+varying float Blur;
+uniform bool enableFog;
 
 out vec4 myVec40;
 
@@ -203,7 +221,22 @@ void main()
 		light_index++;
 	}
 
-	myVec40 = vec4(finalColor.rgb, 0.0);
+	if( enableFog )
+	{
+		//Compute the fog here
+		const float LOG2 = 1.442695; 
+		float z = gl_FragCoord.z / gl_FragCoord.w;
+		float fogFactor = exp2( -gl_Fog.density * 
+			   gl_Fog.density * 
+			   z * 
+			   z * 
+			   LOG2 );
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+	
+		myVec40 = vec4(mix(gl_Fog.color, finalColor, fogFactor ).rgb, Blur);
+	}
+	else
+		myVec40 = vec4(finalColor.r, finalColor.g, finalColor.b, Blur);
 }
 
 

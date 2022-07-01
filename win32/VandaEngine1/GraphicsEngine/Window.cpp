@@ -125,7 +125,7 @@ void CWindow::ReshapeGL(GLsizei width, GLsizei height)									// Reshape The Wi
 	glViewport (0, 0, (GLsizei)(width), (GLsizei)(height));				// Reset The Current Viewport
 	glMatrixMode (GL_PROJECTION);										// Select The Projection Matrix
 	glLoadIdentity ();													// Reset The Projection Matrix
-	gluPerspective( 45.0f, (float)width/(float)height, 0.1,  1000.0);
+	gluPerspective( 45.0f, (float)width/(float)height, 0.01,  1000.0);
 	glMatrixMode (GL_MODELVIEW);										// Select The Modelview Matrix
 	glLoadIdentity ();													// Reset The Modelview Matrix
 }
