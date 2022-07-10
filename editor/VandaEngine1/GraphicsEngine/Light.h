@@ -108,7 +108,7 @@ public:
 	CVoid SetLinearAttenuation( CFloat factor );
 	CVoid SetQuadraticAttenuation( CFloat facor );
 	CVoid SetColor( CColor4f& color, CBool setDiffuse = CTrue );
-	CInt SetLightNumber( CInt lightNumber );
+	CVoid SetLightNumber( CInt lightNumber );
 
 	CFloat* GetPosition();
 	CFloat* GetAmbient();

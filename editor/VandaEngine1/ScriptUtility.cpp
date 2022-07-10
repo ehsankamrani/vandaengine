@@ -134,7 +134,7 @@ void CScriptUtility::OnBnClickedCopyVsceneName()
 	m_richVSceneName.GetWindowTextA(s);
 	m_richVSceneName.Copy();
 	CChar message[MAX_URI_SIZE];
-	sprintf(message, "VScene '%s' copied to clipboard", s);
+	sprintf(message, "VScene '%s' copied to clipboard", (LPCSTR)s);
 	MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 
 }

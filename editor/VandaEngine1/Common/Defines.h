@@ -7,7 +7,7 @@
 #define CByte	char
 #define CInt32	int
 #define CInt16	short
-#define CLong	short
+#define CLong	long
 #define CInt    CInt32 
 
 #define CUChar	unsigned CByte

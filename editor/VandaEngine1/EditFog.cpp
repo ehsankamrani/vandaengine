@@ -20,6 +20,7 @@ CEditFog::CEditFog(CWnd* pParent /*=NULL*/)
 	{
 		m_fColor[i] = g_fogProperties.m_fogColor[i];
 	}
+	m_fogBrush.DeleteObject();
 	COLORREF fogColor = RGB( CInt( m_fColor[0] * 255), CInt(m_fColor[1] * 255), CInt(m_fColor[2] * 255) );
 	m_fogBrush.CreateSolidBrush( fogColor );
 }
@@ -56,6 +57,7 @@ void CEditFog::OnBnClickedButtonFogColor()
 		m_fColor[1] = ( CFloat )GetGValue( m_fogColor ) / 255.f;
 		m_fColor[2] = ( CFloat )GetBValue( m_fogColor ) / 255.f;
 		m_fColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_fogBrush.DeleteObject();
 		m_fogBrush.CreateSolidBrush( m_fogColor );
 		m_editBoxFogColor.RedrawWindow();
 	}

@@ -141,7 +141,7 @@ public:
 	CAmbientSound * m_ambientSound;
 	COpenALSystem* m_soundSystem;
 	CFloat elapsedTime;
-	__int64 m_timerCounter; //To get FPS
+	CULong m_timerCounter; //To get FPS
 	CFloat m_totalElapsedTime; //To get FPS
 	CFloat m_cameraInverse[16];
 

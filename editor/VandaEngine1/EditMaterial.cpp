@@ -12,6 +12,7 @@
 #include <set>
 #include <map>
 #include <vector>
+
 using namespace std;
 // CEditMaterial dialog
 
@@ -630,6 +631,8 @@ BOOL CEditMaterial::OnInitDialog()
 
 	}
 
+	m_ambientBrush.DeleteObject();
+
 	if (!foundAmbientDifference)
 	{
 		m_ambientColor = RGB((CInt)(m_fAmbientColor[0] * 255), (CInt)(m_fAmbientColor[1] * 255), (CInt)(m_fAmbientColor[2] * 255));
@@ -640,6 +643,8 @@ BOOL CEditMaterial::OnInitDialog()
 		m_ambientColor = RGB(255, 255, 255);
 		m_ambientBrush.CreateSolidBrush(m_ambientColor);
 	}
+
+	m_diffuseBrush.DeleteObject();
 
 	if (!foundDiffuseDifference)
 	{
@@ -652,6 +657,8 @@ BOOL CEditMaterial::OnInitDialog()
 		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
 	}
 
+	m_specularBrush.DeleteObject();
+
 	if (!foundSpecularDifference)
 	{
 		m_specularColor = RGB((CInt)(m_fSpecularColor[0] * 255), (CInt)(m_fSpecularColor[1] * 255), (CInt)(m_fSpecularColor[2] * 255));
@@ -662,6 +669,8 @@ BOOL CEditMaterial::OnInitDialog()
 		m_specularColor = RGB(255, 255, 255);
 		m_specularBrush.CreateSolidBrush(m_specularColor);
 	}
+
+	m_emissionBrush.DeleteObject();
 
 	if (!foundEmissionDifference)
 	{
@@ -811,21 +820,8 @@ void CEditMaterial::OnOK()
 
 INT_PTR CEditMaterial::DoModal()
 {
-	CDialogTemplate dlt;
-	int nResult;
-	// load dialog template
-	if (!dlt.Load(MAKEINTRESOURCE(CEditMaterial::IDD))) return -1;
-	// set the font, for example "Arial", 10 pts.
-	dlt.SetFont("Arial", 8);
-	// get pointer to the modified dialog template
-	LPSTR pdata = (LPSTR)GlobalLock(dlt.m_hTemplate);
-	// let MFC know that you are using your own template
-	m_lpszTemplateName = NULL;
-	InitModalIndirect(pdata);
-	// display dialog box
+	INT_PTR nResult;
 	nResult = CDialog::DoModal();
-	// unlock memory object
-	GlobalUnlock(dlt.m_hTemplate);
 	return nResult;
 }
 void CEditMaterial::OnEnChangeEditNormalmapBias()
@@ -1116,10 +1112,11 @@ void CEditMaterial::OnBnClickedButtonAmbient()
 	if (dlg.DoModal() == IDOK)
 	{
 		m_ambientColor = dlg.GetColor();
-		m_fAmbientColor[0] = (CFloat)GetRValue(m_ambientColor) / 255.f;
-		m_fAmbientColor[1] = (CFloat)GetGValue(m_ambientColor) / 255.f;
-		m_fAmbientColor[2] = (CFloat)GetBValue(m_ambientColor) / 255.f;
+		m_fAmbientColor[0] = (CFloat)GetRValue(m_ambientColor) / 255.0f;
+		m_fAmbientColor[1] = (CFloat)GetGValue(m_ambientColor) / 255.0f;
+		m_fAmbientColor[2] = (CFloat)GetBValue(m_ambientColor) / 255.0f;
 		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.DeleteObject();
 		m_ambientBrush.CreateSolidBrush(m_ambientColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fAmbientColor[0], m_fAmbientColor[1], m_fAmbientColor[2]);
@@ -1140,6 +1137,7 @@ void CEditMaterial::OnBnClickedButtonDiffuse()
 		m_fDiffuseColor[1] = (CFloat)GetGValue(m_diffuseColor) / 255.f;
 		m_fDiffuseColor[2] = (CFloat)GetBValue(m_diffuseColor) / 255.f;
 		m_fDiffuseColor[3] = 1.0f;
+		m_diffuseBrush.DeleteObject();
 		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fDiffuseColor[0], m_fDiffuseColor[1], m_fDiffuseColor[2]);
@@ -1160,6 +1158,7 @@ void CEditMaterial::OnBnClickedButtonSpecular()
 		m_fSpecularColor[1] = (CFloat)GetGValue(m_specularColor) / 255.f;
 		m_fSpecularColor[2] = (CFloat)GetBValue(m_specularColor) / 255.f;
 		m_fSpecularColor[3] = 1.0f;
+		m_specularBrush.DeleteObject();
 		m_specularBrush.CreateSolidBrush(m_specularColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fSpecularColor[0], m_fSpecularColor[1], m_fSpecularColor[2]);
@@ -1180,6 +1179,7 @@ void CEditMaterial::OnBnClickedButtonEmission()
 		m_fEmissionColor[1] = (CFloat)GetGValue(m_emissionColor) / 255.f;
 		m_fEmissionColor[2] = (CFloat)GetBValue(m_emissionColor) / 255.f;
 		m_fEmissionColor[3] = 1.0f;
+		m_emissionBrush.DeleteObject();
 		m_emissionBrush.CreateSolidBrush(m_emissionColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fEmissionColor[0], m_fEmissionColor[1], m_fEmissionColor[2]);

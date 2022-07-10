@@ -15724,7 +15724,6 @@ CMultipleWindows::~CMultipleWindows()
 	m_simpleFont2.Release();
 	distance_vector.clear();
 	sorted_prefabs.clear();
-	KillTimer( 1 );
 }
 
 
@@ -16189,6 +16188,9 @@ CVoid CMultipleWindows::OnDestroy()
 		wglDeleteContext( m_hRC );
 	if( m_pDC )
 		delete m_pDC;
+
+	KillTimer(1);
+
 	CWnd::OnDestroy();
 
 }
@@ -16741,7 +16743,7 @@ CVoid CMultipleWindows::OnLButtonUp(UINT nFlags, CPoint point)
 								if (Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[i]->GetName())) continue;
 
 							//If it's trigger, skip
-							CBool foundTrigger;
+							CBool foundTrigger = CFalse;
 							for (CUInt j = 0; j < g_triggers.size(); j++)
 							{
 								if (Cmp(g_triggers[j]->GetInstancePrefab()->GetName(), g_instancePrefab[i]->GetName()))
@@ -18021,16 +18023,22 @@ CVoid CMultipleWindows::DrawPerspective()
 		//t1.join();
 	}
 
+	if (IsPlayGameMode() && g_menu.m_insertAndShowTerrain && g_terrain->GetTerrain())
+	{
+		g_terrain->GetTerrain()->ManagePhysics();
+	}
+
 	//Process  inputs
 	if (!m_translationController->Initialized())
 		ProcessInputs();
 
 	UpdateCharacterTransformations();
 
-	if (!g_currentVSceneProperties.m_isPause)
+	if (IsPlayGameMode() && !g_currentVSceneProperties.m_isPause)
 	{
 		UpdateDynamicPhysicsObjects();
 	}
+
 
 	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 		g_render.BindForWriting(m_mFboID);
@@ -18846,9 +18854,8 @@ CVoid CMultipleWindows::DrawPerspective()
 		//glReadBuffer(GL_COLOR_ATTACHMENT5_EXT);
 		//g_render.BindForWriting( m_fboID );
 		//glDrawBuffer(GL_COLOR_ATTACHMENT5_EXT);
-
-
 	}
+
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	if (!g_useOldRenderingStyle && g_options.m_enableFBO)
 	{
@@ -23043,112 +23050,115 @@ CVoid CMultipleWindows::DrawGUI()
 	}
 	m_simpleFont.EndRendering();
 
-	if (g_transformObject && g_currentTransformType == eCTranslate)
+	if (!IsPlayGameMode())
 	{
-		CFloat val;
-		CChar temp1[MAX_NAME_SIZE];
-		val = roundf(g_arrowPosition.x * 100) / 100;
-		sprintf(temp1, "%.2f", val);
-		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
-
-		CChar temp2[MAX_NAME_SIZE];
-		val = roundf(g_arrowPosition.y * 100) / 100;
-		sprintf(temp2, "%.2f", val);
-		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
-
-		CChar temp3[MAX_NAME_SIZE];
-		val = roundf(g_arrowPosition.z * 100) / 100;
-		sprintf(temp3, "%.2f", val);
-		ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
-	}
-	else if (g_transformObject && (g_currentTransformType == eCRotate || g_currentTransformType == eCScale))
-	{
-		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		if (g_transformObject && g_currentTransformType == eCTranslate)
 		{
-			if (g_instancePrefab[i]->GetNameIndex() == g_selectedName)
+			CFloat val;
+			CChar temp1[MAX_NAME_SIZE];
+			val = roundf(g_arrowPosition.x * 100) / 100;
+			sprintf(temp1, "%.2f", val);
+			ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
+
+			CChar temp2[MAX_NAME_SIZE];
+			val = roundf(g_arrowPosition.y * 100) / 100;
+			sprintf(temp2, "%.2f", val);
+			ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
+
+			CChar temp3[MAX_NAME_SIZE];
+			val = roundf(g_arrowPosition.z * 100) / 100;
+			sprintf(temp3, "%.2f", val);
+			ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
+		}
+		else if (g_transformObject && (g_currentTransformType == eCRotate || g_currentTransformType == eCScale))
+		{
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 			{
-				if (g_currentTransformType == eCRotate)
+				if (g_instancePrefab[i]->GetNameIndex() == g_selectedName)
 				{
-					CInstancePrefab* instancePrefab = g_instancePrefab[i];
-					CFloat val;
-					CChar temp1[MAX_NAME_SIZE];
-					CFloat rotate;
-					CVec4f rot;
-
-					rotate = instancePrefab->GetRotate().x;
-					if (rotate >= 360.0f)
-						rotate -= 360.0f;
-					else if (rotate < 0)
-						rotate = 360 + rotate;
-					rot.x = rotate; rot.y = instancePrefab->GetRotate().y; rot.z = instancePrefab->GetRotate().z; rot.w = instancePrefab->GetRotate().w;
-					instancePrefab->SetRotate(rot);
-
-					val = roundf(instancePrefab->GetRotate().x * 100) / 100;
-					sprintf(temp1, "%.2f", val);
-					ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
-
-					rotate = instancePrefab->GetRotate().y;
-					if (rotate >= 360.0f)
-						rotate -= 360.0f;
-					else if (rotate < 0)
-						rotate = 360 + rotate;
-					rot.x = instancePrefab->GetRotate().x; rot.y = rotate; rot.z = instancePrefab->GetRotate().z; rot.w = instancePrefab->GetRotate().w;
-					instancePrefab->SetRotate(rot);
-
-					CChar temp2[MAX_NAME_SIZE];
-					val = roundf(instancePrefab->GetRotate().y * 100) / 100;
-					sprintf(temp2, "%.2f", val);
-					ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
-
-					if (g_mainCharacter && Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[i]->GetName()))
+					if (g_currentTransformType == eCRotate)
 					{
-						g_mainCharacter->SetCurrentRotation(val);
-						CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
-						g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
+						CInstancePrefab* instancePrefab = g_instancePrefab[i];
+						CFloat val;
+						CChar temp1[MAX_NAME_SIZE];
+						CFloat rotate;
+						CVec4f rot;
 
-						g_camera->m_perspectiveCameraYaw = NxMath::degToRad(val) + NxMath::degToRad(180.f);
+						rotate = instancePrefab->GetRotate().x;
+						if (rotate >= 360.0f)
+							rotate -= 360.0f;
+						else if (rotate < 0)
+							rotate = 360 + rotate;
+						rot.x = rotate; rot.y = instancePrefab->GetRotate().y; rot.z = instancePrefab->GetRotate().z; rot.w = instancePrefab->GetRotate().w;
+						instancePrefab->SetRotate(rot);
 
+						val = roundf(instancePrefab->GetRotate().x * 100) / 100;
+						sprintf(temp1, "%.2f", val);
+						ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
+
+						rotate = instancePrefab->GetRotate().y;
+						if (rotate >= 360.0f)
+							rotate -= 360.0f;
+						else if (rotate < 0)
+							rotate = 360 + rotate;
+						rot.x = instancePrefab->GetRotate().x; rot.y = rotate; rot.z = instancePrefab->GetRotate().z; rot.w = instancePrefab->GetRotate().w;
+						instancePrefab->SetRotate(rot);
+
+						CChar temp2[MAX_NAME_SIZE];
+						val = roundf(instancePrefab->GetRotate().y * 100) / 100;
+						sprintf(temp2, "%.2f", val);
+						ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
+
+						if (g_mainCharacter && Cmp(g_mainCharacter->GetInstancePrefab()->GetName(), g_instancePrefab[i]->GetName()))
+						{
+							g_mainCharacter->SetCurrentRotation(val);
+							CVec4f rot(0.0f, g_mainCharacter->GetCurrentRotation(), 0.0f, 0.0f);
+							g_mainCharacter->GetInstancePrefab()->SetRotate(rot);
+
+							g_camera->m_perspectiveCameraYaw = NxMath::degToRad(val) + NxMath::degToRad(180.f);
+
+						}
+
+
+						rotate = instancePrefab->GetRotate().z;
+						if (rotate >= 360.0f)
+							rotate -= 360.0f;
+						else if (rotate < 0)
+							rotate = 360 + rotate;
+						rot.x = instancePrefab->GetRotate().x; rot.y = instancePrefab->GetRotate().y; rot.z = rotate; rot.w = instancePrefab->GetRotate().w;
+						instancePrefab->SetRotate(rot);
+
+						CChar temp3[MAX_NAME_SIZE];
+						val = roundf(instancePrefab->GetRotate().z * 100) / 100;
+						sprintf(temp3, "%.2f", val);
+						ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
+						break;
+					}
+					else if (g_currentTransformType == eCScale)
+					{
+						CFloat val;
+						CChar temp1[MAX_NAME_SIZE];
+						val = roundf(g_instancePrefab[i]->GetScale().x * 100) / 100;
+						sprintf(temp1, "%.2f", val);
+						ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
+
+						CChar temp2[MAX_NAME_SIZE];
+						val = roundf(g_instancePrefab[i]->GetScale().y * 100) / 100;
+						sprintf(temp2, "%.2f", val);
+						ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
+
+						CChar temp3[MAX_NAME_SIZE];
+						val = roundf(g_instancePrefab[i]->GetScale().z * 100) / 100;
+						sprintf(temp3, "%.2f", val);
+						ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
+						break;
 					}
 
-
-					rotate = instancePrefab->GetRotate().z;
-					if (rotate >= 360.0f)
-						rotate -= 360.0f;
-					else if (rotate < 0)
-						rotate = 360 + rotate;
-					rot.x = instancePrefab->GetRotate().x; rot.y = instancePrefab->GetRotate().y; rot.z = rotate; rot.w = instancePrefab->GetRotate().w;
-					instancePrefab->SetRotate(rot);
-
-					CChar temp3[MAX_NAME_SIZE];
-					val = roundf(instancePrefab->GetRotate().z * 100) / 100;
-					sprintf(temp3, "%.2f", val);
-					ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
-					break;
 				}
-				else if (g_currentTransformType == eCScale)
-				{
-					CFloat val;
-					CChar temp1[MAX_NAME_SIZE];
-					val = roundf(g_instancePrefab[i]->GetScale().x * 100) / 100;
-					sprintf(temp1, "%.2f", val);
-					ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(temp1);
-
-					CChar temp2[MAX_NAME_SIZE];
-					val = roundf(g_instancePrefab[i]->GetScale().y * 100) / 100;
-					sprintf(temp2, "%.2f", val);
-					ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp2);
-
-					CChar temp3[MAX_NAME_SIZE];
-					val = roundf(g_instancePrefab[i]->GetScale().z * 100) / 100;
-					sprintf(temp3, "%.2f", val);
-					ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(temp3);
-					break;
-				}
-
 			}
 		}
 	}
-	if( m_totalElapsedTime >= 5 ) //Every 5 seconds update the FPS
+	if( m_totalElapsedTime >= 5.0f ) //Every 5 seconds update the FPS
 	{
 		SetElapsedTimeFromBeginning();
 	}

@@ -95,7 +95,7 @@ void CEditPrefab::OnBnClickedButtonCopyPrefabInstanceCameraName()
 	{
 		m_richSelectedCameraName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -111,7 +111,7 @@ void CEditPrefab::OnBnClickedButtonCopyPrefabInstanceAnimationName()
 	{
 		m_richSelectedAnimationName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -378,14 +378,22 @@ BOOL CEditPrefab::OnInitDialog()
 		sprintf(specularText, "R: %.2f, G: %.2f, B: %.2f", m_fSpecularColor[0], m_fSpecularColor[1], m_fSpecularColor[2]);
 		sprintf(emissionText, "R: %.2f, G: %.2f, B: %.2f", m_fEmissionColor[0], m_fEmissionColor[1], m_fEmissionColor[2]);
 
+		m_ambientBrush.DeleteObject();
+
 		m_ambientColor = RGB((CInt)(m_fAmbientColor[0] * 255), (CInt)(m_fAmbientColor[1] * 255), (CInt)(m_fAmbientColor[2] * 255));
 		m_ambientBrush.CreateSolidBrush(m_ambientColor);
+
+		m_diffuseBrush.DeleteObject();
 
 		m_diffuseColor = RGB((CInt)(m_fDiffuseColor[0] * 255), (CInt)(m_fDiffuseColor[1] * 255), (CInt)(m_fDiffuseColor[2] * 255));
 		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
 
+		m_specularBrush.DeleteObject();
+
 		m_specularColor = RGB((CInt)(m_fSpecularColor[0] * 255), (CInt)(m_fSpecularColor[1] * 255), (CInt)(m_fSpecularColor[2] * 255));
 		m_specularBrush.CreateSolidBrush(m_specularColor);
+
+		m_emissionBrush.DeleteObject();
 
 		m_emissionColor = RGB((CInt)(m_fEmissionColor[0] * 255), (CInt)(m_fEmissionColor[1] * 255), (CInt)(m_fEmissionColor[2] * 255));
 		m_emissionBrush.CreateSolidBrush(m_emissionColor);
@@ -440,7 +448,7 @@ void CEditPrefab::OnBnClickedButtonCopyPrefabInstanceName()
 	{
 		m_richPrefabInstanceName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "prefab instance name '%s' copied to clipboard", s);
+		sprintf(message, "prefab instance name '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -455,7 +463,7 @@ void CEditPrefab::OnBnClickedButtonCopyPrefabName()
 	{
 		m_richPrefabName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "prefab name '%s' copied to clipboard", s);
+		sprintf(message, "prefab name '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -630,6 +638,7 @@ void CEditPrefab::OnBnClickedButtonAmbient()
 		m_fAmbientColor[1] = (CFloat)GetGValue(m_ambientColor) / 255.f;
 		m_fAmbientColor[2] = (CFloat)GetBValue(m_ambientColor) / 255.f;
 		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.DeleteObject();
 		m_ambientBrush.CreateSolidBrush(m_ambientColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fAmbientColor[0], m_fAmbientColor[1], m_fAmbientColor[2]);
@@ -650,6 +659,7 @@ void CEditPrefab::OnBnClickedButtonDiffuse()
 		m_fDiffuseColor[1] = (CFloat)GetGValue(m_diffuseColor) / 255.f;
 		m_fDiffuseColor[2] = (CFloat)GetBValue(m_diffuseColor) / 255.f;
 		m_fDiffuseColor[3] = 1.0f;
+		m_diffuseBrush.DeleteObject();
 		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fDiffuseColor[0], m_fDiffuseColor[1], m_fDiffuseColor[2]);
@@ -670,6 +680,7 @@ void CEditPrefab::OnBnClickedButtonSpecular()
 		m_fSpecularColor[1] = (CFloat)GetGValue(m_specularColor) / 255.f;
 		m_fSpecularColor[2] = (CFloat)GetBValue(m_specularColor) / 255.f;
 		m_fSpecularColor[3] = 1.0f;
+		m_specularBrush.DeleteObject();
 		m_specularBrush.CreateSolidBrush(m_specularColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fSpecularColor[0], m_fSpecularColor[1], m_fSpecularColor[2]);
@@ -690,6 +701,7 @@ void CEditPrefab::OnBnClickedButtonEmission()
 		m_fEmissionColor[1] = (CFloat)GetGValue(m_emissionColor) / 255.f;
 		m_fEmissionColor[2] = (CFloat)GetBValue(m_emissionColor) / 255.f;
 		m_fEmissionColor[3] = 1.0f;
+		m_emissionBrush.DeleteObject();
 		m_emissionBrush.CreateSolidBrush(m_emissionColor);
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "R: %.2f, G: %.2f, B: %.2f", m_fEmissionColor[0], m_fEmissionColor[1], m_fEmissionColor[2]);

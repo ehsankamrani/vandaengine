@@ -43,6 +43,15 @@
 #include "common\\defines.h"
 using namespace std;
 
+#pragma comment(lib, "legacy_stdio_definitions.lib")
+
+#ifdef __cplusplus
+FILE iob[] = { *stdin, *stdout, *stderr };
+extern "C" {
+	FILE * __cdecl _iob(void) { return iob; }
+}
+#endif
+
 extern CUInt g_nameIndex;  
 extern CUInt g_nodeIndex;
 extern CInt g_selectedName; //holds the name of the selected object

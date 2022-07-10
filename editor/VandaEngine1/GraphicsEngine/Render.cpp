@@ -1170,7 +1170,7 @@ CBool CRender::InitCg()
 	//if(!CheckForCgError())
 	//	return CFalse;
 	//PrintInfo( "\nCg context created successfully\n", COLOR_WHITE );
-	//return CTrue; 
+	return CTrue; 
 }
 
 CBool CRender::CheckForCgError()
@@ -1191,7 +1191,7 @@ CBool CRender::CheckForCgError()
 
 	//	return CFalse; 
 	//}
-	//return CTrue;
+	return CTrue;
 }
 
 CBool CRender::DisableCgProfiles()

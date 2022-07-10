@@ -262,7 +262,7 @@ void CAddSkyDome::OnBnClickedButtonSkydomPath()
 INT_PTR CAddSkyDome::DoModal()
 {
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CAddSkyDome::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.

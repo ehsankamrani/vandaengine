@@ -89,7 +89,7 @@ void CAddResource::OnBnClickedButtonRemoveDirectory()
 	m_comboDirectory.GetLBText(m_comboDirectory.GetCurSel(), currentString);
 
 	CChar temp[MAX_NAME_SIZE];
-	sprintf(temp, "Are you sure you want to delete the '%s' directory?\nThis will delete all files located in this directory.", currentString);
+	sprintf(temp, "Are you sure you want to delete the '%s' directory?\nThis will delete all files located in this directory.", (LPCSTR)currentString);
 	if (MessageBox(temp, "Warning", MB_YESNO | MB_ICONINFORMATION) == IDYES)
 	{
 		for (CUInt i = 0; i < g_projectResourceNames.size(); i++)

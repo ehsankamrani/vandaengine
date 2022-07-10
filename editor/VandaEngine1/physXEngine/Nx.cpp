@@ -900,11 +900,16 @@ NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, 
 	CChar temp[MAX_NAME_SIZE];
 	sprintf(temp, "%s%s.phx", path, name);
 
-	NxTriangleMesh* pMesh;
+	NxTriangleMesh* pMesh = NULL;
 	pMesh = gPhysicsSDK->createTriangleMesh(UserStream(temp, true));
 	// Create TriangleMesh above code segment.
 
+	if (!pMesh)
+		return NULL;
+
 	NxTriangleMeshShapeDesc tmsd;
+
+	tmsd.name = name;
 
 	if (physicsMaterial.HasMaterial)
 	{
@@ -927,31 +932,23 @@ NxActor* CNovodex::CreateCookedTriangleMesh(CBool isTrigger, const CChar* path, 
 	NxActorDesc actorDesc;
 	NxBodyDesc  bodyDesc;
 
-	assert(tmsd.isValid());
 	actorDesc.shapes.pushBack(&tmsd);
 	//Dynamic triangle mesh don't be supported anymore. So body = NULL
 	actorDesc.body = NULL;
 	actorDesc.globalPose.t = NxVec3(0.0f, 0.0f, 0.0f);
 	actorDesc.name = name;
 
-	if (pMesh)
+	NxActor *actor = gPhysXscene->createActor(actorDesc);
+
+	if (isTrigger)
 	{
-		assert(actorDesc.isValid());
-		NxActor *actor = gPhysXscene->createActor(actorDesc);
-		assert(actor);
-		if (isTrigger)
-		{
-			SetActorCollisionGroup(actor, GROUP_TRIGGER);
-		}
-		else //static actor
-		{
-			SetActorCollisionGroup(actor, GROUP_STATIC);
-		}
-
-		return actor;
+		SetActorCollisionGroup(actor, GROUP_TRIGGER);
 	}
-
-	return NULL;
+	else //static actor
+	{
+		SetActorCollisionGroup(actor, GROUP_STATIC);
+	}
+	return actor;
 }
 
 NxActor* CNovodex::CreateTriangleMesh(CInt vertexCount, CInt faceCount, CFloat* meshVertices, CInt* meshFaces, CBool isTrigger, const CChar* name, CPhysXMaterial physicsMaterial)

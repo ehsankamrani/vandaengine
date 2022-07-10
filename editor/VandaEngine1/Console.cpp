@@ -57,7 +57,7 @@ BOOL CConsole::OnInitDialog()
 INT_PTR CConsole::DoModal()
 {
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CConsole::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.

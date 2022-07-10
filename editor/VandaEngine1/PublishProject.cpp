@@ -21,17 +21,6 @@ CPublishProject::CPublishProject(CWnd* pParent /*=NULL*/)
 
 CPublishProject::~CPublishProject()
 {
-	for (int nItem = m_listBoxAvailableScenes.GetItemCount()-1; nItem >= 0 ;nItem-- )
-	{
-		m_listBoxAvailableScenes.DeleteItem(nItem);
-	}
-
-	for (int nItem = m_listBoxScenesToBePublished.GetItemCount()-1; nItem >= 0 ;nItem-- )
-	{
-		m_listBoxScenesToBePublished.DeleteItem(nItem);
-	}
-
-
 }
 
 void CPublishProject::DoDataExchange(CDataExchange* pDX)
@@ -57,6 +46,7 @@ BEGIN_MESSAGE_MAP(CPublishProject, CDialog)
 	ON_BN_CLICKED(IDREMOVE, &CPublishProject::OnBnClickedRemove)
 	ON_BN_CLICKED(IDOK, &CPublishProject::OnBnClickedOk)
 	ON_BN_CLICKED(ID_MARK_AS_FIRST_SCENE, &CPublishProject::OnBnClickedMarkAsFirstScene)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -321,4 +311,20 @@ void CPublishProject::OnBnClickedMarkAsFirstScene()
 		MessageBox( "Please select a scene from the list!", "Report", MB_OK );
 	}
 
+}
+
+
+void CPublishProject::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	for (int nItem = m_listBoxAvailableScenes.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listBoxAvailableScenes.DeleteItem(nItem);
+	}
+
+	for (int nItem = m_listBoxScenesToBePublished.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listBoxScenesToBePublished.DeleteItem(nItem);
+	}
 }

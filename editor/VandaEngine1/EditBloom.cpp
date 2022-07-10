@@ -20,6 +20,7 @@ CEditBloom::CEditBloom(CWnd* pParent /*=NULL*/)
 	{
 		m_fBloomColor[i] = g_bloomProperties.m_bloomColor[i];
 	}
+	m_bloomBrush.DeleteObject();
 	COLORREF bloomColor = RGB( CInt( m_fBloomColor[0] * 255), CInt(m_fBloomColor[1] * 255), CInt(m_fBloomColor[2] * 255) );
 	m_bloomBrush.CreateSolidBrush( bloomColor );
 }
@@ -103,6 +104,7 @@ void CEditBloom::OnBnClickedButtonBloomColor()
 		m_fBloomColor[1] = ( CFloat )GetGValue( m_bloomColor ) / 255.f;
 		m_fBloomColor[2] = ( CFloat )GetBValue( m_bloomColor ) / 255.f;
 		m_fBloomColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_bloomBrush.DeleteObject();
 		m_bloomBrush.CreateSolidBrush( m_bloomColor );
 		m_editBoxBloomColor.RedrawWindow();
 	}

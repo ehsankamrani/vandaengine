@@ -80,6 +80,8 @@ class CTerrainVBOCull
 			CBool GetLightcooked() { return m_lightCooked; }
 			CVoid SetLightCooked(CBool set) { m_lightCooked = set; }
 
+			CChar m_chunkName[MAX_NAME_SIZE];
+
 			chunk()
 			{
 				m_calculateDistance = CTrue;
@@ -291,6 +293,8 @@ class CTerrainVBOCull
 
 		//Calculate the distance of each individual chunk from camera
 		void calculateDistance(CVec3f center1, CVec3f center2, CFloat & distance);
+
+		CVoid ManagePhysics();
 
 		CVoid ManagePhysXTriangleActorForCharacterController(CInt x, CInt z);
 		CVoid ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z);

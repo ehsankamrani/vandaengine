@@ -1,2 +1,0 @@
-Please download requirements folder from Sourceforge:
-https://sourceforge.net/projects/vandaengine/

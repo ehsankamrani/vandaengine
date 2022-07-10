@@ -58,4 +58,5 @@ public:
 	afx_msg void OnBnClickedMarkAsFirstScene();
 	CButton m_checkBoxDebug;
 	CBool GetPublishDebug() { return m_publishDebug; }
+	afx_msg void OnDestroy();
 };

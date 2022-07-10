@@ -60,6 +60,7 @@ void CEditLight::OnBnClickedButtonAmbientLight()
 		m_fAmbientColor[1] = ( CFloat )GetGValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[2] = ( CFloat )GetBValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.DeleteObject();
 		m_ambientBrush.CreateSolidBrush( m_ambientColor );
 		m_editBoxAmbientColor.RedrawWindow();
 	}
@@ -75,6 +76,7 @@ void CEditLight::OnBnClickedButtonSpecularLight()
 		m_fSpecularColor[1] = ( CFloat )GetGValue( m_specularColor ) / 255.f;
 		m_fSpecularColor[2] = ( CFloat )GetBValue( m_specularColor ) / 255.f;
 		m_fSpecularColor[3] = 1.0f;
+		m_specularBrush.DeleteObject();
 		m_specularBrush.CreateSolidBrush( m_specularColor );
 		m_editBoxSpecularColor.RedrawWindow();
 	}
@@ -109,6 +111,9 @@ BOOL CEditLight::OnInitDialog()
 	}
 	m_ambientColor = RGB( (CInt) (m_fAmbientColor[0] * 255), (CInt)(m_fAmbientColor[1]* 255), (CInt)(m_fAmbientColor[2] * 255));
 	m_specularColor = RGB( (CInt)(m_fSpecularColor[0]* 255), (CInt)(m_fSpecularColor[1]* 255), (CInt)(m_fSpecularColor[2]* 255) );
+
+	m_ambientBrush.DeleteObject();
+	m_specularBrush.DeleteObject();
 
 	m_ambientBrush.CreateSolidBrush( m_ambientColor );
 	m_specularBrush.CreateSolidBrush( m_specularColor );

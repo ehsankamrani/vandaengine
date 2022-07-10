@@ -178,6 +178,7 @@ void CAddTerrain::OnBnClickedButtonAddAmbientColor()
 		m_fAmbientColor[1] = (CFloat)GetGValue(m_ambientColor) / 255.f;
 		m_fAmbientColor[2] = (CFloat)GetBValue(m_ambientColor) / 255.f;
 		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.DeleteObject();
 		m_ambientBrush.CreateSolidBrush(m_ambientColor);
 		m_editBoxAmbientColor.RedrawWindow();
 	}
@@ -194,6 +195,7 @@ void CAddTerrain::OnBnClickedButtonAddDiffuseColor()
 		m_fDiffuseColor[1] = (CFloat)GetGValue(m_diffuseColor) / 255.f;
 		m_fDiffuseColor[2] = (CFloat)GetBValue(m_diffuseColor) / 255.f;
 		m_fDiffuseColor[3] = 1.0f;
+		m_diffuseBrush.DeleteObject();
 		m_diffuseBrush.CreateSolidBrush(m_diffuseColor);
 		m_editBoxDiffuseColor.RedrawWindow();
 	}
@@ -210,6 +212,7 @@ void CAddTerrain::OnBnClickedButtonAddSpecularColor()
 		m_fSpecularColor[1] = (CFloat)GetGValue(m_specularColor) / 255.f;
 		m_fSpecularColor[2] = (CFloat)GetBValue(m_specularColor) / 255.f;
 		m_fSpecularColor[3] = 1.0f;
+		m_specularBrush.DeleteObject();
 		m_specularBrush.CreateSolidBrush(m_specularColor);
 		m_editBoxSpecularColor.RedrawWindow();
 	}
@@ -286,6 +289,9 @@ BOOL CAddTerrain::OnInitDialog()
 
 		m_changedHeightMap = CFalse;
 	}
+	m_ambientBrush.DeleteObject();
+	m_diffuseBrush.DeleteObject();
+	m_specularBrush.DeleteObject();
 
 	m_ambientBrush.CreateSolidBrush(m_ambientColor);
 	m_diffuseBrush.CreateSolidBrush(m_diffuseColor);

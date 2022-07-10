@@ -274,7 +274,7 @@ BOOL CAddGUIText::OnInitDialog()
 		m_fTextSize = 18;
 		m_strTextSize = "18";
 		m_editSize.SetWindowTextA(m_strTextSize);
-
+		m_brush.DeleteObject();
 		m_brush.CreateSolidBrush(m_color);
 	}
 	else
@@ -284,6 +284,7 @@ BOOL CAddGUIText::OnInitDialog()
 		m_editPosY.SetWindowTextA(m_strPosY);
 		m_editSize.SetWindowTextA(m_strTextSize);
 		m_editText.SetWindowTextA(m_strText);
+		m_brush.DeleteObject();
 		m_brush.CreateSolidBrush(m_color);
 	}
 
@@ -317,6 +318,7 @@ void CAddGUIText::OnBnClickedButtonColor()
 		m_fColor[1] = (CFloat)GetGValue(m_color) / 255.f;
 		m_fColor[2] = (CFloat)GetBValue(m_color) / 255.f;
 		m_fColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_brush.DeleteObject();
 		m_brush.CreateSolidBrush(m_color);
 		m_editColor.RedrawWindow();
 	}

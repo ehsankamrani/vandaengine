@@ -661,11 +661,10 @@ void CTerrainVBOCull::draw()
 	}
 
 	// Loop through the chunks.
-	for (int z = 0; z < Height / (ChunkHeight - 1); z++)
+	for (int z = 0; z < int(Height / (ChunkHeight - 1)); z++)
 	{
-		for (int x = 0; x < Width / (ChunkWidth - 1); x++)
+		for (int x = 0; x < int(Width / (ChunkWidth - 1)); x++)
 		{
-
 			if (m_updateMinMaxCenter)
 			{
 				float maxX = chunkArray[x][z].maxX;
@@ -684,10 +683,6 @@ void CTerrainVBOCull::draw()
 				chunkArray[x][z].center = (chunkArray[x][z].min_t + chunkArray[x][z].max_t) * 0.5f;
 				chunkArray[x][z].radius = (chunkArray[x][z].max_t - chunkArray[x][z].center).Size() * 1.1f;
 			}
-
-			//Load/Unload Terrain PhysX Triangle Meshes Here:
-			ManagePhysXTriangleActorsForPrefabInstance(x, z);
-			ManagePhysXTriangleActorForCharacterController(x, z);
 
 			glPushMatrix();
 			glLoadMatrixf(lightMatrix);
@@ -834,12 +829,11 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorForCharacterController(CInt x, CI
 							chunkArray[x][z].m_attachedActors.push_back(actorName);
 
 							//Load Chunk PhysX 
-							CChar chunkName[MAX_NAME_SIZE];
-							sprintf(chunkName, "terrain_%d_%d", x, z);
+							sprintf(chunkArray[x][z].m_chunkName, "terrain_%d_%d", x, z);
 
 							CPhysXMaterial physicsMaterial;
 
-							NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkName, physicsMaterial);
+							NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkArray[x][z].m_chunkName, physicsMaterial);
 							chunkArray[x][z].SetActor(actor);
 						}
 						else
@@ -942,12 +936,11 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z
 													chunkArray[x][z].m_attachedActors.push_back(actorName);
 
 													//Load Chunk PhysX 
-													CChar chunkName[MAX_NAME_SIZE];
-													sprintf(chunkName, "terrain_%d_%d", x, z);
+													sprintf(chunkArray[x][z].m_chunkName, "terrain_%d_%d", x, z);
 
 													CPhysXMaterial physicsMaterial;
 
-													NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkName, physicsMaterial);
+													NxActor* actor = g_multipleView->m_nx->CreateCookedTriangleMesh(CFalse, g_terrain->GetPhysicsPath(), chunkArray[x][z].m_chunkName, physicsMaterial);
 													chunkArray[x][z].SetActor(actor);
 												}
 												else
@@ -1005,9 +998,9 @@ CVoid CTerrainVBOCull::ManagePhysXTriangleActorsForPrefabInstance(CInt x, CInt z
 CVoid CTerrainVBOCull::DrawBoundingBox()
 {
 	// Loop through the chunks.
-	for (int z = 0; z < Height / (ChunkHeight - 1); z++)
+	for (int z = 0; z < int(Height / (ChunkHeight - 1)); z++)
 	{
-		for (int x = 0; x < Width / (ChunkWidth - 1); x++)
+		for (int x = 0; x < int(Width / (ChunkWidth - 1)); x++)
 		{
 			if (!g_camera->m_cameraManager->IsSphereInFrustum(chunkArray[x][z].center.x, chunkArray[x][z].center.y, chunkArray[x][z].center.z, chunkArray[x][z].radius))
 				continue;
@@ -1060,6 +1053,19 @@ CVoid CTerrainVBOCull::DrawBoundingBox()
 
 			glEnd();
 			glPopAttrib();
+		}
+	}
+}
+
+CVoid CTerrainVBOCull::ManagePhysics()
+{
+	for (int z = 0; z < int(Height / (ChunkHeight - 1)); z++)
+	{
+		for (int x = 0; x < int(Width / (ChunkWidth - 1)); x++)
+		{
+			//Load/Unload Terrain PhysX Triangle Meshes Here:
+			ManagePhysXTriangleActorsForPrefabInstance(x, z);
+			ManagePhysXTriangleActorForCharacterController(x, z);
 		}
 	}
 }

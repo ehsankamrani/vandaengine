@@ -66,7 +66,7 @@ void CScriptUtilityResources::OnBnClickedButtonCopyResourceFolder()
 	{
 		m_richFolderName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Folder name '%s' copied to clipboard", s);
+		sprintf(message, "Folder name '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -82,7 +82,7 @@ void CScriptUtilityResources::OnBnClickedButtonCopyResourceFile()
 	{
 		m_richFileName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "File name '%s' copied to clipboard", s);
+		sprintf(message, "File name '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -98,7 +98,7 @@ void CScriptUtilityResources::OnBnClickedButtonCopyResourceFolderFile()
 	{
 		m_richFolderFileName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "'%s' name copied to clipboard", s);
+		sprintf(message, "'%s' name copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }

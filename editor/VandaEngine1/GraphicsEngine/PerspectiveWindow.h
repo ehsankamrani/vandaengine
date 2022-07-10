@@ -225,7 +225,7 @@ public:
 	CFloat GetCursorX();
 	CFloat GetCursorY();
 	CFloat elapsedTime;
-	__int64 m_timerCounter;
+	CULong m_timerCounter;
 	CFloat m_totalElapsedTime;
 	CBool m_bQuery;
 	CBool m_renderQuery;

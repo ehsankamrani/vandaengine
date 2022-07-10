@@ -278,7 +278,7 @@ void CAddStaticSound::OnOK()
 INT_PTR CAddStaticSound::DoModal()
 {
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CAddStaticSound::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.

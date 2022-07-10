@@ -57,7 +57,7 @@ void CScriptUtilityGUIs::OnBnClickedButtonCopyGuiName()
 	{
 		m_richGUIName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -436,7 +436,7 @@ void CScriptUtilityGUIs::OnBnClickedButtonCopyGuiElementName()
 	{
 		m_richSelectedGUIElement.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }

@@ -214,7 +214,7 @@ INT_PTR CWaterAttachment::DoModal()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CWaterAttachment::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.

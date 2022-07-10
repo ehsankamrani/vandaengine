@@ -57,4 +57,5 @@ public:
 	CButton m_btnCancel;
 	CRichEditCtrl m_richGUIName;
 	afx_msg void OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDestroy();
 };

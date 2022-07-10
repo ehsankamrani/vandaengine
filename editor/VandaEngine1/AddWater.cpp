@@ -35,6 +35,7 @@ BOOL CAddWater::OnInitDialog()
 	{
 		m_waterColor = RGB((CInt)(m_fWaterColor[0] * 255), (CInt)(m_fWaterColor[1] * 255), (CInt)(m_fWaterColor[2] * 255));
 	}
+	m_waterColorBrush.DeleteObject();
 	m_waterColorBrush.CreateSolidBrush(m_waterColor);
 
 	CDialog::OnInitDialog();
@@ -251,7 +252,7 @@ void CAddWater::OnEnChangeEditWaterName()
 INT_PTR CAddWater::DoModal()
 {
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CAddWater::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.
@@ -346,6 +347,7 @@ void CAddWater::OnBnClickedButtonWaterColor()
 		m_fWaterColor[0] = (CFloat)GetRValue(m_waterColor) / 255.f;
 		m_fWaterColor[1] = (CFloat)GetGValue(m_waterColor) / 255.f;
 		m_fWaterColor[2] = (CFloat)GetBValue(m_waterColor) / 255.f;
+		m_waterColorBrush.DeleteObject();
 		m_waterColorBrush.CreateSolidBrush(m_waterColor);
 		m_editBoxWaterColor.RedrawWindow();
 	}

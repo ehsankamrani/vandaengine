@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CGUIDlg, CDialog)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_PACKAGES, &CGUIDlg::OnLvnItemchangedListPackages)
 	ON_BN_CLICKED(IDOK, &CGUIDlg::OnBnClickedOk)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GUIS, &CGUIDlg::OnLvnItemchangedListGuis)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -61,7 +62,7 @@ void CGUIDlg::OnBnClickedInsert()
 		{
 			m_richGUIName.Copy();
 			CChar message[MAX_URI_SIZE];
-			sprintf(message, "Item '%s' copied to clipboard", s);
+			sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 			MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 		}
 		return;
@@ -2181,4 +2182,20 @@ void CGUIDlg::OnLvnItemchangedListGuis(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 
 	*pResult = 0;
+}
+
+
+void CGUIDlg::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	for (int nItem = m_listGUIPackages.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listGUIPackages.DeleteItem(nItem);
+	}
+
+	for (int nItem = m_listGUIs.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listGUIs.DeleteItem(nItem);
+	}
 }

@@ -59,6 +59,14 @@
 
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+#pragma comment(lib, "legacy_stdio_definitions.lib")
+#ifdef __cplusplus
+FILE iob[] = { *stdin, *stdout, *stderr };
+extern "C" {
+	FILE * __cdecl _iob(void) { return iob; }
+}
+#endif
+
 //This variable is used for selection. there's the same variable inside CNode class
 //This name is used inside glPushName() when the user presses the left mouse button to select the objects
 extern CUInt g_nameIndex;  

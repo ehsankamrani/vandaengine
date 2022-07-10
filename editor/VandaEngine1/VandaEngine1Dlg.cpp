@@ -957,8 +957,6 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CVandaEngine1Dlg::IDD, pParent)
 {
 	m_progressCursor = LoadCursorFromFile("Assets/Engine/Icons/progress.ani");
-	SetCapture();
-	SetCursor(m_progressCursor);
 
 	m_pToolTip = NULL;
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_VANDAENGINE);
@@ -1190,16 +1188,6 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	if( g_waterImages.size() > 0 )
 		g_waterImages.clear();
 
-	//Delete all items from the list boxes
-	for (int nItem = m_listBoxScenes.GetItemCount()-1; nItem >= 0 ;nItem-- )
-	{
-		m_listBoxScenes.DeleteItem(nItem);
-	}
-	for (int nItem = m_listBoxObjects.GetItemCount(); nItem >= 0 ;nItem-- )
-	{
-		m_listBoxObjects.DeleteItem(nItem);
-	}
-
 	for( CUInt j = 0; j < g_projects.size(); j++ )
 	{
 		g_projects.erase(g_projects.begin() + j);
@@ -1373,6 +1361,7 @@ ON_BN_CLICKED(IDC_BTN_PREFAB_SETTINGS, &CVandaEngine1Dlg::OnBnClickedBtnPrefabSe
 ON_WM_SETFOCUS()
 ON_WM_KILLFOCUS()
 ON_WM_ACTIVATE()
+ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -1381,6 +1370,9 @@ END_MESSAGE_MAP()
 BOOL CVandaEngine1Dlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	SetCapture();
+	SetCursor(m_progressCursor);
 
 	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
 	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
@@ -1476,7 +1468,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.7"));
+	SetWindowText(_T("Vanda Engine 1.8.8"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3044,7 +3036,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3097,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.7 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.8 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3286,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3372,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.7 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.8 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3446,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.7 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.8 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4234,7 +4226,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 		{
-			CInt iResponse;
+			CInt iResponse = IDNO;
 			iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
 			if( iResponse == IDYES )
 			{
@@ -7532,7 +7524,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 {
 	if (g_editorMode == eMODE_GUI)
 	{
-		CInt iResponse;
+		CInt iResponse = IDNO;
 		if (askQuestion)
 		{
 			if (g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0)
@@ -7606,13 +7598,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.7 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.8 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
 	}
 
-	CInt iResponse;
+	CInt iResponse = IDNO;
 	if( askQuestion )
 	{ 
 		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
@@ -8039,7 +8031,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8048,7 +8040,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.7 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.8 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -8801,7 +8793,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
 		CStaticSound* m_staticSound = CNew( CStaticSound );
 
 		CChar temp[ MAX_NAME_SIZE];
-		sprintf( temp, "%s", m_dlgAddStaticSound->m_strStaticSoundDataPath );
+		sprintf( temp, "%s", (LPCSTR)m_dlgAddStaticSound->m_strStaticSoundDataPath );
 		COpenALSoundBuffer* m_staticSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
 		if( m_staticSoundBuffer == NULL || (m_staticSoundBuffer && !m_staticSoundBuffer->m_loaded ) )
 		{
@@ -8934,7 +8926,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertSkyDome()
 		}
 
 		CChar temp[ MAX_NAME_SIZE];
-		sprintf( temp, "%s", m_dlgAddSkyDome->m_strSkyDomePath );
+		sprintf( temp, "%s", (LPCSTR)m_dlgAddSkyDome->m_strSkyDomePath );
 		g_skyDome = CNew( CSkyDome );
 		g_skyDome->SetName( m_dlgAddSkyDome->GetName() );
 		g_skyDome->SetPath( temp );
@@ -9127,7 +9119,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 		COpenALSoundBuffer* m_ambientSoundBuffer = CNew( COpenALSoundBuffer );
 
 		CChar temp[ MAX_NAME_SIZE];
-		sprintf( temp, "%s", m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
+		sprintf( temp, "%s", (LPCSTR)m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
 		if( !m_ambientSoundBuffer->LoadOggVorbisFromFile( temp ) )
 			return;
 		m_ambientSoundSource->BindSoundBuffer( *(m_ambientSoundBuffer) );
@@ -9153,7 +9145,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 		//save functions/////////////////////////////////
 
 		PrintInfo( "\nAmbient sound '" );
-		sprintf( temp, "%s", m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
+		sprintf( temp, "%s", (LPCSTR)m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
 		PrintInfo( temp, COLOR_RED_GREEN );
 		PrintInfo( "' loaded successfully" );
 		
@@ -9877,7 +9869,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.7 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10720,7 +10712,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.7 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -11945,7 +11937,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		if(!filePtr )
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf( temp, "%s%s%s", "Couldn't open the file '", m_strpathName, "' to save data" );
+			sprintf( temp, "%s%s%s", "Couldn't open the file '", (LPCSTR)m_strpathName, "' to save data" );
 			MessageBox( temp , "Vanda Engine Error", MB_OK );
 			return;
 		}
@@ -12496,7 +12488,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13637,7 +13629,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.7 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -13656,6 +13648,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 	g_importColladaImages = CFalse;
 
 	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 
 	CChar packagePath[MAX_NAME_SIZE];
 	CChar prefabPath[MAX_NAME_SIZE];
@@ -13728,7 +13721,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 	}
 	if (!prefab)
 	{
-		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 		dlgWaiting->ShowWindow(SW_SHOW);
 	}
 
@@ -15463,7 +15455,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.7 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15529,6 +15521,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			g_multipleView->EnableTimer( CTrue );
 	}
 	CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 
 	if ( iResponse == IDNO || openScene )
 	{
@@ -15559,7 +15552,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 		if (result == IDOK) //open a new scene
 		{
-			dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 			dlgWaiting->ShowWindow(SW_SHOW);
 
 			CChar reportTemp[MAX_NAME_SIZE];
@@ -17321,7 +17313,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -17378,6 +17370,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 		CDelete(dlgWaiting);
 		return CFalse;
 	}
+
 	g_updateOctree = CTrue;
 	dlgWaiting->ShowWindow(SW_HIDE);
 	CDelete(dlgWaiting);
@@ -19516,7 +19509,7 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 		//save functions/////////////////////////////////
 
 		PrintInfo( "\nAmbient sound '" );
-		sprintf( temp, "%s", m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
+		sprintf( temp, "%s", (LPCSTR)m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
 		PrintInfo( temp, COLOR_RED_GREEN );
 		PrintInfo( "' loaded successfully" );
 		
@@ -19716,13 +19709,13 @@ CVoid CVandaEngine1Dlg::ChangeTerrainProperties()
 		}
 
 		CPleaseWait* dlgWaiting = CNew(CPleaseWait);
+		dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 
 		if (g_terrain->GetCookPhysicsTriangles())
 		{
 			SetCapture();
 			SetCursor(m_progressCursor);
 
-			dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 			dlgWaiting->ShowWindow(SW_SHOW);
 		}
 
@@ -19905,7 +19898,7 @@ void CVandaEngine1Dlg::OnClose()
 
 	if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 	{
-		CInt iResponse;
+		CInt iResponse = IDNO;
 		iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
 		if (iResponse == IDYES || iResponse == IDNO)
 		{
@@ -21062,7 +21055,7 @@ void CVandaEngine1Dlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResul
 			BOOL bChecked = m_listBoxScenes.GetCheck(nItem);
 			CString strText = m_listBoxScenes.GetItemText(nItem, 0);
 			char charPtr[MAX_NAME_SIZE];
-			sprintf(charPtr, "%s", strText);
+			sprintf(charPtr, "%s", (LPCSTR)strText);
 
 			if (g_editorMode == eMODE_PREFAB)
 			{
@@ -21982,7 +21975,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		dlgWaiting->ShowWindow(SW_SHOW);
 
 		CChar rootPath[MAX_NAME_SIZE];
-		sprintf( rootPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/" );
+		sprintf( rootPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/" );
 		CreateWindowsDirectory( rootPath );
 		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/DLLs/", rootPath );
 		CChar oldFileName[MAX_NAME_SIZE];
@@ -21997,21 +21990,21 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Publish/", rootPath);
 		}
 		CChar newFileName[MAX_NAME_SIZE];
-		sprintf( newFileName, "%s%s%s", rootPath, m_dlgPublishProject->m_strName, ".exe" );
+		sprintf( newFileName, "%s%s%s", rootPath, (LPCSTR)m_dlgPublishProject->m_strName, ".exe" );
 
 		rename(oldFileName, newFileName);
 
 		CChar driversPath[MAX_NAME_SIZE];
-		sprintf( driversPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Drivers/" );
+		sprintf( driversPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Drivers/" );
 		CreateWindowsDirectory( driversPath );
 		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/Drivers/", driversPath );
 
 		CChar assetPath[MAX_NAME_SIZE];
-		sprintf( assetPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/" );
+		sprintf( assetPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/" );
 		CreateWindowsDirectory( assetPath );
 
 		CChar logoPath[MAX_NAME_SIZE];
-		sprintf( logoPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Logo/" );
+		sprintf( logoPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Logo/" );
 		CreateWindowsDirectory( logoPath );
 		CChar tempFileName[MAX_NAME_SIZE];
 		Cpy( tempFileName, m_dlgPublishProject->m_strSplash.GetBuffer(m_dlgPublishProject->m_strSplash.GetLength()) );
@@ -22025,16 +22018,16 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		rename( fileToRename, renamedFileName );
 
 		CChar vScenesPath[MAX_NAME_SIZE];
-		sprintf( vScenesPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/VScenes/" );
+		sprintf( vScenesPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/VScenes/" );
 		CreateWindowsDirectory( vScenesPath );
 
 		CChar configPath[MAX_NAME_SIZE];
-		sprintf( configPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Config/" );
+		sprintf( configPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Config/" );
 		CreateWindowsDirectory( configPath );
 		CopyOneFileToDstDirectory( "Assets/Config/conf_win32.dat", configPath);
 
 		CChar savePath[MAX_NAME_SIZE];
-		sprintf( savePath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Save/" );
+		sprintf( savePath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Save/" );
 		CreateWindowsDirectory( savePath );
 
 		CChar savePathFile[MAX_NAME_SIZE];
@@ -22059,36 +22052,36 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 
 
 		CChar enginePath[MAX_NAME_SIZE];
-		sprintf( enginePath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/" );
+		sprintf( enginePath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/" );
 		CreateWindowsDirectory( enginePath );
 
 		CChar shaderRootPath[MAX_NAME_SIZE];
-		sprintf( shaderRootPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/" );
+		sprintf( shaderRootPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/" );
 		CreateWindowsDirectory( shaderRootPath );
 		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/Shaders/", shaderRootPath );
 
 		CChar dofShaderPath[MAX_NAME_SIZE];
-		sprintf( dofShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/DOF/" );
+		sprintf( dofShaderPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/DOF/" );
 		CreateWindowsDirectory( dofShaderPath );
 		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/Shaders/DOF/", dofShaderPath );
 
 		CChar shadowShaderPath[MAX_NAME_SIZE];
-		sprintf( shadowShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Shadow/" );
+		sprintf( shadowShaderPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Shadow/" );
 		CreateWindowsDirectory( shadowShaderPath );
 		CopyAllFilesFromSrcToDstDirectory( "Assets/Engine/Shaders/Shadow/", shadowShaderPath );
 
 		CChar shadowShaderNormalPath[MAX_NAME_SIZE];
-		sprintf(shadowShaderNormalPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Shadow/shadow_normal/");
+		sprintf(shadowShaderNormalPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Shadow/shadow_normal/");
 		CreateWindowsDirectory(shadowShaderNormalPath);
 		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Shadow/shadow_normal/", shadowShaderNormalPath);
 
 		CChar terrainShaderPath[MAX_NAME_SIZE];
-		sprintf(terrainShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Terrain/");
+		sprintf(terrainShaderPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Terrain/");
 		CreateWindowsDirectory(terrainShaderPath);
 		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Terrain/", terrainShaderPath);
 
 		CChar terrainShadowShaderPath[MAX_NAME_SIZE];
-		sprintf(terrainShadowShaderPath, "%s%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Terrain/Shadow/");
+		sprintf(terrainShadowShaderPath, "%s%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName, "/Assets/Engine/Shaders/Terrain/Shadow/");
 		CreateWindowsDirectory(terrainShadowShaderPath);
 		CopyAllFilesFromSrcToDstDirectory("Assets/Engine/Shaders/Terrain/Shadow/", terrainShadowShaderPath);
 
@@ -22446,11 +22439,11 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 		}
 
 		CChar temp[MAX_NAME_SIZE];
-		sprintf( temp, "\n%s%s%s%s%s", "Project published to '", m_dlgPublishProject->m_strDestination,"/", m_dlgPublishProject->m_strName, "' successfully");
+		sprintf( temp, "\n%s%s%s%s%s", "Project published to '", (LPCSTR)m_dlgPublishProject->m_strDestination,"/", (LPCSTR)m_dlgPublishProject->m_strName, "' successfully");
 		PrintInfo(temp);
 
 		CChar openShell[MAX_NAME_SIZE];
-		sprintf( openShell, "%s%s%s", m_dlgPublishProject->m_strDestination, "/", m_dlgPublishProject->m_strName );
+		sprintf( openShell, "%s%s%s", (LPCSTR)m_dlgPublishProject->m_strDestination, "/", (LPCSTR)m_dlgPublishProject->m_strName );
 		ShellExecute( NULL, "open", openShell, NULL, NULL, SW_SHOWNORMAL );
 		CDelete(m_dlgPublishProject);
 
@@ -26317,7 +26310,7 @@ void CVandaEngine1Dlg::OnLvnItemchangedListGuiElements(NMHDR *pNMHDR, LRESULT *p
 			BOOL bChecked = m_listBoxGUIElements.GetCheck(nItem);
 			CString strText = m_listBoxGUIElements.GetItemText(nItem, 0);
 			char charPtr[MAX_NAME_SIZE];
-			sprintf(charPtr, "%s", strText);
+			sprintf(charPtr, "%s", (LPCSTR)strText);
 
 			CBool foundTarget = CFalse;
 
@@ -27516,4 +27509,19 @@ void CVandaEngine1Dlg::FindGeometryInstancesRenderedByPhysics()
 		}
 	}
 	instance_geo_physx.clear();
+}
+
+void CVandaEngine1Dlg::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	//Delete all items from the list boxes
+	for (int nItem = m_listBoxScenes.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listBoxScenes.DeleteItem(nItem);
+	}
+	for (int nItem = m_listBoxObjects.GetItemCount(); nItem >= 0; nItem--)
+	{
+		m_listBoxObjects.DeleteItem(nItem);
+	}
 }

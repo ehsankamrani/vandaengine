@@ -1817,7 +1817,7 @@ SchemaStream::SchemaStream(const char *fname,
     	else
     	{
 			  char temp[512];
-		      sprintf(temp, "\nValid XML file but does not appear to contain any NXUSTREAM data.", fname );
+		      sprintf(temp, "\n%s : Valid XML file but does not appear to contain any NXUSTREAM data.", fname );
 			  PrintInfo( temp);
 
     		delete mSchemaXML;

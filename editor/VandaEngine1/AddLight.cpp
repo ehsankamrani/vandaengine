@@ -98,13 +98,14 @@ void CAddLight::OnBnClickedButtonAmbientLight()
 {
 	// TODO: Add your control notification handler code here
 	CColorDialog dlg;
-	if( dlg.DoModal() == IDOK )
+	if (dlg.DoModal() == IDOK)
 	{
 		m_ambientColor = dlg.GetColor();
 		m_fAmbientColor[0] = ( CFloat )GetRValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[1] = ( CFloat )GetGValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[2] = ( CFloat )GetBValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.DeleteObject();
 		m_ambientBrush.CreateSolidBrush( m_ambientColor );
 		m_editBoxAmbientColor.RedrawWindow();
 	}
@@ -121,6 +122,7 @@ void CAddLight::OnBnClickedButtonDiffuseLight()
 		m_fDiffuseColor[1] = ( CFloat )GetGValue( m_diffuseColor ) / 255.f;
 		m_fDiffuseColor[2] = ( CFloat )GetBValue( m_diffuseColor ) / 255.f;
 		m_fDiffuseColor[3] = 1.0f;
+		m_diffuseBrush.DeleteObject();
 		m_diffuseBrush.CreateSolidBrush( m_diffuseColor );
 		m_editBoxDiffuseColor.RedrawWindow();
 	}
@@ -138,6 +140,7 @@ void CAddLight::OnBnClickedButtonSpecularLight()
 		m_fSpecularColor[1] = ( CFloat )GetGValue( m_specularColor ) / 255.f;
 		m_fSpecularColor[2] = ( CFloat )GetBValue( m_specularColor ) / 255.f;
 		m_fSpecularColor[3] = 1.0f;
+		m_specularBrush.DeleteObject();
 		m_specularBrush.CreateSolidBrush( m_specularColor );
 		m_editBoxSpecularColor.RedrawWindow();
 	}
@@ -164,7 +167,7 @@ HBRUSH CAddLight::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 INT_PTR CAddLight::DoModal()
 {
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CAddLight::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.
@@ -269,6 +272,10 @@ BOOL CAddLight::OnInitDialog()
 		m_diffuseColor = RGB( (CInt)(m_fDiffuseColor[0]* 255), (CInt)(m_fDiffuseColor[1]* 255), (CInt)(m_fDiffuseColor[2]* 255) );
 		m_specularColor = RGB( (CInt)(m_fSpecularColor[0]* 255), (CInt)(m_fSpecularColor[1]* 255), (CInt)(m_fSpecularColor[2]* 255) );
 	}
+	m_ambientBrush.DeleteObject();
+	m_diffuseBrush.DeleteObject();
+	m_specularBrush.DeleteObject();
+
 	m_ambientBrush.CreateSolidBrush( m_ambientColor );
 	m_diffuseBrush.CreateSolidBrush( m_diffuseColor );
 	m_specularBrush.CreateSolidBrush( m_specularColor );

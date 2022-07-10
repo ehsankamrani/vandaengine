@@ -66,7 +66,7 @@ void CScriptUtilityPrefabInstances::OnBnClickedButtonCopyPrefabInstanceName()
 	{
 		m_richSelectedPrefabInstance.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -379,7 +379,7 @@ void CScriptUtilityPrefabInstances::OnBnClickedButtonCopyPrefabInstanceAnimation
 	{
 		m_richSelectedAnimationName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }
@@ -469,7 +469,7 @@ void CScriptUtilityPrefabInstances::OnBnClickedButtonCopyPrefabInstanceCameraNam
 	{
 		m_richSelectedCameraName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }

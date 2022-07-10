@@ -149,7 +149,7 @@ void CEditProjectProperties::OnOK()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", newProjectName, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", newProjectName, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			//save changes to projects.dat
@@ -191,7 +191,7 @@ void CEditProjectProperties::OnOK()
 			}
 			//delete old project
 			CChar filePath[MAX_URI_SIZE];
-			sprintf(filePath, "%s%s%s%s", g_projectsPath, "PRJ/", m_strOldProjectName, ".prj");
+			sprintf(filePath, "%s%s%s%s", g_projectsPath, "PRJ/", (LPCSTR)m_strOldProjectName, ".prj");
 			DeleteFile(filePath);
 			////////////////
 
@@ -230,7 +230,7 @@ void CEditProjectProperties::OnOK()
 		}
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.7 (", newProject->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", newProject->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		//create new directory

@@ -327,6 +327,8 @@ CVoid CNode::UpdatePhysX( CInstanceGeometry* geometry )
 		{
 			//if (!gPhysXscene->getActors()[j]->isSleeping())
 			//{
+				if (!gPhysXscene->getActors()[j]->isDynamic()) continue;
+
 				CChar actorName[MAX_NAME_SIZE];
 				if (!gPhysXscene->getActors()[j]->getName()) continue;
 				Cpy(actorName, gPhysXscene->getActors()[j]->getName());
@@ -510,6 +512,8 @@ CVoid CNode::UpdateDynamicPhysicsObjects(CNode* sceneRoot)
 			{
 				for (CUInt j = 0; j < gPhysXscene->getNbActors(); j++)
 				{
+					if (!gPhysXscene->getActors()[j]->isDynamic()) continue;
+
 					CChar actorName[MAX_URI_SIZE];
 					if (!gPhysXscene->getActors()[j]->getName()) continue;
 					Cpy(actorName, gPhysXscene->getActors()[j]->getName());

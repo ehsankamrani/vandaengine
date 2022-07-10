@@ -176,7 +176,7 @@ INT_PTR CSelectCamera::DoModal()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	CDialogTemplate dlt;
-	int nResult;
+	INT_PTR nResult;
 	// load dialog template
 	if (!dlt.Load(MAKEINTRESOURCE(CSelectCamera::IDD))) return -1;
 	// set the font, for example "Arial", 10 pts.
@@ -215,7 +215,7 @@ void CSelectCamera::OnBnClickedButtonCopyCameraName()
 	{
 		m_richCameraName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }

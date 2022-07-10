@@ -9,7 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include "graphicsEngine\\imagelib.h"
-#include <thread>
+//#include <thread>
 //Vanda C Functions to be used in Lua scripts
 CGeometry* GetGeometryFromScenes(const CChar * name, const CChar * DocURI)
 {
@@ -10232,7 +10232,7 @@ CMain::CMain()
 	m_cursorIcon = CNew(CIcon);
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
-	m_publishDebug = CFalse;
+	m_publishDebug = CTrue;
 	m_exitGame = CFalse;
 	m_mousePosition.x = (CFloat)g_width / 2.f;
 	m_mousePosition.y = (CFloat)g_height / 2.f;
@@ -10826,6 +10826,11 @@ CBool CMain::Render()
 		//use multithreading for animationsr
 		/*std::thread t1(&CMain::*/UpdateAnimations();/*, this, false)*/;
 		//t1.join();
+	}
+
+	if (g_databaseVariables.m_insertAndShowTerrain && g_terrain->GetTerrain())
+	{
+		g_terrain->GetTerrain()->ManagePhysics();
 	}
 
 	if (!m_loadScene)

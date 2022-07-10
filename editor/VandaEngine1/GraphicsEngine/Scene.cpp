@@ -144,7 +144,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 1.8.7");
+		zipClose(zipOpen, "Vanda Engine 1.8.8");
 		free(buf);
 		return -1;
 	}
@@ -157,7 +157,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 1.8.7");
+			//zipClose(zf, "Vanda Engine 1.8.8");
 			//free(buf);
 			//return -1;
    //     }
@@ -173,7 +173,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.8.7");
+				zipClose(zf, "Vanda Engine 1.8.8");
 				free(buf);
 				return -1;
 			}
@@ -188,7 +188,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.8.7");
+				zipClose(zf, "Vanda Engine 1.8.8");
 				free(buf);
 				return -1;
             }
@@ -198,7 +198,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 1.8.7");
+	zipClose(zf,"Vanda Engine 1.8.8");
     free(buf);
 	return 1;
 }
@@ -624,7 +624,7 @@ CVoid CScene::Destroy()
 						{
 							CString strText = ex_pVandaEngine1Dlg->m_listBoxPhysXElements.GetItemText(nItem, 0);
 							char charPtr[MAX_NAME_SIZE];
-							sprintf(charPtr, "%s", strText);
+							sprintf(charPtr, "%s", (LPCSTR)strText);
 							if(Cmp( m_instanceGeo->m_physXName, charPtr ) )
 							{
 								ex_pVandaEngine1Dlg->m_listBoxPhysXElements.DeleteItem(nItem);

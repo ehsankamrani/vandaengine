@@ -67,4 +67,5 @@ public:
 	CVoid SetPrefabResourceMode(CBool state) { m_prefabResourceMode = state; }
 	CBool GetPrefabResourceMode() { return m_prefabResourceMode; }
 	CPrefab* GetSelectedPrefab() { return m_selectedPrefab; }
+	afx_msg void OnDestroy();
 };

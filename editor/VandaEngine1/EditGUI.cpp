@@ -51,7 +51,7 @@ void CEditGUI::OnBnClickedButtonCopyGuiInstanceName()
 	{
 		m_richGUIInstanceName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "GUI name '%s' copied to clipboard", s);
+		sprintf(message, "GUI name '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }

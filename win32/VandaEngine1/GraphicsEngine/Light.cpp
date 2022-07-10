@@ -286,7 +286,7 @@ CVoid CLight::SetColor( CColor4f& color )
 	SetShininess(g_lightProperties.m_shininess);
 }
 
-CInt CLight::SetLightNumber( CInt lightNumber )
+CVoid CLight::SetLightNumber( CInt lightNumber )
 {
 	m_lightNumber = lightNumber;
 }

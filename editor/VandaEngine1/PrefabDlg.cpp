@@ -26,18 +26,6 @@ CPrefabDlg::CPrefabDlg(CWnd* pParent /*=NULL*/)
 
 CPrefabDlg::~CPrefabDlg()
 {
-	
-	for (int nItem = m_listPrefabPackages.GetItemCount() - 1; nItem >= 0; nItem--)
-	{
-		m_listPrefabPackages.DeleteItem(nItem);
-	}
-
-	for (int nItem = m_listPrefabs.GetItemCount() - 1; nItem >= 0; nItem--)
-	{
-		m_listPrefabs.DeleteItem(nItem);
-	}
-
-	CDelete(m_selectedPrefab);
 }
 
 void CPrefabDlg::DoDataExchange(CDataExchange* pDX)
@@ -57,6 +45,7 @@ BEGIN_MESSAGE_MAP(CPrefabDlg, CDialog)
 	ON_WM_HSCROLL()
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_PREFABS_PROJECTS, &CPrefabDlg::OnLvnItemchangedListPrefabsProjects)
 	ON_WM_CLOSE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -1029,7 +1018,7 @@ void CPrefabDlg::OnBnClickedDeletePackage()
 
 BOOL CPrefabDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	BOOL res = CDialog::OnInitDialog();
 
 	if (g_editorMode == eMODE_PREFAB)
 	{
@@ -1101,7 +1090,7 @@ BOOL CPrefabDlg::OnInitDialog()
 	InserItemToPropertiesList("Vertices");
 	InserItemToPropertiesList("Textures");
 
-	return TRUE;  // return TRUE unless you set the focus to a control
+	return res; 
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
@@ -1340,4 +1329,22 @@ BOOL CPrefabDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	ex_pVandaEngine1Dlg->SavePrefabFiles();
 
 	return CDialog::OnCommand(wParam, lParam);
+}
+
+
+void CPrefabDlg::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	for (int nItem = m_listPrefabPackages.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listPrefabPackages.DeleteItem(nItem);
+	}
+
+	for (int nItem = m_listPrefabs.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listPrefabs.DeleteItem(nItem);
+	}
+
+	CDelete(m_selectedPrefab);
 }

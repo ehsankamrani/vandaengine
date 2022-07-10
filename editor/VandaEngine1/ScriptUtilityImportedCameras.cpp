@@ -52,7 +52,7 @@ void CScriptUtilityImportedCameras::OnBnClickedButtonCopyImportedCameraName()
 	{
 		m_richImportedCameraName.Copy();
 		CChar message[MAX_URI_SIZE];
-		sprintf(message, "Item '%s' copied to clipboard", s);
+		sprintf(message, "Item '%s' copied to clipboard", (LPCSTR)s);
 		MessageBox(message, "Report", MB_OK | MB_ICONINFORMATION);
 	}
 }

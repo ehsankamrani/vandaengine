@@ -1082,6 +1082,7 @@ public:
 	afx_msg void OnBnClickedBtnPrefabSettings();
 	CRichEditCtrl m_richSelectedObjectName;
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
+	afx_msg void OnDestroy();
 };
 
 //Edition.MaxVersion.MinVersion.BugFixes;

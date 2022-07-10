@@ -50,6 +50,7 @@ void CGeneralAmbientColor::OnBnClickedButtonAmbient()
 		m_fAmbientColor[1] = ( CFloat )GetGValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[2] = ( CFloat )GetBValue( m_ambientColor ) / 255.f;
 		m_fAmbientColor[3] = 1.0f; //I write it directly, no need to use alpha value for the ambient light
+		m_ambientBrush.DeleteObject();
 		m_ambientBrush.CreateSolidBrush( m_ambientColor );
 		m_editBoxAmbientColor.RedrawWindow();
 	}
