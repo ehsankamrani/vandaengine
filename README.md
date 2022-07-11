@@ -22,6 +22,7 @@ For more information about MIT license, please visit http://opensource.org/licen
 **Compiler**
 
 Before version 1.8.8: Microsoft Visual Studio 2013
+
 Version 1.8.8 and higher: Microsoft Visual Studio 2017 
 
 **Compiling the source code**
