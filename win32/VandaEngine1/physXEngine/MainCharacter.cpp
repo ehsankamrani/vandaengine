@@ -37,11 +37,36 @@ CMainCharacter::CMainCharacter()
 	m_runSound = NULL;
 	m_jumpSound = NULL;
 
+	m_hasScript = CFalse;
+	m_updateScript = CFalse;
+	Cpy(m_script, "\n");
+	Cpy(m_lastScriptPath, "\n");
+
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
 }
 
 CMainCharacter::~CMainCharacter()
 {
 	Destroy();
+	LuaClose(m_lua);
+}
+
+CVoid CMainCharacter::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+}
+
+CBool CMainCharacter::LoadLuaFile()
+{
+	//ResetLua();
+	if (!LuaLoadFile(m_lua, m_script))
+		return CFalse;
+	return CTrue;
 }
 
 CVoid CMainCharacter::Destroy()
@@ -366,4 +391,157 @@ CVoid CMainCharacter::SetJumpSound()
 	m_jumpSound->SetPath(m_jumpSoundPath);
 	m_jumpSound->SetVolume(1.0f);
 	m_jumpSound->SetPitch(1.0f);
+}
+
+CVoid CMainCharacter::InitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Init");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CMainCharacter::UpdateScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Update");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+
+CVoid CMainCharacter::OnTriggerEnterScript(CChar *otherActorName)
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnTriggerEnter");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CMainCharacter::OnTriggerStayScript(CChar *otherActorName)
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnTriggerStay");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CMainCharacter::OnTriggerExitScript(CChar *otherActorName)
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnTriggerExit");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pushstring(m_lua, otherActorName);
+			lua_pcall(m_lua, 1, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CChar* CMainCharacter::GetScriptStringVariable(CChar* variableName)
+{
+	CChar *s = NULL;
+	lua_getglobal(m_lua, variableName);
+	if (!lua_isnil(m_lua, -1))
+		s = _strdup(lua_tostring(m_lua, -1));
+	else
+		s = _strdup("");
+
+	lua_pop(m_lua, 1);
+	return s;
+}
+
+CBool CMainCharacter::GetScriptBoolVariable(CChar* variableName)
+{
+	CInt value;
+	CBool result;
+	lua_getglobal(m_lua, variableName);
+	value = lua_toboolean(m_lua, -1);
+	if (value)
+		result = CTrue;
+	else
+		result = CFalse;
+	lua_pop(m_lua, 1);
+	return result;
+}
+
+CInt CMainCharacter::GetScriptIntVariable(CChar* variableName)
+{
+	CInt value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tointeger(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CDouble CMainCharacter::GetScriptDoubleVariable(CChar* variableName)
+{
+	CDouble value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tonumber(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CVoid CMainCharacter::SetScriptStringVariable(CChar* variableName, CChar* value)
+{
+	lua_pushstring(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CMainCharacter::SetScriptBoolVariable(CChar* variableName, CBool value)
+{
+	lua_pushboolean(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CMainCharacter::SetScriptIntVariable(CChar* variableName, CInt value)
+{
+	lua_pushinteger(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CMainCharacter::SetScriptDoubleVariable(CChar* variableName, CDouble value)
+{
+	lua_pushnumber(m_lua, value);
+	lua_setglobal(m_lua, variableName);
 }

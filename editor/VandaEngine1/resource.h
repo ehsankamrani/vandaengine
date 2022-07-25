@@ -999,6 +999,9 @@
 #define IDC_LIST_PREFAB_NAMES           1304
 #define IDC_EDIT_WATER_COLOR            1305
 #define IDC_BUTTON_WATER_COLOR          1306
+#define IDC_BTN_ADD_SCRIPT              1307
+#define IDC_BTN_REMOVE_SCRIPT           1308
+#define IDC_EDIT_CHARACTER_SCRIPT       1309
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1330,14 +1333,16 @@
 #define ID_VIEW_PHYSICS                 33114
 #define ID_VIEW_PHYSICS_BOUNDINGBOX     33115
 #define ID_VIEW_BOUNDINGBOX33116        33116
+#define ID_NEW_MAINCHARACTERSCRIPT      33117
+#define ID_NEWSCRIPT_MAINCHARACTER      33118
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        525
-#define _APS_NEXT_COMMAND_VALUE         33117
-#define _APS_NEXT_CONTROL_VALUE         1307
+#define _APS_NEXT_RESOURCE_VALUE        526
+#define _APS_NEXT_COMMAND_VALUE         33119
+#define _APS_NEXT_CONTROL_VALUE         1310
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

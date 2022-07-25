@@ -40,7 +40,7 @@ CChar g_currentInstancePrefabName[MAX_NAME_SIZE];
 CBool g_loadSceneViaScript = CFalse;
 std::vector<COpenALSoundBuffer*>g_soundBuffers;
 CChar g_currentPassword[MAX_NAME_SIZE];
-CWindow g_window; 
+CWindow g_window;
 CRender g_render; //extern
 std::vector<CScene*> g_scene;
 std::vector<CPrefab*> g_prefab;
@@ -130,18 +130,18 @@ HINSTANCE g_instance = NULL;
 bool g_done;       // flag saying when our app is complete 
 LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
 
-void GenerateLoadingTexture( char* fileName )
+void GenerateLoadingTexture(char* fileName)
 {
-	m_loadingImg = CNew( CImage );
+	m_loadingImg = CNew(CImage);
 
-	Cpy( m_strLoadingImg, fileName );
+	Cpy(m_strLoadingImg, fileName);
 
-	if(!CTexture::LoadDDSTexture( m_loadingImg, m_strLoadingImg, NULL ) )
-		MessageBox( NULL, _T("GenerateLoadingTexture>Couldn't load the texture"), _T("VandaEngine Error"), MB_OK );
+	if (!CTexture::LoadDDSTexture(m_loadingImg, m_strLoadingImg, NULL))
+		MessageBox(NULL, _T("GenerateLoadingTexture>Couldn't load the texture"), _T("VandaEngine Error"), MB_OK);
 
-	m_loadingImg->SetFileName( GetAfterPath(m_strLoadingImg) );
+	m_loadingImg->SetFileName(GetAfterPath(m_strLoadingImg));
 }
- 
+
 void DeleteLoadingTexture()
 {
 	CDelete(m_loadingImg);
@@ -149,7 +149,7 @@ void DeleteLoadingTexture()
 
 void ShowLoadingScene(CChar* message)
 {
-	glViewport(0, 0, g_width, g_height);
+	glViewport(0, g_window.GetPadding(), g_width, g_height);
 	glPushAttrib(GL_ENABLE_BIT);
 	glUseProgram(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,7 +200,7 @@ GLvoid CleanUp()
 
 	g_main->Release();
 
-	CDelete( g_main );
+	CDelete(g_main);
 
 	DeleteLoadingTexture();
 
@@ -208,7 +208,7 @@ GLvoid CleanUp()
 
 int Initialize()
 {
-	g_main = CNew( CMain );
+	g_main = CNew(CMain);
 	if (!g_main->Init())
 		return 0;
 	return 1;
@@ -217,7 +217,7 @@ int Initialize()
 bool Render()
 {
 	static int loop = 0;
-	if( g_loading ) 
+	if (g_loading)
 	{
 		static int load_fix = 0;
 		static CChar temp[MAX_NAME_SIZE];
@@ -266,7 +266,7 @@ bool Render()
 			GenerateLoadingTexture(bannerNameAndPath);
 			load_fix++;
 		}
-		if (load_fix < 5) 
+		if (load_fix < 5)
 			ShowLoadingScene();
 		else
 		{
@@ -299,10 +299,10 @@ bool Render()
 				g_main->m_loadScene = CFalse; //unlock input
 				loop = 0;
 			}
- 		}
+		}
 		load_fix++;
 	}
-	else if( g_loadSceneViaScript )
+	else if (g_loadSceneViaScript)
 	{
 		if (loop == 0)
 		{
@@ -369,10 +369,10 @@ bool Render()
 	}
 	else
 	{
-		if( !g_main->Render() ) return CFalse;
+		if (!g_main->Render()) return CFalse;
 	}
 	g_main->ResetPhysXCounts();
-	SwapBuffers( g_window.m_windowGL.hDC );
+	SwapBuffers(g_window.m_windowGL.hDC);
 
 	return CTrue;
 }
@@ -380,39 +380,50 @@ bool Render()
 // the Windows Procedure event handlers
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	LONG    lRet = 0;
+
+	switch (message)
 	{
-		case WM_SYSCOMMAND:						// Intercept System Commands
+	case WM_SYSCOMMAND:						// Intercept System Commands
+	{
+		switch (wParam)						// Check System Calls
 		{
-			switch (wParam)						// Check System Calls
-			{
-				case SC_SCREENSAVE:				// Screensaver Trying To Start?
-				case SC_MONITORPOWER:				// Monitor Trying To Enter Powersave?
-					return 0;
-			}
-			break;							// Exit
+		case SC_SCREENSAVE:				// Screensaver Trying To Start?
+		case SC_MONITORPOWER:				// Monitor Trying To Enter Powersave?
+			return 0;
 		}
+		break;							// Exit
+	}
 
-		case WM_CLOSE:					// windows is closing
+	case WM_CLOSE:					// windows is closing
 
-			// send WM_QUIT to message queue
-			PostQuitMessage(0);
-			return 0;
-			break;
+		// send WM_QUIT to message queue
+		PostQuitMessage(0);
+		return 0;
+		break;
 
-		case WM_DESTROY:
-			g_window.DestroyWindowGL( &g_window.m_windowGL );
-			PostQuitMessage(0);
-			return 0;
-			break;
+	case WM_DESTROY:
+		g_window.DestroyWindowGL(&g_window.m_windowGL);
+		PostQuitMessage(0);
+		return 0;
+		break;
 
-		case WM_SIZE:
-			g_window.ReshapeGL(LOWORD(lParam),HIWORD(lParam));  // LoWord=Width, HiWord=Height
-			return 0;
-			break;
+	case WM_SIZE:
+		InvalidateRect(hwnd, NULL, true);
+		g_window.ReshapeGL(LOWORD(lParam), HIWORD(lParam));  // LoWord=Width, HiWord=Height
+		return 0;
+		break;
 
-		default:
-			break;
+	case WM_PAINT: // paint
+	{
+		PAINTSTRUCT ps;
+		BeginPaint(hwnd, &ps);
+		EndPaint(hwnd, &ps);
+		break;
+	}
+
+	default:
+		break;
 	}
 
 	return (DefWindowProc(hwnd, message, wParam, lParam));
@@ -422,9 +433,9 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HANDLE hBitmap;
 	hBitmap = LoadImage(NULL, _T("Assets/Logo/Logo.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	HWND hPic = GetDlgItem(hwnd,IDC_STATIC_LOGO);
+	HWND hPic = GetDlgItem(hwnd, IDC_STATIC_LOGO);
 
-	switch( message )
+	switch (message)
 	{
 	case WM_INITDIALOG:
 		SendMessage(hPic, STM_SETIMAGE, IMAGE_BITMAP, LPARAM(hBitmap));
@@ -470,55 +481,55 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		}
-   		//load  multisampling from the config file
-     
-		switch( g_options.m_numSamples )
+		//load  multisampling from the config file
+
+		switch (g_options.m_numSamples)
 		{
 		case 0:
-			CheckRadioButton( hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_NO );
+			CheckRadioButton(hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_NO);
 			break;
 		case 2:
-			CheckRadioButton( hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_2 );
+			CheckRadioButton(hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_2);
 			break;
 		case 4:
-			CheckRadioButton( hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_4);
+			CheckRadioButton(hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_4);
 			break;
 		case 8:
-			CheckRadioButton( hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_8 );
+			CheckRadioButton(hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_8);
 			break;
 		case 16:
-			CheckRadioButton( hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_16 );
+			CheckRadioButton(hwnd, IDC_MSAMPLE_NO, IDC_MSAMPLE_16, IDC_MSAMPLE_16);
 			break;
 		}
 
-   		//load  anisotropic filtering from the config file
-		switch( g_options.m_anisotropy )
+		//load  anisotropic filtering from the config file
+		switch (g_options.m_anisotropy)
 		{
 		case 0:
-			CheckRadioButton( hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_NO );
+			CheckRadioButton(hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_NO);
 			break;
 		case 2:
-			CheckRadioButton( hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_2 );
+			CheckRadioButton(hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_2);
 			break;
 		case 4:
-			CheckRadioButton( hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_4 );
+			CheckRadioButton(hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_4);
 			break;
 		case 8:
-			CheckRadioButton( hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_8 );
+			CheckRadioButton(hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_8);
 			break;
 		case 16:
-			CheckRadioButton( hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_16 );
+			CheckRadioButton(hwnd, IDC_ISOTROP_NO, IDC_ISOTROP_16, IDC_ISOTROP_16);
 			break;
 		}
 
-   		//load VSync data from the config file
-		if( g_options.m_disableVSync == CTrue )
+		//load VSync data from the config file
+		if (g_options.m_disableVSync == CTrue)
 		{
-			SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_SETCHECK, BST_CHECKED, 0);
+			SendDlgItemMessage(hwnd, IDC_DVSYNC, BM_SETCHECK, BST_CHECKED, 0);
 		}
 		else
 		{
-			SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendDlgItemMessage(hwnd, IDC_DVSYNC, BM_SETCHECK, BST_UNCHECKED, 0);
 		}
 
 		//load water reflection data from the config file
@@ -531,32 +542,42 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SendDlgItemMessage(hwnd, IDC_WATER_REFLECTION, BM_SETCHECK, BST_UNCHECKED, 0);
 		}
 
-   		//load  FBO data from the config file
-		if( g_options.m_enableFBO == CTrue )
+		//load full screen data from the config file
+		if (g_options.m_fullScreen == CTrue)
 		{
-			SendDlgItemMessage (hwnd, IDC_FBO, BM_SETCHECK, BST_CHECKED, 0);
+			SendDlgItemMessage(hwnd, IDC_FULLSCREEN, BM_SETCHECK, BST_CHECKED, 0);
 		}
 		else
 		{
-			SendDlgItemMessage (hwnd, IDC_FBO, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendDlgItemMessage(hwnd, IDC_FULLSCREEN, BM_SETCHECK, BST_UNCHECKED, 0);
 		}
 
-   		//load  VBO data from the config file
-		if( g_options.m_enableVBO == CTrue )
+		//load  FBO data from the config file
+		if (g_options.m_enableFBO == CTrue)
 		{
-			SendDlgItemMessage (hwnd, IDC_VBO, BM_SETCHECK, BST_CHECKED, 0);
+			SendDlgItemMessage(hwnd, IDC_FBO, BM_SETCHECK, BST_CHECKED, 0);
 		}
 		else
 		{
-			SendDlgItemMessage (hwnd, IDC_VBO, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendDlgItemMessage(hwnd, IDC_FBO, BM_SETCHECK, BST_UNCHECKED, 0);
+		}
+
+		//load  VBO data from the config file
+		if (g_options.m_enableVBO == CTrue)
+		{
+			SendDlgItemMessage(hwnd, IDC_VBO, BM_SETCHECK, BST_CHECKED, 0);
+		}
+		else
+		{
+			SendDlgItemMessage(hwnd, IDC_VBO, BM_SETCHECK, BST_UNCHECKED, 0);
 		}
 
 		break; //case WM_INIT
 
 	case WM_COMMAND:
-		{
-		if( wParam == IDCANCEL )
-			EndDialog( hwnd, 0 );
+	{
+		if (wParam == IDCANCEL)
+			EndDialog(hwnd, 0);
 		else if (wParam == IDOK)
 		{
 			//configuration
@@ -568,37 +589,37 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			EndDialog(hwnd, 1);
 		}
-		else if( wParam == IDC_RES_CURRENT )
+		else if (wParam == IDC_RES_CURRENT)
 		{
 			DEVMODE dmScreenSettings;					// device mode
-			EnumDisplaySettings (NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);	
+			EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
 			g_options.m_width = dmScreenSettings.dmPelsWidth;		// screen g_width
 			g_options.m_height = dmScreenSettings.dmPelsHeight;		// screen g_height
 
 			g_options.m_useCurrentResolution = CTrue;
 		}
-		else if( wParam == IDC_RES_800 )
+		else if (wParam == IDC_RES_800)
 		{
 			g_options.m_width = 800;
 			g_options.m_height = 600;
 
 			g_options.m_useCurrentResolution = CFalse;
 		}
-		else if( wParam == IDC_RES_1024 )
+		else if (wParam == IDC_RES_1024)
 		{
 			g_options.m_width = 1024;
 			g_options.m_height = 768;
 
 			g_options.m_useCurrentResolution = CFalse;
 		}
-		else if( wParam == IDC_RES_1280 )
+		else if (wParam == IDC_RES_1280)
 		{
 			g_options.m_width = 1280;
 			g_options.m_height = 720;
 
 			g_options.m_useCurrentResolution = CFalse;
 		}
-		else if( wParam == IDC_RES_1920 )
+		else if (wParam == IDC_RES_1920)
 		{
 			g_options.m_width = 1920;
 			g_options.m_height = 1080;
@@ -628,33 +649,33 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		//multisampling
-		else if( wParam == IDC_MSAMPLE_NO )
+		else if (wParam == IDC_MSAMPLE_NO)
 			g_options.m_numSamples = 0;
-		else if( wParam == IDC_MSAMPLE_2 )
+		else if (wParam == IDC_MSAMPLE_2)
 			g_options.m_numSamples = 2;
-		else if( wParam == IDC_MSAMPLE_4 )
+		else if (wParam == IDC_MSAMPLE_4)
 			g_options.m_numSamples = 4;
-		else if( wParam == IDC_MSAMPLE_8 )
+		else if (wParam == IDC_MSAMPLE_8)
 			g_options.m_numSamples = 8;
-		else if( wParam == IDC_MSAMPLE_16 )
+		else if (wParam == IDC_MSAMPLE_16)
 			g_options.m_numSamples = 16;
 
 		//Anisotropic filtering
-		else if( wParam == IDC_ISOTROP_NO )
+		else if (wParam == IDC_ISOTROP_NO)
 			g_options.m_anisotropy = 0;
-		else if( wParam == IDC_ISOTROP_2 )
+		else if (wParam == IDC_ISOTROP_2)
 			g_options.m_anisotropy = 2;
-		else if( wParam == IDC_ISOTROP_4 )
+		else if (wParam == IDC_ISOTROP_4)
 			g_options.m_anisotropy = 4;
-		else if( wParam == IDC_ISOTROP_8 )
+		else if (wParam == IDC_ISOTROP_8)
 			g_options.m_anisotropy = 8;
-		else if( wParam == IDC_ISOTROP_16 )
+		else if (wParam == IDC_ISOTROP_16)
 			g_options.m_anisotropy = 16;
 
 		//VSync
-		if (SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_GETCHECK, 0, 0) == BST_CHECKED)
+		if (SendDlgItemMessage(hwnd, IDC_DVSYNC, BM_GETCHECK, 0, 0) == BST_CHECKED)
 			g_options.m_disableVSync = CTrue;
-		else if( SendDlgItemMessage (hwnd, IDC_DVSYNC, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+		else if (SendDlgItemMessage(hwnd, IDC_DVSYNC, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 			g_options.m_disableVSync = CFalse;
 
 		//Water reflection
@@ -663,16 +684,22 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (SendDlgItemMessage(hwnd, IDC_WATER_REFLECTION, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 			g_options.m_enableWaterReflection = CFalse;
 
+		//fullscreen
+		if (SendDlgItemMessage(hwnd, IDC_FULLSCREEN, BM_GETCHECK, 0, 0) == BST_CHECKED)
+			g_options.m_fullScreen = CTrue;
+		else if (SendDlgItemMessage(hwnd, IDC_FULLSCREEN, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+			g_options.m_fullScreen = CFalse;
+
 		//FBO
-		if (SendDlgItemMessage (hwnd, IDC_FBO, BM_GETCHECK, 0, 0) == BST_CHECKED)
+		if (SendDlgItemMessage(hwnd, IDC_FBO, BM_GETCHECK, 0, 0) == BST_CHECKED)
 			g_options.m_enableFBO = CTrue;
-		else if( SendDlgItemMessage (hwnd, IDC_FBO, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+		else if (SendDlgItemMessage(hwnd, IDC_FBO, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 			g_options.m_enableFBO = CFalse;
 
 		//VBO
-		if (SendDlgItemMessage (hwnd, IDC_VBO, BM_GETCHECK, 0, 0) == BST_CHECKED)
+		if (SendDlgItemMessage(hwnd, IDC_VBO, BM_GETCHECK, 0, 0) == BST_CHECKED)
 			g_options.m_enableVBO = CTrue;
-		else if( SendDlgItemMessage (hwnd, IDC_VBO, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+		else if (SendDlgItemMessage(hwnd, IDC_VBO, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
 			g_options.m_enableVBO = CFalse;
 		//if (SendDlgItemMessage (hwnd, IDC_SHOWDLG, BM_GETCHECK, 0, 0) == BST_CHECKED)
 		//	g_options.m_showStartupDialog = CTrue;
@@ -680,7 +707,7 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//	g_options.m_showStartupDialog = CFalse;
 
 
-		}break;
+	}break;
 	}
 	return 0;
 }
@@ -689,57 +716,57 @@ LRESULT CALLBACK DlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 // the main windows entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-	g_instance = GetModuleHandle( NULL );
+	g_instance = GetModuleHandle(NULL);
 	MSG	msg;											// Window Message Structure
 	//configuration
 	FILE *filePtr;
-	filePtr = fopen( "Assets/config/conf_win32.dat", "rb" );
-	if( !filePtr )
+	filePtr = fopen("Assets/config/conf_win32.dat", "rb");
+	if (!filePtr)
 	{
-		filePtr =  fopen( "Assets/config/conf_win32.dat", "wb" );
-		fwrite( &g_options, sizeof( COptions ), 1, filePtr  );
+		filePtr = fopen("Assets/config/conf_win32.dat", "wb");
+		fwrite(&g_options, sizeof(COptions), 1, filePtr);
 	}
 	else
 	{
-		fread( &g_options , sizeof( COptions ), 1, filePtr  );
+		fread(&g_options, sizeof(COptions), 1, filePtr);
 	}
 	fclose(filePtr);
 	////////////////
 
-	if( !DialogBox( hInstance, MAKEINTRESOURCE( IDD_INIT_DIALOG ), NULL, ( DLGPROC )DlgProc ) )
+	if (!DialogBox(hInstance, MAKEINTRESOURCE(IDD_INIT_DIALOG), NULL, (DLGPROC)DlgProc))
 		return 0;
-	
+
 	g_width = g_options.m_width;
 	g_height = g_options.m_height;
 
 	// Fill Out Window
-	ZeroMemory (&g_window.m_windowGL, sizeof (CWindowGL));		// Make Sure Memory Is Zeroed
-	g_window.m_windowGL.init.className		= _T("EhsanKamrani");
-	g_window.m_windowGL.init.hInstance		= g_instance;
-	g_window.m_windowGL.init.title			= _T("VandaEngine");						// Window Title
-	g_window.m_windowGL.init.width			= g_width;								// Window Width
-	g_window.m_windowGL.init.height			= g_height;								// Window Height
-	g_window.m_windowGL.init.bitsPerPixel	= g_bits;									// Bits Per Pixel
-	g_window.m_windowGL.init.isFullScreen	= TRUE;									// Fullscreen? (Set To TRUE)
-	g_window.m_windowGL.init.testWindow     = FALSE;
-	g_window.m_windowGL.init.windowProc		= WndProc;
-	g_window.m_windowGL.multiSampling		= false;
-    
-	if(!g_window.CreateWindowGL( &g_window.m_windowGL ) )
+	ZeroMemory(&g_window.m_windowGL, sizeof(CWindowGL));		// Make Sure Memory Is Zeroed
+	g_window.m_windowGL.init.className = _T("EhsanKamrani");
+	g_window.m_windowGL.init.hInstance = g_instance;
+	g_window.m_windowGL.init.title = _T("VandaEngine");						// Window Title
+	g_window.m_windowGL.init.width = g_width;								// Window Width
+	g_window.m_windowGL.init.height = g_height;								// Window Height
+	g_window.m_windowGL.init.bitsPerPixel = g_bits;							// Bits Per Pixel
+	g_window.m_windowGL.init.isFullScreen = g_options.m_fullScreen;			// Fullscreen?
+	g_window.m_windowGL.init.testWindow = FALSE;
+	g_window.m_windowGL.init.windowProc = WndProc;
+	g_window.m_windowGL.multiSampling = false;
+
+	if (!g_window.CreateWindowGL(&g_window.m_windowGL))
 	{
-		MessageBox( NULL, _T("Couldn't create the OpenGL window"), _T("VandaEngine Error"),  MB_OK | MB_ICONINFORMATION );
+		MessageBox(NULL, _T("Couldn't create the OpenGL window"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION);
 		return false;
 	}
 	GLenum err = glewInit();
-	if( err != GLEW_OK )
-		MessageBox( NULL, _T("Couldn't initialize GLEW"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION );
-	if( !GLEW_EXT_framebuffer_object || !GLEW_ARB_texture_non_power_of_two || !g_options.m_enableFBO)
+	if (err != GLEW_OK)
+		MessageBox(NULL, _T("Couldn't initialize GLEW"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION);
+	if (!GLEW_EXT_framebuffer_object || !GLEW_ARB_texture_non_power_of_two || !g_options.m_enableFBO)
 	{
 		//MessageBox( NULL, _T("Switching to old rendering style."), _T("VandaEngine Warning"), MB_OK | MB_ICONINFORMATION );
 		g_useOldRenderingStyle = CTrue;
 	}
 
-	switch( g_options.m_numSamples )
+	switch (g_options.m_numSamples)
 	{
 	case 2:
 		g_window.m_numSamples = 2;
@@ -756,40 +783,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	default:
 		g_window.m_numSamples = 0;
 	}
-	if( g_window.m_numSamples > 1 && !g_useOldRenderingStyle )
+	if (g_window.m_numSamples > 1 && !g_useOldRenderingStyle)
 	{
-		if( !GLEW_EXT_framebuffer_multisample )
+		if (!GLEW_EXT_framebuffer_multisample)
 		{
-			MessageBox( NULL, _T("GL_EXT_framebuffer_multisample is not supported\nSwitching to old rendering style"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION );
+			MessageBox(NULL, _T("GL_EXT_framebuffer_multisample is not supported\nSwitching to old rendering style"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION);
 			g_useOldRenderingStyle = CTrue; //See if we can we use multisampling with old rendering style?
 		}
 		else
 			g_window.m_windowGL.multiSampling = true; //use new rendering style with multisampling
 	}
 
-	if( g_window.m_numSamples > 1 && g_useOldRenderingStyle && !WGLEW_ARB_multisample  )
-			MessageBox( NULL, _T("Your implementation doesn't support multisampling"), _T("VandaEngine Error"),  MB_OK | MB_ICONINFORMATION );
-	if( g_window.m_numSamples > 1 && WGLEW_ARB_multisample && g_useOldRenderingStyle )
+	if (g_window.m_numSamples > 1 && g_useOldRenderingStyle && !WGLEW_ARB_multisample)
+		MessageBox(NULL, _T("Your implementation doesn't support multisampling"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION);
+	if (g_window.m_numSamples > 1 && WGLEW_ARB_multisample && g_useOldRenderingStyle)
 	{
-		if( ! g_window.DestroyWindowGL( &g_window.m_windowGL ) )
+		if (!g_window.DestroyWindowGL(&g_window.m_windowGL))
 		{
-			MessageBox( NULL, _T("Couldn't destroy the OpenGL window to use multisampling"), _T("VandaEngine Error"),  MB_OK | MB_ICONINFORMATION );
+			MessageBox(NULL, _T("Couldn't destroy the OpenGL window to use multisampling"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION);
 			return false;
 		}
 		g_window.m_windowGL.multiSampling = true;
-		if(!g_window.CreateWindowGL( &g_window.m_windowGL ) )
+		if (!g_window.CreateWindowGL(&g_window.m_windowGL))
 		{
-			MessageBox( NULL, _T("Couldn't create the OpenGL window with multisampling\n please disable multisampling"), _T("VandaEngine Error"),  MB_OK | MB_ICONINFORMATION );
+			MessageBox(NULL, _T("Couldn't create the OpenGL window with multisampling\n please disable multisampling"), _T("VandaEngine Error"), MB_OK | MB_ICONINFORMATION);
 			return false;
 		}
-		if( g_window.m_windowGL.multiSampling && GLEW_NV_multisample_filter_hint )
+		if (g_window.m_windowGL.multiSampling && GLEW_NV_multisample_filter_hint)
 		{
-			glHint(GL_MULTISAMPLE_FILTER_HINT_NV,GL_NICEST);
-			glEnable( GL_MULTISAMPLE );
+			glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+			glEnable(GL_MULTISAMPLE);
 		}
 	}
 
-	if( WGLEW_EXT_swap_control && g_options.m_disableVSync )
+	if (WGLEW_EXT_swap_control && g_options.m_disableVSync)
 		wglSwapIntervalEXT(0);
 	else
 		wglSwapIntervalEXT(1);
@@ -805,7 +832,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//	SendMessage(GetWindow(g_window.m_windowGL.hWnd, GW_OWNER), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 	//}	
 
-	if( !Initialize() )
+	if (!Initialize())
 		return 0;
 
 	// update the window
@@ -817,10 +844,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		TranslateMessage(&msg);		// translate and dispatch to event queue
 		DispatchMessage(&msg);
 
-		if( !Render() ) g_done = true;
+		if (!Render()) g_done = true;
 
 	}
 	CleanUp();
-	ShowCursor (TRUE);
+	ShowCursor(TRUE);
 	return (int)msg.wParam;
 }

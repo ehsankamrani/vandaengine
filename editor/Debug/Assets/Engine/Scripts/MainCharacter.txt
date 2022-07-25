@@ -1,0 +1,19 @@
+function Init()
+
+end
+
+function Update()
+
+end
+
+function OnTriggerEnter(otherActorName)
+
+end
+
+function OnTriggerStay(otherActorName)
+
+end
+
+function OnTriggerExit(otherActorName)
+
+end

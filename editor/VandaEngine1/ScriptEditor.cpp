@@ -135,6 +135,13 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/GUI.txt");
 	}
+	else if (wParam == ID_NEWSCRIPT_MAINCHARACTER)
+	{
+		if (!SaveChanges())
+			return CDialog::OnCommand(wParam, lParam);;
+		savePath.Empty();
+		LoadFile("Assets/Engine/Scripts/MainCharacter.txt");
+	}
 	else if (wParam == ID_FILE_OPEN_SCRIPT)
 	{
 		if (!SaveChanges())
@@ -252,7 +259,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 
 CVoid CScriptEditor::LoadFile(CChar* filePath)
 {
-	std::string buffer;
+	m_buffer.clear();
 	std::ifstream file(filePath, std::ios::binary);
 
 	if (file.is_open())
@@ -261,9 +268,9 @@ CVoid CScriptEditor::LoadFile(CChar* filePath)
 
 		std::ifstream::pos_type fileSize = file.tellg();
 
-		buffer.resize(fileSize);
+		m_buffer.resize(fileSize);
 		file.seekg(0, std::ios::beg);
-		file.read(&buffer[0], fileSize);
+		file.read(&m_buffer[0], fileSize);
 	}
 	else
 	{
@@ -271,7 +278,7 @@ CVoid CScriptEditor::LoadFile(CChar* filePath)
 		return;
 	}
 
-	CString c1(buffer.c_str());
+	CString c1(m_buffer.c_str());
 	// writing the file to rich edit control
 	m_richScriptEditor.SetWindowTextA(c1.GetBuffer());
 

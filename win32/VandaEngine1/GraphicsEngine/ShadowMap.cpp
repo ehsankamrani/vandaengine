@@ -307,6 +307,7 @@ void CShadowMap::UpdateFOV()
 void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light_dir[4] )
 {
 	glUseProgram(0);
+
 	g_render.m_useShader = CFalse;
 	g_renderShadow = CTrue;
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
@@ -467,29 +468,33 @@ void CShadowMap::MakeShadowMap( float cam_pos[3], float cam_view[3], float light
 
 void CShadowMap::ShowDepthTex()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	int loc;
-	glPushAttrib(GL_VIEWPORT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
-	glDisable(GL_DEPTH_TEST);
-	glDisable( GL_BLEND );
-	glDisable(GL_CULL_FACE);
-	glUseProgram(g_render.m_shad_view_depth);
-	glUniform1i(glGetUniformLocation(g_render.m_shad_view_depth,"tex"), 0);
-	loc = glGetUniformLocation(g_render.m_shad_view_depth,"layer");
-	for(int i=0; i<cur_num_splits; i++)
+	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-        glViewport(130*i, 0, 128, 128);
-		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, depth_tex_ar);
-        glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-		glUniform1f(loc, (float)i);
-		glBegin(GL_QUADS);
-		glVertex3f(-1.0f, -1.0f, 0.0f);
-		glVertex3f( 1.0f, -1.0f, 0.0f);
-		glVertex3f( 1.0f,  1.0f, 0.0f);
-		glVertex3f(-1.0f,  1.0f, 0.0f);
-		glEnd();
+		CInt size = CInt((CFloat)g_width / 10.0f);
 
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		int loc;
+		glPushAttrib(GL_VIEWPORT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+		glUseProgram(g_render.m_shad_view_depth);
+		glUniform1i(glGetUniformLocation(g_render.m_shad_view_depth, "tex"), 0);
+		loc = glGetUniformLocation(g_render.m_shad_view_depth, "layer");
+		for (int i = 0; i < cur_num_splits; i++)
+		{
+			glViewport((size + 2) * i, g_main->GetPadding(), size, size);
+			glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, depth_tex_ar);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+			glUniform1f(loc, (float)i);
+			glBegin(GL_QUADS);
+			glVertex3f(-1.0f, -1.0f, 0.0f);
+			glVertex3f(1.0f, -1.0f, 0.0f);
+			glVertex3f(1.0f, 1.0f, 0.0f);
+			glVertex3f(-1.0f, 1.0f, 0.0f);
+			glEnd();
+		}
+		glUseProgram(0);
+		glPopAttrib();
 	}
-	glUseProgram(0);
-	glPopAttrib();
 }

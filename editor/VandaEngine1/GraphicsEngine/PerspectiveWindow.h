@@ -347,6 +347,8 @@ public:
 
 	CBool m_renderArrow;
 
+	CVoid GetMouseMovement();
+
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_playGameMode;
@@ -358,6 +360,10 @@ private:
 	CBool m_bSelectionDistance;
 	CChar m_selectedPrefabInstanceName[MAX_NAME_SIZE];
 	std::vector<CTransparentGeometry> m_sortedTransparentGoemetries;
+	//mouse movements
+	CInt m_dx, m_dy;
+	CInt m_prev_dx, m_prev_dy;
+	POINT m_point;
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );

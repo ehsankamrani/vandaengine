@@ -42,4 +42,6 @@ public:
 	virtual void OnCancel();
 	virtual void OnOK();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+private:
+	std::string m_buffer;
 };

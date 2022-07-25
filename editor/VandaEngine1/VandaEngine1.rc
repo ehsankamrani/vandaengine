@@ -28,6 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDI_VANDAENGINE         ICON                    "res\\VandaEngine.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Cursor
@@ -35,161 +36,312 @@ IDI_VANDAENGINE         ICON                    "res\\VandaEngine.ico"
 
 IDC_CUSTOM_HAND         CURSOR                  "Assets\\Icon\\hand.cur"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
 IDB_BITMAP_NEW_UP       BITMAP                  "Assets\\Icon\\New\\New_Up.bmp"
+
 IDB_BITMAP_SAVE_UP      BITMAP                  "Assets\\Icon\\Save\\Save_UP.bmp"
+
 IDB_BITMAP_SAVE_DOWN    BITMAP                  "Assets\\Icon\\Save\\Save_DOWN.bmp"
+
 IDB_BITMAP_SAVE_FOCUS   BITMAP                  "Assets\\Icon\\Save\\Save_Focus.bmp"
+
 IDB_BITMAP_NEW_DOWN     BITMAP                  "Assets\\Icon\\New\\New_Down.bmp"
+
 IDB_BITMAP_NEW_FOCUS    BITMAP                  "Assets\\Icon\\New\\New_Focus.bmp"
+
 IDB_BITMAP_COLLADA_DOWN BITMAP                  "Assets\\Icon\\ImportCollada\\Collada_Down.bmp"
+
 IDB_BITMAP_COLLADA_FOCUS BITMAP                  "Assets\\Icon\\ImportCollada\\Collada_Focus.bmp"
+
 IDB_BITMAP_COLLADA_UP   BITMAP                  "Assets\\Icon\\ImportCollada\\Collada_Up.bmp"
+
 IDB_BITMAP_PHYSX_DOWN   BITMAP                  "Assets\\Icon\\ImportPhysX\\PhysX_DOWN.bmp"
+
 IDB_BITMAP_PHYSX_FOCUS  BITMAP                  "Assets\\Icon\\ImportPhysX\\PhysX_Focus.bmp"
+
 IDB_BITMAP_PHYSX_UP     BITMAP                  "Assets\\Icon\\ImportPhysX\\PhysX_UP.bmp"
+
 IDB_BITMAP_ANIM_PREV_DOWN BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Down.bmp"
+
 IDB_BITMAP_ANIM_PREV_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Focus.bmp"
+
 IDB_BITMAP_ANIM_PREV_UP BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Up.bmp"
+
 IDB_BITMAP_OPEN_DOWN    BITMAP                  "Assets\\Icon\\Open\\Open_Down.bmp"
+
 IDB_BITMAP_OPEN_FOCUS   BITMAP                  "Assets\\Icon\\Open\\Open_Focus.bmp"
+
 IDB_BITMAP_OPEN_UP      BITMAP                  "Assets\\Icon\\Open\\Open_Up.bmp"
+
 IDB_BITMAP_SAVEAS_UP    BITMAP                  "Assets\\Icon\\Save As\\SaveAs_UP.bmp"
+
 IDB_BITMAP_SAVEAS_DOWN  BITMAP                  "Assets\\Icon\\Save As\\SaveAs_DOWN.bmp"
+
 IDB_BITMAP_SAVEAS_FOCUS BITMAP                  "Assets\\Icon\\Save As\\SaveAs_Focus.bmp"
+
 IDB_BITMAP_ANIM_PREV_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Disable.bmp"
+
 IDB_BITMAP_ANIM_PLAY_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Disable.bmp"
+
 IDB_BITMAP_ANIM_PLAY_DOWN BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Down.bmp"
+
 IDB_BITMAP_ANIM_PLAY_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Focus.bmp"
+
 IDB_BITMAP_ANIM_PLAY_UP BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Up.bmp"
+
 IDB_BITMAP_ANIM_NEXT_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Disable.bmp"
+
 IDB_BITMAP_ANIM_NEXT_DOWN BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Down.bmp"
+
 IDB_BITMAP_ANIM_NEXT_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Focus.bmp"
+
 IDB_BITMAP_ANIM_NEXT_UP BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Up.bmp"
+
 IDB_BITMAP_TIMER_DOWN   BITMAP                  "Assets\\Icon\\Timer\\Timer_Down.bmp"
+
 IDB_BITMAP_TIMER_FOCUS  BITMAP                  "Assets\\Icon\\Timer\\Timer_Focus.bmp"
+
 IDB_BITMAP_TIMER_UP     BITMAP                  "Assets\\Icon\\Timer\\Timer_Up.bmp"
+
 IDB_BITMAP_ANIM_PAUSE_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Disable.bmp"
+
 IDB_BITMAP_ANIM_PAUSE_DOWN BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Down.bmp"
+
 IDB_BITMAP_ANIM_PAUSE_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Focus.bmp"
+
 IDB_BITMAP_ANIM_PAUSE_UP BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Up.bmp"
+
 IDB_BITMAP_WEB_DOWN     BITMAP                  "Assets\\Icon\\Web\\Web_Down.bmp"
+
 IDB_BITMAP_WEB_FOCUS    BITMAP                  "Assets\\Icon\\Web\\Web_Focus.bmp"
+
 IDB_BITMAP_WEB_UP       BITMAP                  "Assets\\Icon\\Web\\Web_Up.bmp"
+
 IDB_BITMAP_FACEBOOK_DOWN BITMAP                  "Assets\\Icon\\Facebook\\Facebook_Down.bmp"
+
 IDB_BITMAP_FACEBOOK_FOCUS BITMAP                  "Assets\\Icon\\Facebook\\Facebook_Focus.bmp"
+
 IDB_BITMAP_FACEBOOK_UP  BITMAP                  "Assets\\Icon\\Facebook\\Facebook_Up.bmp"
+
 IDB_BITMAP_PHYSXEDITOR_UP BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Up.bmp"
+
 IDB_BITMAP_PHYSXEDITOR_DOWN BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Down.bmp"
+
 IDB_BITMAP_PHYSXEDITOR_DISABLE BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Disable.bmp"
+
 IDB_BITMAP_LINK_UP      BITMAP                  "Assets\\Icon\\Welcome\\link.bmp"
+
 IDB_BITMAP_WELCOME_VERSION BITMAP                  "Assets\\Icon\\Welcome\\Welcome_version.bmp"
+
 IDB_BITMAP_WELCOME_SEPARATOR BITMAP                  "Assets\\Icon\\Welcome\\Seperator.bmp"
+
 IDB_BITMAP_LIGHT_DISABLE BITMAP                  "Assets\\Icon\\Light\\Light_Disable.bmp"
+
 IDB_BITMAP_WATER_DISABLE BITMAP                  "Assets\\Icon\\Water\\Water_Disable.bmp"
+
 IDB_BITMAP_STATICSOUND_DISABLE BITMAP                  "Assets\\Icon\\StaticSound\\StaticSound_Disable.bmp"
+
 IDB_BITMAP_PREFAB_DISABLE BITMAP                  "Assets\\Icon\\Prefab\\prefab_Disable.bmp"
+
 IDB_BITMAP_PREFAB_DOWN  BITMAP                  "Assets\\Icon\\Prefab\\prefab_Down.bmp"
+
 IDB_BITMAP_PREFAB_FOCUS BITMAP                  "Assets\\Icon\\Prefab\\prefab_Focus.bmp"
+
 IDB_BITMAP_PREFAB_UP    BITMAP                  "Assets\\Icon\\Prefab\\prefab_Up.bmp"
+
 IDB_BITMAP_OPEN_DISABLE BITMAP                  "Assets\\Icon\\Open\\Open_Disable.bmp"
+
 IDB_BITMAP_PUBLISH_DISABLE BITMAP                  "Assets\\Icon\\Publish\\publish_disable.bmp"
+
 IDB_BITMAP_SAVE_DISABLE BITMAP                  "Assets\\Icon\\Save\\Save_Disable.bmp"
+
 IDB_BITMAP_SAVEAS_DISABLE BITMAP                  "Assets\\Icon\\Save As\\SaveAs_Disable.bmp"
+
 IDB_BITMAP_TRANSLATE_DISABLE BITMAP                  "Assets\\Icon\\Translate\\translate_Disable.bmp"
+
 IDB_BITMAP_TRANSLATE_DOWN BITMAP                  "Assets\\Icon\\Translate\\translate_Down.bmp"
+
 IDB_BITMAP_TRANSLATE_FOCUS BITMAP                  "Assets\\Icon\\Translate\\translate_Focus.bmp"
+
 IDB_BITMAP_TRANSLATE_UP BITMAP                  "Assets\\Icon\\Translate\\translate_Up.bmp"
+
 IDB_BITMAP_ROTATE_DISABLE BITMAP                  "Assets\\Icon\\Rotate\\rotate_Disable.bmp"
+
 IDB_BITMAP_ROTATE_DOWN  BITMAP                  "Assets\\Icon\\Rotate\\rotate_Down.bmp"
+
 IDB_BITMAP_ROTATE_FOCUS BITMAP                  "Assets\\Icon\\Rotate\\rotate_Focus.bmp"
+
 IDB_BITMAP_ROTATE_UP    BITMAP                  "Assets\\Icon\\Rotate\\rotate_Up.bmp"
+
 IDB_BITMAP_SCALE_DISABLE BITMAP                  "Assets\\Icon\\Scale\\Scale_Disable.bmp"
+
 IDB_BITMAP_SCALE_DOWN   BITMAP                  "Assets\\Icon\\Scale\\Scale_Down.bmp"
+
 IDB_BITMAP_SCALE_FOCUS  BITMAP                  "Assets\\Icon\\Scale\\Scale_Focus.bmp"
+
 IDB_BITMAP_SCALE_UP     BITMAP                  "Assets\\Icon\\Scale\\Scale_Up.bmp"
+
 IDB_BITMAP_OBJECTLIST_SCENE BITMAP                  "Assets\\Icon\\Object List\\scene.bmp"
+
 IDB_BITMAP_TIMER_PAUSE_DOWN BITMAP                  "Assets\\Icon\\Timer\\Pause\\Timer_Pause_Down.bmp"
+
 IDB_BITMAP_TIMER_PAUSE_FOCUS BITMAP                  "Assets\\Icon\\Timer\\Pause\\Timer_Pause_Focus.bmp"
+
 IDB_BITMAP_TIMER_PAUSE_UP BITMAP                  "Assets\\Icon\\Timer\\Pause\\Timer_Pause_Up.bmp"
+
 IDB_BITMAP_TEST_ACTIVE_DOWN BITMAP                  "Assets\\Icon\\Test\\Active\\test_active_down.bmp"
+
 IDB_BITMAP_TEST_ACTIVE_FOCUS BITMAP                  "Assets\\Icon\\Test\\Active\\test_active_focus.bmp"
+
 IDB_BITMAP_TEST_ACTIVE_UP BITMAP                  "Assets\\Icon\\Test\\Active\\test_active_up.bmp"
+
 IDB_BITMAP_TEST_DEACTIVE_DOWN BITMAP                  "Assets\\Icon\\Test\\Deactive\\test_deactive_down.bmp"
+
 IDB_BITMAP_TEST_DEACTIVE_FOCUS BITMAP                  "Assets\\Icon\\Test\\Deactive\\test_deactive_focus.bmp"
+
 IDB_BITMAP_TEST_DEACTIVE_UP BITMAP                  "Assets\\Icon\\Test\\Deactive\\test_deactive_up.bmp"
+
 IDB_BITMAP_DEFAULT_VIN  BITMAP                  "Assets\\Icon\\Default\\Default_vin.bmp"
+
 IDB_BITMAP_DEFAULT_VPF  BITMAP                  "Assets\\Icon\\Default\\Default_vpf.bmp"
+
 IDB_BITMAP_DEFAULT_PACKAGE BITMAP                  "Assets\\Icon\\Default\\Default_package.bmp"
+
 IDB_BITMAP_DEFAULT_PROJECT BITMAP                  "Assets\\Icon\\Default\\Default_Project.bmp"
+
 IDB_BITMAP_DEFAULT_WATER BITMAP                  "Assets\\Icon\\Default\\Default_Water.bmp"
+
 IDB_BITMAP_WATER_ATTACH_DOWN BITMAP                  "Assets\\Icon\\WaterAttach\\WaterAttach_Down.bmp"
+
 IDB_BITMAP_WATER_ATTACH_FOCUS BITMAP                  "Assets\\Icon\\WaterAttach\\WaterAttach_Focus.bmp"
+
 IDB_BITMAP_WATER_ATTACH_UP BITMAP                  "Assets\\Icon\\WaterAttach\\WaterAttach_Up.bmp"
+
 IDB_BITMAP_TRIGGER_DISABLE BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Disable.bmp"
+
 IDB_BITMAP_TRIGGER_DOWN BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Down.bmp"
+
 IDB_BITMAP_TRIGGER_FOCUS BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Focus.bmp"
+
 IDB_BITMAP_TRIGGER_UP   BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Up.bmp"
+
 IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_DISABLE BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Disable.bmp"
+
 IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_DOWN BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Down.bmp"
+
 IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_FOCUS BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Focus.bmp"
+
 IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_UP BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Up.bmp"
+
 IDB_BITMAP_PLAYER_DISABLE BITMAP                  "Assets\\Icon\\Player\\Player_Disable.bmp"
+
 IDB_BITMAP_DEFAULT_PRF  BITMAP                  "Assets\\Icon\\Default\\Default_prf.bmp"
+
 IDB_BITMAP_GUI_BUTTON_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Disable.bmp"
+
 IDB_BITMAP_GUI_BUTTON_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Down.bmp"
+
 IDB_BITMAP_GUI_BUTTON_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Focus.bmp"
+
 IDB_BITMAP_GUI_BUTTON_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Up.bmp"
+
 IDB_BITMAP_GUI_IMAGE_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Disable.bmp"
+
 IDB_BITMAP_GUI_IMAGE_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Down.bmp"
+
 IDB_BITMAP_GUI_IMAGE_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Focus.bmp"
+
 IDB_BITMAP_GUI_IMAGE_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Up.bmp"
+
 IDB_BITMAP_GUI_TEXT_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Disable.bmp"
+
 IDB_BITMAP_GUI_TEXT_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Down.bmp"
+
 IDB_BITMAP_GUI_TEXT_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Focus.bmp"
+
 IDB_BITMAP_GUI_TEXT_UP  BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Up.bmp"
+
 IDB_BITMAP_GUILIST_IMAGE BITMAP                  "Assets\\Icon\\GUI List\\GUIImage.bmp"
+
 IDB_BITMAP_GUILIST_BUTTON BITMAP                  "Assets\\Icon\\GUI List\\GUIButton.bmp"
+
 IDB_BITMAP_GUILIST_TEXT BITMAP                  "Assets\\Icon\\GUI List\\GUIText.bmp"
+
 IDB_BITMAP_GUI_EDITOR_DISABLE BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Disable.bmp"
+
 IDB_BITMAP_GUI_EDITOR_DOWN BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Down.bmp"
+
 IDB_BITMAP_GUI_EDITOR_FOCUS BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Focus.bmp"
+
 IDB_BITMAP_GUI_EDITOR_UP BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Up.bmp"
+
 IDB_BITMAP_DEFAULT_GUI  BITMAP                  "Assets\\Icon\\Default\\Default_gui.bmp"
+
 IDB_BITMAP_OBJECTLIST_VSCENE_SCRIPT BITMAP                  "Assets\\Icon\\EngineObjectList\\VSceneScript.bmp"
+
 IDB_BITMAP_TERRAIN_UP   BITMAP                  "Assets\\Icon\\Terrain\\terrain_up.bmp"
+
 IDB_BITMAP_TERRAIN_FOCUS BITMAP                  "Assets\\Icon\\Terrain\\terrain_focus.bmp"
+
 IDB_BITMAP_TERRAIN_DOWN BITMAP                  "Assets\\Icon\\Terrain\\terrain_down.bmp"
+
 IDB_BITMAP_TERRAIN_DISABLE BITMAP                  "Assets\\Icon\\Terrain\\terrain_disable.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_TERRAIN BITMAP                  "Assets\\Icon\\EngineObjectList\\Terrain.bmp"
+
 IDB_BITMAP_ENGINE_CAMERA_DISABLE BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_disable.bmp"
+
 IDB_BITMAP_ENGINE_CAMERA_DOWN BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_down.bmp"
+
 IDB_BITMAP_ENGINE_CAMERA_FOCUS BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_focus.bmp"
+
 IDB_BITMAP_ENGINE_CAMERA_UP BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_up.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_ENGINE_CAMERA BITMAP                  "Assets\\Icon\\EngineObjectList\\engine_camera.bmp"
+
 IDB_BITMAP_CAMERA_DISABLE BITMAP                  "Assets\\Icon\\Camera\\camera_disable.bmp"
+
 IDB_BITMAP_PREFAB_SETTINGS_FOCUS BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings.bmp"
+
 IDB_BITMAP_PREFAB_SETTINGS_DISABLE BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Disable.bmp"
+
 IDB_BITMAP_PREFAB_SETTINGS_DOWN BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Down.bmp"
+
 IDB_BITMAP_PREFAB_SETTINGS BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Focus.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_STATIC_SOUND BITMAP                  "Assets\\Icon\\Default\\Script Utility\\audio.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_CAMERA BITMAP                  "Assets\\Icon\\Default\\Script Utility\\camera.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_LIGHT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\light.bmp"
+
 IDB_BITMAP_COFFEE       BITMAP                  "Assets\\Icon\\Welcome\\coffee.bmp"
+
 IDB_BITMAP_VANDA_LOGO_DARK BITMAP                  "Assets\\Icon\\Welcome\\vanda_logo.bmp"
+
 IDB_BITMAP_VSCENE_SCRIPT_UP BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Up.bmp"
+
 IDB_BITMAP_VSCENE_SCRIPT_FOCUS BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Focus.bmp"
+
 IDB_BITMAP_VSCENE_SCRIPT_DOWN BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Down.bmp"
+
 IDB_BITMAP_VSCENE_SCRIPT_DISABLE BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Disable.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_TRIGGER BITMAP                  "Assets\\Icon\\Default\\Script Utility\\trigger.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_GUI_BUTTON BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIButton.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_GUI_IMAGE BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIImage.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_GUI_TEXT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIText.bmp"
+
 IDB_BITMAP_SCRIPT_UTILITY_WATER BITMAP                  "Assets\\Icon\\Default\\Script Utility\\water.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -440,13 +592,13 @@ BEGIN
     LTEXT           "Please Wait...",IDC_STATIC,69,21,65,8
 END
 
-IDD_DIALOG_ADD_CHARACTER DIALOGEX 0, 0, 550, 273
+IDD_DIALOG_ADD_CHARACTER DIALOGEX 0, 0, 550, 272
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Add Main Character"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,436,252,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,491,252,50,14
+    DEFPUSHBUTTON   "OK",IDOK,436,251,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,491,251,50,14
     EDITTEXT        IDC_EDIT_PREFAB_INSTANCE,44,75,177,14,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "Select...",IDC_BUTTON_SELECT_CHARACTER,232,75,54,14
     COMBOBOX        IDC_COMBO_IDLE,44,122,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
@@ -456,7 +608,7 @@ BEGIN
     LTEXT           "Walk",IDC_STATIC,22,176,16,8
     PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_WALK,232,173,54,14
     COMBOBOX        IDC_COMBO_RUN,44,195,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Run",IDC_STATIC,22,197,14,8
+    LTEXT           "Run",IDC_STATIC,22,195,14,8
     PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_RUN,232,194,54,14
     COMBOBOX        IDC_COMBO_JUMP,44,217,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Jump",IDC_STATIC,22,219,18,8
@@ -492,6 +644,11 @@ BEGIN
     PUSHBUTTON      "Sounds...",IDC_BUTTON_SOUNDS,371,63,66,16
     GROUPBOX        "Profile",IDC_STATIC,364,100,179,38
     GROUPBOX        "More Options",IDC_STATIC,364,49,179,42
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,376,191,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,430,191,50,14
+    CONTROL         "",IDC_EDIT_CHARACTER_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,376,166,158,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,484,191,50,14
+    GROUPBOX        "Script",IDC_STATIC,364,147,179,69
 END
 
 IDD_DIALOG_SELECT_ANIMATION_CLIPS DIALOGEX 0, 0, 233, 161
@@ -1392,11 +1549,11 @@ BEGIN
     BEGIN
         LEFTMARGIN, 10
         RIGHTMARGIN, 543
+        VERTGUIDE, 20
         VERTGUIDE, 350
         VERTGUIDE, 534
         TOPMARGIN, 7
-        BOTTOMMARGIN, 266
-        HORZGUIDE, 152
+        BOTTOMMARGIN, 265
     END
 
     IDD_DIALOG_SELECT_ANIMATION_CLIPS, DIALOG
@@ -1829,11 +1986,12 @@ BEGIN
     BEGIN
         POPUP "New"
         BEGIN
-            MENUITEM "Blank Script",                ID_NEWSCRIPT_BLANK
-            MENUITEM "VScene Script",               ID_NEWSCRIPT_VSCENE_SCRIPT
-            MENUITEM "Prefab Script",               ID_NEWSCRIPT_PREFAB
-            MENUITEM "Trigger Script",              ID_NEWSCRIPT_TRIGGER
-            MENUITEM "GUI Script",                  ID_NEWSCRIPT_GUI
+            MENUITEM "Blank",                       ID_NEWSCRIPT_BLANK
+            MENUITEM "VScene",                      ID_NEWSCRIPT_VSCENE_SCRIPT
+            MENUITEM "Prefab",                      ID_NEWSCRIPT_PREFAB
+            MENUITEM "Trigger",                     ID_NEWSCRIPT_TRIGGER
+            MENUITEM "GUI",                         ID_NEWSCRIPT_GUI
+            MENUITEM "Main Character",              ID_NEWSCRIPT_MAINCHARACTER
         END
         MENUITEM "Open...",                     ID_FILE_OPEN_SCRIPT
         MENUITEM "Save",                        ID_FILE_SAVE_SCRIPT
@@ -1863,6 +2021,17 @@ BEGIN
     END
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_ADD_CHARACTER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1883,16 +2052,22 @@ LANGUAGE LANG_PERSIAN, SUBLANG_DEFAULT
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\VandaEngine.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Cursor
 //
 
 IDC_MOVE                CURSOR                  "Assets\\Icon\\H_MOVE.CUR"
+
 IDC_DEFAULT_ARROW       CURSOR                  "Assets\\Icon\\arrow.cur"
+
 IDC_ZOOMIN              CURSOR                  "Assets\\Icon\\zoom in.cur"
+
 IDC_POINTER             CURSOR                  "Assets\\Icon\\pointer.cur"
+
 IDC_UNAVAILABLE         CURSOR                  "Assets\\Icon\\Unavailable.cur"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1900,87 +2075,169 @@ IDC_UNAVAILABLE         CURSOR                  "Assets\\Icon\\Unavailable.cur"
 //
 
 IDB_BITMAP_SCENE_LIST   BITMAP                  "Assets\\bitmap\\colladaScene.bmp"
+
 IDB_BITMAP_PHYSX_LOGO   BITMAP                  "Assets\\bitmap\\nvidia-physx-logo.bmp"
+
 IDB_BITMAP_OPENAL_LOGO  BITMAP                  "Assets\\bitmap\\openal-logo.bmp"
+
 IDB_BITMAP_OPENGL3_LOGO BITMAP                  "Assets\\bitmap\\opengl3_logo.bmp"
+
 IDB_BITMAP_DELETE_DOWN  BITMAP                  "Assets\\Icon\\Delete\\Delete_Down.bmp"
+
 IDB_BITMAP_DELETE_FOCUS BITMAP                  "Assets\\Icon\\Delete\\Delete_Focus.bmp"
+
 IDB_BITMAP_DELETE_UP    BITMAP                  "Assets\\Icon\\Delete\\Delete_Up.bmp"
+
 IDB_BITMAP_DELETE_DISABLE BITMAP                  "Assets\\Icon\\Delete\\Delete_Disable.bmp"
+
 IDB_BITMAP_EDIT_DISABLE BITMAP                  "Assets\\Icon\\Edit\\Edit_Disable.bmp"
+
 IDB_BITMAP_EDIT_DOWN    BITMAP                  "Assets\\Icon\\Edit\\Edit_Down.bmp"
+
 IDB_BITMAP_EDIT_FOCUS   BITMAP                  "Assets\\Icon\\Edit\\Edit_Focus.bmp"
+
 IDB_BITMAP_EDIT_UP      BITMAP                  "Assets\\Icon\\Edit\\Edit_Up.bmp"
+
 IDB_BITMAP_MATERIAL_DISABLE BITMAP                  "Assets\\Icon\\Material\\Material_Disable.bmp"
+
 IDB_BITMAP_MATERIAL_DOWN BITMAP                  "Assets\\Icon\\Material\\Material_Down.bmp"
+
 IDB_BITMAP_MATERIAL_UP  BITMAP                  "Assets\\Icon\\Material\\Material_Up.bmp"
+
 IDB_BITMAP_MATERIAL_FOCUS BITMAP                  "Assets\\Icon\\Material\\Material_Focus.bmp"
+
 IDB_BITMAP_SKY_DISABLE  BITMAP                  "Assets\\Icon\\Sky\\Sky_Disable.bmp"
+
 IDB_BITMAP_SKY_DOWN     BITMAP                  "Assets\\Icon\\Sky\\Sky_Down.bmp"
+
 IDB_BITMAP_SKY_FOCUS    BITMAP                  "Assets\\Icon\\Sky\\Sky_Focus.bmp"
+
 IDB_BITMAP_SKY_UP       BITMAP                  "Assets\\Icon\\Sky\\Sky_Up.bmp"
+
 IDB_BITMAP_STATICSOUND_DOWN BITMAP                  "Assets\\Icon\\StaticSound\\StaticSound_Down.bmp"
+
 IDB_BITMAP_STATICSOUND_FOCUS BITMAP                  "Assets\\Icon\\StaticSound\\StaticSound_Focus.bmp"
+
 IDB_BITMAP_STATICSOUND_UP BITMAP                  "Assets\\Icon\\StaticSound\\StaticSound_Up.bmp"
+
 IDB_BITMAP_AMBIENTSOUND_DISABLE BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Disable.bmp"
+
 IDB_BITMAP_AMBIENTSOUND_DOWN BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Down.bmp"
+
 IDB_BITMAP_AMBIENTSOUND_FOCUS BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Focus.bmp"
+
 IDB_BITMAP_AMBIENTSOUND_UP BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Up.bmp"
+
 IDB_BITMAP_LIGHT_DOWN   BITMAP                  "Assets\\Icon\\Light\\Light_Down.bmp"
+
 IDB_BITMAP_LIGHT_FOCUS  BITMAP                  "Assets\\Icon\\Light\\Light_Focus.bmp"
+
 IDB_BITMAP_LIGHT_UP     BITMAP                  "Assets\\Icon\\Light\\Light_Up.bmp"
+
 IDB_BITMAP_WATER_DOWN   BITMAP                  "Assets\\Icon\\Water\\Water_Down.bmp"
+
 IDB_BITMAP_WATER_FOCUS  BITMAP                  "Assets\\Icon\\Water\\Water_Focus.bmp"
+
 IDB_BITMAP_WATER_UP     BITMAP                  "Assets\\Icon\\Water\\Water_Up.bmp"
+
 IDB_BITMAP_PLAYER_DOWN  BITMAP                  "Assets\\Icon\\Player\\Player_Down.bmp"
+
 IDB_BITMAP_PLAYER_FOCUS BITMAP                  "Assets\\Icon\\Player\\Player_Focus.bmp"
+
 IDB_BITMAP_PLAYER_UP    BITMAP                  "Assets\\Icon\\Player\\Player_Up.bmp"
+
 IDB_BITMAP_CONSOLE_DOWN BITMAP                  "Assets\\Icon\\Console\\Console_Down.bmp"
+
 IDB_BITMAP_CONSOLE_FOCUS BITMAP                  "Assets\\Icon\\Console\\Console_Focus.bmp"
+
 IDB_BITMAP_CONSOLE_UP   BITMAP                  "Assets\\Icon\\Console\\Console_Up.bmp"
+
 IDB_BITMAP_SUMMARY_DOWN BITMAP                  "Assets\\Icon\\Summary\\Summary_Down.bmp"
+
 IDB_BITMAP_SUMMARY_FOCUS BITMAP                  "Assets\\Icon\\Summary\\Summary_Focus.bmp"
+
 IDB_BITMAP_SUMMARY_UP   BITMAP                  "Assets\\Icon\\Summary\\Summary_Up.bmp"
+
 IDB_BITMAP_OBJECTLIST_CAMERA BITMAP                  "Assets\\Icon\\Object List\\Camera.bmp"
+
 IDB_BITMAP_OBJECTLIST_IMAGE BITMAP                  "Assets\\Icon\\Object List\\Image.bmp"
+
 IDB_BITMAP_OBJECTLIST_MATERIAL BITMAP                  "Assets\\Icon\\Object List\\Material.bmp"
+
 IDB_BITMAP_OBJECTLIST_MESH BITMAP                  "Assets\\Icon\\Object List\\Mesh.bmp"
+
 IDB_BITMAP_OBJECTLIST_ANIMATION BITMAP                  "Assets\\Icon\\Object List\\animation.bmp"
+
 IDB_BITMAP_OBJECTLIST_LIGHT BITMAP                  "Assets\\Icon\\Object List\\light.bmp"
+
 IDB_BITMAP_OBJECTLIST_EFFECT BITMAP                  "Assets\\Icon\\Object List\\fx.bmp"
+
 IDB_BITMAP_OBJECTLIST_ANIMATIONCLIP BITMAP                  "Assets\\Icon\\Object List\\animation_clip.bmp"
+
 IDB_BITMAP_OBJECTLIST_SKINCONTROLLER BITMAP                  "Assets\\Icon\\Object List\\skin_cnotroller.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_AMBIENTSOUND BITMAP                  "Assets\\Icon\\EngineObjectList\\AmbientSound.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_LIGHT BITMAP                  "Assets\\Icon\\EngineObjectList\\Light.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_SKY BITMAP                  "Assets\\Icon\\EngineObjectList\\Sky.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_STATICSOUND BITMAP                  "Assets\\Icon\\EngineObjectList\\StaticSound.bmp"
+
 IDB_BITMAP_ENGINEOBJECTLIST_WATER BITMAP                  "Assets\\Icon\\EngineObjectList\\Water.bmp"
+
 IDB_BITMAP_WELCOME_UNCHECK BITMAP                  "Assets\\Icon\\Welcome\\Uncheck.bmp"
+
 IDB_BITMAP_WELCOME_CHECK BITMAP                  "Assets\\Icon\\Welcome\\Check.bmp"
+
 IDB_BITMAP_VANDA_TEXT   BITMAP                  "Assets\\Icon\\Vanda.bmp"
+
 IDB_BITMAP_VANDA_LOGO2  BITMAP                  "Assets\\Icon\\Vanda_logo2.bmp"
+
 IDB_BITMAP_TWITTER_DOWN BITMAP                  "Assets\\Icon\\Twitter\\twitter_down.bmp"
+
 IDB_BITMAP_TWITTER_FOCUS BITMAP                  "Assets\\Icon\\Twitter\\twitter_focus.bmp"
+
 IDB_BITMAP_TWITTER_UP   BITMAP                  "Assets\\Icon\\Twitter\\twitter_up.bmp"
+
 IDB_BITMAP_YOUTUBE_DOWN BITMAP                  "Assets\\Icon\\YouTube\\youtube_down.bmp"
+
 IDB_BITMAP_YOUTUBE_FOCUS BITMAP                  "Assets\\Icon\\YouTube\\youtube_focus.bmp"
+
 IDB_BITMAP_YOUTUBE_UP   BITMAP                  "Assets\\Icon\\YouTube\\youtube_up.bmp"
+
 IDB_BITMAP_SCRIPT_DOWN  BITMAP                  "Assets\\Icon\\Script\\script_down.bmp"
+
 IDB_BITMAP_SCRIPT_FOCUS BITMAP                  "Assets\\Icon\\Script\\script_focus.bmp"
+
 IDB_BITMAP_SCRIPT_UP    BITMAP                  "Assets\\Icon\\Script\\script_up.bmp"
+
 IDB_BITMAP_PUBLISH_DOWN BITMAP                  "Assets\\Icon\\Publish\\publish_down.bmp"
+
 IDB_BITMAP_PUBLISH_FOCUS BITMAP                  "Assets\\Icon\\Publish\\publish_focus.bmp"
+
 IDB_BITMAP_PUBLISH_UP   BITMAP                  "Assets\\Icon\\Publish\\publish_up.bmp"
+
 IDB_BITMAP_CAMERA_DOWN  BITMAP                  "Assets\\Icon\\Camera\\camera_down.bmp"
+
 IDB_BITMAP_CAMERA_FOCUS BITMAP                  "Assets\\Icon\\Camera\\camera_focus.bmp"
+
 IDB_BITMAP_CAMERA_UP    BITMAP                  "Assets\\Icon\\Camera\\camera_up.bmp"
+
 IDB_BITMAP_VANDA_VERSION BITMAP                  "Assets\\Icon\\Vanda_Version.bmp"
+
 IDB_BITMAP_PHYSXELEMENTLIST_TRIGGER BITMAP                  "Assets\\Icon\\PhysXElementList\\TR.bmp"
+
 IDB_BITMAP_PHYSXELEMENTLIST_STATICRIGIDBODY BITMAP                  "Assets\\Icon\\PhysXElementList\\SRB.bmp"
+
 IDB_BITMAP_PHYSXELEMENTLIST_DYNAMICRIGIDBODY BITMAP                  "Assets\\Icon\\PhysXElementList\\DRB.bmp"
+
 IDB_BITMAP_LOGO_PUBLISH BITMAP                  "Assets\\Icon\\Publish\\Logo_Publish.bmp"
+
 IDB_BITMAP_SCRIPT_DISABLE BITMAP                  "Assets\\Icon\\Script\\script_disable.bmp"
+
 IDB_BITMAP_VANDA_LOGO   BITMAP                  "Assets\\bitmap\\Vanda-Logo.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2400,7 +2657,7 @@ BEGIN
     LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
     CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 1.8.8",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 1.8.9",IDC_STATIC,7,33,60,8
     LTEXT           "© 2022 Ehsan Kamrani",IDC_STATIC,7,50,126,9
     CONTROL         "Donate",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
     LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
@@ -2558,7 +2815,7 @@ CAPTION "About Vanda Engine 1.6"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 1.8.8",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.8.9",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -3105,12 +3362,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.8.8"
+            VALUE "FileVersion", "1.8.9"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.8.8"
+            VALUE "ProductVersion", "1.8.9"
         END
     END
     BLOCK "VarFileInfo"
@@ -3126,6 +3383,7 @@ END
 //
 
 IDR_RT_ANICURSOR        RT_ANICURSOR            "Assets\\Engine\\Icons\\progress.ani"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3146,6 +3404,17 @@ BEGIN
 0x6f54, 0x6c6f, 0x6974, 0x3e70, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 
 0x694c, 0x6b6e, 0x465f, 0x6c75, 0x546c, 0x7865, 0x5474, 0x6f6f, 0x746c, 
 0x7069, "\076" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_DOF AFX_DIALOG_LAYOUT
+BEGIN
     0
 END
 

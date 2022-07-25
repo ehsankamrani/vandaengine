@@ -132,6 +132,7 @@ struct COptions
 	CBool m_enableShader;
 	CBool m_enableFBO;
 	CBool m_enableVBO;
+	CBool m_fullScreen;
 
 	COptions()
 	{
@@ -146,6 +147,7 @@ struct COptions
 		m_enableShader = CTrue;
 		m_enableFBO = CTrue;
 		m_enableVBO = CTrue;
+		m_fullScreen = CTrue;
 	}
 };
 

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include "graphicsEngine\\imagelib.h"
+
 //#include <thread>
 //Vanda C Functions to be used in Lua scripts
 CGeometry* GetGeometryFromScenes(const CChar * name, const CChar * DocURI)
@@ -8385,6 +8386,196 @@ CInt SetTriggerScriptDoubleVariable(lua_State* L)
 	return 0;
 }
 
+CInt GetMainCharacterScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar* value = NULL;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptStringVariable(luaToString);
+	}
+	else
+	{
+		return 0;
+	}
+
+	lua_pushstring(L, value);
+
+	free(value);
+
+	return 1;
+}
+
+CInt GetMainCharacterScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool value;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptBoolVariable(luaToString);
+	}
+	lua_pushboolean(L, value);
+
+	return 1;
+}
+
+CInt GetMainCharacterScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptIntVariable(luaToString);
+	}
+	lua_pushinteger(L, value);
+
+	return 1;
+}
+
+CInt GetMainCharacterScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptDoubleVariable(luaToString);
+	}
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+
+CInt SetMainCharacterScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar value[MAX_URI_SIZE];
+	Cpy(value, lua_tostring(L, 2));
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptStringVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetMainCharacterScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool bValue;
+	CInt iValue;
+	iValue = lua_toboolean(L, 2);
+	if (iValue)
+		bValue = CTrue;
+	else
+		bValue = CFalse;
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptBoolVariable(luaToString, bValue);
+	}
+
+	return 0;
+}
+
+CInt SetMainCharacterScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	value = lua_tointeger(L, 2);
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptIntVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetMainCharacterScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	value = lua_tonumber(L, 2);
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptDoubleVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+
 CInt ShowGUIButton(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -10217,6 +10408,7 @@ CChar CMain::currentIdleName[MAX_NAME_SIZE];
 CMain::CMain()
 {
 	m_showHelpInfo = CFalse;
+	m_showShadowMap = CFalse;
 	m_timerCounter = 0;
 	m_totalElapsedTime = 0;
 	m_lockInput = CFalse;
@@ -10232,7 +10424,14 @@ CMain::CMain()
 	m_cursorIcon = CNew(CIcon);
 	Cpy(m_previousCharacterAnimationType, "\n");
 	m_menuCursorImg = NULL;
-	m_publishDebug = CTrue;
+
+	#ifdef _DEBUG
+		m_publishDebug = CTrue;
+
+	#else
+		m_publishDebug = CFalse;
+	#endif
+	
 	m_exitGame = CFalse;
 	m_mousePosition.x = (CFloat)g_width / 2.f;
 	m_mousePosition.y = (CFloat)g_height / 2.f;
@@ -10246,6 +10445,8 @@ CMain::CMain()
 	m_forceDirection.z = 0.0;
 	m_forceDecreaseValue = 0.0f;
 	m_pushTransparentGeometry = CFalse;
+	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
+	m_padding = 0;
 }
 
 CMain::~CMain()
@@ -10471,7 +10672,7 @@ CBool CMain::Init()
 {
 	//initialize lua/////////////////
 	glShadeModel(GL_SMOOTH);										// Enable Smooth Shading
-	glClearColor(0.6f, 0.6f, 0.6f, 1.0f);							// Black Background
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);							// Black Background
 	glEnable(GL_TEXTURE_2D);							
 	glClearDepth(1.0f);									
 	glEnable(GL_DEPTH_TEST);							
@@ -10589,6 +10790,8 @@ CBool CMain::Init()
 		g_render.m_useWaterReflection = CFalse;
 	}
 	g_octree = CNew( COctree );
+
+	m_padding = g_window.GetPadding();
 
 	return CTrue;
 }
@@ -10834,8 +11037,10 @@ CBool CMain::Render()
 	}
 
 	if (!m_loadScene)
+	{
 		if (!ProcessInputs())
 			return CFalse;
+	}
 
 	UpdateCharacterTransformations();
 
@@ -11097,14 +11302,13 @@ CBool CMain::Render()
 		g_render.BindFBO( m_fboID );
 
 	if( g_useOldRenderingStyle || !g_options.m_enableFBO)
-		glClearColor( 0.4f, 0.4f, 0.4f, 1.0f );
+		glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 	else
 		glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	//Draw grids of the lower left window (perspective)
-	glViewport( 0, 0 , g_width , g_height );// resets the viewport to new dimensions.
+	glViewport( 0, 0, g_width , g_height );// resets the viewport to new dimensions.
 	if (g_window.m_windowGL.multiSampling &&/* g_options.m_numSamples*/g_window.m_numSamples)
 		glEnable( GL_MULTISAMPLE );
 	else
@@ -11210,8 +11414,12 @@ CBool CMain::Render()
 		g_instancePrefab[i]->InitScript();
 		g_instancePrefab[i]->UpdateScript();
 	}
+
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
+
+	if (g_mainCharacter)
+		g_mainCharacter->UpdateScript();
 
 	if (g_updateOctree && g_scene.size() > 0)
 	{
@@ -11438,28 +11646,32 @@ CBool CMain::Render()
 			glMatrixMode(GL_MODELVIEW);
 			glPopMatrix();
 		}
-		glActiveTexture(GL_TEXTURE0);
-		glUseProgram(0);
+
+		glViewport(0, m_padding, g_width, g_height);
+
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		glViewport(0, 0, g_width, g_height);
+		glUseProgram(0);
 		glDrawBuffer( GL_BACK );
-		glClear( GL_COLOR_BUFFER_BIT ); 
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		glPushAttrib( GL_ENABLE_BIT );
 		glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
-		glOrtho(0, 1, 0, 1, 0.01, 100);
+		gluOrtho2D(0, 1, 0, 1);
 		glMatrixMode(GL_MODELVIEW); glPushMatrix();	glLoadIdentity();
+
 		glDisable( GL_LIGHTING );
-		glDisable(GL_DEPTH_TEST); 
+
+		glActiveTexture(GL_TEXTURE0);
+		glEnable(GL_TEXTURE_2D);
 		if( g_dofProperties.m_enable )
 			glBindTexture( GL_TEXTURE_2D, m_dof.m_texid[3] );
 		else
 			glBindTexture( GL_TEXTURE_2D, m_textureTarget[0] );
-		glEnable( GL_TEXTURE_2D);
+
 		glBegin(GL_QUADS); 
-		glTexCoord2d(0,	0);	glVertex3d(0, 0, -1);
-		glTexCoord2d(1, 0);	glVertex3d(1, 0, -1);
-		glTexCoord2d(1, 1);	glVertex3d(1, 1, -1);
-		glTexCoord2d(0, 1);	glVertex3d(0, 1, -1);
+		glTexCoord2d(0,	0);	glVertex2d(0, 0);
+		glTexCoord2d(1, 0);	glVertex2d(1, 0);
+		glTexCoord2d(1, 1);	glVertex2d(1, 1);
+		glTexCoord2d(0, 1);	glVertex2d(0, 1);
 		glEnd();
 
 		if( g_render.m_useBloom && g_bloomProperties.m_enable)
@@ -11476,15 +11688,18 @@ CBool CMain::Render()
 			glColor4f( g_bloomProperties.m_bloomColor[0], g_bloomProperties.m_bloomColor[1], g_bloomProperties.m_bloomColor[2], g_bloomProperties.m_bloomIntensity );
 			glBindTexture( GL_TEXTURE_2D, g_bloom->m_bloomTexture );
 			glBegin(GL_QUADS); 
-			glTexCoord2d(0,	0);	glVertex3d(0, 0, -1); 
-			glTexCoord2d(1, 0);	glVertex3d(1, 0, -1);
-			glTexCoord2d(1, 1);	glVertex3d(1, 1, -1);
-			glTexCoord2d(0, 1);	glVertex3d(0, 1, -1);
+			glTexCoord2d(0,	0);	glVertex2d(0, 0); 
+			glTexCoord2d(1, 0);	glVertex2d(1, 0);
+			glTexCoord2d(1, 1);	glVertex2d(1, 1);
+			glTexCoord2d(0, 1);	glVertex2d(0, 1);
 			glEnd();
 			glDisable( GL_BLEND );
 			glPopAttrib();
 		}
- 		//m_dynamicShadowMap->ShowDepthTex();
+
+		if(m_showShadowMap)
+ 			m_dynamicShadowMap->ShowDepthTex();
+
 		DrawGUI();
 		glPopAttrib();
 		glMatrixMode(GL_PROJECTION); glPopMatrix();
@@ -11531,6 +11746,7 @@ CVoid CMain::ResetData()
 
 	RemoveTransparentGeometries();
 	g_currentInstancePrefab = NULL;
+
 }
 
 CVoid CMain::DrawGrid(CVoid)
@@ -11877,6 +12093,9 @@ CBool CMain::ProcessInputs()
 	static CBool pKeyDown = CFalse;
 	static CBool oKeyDown = CFalse;
 	CBool inputUpdated = CFalse;
+
+	GetMouseMovement();
+
 	if (m_publishDebug)
 	{
 		g_input.Update();
@@ -11927,6 +12146,15 @@ CBool CMain::ProcessInputs()
 		}
 		if (g_input.KeyUp(DIK_F1))
 			f1KeyDown = CFalse;
+
+		static CBool mKeyDown = CFalse;
+		if (g_input.KeyDown(DIK_M) && !mKeyDown)
+		{
+			mKeyDown = CTrue;
+			m_showShadowMap = !m_showShadowMap;
+		}
+		if (g_input.KeyUp(DIK_M))
+			mKeyDown = CFalse;
 
 		static CBool gKeyDown = CFalse;
 		static CBool vKeyDown = CFalse;
@@ -12014,11 +12242,12 @@ CBool CMain::ProcessInputs()
 
 	if (g_currentVSceneProperties.m_isMenu)
 	{
-		CInt dx, dy;
-		g_input.GetMouseMovement(dx, dy);
+		//deprecate
+		//CInt dx, dy;
+		//g_input.GetMouseMovement(dx, dy);
 		if (g_main->m_prevLoadScene)
 		{
-			dx = dy = 0;
+			m_dx = m_dy = 0;
 			g_main->m_prevLoadScene = CFalse;
 		}
 		if (g_input.ButtonDown(0))
@@ -12080,7 +12309,7 @@ CBool CMain::ProcessInputs()
 		{
 			m_previousRightButtonDown = CFalse;
 		}
-		if (dx != 0 || dy != 0)
+		if (m_dx != 0 || m_dy != 0)
 		{
 			//mouse moved
 			m_selectedGUIIndex = GetSelectedGUI();
@@ -12110,11 +12339,11 @@ CBool CMain::ProcessInputs()
 			m_previuosSelectedGUIIndex = m_selectedGUIIndex;
 		}
 
-		g_main->m_mousePosition.x += dx;
+		g_main->m_mousePosition.x += m_dx;
 		if (g_main->m_mousePosition.x < 1.0f) g_main->m_mousePosition.x = 1.0f;
 		else if (g_main->m_mousePosition.x > g_width) g_main->m_mousePosition.x = g_width;
 
-		g_main->m_mousePosition.y += dy;
+		g_main->m_mousePosition.y += m_dy;
 		if (g_main->m_mousePosition.y < 0.0f) g_main->m_mousePosition.y = 0.0f;
 		else if (g_main->m_mousePosition.y > g_height) g_main->m_mousePosition.y = g_height;
 
@@ -12497,15 +12726,16 @@ CBool CMain::ProcessInputs()
 					}
 				}
 
-		CInt dx, dy;
-		g_input.GetMouseMovement( dx, dy );
+		//deprecate
+		//CInt dx, dy;
+		//g_input.GetMouseMovement( dx, dy );
 		if (g_main->m_prevLoadScene)
 		{
-			dx = dy = 0;
+			m_dx = m_dy = 0;
 			g_main->m_prevLoadScene = CFalse;
 		}
 
-		if (dx != 0 || dy != 0)
+		if (m_dx != 0 || m_dy != 0)
 			m_calculateDistance = CTrue;
 
 		if (g_input.ButtonDown(0))
@@ -12526,21 +12756,21 @@ CBool CMain::ProcessInputs()
 			m_previousRightButtonDown = CFalse;
 		}
 
-		g_main->m_mousePosition.x += dx;
+		g_main->m_mousePosition.x += m_dx;
 		if (g_main->m_mousePosition.x < 1.0f) g_main->m_mousePosition.x = 1.0f;
 		else if (g_main->m_mousePosition.x > g_width) g_main->m_mousePosition.x = g_width;
 
-		g_main->m_mousePosition.y += dy;
+		g_main->m_mousePosition.y += m_dy;
 		if (g_main->m_mousePosition.y < 0.0f) g_main->m_mousePosition.y = 0.0f;
 		else if (g_main->m_mousePosition.y > g_height) g_main->m_mousePosition.y = g_height;
 
-		if( dx > 0 ) 
+		if(m_dx > 0 )
 		{
-			g_camera->m_perspectiveCameraYaw -= (CFloat)dx * 0.004f;
+			g_camera->m_perspectiveCameraYaw -= (CFloat)m_dx * 0.002f;
 		}
-		else if( dx < 0 )
+		else if(m_dx < 0 )
 		{
-			g_camera->m_perspectiveCameraYaw -= (CFloat)dx * 0.004f;
+			g_camera->m_perspectiveCameraYaw -= (CFloat)m_dx * 0.002f;
 		}
 		//if( g_input.ButtonDown(1) )
 		//{
@@ -12551,18 +12781,18 @@ CBool CMain::ProcessInputs()
 		//}
 		//else
 		//{
-			if( dy > 0 ) 
+			if(m_dy > 0 )
 			{
-				g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
+				g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)m_dy * 0.002f;
 				if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
 					g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMaxTilt;
 				else if (g_camera->m_perspectiveCurrentCameraTilt < g_camera->m_perspectiveCameraMinTilt)
 					g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMinTilt;
 
 			}
-			else if( dy < 0 )
+			else if(m_dy < 0 )
 			{
-				g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
+				g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)m_dy * 0.002f;
 				if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
 					g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMaxTilt;
 				else if (g_camera->m_perspectiveCurrentCameraTilt < g_camera->m_perspectiveCameraMinTilt)
@@ -12576,27 +12806,28 @@ CBool CMain::ProcessInputs()
 	{
 		ApplyForce(IDLE, elapsedTime);
 
-		CInt dx, dy;
-		g_input.GetMouseMovement( dx, dy );
+		//deprecate
+		//CInt dx, dy;
+		//g_input.GetMouseMovement( dx, dy );
 		if (g_main->m_prevLoadScene)
 		{
-			dx = dy = 0;
+			m_dx = m_dy = 0;
 			g_main->m_prevLoadScene = CFalse;
 		}
 
-		if (dx != 0 || dy != 0)
+		if (m_dx != 0 || m_dy != 0)
 			m_calculateDistance = CTrue;
 
 		if( g_input.ButtonDown(1) )
 		{
-			if (dy > 0)
+			if (m_dy > 0)
 				g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomOut(elapsedTime * 50.0f);
-			else if (dy < 0)
+			else if (m_dy < 0)
 				g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomIn(elapsedTime * 50.0f);
 		}
 		else
 		{
-			g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)dx * 0.2f, -(CFloat)dy * 0.2f );
+			g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f );
 		}
 
 		//default speed
@@ -14788,7 +15019,6 @@ CBool CMain::Load(CChar* pathName)
 		fread(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&m_hasScript, sizeof(CBool), 1, filePtr);
 
-		//Copy this to Win32 Project as well
 		CChar trimmed_script[MAX_NAME_SIZE];
 
 		//read prefab data
@@ -14867,10 +15097,17 @@ CBool CMain::Load(CChar* pathName)
 		CChar name[MAX_NAME_SIZE];
 		CChar packageName[MAX_NAME_SIZE];
 		CChar prefabName[MAX_NAME_SIZE];
+		CChar m_script[MAX_NAME_SIZE];
+		CBool m_hasScript;
+
 		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(prefabName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&type, sizeof(CTriggerType), 1, filePtr);
+		fread(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fread(&m_hasScript, sizeof(CBool), 1, filePtr);
+
+		CChar trimmed_script[MAX_NAME_SIZE];
 
 		g_mainCharacter->SetName(name);
 		g_mainCharacter->SetPackageName(packageName);
@@ -14944,6 +15181,16 @@ CBool CMain::Load(CChar* pathName)
 		g_instancePrefab.push_back(new_instance_prefab);
 		Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 		InsertPrefab(new_prefab);
+
+		CChar* scriptAfterPath = GetAfterPath(m_script);
+		sprintf(trimmed_script, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Character/", scriptAfterPath);
+
+		g_mainCharacter->SetScriptPath(trimmed_script);
+		g_mainCharacter->SetHasScript(m_hasScript);
+
+		if(m_hasScript)
+			g_mainCharacter->LoadLuaFile();
+
 		new_instance_prefab->SetHasScript(new_prefab->GetHasScript());
 		new_instance_prefab->SetScript(new_prefab->GetScript());
 		new_instance_prefab->LoadLuaFile();
@@ -15256,6 +15503,9 @@ CBool CMain::Load(CChar* pathName)
 
 	if (g_VSceneScript)
 		g_VSceneScript->InitScript();
+
+	if (g_mainCharacter)
+		g_mainCharacter->InitScript();
 
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	//{
@@ -16418,7 +16668,6 @@ CVoid CMain::RenderTerrain(CBool useFBO)
 
 		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
 		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
-		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
 		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
 	}
 	else
@@ -16859,7 +17108,9 @@ CVoid CMain::DrawGUI()
 				m_numVerts = g_numVerts;
 				m_fps = fps;
 			}
-			
+						
+			GetCursorPos(&m_point);
+
 			sprintf(temp, "FPS : %i", m_fps);
 			g_font->Print("---Statistics---", 10.0f, 990.0, 0.0f, 0.85f, 0.67f, 0.0f);
 			g_font->Print(temp, 10.0f, 960.0, 0.0f, 0.85f, 0.67f, 0.0f);
@@ -16979,7 +17230,7 @@ CVoid CMain::DrawGUI()
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glViewport(0, 0, g_width, g_height);
+		glViewport(0, g_main->GetPadding(), g_width, g_height);
 		g_render.ProjectionMatrix();
 		g_render.PushMatrix();
 		g_render.IdentityMatrix();
@@ -18088,4 +18339,21 @@ CBool CMain::IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane)
 		return CTrue;
 	else
 		return CFalse;
+}
+
+CVoid CMain::GetMouseMovement()
+{
+	GetCursorPos(&m_point);
+
+	m_dx = m_point.x - m_prev_dx;
+	m_dy = m_point.y - m_prev_dy;
+
+	//reset cursor position
+	m_point.x = g_width / 2;
+	m_point.y = (g_height / 2) + m_padding;
+
+	SetCursorPos(m_point.x, m_point.y);
+
+	m_prev_dx = m_point.x;
+	m_prev_dy = m_point.y;
 }

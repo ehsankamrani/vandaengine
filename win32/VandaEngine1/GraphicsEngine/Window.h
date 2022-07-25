@@ -31,17 +31,20 @@ typedef struct {									// Contains Information Vital To A Window
 class CWindow
 {
 private:
-	BOOL ChangeScreenResolution (int width, int height, int bitsPerPixel);
 	bool InitMultisample(HINSTANCE hInstance,HWND hWnd,PIXELFORMATDESCRIPTOR pfd);
 	int arbMultisampleFormat;
+	CInt m_padding;
 
 public:
 	int m_numSamples;  //number of samples when we use multisampling   
 	CWindowGL m_windowGL;
 	CWindow();
 	~CWindow();
+	BOOL ChangeScreenResolution(int width, int height, int bitsPerPixel);
 	void ReshapeGL(int width, int height);									// Reshape The Window When It's Moved Or Resized
     BOOL CreateWindowGL (CWindowGL* window);									// This Code Creates Our OpenGL Window
     BOOL DestroyWindowGL(CWindowGL* window);			                        // This Code Destroys Our OpenGL Window
+	CInt GetPadding() { return m_padding; }
+	CVoid SetPadding(CInt padding) { m_padding = padding; }
 };
 

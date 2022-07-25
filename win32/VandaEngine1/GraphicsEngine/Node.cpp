@@ -608,7 +608,7 @@ CVoid CNode::RenderModelsControlledByPhysX(CBool sceneManager, CNode* sceneRoot 
 {
 	for(CUInt i=0; i< m_instanceGeometries.size(); i++)
 	{
-		if(m_instanceGeometries[i]->m_isInvisible ) //we don't render geometries marked as invisible
+		if(m_instanceGeometries[i]->m_isInvisible) //we don't render geometries marked as invisible
 			continue;
 
 		CGeometry * geometry = m_instanceGeometries[i]->m_abstractGeometry;
@@ -744,7 +744,7 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 	{
 		for (CUInt i = 0; i < m_instanceControllers.size(); i++)
 		{
-			if (m_instanceControllers[i]->m_instanceGeometry->m_isTrigger || m_instanceControllers[i]->m_instanceGeometry->m_isInvisible) //we don't render triggers in Win32
+			if (m_instanceControllers[i]->m_instanceGeometry->m_isInvisible)
 				continue;
 
 			CGeometry * geometry = m_instanceControllers[i]->m_instanceGeometry->m_abstractGeometry;
@@ -1080,7 +1080,6 @@ CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 		glUseProgram(g_shaderType);
 		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
 		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_main->far_bound);
-		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_main->m_dynamicShadowMap->depth_size, 1.0f / (float)g_main->m_dynamicShadowMap->depth_size);
 		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
 
 		CInt num_point_lights = 0;

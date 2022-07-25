@@ -1332,6 +1332,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			//Trigger Objects in VScene Mode
 			if (g_editorMode == eMODE_VSCENE)
 			{
+				if (g_mainCharacter)
+					g_mainCharacter->OnTriggerEnterScript(otherName);
+
 				for (CUInt i = 0; i < g_triggers.size(); i++)
 				{
 					if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
@@ -1414,6 +1417,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			//Trigger Objects in VScene Mode
 			if (g_editorMode == eMODE_VSCENE)
 			{
+				if (g_mainCharacter)
+					g_mainCharacter->OnTriggerExitScript(otherName);
+
 				for (CUInt i = 0; i < g_triggers.size(); i++)
 				{
 					if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
@@ -1501,6 +1507,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 				//Trigger Objects in VScene Mode
 				if (g_editorMode == eMODE_VSCENE)
 				{
+					if(g_mainCharacter)
+						g_mainCharacter->OnTriggerStayScript(otherName);
+
 					for (CUInt i = 0; i < g_triggers.size(); i++)
 					{
 						if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))

@@ -127,13 +127,13 @@ CVoid CGUIButton::Render(CBool selectionMode)
 {
 	if (!m_visible) return;
 
-	CFloat w;
+	CFloat h;
 	if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
-		w = m_scale * m_size * g_width / 100.0f;
+		h = m_scale * m_size * g_height / 100.0f;
 	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
-		w = m_scale * m_size * g_width / 200.0f;
+		h = m_scale * m_size * g_height / 200.0f;
 
-	CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
+	CFloat w = h * ( m_mainImage->GetWidth() / m_mainImage->GetHeight() );
 
 	if (selectionMode)
 	{
@@ -306,8 +306,8 @@ CVec2f CGUIButton::SetPosition(CVec2f pos)
 {
 	if (m_mainImage)
 	{
-		CFloat w = m_scale * m_size * g_width / 100.0f;
-		CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
+		CFloat h = m_scale * m_size * g_height / 100.0f;
+		CFloat w = h * ( m_mainImage->GetWidth() / m_mainImage->GetHeight() );
 
 		m_position.x = pos.x;
 		if (m_position.x < 0.0)
@@ -333,8 +333,8 @@ CVoid CGUIButton::SetPosition2(CVec2f pos)
 {
 	if (m_mainImage)
 	{
-		CFloat w = m_scale * m_size * g_width / 100.0f;
-		CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
+		CFloat h = m_scale * m_size * g_height / 100.0f;
+		CFloat w = h * ( m_mainImage->GetWidth() / m_mainImage->GetHeight() );
 
 		m_position.x += pos.x;
 		if (m_position.x < 0.0)

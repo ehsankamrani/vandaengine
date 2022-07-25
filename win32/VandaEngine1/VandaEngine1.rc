@@ -75,12 +75,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.8.8"
+            VALUE "FileVersion", "1.8.9"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2022 Vanda Engine.  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.8.8"
+            VALUE "ProductVersion", "1.8.9"
         END
     END
     BLOCK "VarFileInfo"
@@ -101,7 +101,7 @@ CAPTION "About"
 FONT 8, "System"
 BEGIN
     ICON            107,IDC_MYICON,14,9,16,16
-    LTEXT           "VandaEngine Version 1.8.8",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.8.9",IDC_STATIC,49,10,119,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2022",IDC_STATIC,49,20,119,8
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
 END
@@ -143,7 +143,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_VANDAENGINE         ICON                    "VandaEngine.ico"
+
 IDI_SMALL               ICON                    "small.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -182,7 +184,7 @@ BEGIN
     CONTROL         IDB_LOGO,IDC_STATIC_LOGO,"Static",SS_BITMAP | SS_CENTERIMAGE,8,7,272,148,WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE
     GROUPBOX        "Multisampling",IDC_STATIC,113,170,169,29
     GROUPBOX        "Resolution",IDC_STATIC,8,170,93,119
-    CONTROL         "Disable VSync",IDC_DVSYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,245,65,11
+    CONTROL         "Disable VSync",IDC_DVSYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,243,65,11
     CONTROL         "No",IDC_MSAMPLE_NO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,122,183,20,8
     CONTROL         "2",IDC_MSAMPLE_2,"Button",BS_AUTORADIOBUTTON,155,183,20,8
     CONTROL         "4",IDC_MSAMPLE_4,"Button",BS_AUTORADIOBUTTON,186,183,21,8
@@ -202,9 +204,10 @@ BEGIN
     CONTROL         "800 x 600",IDC_RES_800,"Button",BS_AUTORADIOBUTTON,16,193,70,8
     CONTROL         "FBO",IDC_FBO,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,223,160,28,11
     CONTROL         "VBO",IDC_VBO,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,254,160,25,11
-    CONTROL         "Water Reflection",IDC_WATER_REFLECTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,264,72,11
+    CONTROL         "Water Reflection",IDC_WATER_REFLECTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,202,245,72,11
     CONTROL         "3840 x 2160 (UHD)",IDC_RES_3840,"Button",BS_AUTORADIOBUTTON,16,259,77,8
     CONTROL         "7680 × 4320 (FUHD)",IDC_RES_7680,"Button",BS_AUTORADIOBUTTON,16,273,81,8
+    CONTROL         "Full Screen",IDC_FULLSCREEN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,114,262,72,11
 END
 
 
@@ -241,6 +244,7 @@ END
 //
 
 IDB_LOGO                BITMAP                  "Logo_Init.bmp"
+
 #endif    // Persian (fa-IR) resources
 /////////////////////////////////////////////////////////////////////////////
 

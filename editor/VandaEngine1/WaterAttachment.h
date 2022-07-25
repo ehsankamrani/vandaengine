@@ -35,4 +35,5 @@ public:
 	afx_msg void OnBnClickedDetach();
 public:
 	virtual INT_PTR DoModal();
+	afx_msg void OnDestroy();
 };

@@ -1468,7 +1468,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.8"));
+	SetWindowText(_T("Vanda Engine 1.8.9"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3036,7 +3036,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3097,7 +3097,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.8 initialized successfully" );
+		PrintInfo( "\nVersion 1.8.9 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3286,7 +3286,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3372,7 +3372,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.8 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.9 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3446,7 +3446,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.8 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.8.9 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -6922,6 +6922,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnGUIButton.ShowWindow(SW_HIDE);
 		m_mainBtnGUIImage.ShowWindow(SW_HIDE);
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
+		m_mainBtnGUIEditor.ShowWindow(SW_HIDE);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
 		m_btnSceneProperties.ShowWindow(SW_HIDE);
@@ -7198,6 +7199,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnGUIButton.ShowWindow(SW_HIDE);
 		m_mainBtnGUIImage.ShowWindow(SW_HIDE);
 		m_mainBtnGUIText.ShowWindow(SW_HIDE);
+		m_mainBtnGUIEditor.ShowWindow(SW_SHOW);
 
 		m_listBoxScenes.ShowWindow(SW_SHOW);
 		m_btnSceneProperties.ShowWindow(SW_SHOW);
@@ -7598,7 +7600,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.8 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.9 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8031,7 +8033,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8040,7 +8042,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.8 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.8.9 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -9869,7 +9871,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10712,7 +10714,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10839,6 +10841,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar mainCharacterSoundPath[MAX_NAME_SIZE];
 		sprintf(mainCharacterSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
 
+		CChar mainCharacterScriptPath[MAX_NAME_SIZE];
+		sprintf(mainCharacterScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
+
 		CChar staticSoundPath[MAX_NAME_SIZE];
 		sprintf( staticSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Static/" );
 
@@ -10896,6 +10901,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar currentMainCharacterSoundPath[MAX_NAME_SIZE];
 		sprintf(currentMainCharacterSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/");
 
+		CChar currentMainCharacterScriptPath[MAX_NAME_SIZE];
+		sprintf(currentMainCharacterScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/");
+
 		CChar currentStaticSoundPath[MAX_NAME_SIZE];
 		sprintf( currentStaticSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Static/" );
 
@@ -10939,7 +10947,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory( ambientSoundPath );
 			RemoveAllFilesInDirectory(staticSoundPath);
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
-			RemoveAllFilesInDirectory(VSceneScriptPath);
+			//RemoveAllFilesInDirectory(mainCharacterScriptPath); //currently sound and script path are the same
+			RemoveAllFilesInDirectory(VSceneScriptPath); 
 			RemoveAllFilesInDirectory(skyPath);
 			RemoveAllFilesInDirectory(terrainPath);
 			RemoveAllFilesInDirectory(bannerPath);
@@ -10963,6 +10972,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory( ambientSoundPath );
 			CreateWindowsDirectory( staticSoundPath );
 			CreateWindowsDirectory(mainCharacterSoundPath);
+			//CreateWindowsDirectory(mainCharacterScriptPath); //currently script and sound path are the same
 			CreateWindowsDirectory(VSceneScriptPath);
 			CreateWindowsDirectory(skyPath);
 			CreateWindowsDirectory(terrainPath);
@@ -11192,6 +11202,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundWalkPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundRunPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundJumpPath(), mainCharacterSoundPath);
+					CopyOneFileToDstDirectory(g_mainCharacter->GetScriptPath(), mainCharacterScriptPath);
 
 				}
 				CChar* tempAfterPath = GetAfterPath(g_mainCharacter->GetSoundWalkPath());
@@ -11212,6 +11223,12 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				Append(newPathAndName3, tempAfterPath3);
 				g_mainCharacter->SetJumpSoundPath(newPathAndName3);
 
+				CChar* tempAfterPath4 = GetAfterPath(g_mainCharacter->GetScriptPath());
+				CChar newPathAndName4[MAX_NAME_SIZE];
+				Cpy(newPathAndName4, mainCharacterScriptPath);
+				Append(newPathAndName4, tempAfterPath4);
+				g_mainCharacter->SetScriptPath(newPathAndName4);
+				g_mainCharacter->SetUpdateScript(CFalse);
 			}
 
 			//waters
@@ -11243,6 +11260,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CopyAllFilesFromSrcToDstDirectory(currentAmbientSoundPath, ambientSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentStaticSoundPath, staticSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
+			//CopyAllFilesFromSrcToDstDirectory(currentMainCharacterScriptPath, mainCharacterScriptPath); //currently sound and script path are the same
 			CopyAllFilesFromSrcToDstDirectory(currentVSceneScriptPath, VSceneScriptPath);
 			CopyAllFilesFromSrcToDstDirectory(currentSkyPath, skyPath);
 			CopyAllFilesFromSrcToDstDirectory(currentTerrainPath, terrainPath);
@@ -11479,7 +11497,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundWalkPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundRunPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundJumpPath(), mainCharacterSoundPath);
-
+					CopyOneFileToDstDirectory(g_mainCharacter->GetScriptPath(), mainCharacterScriptPath);
 				}
 				CChar* tempAfterPath = GetAfterPath(g_mainCharacter->GetSoundWalkPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
@@ -11498,6 +11516,13 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				Cpy(newPathAndName3, mainCharacterSoundPath);
 				Append(newPathAndName3, tempAfterPath3);
 				g_mainCharacter->SetJumpSoundPath(newPathAndName3);
+
+				CChar* tempAfterPath4 = GetAfterPath(g_mainCharacter->GetScriptPath());
+				CChar newPathAndName4[MAX_NAME_SIZE];
+				Cpy(newPathAndName4, mainCharacterScriptPath);
+				Append(newPathAndName4, tempAfterPath4);
+				g_mainCharacter->SetScriptPath(newPathAndName4);
+				g_mainCharacter->SetUpdateScript(CFalse);
 
 				g_mainCharacter->IsInVSceneList(pureFileName, CTrue, CTrue);
 
@@ -11834,13 +11859,16 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		if (g_mainCharacter)
 		{
+			//note that sound and script path are the same
 			CChar mainCharacterSoundTempPath[MAX_NAME_SIZE];
 			sprintf(mainCharacterSoundTempPath, "%s%s", mainCharacterSoundPath, "*.*");
+			//
+
 			hFind = FindFirstFile(mainCharacterSoundTempPath, &data);
 			do
 			{
-				CChar soundTempPath[MAX_NAME_SIZE];
-				sprintf(soundTempPath, "%s%s", mainCharacterSoundPath, data.cFileName);
+				CChar tempPath[MAX_NAME_SIZE];
+				sprintf(tempPath, "%s%s", mainCharacterSoundPath, data.cFileName);
 
 				CBool foundTarget = CFalse;
 				if (Cmp(GetAfterPath(g_mainCharacter->GetSoundWalkPath()), data.cFileName))
@@ -11856,10 +11884,15 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					foundTarget = CTrue;
 				}
 
+				if (Cmp(GetAfterPath(g_mainCharacter->GetScriptPath()), data.cFileName))
+				{
+					foundTarget = CTrue;
+				}
+
 				//Remove Files
 				if (!foundTarget)
 				{
-					if (!DeleteFile(soundTempPath))
+					if (!DeleteFile(tempPath))
 					{
 						//CChar temp[MAX_NAME_SIZE];
 						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
@@ -11872,6 +11905,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		else
 		{
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
+			//RemoveAllFilesInDirectory(mainCharacterScriptPath); //sound and script path are the same
 		}
 
 		//Delete removed water textures
@@ -12320,12 +12354,17 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CVec4f rotation = g_mainCharacter->GetInstancePrefab()->GetRotate();
 			CVec3f scaling = g_mainCharacter->GetInstancePrefab()->GetScale();
 			CFloat delayIdle = g_mainCharacter->GetIdleDelayForRandomPlay();
+			CChar m_script[MAX_NAME_SIZE];
+			Cpy(m_script, g_mainCharacter->GetScriptPath());
+			CBool m_hasScript = g_mainCharacter->GetHasScript();
 
 			fwrite(g_mainCharacter->GetName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fwrite(g_mainCharacter->GetPackageName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fwrite(g_mainCharacter->GetPrefabName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fwrite(&type, sizeof(CTriggerType), 1, filePtr);
 
+			fwrite(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(&m_hasScript, sizeof(CBool), 1, filePtr);
 
 			//save instance data
 			CChar instance_name[MAX_NAME_SIZE];
@@ -12488,7 +12527,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13629,7 +13668,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15455,7 +15494,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.8 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17071,15 +17110,28 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CChar name[MAX_NAME_SIZE];
 				CChar packageName[MAX_NAME_SIZE];
 				CChar prefabName[MAX_NAME_SIZE];
+				CChar m_script[MAX_NAME_SIZE];
+				CBool m_hasScript;
+
 				fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(packageName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(prefabName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(&type, sizeof(CTriggerType), 1, filePtr);
 
+				fread(m_script, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+				fread(&m_hasScript, sizeof(CBool), 1, filePtr);
+
 				g_mainCharacter->SetName(name);
 				g_mainCharacter->SetPackageName(packageName);
 				g_mainCharacter->SetPrefabName(prefabName);
 				g_mainCharacter->SetCameraType(type);
+
+				CChar scriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(m_script);
+				sprintf(scriptPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/", tempScriptPath);
+
+				g_mainCharacter->SetScriptPath(scriptPath);
+				g_mainCharacter->SetHasScript(m_hasScript);
 
 				CChar instance_name[MAX_NAME_SIZE];
 				CVec3f translation;
@@ -17313,7 +17365,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -24049,6 +24101,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		if (g_VSceneScript)
 			g_VSceneScript->LoadLuaFile();
 
+		//Main Character Script
+		if (g_mainCharacter)
+			g_mainCharacter->LoadLuaFile();
+
 		//guis
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -24736,6 +24792,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		//Load VScene Script object
 		if (g_menu.m_insertVSceneScript)
 			g_VSceneScript->InitScript();
+
+		//Main character script
+		if (g_menu.m_insertCharacter)
+			g_mainCharacter->InitScript();
 	}
 
 	PrintInfo("\nPlay mode enabled");

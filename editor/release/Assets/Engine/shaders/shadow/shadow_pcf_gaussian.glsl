@@ -139,17 +139,6 @@ varying vec4 vPos;
 uniform sampler2DArrayShadow stex;
 uniform float shadow_intensity;
 
-const int nsamples = 8;
-uniform vec4 offsets[nsamples] = vec4[nsamples](
-				                  vec4(0.000000, 0.000000, 0.0, 0.0),
-								  vec4(0.079821, 0.165750, 0.0, 0.0),
-								  vec4(-0.331500, 0.159642, 0.0, 0.0),
-								  vec4(-0.239463, -0.497250, 0.0, 0.0),
-								  vec4(0.662999, -0.319284, 0.0, 0.0),
-								  vec4(0.399104, 0.828749, 0.0, 0.0),
-								  vec4(-0.994499, 0.478925, 0.0, 0.0),
-								  vec4(-0.558746, -1.160249, 0.0, 0.0) );
-
 float shadowCoef(float ndotl)
 {
 	int index;

@@ -38,6 +38,8 @@ CVoid CPolyGroup::EnableShader()
 {
 	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
+		CBool useShadowShader = CFalse;
+
 		if (g_materialChannels != eCHANNELS_ALL)//render layers in editor (View | Layers menu). this piece of code is not available in Win32 project
 		{
 			switch (g_materialChannels)
@@ -71,6 +73,8 @@ CVoid CPolyGroup::EnableShader()
 		}
 		else if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && !Cmp(g_shadowProperties.m_directionalLightName, "\n"))
 		{
+			useShadowShader = CTrue;
+
 			if (m_hasNormalMap)
 			{
 				switch (g_shadowProperties.m_shadowType)
@@ -144,11 +148,13 @@ CVoid CPolyGroup::EnableShader()
 			g_shaderType = g_render.m_shaderProgram;
 
 		glUseProgram(g_shaderType);
-		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
-		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_multipleView->far_bound);
-		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_multipleView->m_dynamicShadowMap->depth_size, 1.0f / (float)g_multipleView->m_dynamicShadowMap->depth_size);
-		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
-		glUniformMatrix4fv(glGetUniformLocation(g_shaderType, "camera_inverse_matrix"), 1, CFalse, g_multipleView->cam_inverse_modelview);
+
+		if (useShadowShader)
+		{
+			glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
+			glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_multipleView->far_bound);
+			glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
+		}
 
 		CInt num_point_lights = 0;
 		CInt num_spot_lights = 0;

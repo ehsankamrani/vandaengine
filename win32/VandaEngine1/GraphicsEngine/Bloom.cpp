@@ -69,7 +69,7 @@ void CBloom::CreateRuntimeTexture( int textureWidth, int textureHeight, int scen
 {
 	g_render.BindFBO(m_fboID);
 	glPushAttrib( GL_VIEWPORT_BIT | GL_ENABLE_BIT ); 
-	glViewport( 0, 0, textureWidth, textureHeight);
+	glViewport(0, 0, textureWidth, textureHeight);
 
 	glDisable(GL_DEPTH_TEST); 
 	glDisable( GL_LIGHTING );

@@ -83,34 +83,33 @@ CVoid CSkyDome::Destroy()
 
 CVoid CSkyDome::RenderDome()
 {
-	glUseProgram(g_render.m_skyProgram);
-	glUniform1f(glGetUniformLocation(g_render.m_skyProgram, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
-	glUniform1f(glGetUniformLocation(g_render.m_skyProgram, "focalRange"), g_multipleView->m_dof.m_focalRange);
-	CBool useFog;
-	if (!m_fog || g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
-		useFog = CFalse;
-	else
-		useFog = CTrue;
+	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+	{
+		glUseProgram(g_render.m_skyProgram);
+		glUniform1f(glGetUniformLocation(g_render.m_skyProgram, "focalDistance"), g_multipleView->m_dof.m_focalDistance);
+		glUniform1f(glGetUniformLocation(g_render.m_skyProgram, "focalRange"), g_multipleView->m_dof.m_focalRange);
+		CBool useFog;
+		if (!m_fog || g_polygonMode != ePOLYGON_FILL || (g_dofProperties.m_enable && g_dofProperties.m_debug) || (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL && g_shadowProperties.m_enable && g_render.UsingShadowShader()))
+			useFog = CFalse;
+		else
+			useFog = CTrue;
 
-	if (g_fogProperties.m_enable && useFog)
-		glUniform1i(glGetUniformLocation(g_render.m_skyProgram, "enableFog"), CTrue);
+		if (g_fogProperties.m_enable && useFog)
+			glUniform1i(glGetUniformLocation(g_render.m_skyProgram, "enableFog"), CTrue);
+		else
+			glUniform1i(glGetUniformLocation(g_render.m_skyProgram, "enableFog"), CFalse);
+	}
 	else
-		glUniform1i(glGetUniformLocation(g_render.m_skyProgram, "enableFog"), CFalse);
+	{
+		glUseProgram(0);
+	}
 
 	glMatrixMode( GL_MODELVIEW );
 	g_render.PushMatrix();
 	glTranslatef( m_position[0], m_position[1], m_position[2] );
 
-	glPushAttrib( GL_LIGHTING_BIT);
-	glDisable( GL_LIGHTING );
-	//glDisable(GL_DEPTH_TEST);
 	int i;
 	g_render.BindVBO(GL_ARRAY_BUFFER, 0 ); // Disable VBOs
-
-    //glColor3f(1,1,1);
-
-    //glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	if( g_polygonMode == ePOLYGON_FILL )
 	{
@@ -140,10 +139,6 @@ CVoid CSkyDome::RenderDome()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_TEXTURE_2D);
-
-	//glDisable(GL_BLEND);
-	//glEnable(GL_DEPTH_TEST);
-	glPopAttrib();
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();

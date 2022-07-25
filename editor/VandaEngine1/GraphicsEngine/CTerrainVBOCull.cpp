@@ -1005,10 +1005,12 @@ CVoid CTerrainVBOCull::DrawBoundingBox()
 			if (!g_camera->m_cameraManager->IsSphereInFrustum(chunkArray[x][z].center.x, chunkArray[x][z].center.y, chunkArray[x][z].center.z, chunkArray[x][z].radius))
 				continue;
 
-			glPushAttrib(GL_ENABLE_BIT);
 			glUseProgram(0);
-
+			glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
+			glDisable(GL_BLEND);
+			glDisable(GL_FOG);
 			glDisable(GL_LIGHTING);
+			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_MULTISAMPLE);
 			glLineWidth(0.5f);
 

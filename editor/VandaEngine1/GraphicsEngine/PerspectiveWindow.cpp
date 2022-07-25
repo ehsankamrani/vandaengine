@@ -10,8 +10,8 @@
 #include "render.h"
 #include "scene.h"
 #include "fog.h"
-#include "..\VandaEngine1.h"
-#include "..\VandaEngine1Dlg.h"
+#include "../VandaEngine1.h"
+#include "../VandaEngine1Dlg.h"
 #include "Animation.h"
 #include <thread>
 #include "imageLib.h"
@@ -9534,6 +9534,9 @@ CInt GetVSceneScriptStringVariable(lua_State* L)
 		return 0;
 	}
 
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
 	CChar luaToString[MAX_NAME_SIZE];
 	Cpy(luaToString, lua_tostring(L, 1));
 
@@ -9677,6 +9680,9 @@ CInt SetVSceneScriptBoolVariable(lua_State* L)
 		PrintInfo("\nPlease specify 2 argument for SetVSceneScriptBoolVariable()", COLOR_RED);
 		return 0;
 	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
 
 	CChar luaToString[MAX_NAME_SIZE];
 	Cpy(luaToString, lua_tostring(L, 1));
@@ -12352,6 +12358,243 @@ CInt SetTriggerScriptDoubleVariable(lua_State* L)
 
 	return 0;
 }
+
+CInt GetMainCharacterScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar* value = NULL;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptStringVariable(luaToString);
+	}
+	else
+	{
+		return 0;
+	}
+
+	lua_pushstring(L, value);
+
+	free(value);
+
+	return 1;
+}
+
+CInt GetMainCharacterScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool value;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptBoolVariable(luaToString);
+	}
+	lua_pushboolean(L, value);
+
+	return 1;
+}
+
+CInt GetMainCharacterScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptIntVariable(luaToString);
+	}
+	lua_pushinteger(L, value);
+
+	return 1;
+}
+
+CInt GetMainCharacterScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetMainCharacterScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	if (g_mainCharacter)
+	{
+		value = g_mainCharacter->GetScriptDoubleVariable(luaToString);
+	}
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt SetMainCharacterScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar value[MAX_URI_SIZE];
+	Cpy(value, lua_tostring(L, 2));
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptStringVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetMainCharacterScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool bValue;
+	CInt iValue;
+	iValue = lua_toboolean(L, 2);
+	if (iValue)
+		bValue = CTrue;
+	else
+		bValue = CFalse;
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptBoolVariable(luaToString, bValue);
+	}
+
+	return 0;
+}
+
+CInt SetMainCharacterScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	value = lua_tointeger(L, 2);
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptIntVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetMainCharacterScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetMainCharacterScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	value = lua_tonumber(L, 2);
+	if (g_mainCharacter)
+	{
+		g_mainCharacter->SetScriptDoubleVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
 
 CInt ShowGUIButton(lua_State* L)
 {
@@ -15670,6 +15913,7 @@ CMultipleWindows::CMultipleWindows()
 	m_forceDecreaseValue = 0.0f;
 	m_pushTransparentGeometry = CFalse;
 	m_renderArrow = CFalse;
+	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -16211,6 +16455,10 @@ CVoid CMultipleWindows::OnTimer(UINT_PTR nIDEvent)
 
 CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 {
+	GetCursorPos(&m_point);
+	m_dx = m_prev_dx = m_point.x;
+	m_dy = m_prev_dy = m_point.y;
+
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
@@ -18481,6 +18729,9 @@ CVoid CMultipleWindows::DrawPerspective()
 			}
 			if (g_VSceneScript)
 				g_VSceneScript->UpdateScript();
+
+			if (g_mainCharacter)
+				g_mainCharacter->UpdateScript();
 		}
 		else if (g_editorMode == eMODE_PREFAB)
 		{
@@ -19326,7 +19577,7 @@ CVoid CMultipleWindows::RenderWindow()
 {
 	if (g_clickedOpen)
 		return;
-	//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		DrawGUIMode();
@@ -19736,32 +19987,33 @@ CVoid CMultipleWindows::ProcessInputs()
 {
 	m_inputSystem->Update();
 
-	CInt dx, dy;
+	//CInt dx, dy;
 	if (m_lMouseDown || m_rMouseDown)
 	{
-		m_inputSystem->GetMouseMovement(dx, dy);
+		//m_inputSystem->GetMouseMovement(dx, dy);
+		GetMouseMovement();
 	}
 	//lower left viewport
 	if (g_camera->m_activateLowerRightCamera)
 	{
 		if (m_lMouseDown)
 		{
-			if (dx > 0)
-				g_camera->m_lowerRightMoveHorizantal += (CFloat)dx * g_camera->m_lowerRightZoom * 2.0f;
-			else if (dx < 0)
-				g_camera->m_lowerRightMoveHorizantal += (CFloat)dx * g_camera->m_lowerRightZoom * 2.0f;
+			if (m_dx > 0)
+				g_camera->m_lowerRightMoveHorizantal += (CFloat)m_dx * g_camera->m_lowerRightZoom * 2.0f;
+			else if (m_dx < 0)
+				g_camera->m_lowerRightMoveHorizantal += (CFloat)m_dx * g_camera->m_lowerRightZoom * 2.0f;
 
-			if (dy > 0)
-				g_camera->m_lowerRightMoveVertical += (CFloat)dy * g_camera->m_lowerRightZoom * 2.0f;
-			else if (dy < 0)
-				g_camera->m_lowerRightMoveVertical += (CFloat)dy * g_camera->m_lowerRightZoom * 2.0f;
+			if (m_dy > 0)
+				g_camera->m_lowerRightMoveVertical += (CFloat)m_dy * g_camera->m_lowerRightZoom * 2.0f;
+			else if (m_dy < 0)
+				g_camera->m_lowerRightMoveVertical += (CFloat)m_dy * g_camera->m_lowerRightZoom * 2.0f;
 		}
 		else if (m_rMouseDown) //zoom in and out
 		{
-			if (dy > 0 && g_camera->m_lowerRightZoom <  0.2f)
-				g_camera->m_lowerRightZoom += (CFloat)dy * g_camera->m_lowerRightZoom * 0.004f;
-			else if (dy < 0 && g_camera->m_lowerRightZoom > 0.001f)
-				g_camera->m_lowerRightZoom += (CFloat)dy * g_camera->m_lowerRightZoom * 0.004f;
+			if (m_dy > 0 && g_camera->m_lowerRightZoom <  0.2f)
+				g_camera->m_lowerRightZoom += (CFloat)m_dy * g_camera->m_lowerRightZoom * 0.002f;
+			else if (m_dy < 0 && g_camera->m_lowerRightZoom > 0.001f)
+				g_camera->m_lowerRightZoom += (CFloat)m_dy * g_camera->m_lowerRightZoom * 0.002f;
 		}
 	}
 	//upper left viewport
@@ -19769,22 +20021,22 @@ CVoid CMultipleWindows::ProcessInputs()
 	{
 		if (m_lMouseDown) //move horizontal or vertical
 		{
-			if (dx > 0)
-				g_camera->m_upperLeftMoveHorizantal -= (CFloat)dx * g_camera->m_upperLeftZoom * 2.0f;
-			else if (dx < 0)
-				g_camera->m_upperLeftMoveHorizantal -= (CFloat)dx * g_camera->m_upperLeftZoom * 2.0f;
+			if (m_dx > 0)
+				g_camera->m_upperLeftMoveHorizantal -= (CFloat)m_dx * g_camera->m_upperLeftZoom * 2.0f;
+			else if (m_dx < 0)
+				g_camera->m_upperLeftMoveHorizantal -= (CFloat)m_dx * g_camera->m_upperLeftZoom * 2.0f;
 
-			if (dy > 0)
-				g_camera->m_upperLeftMoveVertical += (CFloat)dy * g_camera->m_upperLeftZoom * 2.0f;
-			else if (dy < 0)
-				g_camera->m_upperLeftMoveVertical += (CFloat)dy * g_camera->m_upperLeftZoom * 2.0f;
+			if (m_dy > 0)
+				g_camera->m_upperLeftMoveVertical += (CFloat)m_dy * g_camera->m_upperLeftZoom * 2.0f;
+			else if (m_dy < 0)
+				g_camera->m_upperLeftMoveVertical += (CFloat)m_dy * g_camera->m_upperLeftZoom * 2.0f;
 		}
 		else if (m_rMouseDown) //zoom in and out
 		{
-			if (dy > 0 && g_camera->m_upperLeftZoom < 0.2f)
-				g_camera->m_upperLeftZoom += (CFloat)dy * g_camera->m_upperLeftZoom * 0.004f;
-			else if (dy < 0 && g_camera->m_upperLeftZoom > 0.001f)
-				g_camera->m_upperLeftZoom += (CFloat)dy * g_camera->m_upperLeftZoom * 0.004f;
+			if (m_dy > 0 && g_camera->m_upperLeftZoom < 0.2f)
+				g_camera->m_upperLeftZoom += (CFloat)m_dy * g_camera->m_upperLeftZoom * 0.002f;
+			else if (m_dy < 0 && g_camera->m_upperLeftZoom > 0.001f)
+				g_camera->m_upperLeftZoom += (CFloat)m_dy * g_camera->m_upperLeftZoom * 0.002f;
 		}
 	}
 	//upper right viewport
@@ -19792,22 +20044,22 @@ CVoid CMultipleWindows::ProcessInputs()
 	{
 		if (m_lMouseDown)
 		{
-			if (dx > 0)
-				g_camera->m_upperRightMoveHorizantal += (CFloat)dx * g_camera->m_upperRightZoom * 2.0f;
-			else if (dx < 0)
-				g_camera->m_upperRightMoveHorizantal += (CFloat)dx * g_camera->m_upperRightZoom * 2.0f;
+			if (m_dx > 0)
+				g_camera->m_upperRightMoveHorizantal += (CFloat)m_dx * g_camera->m_upperRightZoom * 2.0f;
+			else if (m_dx < 0)
+				g_camera->m_upperRightMoveHorizantal += (CFloat)m_dx * g_camera->m_upperRightZoom * 2.0f;
 
-			if (dy > 0)
-				g_camera->m_upperRightMoveVertical += (CFloat)dy * g_camera->m_upperRightZoom * 2.0f;
-			else if (dy < 0)
-				g_camera->m_upperRightMoveVertical += (CFloat)dy * g_camera->m_upperRightZoom * 2.0f;
+			if (m_dy > 0)
+				g_camera->m_upperRightMoveVertical += (CFloat)m_dy * g_camera->m_upperRightZoom * 2.0f;
+			else if (m_dy < 0)
+				g_camera->m_upperRightMoveVertical += (CFloat)m_dy * g_camera->m_upperRightZoom * 2.0f;
 		}
 		else if (m_rMouseDown) //zoom in and out
 		{
-			if (dy > 0 && g_camera->m_upperRightZoom < 0.2f)
-				g_camera->m_upperRightZoom += (CFloat)dy * g_camera->m_upperRightZoom * 0.004f;
-			else if (dy < 0 && g_camera->m_upperRightZoom > 0.001f)
-				g_camera->m_upperRightZoom += (CFloat)dy * g_camera->m_upperRightZoom * 0.004f;
+			if (m_dy > 0 && g_camera->m_upperRightZoom < 0.2f)
+				g_camera->m_upperRightZoom += (CFloat)m_dy * g_camera->m_upperRightZoom * 0.002f;
+			else if (m_dy < 0 && g_camera->m_upperRightZoom > 0.001f)
+				g_camera->m_upperRightZoom += (CFloat)m_dy * g_camera->m_upperRightZoom * 0.002f;
 		}
 	}
 
@@ -20242,7 +20494,7 @@ CVoid CMultipleWindows::ProcessInputs()
 
 		if( m_lMouseDown || m_rMouseDown )
 		{
-			if (dx != 0 || dy != 0)
+			if (m_dx != 0 || m_dy != 0)
 				m_calculateDistance = CTrue;
 
 			if( !m_selectObject )
@@ -20252,19 +20504,19 @@ CVoid CMultipleWindows::ProcessInputs()
 				{
 					if( m_lMouseDown )
 					{
-						if( dx > 0 ) 
+						if( m_dx > 0 ) 
 						{
-							g_camera->m_perspectiveCameraYaw -= (CFloat)dx * 0.004f;
+							g_camera->m_perspectiveCameraYaw -= (CFloat)m_dx * 0.002f;
 							m_tempMovement = CTrue;
 						}
-						else if( dx < 0 )
+						else if( m_dx < 0 )
 						{
-							g_camera->m_perspectiveCameraYaw -= (CFloat)dx * 0.004f;
+							g_camera->m_perspectiveCameraYaw -= (CFloat)m_dx * 0.002f;
 							m_tempMovement = CTrue;
 						}
-						if( dy > 0 ) 
+						if(m_dy > 0 )
 						{
-							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
+							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)m_dy * 0.002f;
 							if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
 								g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMaxTilt;
 							else if (g_camera->m_perspectiveCurrentCameraTilt < g_camera->m_perspectiveCameraMinTilt)
@@ -20272,9 +20524,9 @@ CVoid CMultipleWindows::ProcessInputs()
 							m_tempMovement = CTrue;
 
 						}
-						else if( dy < 0 )
+						else if(m_dy < 0 )
 						{
-							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)dy * 0.004f;
+							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)m_dy * 0.002f;
 							if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
 								g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraMaxTilt;
 							else if (g_camera->m_perspectiveCurrentCameraTilt < g_camera->m_perspectiveCameraMinTilt)
@@ -20284,9 +20536,9 @@ CVoid CMultipleWindows::ProcessInputs()
 					}
 					//else if( m_rMouseDown )
 					//{  
-					//	if( dy > 0 ) 
+					//	if( m_dy > 0 ) 
 					//		g_camera->m_cameraManager->SetZoomOut( elapsedTime * 50.0f );
-					//	else if( dy < 0 )
+					//	else if( m_dy < 0 )
 					//		g_camera->m_cameraManager->SetZoomIn( elapsedTime * 50.0f );
 					//}
 				}
@@ -20387,7 +20639,7 @@ CVoid CMultipleWindows::ProcessInputs()
 		}
 		if( m_lMouseDown || m_rMouseDown )
 		{
-			if (dx != 0 || dy != 0)
+			if (m_dx != 0 || m_dy != 0)
 				m_calculateDistance = CTrue;
 
 
@@ -20398,15 +20650,15 @@ CVoid CMultipleWindows::ProcessInputs()
 				{
 					if( m_lMouseDown )
 					{
-						g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)dx * 0.2f, -(CFloat)dy * 0.2f );
-						if( dx != 0 || dy != 0 )
+						g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f );
+						if(m_dx != 0 || m_dy != 0 )
 							m_tempMovement = CTrue;
 					}
 					else if( m_rMouseDown )
 					{  
-						if (dy > 0)
+						if (m_dy > 0)
 							g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomOut(elapsedTime * 50.0f);
-						else if (dy < 0)
+						else if (m_dy < 0)
 							g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomIn(elapsedTime * 50.0f);
 
 					}
@@ -20511,7 +20763,7 @@ CVoid CMultipleWindows::ProcessInputs()
 			}
 			if (m_lMouseDown || m_rMouseDown)
 			{
-				if (dx != 0 || dy != 0)
+				if (m_dx != 0 || m_dy != 0)
 					m_calculateDistance = CTrue;
 
 
@@ -20522,15 +20774,15 @@ CVoid CMultipleWindows::ProcessInputs()
 					{
 						if (m_lMouseDown)
 						{
-							instance_camera->SetPanAndTilt(-(CFloat)dx * 0.2f, -(CFloat)dy * 0.2f);
-							if (dx != 0 || dy != 0)
+							instance_camera->SetPanAndTilt(-(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f);
+							if (m_dx != 0 || m_dy != 0)
 								m_tempMovement = CTrue;
 						}
 						else if (m_rMouseDown)
 						{
-							if (dy > 0)
+							if (m_dy > 0)
 								instance_camera->m_abstractCamera->SetZoomOut(elapsedTime * 50.0f);
-							else if (dy < 0)
+							else if (m_dy < 0)
 								instance_camera->m_abstractCamera->SetZoomIn(elapsedTime * 50.0f);
 
 						}
@@ -22339,9 +22591,7 @@ CVoid CMultipleWindows::RenderTerrain(CBool useFBO)
 
 		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
 		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_multipleView->far_bound);
-		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_multipleView->m_dynamicShadowMap->depth_size, 1.0f / (float)g_multipleView->m_dynamicShadowMap->depth_size);
 		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
-		glUniformMatrix4fv(glGetUniformLocation(g_shaderType, "camera_inverse_matrix"), 1, CFalse, g_multipleView->cam_inverse_modelview);
 	}
 	else
 	{
@@ -24381,3 +24631,49 @@ CVoid CMultipleWindows::DrawLightIconArrows()
 	g_render.m_useShader = useShader;
 }
 
+CVoid CMultipleWindows::GetMouseMovement()
+{
+	POINT m_upperLeft;
+	m_upperLeft.x = 0; m_upperLeft.y = 0;
+	ClientToScreen(&m_upperLeft);
+
+	POINT m_lowerRight;
+	m_lowerRight.x = g_width, m_lowerRight.y = g_height;
+	ClientToScreen(&m_lowerRight);
+
+	GetCursorPos(&m_point);
+
+	m_dx = m_point.x - m_prev_dx;
+	m_dy = m_point.y - m_prev_dy;
+
+	//reset cursor position?
+	CBool resetMouse = CFalse;
+
+	if (m_point.x >= m_lowerRight.x) //width
+	{
+		m_point.x = m_upperLeft.x; //0
+		resetMouse = CTrue;
+	}
+	else if (m_point.x < m_upperLeft.x) //0
+	{
+		m_point.x = m_lowerRight.x; //width
+		resetMouse = CTrue;
+	}
+
+	if (m_point.y >= m_lowerRight.y) //height
+	{
+		m_point.y = m_upperLeft.y; //0
+		resetMouse = CTrue;
+	}
+	else if (m_point.y < m_upperLeft.y) //0
+	{
+		m_point.y = m_lowerRight.y; //height
+		resetMouse = CTrue;
+	}
+
+	if(resetMouse)
+		SetCursorPos(m_point.x, m_point.y);
+
+	m_prev_dx = m_point.x;
+	m_prev_dy = m_point.y;
+}

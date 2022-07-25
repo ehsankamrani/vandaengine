@@ -141,7 +141,7 @@ void CWater::CreateReflectionTexture(int textureSize)
 	if ( g_render.UsingFBOs() && g_options.m_enableFBO )
 		g_render.BindForWriting(m_fboID[WATER_REFLECTION_ID]);
 
-    glViewport(0,0, textureSize, textureSize);
+    glViewport(0, 0, textureSize, textureSize);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	g_render.PushMatrix();
@@ -249,7 +249,7 @@ void CWater::CreateRefractionDepthTexture(int textureSize)
 	// the world upside down.  We want to find the depth of the water,
 	// not the depth of the sky and above water terrain.
 	
-    glViewport(0,0, textureSize, textureSize);
+    glViewport(0, 0, textureSize, textureSize);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

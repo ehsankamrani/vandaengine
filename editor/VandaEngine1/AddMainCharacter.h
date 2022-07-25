@@ -113,4 +113,13 @@ public:
 	CVoid SetClickedWalkSound(CBool state);
 	CVoid SetClickedRunSound(CBool state);
 	CVoid SetClickedJumpSound(CBool state);
+	afx_msg void OnBnClickedBtnAddScript();
+	afx_msg void OnBnClickedBtnRemoveScript();
+	afx_msg void OnBnClickedButtonViewScript();
+	CRichEditCtrl m_editBoxScript;
+
+	private:
+		CBool m_scriptUpdated;
+		CString m_strScript;
+		CBool m_hasScript;
 };

@@ -213,6 +213,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetTriggerScriptIntVariable, "SetTriggerScriptIntVariable(string triggerName, string variable, int value)");
 	Cpy(SetTriggerScriptDoubleVariable, "SetTriggerScriptDoubleVariable(string triggerName, string variable, double value)");
 
+	Cpy(GetMainCharacterScriptStringVariable, "GetMainCharacterScriptStringVariable(string variable)");
+	Cpy(GetMainCharacterScriptBoolVariable, "GetMainCharacterScriptBoolVariable(string variable)");
+	Cpy(GetMainCharacterScriptIntVariable, "GetMainCharacterScriptIntVariable(string variable)");
+	Cpy(GetMainCharacterScriptDoubleVariable, "GetMainCharacterScriptDoubleVariable(string variable)");
+	Cpy(SetMainCharacterScriptStringVariable, "SetMainCharacterScriptStringVariable(string variable, string value )");
+	Cpy(SetMainCharacterScriptBoolVariable, "SetMainCharacterScriptBoolVariable(string variable, bool value)");
+	Cpy(SetMainCharacterScriptIntVariable, "SetMainCharacterScriptIntVariable(string variable, int value)");
+	Cpy(SetMainCharacterScriptDoubleVariable, "SetMainCharacterScriptDoubleVariable(string variable, double value)");
+
 	Cpy(ShowGUIButton, "ShowGUIButton(string GUIName, string buttonName)");
 	Cpy(HideGUIButton, "HideGUIButton(string GUIName, string buttonName)");
 	Cpy(ShowGUIImage, "ShowGUIImage(string GUIName, string imageName)");
@@ -982,6 +991,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetTriggerScriptDoubleVariable);
 		}
+		else if (Cmp(szBuffer, "GetMainCharacterScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMainCharacterScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetMainCharacterScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMainCharacterScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetMainCharacterScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMainCharacterScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetMainCharacterScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMainCharacterScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetMainCharacterScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMainCharacterScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetMainCharacterScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMainCharacterScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetMainCharacterScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMainCharacterScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetMainCharacterScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMainCharacterScriptDoubleVariable);
+		}
 		else if (Cmp(szBuffer, "ShowGUIButton"))
 		{
 			m_richFunctionName.SetWindowTextA(ShowGUIButton);
@@ -1291,6 +1332,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetTriggerScriptBoolVariable");
 	InsertItem("SetTriggerScriptIntVariable");
 	InsertItem("SetTriggerScriptDoubleVariable");
+
+	InsertItem("GetMainCharacterScriptStringVariable");
+	InsertItem("GetMainCharacterScriptBoolVariable");
+	InsertItem("GetMainCharacterScriptIntVariable");
+	InsertItem("GetMainCharacterScriptDoubleVariable");
+	InsertItem("SetMainCharacterScriptStringVariable");
+	InsertItem("SetMainCharacterScriptBoolVariable");
+	InsertItem("SetMainCharacterScriptIntVariable");
+	InsertItem("SetMainCharacterScriptDoubleVariable");
 
 	InsertItem("ShowGUIButton");
 	InsertItem("HideGUIButton");

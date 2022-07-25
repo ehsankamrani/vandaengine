@@ -4,6 +4,7 @@
 //
 #include "stdafx.h"
 #include "GUIImage.h"
+#include "../Main.h"
 
 CGUIImage::CGUIImage()
 {
@@ -36,8 +37,8 @@ CVoid CGUIImage::Render(CBool selectionMode)
 {
 	if (!m_visible) return;
 
-	CFloat w = m_scale * m_size * g_width / 100.0f;
-	CFloat h = (w / m_image->GetWidth()) * m_image->GetHeight();
+	CFloat h = m_scale * m_size * g_height / 100.0f;
+	CFloat w = h * (m_image->GetWidth() / m_image->GetHeight());
 
 	if (selectionMode)
 	{
@@ -65,7 +66,7 @@ CVoid CGUIImage::Render(CBool selectionMode)
 	glLoadIdentity();
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-	glViewport(0, 0, g_width, g_height);
+	glViewport(0, g_main->GetPadding(), g_width, g_height);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);

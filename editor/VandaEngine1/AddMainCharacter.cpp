@@ -14,6 +14,8 @@
 #include "MainCharacterProperties.h"
 #include "AddCharacterSound.h"
 #include "..\\GraphicsEngine\\PerspectiveWindow.h"
+#include "ViewScript.h"
+
 // CAddMainCharacter dialog
 
 IMPLEMENT_DYNAMIC(CAddMainCharacter, CDialog)
@@ -34,7 +36,8 @@ CAddMainCharacter::CAddMainCharacter(CWnd* pParent /*=NULL*/)
 	m_clickedWalkSound = CFalse;
 	m_clickedRunSound = CFalse;
 	m_clickedJumpSound = CFalse;
-
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddMainCharacter::~CAddMainCharacter()
@@ -55,6 +58,7 @@ void CAddMainCharacter::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_POS_Z, m_editPosZ);
 	DDX_Control(pDX, IDC_EDIT_POS_SCALE, m_editScale);
 	DDX_Control(pDX, IDC_EDIT_DELAY_PLAY_MORE_IDLES_RANDOMLY, m_editBoxPlayMoreIdlesEveryXSeconds);
+	DDX_Control(pDX, IDC_EDIT_CHARACTER_SCRIPT, m_editBoxScript);
 }
 
 
@@ -81,6 +85,9 @@ BEGIN_MESSAGE_MAP(CAddMainCharacter, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_POS_SCALE, &CAddMainCharacter::OnEnChangeEditPosScale)
 	ON_EN_CHANGE(IDC_EDIT_DELAY_PLAY_MORE_IDLES_RANDOMLY, &CAddMainCharacter::OnEnChangeEditDelayPlayMoreIdlesRandomly)
 	ON_BN_CLICKED(IDC_BUTTON_SOUNDS, &CAddMainCharacter::OnBnClickedButtonSounds)
+	ON_BN_CLICKED(IDC_BTN_ADD_SCRIPT, &CAddMainCharacter::OnBnClickedBtnAddScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_SCRIPT, &CAddMainCharacter::OnBnClickedBtnRemoveScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddMainCharacter::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -417,6 +424,14 @@ BOOL CAddMainCharacter::OnInitDialog()
 	m_camera->m_perspectiveCameraMinTilt = g_camera->m_perspectiveCameraMinTilt;
 	m_camera->m_perspectiveCameraMaxTilt = g_camera->m_perspectiveCameraMaxTilt;
 
+	if (g_mainCharacter->GetHasScript())
+	{
+		m_editBoxScript.SetWindowTextA(g_mainCharacter->GetScriptPath());
+		m_strScript = g_mainCharacter->GetScriptPath();
+		m_scriptUpdated = g_mainCharacter->GetUpdateScript();
+		m_hasScript = CTrue;
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -647,6 +662,18 @@ void CAddMainCharacter::OnBnClickedOk()
 	if (m_newCharacter || m_clickedJumpSound)
 		g_mainCharacter->SetJumpSound();
 
+
+	g_mainCharacter->SetHasScript(m_hasScript);
+	g_mainCharacter->SetUpdateScript(m_scriptUpdated);
+	if (m_hasScript)
+	{
+		g_mainCharacter->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+		m_strScript.ReleaseBuffer();
+	}
+	else
+	{
+		g_mainCharacter->SetScriptPath("\n");
+	}
 
 	NxExtendedVec3 pos;
 	pos.x = g_arrowPosition.x;
@@ -1336,4 +1363,66 @@ CVoid CAddMainCharacter::SetClickedJumpSound(CBool state)
 	m_clickedJumpSound = state;
 }
 
+void CAddMainCharacter::OnBnClickedBtnAddScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
 
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+void CAddMainCharacter::OnBnClickedBtnRemoveScript()
+{
+	if (!m_strScript.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+void CAddMainCharacter::OnBnClickedButtonViewScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
+}

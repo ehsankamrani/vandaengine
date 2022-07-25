@@ -1336,6 +1336,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 		if (!triggerActor || !hitActor || !hitName)
 			return;
 
+		if (g_mainCharacter)
+			g_mainCharacter->OnTriggerEnterScript(otherName);
+
 		//Trigger Objects in VScene Mode
 		for (CUInt i = 0; i < g_triggers.size(); i++)
 		{
@@ -1390,6 +1393,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 		hitName = (char *)triggerActor->getName();
 		if (!triggerActor || !hitActor || !hitName)
 			return;
+
+		if (g_mainCharacter)
+			g_mainCharacter->OnTriggerExitScript(otherName);
 
 		//Trigger Objects in VScene Mode
 		for (CUInt i = 0; i < g_triggers.size(); i++)
@@ -1450,6 +1456,9 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 		hitName = (char *)triggerActor->getName();
 		if (!triggerActor || !hitActor || !hitName)
 			return;
+
+		if (g_mainCharacter)
+			g_mainCharacter->OnTriggerStayScript(otherName);
 
 		//Trigger Objects in VScene Mode
 		for (CUInt i = 0; i < g_triggers.size(); i++)

@@ -120,8 +120,9 @@ CVoid CGUIButton::Render(CBool selectionMode)
 {
 	if (!m_visible) return;
 
-	CFloat w = m_scale * m_size * g_width / 100.0f;
-	CFloat h = (w / m_mainImage->GetWidth()) * m_mainImage->GetHeight();
+	CFloat h = m_scale * m_size * g_height / 100.0f;
+	CFloat w = h * (m_mainImage->GetWidth() / m_mainImage->GetHeight());
+
 
 	if (selectionMode)
 	{
@@ -152,7 +153,7 @@ CVoid CGUIButton::Render(CBool selectionMode)
 
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-	glViewport(0, 0, g_width, g_height);
+	glViewport(0, g_main->GetPadding(), g_width, g_height);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);

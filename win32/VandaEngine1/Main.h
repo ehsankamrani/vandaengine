@@ -174,6 +174,9 @@ public:
 	}
 	std::vector<CTransparentGeometry> m_transparentGeometries;
 
+	CVoid SetPadding(CInt padding) { m_padding = padding; }
+	CInt GetPadding() { return m_padding; }
+
 private:
 	CBool ProcessInputs();
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
@@ -184,6 +187,7 @@ private:
 	GLuint *m_guiPtr, m_guiMinZ, m_guiSelectedName, m_guiBuffer[MAX_NAME_SIZE];//gui selection
 private:
 	CBool m_showHelpInfo;
+	CBool m_showShadowMap;
 	CBool m_previousRightButtonDown;
 	CBool m_previousLeftButtonDown;
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
@@ -200,6 +204,7 @@ private:
 
 	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE], m_selectedPrefabName;//selection
 
+	CInt m_padding;
 public:
 	CBool m_lockInput;
 	CBool m_loadScene;
@@ -227,4 +232,10 @@ public:
 	CVoid RenderWaters();
 	CBool DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInstance, CWater* water);
 	CBool IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane);
+	CVoid GetMouseMovement();
+
+	//mouse movements
+	CInt m_dx, m_dy;
+	CInt m_prev_dx, m_prev_dy;
+	POINT m_point;
 };

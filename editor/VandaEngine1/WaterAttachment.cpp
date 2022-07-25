@@ -21,10 +21,6 @@ CWaterAttachment::CWaterAttachment(CWnd* pParent /*=NULL*/)
 
 CWaterAttachment::~CWaterAttachment()
 {
-	for (int nItem = m_listBoxWaterObjects.GetItemCount()-1; nItem >= 0 ;nItem-- )
-	{
-		m_listBoxWaterObjects.DeleteItem(nItem);
-	}
 }
 
 void CWaterAttachment::DoDataExchange(CDataExchange* pDX)
@@ -37,6 +33,7 @@ void CWaterAttachment::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CWaterAttachment, CDialog)
 	ON_BN_CLICKED(IDATTACH, &CWaterAttachment::OnBnClickedAttach)
 	ON_BN_CLICKED(IDDETACH, &CWaterAttachment::OnBnClickedDetach)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -229,4 +226,15 @@ INT_PTR CWaterAttachment::DoModal()
 	// unlock memory object
 	GlobalUnlock(dlt.m_hTemplate);
 	return nResult;
+}
+
+
+void CWaterAttachment::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	for (int nItem = m_listBoxWaterObjects.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listBoxWaterObjects.DeleteItem(nItem);
+	}
 }

@@ -226,6 +226,15 @@ private:
 	CChar SetTriggerScriptIntVariable[MAX_URI_SIZE];
 	CChar SetTriggerScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar GetMainCharacterScriptStringVariable[MAX_URI_SIZE];
+	CChar GetMainCharacterScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetMainCharacterScriptIntVariable[MAX_URI_SIZE];
+	CChar GetMainCharacterScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetMainCharacterScriptStringVariable[MAX_URI_SIZE];
+	CChar SetMainCharacterScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetMainCharacterScriptIntVariable[MAX_URI_SIZE];
+	CChar SetMainCharacterScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar ShowGUIButton[MAX_URI_SIZE];
 	CChar HideGUIButton[MAX_URI_SIZE];
 	CChar ShowGUIImage[MAX_URI_SIZE];

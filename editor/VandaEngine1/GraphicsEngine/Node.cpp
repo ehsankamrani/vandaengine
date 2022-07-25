@@ -681,9 +681,7 @@ CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 		glUseProgram(g_shaderType);
 		glUniform1i(glGetUniformLocation(g_shaderType, "stex"), 7); // depth-maps
 		glUniform4fv(glGetUniformLocation(g_shaderType, "far_d"), 1, g_multipleView->far_bound);
-		glUniform2f(glGetUniformLocation(g_shaderType, "texSize"), (float)g_multipleView->m_dynamicShadowMap->depth_size, 1.0f / (float)g_multipleView->m_dynamicShadowMap->depth_size);
 		glUniform1f(glGetUniformLocation(g_shaderType, "shadow_intensity"), g_shadowProperties.m_intensity);
-		glUniformMatrix4fv(glGetUniformLocation(g_shaderType, "camera_inverse_matrix"), 1, CFalse, g_multipleView->cam_inverse_modelview);
 
 		CInt num_point_lights = 0;
 		CInt num_spot_lights = 0;
@@ -1036,6 +1034,10 @@ CVoid CNode::RenderAnimatedModels( CBool sceneManager, CNode* sceneRoot, CBool r
 
 		for (CUInt i = 0; i < m_instanceControllers.size(); i++)
 		{
+			if (g_multipleView->IsPlayGameMode())
+				if (m_instanceControllers[i]->m_instanceGeometry->m_isInvisible)
+					continue;
+
 			CGeometry * geometry = m_instanceControllers[i]->m_instanceGeometry->m_abstractGeometry;
 			CController * controller = m_instanceControllers[i]->m_abstractController;
 			geometry->m_currentInstanceGeometry = m_instanceControllers[i]->m_instanceGeometry; //used for selection color

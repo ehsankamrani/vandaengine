@@ -98,7 +98,7 @@ public:
   CBool ButtonDown(CInt button) { return (m_state.rgbButtons[button] & 0x80) ? true : false; }
   CBool ButtonUp(CInt button) { return (m_state.rgbButtons[button] & 0x80) ? false : true; }
   CInt GetWheelMovement() { return m_state.lZ; }
-  CVoid GetMovement(CInt &dx, CInt &dy) { dx = m_state.lX; dy = m_state.lY; }
+  CVoid GetMovement(CInt &dx, CInt &dy) { dx = int(m_state.lX); dy = int(m_state.lY); }
 
   CBool Update();
 

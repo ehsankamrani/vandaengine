@@ -307,6 +307,15 @@ CInt SetTriggerScriptBoolVariable(lua_State* L);
 CInt SetTriggerScriptIntVariable(lua_State* L);
 CInt SetTriggerScriptDoubleVariable(lua_State* L);
 
+CInt GetMainCharacterScriptStringVariable(lua_State* L);
+CInt GetMainCharacterScriptBoolVariable(lua_State* L);
+CInt GetMainCharacterScriptIntVariable(lua_State* L);
+CInt GetMainCharacterScriptDoubleVariable(lua_State* L);
+CInt SetMainCharacterScriptStringVariable(lua_State* L);
+CInt SetMainCharacterScriptBoolVariable(lua_State* L);
+CInt SetMainCharacterScriptIntVariable(lua_State* L);
+CInt SetMainCharacterScriptDoubleVariable(lua_State* L);
+
 CInt ShowGUIButton(lua_State* L);
 CInt HideGUIButton(lua_State* L);
 CInt ShowGUIImage(lua_State* L);

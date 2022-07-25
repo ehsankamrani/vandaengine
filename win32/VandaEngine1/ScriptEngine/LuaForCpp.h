@@ -265,6 +265,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetTriggerScriptIntVariable", SetTriggerScriptIntVariable);
 	lua_register(L, "SetTriggerScriptDoubleVariable", SetTriggerScriptDoubleVariable);
 
+	lua_register(L, "GetMainCharacterScriptStringVariable", GetMainCharacterScriptStringVariable);
+	lua_register(L, "GetMainCharacterScriptBoolVariable", GetMainCharacterScriptBoolVariable);
+	lua_register(L, "GetMainCharacterScriptIntVariable", GetMainCharacterScriptIntVariable);
+	lua_register(L, "GetMainCharacterScriptDoubleVariable", GetMainCharacterScriptDoubleVariable);
+	lua_register(L, "SetMainCharacterScriptStringVariable", SetMainCharacterScriptStringVariable);
+	lua_register(L, "SetMainCharacterScriptBoolVariable", SetMainCharacterScriptBoolVariable);
+	lua_register(L, "SetMainCharacterScriptIntVariable", SetMainCharacterScriptIntVariable);
+	lua_register(L, "SetMainCharacterScriptDoubleVariable", SetMainCharacterScriptDoubleVariable);
+
 	lua_register(L, "ShowGUIButton", ShowGUIButton);
 	lua_register(L, "HideGUIButton", HideGUIButton);
 	lua_register(L, "ShowGUIImage", ShowGUIImage);

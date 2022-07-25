@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Icon.h"
 #include "VandaEngine1Win32.h"
+#include "Main.h"
 
 CIcon::CIcon()
 {
@@ -41,7 +42,7 @@ CVoid CIcon::Render(CVec2f pos)
 	glLoadIdentity();
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-	glViewport(0, 0, g_width, g_height);
+	glViewport(0, g_main->GetPadding(), g_width, g_height);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
