@@ -383,6 +383,7 @@
 #define IDD_DIALOG_SCRIPT_UTILITY_PREFABS 523
 #define IDB_BITMAP16                    524
 #define IDB_BITMAP_SCRIPT_UTILITY_WATER 524
+#define IDB_BITMAP_SCRIPT_UTILITY_AMBIENT_SOUND 527
 #define IDC_RICHEDIT21                  1001
 #define IDC_RICHEDIT22                  1002
 #define IDC_RICHEDIT23                  1003
@@ -1002,6 +1003,8 @@
 #define IDC_BTN_ADD_SCRIPT              1307
 #define IDC_BTN_REMOVE_SCRIPT           1308
 #define IDC_EDIT_CHARACTER_SCRIPT       1309
+#define IDC_COMBO_AMBIENT_SOUND_PLAY    1310
+#define IDC_COMBO_AMBIENT_SOUND_LOOP    1311
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1340,9 +1343,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        526
+#define _APS_NEXT_RESOURCE_VALUE        528
 #define _APS_NEXT_COMMAND_VALUE         33119
-#define _APS_NEXT_CONTROL_VALUE         1310
+#define _APS_NEXT_CONTROL_VALUE         1312
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

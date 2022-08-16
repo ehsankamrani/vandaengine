@@ -138,7 +138,7 @@ public:
 	ALfloat m_listenerVel[3];
 	// Orientation of the listener. (first 3 elements are "at", second 3 are "up")
 	ALfloat m_listenerOri[6];
-	CAmbientSound * m_ambientSound;
+
 	COpenALSystem* m_soundSystem;
 	CFloat elapsedTime;
 	CULong m_timerCounter; //To get FPS

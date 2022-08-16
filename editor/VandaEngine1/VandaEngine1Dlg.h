@@ -189,6 +189,7 @@ struct CVSceneObjectNames
 	std::vector<CInstancePrefabNames>m_instancePrefabNames; //Prefab Instances of this VScene
 	std::vector<CPrefabNames>m_prefabNames; //Prefab Instances of this VScene
 	std::vector<std::string> m_staticSoundsNames; //static sounds of this VScene
+	std::vector<std::string> m_ambientSoundsNames; //ambient sounds of this VScene
 	std::vector<std::string> m_importedCameraNames; //imported cameras in dae format of this VScene
 	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
 	std::vector<std::string> m_engineLightNames; //light names of this VScene
@@ -204,6 +205,7 @@ struct CVSceneObjectNames
 
 		m_prefabNames.clear();
 		m_staticSoundsNames.clear();
+		m_ambientSoundsNames.clear();
 		m_importedCameraNames.clear();
 		m_engineCameraNames.clear();
 		m_engineLightNames.clear();
@@ -499,8 +501,6 @@ struct CMenuVariables
 	CBool m_insertAndShowSky;
 	CBool m_insertAndShowTerrain;
 	CBool m_insertVSceneScript;
-	CBool m_insertAmbientSound;
-	CBool m_playAmbientSound;
 	CBool m_geometryBasedSelection;
 	CBool m_showStatistics;
 	CBool m_showCameraIcons;
@@ -528,8 +528,6 @@ struct CMenuVariables
 		m_insertAndShowSky = CFalse;
 		m_insertAndShowTerrain = CFalse;
 		m_insertVSceneScript = CFalse;
- 		m_insertAmbientSound = CFalse;
-		m_playAmbientSound = CFalse;
 		m_geometryBasedSelection = CTrue;
 
 		m_showStatistics = CFalse;
@@ -727,6 +725,7 @@ protected:
 	CToolTipCtrl* m_pToolTip;
 private:
 	std::vector<CStaticSound*>m_engineStaticSounds;
+	std::vector<CAmbientSound*>m_engineAmbientSounds;
 	std::vector<CInstancePrefab*> m_instancePrefab;
 	std::vector<CPrefab*> m_prefab;
 	CCurrentVSceneProperties m_currentVSceneProperties;
@@ -834,7 +833,7 @@ public:
 	CVoid ChangeEngineCameraProperties(CInstanceCamera* cam);
 	CVoid ChangeWaterProperties( CWater* water);
 	CVoid ChangeStaticSoundProperties(CStaticSound* staticSound);
-	CVoid ChangeAmbientSoundProperties();
+	CVoid ChangeAmbientSoundProperties(CAmbientSound* sound);
 	CVoid ChangeSkyDomeProperties();
 	CVoid ChangeTerrainProperties();
 	CVoid ChangeVSceneScriptProperties();
@@ -1198,6 +1197,7 @@ extern std::vector<CInstanceCamera*> g_importedCameraInstances;
 extern std::vector<CInstanceCamera*> g_engineCameraInstances;
 extern std::vector<CResourceFile*> g_resourceFiles;
 extern std::vector<CStaticSound*> g_engineStaticSounds;
+extern std::vector<CAmbientSound*> g_engineAmbientSounds;
 extern COpenALSystem* g_soundSystem;
 extern std::vector<std::string> g_engineObjectNames;
 extern std::vector<std::string> g_guiNames;

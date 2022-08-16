@@ -18,6 +18,7 @@ CAddAmbientSound::CAddAmbientSound(CWnd* pParent /*=NULL*/)
 {
 	m_create = CFalse;
 	m_editMode = CFalse;
+	m_loop = m_play = CTrue;
 }
 
 CAddAmbientSound::~CAddAmbientSound()
@@ -31,6 +32,8 @@ void CAddAmbientSound::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_AMBIENT_SOUND_NAME, m_editBoxAmbientSoundName);
 	DDX_Control(pDX, IDC_EDIT_AMBIENT_SOUND_PITCH, m_editBoxAmbientSoundPitch);
 	DDX_Control(pDX, IDC_EDIT_AMBIENT_SOUND_VOLUME, m_editBoxAmbientSoundVolume);
+	DDX_Control(pDX, IDC_COMBO_AMBIENT_SOUND_PLAY, m_comboAmbientSoundPlay);
+	DDX_Control(pDX, IDC_COMBO_AMBIENT_SOUND_LOOP, m_comboAmbientSoundLoop);
 }
 
 
@@ -39,6 +42,8 @@ BEGIN_MESSAGE_MAP(CAddAmbientSound, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_AMBIENT_SOUND_NAME, &CAddAmbientSound::OnEnChangeEditAmbientSoundName)
 	ON_EN_CHANGE(IDC_EDIT_AMBIENT_SOUND_PITCH, &CAddAmbientSound::OnEnChangeEditAmbientSoundPitch)
 	ON_EN_CHANGE(IDC_EDIT_AMBIENT_SOUND_VOLUME, &CAddAmbientSound::OnEnChangeEditAmbientSoundVolume)
+	ON_CBN_SELCHANGE(IDC_COMBO_AMBIENT_SOUND_LOOP, &CAddAmbientSound::OnCbnSelchangeComboAmbientSoundLoop)
+	ON_CBN_SELCHANGE(IDC_COMBO_AMBIENT_SOUND_PLAY, &CAddAmbientSound::OnCbnSelchangeComboAmbientSoundPlay)
 END_MESSAGE_MAP()
 
 
@@ -151,6 +156,24 @@ BOOL CAddAmbientSound::OnInitDialog()
 	m_editBoxAmbientSoundBuffer.SetWindowTextA( m_strAmbientSoundBuffer );
 	m_strAmbientSoundTempName = m_strAmbientSoundName;
 
+	m_comboAmbientSoundPlay.InsertString(0, "True");
+	m_comboAmbientSoundPlay.InsertString(1, "False");
+	if (m_play)
+		m_comboAmbientSoundPlay.SetCurSel(0);
+	else
+		m_comboAmbientSoundPlay.SetCurSel(1);
+
+	m_comboAmbientSoundPlay.UpdateWindow();
+
+	m_comboAmbientSoundLoop.InsertString(0, "True");
+	m_comboAmbientSoundLoop.InsertString(1, "False");
+	if (m_loop)
+		m_comboAmbientSoundLoop.SetCurSel(0);
+	else
+		m_comboAmbientSoundLoop.SetCurSel(1);
+
+	m_comboAmbientSoundLoop.UpdateWindow();
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 
@@ -172,4 +195,35 @@ INT_PTR CAddAmbientSound::DoModal()
 	// unlock memory object
 	GlobalUnlock(dlt.m_hTemplate);
 	return nResult;
+}
+
+
+void CAddAmbientSound::OnCbnSelchangeComboAmbientSoundLoop()
+{
+	CInt curSel = m_comboAmbientSoundLoop.GetCurSel();
+
+	switch (curSel)
+	{
+	case 0: //true;
+		m_loop = CTrue;
+		break;
+	case 1: //false;
+		m_loop = CFalse;
+		break;
+	}
+}
+
+
+void CAddAmbientSound::OnCbnSelchangeComboAmbientSoundPlay()
+{
+	CInt curSel = m_comboAmbientSoundPlay.GetCurSel();
+	switch (curSel)
+	{
+	case 0: //true;
+		m_play = CTrue;
+		break;
+	case 1: //false;
+		m_play = CFalse;
+		break;
+	}
 }

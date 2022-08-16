@@ -683,6 +683,7 @@
     <Image Include="Assets\Icon\Default\Default_vin.bmp" />
     <Image Include="Assets\Icon\Default\Default_vpf.bmp" />
     <Image Include="Assets\Icon\Default\Default_Water.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\ambientAudio.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\audio.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\camera.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\GUIButton.bmp" />

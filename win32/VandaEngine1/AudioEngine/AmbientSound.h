@@ -17,6 +17,9 @@ public:
 	CVoid SetPitch( CFloat pitch ) { m_pitch = pitch; }
 	CVoid SetSoundSource( COpenALSoundSource* source ) { m_source = source; }
 	CVoid SetSoundBuffer( COpenALSoundBuffer* buffer ) { m_buffer = buffer; }
+	CVoid SetLoop(CBool loop) { m_loop = loop; }
+	CVoid SetPlay(CBool play) { m_play = play; }
+
 	COpenALSoundSource* GetSoundSource() { return m_source; }
 	COpenALSoundBuffer* GetSoundBuffer() { return m_buffer; }
 
@@ -24,10 +27,15 @@ public:
 	CChar* GetPath(){ return m_path; }
 	CFloat GetVolume() { return m_volume; }
 	CFloat GetPitch() { return m_pitch; }
+	CBool GetLoop() { return m_loop; }
+	CBool GetPlay() { return m_play; }
+
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_path[MAX_NAME_SIZE];
 	CFloat m_pitch;
 	CFloat m_volume;
+	CBool m_loop, m_play;
+
 	COpenALSoundBuffer* m_buffer;
 	COpenALSoundSource* m_source;
 };

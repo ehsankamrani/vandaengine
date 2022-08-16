@@ -16,9 +16,9 @@ void main()
 
 #version 130
 
-out vec4 myVec40;
+out vec4 colorOut;
 
 void main()
 {
-	myVec40 = vec4(0.0);
+	colorOut = vec4(0.0);
 }

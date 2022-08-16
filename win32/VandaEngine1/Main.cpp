@@ -33,7 +33,6 @@ CInt PlaySoundLoop(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
-		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -49,6 +48,23 @@ CInt PlaySoundLoop(lua_State *L)
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engineAmbientSounds[i]->SetLoop(CTrue);
+				g_engineAmbientSounds[i]->SetPlay(CTrue);
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				break;
+			}
+		}
+
 	}
 	return 0; // number of return values
 }
@@ -63,7 +79,6 @@ CInt PlaySoundOnce(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
-		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -79,6 +94,23 @@ CInt PlaySoundOnce(lua_State *L)
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engineAmbientSounds[i]->SetLoop(CFalse);
+				g_engineAmbientSounds[i]->SetPlay(CTrue);
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				break;
+			}
+		}
+
 	}
 	return 0; // number of return values
 }
@@ -93,7 +125,6 @@ CInt PauseSound(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
-		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -107,6 +138,21 @@ CInt PauseSound(lua_State *L)
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->SetPlay(CFalse);
+				g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				break;
+			}
+		}
+
 	}
 	return 0; // number of return values
 }
@@ -120,7 +166,6 @@ CInt StopSound(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
-		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -134,6 +179,21 @@ CInt StopSound(lua_State *L)
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->SetPlay(CFalse);
+				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				break;
+			}
+		}
+
 	}
 	return 0; // number of return values
 }
@@ -1405,12 +1465,11 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 				}
 
 				//resume matched ambient sound
-				if (g_databaseVariables.m_insertAmbientSound)
+				for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
 				{
-					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_main->m_ambientSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_main->m_ambientSound->GetSoundSource()));
+					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_engineAmbientSounds[j]->GetName()))
+						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
 				}
-
 			}
 		}
 
@@ -1443,13 +1502,13 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 		}
 
 		//ambient sound
-		if (g_databaseVariables.m_insertAmbientSound)
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 		{
 			ALint state;
-			alGetSourcei(g_main->m_ambientSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
+			alGetSourcei(g_engineAmbientSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
 			if (state == AL_PLAYING)
 			{
-				g_main->m_tempAllPlayingSoundSources.push_back(g_main->m_ambientSound->GetName());
+				g_main->m_tempAllPlayingSoundSources.push_back(g_engineAmbientSounds[i]->GetName());
 			}
 		}
 
@@ -10708,7 +10767,6 @@ CBool CMain::Init()
 	g_soundSystem = m_soundSystem = CNew(COpenALSystem);
 	m_soundSystem->Init();
 
-	m_ambientSound = NULL;
 	alDistanceModel( AL_INVERSE_DISTANCE );
 
 	g_input.AcquireAll();
@@ -10889,11 +10947,19 @@ CVoid CMain::Release()
 	}
 	g_engineWaters.clear();
 
+	//delete 3d sounds
 	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
 		CDelete(g_engineStaticSounds[i]);
 	}
 	g_engineStaticSounds.clear();
+
+	//delete ambient sounds
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CDelete(g_engineAmbientSounds[i]);
+	}
+	g_engineAmbientSounds.clear();
 
 	//delete the static sound buffers
 	for( std::vector<COpenALSoundBuffer*>::iterator it = g_soundBuffers.begin(); it != g_soundBuffers.end(); it++ )
@@ -10927,7 +10993,6 @@ CVoid CMain::Release()
 		g_main->GetCursorIcon()->SetVisible(CFalse);
 
 	//Release Audio
-	CDelete( m_ambientSound );
 	CDelete(m_soundSystem );
 
 	g_input.Shutdown();
@@ -11264,9 +11329,10 @@ CBool CMain::Render()
 	m_soundSystem->SetListenerPosition( m_listenerPos );
 	//m_soundSystem->SetListenerVelocity( m_listenerVel );
 	m_soundSystem->SetListenerOrientation( m_listenerOri );
+
 	//set ambient sound
-	if(	g_databaseVariables.m_insertAmbientSound )
-		m_ambientSound->GetSoundSource()->SetSoundPosition( m_ambientSourcePos );
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		g_engineAmbientSounds[i]->GetSoundSource()->SetSoundPosition(m_ambientSourcePos);
 
 	g_render.m_useShader = CTrue;
 
@@ -11339,11 +11405,10 @@ CBool CMain::Render()
 		}
 
 		//ambient sound
-		if (g_databaseVariables.m_insertAmbientSound)
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 		{
-			g_soundSystem->PauseALSound(*(g_main->m_ambientSound->GetSoundSource()));
+			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 		}
-
 	}
 
 	//render sky
@@ -13150,12 +13215,20 @@ CBool CMain::Reset()
 	if( g_engineWaters.size() > 0 )
 		g_engineWaters.clear();
 
+	//delete 3d sounds
 	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
 		CDelete(g_engineStaticSounds[i]);
 	}
 	if (g_engineStaticSounds.size() > 0)
 		g_engineStaticSounds.clear();
+
+	//delete ambient sounds
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CDelete(g_engineAmbientSounds[i]);
+	}
+	g_engineAmbientSounds.clear();
 
 	//clear the scene
 	for (std::vector<CScene*>::iterator it = g_scene.begin(); it != g_scene.end(); it++)
@@ -13219,13 +13292,6 @@ CBool CMain::Reset()
 
 	CDelete(g_VSceneScript);
 
-	//delete ambient sound
-	if( g_main->m_ambientSound )
-	{
-		g_main->m_soundSystem->StopALSound( *(g_main->m_ambientSound->GetSoundSource()) );
-		alSourcei(g_main->m_ambientSound->GetSoundSource()->GetSource(), AL_BUFFER, AL_NONE); 
-		CDelete( g_main->m_ambientSound );			
-	}
 	//Reset name indexes which are used for selection
 	g_nameIndex = 1;
 
@@ -14866,6 +14932,8 @@ CBool CMain::Load(CChar* pathName)
 		g_engineCameraInstances.push_back(instance_camera);
 	}
 
+	alGetError(); //clear possible sound errors
+
 	//static sounds
 	CInt tempStaticSoundCount;
 	fread(&tempStaticSoundCount, sizeof(CInt), 1, filePtr);
@@ -14945,29 +15013,70 @@ CBool CMain::Load(CChar* pathName)
 		m_staticSound->SetSoundBuffer(m_staticSoundBuffer);
 		m_staticSound->SetIndex();
 		g_engineStaticSounds.push_back(m_staticSound);
-		if (play)
-			m_soundSystem->PlayALSound(*m_staticSoundSource);
-
 	}
 
 	//Ambient Sound
-	CBool insertAmbientSound = CFalse;
-	CChar strAmbientSoundName[MAX_NAME_SIZE];
-	CChar strAmbientSoundPath[MAX_NAME_SIZE];
-	CFloat volume, pitch;
-	fread(&insertAmbientSound, sizeof(CBool), 1, filePtr);
-
-	if (insertAmbientSound)
+	CUInt ambientSoundSize;
+	fread(&ambientSoundSize, sizeof(CUInt), 1, filePtr);
+	for (CUInt i = 0; i < ambientSoundSize; i++)
 	{
+		CChar strAmbientSoundName[MAX_NAME_SIZE];
+		CChar strAmbientSoundPath[MAX_NAME_SIZE];
+		CFloat volume, pitch;
+
 		fread(strAmbientSoundName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(strAmbientSoundPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&volume, sizeof(CFloat), 1, filePtr);
 		fread(&pitch, sizeof(CFloat), 1, filePtr);
+		fread(&play, sizeof(CBool), 1, filePtr);
+		fread(&loop, sizeof(CBool), 1, filePtr);
+
+		CChar AmbientSoundPath[MAX_NAME_SIZE];
+
+		CChar* AmbientSoundName = GetAfterPath(strAmbientSoundPath);
+		//Copy this to Win32 Project as well
+		sprintf(AmbientSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", AmbientSoundName);
+
+		CChar message[MAX_NAME_SIZE];
+		sprintf(message, "%s%s", "Loading ambient sound: ", strAmbientSoundName);
+		MSG msg;
+		HWND m_hwnd = NULL;
+		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
+		{
+			TranslateMessage(&msg);		// translate and dispatch to event queue
+			DispatchMessage(&msg);
+		}
+		ShowLoadingScene(message);
+
+		COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
+		COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
+
+		//Initialize ambient sound here
+		// Velocity of the source sound.
+		m_ambientSoundBuffer->LoadOggVorbisFromFile(AmbientSoundPath);
+		m_ambientSoundBuffer->SetName(strAmbientSoundPath);
+
+		m_ambientSoundSource->BindSoundBuffer(*m_ambientSoundBuffer);
+
+		m_ambientSoundSource->SetLooping(loop);
+		m_ambientSoundSource->SetPitch(pitch);
+		m_ambientSoundSource->SetVolume(volume);
+
+		CAmbientSound* ambientSound = CNew(CAmbientSound);
+		ambientSound->SetSoundSource(m_ambientSoundSource);
+		ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
+		ambientSound->SetName(strAmbientSoundName);
+		ambientSound->SetPath(AmbientSoundPath);
+		ambientSound->SetVolume(volume);
+		ambientSound->SetPitch(pitch);
+		ambientSound->SetLoop(loop);
+		ambientSound->SetPlay(play);
+
+		g_engineAmbientSounds.push_back(ambientSound);
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf( temp, "ambient sound '%s' loaded successfully\n", strAmbientSoundPath );
+		//PrintInfo2( temp );
 	}
-	CChar AmbientSoundPath[MAX_NAME_SIZE];
-	CChar* AmbientSoundName = GetAfterPath(strAmbientSoundPath);
-	//Copy this to Win32 Project as well
-	sprintf(AmbientSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", AmbientSoundName);
 
 	CPrefab* box = CNew(CPrefab);
 	CChar pr_name[MAX_NAME_SIZE];
@@ -15455,50 +15564,17 @@ CBool CMain::Load(CChar* pathName)
 		g_nx->m_groundBox = g_nx->CreateBox(NxVec3(0.0f, g_physXProperties.m_fGroundHeight - 0.5, 0.0f), NxVec3(100.0f, 0.01f, 100.0f), 0, rot, NULL, CFalse, CFalse, physicsMaterial);
 		g_nx->SetActorCollisionGroup(g_nx->m_groundBox, GROUP_GROUND);
 	}
-
-	//load the ambient sound if it exists
-	if (insertAmbientSound)
+	 
+	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
-		CChar message[MAX_NAME_SIZE];
-		sprintf(message, "%s%s", "Loading ambient sound: ", strAmbientSoundName);
-		MSG msg;
-		HWND m_hwnd = NULL;
-		while (PeekMessage(&msg, m_hwnd, NULL, NULL, PM_REMOVE))
-		{
-			TranslateMessage(&msg);		// translate and dispatch to event queue
-			DispatchMessage(&msg);
-		}
-		ShowLoadingScene(message);
+		if (g_engineStaticSounds[i]->GetPlay())
+			m_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
+	}
 
-		CDelete(m_ambientSound);
-		COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
-		COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
-
-		//Initialize ambient sound here
-		// Velocity of the source sound.
-		m_ambientSoundBuffer->LoadOggVorbisFromFile(AmbientSoundPath);
-		m_ambientSoundSource->BindSoundBuffer(*m_ambientSoundBuffer);
-
-		m_ambientSoundSource->SetLooping(true);
-		m_ambientSoundSource->SetPitch(pitch);
-		m_ambientSoundSource->SetVolume(volume);
-		m_soundSystem->PlayALSound(*m_ambientSoundSource);
-
-		m_ambientSound = CNew(CAmbientSound);
-		m_ambientSound->SetSoundSource(m_ambientSoundSource);
-		m_ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
-		m_ambientSound->SetName(strAmbientSoundName);
-		m_ambientSound->SetPath(AmbientSoundPath);
-		m_ambientSound->SetVolume(volume);
-		m_ambientSound->SetPitch(pitch);
-
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf( temp, "ambient sound '%s' loaded successfully\n", strAmbientSoundPath );
-		//PrintInfo2( temp );
-
-		g_databaseVariables.m_playAmbientSound = CTrue;
-		g_databaseVariables.m_insertAmbientSound = CTrue;
-
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetPlay())
+			m_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 	}
 
 	if (g_VSceneScript)
@@ -18172,11 +18248,34 @@ CVoid CMain::UpdateCharacterTransformations()
 	CScene* scene = NULL;
 
 	CPrefab* prefab = g_mainCharacter->GetInstancePrefab()->GetPrefab();
-	for (CUInt j = 0; j < 3; j++)
+
+	if (g_mainCharacter->GetInstancePrefab()->GetHasCollider())
+	{
+		CScene* scene = g_mainCharacter->GetInstancePrefab()->GetScene(3);
+		if (scene && scene->m_isTransformable)
+		{
+			if (scene->m_controllers.size() == 0)
+			{
+				scene->m_sceneRoot->SetLocalMatrix(g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix());
+				scene->m_update = CTrue;
+			}
+		}
+	}
+
+	for (CUInt j = 0; j < 4; j++)
 	{
 		CBool update = CFalse;
-		if (prefab && prefab->GetHasLod(j))
-			update = CTrue;
+
+		if (j < 3)
+		{
+			if (prefab && prefab->GetHasLod(j))
+				update = CTrue;
+		}
+		else
+		{
+			if (g_mainCharacter->GetInstancePrefab()->GetHasCollider())
+				update = CTrue;
+		}
 
 		if (update)
 		{

@@ -1099,7 +1099,7 @@ CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 			//I support up to 1 directional light, up to 4 point lights, and up to 3 spot lights for each object
 			for (CUInt i = 0; i < g_currentInstancePrefab->GetTotalLights(); i++)
 			{
-				CInstanceLight *instanceLight = g_currentInstancePrefab->m_lights[i];
+				CInstanceLight *instanceLight = g_currentInstancePrefab->GetActiveLight(i);
 				g_currentInstanceLight = instanceLight;
 
 				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)

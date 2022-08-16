@@ -73,6 +73,9 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_STATIC_SOUND);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
+	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_AMBIENT_SOUND);
+	m_engineObjectListImage.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
 	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_CAMERA);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
@@ -133,6 +136,29 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 							m_richGameObjectName.SetSel(0, end);
 						}
 					}
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[vs].m_ambientSoundsNames.size(); j++)
+					{
+						gameObjectIndex++;
+						int index = gameObjectIndex;
+						LVITEM lvItem;
+						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+						lvItem.iItem = index;
+						lvItem.iSubItem = 0;
+						lvItem.iImage = 1; //ambient sound
+						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_ambientSoundsNames[j].c_str();
+						m_listGameObjectNames.InsertItem(&lvItem);
+						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
+
+						m_listGameObjectNames.EnsureVisible(index, FALSE);
+						m_listGameObjectNames.UpdateWindow();
+
+						if (gameObjectIndex == 0)
+						{
+							m_richGameObjectName.SetWindowTextA(lvItem.pszText);
+							CInt end = m_richGameObjectName.GetWindowTextLengthA();
+							m_richGameObjectName.SetSel(0, end);
+						}
+					}
 					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[vs].m_engineCameraNames.size(); j++)
 					{
 						gameObjectIndex++;
@@ -141,7 +167,7 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 						lvItem.iItem = index;
 						lvItem.iSubItem = 0;
-						lvItem.iImage = 1; //camera
+						lvItem.iImage = 2; //camera
 						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_engineCameraNames[j].c_str();
 						m_listGameObjectNames.InsertItem(&lvItem);
 						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
@@ -165,7 +191,7 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 						lvItem.iItem = index;
 						lvItem.iSubItem = 0;
-						lvItem.iImage = 2; //light
+						lvItem.iImage = 3; //light
 						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_engineLightNames[j].c_str();
 						m_listGameObjectNames.InsertItem(&lvItem);
 						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
@@ -189,7 +215,7 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 						lvItem.iItem = index;
 						lvItem.iSubItem = 0;
-						lvItem.iImage = 3; //Trigger
+						lvItem.iImage = 4; //Trigger
 						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_engineTriggerNames[j].c_str();
 						m_listGameObjectNames.InsertItem(&lvItem);
 						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
@@ -213,7 +239,7 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 						lvItem.iItem = index;
 						lvItem.iSubItem = 0;
-						lvItem.iImage = 4; //Water
+						lvItem.iImage = 5; //Water
 						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_engineWaterNames[j].c_str();
 						m_listGameObjectNames.InsertItem(&lvItem);
 						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);

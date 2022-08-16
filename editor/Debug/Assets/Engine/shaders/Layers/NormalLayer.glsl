@@ -18,12 +18,12 @@ void main()
 
 #version 130
 varying vec3 GNormal;
-out vec4 myVec40;
+out vec4 colorOut;
 
 void main()
 {
 	vec3 norm = normalize( GNormal );
-	myVec40 = vec4( norm.xyz,0.0 );
+	colorOut = vec4( norm.xyz,0.0 );
 }
 
 

@@ -65,6 +65,7 @@ class CTerrainVBOCull
 			NxActor* m_actor;
 
 			CInstanceLight* m_lights[8];
+			CInstanceLight* m_activeLights[8];
 			CUInt m_totalLights;
 			CUInt m_totalVisibleLights;
 			CBool m_lightCooked;
@@ -87,7 +88,10 @@ class CTerrainVBOCull
 				m_calculateDistance = CTrue;
 				m_actor = NULL;
 				for (CUInt i = 0; i < 8; i++)
+				{
 					m_lights[i] = NULL;
+					m_activeLights[i] = NULL;
+				}
 				m_lightCooked = CFalse;
 
 			}

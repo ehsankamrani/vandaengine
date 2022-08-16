@@ -147,7 +147,7 @@ uniform float parallaxMapBias;
 varying float Blur;
 uniform bool enableFog;
 
-out vec4 myVec40;
+out vec4 colorOut;
 
 //shadow
 uniform vec4 far_d;
@@ -397,10 +397,10 @@ void main()
 			   LOG2 );
 		fogFactor = clamp(fogFactor, 0.0, 1.0);
 	
-		myVec40 = vec4(mix(gl_Fog.color, finalColor, fogFactor ).rgb, Blur);
+		colorOut = vec4(mix(gl_Fog.color, finalColor, fogFactor ).rgb, Blur);
 	}
 	else
-		myVec40 = vec4(finalColor.r, finalColor.g, finalColor.b, Blur);
+		colorOut = vec4(finalColor.r, finalColor.g, finalColor.b, Blur);
 }
 
 

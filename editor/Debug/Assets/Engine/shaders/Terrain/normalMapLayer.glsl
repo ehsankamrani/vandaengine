@@ -30,7 +30,7 @@ uniform sampler2D image3Normal;
 varying float alpha1;
 varying float alpha2;
 
-out vec4 myVec40;
+out vec4 colorOut;
 
 void main()
 {
@@ -42,5 +42,5 @@ void main()
 	normalMapColor = mix(image2NormalColor, image1NormalColor, alpha1);
 	normalMapColor = mix(image3NormalColor, normalMapColor, alpha2);	
 
-	myVec40 = vec4(normalMapColor.rgb, 0.0);
+	colorOut = vec4(normalMapColor.rgb, 0.0);
 }

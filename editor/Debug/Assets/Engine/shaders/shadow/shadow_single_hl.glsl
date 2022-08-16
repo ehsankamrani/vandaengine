@@ -20,7 +20,7 @@ void main()
 
 
 uniform bool firstPass;
-out vec4 myVec40;
+out vec4 colorOut;
 uniform vec4 far_d;
 varying vec4 vPos;
 uniform sampler2DArray stex;
@@ -63,7 +63,7 @@ void main()
 	vec4 shadow_coef = shadowCoef();
 	color *= shadow_coef;
 
-	myVec40 = vec4(color.rgb, 0.0);
+	colorOut = vec4(color.rgb, 0.0);
 }
 
 

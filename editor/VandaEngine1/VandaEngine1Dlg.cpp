@@ -140,6 +140,7 @@ std::vector<CResourceFile*> g_resourceFiles;
 std::vector<CImage*> g_images;
 std::vector<CImage*>g_waterImages; // This variable holds the information of water images of Engine
 std::vector<CStaticSound*>g_engineStaticSounds;
+std::vector<CAmbientSound*> g_engineAmbientSounds;
 COpenALSystem* g_soundSystem = NULL;
 std::vector<std::string> g_engineObjectNames;
 std::vector<std::string> g_guiNames;
@@ -1151,13 +1152,20 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	}
 	g_engineWaters.clear();
 
+	//delete 3d sounds
 	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
 		CDelete(g_engineStaticSounds[i]);
 	}
-
 	if( g_engineStaticSounds.size() > 0 )
 		g_engineStaticSounds.clear();
+
+	//delete ambient sounds
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CDelete(g_engineAmbientSounds[i]);
+	}
+	g_engineAmbientSounds.clear();
 
 	if( g_engineObjectNames.size() > 0 )
 		g_engineObjectNames.clear();
@@ -1468,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.8.9"));
+	SetWindowText(_T("Vanda Engine 1.9.0"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3036,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3097,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.8.9 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.0 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3286,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3372,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.9 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.0 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3446,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.8.9 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.0 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4224,7 +4232,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		SaveGUIFiles();
 
-		if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
+		if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 		{
 			CInt iResponse = IDNO;
 			iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
@@ -7600,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.9 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.0 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7609,7 +7617,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	CInt iResponse = IDNO;
 	if( askQuestion )
 	{ 
-		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
+		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
 			iResponse = MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	}
 
@@ -7776,12 +7784,20 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	if( g_engineWaters.size() > 0 )
 		g_engineWaters.clear();
 
+	//delete 3d sounds
 	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 	{
 		CDelete(g_engineStaticSounds[i]);
 	}
 	if (g_engineStaticSounds.size() > 0)
 		g_engineStaticSounds.clear();
+
+	//delete ambient sounds
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CDelete(g_engineAmbientSounds[i]);
+	}
+	g_engineAmbientSounds.clear();
 
 	if( g_engineObjectNames.size() > 0 )
 		g_engineObjectNames.clear();
@@ -7872,14 +7888,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		m_mainBtnVSceneScript.EnableWindow(TRUE);
 	}
 
-	//delete ambient sound
-	if( g_menu.m_insertAmbientSound )
-	{
-		g_multipleView->m_soundSystem->StopALSound( *(g_multipleView->m_ambientSound->GetSoundSource()) );
-		alSourcei(g_multipleView->m_ambientSound->GetSoundSource()->GetSource(), AL_BUFFER, AL_NONE); 
-		CDelete( g_multipleView->m_ambientSound );			
-	}
-	g_menu.m_insertAmbientSound = CFalse;
 	if (g_editorMode == eMODE_VSCENE)
 	{
 		GetMenu()->EnableMenuItem(ID_INSERT_SOUND_AMBIENT, MF_ENABLED);
@@ -8033,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8042,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.8.9 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.0 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -9110,13 +9118,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 			}
 		}
 
-		if( g_multipleView->m_ambientSound )
-		{
-			g_multipleView->m_soundSystem->StopALSound( *(g_multipleView->m_ambientSound->GetSoundSource()) );
-			alSourcei(g_multipleView->m_ambientSound->GetSoundSource()->GetSource(), AL_BUFFER, AL_NONE);
-			CDelete( g_multipleView->m_ambientSound )
-		}
-
 		COpenALSoundSource* m_ambientSoundSource = CNew( COpenALSoundSource );
 		COpenALSoundBuffer* m_ambientSoundBuffer = CNew( COpenALSoundBuffer );
 
@@ -9126,23 +9127,27 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 			return;
 		m_ambientSoundSource->BindSoundBuffer( *(m_ambientSoundBuffer) );
 
-		m_ambientSoundSource->SetLooping( true );
+		m_ambientSoundSource->SetLooping(m_dlgAddAmbientSound->GetLoop());
 		m_ambientSoundSource->SetPitch( m_dlgAddAmbientSound->GetPitch() );
 		m_ambientSoundSource->SetVolume( m_dlgAddAmbientSound->GetVolume() );
 
-		g_multipleView->m_ambientSound = CNew( CAmbientSound );
-		g_multipleView->m_ambientSound->SetSoundSource( m_ambientSoundSource );
-		g_multipleView->m_ambientSound->SetSoundBuffer( m_ambientSoundBuffer );
-		g_multipleView->m_ambientSound->SetName( m_dlgAddAmbientSound->GetName() );
-		g_multipleView->m_ambientSound->SetPath( temp );
-		g_multipleView->m_ambientSound->SetVolume( m_dlgAddAmbientSound->GetVolume() );
-		g_multipleView->m_ambientSound->SetPitch( m_dlgAddAmbientSound->GetPitch() );
 
-		g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
+		CAmbientSound* ambientSound = CNew( CAmbientSound );
+		ambientSound->SetSoundSource( m_ambientSoundSource );
+		ambientSound->SetSoundBuffer( m_ambientSoundBuffer );
+		ambientSound->SetName( m_dlgAddAmbientSound->GetName() );
+		ambientSound->SetPath( temp );
+		ambientSound->SetVolume( m_dlgAddAmbientSound->GetVolume() );
+		ambientSound->SetPitch( m_dlgAddAmbientSound->GetPitch() );
+		ambientSound->SetPlay(m_dlgAddAmbientSound->GetPlay());
+		ambientSound->SetLoop(m_dlgAddAmbientSound->GetLoop());
+
+		if(ambientSound->GetPlay())
+			g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
-			g_multipleView->m_ambientSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
+			ambientSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
 
@@ -9151,17 +9156,13 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 		PrintInfo( temp, COLOR_RED_GREEN );
 		PrintInfo( "' loaded successfully" );
 		
-		g_menu.m_playAmbientSound = CTrue;
+		InsertItemToEngineObjectList(ambientSound->GetName(), eENGINEOBJECTLIST_AMBIENTSOUND );
 
-		g_menu.m_insertAmbientSound = CTrue;
-		InsertItemToEngineObjectList( g_multipleView->m_ambientSound->GetName(), eENGINEOBJECTLIST_AMBIENTSOUND );
-		GetMenu()->EnableMenuItem( ID_INSERT_SOUND_AMBIENT, MF_DISABLED | MF_GRAYED );
-		m_mainBtnAmbientSound.EnableWindow( FALSE );
 		g_engineObjectNames.push_back( m_dlgAddAmbientSound->GetName() );
 		g_showArrow = CFalse;
 
 		CChar name[MAX_NAME_SIZE];
-		Cpy(name, g_multipleView->m_ambientSound->GetName());
+		Cpy(name, ambientSound->GetName());
 
 		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
 		{
@@ -9177,6 +9178,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 				ex_pVandaEngine1Dlg->m_listBoxEngineObjects.Update(k);
 			}
 		}
+
+		g_engineAmbientSounds.push_back(ambientSound);
 
 		CDelete( m_dlgAddAmbientSound );
 	}
@@ -9871,7 +9874,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10714,7 +10717,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -11169,17 +11172,20 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 
 			//ambient sound
-			if( g_multipleView->m_ambientSound )
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 			{
-				if( g_multipleView->m_ambientSound->IsInVSceneList(pureFileName, CTrue, CTrue ) )
+				if (g_engineAmbientSounds[i])
 				{
-					CopyOneFileToDstDirectory( g_multipleView->m_ambientSound->GetPath(), ambientSoundPath );
+					if (g_engineAmbientSounds[i]->IsInVSceneList(pureFileName, CTrue, CTrue))
+					{
+						CopyOneFileToDstDirectory(g_engineAmbientSounds[i]->GetPath(), ambientSoundPath);
+					}
+					CChar* tempAfterPath = GetAfterPath(g_engineAmbientSounds[i]->GetPath());
+					CChar newPathAndName[MAX_NAME_SIZE];
+					Cpy(newPathAndName, ambientSoundPath);
+					Append(newPathAndName, tempAfterPath);
+					g_engineAmbientSounds[i]->SetPath(newPathAndName);
 				}
-				CChar* tempAfterPath = GetAfterPath(g_multipleView->m_ambientSound->GetPath());
-				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, ambientSoundPath );
-				Append(newPathAndName, tempAfterPath );
-				g_multipleView->m_ambientSound->SetPath( newPathAndName );
 			}
 			//3d sounds
 			//scenes
@@ -11459,20 +11465,24 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 
 			//ambient sound
-			if( g_multipleView->m_ambientSound )
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 			{
-				if( g_multipleView->m_ambientSound->IsInVSceneList(g_currentVSceneName, CTrue, CFalse ) )
+				if (g_engineAmbientSounds[i])
 				{
-					CopyOneFileToDstDirectory( g_multipleView->m_ambientSound->GetPath(), ambientSoundPath );
-				}
-				CChar* tempAfterPath = GetAfterPath(g_multipleView->m_ambientSound->GetPath());
-				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, ambientSoundPath );
-				Append(newPathAndName, tempAfterPath );
-				g_multipleView->m_ambientSound->SetPath( newPathAndName );
+					if (g_engineAmbientSounds[i]->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+					{
+						CopyOneFileToDstDirectory(g_engineAmbientSounds[i]->GetPath(), ambientSoundPath);
+					}
+					CChar* tempAfterPath = GetAfterPath(g_engineAmbientSounds[i]->GetPath());
+					CChar newPathAndName[MAX_NAME_SIZE];
+					Cpy(newPathAndName, ambientSoundPath);
+					Append(newPathAndName, tempAfterPath);
+					g_engineAmbientSounds[i]->SetPath(newPathAndName);
 
-				g_multipleView->m_ambientSound->IsInVSceneList(pureFileName,CTrue, CTrue );
+					g_engineAmbientSounds[i]->IsInVSceneList(pureFileName, CTrue, CTrue);
+				}
 			}
+
 			//3d sounds
 			for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
 			{
@@ -11790,39 +11800,36 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 
 		//delete removed ambient sounds
-		if( g_multipleView->m_ambientSound )
+		CChar tempAmbientSoundPath[MAX_NAME_SIZE];
+		sprintf(tempAmbientSoundPath, "%s%s", ambientSoundPath, "*.*");
+		hFind = FindFirstFile(tempAmbientSoundPath, &data);
+		do
 		{
-			CChar ambientSoundTempPath[MAX_NAME_SIZE];
-			sprintf( ambientSoundTempPath, "%s%s", ambientSoundPath, "*.*" );
-			hFind = FindFirstFile( ambientSoundTempPath, &data );
-			do
-			{
-				CChar soundTempPath[MAX_NAME_SIZE];
-				sprintf( soundTempPath, "%s%s", ambientSoundPath, data.cFileName );
+			CChar soundTempPath[MAX_NAME_SIZE];
+			sprintf(soundTempPath, "%s%s", ambientSoundPath, data.cFileName);
 
-				CBool foundTarget = CFalse;
-				if( Cmp( GetAfterPath( g_multipleView->m_ambientSound->GetPath()), data.cFileName ) )
+			CBool foundTarget = CFalse;
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+			{
+				if (Cmp(GetAfterPath(g_engineAmbientSounds[i]->GetPath()), data.cFileName))
 				{
 					foundTarget = CTrue;
+					break;
 				}
+			}
 
-				//Remove Files
-				if( !foundTarget )
+			//Remove Files
+			if (!foundTarget)
+			{
+				if (!DeleteFile(soundTempPath))
 				{
-					if( !DeleteFile( soundTempPath) )
-					{
-						//CChar temp[MAX_NAME_SIZE];
-						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
-						//PrintInfo( temp, COLOR_RED );
-					}
+					//CChar temp[MAX_NAME_SIZE];
+					//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+					//PrintInfo( temp, COLOR_RED );
 				}
-			}while (FindNextFile( hFind, &data));
-			FindClose(hFind);
-		}
-		else
-		{
-			RemoveAllFilesInDirectory( ambientSoundPath );
-		}
+			}
+		} while (FindNextFile(hFind, &data));
+		FindClose(hFind);
 
 
 		//Delete removed static sounds
@@ -12308,14 +12315,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundRolloff, sizeof( CFloat ), 1, filePtr  );
 			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundVolume, sizeof( CFloat ), 1, filePtr  );
 		}
-		//Save ambient sound
-		fwrite( &g_menu.m_insertAmbientSound, sizeof( CBool ), 1, filePtr  );
-		if( g_menu.m_insertAmbientSound )
+		//Save ambient sounds data
+		CUInt tempAmbientSoundCount = g_engineAmbientSounds.size();
+
+		fwrite( &tempAmbientSoundCount, sizeof( CUInt ), 1, filePtr  );
+
+		for(CUInt i = 0; i < tempAmbientSoundCount; i++)
 		{
-			fwrite( g_multipleView->m_ambientSound->GetName(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fwrite( g_multipleView->m_ambientSound->GetPath(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fwrite( &g_multipleView->m_ambientSound->m_volume, sizeof( CFloat ), 1, filePtr  );
-			fwrite( &g_multipleView->m_ambientSound->m_pitch, sizeof( CFloat ), 1, filePtr  );
+			fwrite( g_engineAmbientSounds[i]->GetName(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+			fwrite( g_engineAmbientSounds[i]->GetPath(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+			fwrite( &g_engineAmbientSounds[i]->m_volume, sizeof( CFloat ), 1, filePtr  );
+			fwrite( &g_engineAmbientSounds[i]->m_pitch, sizeof( CFloat ), 1, filePtr  );
+			fwrite(&g_engineAmbientSounds[i]->m_play, sizeof(CBool), 1, filePtr);
+			fwrite(&g_engineAmbientSounds[i]->m_loop, sizeof(CBool), 1, filePtr);
 		}
 		//Save triggers
 		CInt triggerSize = (CInt)g_triggers.size();
@@ -12527,7 +12539,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12709,6 +12721,15 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
 		{
 			fwrite(g_engineStaticSounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+		}
+
+		//ambient sounds
+		CUInt ambientSoundSize = g_engineAmbientSounds.size();
+		fwrite(&ambientSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			fwrite(g_engineAmbientSounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 		}
 
 		//Imported cameras in COLLADA format
@@ -13668,7 +13689,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15494,7 +15515,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.8.9 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15545,7 +15566,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 {
 	CInt iResponse = IDNO;
-	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_guis.size() || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain))
+	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_guis.size() || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain))
 		iResponse= MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	else
 		iResponse = IDNO;
@@ -16776,6 +16797,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			}
 
+			alGetError(); //clear possible sound errors
+
 			//static sounds
 			CInt tempStaticSoundCount;
 			fread( &tempStaticSoundCount, sizeof( CInt ), 1, filePtr );
@@ -16784,7 +16807,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CBool play, loop;
 
 			CChar name[ MAX_NAME_SIZE ], path[ MAX_NAME_SIZE ];
-			CBool notLoaded = CFalse;
 
 			for( CInt i = 0 ; i < tempStaticSoundCount; i++ )
 			{
@@ -16822,17 +16844,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 					if( !m_staticSoundBuffer->LoadOggVorbisFromFile( StaticSoundPath ) )
 					{
-						CChar buffer[MAX_NAME_SIZE];
-						sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", StaticSoundPath, "'" );
-						PrintInfo( buffer, COLOR_RED );
 						m_staticSoundBuffer->m_loaded = CFalse;
 
 					}
 					else
 					{
-						CChar buffer[MAX_NAME_SIZE];
-						sprintf( buffer, "\n%s%s%s", "ogg file '", StaticSoundPath, "' loaded successfully." );
-						PrintInfo( buffer );
 						m_staticSoundBuffer->m_loaded = CTrue;
 					}
 
@@ -16880,111 +16896,112 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				//save functions/////////////////////////////////
 
 				g_engineStaticSounds.push_back( m_staticSound );
-				if( play && !notLoaded)
-					g_multipleView->m_soundSystem->PlayALSound( *m_staticSoundSource );
 
-				if( !notLoaded )
+				InsertItemToEngineObjectList(m_staticSound->GetName(), eENGINEOBJECTLIST_STATICSOUND);
+
+				if(m_staticSoundBuffer->m_loaded)
 				{
-					InsertItemToEngineObjectList( m_staticSound->GetName() , eENGINEOBJECTLIST_STATICSOUND);
 					PumpMessages();
 					UpdateWindow();
 					PrintInfo( "\nStatic sound '", COLOR_GREEN );
-					PrintInfo( StaticSoundPath, COLOR_RED_GREEN );
+					PrintInfo(m_staticSound->GetName(), COLOR_RED_GREEN );
 					PrintInfo( "' initialized successfully", COLOR_GREEN );
 				}
 				else
 				{
-					PrintInfo( "\nCouldn't load the static sound '", COLOR_RED );
-					PrintInfo( StaticSoundPath, COLOR_RED_GREEN );
+					PumpMessages();
+					UpdateWindow();
+
+					PrintInfo( "\nCouldn't initialize the static sound '", COLOR_RED );
+					PrintInfo(m_staticSound->GetName(), COLOR_RED_GREEN );
 					PrintInfo( "'", COLOR_RED );
 				}
-
-
 			}
 
 			//Ambient Sound
-			CBool insertAmbientSound = CFalse;
-			CChar strAmbientSoundName[MAX_NAME_SIZE];
-			CChar strAmbientSoundPath[MAX_NAME_SIZE];
-			CFloat volume, pitch;
-			fread( &insertAmbientSound, sizeof( CBool ), 1, filePtr  );
-			if( insertAmbientSound )
+			CUInt ambientSoundSize;
+			fread( &ambientSoundSize, sizeof( CUInt ), 1, filePtr  );
+			for(CUInt i = 0; i < ambientSoundSize; i++)
 			{
+				CChar strAmbientSoundName[MAX_NAME_SIZE];
+				CChar strAmbientSoundPath[MAX_NAME_SIZE];
+				CFloat volume, pitch;
+
 				fread( strAmbientSoundName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
 				fread( strAmbientSoundPath, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
 				fread( &volume, sizeof( CFloat ), 1, filePtr  );
-				fread( &pitch, sizeof( CFloat ), 1, filePtr  );
-			}
+				fread(&pitch, sizeof(CFloat), 1, filePtr);
+				fread(&play, sizeof(CBool), 1, filePtr);
+				fread(&loop, sizeof(CBool), 1, filePtr);
 
-			CChar AmbientSoundPath[MAX_NAME_SIZE];
-			CChar* AmbientSoundName = GetAfterPath( strAmbientSoundPath );
-			//Copy this to Win32 Project as well
-			sprintf( AmbientSoundPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", AmbientSoundName );
-			//load the ambient sound if it exists
-			if( insertAmbientSound )
-			{
-				CDelete( g_multipleView->m_ambientSound );
-				COpenALSoundSource* m_ambientSoundSource = CNew( COpenALSoundSource );
-				COpenALSoundBuffer* m_ambientSoundBuffer = CNew( COpenALSoundBuffer );
+				CChar AmbientSoundPath[MAX_NAME_SIZE];
+				CChar* AmbientSoundName = GetAfterPath(strAmbientSoundPath);
+				//Copy this to Win32 Project as well
+				sprintf(AmbientSoundPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", AmbientSoundName);
+				//load the ambient sound if it exists
+
+				COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
+				COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
 
 				//Initialize ambient sound here
-				// Velocity of the source sound.
-				if( !m_ambientSoundBuffer->LoadOggVorbisFromFile( AmbientSoundPath ) )
+				if (!m_ambientSoundBuffer->LoadOggVorbisFromFile(AmbientSoundPath))
 				{
-					g_menu.m_insertAmbientSound = CTrue;
-					g_multipleView->m_ambientSound = CNew( CAmbientSound );
-					m_ambientSoundSource->BindSoundBuffer ( *m_ambientSoundBuffer );
-					g_multipleView->m_ambientSound->SetName( strAmbientSoundName );
-					g_multipleView->m_ambientSound->SetPath( strAmbientSoundPath );
-					g_multipleView->m_ambientSound->SetSoundSource( m_ambientSoundSource );
-					g_multipleView->m_ambientSound->SetSoundBuffer( m_ambientSoundBuffer );
-					g_multipleView->m_ambientSound->SetVolume( volume );
-					g_multipleView->m_ambientSound->SetPitch( pitch );
-	
-					PrintInfo("\nCouldn't load ambient sound '", COLOR_RED);
-					PrintInfo( AmbientSoundPath, COLOR_RED_GREEN );
-					PrintInfo( "'", COLOR_RED );
+					m_ambientSoundBuffer->m_loaded = CFalse;
 				}
 				else
 				{
-					m_ambientSoundSource->BindSoundBuffer ( *m_ambientSoundBuffer );
+					m_ambientSoundBuffer->m_loaded = CTrue;
+				}
+				m_ambientSoundBuffer->SetName(strAmbientSoundPath);
 
-					m_ambientSoundSource->SetLooping( true );
-					m_ambientSoundSource->SetPitch( pitch );
-					m_ambientSoundSource->SetVolume( volume );
-					g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
+				m_ambientSoundSource->BindSoundBuffer(*m_ambientSoundBuffer);
 
-					g_multipleView->m_ambientSound = CNew( CAmbientSound );
-					g_multipleView->m_ambientSound->SetSoundSource( m_ambientSoundSource );
-					g_multipleView->m_ambientSound->SetSoundBuffer( m_ambientSoundBuffer );
-					g_multipleView->m_ambientSound->SetName( strAmbientSoundName );
-					g_multipleView->m_ambientSound->SetPath( AmbientSoundPath );
-					g_multipleView->m_ambientSound->SetVolume( volume );
-					g_multipleView->m_ambientSound->SetPitch( pitch );
-					//save functions/////////////////////////////////
-					for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
-					{
-						if( Cmp( g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str() ) ) //current scene name found
-							g_multipleView->m_ambientSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CFalse ); //Do not write to zip file
-						else
-							g_multipleView->m_ambientSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file
-					}
-					//save functions/////////////////////////////////
+				m_ambientSoundSource->SetLooping(loop);
+				m_ambientSoundSource->SetPitch(pitch);
+				m_ambientSoundSource->SetVolume(volume);
 
-					PrintInfo("\nAmbient sound '");
-					PrintInfo( AmbientSoundPath, COLOR_RED_GREEN );
-					PrintInfo( "' loaded successfully" );
-					
-					g_menu.m_playAmbientSound = CTrue;
-					g_menu.m_insertAmbientSound = CTrue;
-					GetMenu()->EnableMenuItem( ID_INSERT_SOUND_AMBIENT, MF_DISABLED | MF_GRAYED );
-					m_mainBtnAmbientSound.EnableWindow( FALSE );
+				CAmbientSound* ambientSound = CNew(CAmbientSound);
+				ambientSound->SetSoundSource(m_ambientSoundSource);
+				ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
+				ambientSound->SetName(strAmbientSoundName);
+				ambientSound->SetPath(AmbientSoundPath);
+				ambientSound->SetVolume(volume);
+				ambientSound->SetPitch(pitch);
+				ambientSound->SetLoop(loop);
+				ambientSound->SetPlay(play);
+				//save functions/////////////////////////////////
+				for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
+				{
+					if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
+						ambientSound->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
+					else
+						ambientSound->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
+				}
+				//save functions/////////////////////////////////
 
-					InsertItemToEngineObjectList( g_multipleView->m_ambientSound->GetName(), eENGINEOBJECTLIST_AMBIENTSOUND );
+				g_engineAmbientSounds.push_back(ambientSound);
+
+				g_engineObjectNames.push_back(strAmbientSoundName);
+
+				InsertItemToEngineObjectList(ambientSound->GetName(), eENGINEOBJECTLIST_AMBIENTSOUND);
+				
+				if (m_ambientSoundBuffer->m_loaded)
+				{
 					PumpMessages();
 					UpdateWindow();
+					PrintInfo("\nAmbient sound '", COLOR_GREEN);
+					PrintInfo(ambientSound->GetName(), COLOR_RED_GREEN);
+					PrintInfo("' initialized successfully", COLOR_GREEN);
 				}
+				else
+				{
+					PumpMessages();
+					UpdateWindow();
 
+					PrintInfo("\nCouldn't initialize the ambient sound '", COLOR_RED);
+					PrintInfo(ambientSound->GetName(), COLOR_RED_GREEN);
+					PrintInfo("'", COLOR_RED);
+				}
 			}
 
 			CPrefab* box = CNew(CPrefab);
@@ -17365,7 +17382,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.8.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -17381,6 +17398,18 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 		if (g_editorMode == eMODE_VSCENE)
 		{
+			for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+			{
+				if (g_engineStaticSounds[i]->GetPlay())
+					g_multipleView->m_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
+			}
+
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+			{
+				if(g_engineAmbientSounds[i]->GetPlay())
+					g_multipleView->m_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+
 			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 			{
 				g_instancePrefab[i]->UpdateBoundingBox(CTrue);
@@ -17954,20 +17983,23 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			return;
 		}
 
-		if( g_menu.m_insertAmbientSound && Cmp( g_multipleView->m_ambientSound->GetName(), szBuffer )  )
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 		{
-			if( g_multipleView->m_enableTimer )
-				g_multipleView->EnableTimer( CFalse );
-
-			ChangeAmbientSoundProperties();
-
-			if (g_multipleView->m_enableTimer)
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), szBuffer))
 			{
-				g_multipleView->EnableTimer(CTrue);
-			}
+				if (g_multipleView->m_enableTimer)
+					g_multipleView->EnableTimer(CFalse);
 
-			g_multipleView->SetElapsedTimeFromBeginning();
-			return;
+				ChangeAmbientSoundProperties(g_engineAmbientSounds[i]);
+
+				if (g_multipleView->m_enableTimer)
+				{
+					g_multipleView->EnableTimer(CTrue);
+				}
+
+				g_multipleView->SetElapsedTimeFromBeginning();
+				return;
+			}
 		}
 	}
 }
@@ -18182,9 +18214,9 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 						g_showArrow = CFalse;
 					}
 
-					//delete the scene
+					//delete the 3d sound
 					CDelete(g_engineStaticSounds[i]);
-					//delete the vector that holds the scene
+					//delete the vector that holds the 3d sound
 					g_engineStaticSounds.erase(g_engineStaticSounds.begin() + i);
 
 					m_listBoxEngineObjects.DeleteItem(nSelected);
@@ -18301,23 +18333,22 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 				return;
 			}
 
-			if (g_menu.m_insertAmbientSound && Cmp(g_multipleView->m_ambientSound->GetName(), szBuffer))
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 			{
-				g_multipleView->m_soundSystem->StopALSound(*(g_multipleView->m_ambientSound->GetSoundSource()));
-				alSourcei(g_multipleView->m_ambientSound->GetSoundSource()->GetSource(), AL_BUFFER, AL_NONE);
-				CDelete(g_multipleView->m_ambientSound);
-				g_menu.m_insertAmbientSound = CFalse;
-				m_listBoxEngineObjects.DeleteItem(nSelected);
-				GetMenu()->EnableMenuItem(ID_INSERT_SOUND_AMBIENT, MF_ENABLED);
-				m_mainBtnAmbientSound.EnableWindow(TRUE);
-				g_multipleView->SetElapsedTimeFromBeginning();
-				if (m_listBoxEngineObjects.GetItemCount() == 0)
+				if (Cmp(g_engineAmbientSounds[i]->GetName(), szBuffer))
 				{
-					m_btnRemoveEngineObject.EnableWindow(FALSE);
-					m_btnEngineObjectProperties.EnableWindow(FALSE);
+					CDelete(g_engineAmbientSounds[i]);
+					g_engineAmbientSounds.erase(g_engineAmbientSounds.begin() + i);
+					m_listBoxEngineObjects.DeleteItem(nSelected);
+					g_multipleView->SetElapsedTimeFromBeginning();
+					if (m_listBoxEngineObjects.GetItemCount() == 0)
+					{
+						m_btnRemoveEngineObject.EnableWindow(FALSE);
+						m_btnEngineObjectProperties.EnableWindow(FALSE);
+					}
+					SortEngineObjectList(nSelected);
+					return;
 				}
-				SortEngineObjectList(nSelected);
-				return;
 			}
 		} //end of if( result == IDYES )
 	} // end of if( nSelected >= 0 )
@@ -19492,18 +19523,21 @@ CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
 		CDelete( m_dlgAddStaticSound );
 }
 
-CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
+CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties(CAmbientSound* sound)
 {
 	m_dlgAddAmbientSound = CNew( CAddAmbientSound );
-	m_dlgAddAmbientSound->SetName( g_multipleView->m_ambientSound->GetName() );
+	m_dlgAddAmbientSound->SetName(sound->GetName());
 
 	CChar AmbientSoundPath[MAX_NAME_SIZE];
-	CChar* AmbientSoundName = GetAfterPath( g_multipleView->m_ambientSound->GetPath() );
-	sprintf( AmbientSoundPath, "%s", g_multipleView->m_ambientSound->GetPath() );
+	CChar* AmbientSoundName = GetAfterPath(sound->GetPath() );
+	sprintf( AmbientSoundPath, "%s", sound->GetPath() );
 
 	m_dlgAddAmbientSound->SetPath( AmbientSoundPath );
-	m_dlgAddAmbientSound->SetVolume( g_multipleView->m_ambientSound->GetVolume() );
-	m_dlgAddAmbientSound->SetPitch( g_multipleView->m_ambientSound->GetPitch() );
+	m_dlgAddAmbientSound->SetVolume(sound->GetVolume() );
+	m_dlgAddAmbientSound->SetPitch(sound->GetPitch() );
+	m_dlgAddAmbientSound->SetPlay(sound->GetPlay());
+	m_dlgAddAmbientSound->SetLoop(sound->GetLoop());
+
 	m_dlgAddAmbientSound->SetEditMode( CTrue );
 
 	INT_PTR result = m_dlgAddAmbientSound->DoModal();
@@ -19539,24 +19573,26 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 			return;
 		m_ambientSoundSource->BindSoundBuffer( *(m_ambientSoundBuffer) );
 
-		m_ambientSoundSource->SetLooping( true );
+		m_ambientSoundSource->SetLooping(m_dlgAddAmbientSound->GetLoop());
 		m_ambientSoundSource->SetPitch( m_dlgAddAmbientSound->GetPitch() );
 		m_ambientSoundSource->SetVolume( m_dlgAddAmbientSound->GetVolume() );
 
-		g_multipleView->m_ambientSound = CNew( CAmbientSound );
-		g_multipleView->m_ambientSound->SetSoundSource( m_ambientSoundSource );
-		g_multipleView->m_ambientSound->SetSoundBuffer( m_ambientSoundBuffer );
-		g_multipleView->m_ambientSound->SetName( m_dlgAddAmbientSound->GetName() );
-		g_multipleView->m_ambientSound->SetPath( temp );
-		g_multipleView->m_ambientSound->SetVolume( m_dlgAddAmbientSound->GetVolume() );
-		g_multipleView->m_ambientSound->SetPitch( m_dlgAddAmbientSound->GetPitch() );
+		CAmbientSound* ambientSound = CNew( CAmbientSound );
+		ambientSound->SetSoundSource( m_ambientSoundSource );
+		ambientSound->SetSoundBuffer( m_ambientSoundBuffer );
+		ambientSound->SetName( m_dlgAddAmbientSound->GetName() );
+		ambientSound->SetPath( temp );
+		ambientSound->SetVolume( m_dlgAddAmbientSound->GetVolume() );
+		ambientSound->SetPitch( m_dlgAddAmbientSound->GetPitch() );
+		ambientSound->SetPlay(m_dlgAddAmbientSound->GetPlay());
+		ambientSound->SetLoop(m_dlgAddAmbientSound->GetLoop());
 
-
-		g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
+		if (ambientSound->GetPlay())
+			g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
-			g_multipleView->m_ambientSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
+			ambientSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
 
@@ -19565,18 +19601,13 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 		PrintInfo( temp, COLOR_RED_GREEN );
 		PrintInfo( "' loaded successfully" );
 		
-		g_menu.m_playAmbientSound = CTrue;
-		GetMenu()->EnableMenuItem( ID_INSERT_SOUND_AMBIENT, MF_DISABLED | MF_GRAYED );
-		m_mainBtnAmbientSound.EnableWindow( FALSE );
-
-		g_menu.m_insertAmbientSound = CTrue;
-		InsertItemToEngineObjectList( g_multipleView->m_ambientSound->GetName() , eENGINEOBJECTLIST_AMBIENTSOUND);
+		InsertItemToEngineObjectList(ambientSound->GetName() , eENGINEOBJECTLIST_AMBIENTSOUND);
 
 		g_engineObjectNames.push_back(m_dlgAddAmbientSound->GetName());
 		g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
 		g_transformObject = CFalse;
 		CChar name[MAX_NAME_SIZE];
-		Cpy(name, g_multipleView->m_ambientSound->GetName());
+		Cpy(name, ambientSound->GetName());
 
 		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
 		{
@@ -19593,6 +19624,8 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties()
 			}
 		}
 		g_showArrow = CFalse;
+
+		g_engineAmbientSounds.push_back(ambientSound);
 
 		CDelete( m_dlgAddAmbientSound );
 	}
@@ -19948,7 +19981,7 @@ void CVandaEngine1Dlg::OnClose()
 	SaveGUIFiles();
 
 
-	if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_menu.m_insertAmbientSound || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
+	if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
 	{
 		CInt iResponse = IDNO;
 		iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
@@ -23224,10 +23257,15 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 					g_engineStaticSounds[j]->SetPlay(m_engineStaticSounds[i]->GetPlay());
 
 					if (g_engineStaticSounds[j]->GetPlay())
+					{
 						g_soundSystem->PlayALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
-					else
 						g_soundSystem->StopALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
-
+						g_soundSystem->PlayALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+					}
+					else
+					{
+						g_soundSystem->StopALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+					}
 					CDelete(m_engineStaticSounds[i]);
 					break;
 				}
@@ -23235,6 +23273,38 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		}
 		m_engineStaticSounds.clear();
 		//End of load static sound parameters//////
+
+		//Load ambient sound parameters
+		for (CUInt i = 0; i < m_engineAmbientSounds.size(); i++)
+		{
+			for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
+			{
+				if (Cmp(m_engineAmbientSounds[i]->GetName(), g_engineAmbientSounds[j]->GetName()))
+				{
+					g_engineAmbientSounds[j]->SetName(m_engineAmbientSounds[i]->GetName());
+					g_engineAmbientSounds[j]->SetLoop(m_engineAmbientSounds[i]->GetLoop());
+					g_engineAmbientSounds[j]->GetSoundSource()->SetLooping(m_engineAmbientSounds[i]->GetLoop());
+					g_engineAmbientSounds[j]->SetPlay(m_engineAmbientSounds[i]->GetPlay());
+
+					if (g_engineAmbientSounds[j]->GetPlay())
+					{
+						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+						g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					}
+					else
+					{
+						g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					}
+					CDelete(m_engineAmbientSounds[i]);
+					break;
+				}
+			}
+		}
+		m_engineAmbientSounds.clear();
+		//End of load ambient sound parameters//////
+
+		alGetError(); //clear possible sound errors
 
 		//Load prefabs here
 		//first, delete prefabs that were created at runtime
@@ -24381,12 +24451,28 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			CStaticSound* m_staticSound = CNew(CStaticSound);
 			COpenALSoundSource* m_staticSoundSource = CNew(COpenALSoundSource);
+			COpenALSoundBuffer* m_staticSoundBuffer = CNew(COpenALSoundBuffer);
+			m_staticSoundBuffer->SetName(g_engineStaticSounds[i]->GetSoundBuffer()->GetName());
 			m_staticSound->SetName(g_engineStaticSounds[i]->GetName());
 			m_staticSound->SetLoop(g_engineStaticSounds[i]->GetLoop());
 			m_staticSound->SetPlay(g_engineStaticSounds[i]->GetPlay());
 			m_staticSound->SetSoundSource(m_staticSoundSource);
-			m_staticSound->SetSoundBuffer(NULL);
+			m_staticSound->SetSoundBuffer(m_staticSoundBuffer);
 			m_engineStaticSounds.push_back(m_staticSound);
+		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CAmbientSound* m_ambientSound = CNew(CAmbientSound);
+			COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
+			COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
+			m_ambientSoundBuffer->SetName(g_engineAmbientSounds[i]->GetSoundBuffer()->GetName());
+			m_ambientSound->SetName(g_engineAmbientSounds[i]->GetName());
+			m_ambientSound->SetLoop(g_engineAmbientSounds[i]->GetLoop());
+			m_ambientSound->SetPlay(g_engineAmbientSounds[i]->GetPlay());
+			m_ambientSound->SetSoundSource(m_ambientSoundSource);
+			m_ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
+			m_engineAmbientSounds.push_back(m_ambientSound);
 		}
 
 		//Save water information
@@ -27338,6 +27424,18 @@ CVoid CVandaEngine1Dlg::LoadObjectNames()
 				fread(staticSoundName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 
 				VSceneObjectNames.m_staticSoundsNames.push_back(staticSoundName);
+			}
+
+			//ambient sounds
+			CUInt ambientSoundSize;
+			fread(&ambientSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+
+			for (CUInt i = 0; i < ambientSoundSize; i++)
+			{
+				CChar ambientSoundName[MAX_NAME_SIZE];
+				fread(ambientSoundName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+
+				VSceneObjectNames.m_ambientSoundsNames.push_back(ambientSoundName);
 			}
 
 			//Imported cameras in COLLADA format

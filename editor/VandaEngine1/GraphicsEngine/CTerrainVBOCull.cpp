@@ -361,6 +361,14 @@ void CTerrainVBOCull::buildBufferObjectVertexArrays(void)
 CVoid CTerrainVBOCull::SetLight(CVec3f minAABB, CVec3f maxAABB, chunk* chunkArray)
 {
 	chunkArray->m_totalVisibleLights = 0;
+
+	for (CUInt i = 0; i < 8; i++)
+	{
+		chunkArray->m_activeLights[i] = NULL;
+	}
+
+	int activeLightIndex = 0;
+
 	if (chunkArray->m_lightCooked)
 	{
 		if (g_engineLights.size() == 0)
@@ -385,6 +393,8 @@ CVoid CTerrainVBOCull::SetLight(CVec3f minAABB, CVec3f maxAABB, chunk* chunkArra
 					isDefaultDirectional = CTrue;
 				g_render.SetInstanceLight(chunkArray->m_lights[j], chunkArray->m_totalVisibleLights, isDefaultDirectional);
 				chunkArray->m_totalVisibleLights++;
+				chunkArray->m_activeLights[activeLightIndex] = chunkArray->m_lights[j];
+				activeLightIndex++;
 			}
 		}
 		return;
@@ -455,6 +465,8 @@ CVoid CTerrainVBOCull::SetLight(CVec3f minAABB, CVec3f maxAABB, chunk* chunkArra
 			if (isDirectional && Cmp(g_shadowProperties.m_directionalLightName, chunkArray->m_lights[j]->m_abstractLight->GetName()))
 				isDefaultDirectional = CTrue;
 			g_render.SetInstanceLight(chunkArray->m_lights[j], j, isDefaultDirectional);
+			chunkArray->m_activeLights[activeLightIndex] = chunkArray->m_lights[j];
+			activeLightIndex++;
 		}
 	}
 	chunkArray->m_totalVisibleLights = chunkArray->m_totalLights;
@@ -705,7 +717,7 @@ void CTerrainVBOCull::draw()
 			{
 				for (CUInt i = 0; i < chunkArray[x][z].m_totalVisibleLights; i++)
 				{
-					CInstanceLight *instanceLight = chunkArray[x][z].m_lights[i];
+					CInstanceLight *instanceLight = chunkArray[x][z].m_activeLights[i];
 
 					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
 					{

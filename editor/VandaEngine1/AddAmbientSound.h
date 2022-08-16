@@ -12,8 +12,7 @@ class CAddAmbientSound : public CDialog
 	DECLARE_DYNAMIC(CAddAmbientSound)
 
 public:
-	CAddAmbientSound(CWnd* pParent = NULL)
-		;   // standard constructor
+	CAddAmbientSound(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CAddAmbientSound();
 
 // Dialog Data
@@ -31,6 +30,7 @@ public:
 	CString m_strAmbientSoundBuffer, m_strPureAmbientSoundBuffer, m_strAmbientSoundName, m_strAmbientSoundVolume, m_strAmbientSoundPitch;
 	CString m_strAmbientSoundTempName;
 	CFloat m_volume, m_pitch;
+	CBool m_loop, m_play;
 	CBool m_create;
 	CBool m_editMode;
 public:
@@ -46,6 +46,8 @@ public:
 	CChar* GetPath() { return (CChar*)m_strAmbientSoundBuffer.GetBuffer(m_strAmbientSoundBuffer.GetLength()); m_strAmbientSoundBuffer.ReleaseBuffer(); }
 	CFloat GetVolume() { return m_volume; }
 	CFloat GetPitch() { return m_pitch; }
+	CBool GetLoop() { return m_loop; }
+	CBool GetPlay() { return m_play; }
 
 	CVoid SetEditMode( CBool editMode )
 	{
@@ -79,6 +81,10 @@ public:
 		sprintf( temp, "%.3f", volume );
 		m_strAmbientSoundVolume = temp;
 	}
+
+	CVoid SetLoop(CBool loop) { m_loop = loop; }
+	CVoid SetPlay(CBool play) { m_play = play; }
+
 	//#######################
 
 public:
@@ -93,4 +99,10 @@ public:
 	virtual BOOL OnInitDialog();
 public:
 	virtual INT_PTR DoModal();
+private:
+	CComboBox m_comboAmbientSoundPlay;
+	CComboBox m_comboAmbientSoundLoop;
+public:
+	afx_msg void OnCbnSelchangeComboAmbientSoundLoop();
+	afx_msg void OnCbnSelchangeComboAmbientSoundPlay();
 };

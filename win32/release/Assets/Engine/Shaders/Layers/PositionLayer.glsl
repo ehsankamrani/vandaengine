@@ -18,11 +18,11 @@ void main()
 
 #version 130
 varying vec4 position;
-out vec4 myVec40;
+out vec4 colorOut;
 void main()
 {
 	vec4 pos = normalize( position );
-	myVec40 = vec4(pos.xyz,0.0);
+	colorOut = vec4(pos.xyz,0.0);
 }
 
 

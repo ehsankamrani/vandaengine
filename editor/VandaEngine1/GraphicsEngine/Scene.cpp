@@ -144,7 +144,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 1.8.9");
+		zipClose(zipOpen, "Vanda Engine 1.9.0");
 		free(buf);
 		return -1;
 	}
@@ -157,7 +157,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 1.8.9");
+			//zipClose(zf, "Vanda Engine 1.9.0");
 			//free(buf);
 			//return -1;
    //     }
@@ -173,7 +173,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.8.9");
+				zipClose(zf, "Vanda Engine 1.9.0");
 				free(buf);
 				return -1;
 			}
@@ -188,7 +188,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 1.8.9");
+				zipClose(zf, "Vanda Engine 1.9.0");
 				free(buf);
 				return -1;
             }
@@ -198,7 +198,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 1.8.9");
+	zipClose(zf,"Vanda Engine 1.9.0");
     free(buf);
 	return 1;
 }
@@ -1306,12 +1306,9 @@ CVoid CScene::SetClipIndex(CInt index, CBool loopAnimation)
 				ex_pBtnPrevAnim->EnableWindow(FALSE);
 			else if (m_numClips > 1)
 				ex_pBtnPrevAnim->EnableWindow(TRUE);
-		}
 
-		if (g_currentInstancePrefab)
-			PrintInfo("\nAnimation '" + (CString)g_currentInstancePrefab->GetName() + ":" + (CString)m_animationClips[m_currentClipIndex]->GetName() + "' activated");
-		else
 			PrintInfo("\nAnimation '" + (CString)g_render.GetScene()->GetName() + ":" + (CString)m_animationClips[m_currentClipIndex]->GetName() + "' activated");
+		}
 	}
 }
 CVoid CScene::SetNextAnimation() 

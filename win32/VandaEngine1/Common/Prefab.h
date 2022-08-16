@@ -98,6 +98,7 @@ private:
 	CFloat m_fShininess, m_fTransparency;
 	CBool m_enableMaterial;
 	CBool m_scriptInitialized;
+	CInstanceLight* m_activeLights[8];
 
 public:
 	CVoid SetName(CChar* name);
@@ -205,6 +206,8 @@ public:
 	CBool IsMaterialEnabled() { return m_enableMaterial; }
 	CVoid EnableMaterial() { m_enableMaterial = CTrue; }
 	CVoid DisableMaterial() { m_enableMaterial = CFalse; }
+
+	CInstanceLight* GetActiveLight(CInt i) { return m_activeLights[i]; }
 
 	CVoid SetAmbient(CFloat* ambient)
 	{

@@ -280,7 +280,10 @@ CInstancePrefab::CInstancePrefab()
 	m_isAnimated = CFalse;
 	m_isStatic = CFalse;
 	for (CUInt i = 0; i < 8; i++)
+	{
 		m_lights[i] = NULL;
+		m_activeLights[i] = NULL;
+	}
 	m_lightCooked = CFalse;
 	m_castShadow = CTrue;
 	m_isTransformable = CFalse;
@@ -330,6 +333,12 @@ CVoid CInstancePrefab::SetLight()
 {
 	if (!GetVisible()) return;
 	m_totalVisibleLights = 0;
+
+	for (CUInt i = 0; i < 8; i++)
+		m_activeLights[i] = NULL;
+
+	int activeLightIndex = 0;
+
 	if (!GetIsAnimated() && !GetIsControlledByPhysX() && m_lightCooked)
 	{
 		if (g_engineLights.size() == 0)
@@ -354,6 +363,8 @@ CVoid CInstancePrefab::SetLight()
 
 				g_render.SetInstanceLight(m_lights[j], m_totalVisibleLights, isDefaultDirectional);
 				m_totalVisibleLights++;
+				m_activeLights[activeLightIndex] = m_lights[j];
+				activeLightIndex++;
 			}
 		}
 		return;
@@ -447,6 +458,8 @@ CVoid CInstancePrefab::SetLight()
 				isDefaultDirectional = CTrue;
 
 			g_render.SetInstanceLight(m_lights[j], j, isDefaultDirectional);
+			m_activeLights[activeLightIndex] = m_lights[j];
+			activeLightIndex++;
 		}
 	}
 	m_totalVisibleLights = m_totalLights;

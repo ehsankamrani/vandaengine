@@ -82,6 +82,7 @@ extern std::vector<CInstanceLight*> g_engineLights; //these aren't collada light
 extern std::vector<CTrigger*> g_triggers;
 extern std::vector<CWater*> g_engineWaters; //We may use multiple water surfaces in our engine
 extern std::vector<CStaticSound*>g_engineStaticSounds;
+extern std::vector<CAmbientSound*> g_engineAmbientSounds;
 extern CUpdateCamera *g_camera;
 extern CVSceneScript* g_VSceneScript;
 extern COctree* g_octree;
@@ -723,8 +724,6 @@ struct CDatabaseVariables
 	CBool m_insertAndShowSky;
 	CBool m_insertAndShowTerrain;
 	CBool m_insertVSceneScript;
-	CBool m_insertAmbientSound;
-	CBool m_playAmbientSound;
 	CBool m_insertCharacter;
 	CDatabaseVariables()
 	{
@@ -743,8 +742,6 @@ struct CDatabaseVariables
 		m_insertAndShowSky = CFalse;
 		m_insertAndShowTerrain = CFalse;
 		m_insertVSceneScript = CFalse;
-		m_insertAmbientSound = CFalse;
-		m_playAmbientSound = CFalse;
 		m_dof = CFalse;
 		m_insertCharacter = CFalse;
 	}
@@ -765,8 +762,6 @@ struct CDatabaseVariables
 		m_enableDynamicShadow = CTrue;
 		m_insertAndShowSky = CFalse;
 		m_insertVSceneScript = CFalse;
-		m_insertAmbientSound = CFalse;
-		m_playAmbientSound = CFalse;
 		m_dof = CFalse;
 		m_insertCharacter = CFalse;
 	}

@@ -57,6 +57,22 @@ CInt PlaySoundLoop(lua_State *L)
 							break;
 						}
 					}
+
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames.size(); j++)
+					{
+						CChar ambientSoundName[MAX_NAME_SIZE];
+						Cpy(ambientSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+						StringToUpper(ambientSoundName);
+
+						if (Cmp(ambientSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will be played continiously", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
 				}
 			}
 			if (!foundTarget)
@@ -87,13 +103,34 @@ CInt PlaySoundLoop(lua_State *L)
 				g_engineStaticSounds[i]->SetLoop( CTrue );
 				g_engineStaticSounds[i]->SetPlay(CTrue);
 				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
-				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' is playing continiously.");
-				PrintInfo(temp, COLOR_GREEN);
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' is playing continiously.");
+				//PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engineAmbientSounds[i]->SetLoop(CTrue);
+				g_engineAmbientSounds[i]->SetPlay(CTrue);
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineAmbientSounds[i]->GetName(), "' is playing continiously.");
+				//PrintInfo(temp, COLOR_GREEN);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
@@ -140,6 +177,23 @@ CInt PlaySoundOnce(lua_State *L)
 							break;
 						}
 					}
+
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames.size(); j++)
+					{
+						CChar ambientSoundName[MAX_NAME_SIZE];
+						Cpy(ambientSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+						StringToUpper(ambientSoundName);
+
+						if (Cmp(ambientSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will be played once", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
 				}
 			}
 			if (!foundTarget)
@@ -170,13 +224,34 @@ CInt PlaySoundOnce(lua_State *L)
 				g_engineStaticSounds[i]->SetLoop( CFalse );
 				g_engineStaticSounds[i]->SetPlay(CTrue);
 				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
-				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' is playing once.");
-				PrintInfo(temp, COLOR_GREEN);
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' is playing once.");
+				//PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engineAmbientSounds[i]->SetLoop(CFalse);
+				g_engineAmbientSounds[i]->SetPlay(CTrue);
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineAmbientSounds[i]->GetName(), "' is playing once.");
+				//PrintInfo(temp, COLOR_GREEN);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
@@ -225,6 +300,23 @@ CInt PauseSound(lua_State *L)
 							break;
 						}
 					}
+
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames.size(); j++)
+					{
+						CChar ambientSoundName[MAX_NAME_SIZE];
+						Cpy(ambientSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+						StringToUpper(ambientSoundName);
+
+						if (Cmp(ambientSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will pause", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
 				}
 			}
 			if (!foundTarget)
@@ -253,13 +345,32 @@ CInt PauseSound(lua_State *L)
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
 				g_soundSystem->PauseALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
-				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' was paused.");
-				PrintInfo(temp, COLOR_GREEN);
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' was paused.");
+				//PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->SetPlay(CFalse);
+				g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineAmbientSounds[i]->GetName(), "' was paused.");
+				//PrintInfo(temp, COLOR_GREEN);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
@@ -308,6 +419,26 @@ CInt StopSound(lua_State *L)
 						}
 					}
 				}
+
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames.size(); j++)
+					{
+						CChar ambientSoundName[MAX_NAME_SIZE];
+						Cpy(ambientSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+						StringToUpper(ambientSoundName);
+
+						if (Cmp(ambientSoundName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : Sound '%s' will stop", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_ambientSoundsNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+
 			}
 			if (!foundTarget)
 			{
@@ -335,13 +466,32 @@ CInt StopSound(lua_State *L)
 			{
 				g_engineStaticSounds[i]->SetPlay(CFalse);
 				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
-				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' was stopped.");
-				PrintInfo(temp, COLOR_GREEN);
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineStaticSounds[i]->GetName(), "' was stopped.");
+				//PrintInfo(temp, COLOR_GREEN);
 				foundTarget = CTrue;
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->SetPlay(CFalse);
+				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineAmbientSounds[i]->GetName(), "' was stopped.");
+				//PrintInfo(temp, COLOR_GREEN);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+
 		if (!foundTarget)
 		{
 			CChar temp[MAX_NAME_SIZE];
@@ -2437,10 +2587,10 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 				}
 
 				//resume matched ambient sound
-				if (g_menu.m_insertAmbientSound)
+				for(CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
 				{
-					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_multipleView->m_ambientSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_multipleView->m_ambientSound->GetSoundSource()));
+					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_engineAmbientSounds[j]->GetName()))
+						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
 				}
 
 			}
@@ -2474,13 +2624,13 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 		}
 
 		//ambient sound
-		if (g_menu.m_insertAmbientSound)
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 		{
 			ALint state;
-			alGetSourcei(g_multipleView->m_ambientSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
+			alGetSourcei(g_engineAmbientSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
 			if (state == AL_PLAYING)
 			{
-				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_multipleView->m_ambientSound->GetName());
+				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_engineAmbientSounds[i]->GetName());
 			}
 		}
 
@@ -3592,9 +3742,9 @@ CInt PlayResourceSoundLoop(lua_State *L)
 				{
 					g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
 					g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-					CChar temp[MAX_NAME_SIZE];
-					sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was played continiously.");
-					PrintInfo(temp, COLOR_YELLOW);
+					//CChar temp[MAX_NAME_SIZE];
+					//sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was played continiously.");
+					//PrintInfo(temp, COLOR_GREEN);
 					foundTarget = CTrue;
 					break;
 				}
@@ -3698,9 +3848,9 @@ CInt PlayResourceSoundOnce(lua_State *L)
 				{
 					g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
 					g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-					CChar temp[MAX_NAME_SIZE];
-					sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was played once.");
-					PrintInfo(temp, COLOR_YELLOW);
+					//CChar temp[MAX_NAME_SIZE];
+					//sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was played once.");
+					//PrintInfo(temp, COLOR_GREEN);
 					foundTarget = CTrue;
 					break;
 				}
@@ -3803,9 +3953,9 @@ CInt StopResourceSound(lua_State *L)
 				if (Cmp(string, luaToString))
 				{
 					g_soundSystem->StopALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-					CChar temp[MAX_NAME_SIZE];
-					sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was stopped.");
-					PrintInfo(temp, COLOR_YELLOW);
+					//CChar temp[MAX_NAME_SIZE];
+					//sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was stopped.");
+					//PrintInfo(temp, COLOR_GREEN);
 					foundTarget = CTrue;
 					break;
 				}
@@ -3930,9 +4080,9 @@ CInt PauseResourceSound(lua_State *L)
 				if (Cmp(string, luaToString))
 				{
 					g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-					CChar temp[MAX_NAME_SIZE];
-					sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was paused.");
-					PrintInfo(temp, COLOR_YELLOW);
+					//CChar temp[MAX_NAME_SIZE];
+					//sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was paused.");
+					//PrintInfo(temp, COLOR_GREEN);
 					foundTarget = CTrue;
 					break;
 				}
@@ -15952,7 +16102,6 @@ CMultipleWindows::~CMultipleWindows()
 		m_nx = NULL;
 	}
 	//Release Audio
-	CDelete( m_ambientSound );
 	CDelete(m_soundSystem );
 
 	//Release input here
@@ -16209,7 +16358,6 @@ CBool CMultipleWindows::InitAll()
 
 		g_soundSystem = m_soundSystem = CNew(COpenALSystem);
 		m_soundSystem->Init();
-		m_ambientSound = NULL;
 		alDistanceModel( AL_INVERSE_DISTANCE );
 
 		//initialize input
@@ -18287,7 +18435,6 @@ CVoid CMultipleWindows::DrawPerspective()
 		UpdateDynamicPhysicsObjects();
 	}
 
-
 	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 		g_render.BindForWriting(m_mFboID);
 	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
@@ -18511,9 +18658,10 @@ CVoid CMultipleWindows::DrawPerspective()
 	m_soundSystem->SetListenerPosition( m_listenerPos );
 	//m_soundSystem->SetListenerVelocity( m_listenerVel );
 	m_soundSystem->SetListenerOrientation( m_listenerOri );
+
 	//set ambient sound
-	if(	g_menu.m_insertAmbientSound )
-		m_ambientSound->GetSoundSource()->SetSoundPosition( m_ambientSourcePos );
+	for(CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		g_engineAmbientSounds[i]->GetSoundSource()->SetSoundPosition(m_ambientSourcePos);
 
 	if( g_polygonMode == ePOLYGON_LINE )
 	{
@@ -18633,10 +18781,8 @@ CVoid CMultipleWindows::DrawPerspective()
 		}
 
 		//ambient sound
-		if (g_menu.m_insertAmbientSound)
-		{
-			g_soundSystem->PauseALSound(*(g_multipleView->m_ambientSound->GetSoundSource()));
-		}
+		for(CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 
 	}
 
@@ -24376,11 +24522,34 @@ CVoid CMultipleWindows::UpdateCharacterTransformations()
 	CScene* scene = NULL;
 
 	CPrefab* prefab = g_mainCharacter->GetInstancePrefab()->GetPrefab();
-	for (CUInt j = 0; j < 3; j++)
+
+	if (g_mainCharacter->GetInstancePrefab()->GetHasCollider())
+	{
+		CScene* scene = g_mainCharacter->GetInstancePrefab()->GetScene(3);
+		if (scene && scene->m_isTransformable)
+		{
+			if (scene->m_controllers.size() == 0)
+			{
+				scene->m_sceneRoot->SetLocalMatrix(g_mainCharacter->GetInstancePrefab()->GetInstanceMatrix());
+				scene->m_update = CTrue;
+			}
+		}
+	}
+
+	for (CUInt j = 0; j < 4; j++)
 	{
 		CBool update = CFalse;
-		if (prefab && prefab->GetHasLod(j))
-			update = CTrue;
+
+		if (j < 3)
+		{
+			if (prefab && prefab->GetHasLod(j))
+				update = CTrue;
+		}
+		else
+		{
+			if (g_mainCharacter->GetInstancePrefab()->GetHasCollider())
+				update = CTrue;
+		}
 
 		if (update)
 		{

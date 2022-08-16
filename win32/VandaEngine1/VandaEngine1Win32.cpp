@@ -62,6 +62,7 @@ std::vector<CWater*> g_engineWaters;
 std::vector<CImage*> g_images;
 std::vector<CImage*>g_waterImages;
 std::vector<CStaticSound*>g_engineStaticSounds;
+std::vector<CAmbientSound*> g_engineAmbientSounds;
 CBool g_useOldRenderingStyle = CFalse;
 CUpdateCamera *g_camera = NULL;
 CVSceneScript* g_VSceneScript = NULL;

@@ -22,7 +22,7 @@ uniform sampler2D dirtMap;
 
 uniform bool firstPass;
 
-out vec4 myVec40;
+out vec4 colorOut;
 
 void main()
 {
@@ -39,7 +39,7 @@ void main()
 	    	 
 	//if( firstPass )
 	//{
-		myVec40 =  vec4(dirtColor.rgb, 0.0);
+		colorOut =  vec4(dirtColor.rgb, 0.0);
 	//}	
 }
 
