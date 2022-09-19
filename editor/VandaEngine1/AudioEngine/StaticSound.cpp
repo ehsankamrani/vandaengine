@@ -2,10 +2,10 @@
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
-#include "staticSound.h"
+#include "3DSound.h"
 #include "../VandaEngine1Dlg.h"
 #include "../graphicsEngine/scene.h"
-CVoid CStaticSound::RenderIcon(CBool selectionMode)
+CVoid C3DSound::RenderIcon(CBool selectionMode)
 {
 	if (selectionMode)
 	{
@@ -18,31 +18,31 @@ CVoid CStaticSound::RenderIcon(CBool selectionMode)
 			g_tempLastEngineObjectSelectedName = m_nameIndex;
 			if (g_transformObject)
 			{
-				m_fStaticSoundPos[0] = g_arrowPosition.x;
-				m_fStaticSoundPos[1] = g_arrowPosition.y;
-				m_fStaticSoundPos[2] = g_arrowPosition.z;
+				m_f3DSoundPos[0] = g_arrowPosition.x;
+				m_f3DSoundPos[1] = g_arrowPosition.y;
+				m_f3DSoundPos[2] = g_arrowPosition.z;
 			}
 			else
 			{
-				g_arrowPosition.x = m_fStaticSoundPos[0];
-				g_arrowPosition.y = m_fStaticSoundPos[1];
-				g_arrowPosition.z = m_fStaticSoundPos[2];
+				g_arrowPosition.x = m_f3DSoundPos[0];
+				g_arrowPosition.y = m_f3DSoundPos[1];
+				g_arrowPosition.z = m_f3DSoundPos[2];
 			}
-			g_glUtil.Billboarding(m_fStaticSoundPos[0], m_fStaticSoundPos[1], m_fStaticSoundPos[2], g_soundImg->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0);
+			g_glUtil.Billboarding(m_f3DSoundPos[0], m_f3DSoundPos[1], m_f3DSoundPos[2], g_soundImg->GetId(), 1.0f, 1.0f, 1.0, 0.0, 0.0);
 
-			m_source->SetSoundPosition(m_fStaticSoundPos);
+			m_source->SetSoundPosition(m_f3DSoundPos);
 			g_showArrow = CTrue;
 		}
 		else
-			g_glUtil.Billboarding(m_fStaticSoundPos[0], m_fStaticSoundPos[1], m_fStaticSoundPos[2], g_soundImg->GetId(), 1.0f, 1.0f);
+			g_glUtil.Billboarding(m_f3DSoundPos[0], m_f3DSoundPos[1], m_f3DSoundPos[2], g_soundImg->GetId(), 1.0f, 1.0f);
 	}
 	else
-		g_glUtil.Billboarding(m_fStaticSoundPos[0], m_fStaticSoundPos[1], m_fStaticSoundPos[2], g_soundImg->GetId(), 1.0f, 1.0f);
+		g_glUtil.Billboarding(m_f3DSoundPos[0], m_f3DSoundPos[1], m_f3DSoundPos[2], g_soundImg->GetId(), 1.0f, 1.0f);
 	if (selectionMode)
 		glPopName();
 }
 
-CStaticSound::~CStaticSound()
+C3DSound::~C3DSound()
 {
 	if (m_buffer)
 	{
@@ -50,11 +50,11 @@ CStaticSound::~CStaticSound()
 		alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE);
 
 		CInt counter = 0;
-		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
-			if (g_engineStaticSounds[i] && g_engineStaticSounds[i]->GetSoundBuffer())
+			if (g_engine3DSounds[i] && g_engine3DSounds[i]->GetSoundBuffer())
 			{
-				if (ICmp(m_buffer->GetName(), g_engineStaticSounds[i]->GetSoundBuffer()->GetName()))
+				if (ICmp(m_buffer->GetName(), g_engine3DSounds[i]->GetSoundBuffer()->GetName()))
 				{
 					counter++;
 				}

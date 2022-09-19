@@ -23,6 +23,7 @@ public:
 	CVoid SetListenerPosition( CVoid );
 	CVoid SetListenerVelocity( CFloat* velocity );
 	CVoid SetListenerOrientation( CFloat* orientation );
+	CVoid SetListenerGain(CFloat gain);
 	CVoid SetDopplerFactor( CFloat factor );
 	CVoid SetDopplerSpeed( CFloat speed );
 

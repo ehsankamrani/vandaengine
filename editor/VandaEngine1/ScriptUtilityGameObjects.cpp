@@ -70,7 +70,7 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 	CBitmap* cBmpMask = NULL;
 
 	m_engineObjectListImage.Create(32, 32, ILC_COLOR24, 10, 10);
-	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_STATIC_SOUND);
+	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_3D_SOUND);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 	cBmp.LoadBitmap(IDB_BITMAP_SCRIPT_UTILITY_AMBIENT_SOUND);
@@ -113,7 +113,7 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 
 				if (Cmp(VSceneNameWithoutDot, m_VSceneName))
 				{
-					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[vs].m_staticSoundsNames.size(); j++)
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[vs].m_3DSoundsNames.size(); j++)
 					{
 						gameObjectIndex++;
 						int index = gameObjectIndex;
@@ -121,8 +121,8 @@ BOOL CScriptUtilityGameObjects::OnInitDialog()
 						lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 						lvItem.iItem = index;
 						lvItem.iSubItem = 0;
-						lvItem.iImage = 0; //static sound
-						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_staticSoundsNames[j].c_str();
+						lvItem.iImage = 0; //3D sound
+						lvItem.pszText = (CChar*)g_projects[pr]->m_vsceneObjectNames[vs].m_3DSoundsNames[j].c_str();
 						m_listGameObjectNames.InsertItem(&lvItem);
 						m_listGameObjectNames.SetExtendedStyle(LVS_EX_INFOTIP | LVS_EX_ONECLICKACTIVATE | LVS_EX_LABELTIP);
 

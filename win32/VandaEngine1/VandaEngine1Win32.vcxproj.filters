@@ -213,9 +213,6 @@
     <ClCompile Include="GraphicsEngine\Sky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioEngine\StaticSound.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -289,6 +286,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUIEngine\GUIImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioEngine\3DSound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -524,9 +524,6 @@
     <ClInclude Include="GraphicsEngine\Sky.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioEngine\StaticSound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -606,6 +603,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUIEngine\GUIImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioEngine\3DSound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

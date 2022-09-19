@@ -29,6 +29,7 @@ public:
 	CEdit m_editBoxAmbientSoundBuffer;
 	CString m_strAmbientSoundBuffer, m_strPureAmbientSoundBuffer, m_strAmbientSoundName, m_strAmbientSoundVolume, m_strAmbientSoundPitch;
 	CString m_strAmbientSoundTempName;
+	CChar m_soundFileName[MAX_NAME_SIZE];
 	CFloat m_volume, m_pitch;
 	CBool m_loop, m_play;
 	CBool m_create;
@@ -48,6 +49,7 @@ public:
 	CFloat GetPitch() { return m_pitch; }
 	CBool GetLoop() { return m_loop; }
 	CBool GetPlay() { return m_play; }
+	CChar* GetSoundFileName() { return m_soundFileName; }
 
 	CVoid SetEditMode( CBool editMode )
 	{
@@ -80,6 +82,11 @@ public:
 		CChar temp[MAX_NAME_SIZE];
 		sprintf( temp, "%.3f", volume );
 		m_strAmbientSoundVolume = temp;
+	}
+
+	CVoid SetSoundFileName(CChar * fileName)
+	{
+		Cpy(m_soundFileName, fileName);
 	}
 
 	CVoid SetLoop(CBool loop) { m_loop = loop; }

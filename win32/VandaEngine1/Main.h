@@ -22,7 +22,7 @@
 #include "AudioEngine/OpenALSystem.h"
 #include "AudioEngine/OpenALSoundBuffer.h"
 #include "AudioEngine/OpenALSoundSource.h"
-#include "AudioEngine/StaticSound.h"
+#include "AudioEngine/3DSound.h"
 #include "AudioEngine/AmbientSound.h"
 #include "Icon.h"
 #include "Defines.h"

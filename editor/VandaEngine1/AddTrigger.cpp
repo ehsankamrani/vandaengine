@@ -77,7 +77,8 @@ void CAddTrigger::OnBnClickedOk()
 	}
 
 	CChar name[MAX_NAME_SIZE];
-	Cpy(name, (LPCTSTR)m_strTriggerName);
+	Cpy(name, (CChar*)m_strTriggerName.GetBuffer(m_strTriggerName.GetLength()));
+	m_strTriggerName.ReleaseBuffer();
 
 	std::string s(name);
 	int n = s.length();
@@ -94,6 +95,7 @@ void CAddTrigger::OnBnClickedOk()
 	Cpy(oldName, "\n");
 	if (m_trigger)
 		Cpy(oldName, m_trigger->GetName());
+
 	for (std::vector<std::string>::iterator it = g_engineObjectNames.begin(); it != g_engineObjectNames.end(); it++)
 	{
 		CChar engineObjectCapsName[MAX_NAME_SIZE];
@@ -101,11 +103,11 @@ void CAddTrigger::OnBnClickedOk()
 		StringToUpper(engineObjectCapsName);
 
 		CChar currentObjectName[MAX_NAME_SIZE];
-		Cpy(currentObjectName, (LPCSTR)name);
+		Cpy(currentObjectName, name);
 		StringToUpper(currentObjectName);
 
 		CChar oldObjectName[MAX_NAME_SIZE];
-		Cpy(oldObjectName, (LPCSTR)oldName);
+		Cpy(oldObjectName, oldName);
 		StringToUpper(oldObjectName);
 
 		if (!Cmp(oldObjectName, engineObjectCapsName) && Cmp(currentObjectName, engineObjectCapsName))
@@ -168,9 +170,9 @@ void CAddTrigger::OnBnClickedOk()
 		new_trigger->SetScript(m_strScript.GetBuffer(m_strScript.GetLength()));
 		m_strScript.ReleaseBuffer();
 	}
+
 	g_importPrefab = CTrue;
-	if (g_multipleView->m_enableTimer)
-		g_multipleView->EnableTimer(CFalse);
+
 	CBool PhysXCam = CFalse;
 	CBool selected = CFalse;
 	if (m_trigger)
@@ -189,6 +191,7 @@ void CAddTrigger::OnBnClickedOk()
 		g_arrowRotate.x = g_arrowRotate.y = g_arrowRotate.z = 0.0f;
 		g_arrowScale.x = g_arrowScale.y = g_arrowScale.z = 1.0f;
 	}
+
 	ex_pVandaEngine1Dlg->m_dlgPrefabs = CNew(CPrefabDlg);
 	ex_pDlgPrefabs = ex_pVandaEngine1Dlg->m_dlgPrefabs;
 	ex_pVandaEngine1Dlg->OnMenuClickedInsertPrefab(NULL, packageName, prefabName);
@@ -196,18 +199,13 @@ void CAddTrigger::OnBnClickedOk()
 	new_trigger->SetInstancePrefab(g_instancePrefab[g_instancePrefab.size() - 1]); //last element
 	new_trigger->GetInstancePrefab()->SetIsTrigger(CTrue);
 	CDelete(ex_pVandaEngine1Dlg->m_dlgPrefabs);
-	if (g_multipleView->m_enableTimer)
-		g_multipleView->EnableTimer(CTrue);
+
 	g_importPrefab = CFalse;
-	if (g_editorMode == eMODE_VSCENE)
-		g_multipleView->RenderQueries(CTrue);
 
 	if (selected)
 	{
 		g_selectedName = new_trigger->GetInstancePrefab()->GetNameIndex();
 	}
-
-	new_trigger->GetInstancePrefab()->SetName(name);
 
 	if (m_trigger)
 	{
@@ -243,7 +241,6 @@ void CAddTrigger::OnBnClickedOk()
 		}
 	}
 
-
 	//Erase all items of m_listBoxEngineObjects
 	for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxScenes.GetItemCount(); k++)
 	{
@@ -254,6 +251,9 @@ void CAddTrigger::OnBnClickedOk()
 	ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
 
 	g_multipleView->SetElapsedTimeFromBeginning();
+
+	if (g_editorMode == eMODE_VSCENE)
+		g_multipleView->RenderQueries(CTrue);
 
 	CDialog::OnOK();
 }

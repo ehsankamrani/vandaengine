@@ -28,7 +28,7 @@
 #include "AddMultipleAnimations.h"
 #include "AddSkyDome.h"
 #include "AddAmbientSound.h"
-#include "AddStaticSound.h"
+#include "Add3DSound.h"
 #include "AddMainCharacter.h"
 #include "AddResource.h"
 #include "GeneralAmbientColor.h"
@@ -67,7 +67,7 @@
 #include "AudioEngine/OpenALSystem.h"
 #include "AudioEngine/OpenALSoundBuffer.h"
 #include "AudioEngine/OpenALSoundSource.h"
-#include "AudioEngine/StaticSound.h"
+#include "AudioEngine/3DSound.h"
 #include "GUIEngine/GUIImage.h"
 #include "GUIEngine/GUIButton.h"
 #include "GUIEngine/GUIText.h"
@@ -188,7 +188,7 @@ struct CVSceneObjectNames
 {
 	std::vector<CInstancePrefabNames>m_instancePrefabNames; //Prefab Instances of this VScene
 	std::vector<CPrefabNames>m_prefabNames; //Prefab Instances of this VScene
-	std::vector<std::string> m_staticSoundsNames; //static sounds of this VScene
+	std::vector<std::string> m_3DSoundsNames; //3D sounds of this VScene
 	std::vector<std::string> m_ambientSoundsNames; //ambient sounds of this VScene
 	std::vector<std::string> m_importedCameraNames; //imported cameras in dae format of this VScene
 	std::vector<std::string> m_engineCameraNames; //camera objects of this VScene
@@ -204,7 +204,7 @@ struct CVSceneObjectNames
 		m_instancePrefabNames.clear();
 
 		m_prefabNames.clear();
-		m_staticSoundsNames.clear();
+		m_3DSoundsNames.clear();
 		m_ambientSoundsNames.clear();
 		m_importedCameraNames.clear();
 		m_engineCameraNames.clear();
@@ -337,12 +337,14 @@ struct CCurrentVSceneProperties
 	CBool m_isMenu;
 	CInt m_cursorSize;
 	CBool m_isPause;
+	CFloat m_globalSoundVolume;
 
 	CCurrentVSceneProperties()
 	{
 		m_isMenu = CFalse;
 		m_isPause = CFalse;
 		m_cursorSize = 5;
+		m_globalSoundVolume = 1.0f;
 	}
 
 	CVoid Reset()
@@ -350,6 +352,7 @@ struct CCurrentVSceneProperties
 		m_isMenu = CFalse;
 		m_isPause = CFalse;
 		m_cursorSize = 5;
+		m_globalSoundVolume = 1.0f;
 	}
 };
 
@@ -724,7 +727,7 @@ protected:
 
 	CToolTipCtrl* m_pToolTip;
 private:
-	std::vector<CStaticSound*>m_engineStaticSounds;
+	std::vector<C3DSound*>m_engine3DSounds;
 	std::vector<CAmbientSound*>m_engineAmbientSounds;
 	std::vector<CInstancePrefab*> m_instancePrefab;
 	std::vector<CPrefab*> m_prefab;
@@ -743,6 +746,7 @@ private:
 	COptions m_options;
 	CAddPrefabResource *m_dlgAddPrefabResource;
 	std::vector<CWater*> m_water;
+	CFloat m_globalSoundVolume;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );
@@ -766,7 +770,7 @@ protected:
 	CVoid OnMenuClickedImportCollada();
 	CVoid OnMenuClickedImportPhysX(); //removed in version 1.4 or later
 	CVoid OnMenuClickedInsertLight();
-	CVoid OnMenuClickedInsertStaticSound();
+	CVoid OnMenuClickedInsert3DSound();
 	CVoid OnMenuClickedInsertSkyDome();
 	CVoid OnMenuClickedInsertVSceneScript();
 	CVoid OnMenuClickedInsertTerrain();
@@ -832,7 +836,7 @@ public:
 	CVoid ChangeLightProperties(CInstanceLight* light );
 	CVoid ChangeEngineCameraProperties(CInstanceCamera* cam);
 	CVoid ChangeWaterProperties( CWater* water);
-	CVoid ChangeStaticSoundProperties(CStaticSound* staticSound);
+	CVoid Change3DSoundProperties(C3DSound* ThreeDSound);
 	CVoid ChangeAmbientSoundProperties(CAmbientSound* sound);
 	CVoid ChangeSkyDomeProperties();
 	CVoid ChangeTerrainProperties();
@@ -851,7 +855,7 @@ public:
 	CAddWater* m_dlgAddWater;
 	CAddMultipleAnimations* m_dlgAddMultipleAnimations;
 	CPublishProject* m_dlgPublishProject;
-	CAddStaticSound* m_dlgAddStaticSound;
+	CAdd3DSound* m_dlgAdd3DSound;
 	CAddSkyDome* m_dlgAddSkyDome;
 	CAddAmbientSound* m_dlgAddAmbientSound;
 	CGeneralAmbientColor* m_dlgGeneralAmbientColor;
@@ -971,14 +975,14 @@ public:
 	afx_msg void OnBnClickedBtnMaterial();
 	CCustomBitmapButton m_mainBtnSky;
 	CCustomBitmapButton m_mainBtnWater;
-	CCustomBitmapButton m_mainBtnStaticSound;
+	CCustomBitmapButton m_mainBtn3DSound;
 	CCustomBitmapButton m_mainBtnAmbientSound;
 	CCustomBitmapButton m_mainBtnPlayer;
 	CCustomBitmapButton m_mainBtnLight;
 	afx_msg void OnBnClickedBtnLight();
 	afx_msg void OnBnClickedBtnWater();
 	afx_msg void OnBnClickedBtnAmbientsound();
-	afx_msg void OnBnClickedBtnStaticsound();
+	afx_msg void OnBnClickedBtn3DSound();
 	afx_msg void OnBnClickedBtnSky();
 	afx_msg void OnBnClickedBtnPlayer();
 
@@ -1196,7 +1200,7 @@ extern std::vector<CWater*> g_engineWaters; //We may use multiple water surfaces
 extern std::vector<CInstanceCamera*> g_importedCameraInstances;
 extern std::vector<CInstanceCamera*> g_engineCameraInstances;
 extern std::vector<CResourceFile*> g_resourceFiles;
-extern std::vector<CStaticSound*> g_engineStaticSounds;
+extern std::vector<C3DSound*> g_engine3DSounds;
 extern std::vector<CAmbientSound*> g_engineAmbientSounds;
 extern COpenALSystem* g_soundSystem;
 extern std::vector<std::string> g_engineObjectNames;

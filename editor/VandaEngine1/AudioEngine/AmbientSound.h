@@ -13,8 +13,18 @@
 class CAmbientSound
 {
 public:
-	CAmbientSound() { m_buffer = NULL; m_source = NULL; }
-	~CAmbientSound() { alSourceStop(m_source->GetSource()); alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE); CDelete(m_buffer); CDelete(m_source); m_VSceneList.clear(); }
+	CAmbientSound() { m_buffer = NULL; m_source = NULL; Cpy(m_soundFileName, "\n"); }
+	~CAmbientSound()
+	{ 
+		if (m_buffer)
+		{
+			alSourceStop(m_source->GetSource());
+			alSourcei(m_source->GetSource(), AL_BUFFER, AL_NONE);
+			CDelete(m_buffer);
+		}
+		CDelete(m_source);
+		m_VSceneList.clear();
+	}
 	CVoid SetName( CChar* name ) {Cpy( m_name, name ); }
 	CVoid SetPath( CChar* path ) {Cpy( m_path, path ); }
 	CVoid SetVolume( CFloat volume) { m_volume = volume; }
@@ -23,6 +33,7 @@ public:
 	CVoid SetSoundBuffer( COpenALSoundBuffer* buffer ) { m_buffer = buffer; }
 	CVoid SetLoop(CBool loop) { m_loop = loop; }
 	CVoid SetPlay(CBool play) { m_play = play; }
+	CVoid SetSoundFileName(CChar* soundName) { Cpy(m_soundFileName, soundName); }
 
 	COpenALSoundSource* GetSoundSource() { return m_source; }
 	COpenALSoundBuffer* GetSoundBuffer() { return m_buffer; }
@@ -33,13 +44,14 @@ public:
 	CFloat GetPitch() { return m_pitch; }
 	CBool GetLoop() { return m_loop; }
 	CBool GetPlay() { return m_play; }
+	CChar* GetSoundFileName() { return m_soundFileName; }
 
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_path[MAX_NAME_SIZE];
 	CFloat m_pitch;
 	CFloat m_volume;
 	CBool m_loop, m_play;
-
+	CChar m_soundFileName[MAX_NAME_SIZE];
 	COpenALSoundBuffer* m_buffer;
 	COpenALSoundSource* m_source;
 

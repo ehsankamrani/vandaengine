@@ -151,9 +151,11 @@
       <StackReserveSize>
       </StackReserveSize>
       <AdditionalOptions>/ignore:4099 /ignore:4049 %(AdditionalOptions)</AdditionalOptions>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Add3DSound.cpp" />
     <ClCompile Include="AddAmbientSound.cpp" />
     <ClCompile Include="AddCharacterSound.cpp" />
     <ClCompile Include="AddEngineCamera.cpp" />
@@ -167,11 +169,11 @@
     <ClCompile Include="AddPrefabResource.cpp" />
     <ClCompile Include="AddResource.cpp" />
     <ClCompile Include="AddSkyDome.cpp" />
-    <ClCompile Include="AddStaticSound.cpp" />
     <ClCompile Include="AddTerrain.cpp" />
     <ClCompile Include="AddTrigger.cpp" />
     <ClCompile Include="AddVSceneScriptObject.cpp" />
     <ClCompile Include="AddWater.cpp" />
+    <ClCompile Include="AudioEngine\3DSound.cpp" />
     <ClCompile Include="AudioEngine\AmbientSound.cpp" />
     <ClCompile Include="BackupAllProjects.cpp" />
     <ClCompile Include="Common\HyperLink.cpp" />
@@ -302,7 +304,6 @@
     <ClCompile Include="GraphicsEngine\SimpleFont.cpp" />
     <ClCompile Include="GraphicsEngine\skin.cpp" />
     <ClCompile Include="GraphicsEngine\Sky.cpp" />
-    <ClCompile Include="AudioEngine\StaticSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -323,6 +324,7 @@
     <ClCompile Include="WelcomeDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Add3DSound.h" />
     <ClInclude Include="AddAmbientSound.h" />
     <ClInclude Include="AddCharacterSound.h" />
     <ClInclude Include="AddEngineCamera.h" />
@@ -336,11 +338,11 @@
     <ClInclude Include="AddPrefabResource.h" />
     <ClInclude Include="AddResource.h" />
     <ClInclude Include="AddSkyDome.h" />
-    <ClInclude Include="AddStaticSound.h" />
     <ClInclude Include="AddTerrain.h" />
     <ClInclude Include="AddTrigger.h" />
     <ClInclude Include="AddVSceneScriptObject.h" />
     <ClInclude Include="AddWater.h" />
+    <ClInclude Include="AudioEngine\3DSound.h" />
     <ClInclude Include="AudioEngine\AmbientSound.h" />
     <ClInclude Include="BackupAllProjects.h" />
     <ClInclude Include="Common\HyperLink.h" />
@@ -480,7 +482,6 @@
     <ClInclude Include="GraphicsEngine\SimpleFont.h" />
     <ClInclude Include="GraphicsEngine\skin.h" />
     <ClInclude Include="GraphicsEngine\Sky.h" />
-    <ClInclude Include="AudioEngine\StaticSound.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="physXEngine\Stream.h" />
     <ClInclude Include="GraphicsEngine\targa.h" />
@@ -674,6 +675,10 @@
     <ResourceCompile Include="VandaEngine1.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\Icon\3DSound\3DSound_Disable.bmp" />
+    <Image Include="Assets\Icon\3DSound\3DSound_Down.bmp" />
+    <Image Include="Assets\Icon\3DSound\3DSound_Focus.bmp" />
+    <Image Include="Assets\Icon\3DSound\3DSound_Up.bmp" />
     <Image Include="Assets\Icon\Camera\camera_disable.bmp" />
     <Image Include="Assets\Icon\Default\Default.bmp" />
     <Image Include="Assets\Icon\Default\Default_gui.bmp" />
@@ -696,6 +701,7 @@
     <Image Include="Assets\Icon\EngineCamera\engine_camera_down.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_focus.bmp" />
     <Image Include="Assets\Icon\EngineCamera\engine_camera_up.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\3DSound.bmp" />
     <Image Include="Assets\Icon\EngineObjectList\engine_camera.bmp" />
     <Image Include="Assets\Icon\EngineObjectList\Start.bmp" />
     <Image Include="Assets\Icon\EngineObjectList\Terrain.bmp" />

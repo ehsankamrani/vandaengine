@@ -24,9 +24,6 @@
     <ClCompile Include="AddSkyDome.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AddStaticSound.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AddWater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -270,9 +267,6 @@
     <ClCompile Include="GraphicsEngine\Sky.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioEngine\StaticSound.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -507,6 +501,12 @@
     <ClCompile Include="ScriptUtilityPrefabs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AudioEngine\3DSound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Add3DSound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddAmbientSound.h">
@@ -516,9 +516,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AddSkyDome.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AddStaticSound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AddWater.h">
@@ -788,9 +785,6 @@
     <ClInclude Include="GraphicsEngine\Sky.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioEngine\StaticSound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1035,6 +1029,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScriptUtilityPrefabs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioEngine\3DSound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Add3DSound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1893,6 +1893,21 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Icon\Default\Script Utility\ambientAudio.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\3DSound\3DSound_Disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\3DSound\3DSound_Down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\3DSound\3DSound_Focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\3DSound\3DSound_Up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\EngineObjectList\3DSound.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

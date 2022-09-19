@@ -139,7 +139,7 @@ std::vector<CInstanceCamera*> g_engineCameraInstances;
 std::vector<CResourceFile*> g_resourceFiles;
 std::vector<CImage*> g_images;
 std::vector<CImage*>g_waterImages; // This variable holds the information of water images of Engine
-std::vector<CStaticSound*>g_engineStaticSounds;
+std::vector<C3DSound*>g_engine3DSounds;
 std::vector<CAmbientSound*> g_engineAmbientSounds;
 COpenALSystem* g_soundSystem = NULL;
 std::vector<std::string> g_engineObjectNames;
@@ -1011,7 +1011,7 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	m_dlgAddWater = NULL;
 	m_dlgAddMultipleAnimations = NULL;
 	m_dlgPublishProject = NULL;
-	m_dlgAddStaticSound = NULL;
+	m_dlgAdd3DSound = NULL;
 	m_dlgAddSkyDome = NULL;
 	m_dlgAddAmbientSound = NULL;
 	m_dlgGeneralAmbientColor = NULL;
@@ -1153,12 +1153,12 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	g_engineWaters.clear();
 
 	//delete 3d sounds
-	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
-		CDelete(g_engineStaticSounds[i]);
+		CDelete(g_engine3DSounds[i]);
 	}
-	if( g_engineStaticSounds.size() > 0 )
-		g_engineStaticSounds.clear();
+	if( g_engine3DSounds.size() > 0 )
+		g_engine3DSounds.clear();
 
 	//delete ambient sounds
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -1169,7 +1169,7 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 
 	if( g_engineObjectNames.size() > 0 )
 		g_engineObjectNames.clear();
-	//delete the static sound buffers
+	//delete the 3D sound buffers
 	for( std::vector<COpenALSoundBuffer*>::iterator it = g_soundBuffers.begin(); it != g_soundBuffers.end(); it++ )
 	{
 		CDelete( *it );
@@ -1244,7 +1244,7 @@ CVoid CVandaEngine1Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_SELECTEDOBJECT, m_staticSelectedObject);
 	DDX_Control(pDX, IDC_BTN_SKY, m_mainBtnSky);
 	DDX_Control(pDX, IDC_BTN_WATER, m_mainBtnWater);
-	DDX_Control(pDX, IDC_BTN_STATICSOUND, m_mainBtnStaticSound);
+	DDX_Control(pDX, IDC_BTN_3DSOUND, m_mainBtn3DSound);
 	DDX_Control(pDX, IDC_BTN_AMBIENTSOUND, m_mainBtnAmbientSound);
 	DDX_Control(pDX, IDC_BTN_PLAYER, m_mainBtnPlayer);
 	DDX_Control(pDX, IDC_BTN_LIGHT, m_mainBtnLight);
@@ -1321,7 +1321,7 @@ ON_BN_CLICKED(IDC_BTN_MATERIAL, &CVandaEngine1Dlg::OnBnClickedBtnMaterial)
 ON_BN_CLICKED(IDC_BTN_LIGHT, &CVandaEngine1Dlg::OnBnClickedBtnLight)
 ON_BN_CLICKED(IDC_BTN_WATER, &CVandaEngine1Dlg::OnBnClickedBtnWater)
 ON_BN_CLICKED(IDC_BTN_AMBIENTSOUND, &CVandaEngine1Dlg::OnBnClickedBtnAmbientsound)
-ON_BN_CLICKED(IDC_BTN_STATICSOUND, &CVandaEngine1Dlg::OnBnClickedBtnStaticsound)
+ON_BN_CLICKED(IDC_BTN_3DSOUND, &CVandaEngine1Dlg::OnBnClickedBtn3DSound)
 ON_BN_CLICKED(IDC_BTN_SKY, &CVandaEngine1Dlg::OnBnClickedBtnSky)
 ON_BN_CLICKED(IDC_BTN_PLAYER, &CVandaEngine1Dlg::OnBnClickedBtnPlayer)
 ON_BN_CLICKED(IDC_BTN_CONSOLE, &CVandaEngine1Dlg::OnBnClickedBtnConsole)
@@ -1449,7 +1449,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_pToolTip->AddTool(&m_mainBtnSky, "Create Sky");
 	m_pToolTip->AddTool(&m_mainBtnWater, "Create Water");
 	m_pToolTip->AddTool(&m_mainBtnAmbientSound, "Create Ambient Sound");
-	m_pToolTip->AddTool(&m_mainBtnStaticSound, "Create Static Sound");
+	m_pToolTip->AddTool(&m_mainBtn3DSound, "Create 3D Sound");
 	m_pToolTip->AddTool(&m_mainBtnPlayer, "Create Player");
 	m_pToolTip->AddTool(&m_mainBtnLight, "Create Light");
 	m_pToolTip->AddTool(&m_mainBtnTerrain, "Create Terrain");
@@ -1476,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.0"));
+	SetWindowText(_T("Vanda Engine 1.9.1"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -1891,15 +1891,15 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	m_mainBtnLight.UpdateWindow();
 	m_mainBtnLight.EnableWindow( TRUE );
 
-	//Initialize main *Static Sound* button here
+	//Initialize main *3D Sound* button here
 	rcRect.top = CInt( ( m_startLeftButtons + 4 * ButtonSizeAndGap ) * ( windowRect.bottom - windowRect.top ) / 100 );
 	rcRect.bottom = rcRect.top + (ButtonSize * ( windowRect.bottom - windowRect.top ) / 100 );
 
-	m_mainBtnStaticSound.MoveWindow( rcRect );
-	m_mainBtnStaticSound.LoadBitmaps(IDB_BITMAP_STATICSOUND_UP, IDB_BITMAP_STATICSOUND_DOWN, IDB_BITMAP_STATICSOUND_FOCUS, IDB_BITMAP_STATICSOUND_DISABLE);
-	m_mainBtnStaticSound.ShowWindow( SW_SHOW );
-	m_mainBtnStaticSound.UpdateWindow();
-	m_mainBtnStaticSound.EnableWindow( TRUE );
+	m_mainBtn3DSound.MoveWindow( rcRect );
+	m_mainBtn3DSound.LoadBitmaps(IDB_BITMAP_3DSOUND_UP, IDB_BITMAP_3DSOUND_DOWN, IDB_BITMAP_3DSOUND_FOCUS, IDB_BITMAP_3DSOUND_DISABLE);
+	m_mainBtn3DSound.ShowWindow( SW_SHOW );
+	m_mainBtn3DSound.UpdateWindow();
+	m_mainBtn3DSound.EnableWindow( TRUE );
 
 	//Initialize *Ambient Sound* button here
 	rcRect.top = CInt( ( m_startLeftButtons + 5 * ButtonSizeAndGap ) * ( windowRect.bottom - windowRect.top ) / 100 );
@@ -2266,7 +2266,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_WATER);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
-	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_STATICSOUND);
+	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_3DSOUND);
 	m_engineObjectListImage.Add(&cBmp, cBmpMask);
 	cBmp.DeleteObject();
 	cBmp.LoadBitmap(IDB_BITMAP_ENGINEOBJECTLIST_AMBIENTSOUND);
@@ -3044,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.0 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.1 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.1 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.1 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4232,7 +4232,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		SaveGUIFiles();
 
-		if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
+		if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() > 0 || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size())
 		{
 			CInt iResponse = IDNO;
 			iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
@@ -4475,7 +4475,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CFalse );
-		OnMenuClickedInsertStaticSound();
+		OnMenuClickedInsert3DSound();
 		if( g_multipleView->m_enableTimer )
 			g_multipleView->EnableTimer( CTrue );
 
@@ -6897,7 +6897,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnVSceneScript.ShowWindow(SW_HIDE);
 		m_mainBtnSky.ShowWindow(SW_HIDE);
 		m_mainBtnWater.ShowWindow(SW_HIDE);
-		m_mainBtnStaticSound.ShowWindow(SW_HIDE);
+		m_mainBtn3DSound.ShowWindow(SW_HIDE);
 		m_mainBtnAmbientSound.ShowWindow(SW_HIDE);
 		m_mainBtnPlayer.ShowWindow(SW_HIDE);
 		m_mainBtnLight.ShowWindow(SW_HIDE);
@@ -6948,7 +6948,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnWater.ShowWindow(SW_HIDE);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_SOUND_STATIC, MF_DISABLED | MF_GRAYED);
-		m_mainBtnStaticSound.ShowWindow(SW_HIDE);
+		m_mainBtn3DSound.ShowWindow(SW_HIDE);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_SOUND_AMBIENT, MF_DISABLED | MF_GRAYED);
 		m_mainBtnAmbientSound.ShowWindow(SW_HIDE);
@@ -7225,7 +7225,7 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnWater.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_SOUND_STATIC, MF_ENABLED);
-		m_mainBtnStaticSound.ShowWindow(SW_SHOW);
+		m_mainBtn3DSound.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_SOUND_AMBIENT, MF_ENABLED);
 		m_mainBtnAmbientSound.ShowWindow(SW_SHOW);
@@ -7325,12 +7325,12 @@ CVoid CVandaEngine1Dlg::SortButtons()
 		m_mainBtnLight.MoveWindow(rcRect);
 		m_mainBtnLight.UpdateWindow();
 
-		//Initialize main *Static Sound* button here
+		//Initialize main *3D Sound* button here
 		rcRect.top = CInt((m_startLeftButtons + 4 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100.0f);
 		rcRect.bottom = rcRect.top + (ButtonSize * CFloat(windowRect.bottom - windowRect.top) / 100.0f);
 
-		m_mainBtnStaticSound.MoveWindow(rcRect);
-		m_mainBtnStaticSound.UpdateWindow();
+		m_mainBtn3DSound.MoveWindow(rcRect);
+		m_mainBtn3DSound.UpdateWindow();
 
 		//Initialize main *Ambient Sound* button here
 		rcRect.top = CInt((m_startLeftButtons + 5 * ButtonSizeAndGap) * (windowRect.bottom - windowRect.top) / 100.0f);
@@ -7608,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.1 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7617,7 +7617,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	CInt iResponse = IDNO;
 	if( askQuestion )
 	{ 
-		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engineStaticSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain)
+		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size())
 			iResponse = MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	}
 
@@ -7785,12 +7785,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		g_engineWaters.clear();
 
 	//delete 3d sounds
-	for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
-		CDelete(g_engineStaticSounds[i]);
+		CDelete(g_engine3DSounds[i]);
 	}
-	if (g_engineStaticSounds.size() > 0)
-		g_engineStaticSounds.clear();
+	if (g_engine3DSounds.size() > 0)
+		g_engine3DSounds.clear();
 
 	//delete ambient sounds
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -8041,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8050,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.1 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -8776,14 +8776,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertLight()
 		CDelete( m_dlgAddLight );
 }
 
-CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
+CVoid CVandaEngine1Dlg::OnMenuClickedInsert3DSound()
 {
-	m_dlgAddStaticSound = CNew( CAddStaticSound );
-	m_dlgAddStaticSound->SetCreate( CTrue );
-	INT_PTR result = m_dlgAddStaticSound->DoModal();
+	m_dlgAdd3DSound = CNew( CAdd3DSound );
+	m_dlgAdd3DSound->SetCreate( CTrue );
+	INT_PTR result = m_dlgAdd3DSound->DoModal();
 	if ( result  == IDOK )
 	{
-		if (m_dlgAddStaticSound->m_create)
+		if (m_dlgAdd3DSound->m_create)
 		{
 			if (g_multipleView->IsPlayGameMode())
 			{
@@ -8799,31 +8799,31 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
 			}
 		}
 
-		COpenALSoundSource* m_staticSoundSource = CNew( COpenALSoundSource );
-		CStaticSound* m_staticSound = CNew( CStaticSound );
+		COpenALSoundSource* m_3DSoundSource = CNew( COpenALSoundSource );
+		C3DSound* m_3DSound = CNew( C3DSound );
 
 		CChar temp[ MAX_NAME_SIZE];
-		sprintf( temp, "%s", (LPCSTR)m_dlgAddStaticSound->m_strStaticSoundDataPath );
-		COpenALSoundBuffer* m_staticSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
-		if( m_staticSoundBuffer == NULL || (m_staticSoundBuffer && !m_staticSoundBuffer->m_loaded ) )
+		sprintf( temp, "%s", (LPCSTR)m_dlgAdd3DSound->m_str3DSoundDataPath );
+		COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
+		if( m_3DSoundBuffer == NULL || (m_3DSoundBuffer && !m_3DSoundBuffer->m_loaded ) )
 		{
-			if( m_staticSoundBuffer == NULL )
+			if( m_3DSoundBuffer == NULL )
 			{
-				m_staticSoundBuffer = CNew( COpenALSoundBuffer );
-				g_soundBuffers.push_back( m_staticSoundBuffer );
+				m_3DSoundBuffer = CNew( COpenALSoundBuffer );
+				g_soundBuffers.push_back( m_3DSoundBuffer );
 			}
 			else 
 			{
 				CChar tempBuffer[MAX_NAME_SIZE];
-				sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_staticSoundBuffer->GetName() ), "'" );
+				sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_3DSoundBuffer->GetName() ), "'" );
 				PrintInfo( tempBuffer, COLOR_YELLOW );
 			}
-			if( !m_staticSoundBuffer->LoadOggVorbisFromFile( temp ) )
+			if( !m_3DSoundBuffer->LoadOggVorbisFromFile( temp ) )
 			{
 				CChar buffer[MAX_NAME_SIZE];
 				sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", temp, "'" );
 				PrintInfo( buffer, COLOR_RED );
-				m_staticSoundBuffer->m_loaded = CFalse;
+				m_3DSoundBuffer->m_loaded = CFalse;
 
 			}
 			else
@@ -8831,55 +8831,57 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
 				CChar buffer[MAX_NAME_SIZE];
 				sprintf( buffer, "\n%s%s%s", "ogg file '", temp, "' loaded successfully." );
 				PrintInfo( buffer );
-				m_staticSoundBuffer->m_loaded = CTrue;
+				m_3DSoundBuffer->m_loaded = CTrue;
 			}
-			m_staticSoundBuffer->SetName( temp );	
+			m_3DSoundBuffer->SetName( temp );	
 		}
 		else
 		{
 				CChar temp[MAX_NAME_SIZE]; 
-				sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_staticSoundBuffer->GetName()), "' already exists." );
+				sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_3DSoundBuffer->GetName()), "' already exists." );
 				PrintInfo( temp, COLOR_YELLOW );
 		}
 
-		m_staticSoundSource->BindSoundBuffer (*m_staticSoundBuffer);
-		m_staticSoundSource->SetLooping( m_dlgAddStaticSound->GetLoopCondition() );
-		m_staticSoundSource->SetPitch( m_dlgAddStaticSound->GetPitch() );
-		m_staticSoundSource->SetReferenceDistance( m_dlgAddStaticSound->GetReferenceDistance() );
-		m_staticSoundSource->SetMaxDistance( m_dlgAddStaticSound->GetMaxDistance() );
-		m_staticSoundSource->SetRolloff( m_dlgAddStaticSound->GetRolloff() );
-		m_staticSoundSource->SetSoundPosition( m_dlgAddStaticSound->GetSoundPos() );
-		if( m_dlgAddStaticSound->GetPlayCondition() )
-			g_multipleView->m_soundSystem->PlayALSound( *m_staticSoundSource );
+		m_3DSoundSource->BindSoundBuffer (*m_3DSoundBuffer);
+		m_3DSoundSource->SetLooping( m_dlgAdd3DSound->GetLoopCondition() );
+		m_3DSoundSource->SetPitch( m_dlgAdd3DSound->GetPitch() );
+		m_3DSoundSource->SetReferenceDistance( m_dlgAdd3DSound->GetReferenceDistance() );
+		m_3DSoundSource->SetMaxDistance( m_dlgAdd3DSound->GetMaxDistance() );
+		m_3DSoundSource->SetRolloff( m_dlgAdd3DSound->GetRolloff() );
+		m_3DSoundSource->SetSoundPosition( m_dlgAdd3DSound->GetSoundPos() );
+		m_3DSoundSource->SetVolume(m_dlgAdd3DSound->GetVolume());
+		if( m_dlgAdd3DSound->GetPlayCondition() )
+			g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
 
-		m_staticSound->SetName( m_dlgAddStaticSound->GetName() );
-		m_staticSound->SetPath( temp );
-		m_staticSound->SetPosition( m_dlgAddStaticSound->GetSoundPos() );
-		m_staticSound->SetLoop( m_dlgAddStaticSound->GetLoopCondition() );
-		m_staticSound->SetMaxDistance( m_dlgAddStaticSound->GetMaxDistance() );
-		m_staticSound->SetPitch( m_dlgAddStaticSound->GetPitch() );
-		m_staticSound->SetPlay( m_dlgAddStaticSound->GetPlayCondition() );
-		m_staticSound->SetRefrenceDistance( m_dlgAddStaticSound->GetReferenceDistance() );
-		m_staticSound->SetRolloff( m_dlgAddStaticSound->GetRolloff() );
-		m_staticSound->SetSoundSource( m_staticSoundSource );
-		m_staticSound->SetSoundBuffer( m_staticSoundBuffer );
+		m_3DSound->SetName( m_dlgAdd3DSound->GetName() );
+		m_3DSound->SetPath( temp );
+		m_3DSound->SetPosition( m_dlgAdd3DSound->GetSoundPos() );
+		m_3DSound->SetLoop( m_dlgAdd3DSound->GetLoopCondition() );
+		m_3DSound->SetMaxDistance( m_dlgAdd3DSound->GetMaxDistance() );
+		m_3DSound->SetPitch( m_dlgAdd3DSound->GetPitch() );
+		m_3DSound->SetPlay( m_dlgAdd3DSound->GetPlayCondition() );
+		m_3DSound->SetReferenceDistance( m_dlgAdd3DSound->GetReferenceDistance() );
+		m_3DSound->SetRolloff( m_dlgAdd3DSound->GetRolloff() );
+		m_3DSound->SetVolume(m_dlgAdd3DSound->GetVolume());
+		m_3DSound->SetSoundSource( m_3DSoundSource );
+		m_3DSound->SetSoundBuffer( m_3DSoundBuffer );
 
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
-			m_staticSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
+			m_3DSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
 
-		g_engineStaticSounds.push_back( m_staticSound );
-		InsertItemToEngineObjectList( m_staticSound->GetName(), eENGINEOBJECTLIST_STATICSOUND );
-		g_engineObjectNames.push_back( m_dlgAddStaticSound->GetName() );
+		g_engine3DSounds.push_back( m_3DSound );
+		InsertItemToEngineObjectList( m_3DSound->GetName(), eENGINEOBJECTLIST_3DSOUND );
+		g_engineObjectNames.push_back( m_dlgAdd3DSound->GetName() );
 
 		g_transformObject = CFalse;
-		g_selectedName = g_lastEngineObjectSelectedName = m_staticSound->GetIndex();
+		g_selectedName = g_lastEngineObjectSelectedName = m_3DSound->GetIndex();
 
 		CChar name[MAX_NAME_SIZE];
-		Cpy(name, m_staticSound->GetName());
+		Cpy(name, m_3DSound->GetName());
 
 		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
 		{
@@ -8906,10 +8908,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertStaticSound()
 		ex_pVandaEngine1Dlg->m_btnRemoveScene.EnableWindow(FALSE);
 		ex_pVandaEngine1Dlg->m_btnSceneProperties.EnableWindow(FALSE);
 
-		CDelete( m_dlgAddStaticSound );
+		CDelete( m_dlgAdd3DSound );
 	}
 	else if( result == IDCANCEL )
-		CDelete( m_dlgAddStaticSound );
+		CDelete( m_dlgAdd3DSound );
 }
 
 CVoid CVandaEngine1Dlg::OnMenuClickedInsertSkyDome()
@@ -9141,6 +9143,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 		ambientSound->SetPitch( m_dlgAddAmbientSound->GetPitch() );
 		ambientSound->SetPlay(m_dlgAddAmbientSound->GetPlay());
 		ambientSound->SetLoop(m_dlgAddAmbientSound->GetLoop());
+		ambientSound->SetSoundFileName(m_dlgAddAmbientSound->GetSoundFileName());
 
 		if(ambientSound->GetPlay())
 			g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
@@ -9874,7 +9877,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10717,7 +10720,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10841,14 +10844,17 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar ambientSoundPath[MAX_NAME_SIZE];
 		sprintf(ambientSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Ambient/");
 
+		CChar ambientSoundTempPath[MAX_NAME_SIZE];
+		sprintf(ambientSoundTempPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Ambient/Temp/");
+
 		CChar mainCharacterSoundPath[MAX_NAME_SIZE];
 		sprintf(mainCharacterSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
 
 		CChar mainCharacterScriptPath[MAX_NAME_SIZE];
 		sprintf(mainCharacterScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
 
-		CChar staticSoundPath[MAX_NAME_SIZE];
-		sprintf( staticSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Static/" );
+		CChar ThreeDSoundPath[MAX_NAME_SIZE];
+		sprintf(ThreeDSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/" );
 
 		CChar VSceneScriptPath[MAX_NAME_SIZE];
 		sprintf(VSceneScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/VSceneScript/");
@@ -10891,6 +10897,15 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 		}
 
+		std::vector<std::string> ambientTempPath;
+
+		for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
+		{
+			CChar tempAmbientPath[MAX_NAME_SIZE];
+			sprintf(tempAmbientPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Ambient/Temp/", g_engineAmbientSounds[j]->GetName());
+			ambientTempPath.push_back(tempAmbientPath);
+		}
+
 		//Directories of g_currentVSceneName
 		CChar currentWaterTexturesPath[MAX_NAME_SIZE];
 		sprintf( currentWaterTexturesPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/" );
@@ -10901,14 +10916,17 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar currentAmbientSoundPath[MAX_NAME_SIZE];
 		sprintf(currentAmbientSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/");
 
+		CChar currentAmbientSoundTempPath[MAX_NAME_SIZE];
+		sprintf(currentAmbientSoundTempPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/Temp/");
+
 		CChar currentMainCharacterSoundPath[MAX_NAME_SIZE];
 		sprintf(currentMainCharacterSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/");
 
 		CChar currentMainCharacterScriptPath[MAX_NAME_SIZE];
 		sprintf(currentMainCharacterScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/");
 
-		CChar currentStaticSoundPath[MAX_NAME_SIZE];
-		sprintf( currentStaticSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Static/" );
+		CChar current3DSoundPath[MAX_NAME_SIZE];
+		sprintf( current3DSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/" );
 
 		CChar currentVSceneScriptPath[MAX_NAME_SIZE];
 		sprintf(currentVSceneScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/VSceneScript/");
@@ -10943,12 +10961,24 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 		}
 
+		std::vector<std::string> currentAmbientPath;
+
+		for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
+		{
+			CChar tempCurrentAmbientPath[MAX_NAME_SIZE];
+			sprintf(tempCurrentAmbientPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/Temp/", g_engineAmbientSounds[j]->GetName());
+			currentAmbientPath.push_back(tempCurrentAmbientPath);
+		}
+
 		if( saveAlgorithm == 0 || saveAlgorithm == 3)
 		{
 			//Remove the contents of existing directory
 			RemoveAllFilesInDirectory( waterTexturesPath );
 			RemoveAllFilesInDirectory( ambientSoundPath );
-			RemoveAllFilesInDirectory(staticSoundPath);
+			CreateWindowsDirectory(ambientSoundTempPath);
+			for (CUInt j = 0; j < ambientTempPath.size(); j++)
+				CreateWindowsDirectory((CChar*)ambientTempPath[j].c_str());
+			RemoveAllFilesInDirectory(ThreeDSoundPath);
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
 			//RemoveAllFilesInDirectory(mainCharacterScriptPath); //currently sound and script path are the same
 			RemoveAllFilesInDirectory(VSceneScriptPath); 
@@ -10964,7 +10994,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//As Previous functions removes main directory, I'll recreate it
 			CreateWindowsDirectory(rootScriptPath);
 			CreateWindowsDirectory(rootTriggersScriptPath);
-
 		}
 		else if( saveAlgorithm == 1 || saveAlgorithm == 4)
 		{
@@ -10973,7 +11002,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory( waterTexturesPath );
 			CreateWindowsDirectory( soundPath );
 			CreateWindowsDirectory( ambientSoundPath );
-			CreateWindowsDirectory( staticSoundPath );
+			CreateWindowsDirectory(ambientSoundTempPath);
+			for (CUInt j = 0; j < ambientTempPath.size(); j++)
+				CreateWindowsDirectory((CChar*)ambientTempPath[j].c_str());
+			CreateWindowsDirectory(ThreeDSoundPath );
 			CreateWindowsDirectory(mainCharacterSoundPath);
 			//CreateWindowsDirectory(mainCharacterScriptPath); //currently script and sound path are the same
 			CreateWindowsDirectory(VSceneScriptPath);
@@ -10985,9 +11017,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory(rootTriggersScriptPath);
 			for (CUInt j = 0; j < scriptPath.size(); j++)
 				CreateWindowsDirectory((CChar*)scriptPath[j].c_str());
-
-
 		}
+		else if (saveAlgorithm == 2)
+		{
+			CreateWindowsDirectory(ambientSoundTempPath);
+			for (CUInt j = 0; j < ambientTempPath.size(); j++)
+				CreateWindowsDirectory((CChar*)ambientTempPath[j].c_str());
+		}
+
 		if( saveAlgorithm == 0 || saveAlgorithm == 1 || saveAlgorithm == 2 )
 		{
 			//copy the assets from original place to the existing directory
@@ -11178,28 +11215,64 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				{
 					if (g_engineAmbientSounds[i]->IsInVSceneList(pureFileName, CTrue, CTrue))
 					{
-						CopyOneFileToDstDirectory(g_engineAmbientSounds[i]->GetPath(), ambientSoundPath);
+						CChar AmbientSoundTempPath[MAX_URI_SIZE];
+						sprintf(AmbientSoundTempPath, "%s%s%s", ambientSoundTempPath, g_engineAmbientSounds[i]->GetName(), "/");
+
+						CopyOneFileToDstDirectory(g_engineAmbientSounds[i]->GetPath(), AmbientSoundTempPath);
+
+						CChar* tempFileName = g_engineAmbientSounds[i]->GetSoundFileName();
+						CChar* tempAfterPathFileName = GetAfterPath(g_engineAmbientSounds[i]->GetPath());
+						CChar newPathAndName[MAX_NAME_SIZE];
+						Cpy(newPathAndName, ambientSoundTempPath);
+						Append(newPathAndName, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName, "/");
+						Append(newPathAndName, tempAfterPathFileName);
+
+						CChar newPathAndName2[MAX_NAME_SIZE];
+						Cpy(newPathAndName2, ambientSoundTempPath);
+						Append(newPathAndName2, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName2, "/");
+						Append(newPathAndName2, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName2, "__");
+						Append(newPathAndName2, tempFileName);
+
+						rename(newPathAndName, newPathAndName2);
+
+						CChar newPathAndName3[MAX_NAME_SIZE];
+						Cpy(newPathAndName3, ambientSoundPath);
+						Append(newPathAndName3, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName3, "__");
+						Append(newPathAndName3, tempFileName);
+
+						g_engineAmbientSounds[i]->SetPath(newPathAndName3);
 					}
-					CChar* tempAfterPath = GetAfterPath(g_engineAmbientSounds[i]->GetPath());
-					CChar newPathAndName[MAX_NAME_SIZE];
-					Cpy(newPathAndName, ambientSoundPath);
-					Append(newPathAndName, tempAfterPath);
-					g_engineAmbientSounds[i]->SetPath(newPathAndName);
 				}
 			}
+			//copy renamed files from temp directory to ambientSoundPath directory
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+			{
+				if (g_engineAmbientSounds[i])
+				{
+					CChar AmbientSoundTempPath[MAX_URI_SIZE];
+					sprintf(AmbientSoundTempPath, "%s%s%s", ambientSoundTempPath, g_engineAmbientSounds[i]->GetName(), "/");
+
+					CopyAllFilesFromSrcToDstDirectory(AmbientSoundTempPath, ambientSoundPath);
+				}
+			}
+
 			//3d sounds
 			//scenes
-			for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+			for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
 			{
-				if( g_engineStaticSounds[i]->IsInVSceneList(pureFileName,CTrue, CTrue ) )
+				if( g_engine3DSounds[i]->IsInVSceneList(pureFileName,CTrue, CTrue ) )
 				{
-					CopyOneFileToDstDirectory( g_engineStaticSounds[i]->GetPath(), staticSoundPath );
+					CopyOneFileToDstDirectory( g_engine3DSounds[i]->GetPath(), ThreeDSoundPath );
 				}
-				CChar* tempAfterPath = GetAfterPath(g_engineStaticSounds[i]->GetPath());
+				CChar* tempAfterPath = GetAfterPath(g_engine3DSounds[i]->GetPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, staticSoundPath );
+				Cpy(newPathAndName, ThreeDSoundPath );
 				Append(newPathAndName, tempAfterPath );
-				g_engineStaticSounds[i]->SetPath( newPathAndName );
+				g_engine3DSounds[i]->SetPath( newPathAndName );
 			}
 			if (g_mainCharacter)
 			{
@@ -11208,7 +11281,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundWalkPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundRunPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundJumpPath(), mainCharacterSoundPath);
-					CopyOneFileToDstDirectory(g_mainCharacter->GetScriptPath(), mainCharacterScriptPath);
+					if (g_mainCharacter->GetHasScript())
+						CopyOneFileToDstDirectory(g_mainCharacter->GetScriptPath(), mainCharacterScriptPath);
 
 				}
 				CChar* tempAfterPath = GetAfterPath(g_mainCharacter->GetSoundWalkPath());
@@ -11264,7 +11338,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//copy the assets from current place to the saved directory
 			CopyAllFilesFromSrcToDstDirectory(currentWaterTexturesPath, waterTexturesPath);
 			CopyAllFilesFromSrcToDstDirectory(currentAmbientSoundPath, ambientSoundPath);
-			CopyAllFilesFromSrcToDstDirectory(currentStaticSoundPath, staticSoundPath);
+			CopyAllFilesFromSrcToDstDirectory(current3DSoundPath, ThreeDSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
 			//CopyAllFilesFromSrcToDstDirectory(currentMainCharacterScriptPath, mainCharacterScriptPath); //currently sound and script path are the same
 			CopyAllFilesFromSrcToDstDirectory(currentVSceneScriptPath, VSceneScriptPath);
@@ -11471,32 +11545,66 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				{
 					if (g_engineAmbientSounds[i]->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
 					{
-						CopyOneFileToDstDirectory(g_engineAmbientSounds[i]->GetPath(), ambientSoundPath);
-					}
-					CChar* tempAfterPath = GetAfterPath(g_engineAmbientSounds[i]->GetPath());
-					CChar newPathAndName[MAX_NAME_SIZE];
-					Cpy(newPathAndName, ambientSoundPath);
-					Append(newPathAndName, tempAfterPath);
-					g_engineAmbientSounds[i]->SetPath(newPathAndName);
+						CChar AmbientSoundTempPath[MAX_URI_SIZE];
+						sprintf(AmbientSoundTempPath, "%s%s%s", ambientSoundTempPath, g_engineAmbientSounds[i]->GetName(), "/");
 
-					g_engineAmbientSounds[i]->IsInVSceneList(pureFileName, CTrue, CTrue);
+						CopyOneFileToDstDirectory(g_engineAmbientSounds[i]->GetPath(), AmbientSoundTempPath);
+
+						CChar* tempFileName = g_engineAmbientSounds[i]->GetSoundFileName();
+						CChar* tempAfterPathFileName = GetAfterPath(g_engineAmbientSounds[i]->GetPath());
+						CChar newPathAndName[MAX_NAME_SIZE];
+						Cpy(newPathAndName, ambientSoundTempPath);
+						Append(newPathAndName, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName, "/");
+						Append(newPathAndName, tempAfterPathFileName);
+
+						CChar newPathAndName2[MAX_NAME_SIZE];
+						Cpy(newPathAndName2, ambientSoundTempPath);
+						Append(newPathAndName2, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName2, "/");
+						Append(newPathAndName2, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName2, "__");
+						Append(newPathAndName2, tempFileName);
+
+						rename(newPathAndName, newPathAndName2);
+
+						CChar newPathAndName3[MAX_NAME_SIZE];
+						Cpy(newPathAndName3, ambientSoundPath);
+						Append(newPathAndName3, g_engineAmbientSounds[i]->GetName());
+						Append(newPathAndName3, "__");
+						Append(newPathAndName3, tempFileName);
+
+						g_engineAmbientSounds[i]->SetPath(newPathAndName3);
+
+						g_engineAmbientSounds[i]->IsInVSceneList(pureFileName, CTrue, CTrue);
+					}
 				}
 			}
-
-			//3d sounds
-			for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+			//copy renamed files from temp directory to ambientSoundPath directory
+			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 			{
-				if( g_engineStaticSounds[i]->IsInVSceneList(g_currentVSceneName,CTrue, CFalse ) )
+				if (g_engineAmbientSounds[i])
 				{
-					CopyOneFileToDstDirectory( g_engineStaticSounds[i]->GetPath(), staticSoundPath );
-				}
-				CChar* tempAfterPath = GetAfterPath(g_engineStaticSounds[i]->GetPath());
-				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, staticSoundPath );
-				Append(newPathAndName, tempAfterPath );
-				g_engineStaticSounds[i]->SetPath( newPathAndName );
+					CChar AmbientSoundTempPath[MAX_URI_SIZE];
+					sprintf(AmbientSoundTempPath, "%s%s%s", ambientSoundTempPath, g_engineAmbientSounds[i]->GetName(), "/");
 
-				g_engineStaticSounds[i]->IsInVSceneList(pureFileName,CTrue, CTrue );
+					CopyAllFilesFromSrcToDstDirectory(AmbientSoundTempPath, ambientSoundPath);
+				}
+			}
+			//3d sounds
+			for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
+			{
+				if( g_engine3DSounds[i]->IsInVSceneList(g_currentVSceneName,CTrue, CFalse ) )
+				{
+					CopyOneFileToDstDirectory( g_engine3DSounds[i]->GetPath(), ThreeDSoundPath );
+				}
+				CChar* tempAfterPath = GetAfterPath(g_engine3DSounds[i]->GetPath());
+				CChar newPathAndName[MAX_NAME_SIZE];
+				Cpy(newPathAndName, ThreeDSoundPath );
+				Append(newPathAndName, tempAfterPath );
+				g_engine3DSounds[i]->SetPath( newPathAndName );
+
+				g_engine3DSounds[i]->IsInVSceneList(pureFileName,CTrue, CTrue );
 
 			}
 
@@ -11507,7 +11615,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundWalkPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundRunPath(), mainCharacterSoundPath);
 					CopyOneFileToDstDirectory(g_mainCharacter->GetSoundJumpPath(), mainCharacterSoundPath);
-					CopyOneFileToDstDirectory(g_mainCharacter->GetScriptPath(), mainCharacterScriptPath);
+					if(g_mainCharacter->GetHasScript())
+						CopyOneFileToDstDirectory(g_mainCharacter->GetScriptPath(), mainCharacterScriptPath);
 				}
 				CChar* tempAfterPath = GetAfterPath(g_mainCharacter->GetSoundWalkPath());
 				CChar newPathAndName[MAX_NAME_SIZE];
@@ -11811,7 +11920,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CBool foundTarget = CFalse;
 			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 			{
-				if (Cmp(GetAfterPath(g_engineAmbientSounds[i]->GetPath()), data.cFileName))
+				CChar currentFileName[MAX_NAME_SIZE];
+				sprintf(currentFileName, "%s%s%s", g_engineAmbientSounds[i]->GetName(), "__", g_engineAmbientSounds[i]->GetSoundFileName());
+				if (Cmp(currentFileName, data.cFileName))
 				{
 					foundTarget = CTrue;
 					break;
@@ -11831,20 +11942,21 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		} while (FindNextFile(hFind, &data));
 		FindClose(hFind);
 
+		RemoveAllFilesAndFoldersInDirectory(ambientSoundTempPath);
 
-		//Delete removed static sounds
-		CChar tempStaticSoundPath[MAX_NAME_SIZE];
-		sprintf( tempStaticSoundPath, "%s%s", staticSoundPath, "*.*" );
-		hFind = FindFirstFile( tempStaticSoundPath, &data );
+		//Delete removed 3D sounds
+		CChar temp3DSoundPath[MAX_NAME_SIZE];
+		sprintf( temp3DSoundPath, "%s%s", ThreeDSoundPath, "*.*" );
+		hFind = FindFirstFile( temp3DSoundPath, &data );
 		do
 		{
 			CChar soundTempPath[MAX_NAME_SIZE];
-			sprintf( soundTempPath, "%s%s", staticSoundPath, data.cFileName );
+			sprintf( soundTempPath, "%s%s", ThreeDSoundPath, data.cFileName );
 
 			CBool foundTarget = CFalse;
-			for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+			for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
 			{
-				if( Cmp( GetAfterPath( g_engineStaticSounds[i]->GetPath()), data.cFileName ) )
+				if( Cmp( GetAfterPath( g_engine3DSounds[i]->GetPath()), data.cFileName ) )
 				{
 					foundTarget = CTrue;
 					break;
@@ -12177,6 +12289,12 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//is gui visible?
 			CBool isVisible = g_guis[i]->GetVisible();
 			fwrite(&isVisible, sizeof(CBool), 1, filePtr);
+
+			CVec2f pos = g_guis[i]->GetPosition();
+			fwrite(&pos, sizeof(CVec2f), 1, filePtr);
+
+			CFloat rot = g_guis[i]->GetRotation();
+			fwrite(&rot, sizeof(CFloat), 1, filePtr);
 		}
 		//End of GUIs///////////////////
 
@@ -12298,22 +12416,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&fcp, sizeof(CFloat), 1, filePtr);
 		}
 
-		//save static sounds data
-		CInt tempStaticSoundCount = (CInt)g_engineStaticSounds.size();
-		fwrite( &tempStaticSoundCount, sizeof( CInt ), 1, filePtr );
+		//save 3D sounds data
+		CInt temp3DSoundCount = (CInt)g_engine3DSounds.size();
+		fwrite( &temp3DSoundCount, sizeof( CInt ), 1, filePtr );
 
-		for( CUInt i = 0 ; i < g_engineStaticSounds.size(); i++ )
+		for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
 		{
-			fwrite( &g_engineStaticSounds[i]->m_name, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_path, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_loop, sizeof( CBool ), 1, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundMaxDistance, sizeof( CFloat ), 1, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundPitch, sizeof( CFloat ), 1, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_play, sizeof( CBool ), 1, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundPos, sizeof( CFloat ), 3, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundReferenceDistance, sizeof( CFloat ), 1, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundRolloff, sizeof( CFloat ), 1, filePtr  );
-			fwrite( &g_engineStaticSounds[i]->m_fStaticSoundVolume, sizeof( CFloat ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_name, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_path, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_loop, sizeof( CBool ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_f3DSoundMaxDistance, sizeof( CFloat ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_f3DSoundPitch, sizeof( CFloat ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_play, sizeof( CBool ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_f3DSoundPos, sizeof( CFloat ), 3, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_f3DSoundReferenceDistance, sizeof( CFloat ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_f3DSoundRolloff, sizeof( CFloat ), 1, filePtr  );
+			fwrite( &g_engine3DSounds[i]->m_f3DSoundVolume, sizeof( CFloat ), 1, filePtr  );
 		}
 		//Save ambient sounds data
 		CUInt tempAmbientSoundCount = g_engineAmbientSounds.size();
@@ -12322,10 +12440,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		for(CUInt i = 0; i < tempAmbientSoundCount; i++)
 		{
-			fwrite( g_engineAmbientSounds[i]->GetName(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fwrite( g_engineAmbientSounds[i]->GetPath(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
-			fwrite( &g_engineAmbientSounds[i]->m_volume, sizeof( CFloat ), 1, filePtr  );
-			fwrite( &g_engineAmbientSounds[i]->m_pitch, sizeof( CFloat ), 1, filePtr  );
+			fwrite(g_engineAmbientSounds[i]->GetName(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+			fwrite(g_engineAmbientSounds[i]->GetPath(), sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+			fwrite(g_engineAmbientSounds[i]->GetSoundFileName(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			fwrite(&g_engineAmbientSounds[i]->m_volume, sizeof( CFloat ), 1, filePtr  );
+			fwrite(&g_engineAmbientSounds[i]->m_pitch, sizeof( CFloat ), 1, filePtr  );
 			fwrite(&g_engineAmbientSounds[i]->m_play, sizeof(CBool), 1, filePtr);
 			fwrite(&g_engineAmbientSounds[i]->m_loop, sizeof(CBool), 1, filePtr);
 		}
@@ -12539,7 +12658,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -12714,13 +12833,13 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		m_prefab.clear();
 
-		//static sounds
-		CUInt staticSoundSize = g_engineStaticSounds.size();
-		fwrite(&staticSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+		//3D sounds
+		CUInt ThreeDSoundSize = g_engine3DSounds.size();
+		fwrite(&ThreeDSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
 
-		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
-			fwrite(g_engineStaticSounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+			fwrite(g_engine3DSounds[i]->GetName(), sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 		}
 
 		//ambient sounds
@@ -13689,7 +13808,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.1 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15515,7 +15634,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.1 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15566,7 +15685,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 {
 	CInt iResponse = IDNO;
-	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_guis.size() || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain))
+	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_guis.size() || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size()))
 		iResponse= MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	else
 		iResponse = IDNO;
@@ -15719,6 +15838,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			fread(&g_lightProperties, sizeof(CLightProperties), 1, filePtr);
 			fread(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
 			fread(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
+
 			fread(&g_currentVSceneProperties, sizeof(CCurrentVSceneProperties), 1, filePtr);
 
 			//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
@@ -16079,6 +16199,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&isVisible, sizeof(CBool), 1, filePtr);
 
 				new_gui->SetVisible(isVisible);
+
+				CVec2f pos;
+				fread(&pos, sizeof(CVec2f), 1, filePtr);
+				new_gui->SetPosition(pos);
+
+				CFloat rot;
+				fread(&rot, sizeof(CFloat), 1, filePtr);
+				new_gui->SetRotation(rot);
 
 				CChar docPath[MAX_NAME_SIZE];
 				HRESULT doc_result = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, docPath);
@@ -16799,112 +16927,113 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			alGetError(); //clear possible sound errors
 
-			//static sounds
-			CInt tempStaticSoundCount;
-			fread( &tempStaticSoundCount, sizeof( CInt ), 1, filePtr );
-			CFloat staticSoundMaxDistance, staticSoundPitch, staticSoundReferenceDistance, staticSoundRolloff, staticSoundVolume;
-			CFloat staticSoundPos[3];
+			//3D sounds
+			CInt temp3DSoundCount;
+			fread( &temp3DSoundCount, sizeof( CInt ), 1, filePtr );
+			CFloat ThreeDSoundMaxDistance, ThreeDSoundPitch, ThreeDSoundReferenceDistance, ThreeDSoundRolloff, ThreeDSoundVolume;
+			CFloat ThreeDSoundPos[3];
 			CBool play, loop;
 
 			CChar name[ MAX_NAME_SIZE ], path[ MAX_NAME_SIZE ];
 
-			for( CInt i = 0 ; i < tempStaticSoundCount; i++ )
+			for( CInt i = 0 ; i < temp3DSoundCount; i++ )
 			{
 				fread( name, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
 				fread( path, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
 				fread( &loop, sizeof( CBool ), 1, filePtr  );
-				fread( &staticSoundMaxDistance, sizeof( CFloat ), 1, filePtr  );
-				fread( &staticSoundPitch, sizeof( CFloat ), 1, filePtr  );
+				fread( &ThreeDSoundMaxDistance, sizeof( CFloat ), 1, filePtr  );
+				fread( &ThreeDSoundPitch, sizeof( CFloat ), 1, filePtr  );
 				fread( &play, sizeof( CBool ), 1, filePtr  );
-				fread( staticSoundPos, sizeof( CFloat ), 3, filePtr  );
-				fread( &staticSoundReferenceDistance, sizeof( CFloat ), 1, filePtr  );
-				fread( &staticSoundRolloff, sizeof( CFloat ), 1, filePtr  );
-				fread( &staticSoundVolume, sizeof( CFloat ), 1, filePtr  );
+				fread(ThreeDSoundPos, sizeof( CFloat ), 3, filePtr  );
+				fread( &ThreeDSoundReferenceDistance, sizeof( CFloat ), 1, filePtr  );
+				fread( &ThreeDSoundRolloff, sizeof( CFloat ), 1, filePtr  );
+				fread( &ThreeDSoundVolume, sizeof( CFloat ), 1, filePtr  );
 
-				CChar StaticSoundPath[MAX_NAME_SIZE];
-				CChar* StaticSoundName = GetAfterPath( path );
+				CChar ThreeDSoundPath[MAX_NAME_SIZE];
+				CChar* ThreeDSoundName = GetAfterPath( path );
 				//Copy this to Win32 Project as well
-				sprintf( StaticSoundPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Static/", StaticSoundName );
+				sprintf(ThreeDSoundPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/", ThreeDSoundName );
 
-				COpenALSoundBuffer* m_staticSoundBuffer = GetSoundBuffer( GetAfterPath(StaticSoundPath) );
+				COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer( GetAfterPath(ThreeDSoundPath) );
 				
-				if( m_staticSoundBuffer == NULL || (m_staticSoundBuffer && !m_staticSoundBuffer->m_loaded ) )
+				if( m_3DSoundBuffer == NULL || (m_3DSoundBuffer && !m_3DSoundBuffer->m_loaded ) )
 				{
-					if( m_staticSoundBuffer == NULL )
+					if( m_3DSoundBuffer == NULL )
 					{
-						m_staticSoundBuffer = CNew( COpenALSoundBuffer );
-						g_soundBuffers.push_back( m_staticSoundBuffer );
+						m_3DSoundBuffer = CNew( COpenALSoundBuffer );
+						g_soundBuffers.push_back( m_3DSoundBuffer );
 					}
 					else 
 					{
 						CChar tempBuffer[MAX_NAME_SIZE];
-						sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_staticSoundBuffer->GetName() ), "'" );
+						sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_3DSoundBuffer->GetName() ), "'" );
 						PrintInfo( tempBuffer, COLOR_YELLOW );
 					}
 
-					if( !m_staticSoundBuffer->LoadOggVorbisFromFile( StaticSoundPath ) )
+					if( !m_3DSoundBuffer->LoadOggVorbisFromFile(ThreeDSoundPath ) )
 					{
-						m_staticSoundBuffer->m_loaded = CFalse;
+						m_3DSoundBuffer->m_loaded = CFalse;
 
 					}
 					else
 					{
-						m_staticSoundBuffer->m_loaded = CTrue;
+						m_3DSoundBuffer->m_loaded = CTrue;
 					}
 
-					m_staticSoundBuffer->SetName( StaticSoundPath );	
+					m_3DSoundBuffer->SetName(ThreeDSoundPath );
 				}
 				else
 				{
 						CChar temp[MAX_NAME_SIZE]; 
-						sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_staticSoundBuffer->GetName()), "' already exists." );
+						sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_3DSoundBuffer->GetName()), "' already exists." );
 						PrintInfo( temp, COLOR_YELLOW );
 				}
-				COpenALSoundSource* m_staticSoundSource = CNew( COpenALSoundSource );
-				CStaticSound* m_staticSound = CNew( CStaticSound );
+				COpenALSoundSource* m_3DSoundSource = CNew( COpenALSoundSource );
+				C3DSound* m_3DSound = CNew( C3DSound );
 
-				m_staticSoundSource->BindSoundBuffer (*m_staticSoundBuffer);
-				m_staticSoundSource->SetLooping( loop );
-				m_staticSoundSource->SetPitch( staticSoundPitch );
+				m_3DSoundSource->BindSoundBuffer (*m_3DSoundBuffer);
+				m_3DSoundSource->SetLooping( loop );
+				m_3DSoundSource->SetPitch(ThreeDSoundPitch );
 
-				//m_staticSoundSource->SetVolume( staticSoundVolume );
-				m_staticSoundSource->SetReferenceDistance( staticSoundReferenceDistance );
-				m_staticSoundSource->SetMaxDistance( staticSoundMaxDistance );
-				m_staticSoundSource->SetRolloff( staticSoundRolloff );
-				m_staticSoundSource->SetSoundPosition( staticSoundPos );
+				m_3DSoundSource->SetVolume(ThreeDSoundVolume);
+				m_3DSoundSource->SetReferenceDistance(ThreeDSoundReferenceDistance );
+				m_3DSoundSource->SetMaxDistance(ThreeDSoundMaxDistance );
+				m_3DSoundSource->SetRolloff(ThreeDSoundRolloff );
+				m_3DSoundSource->SetSoundPosition(ThreeDSoundPos );
 
-				m_staticSound->SetName( name );
-				m_staticSound->SetPath( StaticSoundPath );
-				m_staticSound->SetPosition( staticSoundPos );
-				m_staticSound->SetLoop( loop );
-				m_staticSound->SetMaxDistance( staticSoundMaxDistance );
-				m_staticSound->SetPitch( staticSoundPitch );
-				m_staticSound->SetPlay( play );
-				m_staticSound->SetRefrenceDistance( staticSoundReferenceDistance );
-				m_staticSound->SetRolloff( staticSoundRolloff );
-				m_staticSound->SetSoundSource( m_staticSoundSource );
-				m_staticSound->SetSoundBuffer( m_staticSoundBuffer );
+				m_3DSound->SetName( name );
+				m_3DSound->SetPath(ThreeDSoundPath );
+				m_3DSound->SetPosition(ThreeDSoundPos );
+				m_3DSound->SetLoop( loop );
+				m_3DSound->SetMaxDistance(ThreeDSoundMaxDistance );
+				m_3DSound->SetPitch(ThreeDSoundPitch );
+				m_3DSound->SetPlay( play );
+				m_3DSound->SetReferenceDistance(ThreeDSoundReferenceDistance );
+				m_3DSound->SetRolloff(ThreeDSoundRolloff );
+				m_3DSound->SetVolume(ThreeDSoundVolume);
+				m_3DSound->SetSoundSource( m_3DSoundSource );
+				m_3DSound->SetSoundBuffer( m_3DSoundBuffer );
 
 				//save functions/////////////////////////////////
 				for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 				{
 					if( Cmp( g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str() ) ) //current scene name found
-						m_staticSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CFalse ); //Do not write to zip file
+						m_3DSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CFalse ); //Do not write to zip file
 					else
-						m_staticSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file
+						m_3DSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file
 				}
 				//save functions/////////////////////////////////
 
-				g_engineStaticSounds.push_back( m_staticSound );
+				g_engine3DSounds.push_back( m_3DSound );
 
-				InsertItemToEngineObjectList(m_staticSound->GetName(), eENGINEOBJECTLIST_STATICSOUND);
+				InsertItemToEngineObjectList(m_3DSound->GetName(), eENGINEOBJECTLIST_3DSOUND);
 
-				if(m_staticSoundBuffer->m_loaded)
+				if(m_3DSoundBuffer->m_loaded)
 				{
 					PumpMessages();
 					UpdateWindow();
-					PrintInfo( "\nStatic sound '", COLOR_GREEN );
-					PrintInfo(m_staticSound->GetName(), COLOR_RED_GREEN );
+					PrintInfo( "\n3D sound '", COLOR_GREEN );
+					PrintInfo(m_3DSound->GetName(), COLOR_RED_GREEN );
 					PrintInfo( "' initialized successfully", COLOR_GREEN );
 				}
 				else
@@ -16912,8 +17041,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					PumpMessages();
 					UpdateWindow();
 
-					PrintInfo( "\nCouldn't initialize the static sound '", COLOR_RED );
-					PrintInfo(m_staticSound->GetName(), COLOR_RED_GREEN );
+					PrintInfo( "\nCouldn't initialize the 3D sound '", COLOR_RED );
+					PrintInfo(m_3DSound->GetName(), COLOR_RED_GREEN );
 					PrintInfo( "'", COLOR_RED );
 				}
 			}
@@ -16925,19 +17054,20 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			{
 				CChar strAmbientSoundName[MAX_NAME_SIZE];
 				CChar strAmbientSoundPath[MAX_NAME_SIZE];
+				CChar strAmbientSoundFileName[MAX_NAME_SIZE];
 				CFloat volume, pitch;
 
 				fread( strAmbientSoundName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
 				fread( strAmbientSoundPath, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+				fread(strAmbientSoundFileName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread( &volume, sizeof( CFloat ), 1, filePtr  );
 				fread(&pitch, sizeof(CFloat), 1, filePtr);
 				fread(&play, sizeof(CBool), 1, filePtr);
 				fread(&loop, sizeof(CBool), 1, filePtr);
 
 				CChar AmbientSoundPath[MAX_NAME_SIZE];
-				CChar* AmbientSoundName = GetAfterPath(strAmbientSoundPath);
 				//Copy this to Win32 Project as well
-				sprintf(AmbientSoundPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", AmbientSoundName);
+				sprintf(AmbientSoundPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", strAmbientSoundName, "__", strAmbientSoundFileName);
 				//load the ambient sound if it exists
 
 				COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
@@ -16969,6 +17099,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				ambientSound->SetPitch(pitch);
 				ambientSound->SetLoop(loop);
 				ambientSound->SetPlay(play);
+				ambientSound->SetSoundFileName(strAmbientSoundFileName);
 				//save functions/////////////////////////////////
 				for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
 				{
@@ -17382,7 +17513,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -17398,10 +17529,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 		if (g_editorMode == eMODE_VSCENE)
 		{
-			for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+			g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
+
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 			{
-				if (g_engineStaticSounds[i]->GetPlay())
-					g_multipleView->m_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
+				if (g_engine3DSounds[i]->GetPlay())
+					g_multipleView->m_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
 			}
 
 			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -17828,14 +17961,14 @@ void CVandaEngine1Dlg::OnBnClickedBtnEngineObjectProperties()
 			}
 		}
 
-		for( CUInt i = 0; i < g_engineStaticSounds.size(); i++ )
+		for( CUInt i = 0; i < g_engine3DSounds.size(); i++ )
 		{
-			if( Cmp( g_engineStaticSounds[i]->GetName(), szBuffer ) )
+			if( Cmp( g_engine3DSounds[i]->GetName(), szBuffer ) )
 			{
 				if( g_multipleView->m_enableTimer )
 					g_multipleView->EnableTimer( CFalse );
 
-				ChangeStaticSoundProperties(g_engineStaticSounds[i]);
+				Change3DSoundProperties(g_engine3DSounds[i]);
 
 				if (g_multipleView->m_enableTimer)
 				{
@@ -18205,19 +18338,19 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 				}
 			}
 
-			for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 			{
-				if (Cmp(g_engineStaticSounds[i]->GetName(), szBuffer))
+				if (Cmp(g_engine3DSounds[i]->GetName(), szBuffer))
 				{
-					if (g_engineStaticSounds[i]->GetIndex() == g_selectedName || g_engineStaticSounds[i]->GetIndex() == g_lastEngineObjectSelectedName)
+					if (g_engine3DSounds[i]->GetIndex() == g_selectedName || g_engine3DSounds[i]->GetIndex() == g_lastEngineObjectSelectedName)
 					{
 						g_showArrow = CFalse;
 					}
 
 					//delete the 3d sound
-					CDelete(g_engineStaticSounds[i]);
+					CDelete(g_engine3DSounds[i]);
 					//delete the vector that holds the 3d sound
-					g_engineStaticSounds.erase(g_engineStaticSounds.begin() + i);
+					g_engine3DSounds.erase(g_engine3DSounds.begin() + i);
 
 					m_listBoxEngineObjects.DeleteItem(nSelected);
 					g_multipleView->SetElapsedTimeFromBeginning();
@@ -19368,28 +19501,28 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 		CDelete( m_dlgAddWater );
 }
 
-CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
+CVoid CVandaEngine1Dlg::Change3DSoundProperties(C3DSound* sound)
 {
-	m_dlgAddStaticSound = CNew( CAddStaticSound );
-	m_dlgAddStaticSound->SetSoundPos( sound->GetPosition() );
-	m_dlgAddStaticSound->SetName( sound->GetName() );
+	m_dlgAdd3DSound = CNew( CAdd3DSound );
+	m_dlgAdd3DSound->SetSoundPos( sound->GetPosition() );
+	m_dlgAdd3DSound->SetName( sound->GetName() );
 
-	CChar StaticSoundPath[MAX_NAME_SIZE];
-	CChar* StaticSoundName = GetAfterPath( sound->GetPath() );
-	sprintf( StaticSoundPath, "%s", sound->GetPath() );
+	CChar ThreeDSoundPath[MAX_NAME_SIZE];
+	CChar* ThreeDSoundName = GetAfterPath( sound->GetPath() );
+	sprintf(ThreeDSoundPath, "%s", sound->GetPath() );
 
-	m_dlgAddStaticSound->SetPath( StaticSoundPath );
-	m_dlgAddStaticSound->SetPitch( sound->GetPitch() );
-	m_dlgAddStaticSound->SetVolume( sound->GetVolume() );
-	m_dlgAddStaticSound->SetRolloff( sound->GetRolloff() );
-	m_dlgAddStaticSound->SetMaxDistance( sound->GetMaxDistance() );
-	m_dlgAddStaticSound->SetReferenceDistance( sound->GetRefrenceDistance() );
-	m_dlgAddStaticSound->SetPlay( sound->GetPlay() );
-	m_dlgAddStaticSound->SetLoop( sound->GetLoop() );
-	m_dlgAddStaticSound->SetEditMode( CTrue );
-	//m_dlgAddStaticSound->SetIndex( sound->GetIndex() );
+	m_dlgAdd3DSound->SetPath(ThreeDSoundPath );
+	m_dlgAdd3DSound->SetPitch( sound->GetPitch() );
+	m_dlgAdd3DSound->SetVolume( sound->GetVolume() );
+	m_dlgAdd3DSound->SetRolloff( sound->GetRolloff() );
+	m_dlgAdd3DSound->SetMaxDistance( sound->GetMaxDistance() );
+	m_dlgAdd3DSound->SetReferenceDistance( sound->GetReferenceDistance() );
+	m_dlgAdd3DSound->SetPlay( sound->GetPlay() );
+	m_dlgAdd3DSound->SetLoop( sound->GetLoop() );
+	m_dlgAdd3DSound->SetEditMode( CTrue );
+	//m_dlgAdd3DSound->SetIndex( sound->GetIndex() );
 
-	INT_PTR result = m_dlgAddStaticSound->DoModal();
+	INT_PTR result = m_dlgAdd3DSound->DoModal();
 	if ( result  == IDOK )
 	{
 		if (g_multipleView->IsPlayGameMode())
@@ -19413,35 +19546,35 @@ CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
 		OnBnClickedBtnRemoveEngineObject();
 		m_askRemoveEngineObject = CTrue;
 
-		COpenALSoundSource* m_staticSoundSource = CNew( COpenALSoundSource );
-		CStaticSound* m_staticSound = CNew( CStaticSound );
+		COpenALSoundSource* m_3DSoundSource = CNew( COpenALSoundSource );
+		C3DSound* m_3DSound = CNew( C3DSound );
 
 		CChar temp[ MAX_NAME_SIZE];
-		//if( m_dlgAddStaticSound->m_strStaticSoundPureDataPath.IsEmpty() )
-			Cpy( temp, m_dlgAddStaticSound->GetPath() );
+		//if( m_dlgAdd3DSound->m_str3DSoundPureDataPath.IsEmpty() )
+			Cpy( temp, m_dlgAdd3DSound->GetPath() );
 		//else
-		//	sprintf( temp, "%s%s.ogg", g_pathProperties.m_soundPath, m_dlgAddStaticSound->m_strStaticSoundPureDataPath );
+		//	sprintf( temp, "%s%s.ogg", g_pathProperties.m_soundPath, m_dlgAdd3DSound->m_str3DSoundPureDataPath );
 
-		COpenALSoundBuffer* m_staticSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
-		if( m_staticSoundBuffer == NULL || (m_staticSoundBuffer && !m_staticSoundBuffer->m_loaded ) )
+		COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
+		if( m_3DSoundBuffer == NULL || (m_3DSoundBuffer && !m_3DSoundBuffer->m_loaded ) )
 		{
-			if( m_staticSoundBuffer == NULL )
+			if( m_3DSoundBuffer == NULL )
 			{
-				m_staticSoundBuffer = CNew( COpenALSoundBuffer );
-				g_soundBuffers.push_back( m_staticSoundBuffer );
+				m_3DSoundBuffer = CNew( COpenALSoundBuffer );
+				g_soundBuffers.push_back( m_3DSoundBuffer );
 			}
 			else 
 			{
 				CChar tempBuffer[MAX_NAME_SIZE];
-				sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_staticSoundBuffer->GetName() ), "'" );
+				sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_3DSoundBuffer->GetName() ), "'" );
 				PrintInfo( tempBuffer, COLOR_YELLOW );
 			}
-			if( !m_staticSoundBuffer->LoadOggVorbisFromFile( temp ) )
+			if( !m_3DSoundBuffer->LoadOggVorbisFromFile( temp ) )
 			{
 				CChar buffer[MAX_NAME_SIZE];
 				sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", temp, "'" );
 				PrintInfo( buffer, COLOR_RED );
-				m_staticSoundBuffer->m_loaded = CFalse;
+				m_3DSoundBuffer->m_loaded = CFalse;
 
 			}
 			else
@@ -19449,58 +19582,60 @@ CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
 				CChar buffer[MAX_NAME_SIZE];
 				sprintf( buffer, "\n%s%s%s", "ogg file '", temp, "' loaded successfully." );
 				PrintInfo( buffer );
-				m_staticSoundBuffer->m_loaded = CTrue;
+				m_3DSoundBuffer->m_loaded = CTrue;
 			}
-			m_staticSoundBuffer->SetName( temp );	
+			m_3DSoundBuffer->SetName( temp );	
 		}
 		else
 		{
 				CChar temp[MAX_NAME_SIZE]; 
-				sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_staticSoundBuffer->GetName()), "' already exists." );
+				sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_3DSoundBuffer->GetName()), "' already exists." );
 				PrintInfo( temp, COLOR_YELLOW );
 		}
 
-		m_staticSoundSource->BindSoundBuffer (*m_staticSoundBuffer);
-		m_staticSoundSource->SetLooping( m_dlgAddStaticSound->GetLoopCondition() );
-		m_staticSoundSource->SetPitch( m_dlgAddStaticSound->GetPitch() );
-		m_staticSoundSource->SetReferenceDistance( m_dlgAddStaticSound->GetReferenceDistance() );
-		m_staticSoundSource->SetMaxDistance( m_dlgAddStaticSound->GetMaxDistance() );
-		m_staticSoundSource->SetRolloff( m_dlgAddStaticSound->GetRolloff() );
-		m_staticSoundSource->SetSoundPosition( m_dlgAddStaticSound->GetSoundPos() );
+		m_3DSoundSource->BindSoundBuffer (*m_3DSoundBuffer);
+		m_3DSoundSource->SetLooping( m_dlgAdd3DSound->GetLoopCondition() );
+		m_3DSoundSource->SetPitch( m_dlgAdd3DSound->GetPitch() );
+		m_3DSoundSource->SetReferenceDistance( m_dlgAdd3DSound->GetReferenceDistance() );
+		m_3DSoundSource->SetMaxDistance( m_dlgAdd3DSound->GetMaxDistance() );
+		m_3DSoundSource->SetRolloff( m_dlgAdd3DSound->GetRolloff() );
+		m_3DSoundSource->SetSoundPosition( m_dlgAdd3DSound->GetSoundPos() );
+		m_3DSoundSource->SetVolume(m_dlgAdd3DSound->GetVolume());
 
-		m_staticSound->SetName( m_dlgAddStaticSound->GetName() );
-		m_staticSound->SetPath( temp );
-		m_staticSound->SetPosition( m_dlgAddStaticSound->GetSoundPos() );
-		m_staticSound->SetLoop( m_dlgAddStaticSound->GetLoopCondition() );
-		m_staticSound->SetMaxDistance( m_dlgAddStaticSound->GetMaxDistance() );
-		m_staticSound->SetPitch( m_dlgAddStaticSound->GetPitch() );
-		m_staticSound->SetPlay( m_dlgAddStaticSound->GetPlayCondition() );
-		m_staticSound->SetRefrenceDistance( m_dlgAddStaticSound->GetReferenceDistance() );
-		m_staticSound->SetRolloff( m_dlgAddStaticSound->GetRolloff() );
-		//m_staticSound->SetIndex( m_dlgAddStaticSound->GetIndex() );
+		m_3DSound->SetName( m_dlgAdd3DSound->GetName() );
+		m_3DSound->SetPath( temp );
+		m_3DSound->SetPosition( m_dlgAdd3DSound->GetSoundPos() );
+		m_3DSound->SetLoop( m_dlgAdd3DSound->GetLoopCondition() );
+		m_3DSound->SetMaxDistance( m_dlgAdd3DSound->GetMaxDistance() );
+		m_3DSound->SetPitch( m_dlgAdd3DSound->GetPitch() );
+		m_3DSound->SetPlay( m_dlgAdd3DSound->GetPlayCondition() );
+		m_3DSound->SetReferenceDistance( m_dlgAdd3DSound->GetReferenceDistance() );
+		m_3DSound->SetRolloff( m_dlgAdd3DSound->GetRolloff() );
+		m_3DSound->SetVolume(m_dlgAdd3DSound->GetVolume());
+		//m_3DSound->SetIndex( m_dlgAdd3DSound->GetIndex() );
 
-		m_staticSound->SetSoundSource( m_staticSoundSource );
-		m_staticSound->SetSoundBuffer( m_staticSoundBuffer );
+		m_3DSound->SetSoundSource( m_3DSoundSource );
+		m_3DSound->SetSoundBuffer( m_3DSoundBuffer );
 
-		if( m_dlgAddStaticSound->GetPlayCondition() )
+		if( m_dlgAdd3DSound->GetPlayCondition() )
 		{
-			g_multipleView->m_soundSystem->PlayALSound( *m_staticSoundSource );
+			g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
 		}
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
-			m_staticSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
+			m_3DSound->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
-		g_engineStaticSounds.push_back( m_staticSound );
-		InsertItemToEngineObjectList( m_staticSound->GetName() , eENGINEOBJECTLIST_STATICSOUND);
+		g_engine3DSounds.push_back( m_3DSound );
+		InsertItemToEngineObjectList( m_3DSound->GetName() , eENGINEOBJECTLIST_3DSOUND);
 
-		g_engineObjectNames.push_back(m_dlgAddStaticSound->GetName());
+		g_engineObjectNames.push_back(m_dlgAdd3DSound->GetName());
 
 		g_transformObject = CFalse;
-		g_selectedName = g_lastEngineObjectSelectedName = m_staticSound->GetIndex();
+		g_selectedName = g_lastEngineObjectSelectedName = m_3DSound->GetIndex();
 		CChar name[MAX_NAME_SIZE];
-		Cpy(name, m_staticSound->GetName());
+		Cpy(name, m_3DSound->GetName());
 
 		for (int k = 0; k < ex_pVandaEngine1Dlg->m_listBoxEngineObjects.GetItemCount(); k++)
 		{
@@ -19517,10 +19652,10 @@ CVoid CVandaEngine1Dlg::ChangeStaticSoundProperties(CStaticSound* sound)
 			}
 		}
 
-		CDelete( m_dlgAddStaticSound );
+		CDelete( m_dlgAdd3DSound );
 	}
 	else if( result == IDCANCEL )
-		CDelete( m_dlgAddStaticSound );
+		CDelete( m_dlgAdd3DSound );
 }
 
 CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties(CAmbientSound* sound)
@@ -19537,6 +19672,7 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties(CAmbientSound* sound)
 	m_dlgAddAmbientSound->SetPitch(sound->GetPitch() );
 	m_dlgAddAmbientSound->SetPlay(sound->GetPlay());
 	m_dlgAddAmbientSound->SetLoop(sound->GetLoop());
+	m_dlgAddAmbientSound->SetSoundFileName(sound->GetSoundFileName());
 
 	m_dlgAddAmbientSound->SetEditMode( CTrue );
 
@@ -19586,6 +19722,7 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties(CAmbientSound* sound)
 		ambientSound->SetPitch( m_dlgAddAmbientSound->GetPitch() );
 		ambientSound->SetPlay(m_dlgAddAmbientSound->GetPlay());
 		ambientSound->SetLoop(m_dlgAddAmbientSound->GetLoop());
+		ambientSound->SetSoundFileName(m_dlgAddAmbientSound->GetSoundFileName());
 
 		if (ambientSound->GetPlay())
 			g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
@@ -19640,6 +19777,8 @@ CVoid CVandaEngine1Dlg::ChangeVSceneScriptProperties()
 	m_dlgAddVSceneScript->SetOldName(g_VSceneScript->GetName());
 	m_dlgAddVSceneScript->SetName(g_VSceneScript->GetName());
 	m_dlgAddVSceneScript->SetScriptPath(g_VSceneScript->GetScriptPath());
+	m_dlgAddVSceneScript->SetUpdateScript(g_VSceneScript->GetUpdateScript());
+
 	if (m_dlgAddVSceneScript->DoModal() == IDOK)
 	{
 		if (g_multipleView->IsPlayGameMode())
@@ -19981,7 +20120,7 @@ void CVandaEngine1Dlg::OnClose()
 	SaveGUIFiles();
 
 
-	if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engineStaticSounds.size() > 0 || g_menu.m_insertAndShowTerrain)
+	if (g_menu.m_insertVSceneScript || g_guis.size() > 0 || g_guiButtons.size() > 0 || g_guiImages.size() > 0 || g_guiTexts.size() > 0 || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() > 0 || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size())
 	{
 		CInt iResponse = IDNO;
 		iResponse = MessageBox( "Save scene?", "Warning" , MB_YESNOCANCEL |MB_ICONSTOP);
@@ -20922,7 +21061,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnAmbientsound()
 	g_multipleView->SetElapsedTimeFromBeginning();
 }
 
-void CVandaEngine1Dlg::OnBnClickedBtnStaticsound()
+void CVandaEngine1Dlg::OnBnClickedBtn3DSound()
 {
 	if (g_multipleView->IsPlayGameMode())
 	{
@@ -20971,7 +21110,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnStaticsound()
 
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CFalse );
-	OnMenuClickedInsertStaticSound();
+	OnMenuClickedInsert3DSound();
 	if( g_multipleView->m_enableTimer )
 		g_multipleView->EnableTimer( CTrue );
 
@@ -21495,12 +21634,12 @@ void CVandaEngine1Dlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT 
 		}
 		if (!foundTarget)
 		{
-			for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 			{
-				if (Cmp(g_engineStaticSounds[i]->GetName(), szBuffer))
+				if (Cmp(g_engine3DSounds[i]->GetName(), szBuffer))
 				{
-					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineStaticSounds[i]->GetIndex();
-					SetDialogData4(g_engineStaticSounds[i]->GetName(), g_engineStaticSounds[i]->GetPosition()[0], g_engineStaticSounds[i]->GetPosition()[1], g_engineStaticSounds[i]->GetPosition()[2], XYZInfo);
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engine3DSounds[i]->GetIndex();
+					SetDialogData4(g_engine3DSounds[i]->GetName(), g_engine3DSounds[i]->GetPosition()[0], g_engine3DSounds[i]->GetPosition()[1], g_engine3DSounds[i]->GetPosition()[2], XYZInfo);
 					foundTarget = CTrue;
 					break;
 				}
@@ -22199,8 +22338,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar originalAmbientSoundPath[MAX_NAME_SIZE];
 			sprintf( originalAmbientSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Ambient/" );
 
-			CChar originalStaticSoundPath[MAX_NAME_SIZE];
-			sprintf( originalStaticSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Static/" );
+			CChar original3DSoundPath[MAX_NAME_SIZE];
+			sprintf( original3DSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/" );
 
 			CChar originalCharacterSoundPath[MAX_NAME_SIZE];
 			sprintf(originalCharacterSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
@@ -22257,10 +22396,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 
 			PrintInfo("\nPublishing 3D Sounds...");
 
-			CChar staticSoundPath[MAX_NAME_SIZE];
-			sprintf( staticSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/Static/" );
-			CreateWindowsDirectory( staticSoundPath );
-			CopyAllFilesFromSrcToDstDirectory(originalStaticSoundPath, staticSoundPath);
+			CChar ThreeDSoundPath[MAX_NAME_SIZE];
+			sprintf(ThreeDSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/3D/" );
+			CreateWindowsDirectory(ThreeDSoundPath );
+			CopyAllFilesFromSrcToDstDirectory(original3DSoundPath, ThreeDSoundPath);
 
 			PrintInfo("\nPublishing Main Character...");
 
@@ -23244,35 +23383,51 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 	g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 	if (g_editorMode == eMODE_VSCENE)
 	{
-		//Load static sound parameters
-		for (CUInt i = 0; i < m_engineStaticSounds.size(); i++)
+		//Load global sound volume
+		g_currentVSceneProperties.m_globalSoundVolume = m_globalSoundVolume;
+		g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
+		
+		//Load 3D sound parameters
+		for (CUInt i = 0; i < m_engine3DSounds.size(); i++)
 		{
-			for (CUInt j = 0; j < g_engineStaticSounds.size(); j++)
+			for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
 			{
-				if (Cmp(m_engineStaticSounds[i]->GetName(), g_engineStaticSounds[j]->GetName()))
+				if (Cmp(m_engine3DSounds[i]->GetName(), g_engine3DSounds[j]->GetName()))
 				{
-					g_engineStaticSounds[j]->SetName(m_engineStaticSounds[i]->GetName());
-					g_engineStaticSounds[j]->SetLoop(m_engineStaticSounds[i]->GetLoop());
-					g_engineStaticSounds[j]->GetSoundSource()->SetLooping(m_engineStaticSounds[i]->GetLoop());
-					g_engineStaticSounds[j]->SetPlay(m_engineStaticSounds[i]->GetPlay());
-
-					if (g_engineStaticSounds[j]->GetPlay())
+					g_engine3DSounds[j]->SetName(m_engine3DSounds[i]->GetName());
+					g_engine3DSounds[j]->SetLoop(m_engine3DSounds[i]->GetLoop());
+					g_engine3DSounds[j]->GetSoundSource()->SetLooping(m_engine3DSounds[i]->GetLoop());
+					g_engine3DSounds[j]->SetPlay(m_engine3DSounds[i]->GetPlay());
+					g_engine3DSounds[j]->SetPosition(m_engine3DSounds[i]->GetPosition());
+					g_engine3DSounds[j]->GetSoundSource()->SetSoundPosition(m_engine3DSounds[i]->GetPosition());
+					g_engine3DSounds[j]->SetPitch(m_engine3DSounds[i]->GetPitch());
+					g_engine3DSounds[j]->GetSoundSource()->SetPitch(m_engine3DSounds[i]->GetPitch());
+					g_engine3DSounds[j]->SetVolume(m_engine3DSounds[i]->GetVolume());
+					g_engine3DSounds[j]->GetSoundSource()->SetVolume(m_engine3DSounds[i]->GetVolume());
+					g_engine3DSounds[j]->SetRolloff(m_engine3DSounds[i]->GetRolloff());
+					g_engine3DSounds[j]->GetSoundSource()->SetRolloff(m_engine3DSounds[i]->GetRolloff());
+					g_engine3DSounds[j]->SetMaxDistance(m_engine3DSounds[i]->GetMaxDistance());
+					g_engine3DSounds[j]->GetSoundSource()->SetMaxDistance(m_engine3DSounds[i]->GetMaxDistance());
+					g_engine3DSounds[j]->SetReferenceDistance(m_engine3DSounds[i]->GetReferenceDistance());
+					g_engine3DSounds[j]->GetSoundSource()->SetReferenceDistance(m_engine3DSounds[i]->GetReferenceDistance());
+					
+					if (g_engine3DSounds[j]->GetPlay())
 					{
-						g_soundSystem->PlayALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
-						g_soundSystem->StopALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
-						g_soundSystem->PlayALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+						g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+						g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+						g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
 					}
 					else
 					{
-						g_soundSystem->StopALSound(*(g_engineStaticSounds[j]->GetSoundSource()));
+						g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
 					}
-					CDelete(m_engineStaticSounds[i]);
+					CDelete(m_engine3DSounds[i]);
 					break;
 				}
 			}
 		}
-		m_engineStaticSounds.clear();
-		//End of load static sound parameters//////
+		m_engine3DSounds.clear();
+		//End of load 3D sound parameters//////
 
 		//Load ambient sound parameters
 		for (CUInt i = 0; i < m_engineAmbientSounds.size(); i++)
@@ -23285,6 +23440,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 					g_engineAmbientSounds[j]->SetLoop(m_engineAmbientSounds[i]->GetLoop());
 					g_engineAmbientSounds[j]->GetSoundSource()->SetLooping(m_engineAmbientSounds[i]->GetLoop());
 					g_engineAmbientSounds[j]->SetPlay(m_engineAmbientSounds[i]->GetPlay());
+					g_engineAmbientSounds[j]->SetPitch(m_engineAmbientSounds[i]->GetPitch());
+					g_engineAmbientSounds[j]->GetSoundSource()->SetPitch(m_engineAmbientSounds[i]->GetPitch());
+					g_engineAmbientSounds[j]->SetVolume(m_engineAmbientSounds[i]->GetVolume());
+					g_engineAmbientSounds[j]->GetSoundSource()->SetVolume(m_engineAmbientSounds[i]->GetVolume());
 
 					if (g_engineAmbientSounds[j]->GetPlay())
 					{
@@ -23812,18 +23971,18 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 			}
 		}
 
-		//restore static sound states
-		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		//restore 3D sound states
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
-			if (g_engineStaticSounds[i]->GetLoop())
-				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CTrue);
+			if (g_engine3DSounds[i]->GetLoop())
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
 			else
-				g_engineStaticSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
 
-			if (g_engineStaticSounds[i]->GetPlay())
-				g_soundSystem->PlayALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
+			if (g_engine3DSounds[i]->GetPlay())
+				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
 			else
-				g_soundSystem->StopALSound(*(g_engineStaticSounds[i]->GetSoundSource()));
+				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
 		}
 		if (/*g_currentVSceneProperties.m_isMenu*/g_multipleView->GetMenuCursorImage())
 		{
@@ -24447,32 +24606,62 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 	if (g_editorMode == eMODE_VSCENE)
 	{
 		//Save sounds
-		for (CUInt i = 0; i < g_engineStaticSounds.size(); i++)
+		m_globalSoundVolume = g_currentVSceneProperties.m_globalSoundVolume;
+
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
-			CStaticSound* m_staticSound = CNew(CStaticSound);
-			COpenALSoundSource* m_staticSoundSource = CNew(COpenALSoundSource);
-			COpenALSoundBuffer* m_staticSoundBuffer = CNew(COpenALSoundBuffer);
-			m_staticSoundBuffer->SetName(g_engineStaticSounds[i]->GetSoundBuffer()->GetName());
-			m_staticSound->SetName(g_engineStaticSounds[i]->GetName());
-			m_staticSound->SetLoop(g_engineStaticSounds[i]->GetLoop());
-			m_staticSound->SetPlay(g_engineStaticSounds[i]->GetPlay());
-			m_staticSound->SetSoundSource(m_staticSoundSource);
-			m_staticSound->SetSoundBuffer(m_staticSoundBuffer);
-			m_engineStaticSounds.push_back(m_staticSound);
+			C3DSound* m_3DSound = CNew(C3DSound);
+			COpenALSoundSource* m_3DSoundSource = CNew(COpenALSoundSource);
+			m_3DSound->SetName(g_engine3DSounds[i]->GetName());
+			m_3DSound->SetLoop(g_engine3DSounds[i]->GetLoop());
+			m_3DSound->SetPlay(g_engine3DSounds[i]->GetPlay());
+			m_3DSound->SetPosition(g_engine3DSounds[i]->GetPosition());
+			m_3DSound->SetPitch(g_engine3DSounds[i]->GetPitch());
+			m_3DSound->SetVolume(g_engine3DSounds[i]->GetVolume());
+			m_3DSound->SetRolloff(g_engine3DSounds[i]->GetRolloff());
+			m_3DSound->SetMaxDistance(g_engine3DSounds[i]->GetMaxDistance());
+			m_3DSound->SetReferenceDistance(g_engine3DSounds[i]->GetReferenceDistance());
+			m_3DSound->SetSoundSource(m_3DSoundSource);
+			m_3DSound->SetSoundBuffer(NULL);
+			m_engine3DSounds.push_back(m_3DSound);
+
+			if (g_engine3DSounds[i]->GetPlay())
+			{
+				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+			else
+			{
+				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+
 		}
 
 		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 		{
 			CAmbientSound* m_ambientSound = CNew(CAmbientSound);
 			COpenALSoundSource* m_ambientSoundSource = CNew(COpenALSoundSource);
-			COpenALSoundBuffer* m_ambientSoundBuffer = CNew(COpenALSoundBuffer);
-			m_ambientSoundBuffer->SetName(g_engineAmbientSounds[i]->GetSoundBuffer()->GetName());
 			m_ambientSound->SetName(g_engineAmbientSounds[i]->GetName());
 			m_ambientSound->SetLoop(g_engineAmbientSounds[i]->GetLoop());
 			m_ambientSound->SetPlay(g_engineAmbientSounds[i]->GetPlay());
+			m_ambientSound->SetPitch(g_engineAmbientSounds[i]->GetPitch());
+			m_ambientSound->SetVolume(g_engineAmbientSounds[i]->GetVolume());
 			m_ambientSound->SetSoundSource(m_ambientSoundSource);
-			m_ambientSound->SetSoundBuffer(m_ambientSoundBuffer);
+			m_ambientSound->SetSoundBuffer(NULL);
 			m_engineAmbientSounds.push_back(m_ambientSound);
+
+			if (g_engineAmbientSounds[i]->GetPlay())
+			{
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+			else
+			{
+				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+
 		}
 
 		//Save water information
@@ -27414,16 +27603,16 @@ CVoid CVandaEngine1Dlg::LoadObjectNames()
 				VSceneObjectNames.m_prefabNames.push_back(newPrefab);
 			}
 
-			//static sounds
-			CUInt staticSoundSize;
-			fread(&staticSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
+			//3D sounds
+			CUInt ThreeDSoundSize;
+			fread(&ThreeDSoundSize, sizeof(CUInt), 1, ObjectNamefilePtr);
 
-			for (CUInt i = 0; i < staticSoundSize; i++)
+			for (CUInt i = 0; i < ThreeDSoundSize; i++)
 			{
-				CChar staticSoundName[MAX_NAME_SIZE];
-				fread(staticSoundName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
+				CChar ThreeDSoundName[MAX_NAME_SIZE];
+				fread(ThreeDSoundName, sizeof(CChar), MAX_NAME_SIZE, ObjectNamefilePtr);
 
-				VSceneObjectNames.m_staticSoundsNames.push_back(staticSoundName);
+				VSceneObjectNames.m_3DSoundsNames.push_back(ThreeDSoundName);
 			}
 
 			//ambient sounds

@@ -7,7 +7,7 @@
 #include "VandaEngine1.h"
 #include "ScriptEditorAddFunction.h"
 #include "afxdialogex.h"
-
+#include "Common/Utility.h"
 
 // CScriptEditorAddFunction dialog
 
@@ -251,6 +251,26 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(AttachPrefabInstanceToWater, "AttachPrefabInstanceToWater(string prefabInstanceName, string waterObjectName)");
 	Cpy(DetachPrefabInstanceFromWater, "DetachPrefabInstanceFromWater(string prefabInstanceName, string waterObjectName)");
 
+	Cpy(SetSoundVolume, "SetSoundVolume(string soundName, float volume)");
+	Cpy(SetSoundPitch, "SetSoundPitch(string soundName, float pitch)");
+	Cpy(SetSoundPlay, "SetSoundPlay(string soundName, bool play)");
+	Cpy(SetSoundLoop, "SetSoundLoop(string soundName, bool loop)");
+	Cpy(SetSoundPosition, "SetSoundPosition(string soundName, float x, float y, float z)");
+	Cpy(SetSoundRollOff, "SetSoundRollOff(string soundName, float rollOff)");
+	Cpy(SetSoundReferenceDistance, "SetSoundReferenceDistance(string soundName, float distance)");
+	Cpy(SetSoundMaxDistance, "SetSoundMaxDistance(string soundName, float maxDistance)");
+
+	Cpy(GetSoundVolume, "GetSoundVolume(string soundName)");
+	Cpy(GetSoundPitch, "GetSoundPitch(string soundName)");
+	Cpy(GetSoundPlay, "GetSoundPlay(string soundName)");
+	Cpy(GetSoundLoop, "GetSoundLoop(string soundName)");
+	Cpy(GetSoundPosition, "GetSoundPosition(string soundName)");
+	Cpy(GetSoundRollOff, "GetSoundRollOff(string soundName)");
+	Cpy(GetSoundReferenceDistance, "GetSoundReferenceDistance(string soundName)");
+	Cpy(GetSoundMaxDistance, "GetSoundMaxDistance(string soundName)");
+
+	Cpy(SetGlobalSoundVolume, "SetGlobalSoundVolume(float volume)");
+	Cpy(GetGlobalSoundVolume, "GetGlobalSoundVolume()");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1116,6 +1136,79 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 			m_richFunctionName.SetWindowTextA(DetachPrefabInstanceFromWater);
 		}
 
+		if (Cmp(szBuffer, "SetSoundVolume"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundVolume);
+		}
+		else if (Cmp(szBuffer, "SetSoundPitch"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundPitch);
+		}
+		else if (Cmp(szBuffer, "SetSoundPlay"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundPlay);
+		}
+		else if (Cmp(szBuffer, "SetSoundLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundLoop);
+		}
+		else if (Cmp(szBuffer, "SetSoundPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundPosition);
+		}
+		else if (Cmp(szBuffer, "SetSoundRollOff"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundRollOff);
+		}
+		else if (Cmp(szBuffer, "SetSoundReferenceDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundReferenceDistance);
+		}
+		else if (Cmp(szBuffer, "SetSoundMaxDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSoundMaxDistance);
+		}
+		else if (Cmp(szBuffer, "GetSoundVolume"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundVolume);
+		}
+		else if (Cmp(szBuffer, "GetSoundPitch"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundPitch);
+		}
+		else if (Cmp(szBuffer, "GetSoundPlay"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundPlay);
+		}
+		else if (Cmp(szBuffer, "GetSoundLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundLoop);
+		}
+		else if (Cmp(szBuffer, "GetSoundPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundPosition);
+		}
+		else if (Cmp(szBuffer, "GetSoundRollOff"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundRollOff);
+		}
+		else if (Cmp(szBuffer, "GetSoundReferenceDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundReferenceDistance);
+		}
+		else if (Cmp(szBuffer, "GetSoundMaxDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSoundMaxDistance);
+		}
+		else if (Cmp(szBuffer, "SetGlobalSoundVolume"))
+		{
+			m_richFunctionName.SetWindowTextA(SetGlobalSoundVolume);
+		}
+		else if (Cmp(szBuffer, "GetGlobalSoundVolume"))
+		{
+			m_richFunctionName.SetWindowTextA(GetGlobalSoundVolume);
+		}
+
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
 	}
@@ -1371,6 +1464,27 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("AttachPrefabInstanceToWater");
 	InsertItem("DetachPrefabInstanceFromWater");
 
+	InsertItem("SetSoundVolume");
+	InsertItem("SetSoundPitch");
+	InsertItem("SetSoundPlay");
+	InsertItem("SetSoundLoop");
+	InsertItem("SetSoundPosition");
+	InsertItem("SetSoundRollOff");
+	InsertItem("SetSoundReferenceDistance");
+	InsertItem("SetSoundMaxDistance");
+
+	InsertItem("GetSoundVolume");
+	InsertItem("GetSoundPitch");
+	InsertItem("GetSoundPlay");
+	InsertItem("GetSoundLoop");
+	InsertItem("GetSoundPosition");
+	InsertItem("GetSoundRollOff");
+	InsertItem("GetSoundReferenceDistance");
+	InsertItem("GetSoundMaxDistance");
+
+	InsertItem("SetGlobalSoundVolume");
+	InsertItem("GetGlobalSoundVolume");
+	
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);
 

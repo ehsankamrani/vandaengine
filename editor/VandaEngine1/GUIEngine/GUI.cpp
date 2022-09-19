@@ -13,6 +13,7 @@ CGUI::CGUI()
 {
 	m_visible = CTrue;
 	m_loadedFromScript = CFalse;
+	m_position.x = m_position.y = m_rotation = 0.0f;
 }
 
 CGUI::~CGUI()

@@ -264,6 +264,26 @@ private:
 	CChar AttachPrefabInstanceToWater[MAX_URI_SIZE];
 	CChar DetachPrefabInstanceFromWater[MAX_URI_SIZE];
 
+	CChar SetSoundVolume[MAX_URI_SIZE];
+	CChar SetSoundPitch[MAX_URI_SIZE];
+	CChar SetSoundPlay[MAX_URI_SIZE];
+	CChar SetSoundLoop[MAX_URI_SIZE];
+	CChar SetSoundPosition[MAX_URI_SIZE];
+	CChar SetSoundRollOff[MAX_URI_SIZE];
+	CChar SetSoundReferenceDistance[MAX_URI_SIZE];
+	CChar SetSoundMaxDistance[MAX_URI_SIZE];
+
+	CChar GetSoundVolume[MAX_URI_SIZE];
+	CChar GetSoundPitch[MAX_URI_SIZE];
+	CChar GetSoundPlay[MAX_URI_SIZE];
+	CChar GetSoundLoop[MAX_URI_SIZE];
+	CChar GetSoundPosition[MAX_URI_SIZE];
+	CChar GetSoundRollOff[MAX_URI_SIZE];
+	CChar GetSoundReferenceDistance[MAX_URI_SIZE];
+	CChar GetSoundMaxDistance[MAX_URI_SIZE];
+
+	CChar SetGlobalSoundVolume[MAX_URI_SIZE];
+	CChar GetGlobalSoundVolume[MAX_URI_SIZE];
 public:
 	afx_msg void OnBnClickedCancel();
 };

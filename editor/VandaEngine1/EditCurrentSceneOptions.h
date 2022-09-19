@@ -30,7 +30,9 @@ public:
 	afx_msg void OnBnClickedBtnLoadingBanner();
 	CString m_strBanner;
 	CString m_strCursorSize;
+	CString m_strGlobalSoundVolume;
 	CInt m_cursorSize;
+	CFloat m_fGlobalSoundVolume;
 	CBool setBanner;
 
 	virtual BOOL OnInitDialog();
@@ -42,4 +44,8 @@ public:
 	CButton m_btnCursorIcon;
 	CEdit m_editBoxCursorSize;
 	afx_msg void OnEnChangeEditCursorPercent();
+private:
+	CEdit m_editBoxGlobalSoundVolume;
+public:
+	afx_msg void OnEnChangeEditGlobalSoundVolume();
 };

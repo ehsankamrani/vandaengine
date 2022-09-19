@@ -301,6 +301,27 @@ CInt DeletePrefabInstance(lua_State* L);
 CInt AttachPrefabInstanceToWater(lua_State* L);
 CInt DetachPrefabInstanceFromWater(lua_State* L);
 
+CInt SetSoundVolume(lua_State* L);
+CInt SetSoundPitch(lua_State* L);
+CInt SetSoundPlay(lua_State* L);
+CInt SetSoundLoop(lua_State* L);
+CInt SetSoundPosition(lua_State* L);
+CInt SetSoundRollOff(lua_State* L);
+CInt SetSoundReferenceDistance(lua_State* L);
+CInt SetSoundMaxDistance(lua_State* L);
+
+CInt GetSoundVolume(lua_State* L);
+CInt GetSoundPitch(lua_State* L);
+CInt GetSoundPlay(lua_State* L);
+CInt GetSoundLoop(lua_State* L);
+CInt GetSoundPosition(lua_State* L);
+CInt GetSoundRollOff(lua_State* L);
+CInt GetSoundReferenceDistance(lua_State* L);
+CInt GetSoundMaxDistance(lua_State* L);
+
+CInt SetGlobalSoundVolume(lua_State* L);
+CInt GetGlobalSoundVolume(lua_State* L);
+
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
 CVoid ShowLoadingScene(CChar* message = NULL);

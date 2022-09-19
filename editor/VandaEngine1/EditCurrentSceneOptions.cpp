@@ -32,6 +32,7 @@ void CEditCurrentSceneOptions::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CURSOR_ICON, m_editBoxCursorIcon);
 	DDX_Control(pDX, IDC_BTN_LOADING_CURSOR_ICON, m_btnCursorIcon);
 	DDX_Control(pDX, IDC_EDIT_CURSOR_PERCENT, m_editBoxCursorSize);
+	DDX_Control(pDX, IDC_EDIT_GLOBAL_SOUND_VOLUME, m_editBoxGlobalSoundVolume);
 }
 
 
@@ -40,6 +41,7 @@ BEGIN_MESSAGE_MAP(CEditCurrentSceneOptions, CDialog)
 	ON_BN_CLICKED(IDC_BTN_LOADING_CURSOR_ICON, &CEditCurrentSceneOptions::OnBnClickedBtnLoadingCursorIcon)
 	ON_BN_CLICKED(IDC_CHECKBOX_SETASMENU, &CEditCurrentSceneOptions::OnBnClickedCheckboxSetasmenu)
 	ON_EN_CHANGE(IDC_EDIT_CURSOR_PERCENT, &CEditCurrentSceneOptions::OnEnChangeEditCursorPercent)
+	ON_EN_CHANGE(IDC_EDIT_GLOBAL_SOUND_VOLUME, &CEditCurrentSceneOptions::OnEnChangeEditGlobalSoundVolume)
 END_MESSAGE_MAP()
 
 
@@ -87,6 +89,10 @@ BOOL CEditCurrentSceneOptions::OnInitDialog()
 	m_strCursorSize.Format("%d", m_cursorSize);
 	m_editBoxCursorSize.SetWindowTextA(m_strCursorSize);
 
+	m_fGlobalSoundVolume = g_currentVSceneProperties.m_globalSoundVolume;
+	m_strGlobalSoundVolume.Format("%.2f", m_fGlobalSoundVolume);
+	m_editBoxGlobalSoundVolume.SetWindowTextA(m_strGlobalSoundVolume);
+
 	m_editBoxCursorIcon.SetWindowTextA(g_vsceneMenuCursor.GetCursorPath());
 	m_editBoxCursorIcon.GetWindowTextA(m_strCursorImage);
 	
@@ -124,11 +130,31 @@ void CEditCurrentSceneOptions::OnOK()
 		return;
 	}
 
+	if (m_strGlobalSoundVolume.IsEmpty())
+	{
+		MessageBox("Please Fill In Global Sound Volume", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if (m_strBanner.IsEmpty())
 	{
 		MessageBox("Please Choose Banner", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
+
+	if (m_cursorSize < 0.0f)
+	{
+		MessageBox("Cursor size must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_fGlobalSoundVolume > 1.0f || m_fGlobalSoundVolume < 0.0f)
+	{
+		MessageBox("Global sound volume must be in [0,1] range", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	g_currentVSceneProperties.m_globalSoundVolume = m_fGlobalSoundVolume;
 
 	if (checkState == BST_CHECKED)
 	{
@@ -167,6 +193,8 @@ void CEditCurrentSceneOptions::OnOK()
 		//save functions/////////////////////////////////
 		Cpy(g_currentVSceneProperties.m_strBanner, g_sceneBanner.GetBannerPath());
 	}
+
+	g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
 
 	CDialog::OnOK();
 }
@@ -210,4 +238,11 @@ void CEditCurrentSceneOptions::OnEnChangeEditCursorPercent()
 {
 	m_editBoxCursorSize.GetWindowTextA(m_strCursorSize);
 	m_cursorSize = atoi(m_strCursorSize);
+}
+
+
+void CEditCurrentSceneOptions::OnEnChangeEditGlobalSoundVolume()
+{
+	m_editBoxGlobalSoundVolume.GetWindowTextA(m_strGlobalSoundVolume);
+	m_fGlobalSoundVolume = atof(m_strGlobalSoundVolume);
 }

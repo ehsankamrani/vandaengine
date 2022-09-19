@@ -314,4 +314,25 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "AttachPrefabInstanceToWater", AttachPrefabInstanceToWater);
 	lua_register(L, "DetachPrefabInstanceFromWater", DetachPrefabInstanceFromWater);
 
+	lua_register(L, "SetSoundVolume", SetSoundVolume);
+	lua_register(L, "SetSoundPitch", SetSoundPitch);
+	lua_register(L, "SetSoundPlay", SetSoundPlay);
+	lua_register(L, "SetSoundLoop", SetSoundLoop);
+	lua_register(L, "SetSoundPosition", SetSoundPosition);
+	lua_register(L, "SetSoundRollOff", SetSoundRollOff);
+	lua_register(L, "SetSoundReferenceDistance", SetSoundReferenceDistance);
+	lua_register(L, "SetSoundMaxDistance", SetSoundMaxDistance);
+
+	lua_register(L, "GetSoundVolume", GetSoundVolume);
+	lua_register(L, "GetSoundPitch", GetSoundPitch);
+	lua_register(L, "GetSoundPlay", GetSoundPlay);
+	lua_register(L, "GetSoundLoop", GetSoundLoop);
+	lua_register(L, "GetSoundPosition", GetSoundPosition);
+	lua_register(L, "GetSoundRollOff", GetSoundRollOff);
+	lua_register(L, "GetSoundReferenceDistance", GetSoundReferenceDistance);
+	lua_register(L, "GetSoundMaxDistance", GetSoundMaxDistance);
+
+	lua_register(L, "SetGlobalSoundVolume", SetGlobalSoundVolume);
+	lua_register(L, "GetGlobalSoundVolume", GetGlobalSoundVolume);
+
 }

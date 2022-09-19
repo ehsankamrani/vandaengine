@@ -129,6 +129,14 @@ CVoid COpenALSystem::SetListenerOrientation( CFloat* orientation )
 	}
 }
 
+CVoid COpenALSystem::SetListenerGain(CFloat gain)
+{
+	if (m_init == CTrue)
+	{
+		alListenerf(AL_GAIN, gain);
+	}
+}
+
 CVoid COpenALSystem::SetDopplerFactor( CFloat factor )
 {
 	if(m_init == CTrue)

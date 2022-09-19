@@ -24,7 +24,7 @@
 #include "AudioEngine/OpenALSystem.h"
 #include "AudioEngine/OpenALSoundBuffer.h"
 #include "AudioEngine/OpenALSoundSource.h"
-#include "AudioEngine/StaticSound.h"
+#include "AudioEngine/3DSound.h"
 #include "GUIEngine/GUIImage.h"
 #include "GUIEngine/GUIButton.h"
 #include "GUIEngine/GUIText.h"
@@ -35,7 +35,7 @@
 
 class CInstanceLight;
 class CWater;
-class CStaticSound;
+class C3DSound;
 class CScene;
 class CImage;
 class CBloom;
@@ -81,7 +81,7 @@ extern std::vector<CGUI*> g_guis;
 extern std::vector<CInstanceLight*> g_engineLights; //these aren't collada lights, they are specified via the editor
 extern std::vector<CTrigger*> g_triggers;
 extern std::vector<CWater*> g_engineWaters; //We may use multiple water surfaces in our engine
-extern std::vector<CStaticSound*>g_engineStaticSounds;
+extern std::vector<C3DSound*>g_engine3DSounds;
 extern std::vector<CAmbientSound*> g_engineAmbientSounds;
 extern CUpdateCamera *g_camera;
 extern CVSceneScript* g_VSceneScript;
@@ -251,12 +251,14 @@ struct CCurrentVSceneProperties
 	CBool m_isMenu;
 	CInt m_cursorSize;
 	CBool m_isPause;
+	CFloat m_globalSoundVolume;
 
 	CCurrentVSceneProperties()
 	{
 		m_isMenu = CFalse;
 		m_isPause = CFalse;
 		m_cursorSize = 5;
+		m_globalSoundVolume = 1.0f;
 	}
 
 	CVoid Reset()
@@ -264,6 +266,7 @@ struct CCurrentVSceneProperties
 		m_isMenu = CFalse;
 		m_isPause = CFalse;
 		m_cursorSize = 5;
+		m_globalSoundVolume = 1.0f;
 	}
 };
 

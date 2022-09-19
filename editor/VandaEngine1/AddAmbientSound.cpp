@@ -59,14 +59,13 @@ void CAddAmbientSound::OnBnClickedButtonAmbientSound()
 		m_strAmbientSoundBuffer = (CString)dlgOpen.GetPathName();
 		m_strPureAmbientSoundBuffer = dlgOpen.GetFileTitle();
 
-		//CChar* originalAmbientSoundPath = (CChar*)m_strAmbientSoundBuffer.GetBuffer(m_strAmbientSoundBuffer.GetLength() ); ;
-		//CChar* tempAmbientSoundPath = GetAfterPath( originalAmbientSoundPath );
-		//CChar AmbientSoundPath[MAX_NAME_SIZE];
-		//sprintf( AmbientSoundPath, "%s%s", g_pathProperties.m_soundPath, tempAmbientSoundPath );
-		//m_strAmbientSoundBuffer = AmbientSoundPath;
-		//m_strAmbientSoundBuffer.ReleaseBuffer();
+		CChar* AmbientSoundPath = (CChar*)m_strAmbientSoundBuffer.GetBuffer(m_strAmbientSoundBuffer.GetLength() );
+		CChar* fileAfterPath = GetAfterPath(AmbientSoundPath);
+		Cpy(m_soundFileName, fileAfterPath);
 
 		m_editBoxAmbientSoundBuffer.SetWindowText( m_strAmbientSoundBuffer );
+		m_strAmbientSoundBuffer.ReleaseBuffer();
+
 	}
 }
 
@@ -113,10 +112,18 @@ void CAddAmbientSound::OnOK()
 			}
 		}
 	}
-	if( m_strAmbientSoundName.IsEmpty() || m_strAmbientSoundBuffer.IsEmpty() || m_strAmbientSoundVolume.IsEmpty() || m_strAmbientSoundPitch.IsEmpty() )
-		MessageBox( "Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR );
-	else
-		CDialog::OnOK();
+	if (m_strAmbientSoundName.IsEmpty() || m_strAmbientSoundBuffer.IsEmpty() || m_strAmbientSoundVolume.IsEmpty() || m_strAmbientSoundPitch.IsEmpty())
+	{
+		MessageBox("Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (m_volume > 1.0f || m_volume < 0.0f)
+	{
+		MessageBox("Volume must be in [0,1] range", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CDialog::OnOK();
 }
 
 void CAddAmbientSound::OnEnChangeEditAmbientSoundName()
@@ -149,6 +156,7 @@ BOOL CAddAmbientSound::OnInitDialog()
 		sprintf( AmbientSoundPath, "%s%s", g_pathProperties.m_soundPath, "defaultAmbient.ogg" );
 		m_strAmbientSoundBuffer = AmbientSoundPath;
 		m_strPureAmbientSoundBuffer = "defaultAmbient";
+		Cpy(m_soundFileName, "defaultAmbient.ogg");
 	}
 	m_editBoxAmbientSoundName.SetWindowTextA( m_strAmbientSoundName );
 	m_editBoxAmbientSoundVolume.SetWindowTextA( m_strAmbientSoundVolume );

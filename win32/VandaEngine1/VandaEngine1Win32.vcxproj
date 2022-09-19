@@ -80,6 +80,7 @@
       <AdditionalOptions>/ignore:4099 /ignore:4049 %(AdditionalOptions)</AdditionalOptions>
       <OutputFile>$(OutDir)VandaEngine1Win32.exe</OutputFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
@@ -113,12 +114,14 @@
       <HeapReserveSize>
       </HeapReserveSize>
       <AdditionalOptions>/ignore:4099 /ignore:4049 %(AdditionalOptions)</AdditionalOptions>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioEngine\3DSound.cpp" />
     <ClCompile Include="Common\Prefab.cpp" />
     <ClCompile Include="Common\VSceneScript.cpp" />
     <ClCompile Include="GraphicsEngine\Actions.cpp" />
@@ -199,7 +202,6 @@
     <ClCompile Include="GraphicsEngine\SimpleFont.cpp" />
     <ClCompile Include="GraphicsEngine\skin.cpp" />
     <ClCompile Include="GraphicsEngine\Sky.cpp" />
-    <ClCompile Include="AudioEngine\StaticSound.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -216,6 +218,7 @@
     <ClCompile Include="GraphicsEngine\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioEngine\3DSound.h" />
     <ClInclude Include="Common\Prefab.h" />
     <ClInclude Include="Common\VSceneScript.h" />
     <ClInclude Include="GraphicsEngine\Actions.h" />
@@ -307,7 +310,6 @@
     <ClInclude Include="GraphicsEngine\SimpleFont.h" />
     <ClInclude Include="GraphicsEngine\skin.h" />
     <ClInclude Include="GraphicsEngine\Sky.h" />
-    <ClInclude Include="AudioEngine\StaticSound.h" />
     <ClInclude Include="ScriptEngine\LuaForCpp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="physXEngine\Stream.h" />

@@ -1,4 +1,4 @@
-Vanda Engine 1.9.0
+Vanda Engine 1.9.1
 Copyright (C) 2022 Ehsan Kamrani
 
 www.vanda3d.org
