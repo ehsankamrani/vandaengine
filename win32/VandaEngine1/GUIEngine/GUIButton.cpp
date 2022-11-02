@@ -116,7 +116,7 @@ CBool CGUIButton::LoadDisableImage()
 
 }
 
-CVoid CGUIButton::Render(CBool selectionMode)
+CVoid CGUIButton::Render(CVec2f globalPosition, CBool selectionMode)
 {
 	if (!m_visible) return;
 
@@ -130,10 +130,10 @@ CVoid CGUIButton::Render(CBool selectionMode)
 		glUseProgram(0);
 
 		glBegin(GL_QUADS);
-		glVertex3f(m_position.x, m_position.y - h, 0.0f);
-		glVertex3f(m_position.x + w, m_position.y - h, 0.0f);
-		glVertex3f(m_position.x + w, m_position.y, 0.0f);
-		glVertex3f(m_position.x, m_position.y, 0.0f);
+		glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y - h, 0.0f);
+		glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y - h, 0.0f);
+		glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y, 0.0f);
+		glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y, 0.0f);
 		glEnd();
 
 		glPopName();
@@ -249,10 +249,10 @@ CVoid CGUIButton::Render(CBool selectionMode)
 
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-	glTexCoord2d(0, 1);  glVertex3f(m_position.x, m_position.y, -1.0f);
-	glTexCoord2d(1, 1);  glVertex3f(m_position.x + w, m_position.y, -1.0f);
-	glTexCoord2d(1, 0);  glVertex3f(m_position.x + w, m_position.y - h, -1.0f);
-	glTexCoord2d(0, 0);  glVertex3f(m_position.x, m_position.y - h, -1.0f);
+	glTexCoord2d(0, 1);  glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y, -1.0f);
+	glTexCoord2d(1, 1);  glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y, -1.0f);
+	glTexCoord2d(1, 0);  glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y - h, -1.0f);
+	glTexCoord2d(0, 0);  glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y - h, -1.0f);
 	glEnd();
 
 	glPopAttrib();

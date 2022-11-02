@@ -332,6 +332,9 @@ CInt GetGUIButtonPosition(lua_State* L);
 CInt GetGUIImagePosition(lua_State* L);
 CInt GetGUITextPosition(lua_State* L);
 
+CInt SetGUIPosition(lua_State* L);
+CInt GetGUIPosition(lua_State* L);
+
 CInt AddForceToCharacterController(lua_State* L);
 CInt AddForceToPrefabInstance(lua_State* L);
 CInt AddTorqueToPrefabInstance(lua_State* L);

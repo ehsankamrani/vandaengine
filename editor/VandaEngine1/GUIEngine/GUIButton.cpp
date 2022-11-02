@@ -123,7 +123,7 @@ CBool CGUIButton::LoadDisableImage()
 }
 
 
-CVoid CGUIButton::Render(CBool selectionMode)
+CVoid CGUIButton::Render(CVec2f globalPosition, CBool selectionMode)
 {
 	if (!m_visible) return;
 
@@ -132,6 +132,12 @@ CVoid CGUIButton::Render(CBool selectionMode)
 		h = m_scale * m_size * g_height / 100.0f;
 	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
 		h = m_scale * m_size * g_height / 200.0f;
+
+	if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
+	{
+		globalPosition.x /= 2.0f;
+		globalPosition.y /= 2.0f;
+	}
 
 	CFloat w = h * ( m_mainImage->GetWidth() / m_mainImage->GetHeight() );
 
@@ -143,19 +149,19 @@ CVoid CGUIButton::Render(CBool selectionMode)
 		if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
 		{
 			glBegin(GL_QUADS);
-			glVertex3f(m_position.x, m_position.y - h, 0.0f);
-			glVertex3f(m_position.x + w, m_position.y - h, 0.0f);
-			glVertex3f(m_position.x + w, m_position.y, 0.0f);
-			glVertex3f(m_position.x, m_position.y, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y - h, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y - h, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y, 0.0f);
 			glEnd();
 		}
 		else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
 		{
 			glBegin(GL_QUADS);
-			glVertex3f(m_position.x * 0.5f, m_position.y * 0.5f - h, 0.0f);
-			glVertex3f(m_position.x * 0.5f + w, m_position.y * 0.5f - h, 0.0f);
-			glVertex3f(m_position.x * 0.5f + w, m_position.y * 0.5f, 0.0f);
-			glVertex3f(m_position.x * 0.5f, m_position.y * 0.5f, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x * 0.5f, globalPosition.y + m_position.y * 0.5f - h, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x * 0.5f + w, globalPosition.y + m_position.y * 0.5f - h, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x * 0.5f + w, globalPosition.y + m_position.y * 0.5f, 0.0f);
+			glVertex3f(globalPosition.x + m_position.x * 0.5f, globalPosition.y + m_position.y * 0.5f, 0.0f);
 			glEnd();
 		}
 		glPopName();
@@ -167,12 +173,22 @@ CVoid CGUIButton::Render(CBool selectionMode)
 	glUseProgram(0);
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-	glViewport(0, 0, g_width, g_height);
+
+	if(g_menu.m_justPerspective)
+		glViewport(0, 0, g_width, g_height);
+	else
+		glViewport(0, 0, g_width / 2, g_height / 2);
+
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0, g_width, 0.0, g_height, -2.0, 2.0);
+
+	if (g_menu.m_justPerspective)
+		glOrtho(0.0, g_width, 0.0, g_height, -2.0, 2.0);
+	else
+		glOrtho(0.0, g_width / 2, 0.0, g_height / 2, -2.0, 2.0);
+
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -276,20 +292,20 @@ CVoid CGUIButton::Render(CBool selectionMode)
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
-		glTexCoord2d(0, 1);  glVertex3f(m_position.x, m_position.y, -1.0f);
-		glTexCoord2d(1, 1);  glVertex3f(m_position.x + w, m_position.y, -1.0f);
-		glTexCoord2d(1, 0);  glVertex3f(m_position.x + w, m_position.y - h, -1.0f);
-		glTexCoord2d(0, 0);  glVertex3f(m_position.x, m_position.y - h, -1.0f);
+		glTexCoord2d(0, 1);  glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y, -1.0f);
+		glTexCoord2d(1, 1);  glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y, -1.0f);
+		glTexCoord2d(1, 0);  glVertex3f(globalPosition.x + m_position.x + w, globalPosition.y + m_position.y - h, -1.0f);
+		glTexCoord2d(0, 0);  glVertex3f(globalPosition.x + m_position.x, globalPosition.y + m_position.y - h, -1.0f);
 		glEnd();
 	}
 	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
-		glTexCoord2d(0, 1);  glVertex3f(m_position.x * 0.5f, m_position.y * 0.5f, -1.0f);
-		glTexCoord2d(1, 1);  glVertex3f(m_position.x * 0.5f + w, m_position.y * 0.5f, -1.0f);
-		glTexCoord2d(1, 0);  glVertex3f(m_position.x * 0.5f + w, m_position.y * 0.5f - h, -1.0f);
-		glTexCoord2d(0, 0);  glVertex3f(m_position.x * 0.5f, m_position.y * 0.5f - h, -1.0f);
+		glTexCoord2d(0, 1);  glVertex3f(globalPosition.x + m_position.x * 0.5f, globalPosition.y + m_position.y * 0.5f, -1.0f);
+		glTexCoord2d(1, 1);  glVertex3f(globalPosition.x + m_position.x * 0.5f + w, globalPosition.y + m_position.y * 0.5f, -1.0f);
+		glTexCoord2d(1, 0);  glVertex3f(globalPosition.x + m_position.x * 0.5f + w, globalPosition.y + m_position.y * 0.5f - h, -1.0f);
+		glTexCoord2d(0, 0);  glVertex3f(globalPosition.x + m_position.x * 0.5f, globalPosition.y + m_position.y * 0.5f - h, -1.0f);
 		glEnd();
 	}
 

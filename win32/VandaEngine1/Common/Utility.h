@@ -305,6 +305,39 @@ struct CQuat
 	}
 };
 
+struct CVec2i
+{
+	CInt x, y;
+
+	CVec2i()
+	{
+		x = y = 0;
+	}
+
+	CVec2i(CInt xx, CInt yy)
+	{
+		x = xx; y = yy;
+	}
+
+	inline CBool operator ==(CVec2i v)
+	{
+		if (x != v.x)
+			return CFalse;
+		if (y != v.y)
+			return CFalse;
+		return CTrue;
+	}
+
+	inline CBool operator !=(CVec2i v)
+	{
+		if (x != v.x)
+			return CTrue;
+		if (y != v.y)
+			return CTrue;
+		return CFalse;
+	}
+};
+
 struct CVec2f
 {
 	CFloat x,y; 

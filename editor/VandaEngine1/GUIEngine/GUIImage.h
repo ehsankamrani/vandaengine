@@ -35,7 +35,7 @@ public:
 
 	CVec2f SetPosition(CVec2f pos);
 	CVoid SetPosition2(CVec2f pos);
-	CVoid SetUnrestriedPosition(CVec2f pos) { m_position.x = pos.x;	m_position.y = pos.y; }
+	CVoid SetUnrestrictedPosition(CVec2f pos) { m_position.x = pos.x;	m_position.y = pos.y; }
 
 	inline CVoid SetName(CChar* name) { Cpy(m_name, name); }
 	inline CVoid SetPackageName(CChar* name) { Cpy(m_packageName, name); }
@@ -60,7 +60,7 @@ public:
 	inline CVoid SetUpdateImage(CBool state) { m_updateImage = state; }
 	inline CBool GetUpdateImage() { return m_updateImage; }
 
-	CVoid Render(CBool selectionMode = CFalse);
+	CVoid Render(CVec2f globalPosition, CBool selectionMode = CFalse);
 
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }

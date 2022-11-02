@@ -31,7 +31,7 @@ public:
 	inline CChar* GetPackageName() { return m_packageName; }
 	inline CChar* GetGUIName() { return m_guiName; }
 	inline CBool GetLoadedFromScript() { return m_loadedFromScript; }
-	inline CVec2f GetPosition() { return m_position; }
+	CVec2f GetPosition(CBool positionForRender = CFalse);
 	inline CFloat GetRotation() { return m_rotation; }
 
 	std::vector<CGUIButton*> m_guiButtons;

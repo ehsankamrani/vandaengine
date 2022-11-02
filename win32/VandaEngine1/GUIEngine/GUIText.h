@@ -37,7 +37,7 @@ public:
 	inline CVoid SetText(CChar* text) { Cpy(m_text, text); }
 	inline CVoid SetColor(CVec3f color) { m_color = color; }
 	CBool SetFont();
-	void Render(CBool selectionMode = CFalse);
+	void Render(CVec2f globalPosition, CBool selectionMode = CFalse);
 
 	inline CChar* GetName() { return m_name; }
 	inline CChar* GetPackageName() { return m_packageName; }

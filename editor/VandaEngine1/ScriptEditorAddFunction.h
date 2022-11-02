@@ -251,6 +251,9 @@ private:
 	CChar GetGUIImagePosition[MAX_URI_SIZE];
 	CChar GetGUITextPosition[MAX_URI_SIZE];
 
+	CChar SetGUIPosition[MAX_URI_SIZE];
+	CChar GetGUIPosition[MAX_URI_SIZE];
+
 	CChar AddForceToCharacterController[MAX_URI_SIZE];
 	CChar AddForceToPrefabInstance[MAX_URI_SIZE];
 	CChar AddTorqueToPrefabInstance[MAX_URI_SIZE];

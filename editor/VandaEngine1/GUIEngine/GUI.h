@@ -24,6 +24,19 @@ public:
 	inline CVoid SetVisible(CBool state) { m_visible = state; }
 	inline CVoid SetLoadedFromScript(CBool state) { m_loadedFromScript = state; }
 	inline CVoid SetPosition(CVec2f position) { m_position = position; }
+	inline CVoid SetPosition2(CVec2f position)
+	{
+		m_position.x += position.x;
+		m_position.y += position.y;
+		if (m_position.x > 100.0f)
+			m_position.x = 100.0f;
+		if (m_position.x < -100.0f)
+			m_position.x = -100.0f;
+		if (m_position.y > 100.0f)
+			m_position.y = 100.0f;
+		if (m_position.y < -100.0f)
+			m_position.y = -100.0f;
+	}
 	inline CVoid SetRotation(CFloat rotation) { m_rotation = rotation; }
 
 	inline CBool GetVisible() { return m_visible; }
@@ -31,7 +44,7 @@ public:
 	inline CChar* GetPackageName() { return m_packageName; }
 	inline CChar* GetGUIName() { return m_guiName; }
 	inline CBool GetLoadedFromScript() { return m_loadedFromScript; }
-	inline CVec2f GetPosition() { return m_position; }
+	CVec2f GetPosition(CBool positionForRender = CFalse);
 	inline CFloat GetRotation() { return m_rotation; }
 
 	std::vector<CGUIButton*> m_guiButtons;

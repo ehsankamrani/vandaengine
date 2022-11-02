@@ -23,11 +23,12 @@ private:
 	CChar m_packageName[MAX_NAME_SIZE];
 	CChar m_guiName[MAX_NAME_SIZE];
 	CSimpleFont* m_font;
+	CSimpleFont* m_fontSmall;
 	CInt m_nameIndex;
 public:
 	CVec2f SetPosition(CVec2f pos);
 	CVoid SetPosition2(CVec2f pos);
-	CVoid SetUnrestriedPosition(CVec2f pos) { m_position.x = pos.x;	m_position.y = pos.y; }
+	CVoid SetUnrestrictedPosition(CVec2f pos) { m_position.x = pos.x;	m_position.y = pos.y; }
 
 	inline CVoid SetName(CChar* name) { Cpy(m_name, name); }
 	inline CVoid SetPackageName(CChar* name) { Cpy(m_packageName, name); }
@@ -42,7 +43,7 @@ public:
 	inline CVoid SetText(CChar* text) { Cpy(m_text, text); }
 	inline CVoid SetColor(CVec3f color) { m_color = color; }
 	CBool SetFont();
-	void Render(CBool selectionMode = CFalse);
+	void Render(CVec2f globalPosition, CBool selectionMode = CFalse);
 
 	inline CChar* GetName() { return m_name; }
 	inline CChar* GetPackageName() { return m_packageName; }

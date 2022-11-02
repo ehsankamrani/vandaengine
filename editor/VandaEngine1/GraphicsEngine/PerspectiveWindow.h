@@ -16,6 +16,7 @@
 #include "..\AudioEngine/ambientSound.h"
 #include "..\GraphicsEngine/SimpleFont.h"
 #include "../MouseTranslationController.h"
+#include "GUIEngine/GUI.h"
 #include "..\\Icon.h"
 #include "Defines.h"
 
@@ -363,6 +364,7 @@ private:
 	CInt m_dx, m_dy;
 	CInt m_prev_dx, m_prev_dy;
 	POINT m_point;
+	CGUI* m_selectedGUI;
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );

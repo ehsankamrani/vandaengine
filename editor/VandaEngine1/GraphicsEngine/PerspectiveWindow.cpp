@@ -13974,7 +13974,7 @@ CInt SetGUIButtonPosition(lua_State* L)
 
 				if (Cmp(buttonName, btnName))
 				{
-					g_guiButtons[j]->SetUnrestriedPosition(pos);
+					g_guiButtons[j]->SetUnrestrictedPosition(pos);
 					return 0;
 				}
 			}
@@ -14054,7 +14054,7 @@ CInt SetGUIButtonPosition(lua_State* L)
 				{
 					foundGUIButton = CTrue;
 
-					g_guis[i]->m_guiButtons[j]->SetUnrestriedPosition(pos);
+					g_guis[i]->m_guiButtons[j]->SetUnrestrictedPosition(pos);
 
 					break;
 				}
@@ -14125,7 +14125,7 @@ CInt SetGUIImagePosition(lua_State* L)
 
 				if (Cmp(imageName, btnName))
 				{
-					g_guiImages[j]->SetUnrestriedPosition(pos);
+					g_guiImages[j]->SetUnrestrictedPosition(pos);
 					return 0;
 				}
 			}
@@ -14205,7 +14205,7 @@ CInt SetGUIImagePosition(lua_State* L)
 				{
 					foundGUIImage = CTrue;
 
-					g_guis[i]->m_guiImages[j]->SetUnrestriedPosition(pos);
+					g_guis[i]->m_guiImages[j]->SetUnrestrictedPosition(pos);
 
 					break;
 				}
@@ -14276,7 +14276,7 @@ CInt SetGUITextPosition(lua_State* L)
 
 				if (Cmp(textName, btnName))
 				{
-					g_guiTexts[j]->SetUnrestriedPosition(pos);
+					g_guiTexts[j]->SetUnrestrictedPosition(pos);
 					return 0;
 				}
 			}
@@ -14356,7 +14356,7 @@ CInt SetGUITextPosition(lua_State* L)
 				{
 					foundGUIText = CTrue;
 
-					g_guis[i]->m_guiTexts[j]->SetUnrestriedPosition(pos);
+					g_guis[i]->m_guiTexts[j]->SetUnrestrictedPosition(pos);
 
 					break;
 				}
@@ -14836,6 +14836,176 @@ CInt GetGUITextPosition(lua_State* L)
 		sprintf(temp, "%s%s%s", "\nGetGUITextPosition() Error: Couldn't find GUI text '", textName, "'");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetGUIPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetGUIPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTarget = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat xPos = (CFloat)lua_tonumber(L, 2);
+	CFloat yPos = (CFloat)lua_tonumber(L, 3);
+	if (xPos < -100.0f || xPos > 100.0f || yPos < -100.0f || yPos > 100.0f)
+	{
+		CChar message[MAX_URI_SIZE];
+		sprintf(message, "\nSetGUIPosition(%s, %.2f, %.2f) error: input values must be in[-100, 100] range", lua_tostring(L, 1), xPos, yPos);
+		PrintInfo(message, COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, luaToString))
+					{
+						foundTarget = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s'- SetGUIPosition(%s, %.2f, %.2f) will be executed", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name, (CFloat)lua_tonumber(L, 2), (CFloat)lua_tonumber(L, 3));
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetGUIPosition() Error: Couldn't find GUI '", luaToString, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+		
+		CFloat x = (CFloat)lua_tonumber(L, 2);
+		CFloat y = (CFloat)lua_tonumber(L, 3);
+
+		CVec2f pos; pos.x = x; pos.y = y;
+
+		if (Cmp(gui, luaToString))
+		{
+			g_guis[i]->SetPosition(pos);
+
+			foundTarget = CTrue;
+			break;
+		}
+	}
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetGUIPosition() Error: Couldn't find the GUI '", luaToString, "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+
+}
+
+CInt GetGUIPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetGUIPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTarget = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_guiNames.size(); j++)
+				{
+					CChar name[MAX_NAME_SIZE];
+					Cpy(name, g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+					StringToUpper(name);
+
+					if (Cmp(name, luaToString))
+					{
+						foundTarget = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s'- GetGUIPosition(%s) will be executed", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetGUIPosition() Error: Couldn't find GUI '", luaToString, "'");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, luaToString))
+		{
+			CVec2f position = g_guis[i]->GetPosition();
+			lua_pushnumber(L, position.x);
+			lua_pushnumber(L, position.y);
+			return 2;
+		}
+	}
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nGetGUIPosition() Error: Couldn't find GUI '", luaToString, "'");
+		PrintInfo(temp, COLOR_RED);
 	}
 
 	return 0;
@@ -17636,6 +17806,7 @@ CMultipleWindows::CMultipleWindows()
 	m_pushTransparentGeometry = CFalse;
 	m_renderArrow = CFalse;
 	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
+	m_selectedGUI = NULL;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -18197,6 +18368,7 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 			}
 		}
 	}
+
 	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
@@ -18217,6 +18389,27 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 				}
 			}
 		}
+	}
+
+	if (g_editorMode == eMODE_VSCENE && !g_multipleView->IsPlayGameMode())
+	{
+		CString s;
+		ex_pVandaEngine1Dlg->m_staticSelectedObject.GetWindowTextA(s);
+
+		CChar selectedName[MAX_NAME_SIZE];
+		Cpy(selectedName, s.GetBuffer(s.GetLength()));
+		s.ReleaseBuffer();
+
+		for (CUInt i = 0; i < g_guis.size(); i++)
+		{
+			if (Cmp(g_guis[i]->GetName(), selectedName) && g_guis[i]->GetVisible())
+			{
+				m_selectedGUI = g_guis[i];
+				break;
+			}
+		}
+
+		m_mouseOldPosition = point;
 	}
 
 	if (g_editorMode == eMODE_GUI && !g_multipleView->IsPlayGameMode())
@@ -18559,6 +18752,8 @@ CVoid CMultipleWindows::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
+		m_selectedGUI = NULL;
+
 		if (g_transformObject && g_selectedName != -1)
 		{
 			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -19052,8 +19247,8 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 		m_previousSelectedGUIIndex = m_selectedGUIIndex;
 		CWnd::OnMouseMove(nFlags, point);
 		return;
-
 	}
+
 	if (g_editorMode == eMODE_VSCENE &&  g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
@@ -19082,6 +19277,40 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 		m_previousSelectedGUIIndex = m_selectedGUIIndex;
+	}
+	else if ( g_editorMode == eMODE_VSCENE && g_camera->m_activatePerspectiveCamera && !g_multipleView->IsPlayGameMode() && m_selectedGUI && m_lMouseDown)
+	{
+		m_mousePosition = point;
+
+		CVec2f position;
+		position.x = m_mousePosition.x - m_mouseOldPosition.x;
+		position.y = m_mousePosition.y - m_mouseOldPosition.y;
+
+		if (g_menu.m_justPerspective)
+		{
+			position.x *= 0.1f;
+			position.y *= -0.1f;
+		}
+		else
+		{
+			position.x *= 0.2f;
+			position.y *= -0.2f;
+		}
+
+		m_selectedGUI->SetPosition2(position);
+
+		m_mouseOldPosition = m_mousePosition;
+
+		CChar posX[MAX_NAME_SIZE];
+		CChar posY[MAX_NAME_SIZE];
+
+		CVec2f pos = m_selectedGUI->GetPosition();
+
+		sprintf(posX, "%.2f", pos.x);
+		sprintf(posY, "%.2f", pos.y);
+
+		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(posX);
+		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(posY);
 	}
 	else if (g_editorMode == eMODE_GUI && !g_multipleView->IsPlayGameMode())
 	{
@@ -19347,17 +19576,19 @@ CVoid CMultipleWindows::DrawGUIMode()
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
+	CVec2f pos; pos.x = 0.0f; pos.y = 0.0f;
+
 	for (CUInt k = 0; k < g_guiImages.size(); k++)
 	{
-		g_guiImages[k]->Render();
+		g_guiImages[k]->Render(pos);
 	}
 	for (CUInt k = 0; k < g_guiButtons.size(); k++)
 	{
-		g_guiButtons[k]->Render();
+		g_guiButtons[k]->Render(pos);
 	}
 	for (CUInt k = 0; k < g_guiTexts.size(); k++)
 	{
-		g_guiTexts[k]->Render();
+		g_guiTexts[k]->Render(pos);
 	}
 
 	glPopAttrib();
@@ -22368,7 +22599,8 @@ CVoid CMultipleWindows::ProcessInputs()
 				{
 					if( m_lMouseDown )
 					{
-						g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f );
+						if(!m_selectedGUI)
+							g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f );
 						if(m_dx != 0 || m_dy != 0 )
 							m_tempMovement = CTrue;
 					}
@@ -25137,15 +25369,15 @@ CVoid CMultipleWindows::DrawGUI()
 		{
 			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
 			{
-				g_guis[i]->m_guiImages[j]->Render();
+				g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue));
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 			{
-				g_guis[i]->m_guiButtons[j]->Render();
+				g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue));
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
 			{
-				g_guis[i]->m_guiTexts[j]->Render();
+				g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue));
 			}
 		}
 	}
@@ -25835,21 +26067,23 @@ CUInt CMultipleWindows::GetSelectedGUI()
 	if (g_editorMode == eMODE_GUI)
 	{
 		//render here
+		CVec2f pos; pos.x = 0.0f; pos.y = 0.0f;
+
 		for (CUInt i = 0; i < g_guiImages.size(); i++)
 		{
-			g_guiImages[i]->Render(CTrue);
+			g_guiImages[i]->Render(pos, CTrue);
 		}
 
 		//render here
 		for (CUInt i = 0; i < g_guiButtons.size(); i++)
 		{
-			g_guiButtons[i]->Render(CTrue);
+			g_guiButtons[i]->Render(pos, CTrue);
 		}
 
 		//render here
 		for (CUInt i = 0; i < g_guiTexts.size(); i++)
 		{
-			g_guiTexts[i]->Render(CTrue);
+			g_guiTexts[i]->Render(pos, CTrue);
 		}
 	}
 	else if (g_editorMode == eMODE_VSCENE)
@@ -25860,15 +26094,15 @@ CUInt CMultipleWindows::GetSelectedGUI()
 			{
 				for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
 				{
-					g_guis[i]->m_guiImages[j]->Render(CTrue);
+					g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue), CTrue);
 				}
 				for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 				{
-					g_guis[i]->m_guiButtons[j]->Render(CTrue);
+					g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue), CTrue);
 				}
 				for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
 				{
-					g_guis[i]->m_guiTexts[j]->Render(CTrue);
+					g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue), CTrue);
 				}
 			}
 		}
@@ -26417,4 +26651,10 @@ CVoid CMultipleWindows::GetMouseMovement()
 
 	m_prev_dx = m_point.x;
 	m_prev_dy = m_point.y;
+
+	POINT p = m_point;
+	ScreenToClient(&p);
+
+	if (resetMouse)
+		m_mouseOldPosition = m_mousePosition = p;
 }

@@ -33,9 +33,19 @@ private:
 	CGUI* m_instanceGUI;
 	HBITMAP m_hBitmap;
 	CVoid UpdatePreview();
+	CString m_strPosX;
+	CString m_strPosY;
+	CFloat m_posX;
+	CFloat m_posY;
 
 public:
 	virtual BOOL OnInitDialog();
 	CStatic m_textGUIName;
 	CStatic m_imageCtrl;
+	CEdit m_editBoxPosX;
+	CEdit m_editBoxPosY;
+	afx_msg void OnEnChangeEditPosX();
+	afx_msg void OnEnChangeEditPosY();
+
+	virtual void OnOK();
 };

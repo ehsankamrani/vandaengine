@@ -1272,4 +1272,4 @@ CVoid CheckCullFace( CCullFaceTypeForMenu type ); // cull face check mark
 CVoid SetDialogData( CBool selected, CInstanceGeometry* instanceGeo = NULL, CGeometry* geo = NULL, CBool engineObject = CFalse, CBool showDialog = CTrue );
 CVoid SetDialogData2( CBool selected, CPolyGroup* group = NULL, CBool engineObject = CFalse, CBool showDialog = CTrue );
 CVoid SetDialogData3(CBool selected, CInstancePrefab* instancePrefab = NULL);
-
+CVoid SetDialogData4(CChar* name, CFloat x, CFloat y, CFloat z, CBool showXYZ = CTrue, CBool showArrow = CTrue);

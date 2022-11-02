@@ -53,7 +53,7 @@ public:
 
 	inline CVoid SetUpdateImage(CBool state) { m_updateImage = state; }
 	inline CBool GetUpdateImage() { return m_updateImage; }
-	CVoid Render(CBool selectionMode = CFalse);
+	CVoid Render(CVec2f globalPosition, CBool selectionMode = CFalse);
 
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }

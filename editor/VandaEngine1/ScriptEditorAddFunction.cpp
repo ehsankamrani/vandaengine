@@ -238,6 +238,9 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetGUIImagePosition, "GetGUIImagePosition(string GUIName, string imageName)");
 	Cpy(GetGUITextPosition, "GetGUITextPosition(string GUIName, string textName)");
 
+	Cpy(SetGUIPosition, "SetGUIPosition(string GUIName, int x, int y)");
+	Cpy(GetGUIPosition, "GetGUIPosition(string GUIName)");
+
 	Cpy(AddForceToCharacterController, "AddForceToCharacterController(float forceX, float forceY, float forceZ, float forceSpeed, float forceDecreaseValue)");
 	Cpy(AddForceToPrefabInstance, "AddForceToPrefabInstance(string prefabInstanceName, float forceX, float forceY, float forceZ, float forcePower)");
 	Cpy(AddTorqueToPrefabInstance, "AddTorqueToPrefabInstance(string prefabInstanceName, float torqueX, float torqueY, float torqueZ, float torquePower)");
@@ -1097,7 +1100,15 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		}
 		else if (Cmp(szBuffer, "GetGUITextPosition"))
 		{
-			m_richFunctionName.SetWindowTextA(GetGUITextPosition);
+		m_richFunctionName.SetWindowTextA(GetGUITextPosition);
+		}
+		else if (Cmp(szBuffer, "SetGUIPosition"))
+		{
+		m_richFunctionName.SetWindowTextA(SetGUIPosition);
+		}
+		else if (Cmp(szBuffer, "GetGUIPosition"))
+		{
+		m_richFunctionName.SetWindowTextA(GetGUIPosition);
 		}
 		else if (Cmp(szBuffer, "AddForceToCharacterController"))
 		{
@@ -1450,6 +1461,9 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetGUIButtonPosition");
 	InsertItem("GetGUIImagePosition");
 	InsertItem("GetGUITextPosition");
+
+	InsertItem("SetGUIPosition");
+	InsertItem("GetGUIPosition");
 
 	InsertItem("AddForceToCharacterController");
 	InsertItem("AddForceToPrefabInstance");

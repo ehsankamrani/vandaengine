@@ -46,7 +46,7 @@ CBool CGUIText::SetFont()
 	return CTrue;
 }
 
-void CGUIText::Render(CBool selectionMode)
+void CGUIText::Render(CVec2f globalPosition, CBool selectionMode)
 {
 	if (!m_visible) return;
 
@@ -55,7 +55,7 @@ void CGUIText::Render(CBool selectionMode)
 
 	if (!selectionMode)
 		m_font->StartRendering(g_width, g_height);
-	m_font->Print(m_text, m_position.x, m_position.y, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
+	m_font->Print(m_text, globalPosition.x + m_position.x, globalPosition.y + m_position.y, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
 
 	if (!selectionMode)
 		m_font->EndRendering();

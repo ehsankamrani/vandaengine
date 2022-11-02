@@ -8,12 +8,14 @@
 #include "GUIButton.h"
 #include "GUIText.h"
 #include "GUI.h"
+#include "VandaEngine1Win32.h"
 
 CGUI::CGUI()
 {
 	m_visible = CTrue;
 	m_loadedFromScript = CFalse;
-	m_position.x = m_position.y = m_rotation = 0.0f;
+	m_position.x = m_position.y = 0.0f;
+	m_rotation = 0.0f;
 }
 
 CGUI::~CGUI()
@@ -46,4 +48,15 @@ CVoid CGUI::AddGUIText(CGUIText* text)
 	m_guiTexts.push_back(text);
 }
 
+CVec2f CGUI::GetPosition(CBool positionForRender)
+{
+	if (!positionForRender)
+		return m_position;
 
+	CVec2f position;
+
+	position.x = (m_position.x * (CFloat)g_width) / 100.0f;
+	position.y = (m_position.y * (CFloat)g_height) / 100.0f;
+
+	return position;
+}

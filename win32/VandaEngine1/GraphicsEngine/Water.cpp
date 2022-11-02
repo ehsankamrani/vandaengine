@@ -415,6 +415,17 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 	if (isMoving)
 		move += m_fWaterSpeed * elapsedTime;
 
+	float sizey = (m_sidePoint[0] - m_sidePoint[1]).Size();
+	float sizex = (m_sidePoint[2] - m_sidePoint[1]).Size();
+
+	float texturePosX = 1.0f;
+	float texturePosY = 1.0f;
+
+	if (sizey < sizex)
+		texturePosY = sizey / sizex;
+	else if (sizex < sizey)
+		texturePosX = sizex / sizey;
+
 	glUseProgram( g_render.m_waterProgram );
 
 	// Draw our huge water quad
@@ -422,8 +433,8 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// The back left vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, m_fWaterUV);				// Reflection texture				
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, refrUV - move);			// Refraction texture
-	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, normalUV + move2);		// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, (refrUV  * texturePosY) - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, (normalUV * texturePosY) + move2);		// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
 	glVertex3f(m_sidePoint[0].x, m_sidePoint[0].y, m_sidePoint[0].z);
@@ -438,21 +449,22 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// The front right vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, 0.0f);				// Reflection texture
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV, 0.0f - move);			// Refraction texture
-	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV, 0.0f + move2);		// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV * texturePosX, 0.0f - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV * texturePosX, 0.0f + move2);		// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
 	glVertex3f(m_sidePoint[2].x, m_sidePoint[2].y, m_sidePoint[2].z);
 
 	// The back right vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, m_fWaterUV);		// Reflection texture
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV, refrUV - move);		// Refraction texture
-	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV, normalUV + move2);	// Normal map texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV * texturePosX, (refrUV * texturePosY) - move);		// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV * texturePosX, (normalUV * texturePosY) + move2);	// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
 	glVertex3f(m_sidePoint[3].x, m_sidePoint[3].y, m_sidePoint[3].z);
 
 	glEnd();
+
 	// Turn the fifth multi-texture pass off
 	glActiveTexture(GL_TEXTURE4);		
 	glBindTexture( GL_TEXTURE_2D, 0 );

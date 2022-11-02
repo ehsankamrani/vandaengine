@@ -136,7 +136,7 @@ public:
 
 	inline CVoid SetHasScript(CBool state) { m_hasScript = state; }
 
-	CVoid Render(CBool selectionMode = CFalse);
+	CVoid Render(CVec2f globalPosition, CBool selectionMode = CFalse);
 
 	CVoid OnSelectMouseLButtonDownScript();
 	CVoid OnSelectMouseRButtonDownScript();

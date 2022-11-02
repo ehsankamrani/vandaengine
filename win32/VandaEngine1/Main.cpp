@@ -9632,6 +9632,99 @@ CInt GetGUITextPosition(lua_State* L)
 	return 0;
 }
 
+CInt SetGUIPosition(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetGUIPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTarget = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat xPos = (CFloat)lua_tonumber(L, 2);
+	CFloat yPos = (CFloat)lua_tonumber(L, 3);
+	if (xPos < -100.0f || xPos > 100.0f || yPos < -100.0f || yPos > 100.0f)
+	{
+		//CChar message[MAX_URI_SIZE];
+		//sprintf(message, "\nSetGUIPosition(%s, %.2f, %.2f) error: input values must be in[-100, 100] range", lua_tostring(L, 1), xPos, yPos);
+		//PrintInfo(message, COLOR_RED);
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		CFloat x = (CFloat)lua_tonumber(L, 2);
+		CFloat y = (CFloat)lua_tonumber(L, 3);
+
+		CVec2f pos; pos.x = x; pos.y = y;
+
+		if (Cmp(gui, luaToString))
+		{
+			g_guis[i]->SetPosition(pos);
+
+			foundTarget = CTrue;
+			break;
+		}
+	}
+	if (!foundTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nSetGUIPosition() Error: Couldn't find the GUI '", luaToString, "'");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+
+}
+
+CInt GetGUIPosition(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetGUIPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTarget = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	for (CUInt i = 0; i < g_guis.size(); i++)
+	{
+		CChar gui[MAX_NAME_SIZE];
+		Cpy(gui, g_guis[i]->GetName());
+		StringToUpper(gui);
+
+		if (Cmp(gui, luaToString))
+		{
+			CVec2f position = g_guis[i]->GetPosition();
+			lua_pushnumber(L, position.x);
+			lua_pushnumber(L, position.y);
+			return 2;
+		}
+	}
+	if (!foundTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nGetGUIPosition() Error: Couldn't find GUI '", luaToString, "'");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
 
 CInt AddForceToCharacterController(lua_State* L)
 {
@@ -18188,15 +18281,15 @@ CVoid CMain::DrawGUI()
 		{
 			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
 			{
-				g_guis[i]->m_guiImages[j]->Render();
+				g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue));
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 			{
-				g_guis[i]->m_guiButtons[j]->Render();
+				g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue));
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
 			{
-				g_guis[i]->m_guiTexts[j]->Render();
+				g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue));
 			}
 		}
 	}
@@ -19023,15 +19116,15 @@ CUInt CMain::GetSelectedGUI()
 		{
 			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
 			{
-				g_guis[i]->m_guiImages[j]->Render(CTrue);
+				g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue), CTrue);
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 			{
-				g_guis[i]->m_guiButtons[j]->Render(CTrue);
+				g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue), CTrue);
 			}
 			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
 			{
-				g_guis[i]->m_guiTexts[j]->Render(CTrue);
+				g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue), CTrue);
 			}
 		}
 	}

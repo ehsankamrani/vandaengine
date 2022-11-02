@@ -10,6 +10,8 @@
 CGUIText::CGUIText()
 {
 	m_font = CNew(CSimpleFont);
+	m_fontSmall = CNew(CSimpleFont);
+
 	m_visible = CTrue;
 	m_scale = 1.0;
 	SetIndex();
@@ -19,6 +21,9 @@ CGUIText::~CGUIText()
 {
 	m_font->Release();
 	CDelete(m_font);
+
+	m_fontSmall->Release();
+	CDelete(m_fontSmall);
 }
 
 CBool CGUIText::SetFont()
@@ -43,29 +48,52 @@ CBool CGUIText::SetFont()
 			return false;
 		}
 	}
+
+	if (!m_fontSmall->Init(font, CInt((CFloat)m_size / 2.0f)))
+	{
+		//try again
+		if (!m_fontSmall->Init(font, CInt((CFloat)m_size / 2.0f)))
+		{
+			MessageBox(NULL, "Couldn't initialize the font", "VandaEngine Error", MB_OK | MB_ICONINFORMATION);
+			return false;
+		}
+	}
 	return CTrue;
 }
 
-void CGUIText::Render(CBool selectionMode)
+void CGUIText::Render(CVec2f globalPosition, CBool selectionMode)
 {
 	if (!m_visible) return;
+
+	if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
+	{
+		globalPosition.x /= 2.0f;
+		globalPosition.y /= 2.0f;
+	}
 
 	if (selectionMode)
 		glPushName(m_nameIndex);
 
 	if (!selectionMode)
 	{
-		m_font->StartRendering(g_width, g_height);
+		if(g_menu.m_justPerspective)
+			m_font->StartRendering(g_width, g_height);
+		else
+			m_fontSmall->StartRendering(g_width / 2, g_height / 2);
 	}
 	if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
-		m_font->Print(m_text, m_position.x, m_position.y, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
+		m_font->Print(m_text, globalPosition.x + m_position.x, globalPosition.y + m_position.y, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
 	else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
-		m_font->Print(m_text, m_position.x * 0.5f, m_position.y * 0.5f, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
+		m_fontSmall->Print(m_text, globalPosition.x + m_position.x * 0.5f, globalPosition.y + m_position.y * 0.5f, 0.0f, m_color.x, m_color.y, m_color.z, selectionMode);
 
 
 	if (!selectionMode)
-		m_font->EndRendering();
-
+	{
+		if (g_menu.m_justPerspective)
+			m_font->EndRendering();
+		else
+			m_fontSmall->EndRendering();
+	}
 	if (selectionMode)
 		glPopName();
 }
