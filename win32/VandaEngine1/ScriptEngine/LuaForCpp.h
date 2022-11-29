@@ -265,6 +265,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetTriggerScriptIntVariable", SetTriggerScriptIntVariable);
 	lua_register(L, "SetTriggerScriptDoubleVariable", SetTriggerScriptDoubleVariable);
 
+	lua_register(L, "GetWaterScriptStringVariable", GetWaterScriptStringVariable);
+	lua_register(L, "GetWaterScriptBoolVariable", GetWaterScriptBoolVariable);
+	lua_register(L, "GetWaterScriptIntVariable", GetWaterScriptIntVariable);
+	lua_register(L, "GetWaterScriptDoubleVariable", GetWaterScriptDoubleVariable);
+	lua_register(L, "SetWaterScriptStringVariable", SetWaterScriptStringVariable);
+	lua_register(L, "SetWaterScriptBoolVariable", SetWaterScriptBoolVariable);
+	lua_register(L, "SetWaterScriptIntVariable", SetWaterScriptIntVariable);
+	lua_register(L, "SetWaterScriptDoubleVariable", SetWaterScriptDoubleVariable);
+
 	lua_register(L, "GetMainCharacterScriptStringVariable", GetMainCharacterScriptStringVariable);
 	lua_register(L, "GetMainCharacterScriptBoolVariable", GetMainCharacterScriptBoolVariable);
 	lua_register(L, "GetMainCharacterScriptIntVariable", GetMainCharacterScriptIntVariable);

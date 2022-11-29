@@ -30,7 +30,14 @@ CWater::CWater()
 	{
 		glGenQueries(1, &m_queryIndex);
 	}
+	m_hasScript = CFalse;
+	m_updateScript = CFalse;
+	Cpy(m_script, "\n");
+	Cpy(m_lastScriptPath, "\n");
 
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
 }
 
 CWater::~CWater()
@@ -40,6 +47,23 @@ CWater::~CWater()
 	glDeleteRenderbuffersEXT(MAX_WATER_TEXTURES, m_rbID );
 	glDeleteQueries(1, &m_queryIndex);
 	m_instanceName.clear();
+	LuaClose(m_lua);
+}
+
+CVoid CWater::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+}
+
+CBool CWater::LoadLuaFile()
+{
+	//ResetLua();
+	if (!LuaLoadFile(m_lua, m_script))
+		return CFalse;
+	return CTrue;
 }
 
 GLuint CWater::GetQueryIndex()
@@ -114,27 +138,83 @@ void CWater::CreateRenderTexture( CInt size, CInt channels, CInt type, CInt text
 
 CFloat CWater::GetRadius()
 {
-	return (m_fWaterScale / 2.0f);
+	CVec3f center(m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2]);
+	return (m_sidePoint[0] - center).Size();
 }
 
 void CWater::SetSideVertexPositions()
 {
-	m_sidePoint[0].x = m_fWaterCPos[0] -m_fWaterScale/2.0f;
+	m_sidePoint[0].x = m_fWaterCPos[0] - m_fWaterScaleX / 2.0f;
 	m_sidePoint[0].y = m_fWaterCPos[1];
-	m_sidePoint[0].z = m_fWaterCPos[2]-m_fWaterScale/2.0f;
+	m_sidePoint[0].z = m_fWaterCPos[2] - m_fWaterScaleZ / 2.0f;
 
-	m_sidePoint[1].x = m_fWaterCPos[0]-m_fWaterScale/2.0f;
+	m_sidePoint[1].x = m_fWaterCPos[0] - m_fWaterScaleX / 2.0f;
 	m_sidePoint[1].y = m_fWaterCPos[1];
-	m_sidePoint[1].z = m_fWaterCPos[2]+m_fWaterScale/2.0f;
+	m_sidePoint[1].z = m_fWaterCPos[2] + m_fWaterScaleZ / 2.0f;
 
-	m_sidePoint[2].x = m_fWaterCPos[0]+m_fWaterScale/2.0f;
+	m_sidePoint[2].x = m_fWaterCPos[0] + m_fWaterScaleX / 2.0f;
 	m_sidePoint[2].y = m_fWaterCPos[1];
-	m_sidePoint[2].z = m_fWaterCPos[2]+m_fWaterScale/2.0f;
+	m_sidePoint[2].z = m_fWaterCPos[2] + m_fWaterScaleZ / 2.0f;
 
-	m_sidePoint[3].x = m_fWaterCPos[0]+m_fWaterScale/2.0f;
+	m_sidePoint[3].x = m_fWaterCPos[0] + m_fWaterScaleX / 2.0f;
 	m_sidePoint[3].y = m_fWaterCPos[1];
-	m_sidePoint[3].z = m_fWaterCPos[2]-m_fWaterScale/2.0f;
+	m_sidePoint[3].z = m_fWaterCPos[2] - m_fWaterScaleZ / 2.0f;
+
+	CVec3f m_sidePointV[4];
+
+	CMatrix transform;
+	CMatrixLoadIdentity(transform);
+	CMatrixTranslate(transform, m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2]);
+	CMatrix4x4RotateAngleAxis(transform, 0.0f, 1.0f, 0.0f, m_fWaterRotateY);
+	CMatrixTranslate(transform, -m_fWaterCPos[0], -m_fWaterCPos[1], -m_fWaterCPos[2]);
+
+	CMatrixTransform(transform, m_sidePoint[0], m_sidePointV[0]);
+	CMatrixTransform(transform, m_sidePoint[1], m_sidePointV[1]);
+	CMatrixTransform(transform, m_sidePoint[2], m_sidePointV[2]);
+	CMatrixTransform(transform, m_sidePoint[3], m_sidePointV[3]);
+
+	m_sidePointNoRotate[0] = m_sidePoint[0];
+	m_sidePointNoRotate[1] = m_sidePoint[1];
+	m_sidePointNoRotate[2] = m_sidePoint[2];
+	m_sidePointNoRotate[3] = m_sidePoint[3];
+
+	m_sidePoint[0] = m_sidePointV[0];
+	m_sidePoint[1] = m_sidePointV[1];
+	m_sidePoint[2] = m_sidePointV[2];
+	m_sidePoint[3] = m_sidePointV[3];
 }
+
+CBool CWater::IsPointInWater(CVec3f point)
+{
+	CVec3f pointV;
+	CMatrix transform;
+	CMatrixLoadIdentity(transform);
+	CMatrixTranslate(transform, m_fWaterCPos[0], m_fWaterCPos[1], m_fWaterCPos[2]);
+	CMatrix4x4RotateAngleAxis(transform, 0.0f, 1.0f, 0.0f, -m_fWaterRotateY);
+	CMatrixTranslate(transform, -m_fWaterCPos[0], -m_fWaterCPos[1], -m_fWaterCPos[2]);
+	CMatrixTransform(transform, point, pointV);
+
+	CFloat xmin, xmax, zmin, zmax;
+
+	xmin = m_sidePointNoRotate[0].x; zmin = m_sidePointNoRotate[0].z;
+	xmax = m_sidePointNoRotate[2].x; zmax = m_sidePointNoRotate[2].z;
+
+	if (pointV.x > xmin && pointV.x < xmax && pointV.z > zmin && pointV.z < zmax)
+		return CTrue;
+
+	return CFalse;
+}
+
+CBool CWater::IsPointAboveWater(CVec3f point)
+{
+	CVec4f waterPlane(0.0f, 1.0f, 0.0f, m_fWaterCPos[1]);
+
+	if (point.x * waterPlane.x + point.y * waterPlane.y + point.z * waterPlane.z - waterPlane.w >= 0.0f)
+		return CTrue;
+	else
+		return CFalse;
+}
+
 //Important note: call this function after the gluLookAt function
 void CWater::CreateReflectionTexture(int textureSize)
 {
@@ -294,14 +374,10 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	//if camera is above water?
 	CBool renderAboveWater = CTrue;
-	CFloat xmin, xmax, zmin, zmax;
-	xmin = m_sidePoint[0].x; zmin = m_sidePoint[0].z;
-	xmax = m_sidePoint[2].x; zmax = m_sidePoint[2].z;
 
-	if (cameraPos.x > xmin && cameraPos.x < xmax && cameraPos.z > zmin && cameraPos.z < zmax)
+	if (IsPointInWater(cameraPos))
 	{
-		CVec4f waterPlane(0.0f, 1.0f, 0.0f, m_fWaterCPos[1]);
-		if (!g_main->IsCameraAboveWater(cameraPos, waterPlane))
+		if (!IsPointAboveWater(cameraPos))
 		{
 			renderAboveWater = CFalse;
 		}
@@ -428,7 +504,8 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	glUseProgram( g_render.m_waterProgram );
 
-	// Draw our huge water quad
+	// Draw our water quad
+
 	glBegin(GL_QUADS);
 
 	// The back left vertex for the water
@@ -502,7 +579,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 CVoid CWater::SetDuDvMap( CChar* fileName ) { 
 	Cpy( m_strDuDvMap, fileName );
 
-	CImage* image = GetWaterImage( GetAfterPath( m_strDuDvMap ) );
+	CImage* image = NULL; // GetWaterImage(GetAfterPath(m_strDuDvMap));
 
 	if( image == NULL )
 	{
@@ -522,7 +599,7 @@ CVoid CWater::SetDuDvMap( CChar* fileName ) {
 CVoid CWater::SetNormalMap( CChar* fileName ) { 
 	Cpy( m_strNormalMap, fileName );
 
-	CImage* image = GetWaterImage( GetAfterPath( m_strNormalMap ) );
+	CImage* image = NULL; // GetWaterImage(GetAfterPath(m_strNormalMap));
 
 	if( image == NULL )
 	{
@@ -607,4 +684,105 @@ CVoid CWater::RemovePrefabInstance(CUInt index)
 CInstancePrefab* CWater::GetPrefabInstance(CUInt index)
 {
 	return m_instancePrefab[index];
+}
+
+CChar* CWater::GetScriptStringVariable(CChar* variableName)
+{
+	CChar *s = NULL;
+	lua_getglobal(m_lua, variableName);
+	if (!lua_isnil(m_lua, -1))
+		s = _strdup(lua_tostring(m_lua, -1));
+	else
+		s = _strdup("");
+
+	lua_pop(m_lua, 1);
+	return s;
+}
+
+CBool CWater::GetScriptBoolVariable(CChar* variableName)
+{
+	CInt value;
+	CBool result;
+	lua_getglobal(m_lua, variableName);
+	value = lua_toboolean(m_lua, -1);
+	if (value)
+		result = CTrue;
+	else
+		result = CFalse;
+	lua_pop(m_lua, 1);
+	return result;
+}
+
+CInt CWater::GetScriptIntVariable(CChar* variableName)
+{
+	CInt value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tointeger(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CDouble CWater::GetScriptDoubleVariable(CChar* variableName)
+{
+	CDouble value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tonumber(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CVoid CWater::SetScriptStringVariable(CChar* variableName, CChar* value)
+{
+	lua_pushstring(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CWater::SetScriptBoolVariable(CChar* variableName, CBool value)
+{
+	lua_pushboolean(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CWater::SetScriptIntVariable(CChar* variableName, CInt value)
+{
+	lua_pushinteger(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CWater::SetScriptDoubleVariable(CChar* variableName, CDouble value)
+{
+	lua_pushnumber(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CWater::InitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Init");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CWater::UpdateScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Update");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
 }

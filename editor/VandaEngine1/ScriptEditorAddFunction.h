@@ -226,6 +226,15 @@ private:
 	CChar SetTriggerScriptIntVariable[MAX_URI_SIZE];
 	CChar SetTriggerScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar GetWaterScriptStringVariable[MAX_URI_SIZE];
+	CChar GetWaterScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetWaterScriptIntVariable[MAX_URI_SIZE];
+	CChar GetWaterScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetWaterScriptStringVariable[MAX_URI_SIZE];
+	CChar SetWaterScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetWaterScriptIntVariable[MAX_URI_SIZE];
+	CChar SetWaterScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar GetMainCharacterScriptStringVariable[MAX_URI_SIZE];
 	CChar GetMainCharacterScriptBoolVariable[MAX_URI_SIZE];
 	CChar GetMainCharacterScriptIntVariable[MAX_URI_SIZE];

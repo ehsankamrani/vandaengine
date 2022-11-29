@@ -35,13 +35,46 @@ public:
 	CWater();
 	~CWater();
 	CVoid RenderWater( CVec3f cameraPos, CFloat elapsedTime );
+	CVoid ResetLua();
+	CBool LoadLuaFile();
+
+	CVoid SetHasScript(CBool set) { m_hasScript = set; }
+	CBool GetHasScript() { return m_hasScript; }
+	CVoid SetScript(CChar* script) { Cpy(m_script, script); }
+	CChar* GetScript() { return m_script; }
+	CVoid SetLastScriptPath(CChar* script) { Cpy(m_lastScriptPath, script); }
+	CChar* GetLastScriptPath() { return m_lastScriptPath; }
+
+	CVoid SetUpdateScript(CBool set) { m_updateScript = set; }
+	CBool GetUpdateScript() { return m_updateScript; }
+
+	CVoid SetTempScriptPath(CChar* path) { Cpy(m_tempScriptPath, path); }
+	CVoid SetTempCurrentScriptPath(CChar* path) { Cpy(m_tempCurrentScriptPath, path); }
+
+	CChar* GetTempScriptPath() { return m_tempScriptPath; }
+	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
+
+	CVoid InitScript();
+	CVoid UpdateScript();
+
+	//functions to get and set script variables
+	CChar* GetScriptStringVariable(CChar* variableName);
+	CBool GetScriptBoolVariable(CChar* variableName);
+	CInt GetScriptIntVariable(CChar* variableName);
+	CDouble GetScriptDoubleVariable(CChar* variableName);
+	CVoid SetScriptStringVariable(CChar* variableName, CChar* value);
+	CVoid SetScriptBoolVariable(CChar* variableName, CBool value);
+	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
+	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
 
 	CFloat m_fWaterCPos[3];
 	CFloat m_fWaterLPos[3];
 	CFloat m_fWaterHeight;
 	CFloat m_fWaterSpeed;
 	CFloat m_fWaterUV;
-	CFloat m_fWaterScale;
+	CFloat m_fWaterScaleX;
+	CFloat m_fWaterScaleZ;
+	CFloat m_fWaterRotateY;
 	CFloat m_fWaterTransparency;
 	CFloat m_fWaterColor[3];
 	CFloat m_fWaterFogDensity;
@@ -55,8 +88,11 @@ public:
 	CFloat GetHeight() { return /*m_fWaterHeight*/m_fWaterCPos[1]; }
 	CFloat GetSpeed() { return m_fWaterSpeed; }
 	CFloat GetUV(){ return m_fWaterUV; }
-	CFloat GetScale() { return m_fWaterScale; }
+	CFloat GetScaleX() { return m_fWaterScaleX; }
+	CFloat GetScaleZ() { return m_fWaterScaleZ; }
+	CFloat GetRotateY() { return m_fWaterRotateY; }
 	CChar* GetName();
+	CChar* GetLastName();
 	CChar* GetDuDvMapName();
 	CChar* GetNormalMapName();
 	GLuint GetQueryIndex();
@@ -69,6 +105,7 @@ public:
 	CBool GetVisible() { return m_isVisible; }
 
 	CVoid SetName( CString name  );
+	CVoid SetLastName(CChar* name);
 	CVoid SetDuDvMap( CString mapName, CBool updateSharedImages = CFalse );
 	CVoid SetNormalMap( CString mapName, CBool updateSharedImages = CFalse );
 	CVoid SetPos( CFloat* pos ) { m_fWaterCPos[0] = pos[0]; m_fWaterCPos[1] = pos[1]; m_fWaterCPos[2] = pos[2]; }
@@ -76,7 +113,10 @@ public:
 	CVoid SetHeight( CFloat height ) { m_fWaterHeight = height; }
 	CVoid SetSpeed( CFloat speed ) { m_fWaterSpeed = speed; }
 	CVoid SetUV( CFloat UV ) { m_fWaterUV = UV; }
-	CVoid SetScale( CFloat scale ) { m_fWaterScale = scale; }
+	CVoid SetScaleX(CFloat scaleX) { m_fWaterScaleX = scaleX; }
+	CVoid SetScaleZ(CFloat scaleZ) { m_fWaterScaleZ = scaleZ; }
+	CVoid SetRotateY(CFloat rotateY) { m_fWaterRotateY = rotateY; }
+
 	CVoid SetVisible(CBool isVisible) { m_isVisible = isVisible; }
 	CVoid SetQueryVisible(CBool visible) { m_queryVisible = visible; }
 	CBool GetQueryVisible() { return m_queryVisible; }
@@ -96,6 +136,9 @@ public:
 	CVoid CreateRefractionDepthTexture(CInt textureSize);
 
 	void SetSideVertexPositions();
+	CBool IsPointInWater(CVec3f point);
+	CBool IsPointAboveWater(CVec3f point);
+
 	CFloat GetRadius();
 	CVoid RenderIcon( CBool selectionMode = CFalse );
 
@@ -139,10 +182,12 @@ public:
 	}
 
 	CChar m_strWaterName[MAX_NAME_SIZE];
+	CChar m_lastName[MAX_NAME_SIZE];
 	CChar m_strDuDvMap[MAX_NAME_SIZE];
 	CChar m_strNormalMap[MAX_NAME_SIZE];
 	CUInt m_waterTexture[ MAX_WATER_TEXTURES ];
 	CVec3f m_sidePoint[4]; //each water has four vertexes
+	CVec3f m_sidePointNoRotate[4];
 
 	CImage *GetWaterImage( const CChar * name );
 
@@ -182,5 +227,12 @@ private:
 	// This cycles through our caustic bitmaps to produce the animation
 	CVoid RenderCaustics(CFloat causticScale);
 
+	lua_State* m_lua;
+	CBool m_hasScript;
+	CChar m_script[MAX_URI_SIZE];
+	CBool m_updateScript;
+	CChar m_tempScriptPath[MAX_URI_SIZE];
+	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
+	CChar m_lastScriptPath[MAX_URI_SIZE];
 
 };

@@ -307,6 +307,15 @@ CInt SetTriggerScriptBoolVariable(lua_State* L);
 CInt SetTriggerScriptIntVariable(lua_State* L);
 CInt SetTriggerScriptDoubleVariable(lua_State* L);
 
+CInt GetWaterScriptStringVariable(lua_State* L);
+CInt GetWaterScriptBoolVariable(lua_State* L);
+CInt GetWaterScriptIntVariable(lua_State* L);
+CInt GetWaterScriptDoubleVariable(lua_State* L);
+CInt SetWaterScriptStringVariable(lua_State* L);
+CInt SetWaterScriptBoolVariable(lua_State* L);
+CInt SetWaterScriptIntVariable(lua_State* L);
+CInt SetWaterScriptDoubleVariable(lua_State* L);
+
 CInt GetMainCharacterScriptStringVariable(lua_State* L);
 CInt GetMainCharacterScriptBoolVariable(lua_State* L);
 CInt GetMainCharacterScriptIntVariable(lua_State* L);

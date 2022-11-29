@@ -8,7 +8,7 @@
 #include "VandaEngine1.h"
 #include "AddWater.h"
 #include  "AFXPRIV.H"
-
+#include "ViewScript.h"
 
 // CAddWater dialog
 
@@ -19,10 +19,13 @@ CAddWater::CAddWater(CWnd* pParent /*=NULL*/)
 {
 	m_create = CFalse;
 	m_editMode = CFalse;
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddWater::~CAddWater()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 BOOL CAddWater::OnInitDialog()
@@ -44,13 +47,17 @@ BOOL CAddWater::OnInitDialog()
 	{
 		m_strWaterSpeed = "0.08f";
 		m_strWaterUV = "4.0f";
-		m_strWaterScale = "20.0f";
 		m_strWaterTransparency = "0.5f";
 		m_strWaterFogDensity = "0.1f";
 
 		m_strWaterCX = "0.0f";
 		m_strWaterCY = "0.0f";
 		m_strWaterCZ = "0.0f";
+
+		m_strWaterScaleX = "20.0f";
+		m_strWaterScaleZ = "20.0f";
+
+		m_strWaterRotateY = "0.0f";
 
 		m_strWaterLX = "25.0f";
 		m_strWaterLY = "3.0f";
@@ -71,13 +78,21 @@ BOOL CAddWater::OnInitDialog()
 		m_strPureNormalMap = "normalmap";
 		m_isVisible = CTrue;
 	}
+
+	if (m_editMode)
+	{
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
+	}
+
 	m_editBoxDuDvMap.SetWindowTextA( m_strDuDvMap );
 	m_editBoxNormalMap.SetWindowTextA( m_strNormalMap );
 	m_editBoxWaterName.SetWindowTextA( m_strWaterName );
 	m_editBoxHeight.SetWindowTextA( m_strWaterHeight );
 	m_editBoxSpeed.SetWindowTextA( m_strWaterSpeed );
 	m_editBoxUV.SetWindowTextA( m_strWaterUV );
-	m_editBoxScale.SetWindowTextA( m_strWaterScale );
 	m_editBoxTransparency.SetWindowTextA(m_strWaterTransparency);
 	m_editBoxFogDensity.SetWindowTextA(m_strWaterFogDensity);
 	m_editBoxCX.SetWindowTextA( m_strWaterCX );
@@ -86,6 +101,9 @@ BOOL CAddWater::OnInitDialog()
 	m_editBoxLX.SetWindowTextA( m_strWaterLX );
 	m_editBoxLY.SetWindowTextA( m_strWaterLY );
 	m_editBoxLZ.SetWindowTextA( m_strWaterLZ );
+	m_editBoxScaleX.SetWindowTextA(m_strWaterScaleX);
+	m_editBoxScaleZ.SetWindowTextA(m_strWaterScaleZ);
+	m_editBoxRotY.SetWindowTextA(m_strWaterRotateY);
 
 	if (m_isVisible)
 		m_checkIsVisible.SetCheck(BST_CHECKED);
@@ -107,7 +125,6 @@ void CAddWater::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WATER_HEIGHT, m_editBoxHeight);
 	DDX_Control(pDX, IDC_EDIT_WATER_SPEED, m_editBoxSpeed);
 	DDX_Control(pDX, IDC_EDIT_WATER_UV, m_editBoxUV);
-	DDX_Control(pDX, IDC_EDIT_WATER_SCALE, m_editBoxScale);
 	DDX_Control(pDX, IDC_EDIT_WATER_CENTER_X, m_editBoxCX);
 	DDX_Control(pDX, IDC_EDIT_WATER_CENTER_Y, m_editBoxCY);
 	DDX_Control(pDX, IDC_EDIT_WATER_CENTER_Z, m_editBoxCZ);
@@ -118,6 +135,10 @@ void CAddWater::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WATER_TRANSPARENCY, m_editBoxTransparency);
 	DDX_Control(pDX, IDC_EDIT_WATER_COLOR, m_editBoxWaterColor);
 	DDX_Control(pDX, IDC_EDIT_WATER_FOG_DENSITy, m_editBoxFogDensity);
+	DDX_Control(pDX, IDC_EDIT_WATER_ROTATE_Y, m_editBoxRotY);
+	DDX_Control(pDX, IDC_EDIT_WATER_SCALE_X, m_editBoxScaleX);
+	DDX_Control(pDX, IDC_EDIT_WATER_SCALE_Z, m_editBoxScaleZ);
+	DDX_Control(pDX, IDC_EDIT_WATER_SCRIPT, m_editBoxScript);
 }
 
 
@@ -128,7 +149,6 @@ BEGIN_MESSAGE_MAP(CAddWater, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_WATER_HEIGHT, &CAddWater::OnEnChangeEditWaterHeight)
 	ON_EN_CHANGE(IDC_EDIT_WATER_SPEED, &CAddWater::OnEnChangeEditWaterSpeed)
 	ON_EN_CHANGE(IDC_EDIT_WATER_UV, &CAddWater::OnEnChangeEditWaterUv)
-	ON_EN_CHANGE(IDC_EDIT_WATER_SCALE, &CAddWater::OnEnChangeEditWaterScale)
 	ON_EN_CHANGE(IDC_EDIT_WATER_CENTER_X, &CAddWater::OnEnChangeEditWaterCenterX)
 	ON_EN_CHANGE(IDC_EDIT_WATER_CENTER_Y, &CAddWater::OnEnChangeEditWaterCenterY)
 	ON_EN_CHANGE(IDC_EDIT_WATER_CENTER_Z, &CAddWater::OnEnChangeEditWaterCenterZ)
@@ -139,6 +159,12 @@ BEGIN_MESSAGE_MAP(CAddWater, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_WATER_COLOR, &CAddWater::OnBnClickedButtonWaterColor)
 	ON_WM_CTLCOLOR()
 	ON_EN_CHANGE(IDC_EDIT_WATER_FOG_DENSITy, &CAddWater::OnEnChangeEditWaterFogDensity)
+	ON_BN_CLICKED(IDC_BTN_ADD_WATER_SCRIPT, &CAddWater::OnBnClickedBtnAddWaterScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_WATER_SCRIPT, &CAddWater::OnBnClickedBtnRemoveWaterScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_WATER_SCRIPT, &CAddWater::OnBnClickedButtonViewWaterScript)
+	ON_EN_CHANGE(IDC_EDIT_WATER_SCALE_X, &CAddWater::OnEnChangeEditWaterScaleX)
+	ON_EN_CHANGE(IDC_EDIT_WATER_SCALE_Z, &CAddWater::OnEnChangeEditWaterScaleZ)
+	ON_EN_CHANGE(IDC_EDIT_WATER_ROTATE_Y, &CAddWater::OnEnChangeEditWaterRotateY)
 END_MESSAGE_MAP()
 
 
@@ -236,13 +262,23 @@ void CAddWater::OnOK()
 		m_isVisible = CFalse;
 
 	// TODO: Add your specialized code here and/or call the base class
-	if( m_strNormalMap.IsEmpty() || m_strDuDvMap.IsEmpty() || m_strWaterName.IsEmpty() || m_strWaterHeight.IsEmpty() ||
-		m_strWaterSpeed.IsEmpty() || m_strWaterUV.IsEmpty() || m_strWaterScale.IsEmpty() || m_strWaterTransparency.IsEmpty() ||
+	if (m_strNormalMap.IsEmpty() || m_strDuDvMap.IsEmpty() || m_strWaterName.IsEmpty() || m_strWaterHeight.IsEmpty() ||
+		m_strWaterSpeed.IsEmpty() || m_strWaterUV.IsEmpty() || m_strWaterTransparency.IsEmpty() ||
 		m_strWaterFogDensity.IsEmpty() || m_strWaterCX.IsEmpty() || m_strWaterCY.IsEmpty() || m_strWaterCZ.IsEmpty() ||
+		m_strWaterRotateY.IsEmpty() || m_strWaterScaleX.IsEmpty() || m_strWaterScaleZ.IsEmpty() ||
 		m_strWaterLX.IsEmpty() || m_strWaterLY.IsEmpty() || m_strWaterLZ.IsEmpty())
-			MessageBox( "Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR );
-	else
-		CDialog::OnOK();
+	{
+		MessageBox("Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_fWaterScaleX < 0.01f || m_fWaterScaleZ < 0.01f)
+	{
+		MessageBox("Water scale must be greater than 0.01", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CDialog::OnOK();
 }
 void CAddWater::OnEnChangeEditWaterName()
 {
@@ -285,12 +321,6 @@ void CAddWater::OnEnChangeEditWaterUv()
 {
 	m_editBoxUV.GetWindowTextA( m_strWaterUV );
 	m_fWaterUV = atof( m_strWaterUV );
-}
-
-void CAddWater::OnEnChangeEditWaterScale()
-{
-	m_editBoxScale.GetWindowTextA( m_strWaterScale );
-	m_fWaterScale = atof( m_strWaterScale );
 }
 
 void CAddWater::OnEnChangeEditWaterCenterX()
@@ -370,4 +400,92 @@ void CAddWater::OnEnChangeEditWaterFogDensity()
 {
 	m_editBoxFogDensity.GetWindowTextA(m_strWaterFogDensity);
 	m_fWaterFogDensity = atof(m_strWaterFogDensity);
+}
+
+
+void CAddWater::OnBnClickedBtnAddWaterScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAddWater::OnBnClickedBtnRemoveWaterScript()
+{
+	if (!m_strScript.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddWater::OnBnClickedButtonViewWaterScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
+}
+
+
+void CAddWater::OnEnChangeEditWaterScaleX()
+{
+	m_editBoxScaleX.GetWindowTextA(m_strWaterScaleX);
+	m_fWaterScaleX = atof(m_strWaterScaleX);
+}
+
+
+void CAddWater::OnEnChangeEditWaterScaleZ()
+{
+	m_editBoxScaleZ.GetWindowTextA(m_strWaterScaleZ);
+	m_fWaterScaleZ = atof(m_strWaterScaleZ);
+}
+
+
+void CAddWater::OnEnChangeEditWaterRotateY()
+{
+	m_editBoxRotY.GetWindowTextA(m_strWaterRotateY);
+	m_fWaterRotateY = atof(m_strWaterRotateY);
 }

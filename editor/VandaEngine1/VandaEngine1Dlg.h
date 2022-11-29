@@ -885,6 +885,7 @@ public:
 	CVec4f m_initCharacterRotate;
 	CVec3f m_initCharacterTranslate;
 	std::vector<std::string> m_deletedTriggerObjects;
+	std::vector<std::string> m_deletedWaterObjects;
 protected:
 	virtual void OnCancel();
 public:

@@ -8445,6 +8445,380 @@ CInt SetTriggerScriptDoubleVariable(lua_State* L)
 	return 0;
 }
 
+
+CInt GetWaterScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetWaterScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			value = g_engineWaters[i]->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetWaterScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetWaterScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			value = g_engineWaters[i]->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetWaterScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetWaterScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			value = g_engineWaters[i]->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetWaterScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetWaterScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			value = g_engineWaters[i]->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetWaterScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetWaterScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetWaterScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetWaterScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetWaterScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetWaterScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetWaterScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetWaterScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetWaterScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 CInt GetMainCharacterScriptStringVariable(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -12468,6 +12842,12 @@ CBool CMain::Render()
 		g_instancePrefab[i]->UpdateScript();
 	}
 
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		if (g_engineWaters[i]->GetHasScript())
+			g_engineWaters[i]->UpdateScript();
+	}
+
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
 
@@ -15742,9 +16122,11 @@ CBool CMain::Load(CChar* pathName)
 	CChar strWaterName[MAX_NAME_SIZE];
 	CFloat waterPos[3];
 	CFloat waterLightPos[3];
-	CFloat waterHeight, waterSpeed, waterScale, waterUV, waterTransparency, waterFogDensity;
+	CFloat waterHeight, waterSpeed, waterScaleX, waterScaleZ, waterRotateY, waterUV, waterTransparency, waterFogDensity;
 	CFloat waterColor[3];
 	CBool waterVisible;
+	CBool waterHasScript;
+	CChar waterScriptPath[MAX_NAME_SIZE];
 
 	fread(&tempWaterCount, sizeof(CInt), 1, filePtr);
 	for (CInt i = 0; i < tempWaterCount; i++)
@@ -15770,12 +16152,16 @@ CBool CMain::Load(CChar* pathName)
 		fread(waterLightPos, sizeof(CFloat), 3, filePtr);
 		fread(&waterHeight, sizeof(CFloat), 1, filePtr);
 		fread(&waterSpeed, sizeof(CFloat), 1, filePtr);
-		fread(&waterScale, sizeof(CFloat), 1, filePtr);
+		fread(&waterScaleX, sizeof(CFloat), 1, filePtr);
+		fread(&waterScaleZ, sizeof(CFloat), 1, filePtr);
+		fread(&waterRotateY, sizeof(CFloat), 1, filePtr);
 		fread(&waterTransparency, sizeof(CFloat), 1, filePtr);
 		fread(&waterFogDensity, sizeof(CFloat), 1, filePtr);
 		fread(waterColor, sizeof(CFloat), 3, filePtr);
 		fread(&waterUV, sizeof(CFloat), 1, filePtr);
 		fread(&waterVisible, sizeof(CBool), 1, filePtr);
+		fread(&waterHasScript, sizeof(CBool), 1, filePtr);
+		fread(&waterScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 		fread(&tempInstancePrefabWaterCount, sizeof(CInt), 1, filePtr);
 		for (CInt j = 0; j < tempInstancePrefabWaterCount; j++)
@@ -15801,20 +16187,28 @@ CBool CMain::Load(CChar* pathName)
 		CChar* DuDvAfterPath = GetAfterPath(strDuDvMap);
 
 		//Copy this to Win32 Project as well
-		sprintf(dudvPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", DuDvAfterPath);
+		sprintf(dudvPath, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", DuDvAfterPath);
 
 		CChar normalPath[MAX_NAME_SIZE];
 		CChar* normalAfterPath = GetAfterPath(strNormalMap);
 
 		//Copy this to Win32 Project as well
-		sprintf(normalPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", normalAfterPath);
+		sprintf(normalPath, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", normalAfterPath);
+
+		CChar script[MAX_NAME_SIZE];
+		CChar* scriptAfterPath = GetAfterPath(waterScriptPath);
+		sprintf(script, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", scriptAfterPath);
 
 		water->SetName(strWaterName);
 		water->SetDuDvMap(dudvPath);
 		water->SetNormalMap(normalPath);
 		water->SetHeight(waterHeight);
 		water->SetSpeed(waterSpeed);
-		water->SetScale(waterScale);
+		water->SetScaleX(waterScaleX);
+		water->SetScaleZ(waterScaleZ);
+		water->SetRotateY(waterRotateY);
+		water->SetHasScript(waterHasScript);
+		water->SetScript(script);
 		water->SetTransparency(waterTransparency);
 		water->SetFogDensity(waterFogDensity);
 		water->SetColor(waterColor);
@@ -15826,6 +16220,7 @@ CBool CMain::Load(CChar* pathName)
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID);
 		water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID);
 		water->SetSideVertexPositions();
+		water->LoadLuaFile();
 		g_engineWaters.push_back(water);
 
 	}
@@ -16173,7 +16568,7 @@ CBool CMain::Load(CChar* pathName)
 		//new_trigger->GetInstancePrefab()->UpdateIsStaticOrAnimated();
 
 		CChar* scriptAfterPath = GetAfterPath(m_script);
-		sprintf(trimmed_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", new_trigger->GetInstancePrefab()->GetName(), scriptAfterPath);
+		sprintf(trimmed_script, "%s%s%s%s/%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Script/Triggers/", trigger_name, scriptAfterPath);
 
 		new_trigger->SetScript(trimmed_script);
 		new_trigger->SetHasScript(m_hasScript);
@@ -16583,6 +16978,12 @@ CBool CMain::Load(CChar* pathName)
 
 	if (g_mainCharacter)
 		g_mainCharacter->InitScript();
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		if (g_engineWaters[i]->GetHasScript())
+			g_engineWaters[i]->InitScript();
+	}
 
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	//{
@@ -17824,6 +18225,8 @@ CVoid CMain::RenderQueries(CBool init)
 			//set all the lights here
 			for (CUInt j = 0; j < g_engineWaters.size(); j++)
 			{
+				CVec3f WaterCenter(g_engineWaters[j]->m_fWaterCPos[0], g_engineWaters[j]->m_fWaterCPos[1], g_engineWaters[j]->m_fWaterCPos[2]);
+
 				CVec3f waterPoints[4];
 				waterPoints[0].x = g_engineWaters[j]->m_sidePoint[0].x; waterPoints[0].y = g_engineWaters[j]->m_sidePoint[0].y; waterPoints[0].z = g_engineWaters[j]->m_sidePoint[0].z;
 				waterPoints[1].x = g_engineWaters[j]->m_sidePoint[1].x; waterPoints[1].y = g_engineWaters[j]->m_sidePoint[1].y; waterPoints[1].z = g_engineWaters[j]->m_sidePoint[1].z;
@@ -17835,7 +18238,6 @@ CVoid CMain::RenderQueries(CBool init)
 					g_engineWaters[j]->SetOutsideFrustom(CFalse);
 					glBeginQuery(GL_SAMPLES_PASSED, g_engineWaters[j]->GetQueryIndex());
 
-					CVec3f WaterCenter(g_engineWaters[j]->m_fWaterCPos[0], g_engineWaters[j]->m_fWaterCPos[1], g_engineWaters[j]->m_fWaterCPos[2]);
 					g_render.ModelViewMatrix();
 					g_render.PushMatrix();
 					g_render.IdentityMatrix();
@@ -17849,6 +18251,7 @@ CVoid CMain::RenderQueries(CBool init)
 						gluLookAt(free_dae_cam_pos.x, free_dae_cam_pos.y, free_dae_cam_pos.z,
 							WaterCenter.x, WaterCenter.y, WaterCenter.z, 0.0f, 1.0f, 0.0f);
 					}
+
 					COpenGLUtility glUtil;
 					glUtil.DrawSquare(g_engineWaters[j]->m_sidePoint[0], g_engineWaters[j]->m_sidePoint[1], g_engineWaters[j]->m_sidePoint[2], g_engineWaters[j]->m_sidePoint[3]);
 					g_render.PopMatrix();
@@ -18848,17 +19251,12 @@ CVoid CMain::Draw3DObjects()
 
 		CBool condition = CFalse;
 
-		CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
+		CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y + 0.01f, g_camera->m_perspectiveCameraPos.z);
 		for (CUInt i = 0; i < g_engineWaters.size(); i++)
 		{
-			CFloat xmin, xmax, zmin, zmax;
-			xmin = g_engineWaters[i]->m_sidePoint[0].x; zmin = g_engineWaters[i]->m_sidePoint[0].z;
-			xmax = g_engineWaters[i]->m_sidePoint[2].x; zmax = g_engineWaters[i]->m_sidePoint[2].z;
-
-			if (cameraPos.x > xmin && cameraPos.x < xmax && cameraPos.z > zmin && cameraPos.z < zmax)
+			if (g_engineWaters[i]->IsPointInWater(cameraPos))
 			{
-				CVec4f waterPlane(0.0f, 1.0f, 0.0f, g_engineWaters[i]->m_fWaterCPos[1]);
-				if (!IsCameraAboveWater(cameraPos, waterPlane))
+				if (!g_engineWaters[i]->IsPointAboveWater(cameraPos))
 				{
 					condition = CTrue;
 					g_waterFogProperties.m_enable = CTrue;
@@ -19431,14 +19829,6 @@ CBool CMain::DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInst
 		return CTrue;
 	}
 	return CFalse;
-}
-
-CBool CMain::IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane)
-{
-	if (cameraPos.x * waterPlane.x + cameraPos.y * waterPlane.y + cameraPos.z * waterPlane.z - waterPlane.w >= 0.0f)
-		return CTrue;
-	else
-		return CFalse;
 }
 
 CVoid CMain::GetMouseMovement()

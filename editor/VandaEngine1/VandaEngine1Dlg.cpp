@@ -1476,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.2"));
+	SetWindowText(_T("Vanda Engine 1.9.3"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3044,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.2 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.3 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.2 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.3 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.2 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.3 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7608,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.2 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.3 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8041,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8050,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.2 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.3 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -9029,13 +9029,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertWater()
 		}
 
 		CWater* water = new CWater;
-		water->SetName( m_dlgAddWater->GetName() );
+		water->SetName(m_dlgAddWater->GetName());
+		water->SetLastName(m_dlgAddWater->GetName());
 		water->SetDuDvMap( m_dlgAddWater->GetDuDvMap(), CTrue );
 		water->SetNormalMap( m_dlgAddWater->GetNormalMap(), CTrue );
 		water->SetHeight( m_dlgAddWater->GetHeight() );
 		water->SetPos( m_dlgAddWater->GetPos() );
 		water->SetLightPos( m_dlgAddWater->GetLightPos() );
-		water->SetScale( m_dlgAddWater->GetScale() );
+		water->SetScaleX(m_dlgAddWater->GetScaleX());
+		water->SetScaleZ(m_dlgAddWater->GetScaleZ());
+		water->SetRotateY(m_dlgAddWater->GetRotateY());
+		water->SetUpdateScript(m_dlgAddWater->GetUpdateScript());
+		water->SetHasScript(m_dlgAddWater->GetHasScript());
+		water->SetScript(m_dlgAddWater->GetScriptPath());
 		water->SetTransparency(m_dlgAddWater->GetTransparency());
 		water->SetFogDensity(m_dlgAddWater->GetFogDensity());
 		water->SetColor(m_dlgAddWater->GetColor());
@@ -9877,7 +9883,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10720,7 +10726,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10835,8 +10841,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar VScenePath[MAX_NAME_SIZE];
 		sprintf( VScenePath, "%s%s", g_currentProjectPath, currentSceneNameWithoutDot );
 
-		CChar waterTexturesPath[MAX_NAME_SIZE];
-		sprintf( waterTexturesPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
+		CChar waterRootPath[MAX_NAME_SIZE];
+		sprintf( waterRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
 
 		CChar soundPath[MAX_NAME_SIZE];
 		sprintf( soundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/" );
@@ -10897,6 +10903,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 		}
 
+		std::vector<std::string> waterScriptTexturePath;
+		std::vector<std::string> waterScriptTextureFolderName;
+
+		for (CUInt j = 0; j < g_engineWaters.size(); j++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/", g_engineWaters[j]->GetName());
+			waterScriptTexturePath.push_back(tempScriptPath);
+			waterScriptTextureFolderName.push_back(g_engineWaters[j]->GetName());
+			g_engineWaters[j]->SetTempScriptPath(tempScriptPath);
+
+			//last script path
+			CChar tempLastScriptPath[MAX_NAME_SIZE];
+			sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/", g_engineWaters[j]->GetLastName());
+			g_engineWaters[j]->SetLastScriptPath(tempLastScriptPath);
+		}
+
 		std::vector<std::string> ambientTempPath;
 
 		for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
@@ -10907,8 +10930,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 
 		//Directories of g_currentVSceneName
-		CChar currentWaterTexturesPath[MAX_NAME_SIZE];
-		sprintf( currentWaterTexturesPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/" );
+		CChar currentWaterRootPath[MAX_NAME_SIZE];
+		sprintf( currentWaterRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/" );
 
 		CChar currentSoundPath[MAX_NAME_SIZE];
 		sprintf( currentSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/" );
@@ -10961,6 +10984,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 		}
 
+		std::vector<std::string> currentWaterScriptTexturePath;
+		std::vector<std::string> currentWaterScriptTextureFolderName;
+
+		for (CUInt j = 0; j < g_engineWaters.size(); j++)
+		{
+			CChar tempCurrentScriptPath[MAX_NAME_SIZE];
+			sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/", g_engineWaters[j]->GetName());
+			currentWaterScriptTexturePath.push_back(tempCurrentScriptPath);
+			currentWaterScriptTextureFolderName.push_back(g_engineWaters[j]->GetName());
+			g_engineWaters[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
+		}
+
 		std::vector<std::string> currentAmbientPath;
 
 		for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
@@ -10973,7 +11008,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		if( saveAlgorithm == 0 || saveAlgorithm == 3)
 		{
 			//Remove the contents of existing directory
-			RemoveAllFilesInDirectory( waterTexturesPath );
+			RemoveAllFilesAndFoldersInDirectory( waterRootPath );
+			//As Previous functions removes main directory, I'll recreate it
+			CreateWindowsDirectory(waterRootPath);
+
 			RemoveAllFilesInDirectory( ambientSoundPath );
 			CreateWindowsDirectory(ambientSoundTempPath);
 			for (CUInt j = 0; j < ambientTempPath.size(); j++)
@@ -10999,7 +11037,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		{
 			//create a new directory based on the save file name
 			CreateWindowsDirectory( VScenePath );
-			CreateWindowsDirectory( waterTexturesPath );
+			CreateWindowsDirectory( waterRootPath );
 			CreateWindowsDirectory( soundPath );
 			CreateWindowsDirectory( ambientSoundPath );
 			CreateWindowsDirectory(ambientSoundTempPath);
@@ -11017,6 +11055,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory(rootTriggersScriptPath);
 			for (CUInt j = 0; j < scriptPath.size(); j++)
 				CreateWindowsDirectory((CChar*)scriptPath[j].c_str());
+
+			for (CUInt j = 0; j < waterScriptTexturePath.size(); j++)
+				CreateWindowsDirectory((CChar*)waterScriptTexturePath[j].c_str());
+
 		}
 		else if (saveAlgorithm == 2)
 		{
@@ -11109,6 +11151,95 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
+
+			//water
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", waterRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engineWaters[j]->GetLastName(), g_engineWaters[j]->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engineWaters[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engineWaters[j]->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/temp", j, "/", g_engineWaters[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/temp", j, "/", g_engineWaters[j]->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engineWaters[j]->GetHasScript() && g_engineWaters[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetScript(), tempScriptPath);
+						g_engineWaters[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engineWaters[j]->IsInVSceneList(pureFileName, CTrue, CTrue))
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetDuDvMapName(), tempScriptPath);
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetNormalMapName(), tempScriptPath);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engineWaters[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_engineWaters[j]->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engineWaters[j]->GetHasScript() && g_engineWaters[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetScript(), g_engineWaters[j]->GetTempScriptPath());
+						g_engineWaters[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engineWaters[j]->IsInVSceneList(pureFileName, CTrue, CTrue))
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetDuDvMapName(), g_engineWaters[j]->GetTempScriptPath());
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetNormalMapName(), g_engineWaters[j]->GetTempScriptPath());
+					}
+
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engineWaters[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engineWaters[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engineWaters[j]->SetScript(NewPathAndName);
+
+				CChar* dudvTempAfterPath = GetAfterPath(g_engineWaters[j]->GetDuDvMapName());
+				CChar dudvNewPathAndName[MAX_NAME_SIZE];
+				Cpy(dudvNewPathAndName, g_engineWaters[j]->GetTempScriptPath());
+				Append(dudvNewPathAndName, dudvTempAfterPath);
+				g_engineWaters[j]->SetDuDvMapName(dudvNewPathAndName);
+
+				CChar* normalTempAfterPath = GetAfterPath(g_engineWaters[j]->GetNormalMapName());
+				CChar normalNewPathAndName[MAX_NAME_SIZE];
+				Cpy(normalNewPathAndName, g_engineWaters[j]->GetTempScriptPath());
+				Append(normalNewPathAndName, normalTempAfterPath);
+				g_engineWaters[j]->SetNormalMapName(normalNewPathAndName);
+
+				g_engineWaters[j]->SetLastName(g_engineWaters[j]->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", waterRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, waterRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+			///////
 
 			//VScene Script
 			if (g_VSceneScript)
@@ -11311,32 +11442,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				g_mainCharacter->SetUpdateScript(CFalse);
 			}
 
-			//waters
-			for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
-			{
-				if( g_engineWaters[i]->IsInVSceneList(pureFileName,CTrue, CTrue ) )
-				{
-					CopyOneFileToDstDirectory( g_engineWaters[i]->GetDuDvMapName(), waterTexturesPath );
-					CopyOneFileToDstDirectory( g_engineWaters[i]->GetNormalMapName(), waterTexturesPath );
-				}
-				CChar* dudvTempAfterPath = GetAfterPath(g_engineWaters[i]->GetDuDvMapName());
-				CChar dudvNewPathAndName[MAX_NAME_SIZE];
-				Cpy(dudvNewPathAndName, waterTexturesPath );
-				Append(dudvNewPathAndName, dudvTempAfterPath );
-				g_engineWaters[i]->SetDuDvMapName( dudvNewPathAndName );
-
-				CChar* normalTempAfterPath = GetAfterPath(g_engineWaters[i]->GetNormalMapName());
-				CChar normalNewPathAndName[MAX_NAME_SIZE];
-				Cpy(normalNewPathAndName, waterTexturesPath );
-				Append(normalNewPathAndName, normalTempAfterPath );
-				g_engineWaters[i]->SetNormalMapName( normalNewPathAndName );
-			}
-
 		}
 		else if( saveAlgorithm == 3 || saveAlgorithm == 4 )
 		{
 			//copy the assets from current place to the saved directory
-			CopyAllFilesFromSrcToDstDirectory(currentWaterTexturesPath, waterTexturesPath);
+			CopyAllFilesAndFoldersToDstDirectory(currentWaterRootPath, waterRootPath);
 			CopyAllFilesFromSrcToDstDirectory(currentAmbientSoundPath, ambientSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(current3DSoundPath, ThreeDSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
@@ -11433,6 +11543,97 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
+
+			//water
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", waterRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engineWaters[j]->GetLastName(), g_engineWaters[j]->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engineWaters[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engineWaters[j]->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/temp", j, "/", g_engineWaters[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/temp", j, "/", g_engineWaters[j]->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engineWaters[j]->GetHasScript() && g_engineWaters[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetScript(), tempScriptPath);
+						g_engineWaters[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engineWaters[j]->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetDuDvMapName(), tempScriptPath);
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetNormalMapName(), tempScriptPath);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engineWaters[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_engineWaters[j]->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engineWaters[j]->GetHasScript() && g_engineWaters[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetScript(), g_engineWaters[j]->GetTempScriptPath());
+						g_engineWaters[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engineWaters[j]->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+					{
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetDuDvMapName(), g_engineWaters[j]->GetTempScriptPath());
+						CopyOneFileToDstDirectory(g_engineWaters[j]->GetNormalMapName(), g_engineWaters[j]->GetTempScriptPath());
+					}
+
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engineWaters[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engineWaters[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engineWaters[j]->SetScript(NewPathAndName);
+
+				CChar* dudvTempAfterPath = GetAfterPath(g_engineWaters[j]->GetDuDvMapName());
+				CChar dudvNewPathAndName[MAX_NAME_SIZE];
+				Cpy(dudvNewPathAndName, g_engineWaters[j]->GetTempScriptPath());
+				Append(dudvNewPathAndName, dudvTempAfterPath);
+				g_engineWaters[j]->SetDuDvMapName(dudvNewPathAndName);
+
+				CChar* normalTempAfterPath = GetAfterPath(g_engineWaters[j]->GetNormalMapName());
+				CChar normalNewPathAndName[MAX_NAME_SIZE];
+				Cpy(normalNewPathAndName, g_engineWaters[j]->GetTempScriptPath());
+				Append(normalNewPathAndName, normalTempAfterPath);
+				g_engineWaters[j]->SetNormalMapName(normalNewPathAndName);
+
+				g_engineWaters[j]->IsInVSceneList(pureFileName, CTrue, CTrue);
+
+				g_engineWaters[j]->SetLastName(g_engineWaters[j]->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", waterRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, waterRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+			/////////
 
 			//VScene Script
 			if (g_VSceneScript)
@@ -11647,29 +11848,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 			}
 
-
-			//waters
-			for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
-			{
-				if( g_engineWaters[i]->IsInVSceneList(g_currentVSceneName,CTrue, CFalse ) )
-				{
-					CopyOneFileToDstDirectory( g_engineWaters[i]->GetDuDvMapName(), waterTexturesPath );
-					CopyOneFileToDstDirectory( g_engineWaters[i]->GetNormalMapName(), waterTexturesPath );
-				}
-				CChar* dudvTempAfterPath = GetAfterPath(g_engineWaters[i]->GetDuDvMapName());
-				CChar dudvNewPathAndName[MAX_NAME_SIZE];
-				Cpy(dudvNewPathAndName, waterTexturesPath );
-				Append(dudvNewPathAndName, dudvTempAfterPath );
-				g_engineWaters[i]->SetDuDvMapName( dudvNewPathAndName );
-
-				CChar* normalTempAfterPath = GetAfterPath(g_engineWaters[i]->GetNormalMapName());
-				CChar normalNewPathAndName[MAX_NAME_SIZE];
-				Cpy(normalNewPathAndName, waterTexturesPath );
-				Append(normalNewPathAndName, normalTempAfterPath );
-				g_engineWaters[i]->SetNormalMapName( normalNewPathAndName );
-
-				g_engineWaters[i]->IsInVSceneList(pureFileName,CTrue, CTrue );
-			}
 		}
 
 		HANDLE hFind;
@@ -11793,6 +11971,84 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 
 		m_deletedTriggerObjects.clear();
+
+		//water
+
+		for (CUInt sc = 0; sc < waterScriptTexturePath.size(); sc++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s", waterScriptTexturePath[sc].c_str(), "*.*");
+			hFind = FindFirstFile(tempScriptPath, &data);
+			do
+			{
+				CChar scriptTempPath[MAX_NAME_SIZE];
+				sprintf(scriptTempPath, "%s%s", waterScriptTexturePath[sc].c_str(), data.cFileName);
+
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < g_engineWaters.size(); j++)
+				{
+					if (Cmp(g_engineWaters[j]->GetName(), waterScriptTextureFolderName[sc].c_str()))
+					{
+						if (g_engineWaters[j]->GetHasScript() && Cmp(GetAfterPath(g_engineWaters[j]->GetScript()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+
+						if (Cmp(GetAfterPath(g_engineWaters[j]->GetDuDvMapName()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+						if (Cmp(GetAfterPath(g_engineWaters[j]->GetNormalMapName()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+
+					}
+				}
+
+				//Remove Files
+				if (!foundTarget)
+				{
+					if (!DeleteFile(scriptTempPath))
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+						//PrintInfo( temp, COLOR_RED );
+					}
+				}
+			} while (FindNextFile(hFind, &data));
+			FindClose(hFind);
+		}
+
+		waterScriptTexturePath.clear();
+		waterScriptTextureFolderName.clear();
+
+		//Delete removed water object's folders
+		for (CUInt k = 0; k < m_deletedWaterObjects.size(); k++)
+		{
+			CBool foundTarget = CFalse;
+			for (CUInt j = 0; j < g_engineWaters.size(); j++)
+			{
+				if (Cmp(m_deletedWaterObjects[k].c_str(), g_engineWaters[j]->GetName()))
+				{
+					foundTarget = CTrue;
+					break;
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar tempScriptPath[MAX_NAME_SIZE];
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/", (CChar*)m_deletedWaterObjects[k].c_str());
+				RemoveAllFilesInDirectory(tempScriptPath);
+				RemoveDirectoryA(tempScriptPath);
+			}
+		}
+
+		m_deletedWaterObjects.clear();
+		///////
 
 		//Delete removed VScene script
 		if (g_VSceneScript)
@@ -12026,44 +12282,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
 			//RemoveAllFilesInDirectory(mainCharacterScriptPath); //sound and script path are the same
 		}
-
-		//Delete removed water textures
-		CChar tempWaterPath[MAX_NAME_SIZE];
-		sprintf( tempWaterPath, "%s%s", waterTexturesPath, "*.*" );
-		hFind = FindFirstFile( tempWaterPath, &data );
-		do
-		{
-			CChar tempWaterPath[MAX_NAME_SIZE];
-			sprintf( tempWaterPath, "%s%s", waterTexturesPath, data.cFileName );
-
-			CBool foundTarget = CFalse;
-			for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
-			{
-				if( Cmp( GetAfterPath( g_engineWaters[i]->GetDuDvMapName()), data.cFileName ) )
-				{
-					foundTarget = CTrue;
-					break;
-				}
-				if( Cmp( GetAfterPath( g_engineWaters[i]->GetNormalMapName()), data.cFileName ) )
-				{
-					foundTarget = CTrue;
-					break;
-				}
-
-			}
-
-			//Remove Files
-			if( !foundTarget )
-			{
-				if( !DeleteFile( tempWaterPath) )
-				{
-					//CChar temp[MAX_NAME_SIZE];
-					//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
-					//PrintInfo( temp, COLOR_RED );
-				}
-			}
-		}while (FindNextFile( hFind, &data));
-		FindClose(hFind);
 
 		if (g_terrain)
 			g_terrain->SetPhysicsPath(terrainPath);
@@ -12357,12 +12575,17 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( g_engineWaters[i]->m_fWaterLPos, sizeof( CFloat ), 3, filePtr );
 			fwrite( &g_engineWaters[i]->m_fWaterHeight, sizeof( CFloat ), 1, filePtr );
 			fwrite( &g_engineWaters[i]->m_fWaterSpeed, sizeof( CFloat ), 1, filePtr );
-			fwrite(&g_engineWaters[i]->m_fWaterScale, sizeof(CFloat), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_fWaterScaleX, sizeof(CFloat), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_fWaterScaleZ, sizeof(CFloat), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_fWaterRotateY, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineWaters[i]->m_fWaterTransparency, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineWaters[i]->m_fWaterFogDensity, sizeof(CFloat), 1, filePtr);
 			fwrite(g_engineWaters[i]->m_fWaterColor, sizeof(CFloat), 3, filePtr);
 			fwrite(&g_engineWaters[i]->m_fWaterUV, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineWaters[i]->m_isVisible, sizeof(CBool), 1, filePtr);
+			CBool waterHasScript = g_engineWaters[i]->GetHasScript();
+			fwrite(&waterHasScript, sizeof(CBool), 1, filePtr);
+			fwrite(g_engineWaters[i]->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			CInt tempInstancePrefabCount = (CInt)g_engineWaters[i]->GetNumPrefabInstances();
 			fwrite( &tempInstancePrefabCount, sizeof( CInt ), 1, filePtr );
@@ -12658,7 +12881,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -13808,7 +14031,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.2 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15634,7 +15857,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.2 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -15847,11 +16070,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			CChar banner[MAX_NAME_SIZE];
 			fread(&banner, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-			g_sceneBanner.SetBannerPath(banner);
 
 			CChar cursor[MAX_NAME_SIZE];
 			fread(&cursor, sizeof(CChar), MAX_NAME_SIZE, filePtr);
-			//g_vsceneMenuCursor.SetCursorPath(cursor);
 
 			//save functions/////////////////////////////////
 			g_sceneBanner.ClearVScenes();
@@ -16589,7 +16810,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				InsertItemToEngineObjectList(g_skyDome->GetName(), eENGINEOBJECTLIST_SKY);
 				PumpMessages();
 				UpdateWindow();
-
+				g_engineObjectNames.push_back(name);
 				//save functions/////////////////////////////////
 				for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
 				{
@@ -16704,7 +16925,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				InsertItemToEngineObjectList(g_terrain->GetName(), eENGINEOBJECTLIST_TERRAIN);
 				PumpMessages();
 				UpdateWindow();
-
+				g_engineObjectNames.push_back(name);
 				//save functions/////////////////////////////////
 				for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
 				{
@@ -16726,9 +16947,11 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CChar strWaterName[MAX_NAME_SIZE];
 			CFloat waterPos[3];
 			CFloat waterLightPos[3];
-			CFloat waterHeight, waterSpeed, waterScale, waterUV, waterTransparency, waterFogDensity;
+			CFloat waterHeight, waterSpeed, waterScaleX, waterScaleZ, waterRotateY, waterUV, waterTransparency, waterFogDensity;
 			CFloat waterColor[3];
 			CBool waterVisible;
+			CBool waterHasScript;
+			CChar waterScriptTexturePath[MAX_NAME_SIZE];
 			fread( &tempWaterCount, sizeof( CInt ), 1, filePtr );
 			for( CInt i = 0 ; i < tempWaterCount; i++ )
 			{
@@ -16742,12 +16965,16 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread( waterLightPos, sizeof( CFloat ), 3, filePtr );
 				fread( &waterHeight, sizeof( CFloat ), 1, filePtr );
 				fread( &waterSpeed, sizeof( CFloat ), 1, filePtr );
-				fread(&waterScale, sizeof(CFloat), 1, filePtr);
+				fread(&waterScaleX, sizeof(CFloat), 1, filePtr);
+				fread(&waterScaleZ, sizeof(CFloat), 1, filePtr);
+				fread(&waterRotateY, sizeof(CFloat), 1, filePtr);
 				fread(&waterTransparency, sizeof(CFloat), 1, filePtr);
 				fread(&waterFogDensity, sizeof(CFloat), 1, filePtr);
 				fread(waterColor, sizeof(CFloat), 3, filePtr);
 				fread(&waterUV, sizeof(CFloat), 1, filePtr);
 				fread(&waterVisible, sizeof(CBool), 1, filePtr);
+				fread(&waterHasScript, sizeof(CBool), 1, filePtr);
+				fread(&waterScriptTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 				fread(&tempInstancePrefabWaterCount, sizeof(CInt), 1, filePtr);
 				for (CInt j = 0; j < tempInstancePrefabWaterCount; j++)
@@ -16773,19 +17000,28 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CChar dudvPath[MAX_NAME_SIZE];
 				CChar* DuDvAfterPath = GetAfterPath( strDuDvMap );
 				//Copy this to Win32 Project as well
-				sprintf( dudvPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/", DuDvAfterPath );
+				sprintf( dudvPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", DuDvAfterPath );
 
 				CChar normalPath[MAX_NAME_SIZE];
 				CChar* normalAfterPath = GetAfterPath( strNormalMap );
 				//Copy this to Win32 Project as well
-				sprintf( normalPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/", normalAfterPath );
+				sprintf( normalPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", normalAfterPath );
+
+				CChar scriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(waterScriptTexturePath);
+				sprintf(scriptPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", tempScriptPath);
 
 				water->SetName( strWaterName );
+				water->SetLastName(strWaterName);
 				water->SetDuDvMap( dudvPath );
 				water->SetNormalMap( normalPath );
 				water->SetHeight( waterHeight );
 				water->SetSpeed( waterSpeed );
-				water->SetScale(waterScale);
+				water->SetScaleX(waterScaleX);
+				water->SetScaleZ(waterScaleZ);
+				water->SetRotateY(waterRotateY);
+				water->SetHasScript(waterHasScript);
+				water->SetScript(scriptPath);
 				water->SetTransparency(waterTransparency);
 				water->SetFogDensity(waterFogDensity);
 				water->SetColor(waterColor);
@@ -16812,6 +17048,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				InsertItemToEngineObjectList( water->GetName() , eENGINEOBJECTLIST_WATER);
 				PumpMessages();
 				UpdateWindow();
+				g_engineObjectNames.push_back(strWaterName);
 
 			}
 			//Engine Lights
@@ -17027,7 +17264,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_engine3DSounds.push_back( m_3DSound );
 
 				InsertItemToEngineObjectList(m_3DSound->GetName(), eENGINEOBJECTLIST_3DSOUND);
-
+				g_engineObjectNames.push_back(name);
 				if(m_3DSoundBuffer->m_loaded)
 				{
 					PumpMessages();
@@ -17232,7 +17469,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				CChar scriptPath[MAX_NAME_SIZE];
 				CChar* tempScriptPath = GetAfterPath(m_script);
-				sprintf(scriptPath, "%s%s%s%s/%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", instance_name, tempScriptPath);
+				sprintf(scriptPath, "%s%s%s%s/%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", trigger_name, tempScriptPath);
 
 				new_trigger->SetScript(scriptPath);
 				new_trigger->SetHasScript(m_hasScript);
@@ -17495,6 +17732,13 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			sprintf(cursorPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cursor/", tempcursorPath);
 			g_vsceneMenuCursor.SetCursorPath(cursorPath);
 			
+			//Set Banner Path
+			CChar bannerPath[MAX_NAME_SIZE];
+			CChar* tempBannerPath = GetAfterPath(banner);
+			sprintf(bannerPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Banner/", tempBannerPath);
+
+			g_sceneBanner.SetBannerPath(bannerPath);
+
 			fclose( filePtr );
 			ReleaseCapture();
 			m_savePathName = m_strpathName;
@@ -17513,7 +17757,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -18314,7 +18558,7 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 					{
 						g_showArrow = CFalse;
 					}
-
+					m_deletedWaterObjects.push_back(g_engineWaters[i]->GetName());
 					//delete the scene
 					CDelete(g_engineWaters[i]);
 					//delete the vector that holds the scene
@@ -18378,7 +18622,7 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 					{
 						g_showArrow = CFalse;
 					}
-					m_deletedTriggerObjects.push_back(g_triggers[i]->GetInstancePrefab()->GetName());
+					m_deletedTriggerObjects.push_back(g_triggers[i]->GetName());
 					CDelete(g_triggers[i]);
 					g_triggers.erase(g_triggers.begin() + i);
 
@@ -19385,7 +19629,8 @@ CVoid CVandaEngine1Dlg::ChangeLightProperties(CInstanceLight* light)
 CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 {
 	m_dlgAddWater = CNew( CAddWater );
-	m_dlgAddWater->SetName( water->GetName() );
+	m_dlgAddWater->SetName(water->GetName());
+	m_dlgAddWater->SetLastName(water->GetLastName());
 
 	CChar* DuDvName =  water->GetDuDvMapName(); //GetAfterPath( water->GetDuDvMapName() );
 	CChar* NormalName = water->GetNormalMapName(); //GetAfterPath( water->GetNormalMapName() );
@@ -19397,7 +19642,12 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 	m_dlgAddWater->SetDuDvMapName( DuDvName );
 	m_dlgAddWater->SetNormalMapName( NormalName );
 	m_dlgAddWater->SetHeight( water->GetHeight() );
-	m_dlgAddWater->SetScale(water->GetScale());
+	m_dlgAddWater->SetScaleX(water->GetScaleX());
+	m_dlgAddWater->SetScaleZ(water->GetScaleZ());
+	m_dlgAddWater->SetRotateY(water->GetRotateY());
+	m_dlgAddWater->SetUpdateScript(water->GetUpdateScript());
+	m_dlgAddWater->SetHasScript(water->GetHasScript());
+	m_dlgAddWater->SetScriptPath(water->GetScript());
 	m_dlgAddWater->SetTransparency(water->GetTransparency());
 	m_dlgAddWater->SetFogDensity(water->GetFogDensity());
 	m_dlgAddWater->SetColor(water->GetColor());
@@ -19441,13 +19691,19 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 		m_askRemoveEngineObject = CTrue;
 
 		CWater* water = new CWater;
-		water->SetName( m_dlgAddWater->GetName() );
+		water->SetName(m_dlgAddWater->GetName());
+		water->SetLastName(m_dlgAddWater->GetLastName());
 		water->SetDuDvMap( m_dlgAddWater->GetDuDvMap(), CTrue );
 		water->SetNormalMap( m_dlgAddWater->GetNormalMap(), CTrue );
 		water->SetPos( m_dlgAddWater->GetPos() );
 		water->SetLightPos( m_dlgAddWater->GetLightPos() );
 		water->SetHeight( m_dlgAddWater->GetHeight() );
-		water->SetScale(m_dlgAddWater->GetScale());
+		water->SetScaleX(m_dlgAddWater->GetScaleX());
+		water->SetScaleZ(m_dlgAddWater->GetScaleZ());
+		water->SetRotateY(m_dlgAddWater->GetRotateY());
+		water->SetUpdateScript(m_dlgAddWater->GetUpdateScript());
+		water->SetHasScript(m_dlgAddWater->GetHasScript());
+		water->SetScript(m_dlgAddWater->GetScriptPath());
 		water->SetTransparency(m_dlgAddWater->GetTransparency());
 		water->SetFogDensity(m_dlgAddWater->GetFogDensity());
 		water->SetColor(m_dlgAddWater->GetColor());
@@ -21626,7 +21882,14 @@ void CVandaEngine1Dlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT 
 				if (Cmp(g_engineWaters[i]->GetName(), szBuffer))
 				{
 					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineWaters[i]->GetIndex();
-					SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetPos()[0], g_engineWaters[i]->GetPos()[1], g_engineWaters[i]->GetPos()[2], XYZInfo);
+
+					if (g_currentTransformType == eCTranslate)
+						SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetPos()[0], g_engineWaters[i]->GetPos()[1], g_engineWaters[i]->GetPos()[2], CTrue);
+					else if (g_currentTransformType == eCRotate)
+						SetDialogData4(g_engineWaters[i]->GetName(), 0.0, g_engineWaters[i]->GetRotateY(), 0.0, CTrue);
+					else if (g_currentTransformType == eCScale)
+						SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetScaleX(), 0.0, g_engineWaters[i]->GetScaleZ(), CTrue);
+
 					foundTarget = CTrue;
 					break;
 				}
@@ -22329,8 +22592,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar originalVScenePath[MAX_NAME_SIZE];
 			sprintf( originalVScenePath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/" );
 
-			CChar originalWaterTexturesPath[MAX_NAME_SIZE];
-			sprintf( originalWaterTexturesPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
+			CChar originalWaterPath[MAX_NAME_SIZE];
+			sprintf( originalWaterPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
 
 			CChar originalSoundPath[MAX_NAME_SIZE];
 			sprintf( originalSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/" );
@@ -22378,10 +22641,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 
 			PrintInfo("\nPublishing Waters...");
 
-			CChar waterTexturesPath[MAX_NAME_SIZE];
-			sprintf( waterTexturesPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Waters/" );
-			CreateWindowsDirectory( waterTexturesPath );
-			CopyAllFilesFromSrcToDstDirectory(originalWaterTexturesPath, waterTexturesPath);
+			CChar waterPath[MAX_NAME_SIZE];
+			sprintf( waterPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Waters/" );
+			CreateWindowsDirectory( waterPath );
+			CopyAllFilesAndFoldersToDstDirectory(originalWaterPath, waterPath);
 
 			CChar soundPath[MAX_NAME_SIZE];
 			sprintf( soundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/" );
@@ -24335,6 +24598,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		if (g_mainCharacter)
 			g_mainCharacter->LoadLuaFile();
 
+		//Waters
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if(g_engineWaters[i]->GetHasScript())
+			g_engineWaters[i]->LoadLuaFile();
+		}
+
 		//guis
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -25073,6 +25343,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		//Main character script
 		if (g_menu.m_insertCharacter)
 			g_mainCharacter->InitScript();
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_engineWaters[i]->GetHasScript())
+				g_engineWaters[i]->InitScript();
+		}
+
 	}
 
 	PrintInfo("\nPlay mode enabled");
@@ -25119,6 +25396,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 {
 	g_currentTransformType = eCRotate;
 	CBool foundPrefabTarget = CFalse;
+	CBool foundWater = CFalse;
+
 	if (g_selectedName != -1)
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -25180,12 +25459,30 @@ void CVandaEngine1Dlg::OnBnClickedBtnRotate()
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_engineWaters[i]->GetIndex() == g_selectedName)
+			{
+				foundWater = CTrue;
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%.2f", g_engineWaters[i]->GetRotateY());
+				ex_pVandaEngine1Dlg->m_editY.SetWindowTextA(temp);
+
+				ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("0.0");
+				ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA("0.0");
+
+				break;
+
+			}
+		}
+
 	}
 	ex_pMenu->CheckMenuItem(ID_EDIT_TRANSLATE, MF_UNCHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_ROTATE, MF_CHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_SCALE, MF_UNCHECKED);
 
-	if (!foundPrefabTarget)
+	if (!foundPrefabTarget && !foundWater)
 	{
 		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");
@@ -25200,6 +25497,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnScale()
 {
 	g_currentTransformType = eCScale;
 	CBool foundPrefabTarget = CFalse;
+	CBool foundWater = CFalse;
+
 	if (g_selectedName != -1)
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
@@ -25225,13 +25524,34 @@ void CVandaEngine1Dlg::OnBnClickedBtnScale()
 				break;
 			}
 		}
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_engineWaters[i]->GetIndex() == g_selectedName)
+			{
+				foundWater = CTrue;
+				CChar tempX[MAX_NAME_SIZE];
+				sprintf(tempX, "%.2f", g_engineWaters[i]->GetScaleX());
+				ex_pVandaEngine1Dlg->m_editX.SetWindowTextA(tempX);
+
+				CChar tempZ[MAX_NAME_SIZE];
+				sprintf(tempZ, "%.2f", g_engineWaters[i]->GetScaleZ());
+				ex_pVandaEngine1Dlg->m_editZ.SetWindowTextA(tempZ);
+
+				ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("0.0");
+
+				break;
+
+			}
+		}
+
 	}
 
 	ex_pMenu->CheckMenuItem(ID_EDIT_TRANSLATE, MF_UNCHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_ROTATE, MF_UNCHECKED);
 	ex_pMenu->CheckMenuItem(ID_EDIT_SCALE, MF_CHECKED);
 
-	if (!foundPrefabTarget)
+	if (!foundPrefabTarget && !foundWater)
 	{
 		ex_pVandaEngine1Dlg->m_editX.SetWindowTextA("\n");
 		ex_pVandaEngine1Dlg->m_editY.SetWindowTextA("\n");

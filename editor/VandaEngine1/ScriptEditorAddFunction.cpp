@@ -213,6 +213,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetTriggerScriptIntVariable, "SetTriggerScriptIntVariable(string triggerName, string variable, int value)");
 	Cpy(SetTriggerScriptDoubleVariable, "SetTriggerScriptDoubleVariable(string triggerName, string variable, double value)");
 
+	Cpy(GetWaterScriptStringVariable, "GetWaterScriptStringVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptBoolVariable, "GetWaterScriptBoolVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptIntVariable, "GetWaterScriptIntVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptDoubleVariable, "GetWaterScriptDoubleVariable(string waterName, string variable)");
+	Cpy(SetWaterScriptStringVariable, "SetWaterScriptStringVariable(string waterName, string variable, string value)");
+	Cpy(SetWaterScriptBoolVariable, "SetWaterScriptBoolVariable(string waterName, string variable, bool value)");
+	Cpy(SetWaterScriptIntVariable, "SetWaterScriptIntVariable(string waterName, string variable, int value)");
+	Cpy(SetWaterScriptDoubleVariable, "SetWaterScriptDoubleVariable(string waterName, string variable, double value)");
+
 	Cpy(GetMainCharacterScriptStringVariable, "GetMainCharacterScriptStringVariable(string variable)");
 	Cpy(GetMainCharacterScriptBoolVariable, "GetMainCharacterScriptBoolVariable(string variable)");
 	Cpy(GetMainCharacterScriptIntVariable, "GetMainCharacterScriptIntVariable(string variable)");
@@ -1014,6 +1023,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetTriggerScriptDoubleVariable);
 		}
+		else if (Cmp(szBuffer, "GetWaterScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetWaterScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetWaterScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetWaterScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetWaterScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetWaterScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetWaterScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetWaterScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterScriptDoubleVariable);
+		}
 		else if (Cmp(szBuffer, "GetMainCharacterScriptStringVariable"))
 		{
 			m_richFunctionName.SetWindowTextA(GetMainCharacterScriptStringVariable);
@@ -1436,6 +1477,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetTriggerScriptBoolVariable");
 	InsertItem("SetTriggerScriptIntVariable");
 	InsertItem("SetTriggerScriptDoubleVariable");
+
+	InsertItem("GetWaterScriptStringVariable");
+	InsertItem("GetWaterScriptBoolVariable");
+	InsertItem("GetWaterScriptIntVariable");
+	InsertItem("GetWaterScriptDoubleVariable");
+	InsertItem("SetWaterScriptStringVariable");
+	InsertItem("SetWaterScriptBoolVariable");
+	InsertItem("SetWaterScriptIntVariable");
+	InsertItem("SetWaterScriptDoubleVariable");
 
 	InsertItem("GetMainCharacterScriptStringVariable");
 	InsertItem("GetMainCharacterScriptBoolVariable");

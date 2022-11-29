@@ -231,7 +231,6 @@ public:
 	CVoid CalculateAndSort3DTransparentModelDistances();
 	CVoid RenderWaters();
 	CBool DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInstance, CWater* water);
-	CBool IsCameraAboveWater(CVec3f cameraPos, CVec4f waterPlane);
 	CVoid GetMouseMovement();
 
 	//mouse movements
