@@ -1476,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.3"));
+	SetWindowText(_T("Vanda Engine 1.9.4"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3044,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.3 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.4 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.3 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.4 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.3 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.4 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7608,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.3 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.4 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8041,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8050,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.3 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.4 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -8949,6 +8949,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertSkyDome()
 		g_skyDome->SetSlices( m_dlgAddSkyDome->GetSlices() );
 		g_skyDome->SetExponential( m_dlgAddSkyDome->GetExponential() );
 		g_skyDome->SetFog(m_dlgAddSkyDome->GetFog());
+		g_skyDome->SetUpdateScript(m_dlgAddSkyDome->GetUpdateScript());
+		g_skyDome->SetHasScript(m_dlgAddSkyDome->GetHasScript());
+		g_skyDome->SetScript(m_dlgAddSkyDome->GetScriptPath());
 
 		g_skyDome->Initialize();
 		//save functions/////////////////////////////////
@@ -9047,6 +9050,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertWater()
 		water->SetColor(m_dlgAddWater->GetColor());
 		water->SetSpeed( m_dlgAddWater->GetSpeed() );
 		water->SetVisible(m_dlgAddWater->GetVisible());
+		water->SetShadow(m_dlgAddWater->GetShadow());
+		water->SetSunReflection(m_dlgAddWater->GetSunReflection());
 		water->SetUV( m_dlgAddWater->GetUV() );
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
@@ -9883,7 +9888,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10726,7 +10731,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -11268,6 +11273,20 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				Cpy(newPathAndName, skyPath );
 				Append(newPathAndName, tempAfterPath );
 				g_skyDome->SetPath( newPathAndName );
+
+				//script
+				if (g_skyDome->GetUpdateScript())
+				{
+					CopyOneFileToDstDirectory(g_skyDome->GetScript(), skyPath);
+				}
+
+				CChar* tempScriptAfterPath = GetAfterPath(g_skyDome->GetScript());
+				CChar newScriptPathAndName[MAX_NAME_SIZE];
+				Cpy(newScriptPathAndName, skyPath);
+				Append(newScriptPathAndName, tempScriptAfterPath);
+				g_skyDome->SetScript(newScriptPathAndName);
+				g_skyDome->SetUpdateScript(CFalse);
+
 			}
 
 			//terrain
@@ -11664,6 +11683,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				g_skyDome->SetPath( newPathAndName );
 
 				g_skyDome->IsInVSceneList(pureFileName,CTrue, CTrue );
+
+				//script
+				if (g_skyDome->GetUpdateScript())
+				{
+					CopyOneFileToDstDirectory(g_skyDome->GetScript(), skyPath);
+				}
+				CChar* tempScriptAfterPath = GetAfterPath(g_skyDome->GetScript());
+				CChar newScriptPathAndName[MAX_NAME_SIZE];
+				Cpy(newScriptPathAndName, skyPath);
+				Append(newScriptPathAndName, tempScriptAfterPath);
+				g_skyDome->SetScript(newScriptPathAndName);
+				g_skyDome->SetUpdateScript(CFalse);
+
 			}
 
 			//terrain
@@ -12095,7 +12127,12 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				CChar skyTempPath[MAX_NAME_SIZE];
 				sprintf( skyTempPath, "%s%s", skyPath, data.cFileName );
 				CBool foundTarget = CFalse;
+
 				if( Cmp( GetAfterPath( g_skyDome->GetPath()), data.cFileName ) )
+				{
+					foundTarget = CTrue;
+				}
+				if (Cmp(GetAfterPath(g_skyDome->GetScript()), data.cFileName))
 				{
 					foundTarget = CTrue;
 				}
@@ -12528,6 +12565,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( &g_skyDome->m_dampening, sizeof( CFloat ), 1, filePtr );
 			fwrite(&g_skyDome->m_exponential, sizeof(CBool), 1, filePtr);
 			fwrite(&g_skyDome->m_fog, sizeof(CBool), 1, filePtr);
+
+			CBool hasScript = g_skyDome->GetHasScript();
+			fwrite(&hasScript, sizeof(CBool), 1, filePtr);
+			fwrite(g_skyDome->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
 		}
 
 		//save terrain
@@ -12583,6 +12625,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(g_engineWaters[i]->m_fWaterColor, sizeof(CFloat), 3, filePtr);
 			fwrite(&g_engineWaters[i]->m_fWaterUV, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineWaters[i]->m_isVisible, sizeof(CBool), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_shadow, sizeof(CBool), 1, filePtr);
+			fwrite(&g_engineWaters[i]->m_sunReflection, sizeof(CBool), 1, filePtr);
+
 			CBool waterHasScript = g_engineWaters[i]->GetHasScript();
 			fwrite(&waterHasScript, sizeof(CBool), 1, filePtr);
 			fwrite(g_engineWaters[i]->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -12881,7 +12926,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -14031,7 +14076,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15857,7 +15902,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.3 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -16778,6 +16823,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CInt slices, sides;
 				CFloat dampening, radius, position[3];
 				CBool exponential, fog;
+				CBool hasScript;
+				CChar scriptPath[MAX_NAME_SIZE];
 				fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(path, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(&slices, sizeof(CInt), 1, filePtr);
@@ -16787,11 +16834,18 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&dampening, sizeof(CFloat), 1, filePtr);
 				fread(&exponential, sizeof(CBool), 1, filePtr);
 				fread(&fog, sizeof(CBool), 1, filePtr);
+				fread(&hasScript, sizeof(CBool), 1, filePtr);
+				fread(&scriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 				CChar skyPath[MAX_NAME_SIZE];
 				CChar* tempPath = GetAfterPath(path);
 				//Copy this to Win32 Project as well
 				sprintf(skyPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/", tempPath);
+
+				CChar skyScriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(scriptPath);
+				sprintf(skyScriptPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sky/", tempScriptPath);
+
 				g_skyDome = CNew(CSkyDome);
 				g_skyDome->SetName(name);
 				g_skyDome->SetPath(skyPath);
@@ -16802,6 +16856,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_skyDome->SetDampening(dampening);
 				g_skyDome->SetExponential(exponential);
 				g_skyDome->SetFog(fog);
+				g_skyDome->SetHasScript(hasScript);
+				g_skyDome->SetScript(skyScriptPath);
 				g_skyDome->Initialize();
 				g_menu.m_insertAndShowSky = CTrue;
 				GetMenu()->EnableMenuItem(ID_INSERT_SKYDOME, MF_DISABLED | MF_GRAYED);
@@ -16950,6 +17006,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CFloat waterHeight, waterSpeed, waterScaleX, waterScaleZ, waterRotateY, waterUV, waterTransparency, waterFogDensity;
 			CFloat waterColor[3];
 			CBool waterVisible;
+			CBool waterShadow;
+			CBool waterSunReflection;
 			CBool waterHasScript;
 			CChar waterScriptTexturePath[MAX_NAME_SIZE];
 			fread( &tempWaterCount, sizeof( CInt ), 1, filePtr );
@@ -16973,6 +17031,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(waterColor, sizeof(CFloat), 3, filePtr);
 				fread(&waterUV, sizeof(CFloat), 1, filePtr);
 				fread(&waterVisible, sizeof(CBool), 1, filePtr);
+				fread(&waterShadow, sizeof(CBool), 1, filePtr);
+				fread(&waterSunReflection, sizeof(CBool), 1, filePtr);
 				fread(&waterHasScript, sizeof(CBool), 1, filePtr);
 				fread(&waterScriptTexturePath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -17028,6 +17088,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				water->SetUV(waterUV);
 				water->SetPos( waterPos );
 				water->SetVisible(waterVisible);
+				water->SetShadow(waterShadow);
+				water->SetSunReflection(waterSunReflection);
 				water->SetLightPos( waterLightPos );
 				water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
 				water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
@@ -17757,7 +17819,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -19656,6 +19718,9 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 	m_dlgAddWater->SetPos( water->GetPos() );
 	m_dlgAddWater->SetSpeed( water->GetSpeed() );
 	m_dlgAddWater->SetVisible(water->GetVisible());
+	m_dlgAddWater->SetShadow(water->GetShadow());
+	m_dlgAddWater->SetSunReflection(water->GetSunReflection());
+
 	m_dlgAddWater->SetEditMode( CTrue );
 
 	INT_PTR result = m_dlgAddWater->DoModal();
@@ -19710,6 +19775,9 @@ CVoid CVandaEngine1Dlg::ChangeWaterProperties(CWater* water)
 		water->SetUV( m_dlgAddWater->GetUV() );
 		water->SetSpeed( m_dlgAddWater->GetSpeed() );
 		water->SetVisible(m_dlgAddWater->GetVisible());
+		water->SetShadow(m_dlgAddWater->GetShadow());
+		water->SetSunReflection(m_dlgAddWater->GetSunReflection());
+
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
 		water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID );
@@ -20259,6 +20327,9 @@ CVoid CVandaEngine1Dlg::ChangeSkyDomeProperties()
 	m_dlgAddSkyDome->SetSlices( g_skyDome->GetSlices() );
 	m_dlgAddSkyDome->SetExponential( g_skyDome->GetExponential() );
 	m_dlgAddSkyDome->SetFog(g_skyDome->GetFog());
+	m_dlgAddSkyDome->SetUpdateScript(g_skyDome->GetUpdateScript());
+	m_dlgAddSkyDome->SetHasScript(g_skyDome->GetHasScript());
+	m_dlgAddSkyDome->SetScriptPath(g_skyDome->GetScript());
 
 	m_dlgAddSkyDome->SetEditMode( CTrue );
 
@@ -20302,6 +20373,9 @@ CVoid CVandaEngine1Dlg::ChangeSkyDomeProperties()
 		g_skyDome->SetSlices( m_dlgAddSkyDome->GetSlices() );
 		g_skyDome->SetExponential( m_dlgAddSkyDome->GetExponential() );
 		g_skyDome->SetFog(m_dlgAddSkyDome->GetFog());
+		g_skyDome->SetUpdateScript(m_dlgAddSkyDome->GetUpdateScript());
+		g_skyDome->SetHasScript(m_dlgAddSkyDome->GetHasScript());
+		g_skyDome->SetScript(m_dlgAddSkyDome->GetScriptPath());
 
 		g_skyDome->Initialize();
 		g_menu.m_insertAndShowSky = CTrue;
@@ -24594,6 +24668,10 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		if (g_VSceneScript)
 			g_VSceneScript->LoadLuaFile();
 
+		//Sky Dome Script
+		if (g_skyDome)
+			g_skyDome->LoadLuaFile();
+
 		//Main Character Script
 		if (g_mainCharacter)
 			g_mainCharacter->LoadLuaFile();
@@ -25339,6 +25417,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		//Load VScene Script object
 		if (g_menu.m_insertVSceneScript)
 			g_VSceneScript->InitScript();
+
+		if (g_menu.m_insertAndShowSky)
+			g_skyDome->InitScript();
 
 		//Main character script
 		if (g_menu.m_insertCharacter)

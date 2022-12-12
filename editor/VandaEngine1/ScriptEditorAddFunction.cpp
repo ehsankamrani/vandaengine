@@ -186,6 +186,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetVSceneScriptIntVariable, "SetVSceneScriptIntVariable(string variable, int value)");
 	Cpy(SetVSceneScriptDoubleVariable, "SetVSceneScriptDoubleVariable(string variable, double value)");
 
+	Cpy(GetSkyScriptStringVariable, "GetSkyScriptStringVariable(string variable)");
+	Cpy(GetSkyScriptBoolVariable, "GetSkyScriptBoolVariable(string variable)");
+	Cpy(GetSkyScriptIntVariable, "GetSkyScriptIntVariable(string variable)");
+	Cpy(GetSkyScriptDoubleVariable, "GetSkyScriptDoubleVariable(string variable)");
+	Cpy(SetSkyScriptStringVariable, "SetSkyScriptStringVariable(string variable, string value )");
+	Cpy(SetSkyScriptBoolVariable, "SetSkyScriptBoolVariable(string variable, bool value)");
+	Cpy(SetSkyScriptIntVariable, "SetSkyScriptIntVariable(string variable, int value)");
+	Cpy(SetSkyScriptDoubleVariable, "SetSkyScriptDoubleVariable(string variable, double value)");
+
 	Cpy(GetPrefabInstanceScriptStringVariable, "GetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable)");
 	Cpy(GetPrefabInstanceScriptBoolVariable, "GetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable)");
 	Cpy(GetPrefabInstanceScriptIntVariable, "GetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable)");
@@ -927,6 +936,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetVSceneScriptDoubleVariable);
 		}
+		else if (Cmp(szBuffer, "GetSkyScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSkyScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetSkyScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSkyScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetSkyScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSkyScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetSkyScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSkyScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetSkyScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSkyScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetSkyScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSkyScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetSkyScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSkyScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetSkyScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSkyScriptDoubleVariable);
+		}
 		else if (Cmp(szBuffer, "GetPrefabInstanceScriptStringVariable"))
 		{
 			m_richFunctionName.SetWindowTextA(GetPrefabInstanceScriptStringVariable);
@@ -1450,6 +1491,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetVSceneScriptBoolVariable");
 	InsertItem("SetVSceneScriptIntVariable");
 	InsertItem("SetVSceneScriptDoubleVariable");
+
+	InsertItem("GetSkyScriptStringVariable");
+	InsertItem("GetSkyScriptBoolVariable");
+	InsertItem("GetSkyScriptIntVariable");
+	InsertItem("GetSkyScriptDoubleVariable");
+	InsertItem("SetSkyScriptStringVariable");
+	InsertItem("SetSkyScriptBoolVariable");
+	InsertItem("SetSkyScriptIntVariable");
+	InsertItem("SetSkyScriptDoubleVariable");
 
 	InsertItem("GetPrefabInstanceScriptStringVariable");
 	InsertItem("GetPrefabInstanceScriptBoolVariable");

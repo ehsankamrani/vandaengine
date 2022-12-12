@@ -280,6 +280,15 @@ CInt SetVSceneScriptBoolVariable(lua_State* L);
 CInt SetVSceneScriptIntVariable(lua_State* L);
 CInt SetVSceneScriptDoubleVariable(lua_State* L);
 
+CInt GetSkyScriptStringVariable(lua_State* L);
+CInt GetSkyScriptBoolVariable(lua_State* L);
+CInt GetSkyScriptIntVariable(lua_State* L);
+CInt GetSkyScriptDoubleVariable(lua_State* L);
+CInt SetSkyScriptStringVariable(lua_State* L);
+CInt SetSkyScriptBoolVariable(lua_State* L);
+CInt SetSkyScriptIntVariable(lua_State* L);
+CInt SetSkyScriptDoubleVariable(lua_State* L);
+
 CInt GetPrefabInstanceScriptStringVariable(lua_State* L);
 CInt GetPrefabInstanceScriptBoolVariable(lua_State* L);
 CInt GetPrefabInstanceScriptIntVariable(lua_State* L);

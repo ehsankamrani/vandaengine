@@ -77,6 +77,9 @@ public:
 	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
 	CBool GetUpdateScript() { return m_scriptUpdated; }
 	
+	CBool GetShadow() { return m_shadow; }
+	CBool GetSunReflection() { return m_sunReflection; }
+
 	CVoid SetCreate( CBool create )
 	{
 		if( create ) m_create = CTrue;
@@ -191,6 +194,8 @@ public:
 	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
 	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
 
+	CVoid SetShadow(CBool status) { m_shadow = status; }
+	CVoid SetSunReflection(CBool status) { m_sunReflection = status; }
 // Dialog Data
 	enum { IDD = IDD_DIALOG_ADD_WATER };
 
@@ -302,4 +307,9 @@ public:
 		CBool m_scriptUpdated;
 		CString m_strScript;
 		CBool m_hasScript;
+		CBool m_shadow;
+		CBool m_sunReflection;
+public:
+	CButton m_checkShadow;
+	CButton m_checkSunReflection;
 };

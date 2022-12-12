@@ -149,4 +149,5 @@ public:
 	CEdit m_editBoxTilt;
 	afx_msg void OnEnChangePan();
 	afx_msg void OnEnChangeTilt();
+	CButton m_activateButton;
 };

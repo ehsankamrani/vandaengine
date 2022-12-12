@@ -6969,6 +6969,195 @@ CInt SetVSceneScriptDoubleVariable(lua_State* L)
 	return 0;
 }
 
+CInt GetSkyScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetSkyScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar* value = NULL;
+	if (g_skyDome)
+	{
+		value = g_skyDome->GetScriptStringVariable(luaToString);
+	}
+	else
+	{
+		return 0;
+	}
+
+	lua_pushstring(L, value);
+
+	free(value);
+
+	return 1;
+}
+
+CInt GetSkyScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetSkyScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool value;
+	if (g_skyDome)
+	{
+		value = g_skyDome->GetScriptBoolVariable(luaToString);
+	}
+	lua_pushboolean(L, value);
+
+	return 1;
+}
+
+CInt GetSkyScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetSkyScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	if (g_skyDome)
+	{
+		value = g_skyDome->GetScriptIntVariable(luaToString);
+	}
+	lua_pushinteger(L, value);
+
+	return 1;
+}
+
+CInt GetSkyScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetSkyScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	if (g_skyDome)
+	{
+		value = g_skyDome->GetScriptDoubleVariable(luaToString);
+	}
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt SetSkyScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetSkyScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar value[MAX_URI_SIZE];
+	Cpy(value, lua_tostring(L, 2));
+	if (g_skyDome)
+	{
+		g_skyDome->SetScriptStringVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetSkyScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetSkyScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool bValue;
+	CInt iValue;
+	iValue = lua_toboolean(L, 2);
+	if (iValue)
+		bValue = CTrue;
+	else
+		bValue = CFalse;
+	if (g_skyDome)
+	{
+		g_skyDome->SetScriptBoolVariable(luaToString, bValue);
+	}
+
+	return 0;
+}
+
+CInt SetSkyScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetSkyScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	value = lua_tointeger(L, 2);
+	if (g_skyDome)
+	{
+		g_skyDome->SetScriptIntVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetSkyScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 argument for SetSkyScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	value = lua_tonumber(L, 2);
+	if (g_skyDome)
+	{
+		g_skyDome->SetScriptDoubleVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+
 CInt GetPrefabInstanceScriptStringVariable(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -12851,6 +13040,9 @@ CBool CMain::Render()
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
 
+	if (g_skyDome)
+		g_skyDome->UpdateScript();
+
 	if (g_mainCharacter)
 		g_mainCharacter->UpdateScript();
 
@@ -15976,6 +16168,9 @@ CBool CMain::Load(CChar* pathName)
 		CInt slices, sides;
 		CFloat dampening, radius, position[3];
 		CBool exponential, fog;
+		CBool hasScript;
+		CChar scriptPath[MAX_NAME_SIZE];
+
 		fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(path, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&slices, sizeof(CInt), 1, filePtr);
@@ -15985,12 +16180,18 @@ CBool CMain::Load(CChar* pathName)
 		fread(&dampening, sizeof(CFloat), 1, filePtr);
 		fread(&exponential, sizeof(CBool), 1, filePtr);
 		fread(&fog, sizeof(CBool), 1, filePtr);
+		fread(&hasScript, sizeof(CBool), 1, filePtr);
+		fread(&scriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 		g_skyDome = CNew(CSkyDome);
 		CChar skyPath[MAX_NAME_SIZE];
 		CChar* tempPath = GetAfterPath(path);
 		//Copy this to Win32 Project as well
 		sprintf(skyPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sky/", tempPath);
+
+		CChar skyScriptPath[MAX_NAME_SIZE];
+		CChar* tempScriptPath = GetAfterPath(scriptPath);
+		sprintf(skyScriptPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sky/", tempScriptPath);
 
 		g_skyDome->SetName(name);
 		g_skyDome->SetPath(skyPath);
@@ -16001,7 +16202,10 @@ CBool CMain::Load(CChar* pathName)
 		g_skyDome->SetDampening(dampening);
 		g_skyDome->SetExponential(exponential);
 		g_skyDome->SetFog(fog);
+		g_skyDome->SetHasScript(hasScript);
+		g_skyDome->SetScript(skyScriptPath);
 		g_skyDome->Initialize();
+		g_skyDome->LoadLuaFile();
 		g_databaseVariables.m_insertAndShowSky = CTrue;
 	}
 	else
@@ -16125,6 +16329,8 @@ CBool CMain::Load(CChar* pathName)
 	CFloat waterHeight, waterSpeed, waterScaleX, waterScaleZ, waterRotateY, waterUV, waterTransparency, waterFogDensity;
 	CFloat waterColor[3];
 	CBool waterVisible;
+	CBool waterShadow;
+	CBool waterSunReflection;
 	CBool waterHasScript;
 	CChar waterScriptPath[MAX_NAME_SIZE];
 
@@ -16160,6 +16366,8 @@ CBool CMain::Load(CChar* pathName)
 		fread(waterColor, sizeof(CFloat), 3, filePtr);
 		fread(&waterUV, sizeof(CFloat), 1, filePtr);
 		fread(&waterVisible, sizeof(CBool), 1, filePtr);
+		fread(&waterShadow, sizeof(CBool), 1, filePtr);
+		fread(&waterSunReflection, sizeof(CBool), 1, filePtr);
 		fread(&waterHasScript, sizeof(CBool), 1, filePtr);
 		fread(&waterScriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -16215,6 +16423,8 @@ CBool CMain::Load(CChar* pathName)
 		water->SetUV(waterUV);
 		water->SetPos(waterPos);
 		water->SetVisible(waterVisible);
+		water->SetShadow(waterShadow);
+		water->SetSunReflection(waterSunReflection);
 		water->SetLightPos(waterLightPos);
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID);
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID);
@@ -16975,6 +17185,9 @@ CBool CMain::Load(CChar* pathName)
 
 	if (g_VSceneScript)
 		g_VSceneScript->InitScript();
+
+	if (g_skyDome)
+		g_skyDome->InitScript();
 
 	if (g_mainCharacter)
 		g_mainCharacter->InitScript();

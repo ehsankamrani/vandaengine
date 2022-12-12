@@ -46,6 +46,9 @@ public:
 	CFloat GetDampening() { return m_fSkyDomeDampening; }
 	CBool GetExponential() { return m_bSkyDomeExponential; }
 	CBool GetFog() { return m_fog; }
+	CBool GetHasScript() { return m_hasScript; }
+	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
+	CBool GetUpdateScript() { return m_scriptUpdated; }
 
 	CVoid SetPos( CFloat* pos )
 	{
@@ -118,6 +121,10 @@ public:
 	//#######################
 	CVoid SetFog(CBool set) { m_fog = set; }
 
+	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
+	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
+	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
+
 	CEdit m_editBoxSkyDomeName;
 	CEdit m_editBoxSkyDomeData;
 	CEdit m_editBoxSkyDomePosX;
@@ -160,4 +167,13 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnEnChangeEditSkydomPath();
 	CButton m_checkBoxEnableFog;
+	afx_msg void OnBnClickedBtnAddSkyScript();
+	afx_msg void OnBnClickedBtnRemoveSkyScript();
+	afx_msg void OnBnClickedButtonViewSkyScript();
+	CRichEditCtrl m_editBoxScript;
+
+	private:
+		CBool m_scriptUpdated;
+		CString m_strScript;
+		CBool m_hasScript;
 };

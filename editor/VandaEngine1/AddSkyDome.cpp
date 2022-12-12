@@ -8,7 +8,7 @@
 #include "VandaEngine1.h"
 #include "AddSkyDome.h"
 #include  "AFXPRIV.H"
-
+#include "ViewScript.h"
 // CAddSkyDome dialog
 
 IMPLEMENT_DYNAMIC(CAddSkyDome, CDialog)
@@ -20,10 +20,13 @@ CAddSkyDome::CAddSkyDome(CWnd* pParent /*=NULL*/)
 	m_create = CFalse;
 	m_editMode = CFalse;
 	m_fog = CFalse;
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddSkyDome::~CAddSkyDome()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 void CAddSkyDome::DoDataExchange(CDataExchange* pDX)
@@ -40,6 +43,7 @@ void CAddSkyDome::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SKYDOME_RADIUS, m_editBoxSkyDomeRadius);
 	DDX_Control(pDX, IDC_EDIT_SKYDOME_DAMPENING, m_editBoxSkyDomeDampening);
 	DDX_Control(pDX, IDC_FOG_ENABLECHECK, m_checkBoxEnableFog);
+	DDX_Control(pDX, IDC_EDIT_SKY_SCRIPT, m_editBoxScript);
 }
 
 
@@ -56,6 +60,9 @@ BEGIN_MESSAGE_MAP(CAddSkyDome, CDialog)
 	ON_BN_CLICKED(ID_BUTTON_SKYDOM_PATH, &CAddSkyDome::OnBnClickedButtonSkydomPath)
 	ON_BN_CLICKED(IDOK, &CAddSkyDome::OnBnClickedOk)
 	ON_EN_CHANGE(IDC_EDIT_SKYDOM_PATH, &CAddSkyDome::OnEnChangeEditSkydomPath)
+	ON_BN_CLICKED(IDC_BTN_ADD_SKY_SCRIPT, &CAddSkyDome::OnBnClickedBtnAddSkyScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_SKY_SCRIPT, &CAddSkyDome::OnBnClickedBtnRemoveSkyScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SKY_SCRIPT, &CAddSkyDome::OnBnClickedButtonViewSkyScript)
 END_MESSAGE_MAP()
 
 
@@ -108,6 +115,14 @@ BOOL CAddSkyDome::OnInitDialog()
 		m_checkBoxEnableFog.SetCheck(BST_UNCHECKED);
 
 	m_strSkyDomeTempName = m_strSkyDomeName;
+
+	if (m_editMode)
+	{
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
+	}
 
 	return TRUE;
 }
@@ -295,3 +310,71 @@ void CAddSkyDome::OnEnChangeEditSkydomPath()
 
 	// TODO:  Add your control notification handler code here
 }
+
+
+void CAddSkyDome::OnBnClickedBtnAddSkyScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAddSkyDome::OnBnClickedBtnRemoveSkyScript()
+{
+	if (!m_strScript.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddSkyDome::OnBnClickedButtonViewSkyScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
+}
+

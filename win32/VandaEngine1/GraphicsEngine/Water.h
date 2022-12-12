@@ -75,6 +75,8 @@ public:
 	CFloat m_fWaterRotateY;
 	CBool m_isVisible;
 	GLint m_result;
+	CBool m_shadow;
+	CBool m_sunReflection;
 
 	//####public interface####	
 	//The user just needs to use these functions
@@ -93,6 +95,8 @@ public:
 	GLuint GetQueryIndex();
 	CVoid CalculateDistance();
 	CFloat GetDistanceFromCamera();
+	CBool GetShadow() { return m_shadow; }
+	CBool GetSunReflection() { return m_sunReflection; }
 
 	CVoid SetDuDvMapName(CChar* name);
 	CVoid SetNormalMapName(CChar* name);
@@ -108,6 +112,8 @@ public:
 	CVoid SetScaleX(CFloat scaleX) { m_fWaterScaleX = scaleX; }
 	CVoid SetScaleZ(CFloat scaleZ) { m_fWaterScaleZ = scaleZ; }
 	CVoid SetRotateY(CFloat rotateY) { m_fWaterRotateY = rotateY; }
+	CVoid SetShadow(CBool status) { m_shadow = status; }
+	CVoid SetSunReflection(CBool status) { m_sunReflection = status; }
 
 	CVoid SetVisible(CBool isVisible) { m_isVisible = isVisible; }
 	CVoid SetQueryVisible(CBool visible) { m_queryVisible = visible; }
@@ -171,6 +177,8 @@ private:
 	std::vector<CInstancePrefab*> m_instancePrefab;
 
 private:
+	CFloat m_move;
+
 	// This loads all of our animation textures and stores them in our texture array
 	CVoid LoadAnimTextures(UINT textureArray[], LPSTR szFileName, CInt startIndex, CInt textureCount);
 

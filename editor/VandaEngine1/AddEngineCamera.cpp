@@ -37,6 +37,7 @@ void CAddEngineCamera::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FOV, m_editBoxFOV);
 	DDX_Control(pDX, IDC_PAN, m_editBoxPan);
 	DDX_Control(pDX, IDC_TILT, m_editBoxTilt);
+	DDX_Control(pDX, IDC_BUTTON_ACTIVATE, m_activateButton);
 }
 
 
@@ -131,6 +132,7 @@ BOOL CAddEngineCamera::OnInitDialog()
 		m_editBoxPosX.SetWindowTextA(m_strPosX);
 		m_editBoxPosY.SetWindowTextA(m_strPosY);
 		m_editBoxPosZ.SetWindowTextA(m_strPosZ);
+		m_activateButton.EnableWindow(FALSE);
 	}
 	else
 	{
@@ -143,6 +145,7 @@ BOOL CAddEngineCamera::OnInitDialog()
 		m_editBoxPosX.SetWindowTextA(m_strPosX);
 		m_editBoxPosY.SetWindowTextA(m_strPosY);
 		m_editBoxPosZ.SetWindowTextA(m_strPosZ);
+		m_activateButton.EnableWindow(TRUE);
 	}
 
 	m_strTempName = m_strName;

@@ -78,6 +78,7 @@ uniform sampler2D normalMap;
 uniform sampler2D dudvMap;
 uniform sampler2D depthMap;
 uniform vec4 waterColor;
+uniform bool enableSunReflection;
 uniform bool renderAboveWater;
 
 varying float Blur;
@@ -113,9 +114,15 @@ void main()
 		
 	vec4 invDepth = 1.0 - depthValue;
 
-	vec4 localView = normalize(viewTangetSpace);		
-	float intensity = max(0.0, dot(lightReflection, localView) );
-	vec4 specular = vec4(pow(intensity, kShine));
+	vec4 localView = normalize(viewTangetSpace);
+
+	vec4 specular = vec4(0.0);
+
+	if(enableSunReflection)
+	{
+		float intensity = max(0.0, dot(lightReflection, localView) );
+		specular = vec4(pow(intensity, kShine));
+	}
 
 	vec4 finalColor;
 

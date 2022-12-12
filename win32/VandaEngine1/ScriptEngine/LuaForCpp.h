@@ -238,6 +238,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetVSceneScriptIntVariable", SetVSceneScriptIntVariable);
 	lua_register(L, "SetVSceneScriptDoubleVariable", SetVSceneScriptDoubleVariable);
 
+	lua_register(L, "GetSkyScriptStringVariable", GetSkyScriptStringVariable);
+	lua_register(L, "GetSkyScriptBoolVariable", GetSkyScriptBoolVariable);
+	lua_register(L, "GetSkyScriptIntVariable", GetSkyScriptIntVariable);
+	lua_register(L, "GetSkyScriptDoubleVariable", GetSkyScriptDoubleVariable);
+	lua_register(L, "SetSkyScriptStringVariable", SetSkyScriptStringVariable);
+	lua_register(L, "SetSkyScriptBoolVariable", SetSkyScriptBoolVariable);
+	lua_register(L, "SetSkyScriptIntVariable", SetSkyScriptIntVariable);
+	lua_register(L, "SetSkyScriptDoubleVariable", SetSkyScriptDoubleVariable);
+
 	lua_register(L, "GetPrefabInstanceScriptStringVariable", GetPrefabInstanceScriptStringVariable);
 	lua_register(L, "GetPrefabInstanceScriptBoolVariable", GetPrefabInstanceScriptBoolVariable);
 	lua_register(L, "GetPrefabInstanceScriptIntVariable", GetPrefabInstanceScriptIntVariable);

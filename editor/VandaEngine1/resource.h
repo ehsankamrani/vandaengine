@@ -695,8 +695,11 @@
 #define IDC_CHECK_APPLY_GRAVITY         1079
 #define IDC_CHECK_INVISIBLE             1079
 #define IDC_CHECK_PUBLISH_DEBUG         1079
+#define IDC_CHECK_WATER_SHADOW          1079
 #define IDC_CHECK_JUMP                  1080
 #define IDC_BTN_PREFABS                 1080
+#define IDC_CHECK_IS_WATER_SUN_REFLECTION 1080
+#define IDC_CHECK_WATER_SUN_REFLECTION  1080
 #define IDC_COMBO2                      1081
 #define IDC_COMBO_TRANSLATEPLANE        1081
 #define IDC_BTN_ROTATE                  1081
@@ -1013,6 +1016,10 @@
 #define IDC_BTN_ADD_WATER_SCRIPT        1313
 #define IDC_BTN_REMOVE_WATER_SCRIPT     1314
 #define IDC_BUTTON_VIEW_WATER_SCRIPT    1315
+#define IDC_BTN_ADD_SKY_SCRIPT          1316
+#define IDC_BTN_REMOVE_SKY_SCRIPT       1317
+#define IDC_BUTTON_VIEW_SKY_SCRIPT      1318
+#define IDC_EDIT_SKY_SCRIPT             1319
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1351,9 +1358,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        531
+#define _APS_NEXT_RESOURCE_VALUE        534
 #define _APS_NEXT_COMMAND_VALUE         33119
-#define _APS_NEXT_CONTROL_VALUE         1316
+#define _APS_NEXT_CONTROL_VALUE         1320
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

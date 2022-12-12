@@ -26,6 +26,9 @@ CWater::CWater()
 	m_instancePrefab.clear();
 	SetIndex();
 	m_isVisible = CTrue;
+	m_shadow = CTrue;
+	m_sunReflection = CTrue;
+	m_move = 0.0f;
 	if (GLEW_NV_occlusion_query)
 	{
 		glGenQueries(1, &m_queryIndex);
@@ -61,6 +64,12 @@ CVoid CWater::ResetLua()
 CBool CWater::LoadLuaFile()
 {
 	//ResetLua();
+
+	if (!m_hasScript)
+	{
+		return CFalse;
+	}
+
 	if (!LuaLoadFile(m_lua, m_script))
 		return CFalse;
 	return CTrue;
@@ -456,6 +465,9 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "renderAboveWater");
 	glUniform1i(uniform, renderAboveWater);
 
+	uniform = glGetUniformLocationARB(g_render.m_waterProgram, "enableSunReflection");
+	glUniform1i(uniform, m_sunReflection);
+
 	glUniform1f(glGetUniformLocation(g_render.m_waterProgram, "focalDistance"), g_main->m_dof.m_focalDistance);
 	glUniform1f(glGetUniformLocation(g_render.m_waterProgram, "focalRange"), g_main->m_dof.m_focalRange);
 
@@ -470,13 +482,10 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 	else
 		glUniform1i(glGetUniformLocation(g_render.m_waterProgram, "enableFog"), CFalse);
 
-	// Create a static variable for the movement of the water
-	static float move = 0.0f;
-
 	// Use this variable for the normal map and make it slower
 	// than the refraction map's speed.  We want the refraction
 	// map to be jittery, but not the normal map's waviness.
-	float move2 = move * kNormalMapScale;
+	float move2 = m_move * kNormalMapScale;
 
 	// Set the refraction map's UV coordinates to our global g_WaterUV
 	float refrUV = m_fWaterUV;
@@ -489,7 +498,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 		isMoving = CFalse;
 
 	if (isMoving)
-		move += m_fWaterSpeed * elapsedTime;
+		m_move += m_fWaterSpeed * elapsedTime;
 
 	float sizey = (m_sidePoint[0] - m_sidePoint[1]).Size();
 	float sizex = (m_sidePoint[2] - m_sidePoint[1]).Size();
@@ -510,7 +519,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// The back left vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, m_fWaterUV);				// Reflection texture				
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, (refrUV  * texturePosY) - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, (refrUV  * texturePosY) - m_move);			// Refraction texture
 	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, (normalUV * texturePosY) + move2);		// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
@@ -518,7 +527,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// The front left vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, 0.0f);					// Reflection texture
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, 0.0f - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, 0.0f - m_move);			// Refraction texture
 	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, 0.0f, 0.0f + move2);			// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
@@ -526,7 +535,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// The front right vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, 0.0f);				// Reflection texture
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV * texturePosX, 0.0f - move);			// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV * texturePosX, 0.0f - m_move);			// Refraction texture
 	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV * texturePosX, 0.0f + move2);		// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture
@@ -534,7 +543,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// The back right vertex for the water
 	glMultiTexCoord2fARB(GL_TEXTURE0_ARB, m_fWaterUV, m_fWaterUV);		// Reflection texture
-	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV * texturePosX, (refrUV * texturePosY) - move);		// Refraction texture
+	glMultiTexCoord2fARB(GL_TEXTURE1_ARB, refrUV * texturePosX, (refrUV * texturePosY) - m_move);		// Refraction texture
 	glMultiTexCoord2fARB(GL_TEXTURE2_ARB, normalUV * texturePosX, (normalUV * texturePosY) + move2);	// Normal map texture
 	glMultiTexCoord2fARB(GL_TEXTURE3_ARB, 0, 0);						// DUDV map texture
 	glMultiTexCoord2fARB(GL_TEXTURE4_ARB, 0, 0);						// Depth texture

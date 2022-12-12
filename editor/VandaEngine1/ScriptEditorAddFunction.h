@@ -199,6 +199,15 @@ private:
 	CChar SetVSceneScriptIntVariable[MAX_URI_SIZE];
 	CChar SetVSceneScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar GetSkyScriptStringVariable[MAX_URI_SIZE];
+	CChar GetSkyScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetSkyScriptIntVariable[MAX_URI_SIZE];
+	CChar GetSkyScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetSkyScriptStringVariable[MAX_URI_SIZE];
+	CChar SetSkyScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetSkyScriptIntVariable[MAX_URI_SIZE];
+	CChar SetSkyScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar GetPrefabInstanceScriptStringVariable[MAX_URI_SIZE];
 	CChar GetPrefabInstanceScriptBoolVariable[MAX_URI_SIZE];
 	CChar GetPrefabInstanceScriptIntVariable[MAX_URI_SIZE];

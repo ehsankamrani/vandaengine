@@ -77,6 +77,8 @@ BOOL CAddWater::OnInitDialog()
 		m_strNormalMap = NormalMapPath;
 		m_strPureNormalMap = "normalmap";
 		m_isVisible = CTrue;
+		m_shadow = CTrue;
+		m_sunReflection = CTrue;
 	}
 
 	if (m_editMode)
@@ -110,6 +112,16 @@ BOOL CAddWater::OnInitDialog()
 	else
 		m_checkIsVisible.SetCheck(BST_UNCHECKED);
 
+	if (m_shadow)
+		m_checkShadow.SetCheck(BST_CHECKED);
+	else
+		m_checkShadow.SetCheck(BST_UNCHECKED);
+
+	if (m_sunReflection)
+		m_checkSunReflection.SetCheck(BST_CHECKED);
+	else
+		m_checkSunReflection.SetCheck(BST_UNCHECKED);
+
 	m_strTempWaterName = m_strWaterName;
 
 	m_editBoxHeight.EnableWindow( FALSE );
@@ -139,6 +151,8 @@ void CAddWater::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_WATER_SCALE_X, m_editBoxScaleX);
 	DDX_Control(pDX, IDC_EDIT_WATER_SCALE_Z, m_editBoxScaleZ);
 	DDX_Control(pDX, IDC_EDIT_WATER_SCRIPT, m_editBoxScript);
+	DDX_Control(pDX, IDC_CHECK_WATER_SHADOW, m_checkShadow);
+	DDX_Control(pDX, IDC_CHECK_WATER_SUN_REFLECTION, m_checkSunReflection);
 }
 
 
@@ -260,6 +274,18 @@ void CAddWater::OnOK()
 		m_isVisible = CTrue;
 	else
 		m_isVisible = CFalse;
+
+	checkState = m_checkShadow.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_shadow = CTrue;
+	else
+		m_shadow = CFalse;
+
+	checkState = m_checkSunReflection.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_sunReflection = CTrue;
+	else
+		m_sunReflection = CFalse;
 
 	// TODO: Add your specialized code here and/or call the base class
 	if (m_strNormalMap.IsEmpty() || m_strDuDvMap.IsEmpty() || m_strWaterName.IsEmpty() || m_strWaterHeight.IsEmpty() ||

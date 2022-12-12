@@ -39,6 +39,38 @@ public:
 
 	CVoid Destroy();
 
+	CVoid SetHasScript(CBool set) { m_hasScript = set; }
+	CBool GetHasScript() { return m_hasScript; }
+	CVoid SetScript(CChar* script) { Cpy(m_script, script); }
+	CChar* GetScript() { return m_script; }
+	CVoid SetLastScriptPath(CChar* script) { Cpy(m_lastScriptPath, script); }
+	CChar* GetLastScriptPath() { return m_lastScriptPath; }
+
+	CVoid SetUpdateScript(CBool set) { m_updateScript = set; }
+	CBool GetUpdateScript() { return m_updateScript; }
+
+	CVoid SetTempScriptPath(CChar* path) { Cpy(m_tempScriptPath, path); }
+	CVoid SetTempCurrentScriptPath(CChar* path) { Cpy(m_tempCurrentScriptPath, path); }
+
+	CChar* GetTempScriptPath() { return m_tempScriptPath; }
+	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
+
+	CVoid InitScript();
+	CVoid UpdateScript();
+
+	//functions to get and set script variables
+	CChar* GetScriptStringVariable(CChar* variableName);
+	CBool GetScriptBoolVariable(CChar* variableName);
+	CInt GetScriptIntVariable(CChar* variableName);
+	CDouble GetScriptDoubleVariable(CChar* variableName);
+	CVoid SetScriptStringVariable(CChar* variableName, CChar* value);
+	CVoid SetScriptBoolVariable(CChar* variableName, CBool value);
+	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
+	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
+
+	CVoid ResetLua();
+	CBool LoadLuaFile();
+
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_path[MAX_NAME_SIZE];
 	CInt m_numSlices;
@@ -63,5 +95,14 @@ private:
 	CBool m_hasImage;
 
 	CInt m_nameIndex; //selection
+
+	lua_State* m_lua;
+	CBool m_hasScript;
+	CChar m_script[MAX_URI_SIZE];
+	CBool m_updateScript;
+	CChar m_tempScriptPath[MAX_URI_SIZE];
+	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
+	CChar m_lastScriptPath[MAX_URI_SIZE];
+
 };
 
