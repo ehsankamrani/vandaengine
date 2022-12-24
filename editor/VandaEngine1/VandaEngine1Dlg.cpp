@@ -1476,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.4"));
+	SetWindowText(_T("Vanda Engine 1.9.5"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3044,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.4 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.5 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.4 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.5 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.4 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.5 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7608,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.4 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.5 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8041,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8050,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.4 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.5 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -8711,6 +8711,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertLight()
 		abstract_light->SetConstantAttenuation( m_dlgAddLight->GetConstantAttenuation() );
 		abstract_light->SetLinearAttenuation( m_dlgAddLight->GetLinearAttenuation() );
 		abstract_light->SetQuadraticAttenuation( m_dlgAddLight->GetQuadAttenuation() );
+
+		abstract_light->SetLastName(m_dlgAddLight->GetName());
+		abstract_light->SetUpdateScript(m_dlgAddLight->GetUpdateScript());
+		abstract_light->SetHasScript(m_dlgAddLight->GetHasScript());
+		abstract_light->SetScript(m_dlgAddLight->GetScriptPath());
 
 		instance_light->SetIndex();
 		instance_light->CalculateDistance();
@@ -9888,7 +9893,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10731,7 +10736,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10849,6 +10854,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar waterRootPath[MAX_NAME_SIZE];
 		sprintf( waterRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
 
+		CChar lightRootPath[MAX_NAME_SIZE];
+		sprintf(lightRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/");
+
 		CChar soundPath[MAX_NAME_SIZE];
 		sprintf( soundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/" );
 
@@ -10925,6 +10933,24 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_engineWaters[j]->SetLastScriptPath(tempLastScriptPath);
 		}
 
+
+		std::vector<std::string> lightScriptPath;
+		std::vector<std::string> lightScriptFolderName;
+
+		for (CUInt j = 0; j < g_engineLights.size(); j++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/", g_engineLights[j]->m_abstractLight->GetName());
+			lightScriptPath.push_back(tempScriptPath);
+			lightScriptFolderName.push_back(g_engineLights[j]->m_abstractLight->GetName());
+			g_engineLights[j]->m_abstractLight->SetTempScriptPath(tempScriptPath);
+
+			//last script path
+			CChar tempLastScriptPath[MAX_NAME_SIZE];
+			sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/", g_engineLights[j]->m_abstractLight->GetLastName());
+			g_engineLights[j]->m_abstractLight->SetLastScriptPath(tempLastScriptPath);
+		}
+
 		std::vector<std::string> ambientTempPath;
 
 		for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
@@ -10937,6 +10963,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		//Directories of g_currentVSceneName
 		CChar currentWaterRootPath[MAX_NAME_SIZE];
 		sprintf( currentWaterRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/" );
+
+		CChar currentLightRootPath[MAX_NAME_SIZE];
+		sprintf(currentLightRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Lights/");
 
 		CChar currentSoundPath[MAX_NAME_SIZE];
 		sprintf( currentSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/" );
@@ -11001,6 +11030,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_engineWaters[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
 		}
 
+		std::vector<std::string> currentLightScriptPath;
+		std::vector<std::string> currentLightScriptFolderName;
+
+		for (CUInt j = 0; j < g_engineLights.size(); j++)
+		{
+			CChar tempCurrentScriptPath[MAX_NAME_SIZE];
+			sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Lights/", g_engineLights[j]->m_abstractLight->GetName());
+			currentLightScriptPath.push_back(tempCurrentScriptPath);
+			currentLightScriptFolderName.push_back(g_engineLights[j]->m_abstractLight->GetName());
+			g_engineLights[j]->m_abstractLight->SetTempCurrentScriptPath(tempCurrentScriptPath);
+		}
+
 		std::vector<std::string> currentAmbientPath;
 
 		for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
@@ -11016,6 +11057,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesAndFoldersInDirectory( waterRootPath );
 			//As Previous functions removes main directory, I'll recreate it
 			CreateWindowsDirectory(waterRootPath);
+
+			RemoveAllFilesAndFoldersInDirectory(lightRootPath);
+			//As Previous functions removes main directory, I'll recreate it
+			CreateWindowsDirectory(lightRootPath);
 
 			RemoveAllFilesInDirectory( ambientSoundPath );
 			CreateWindowsDirectory(ambientSoundTempPath);
@@ -11042,7 +11087,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		{
 			//create a new directory based on the save file name
 			CreateWindowsDirectory( VScenePath );
-			CreateWindowsDirectory( waterRootPath );
+			CreateWindowsDirectory(waterRootPath);
+			CreateWindowsDirectory(lightRootPath);
 			CreateWindowsDirectory( soundPath );
 			CreateWindowsDirectory( ambientSoundPath );
 			CreateWindowsDirectory(ambientSoundTempPath);
@@ -11063,6 +11109,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 			for (CUInt j = 0; j < waterScriptTexturePath.size(); j++)
 				CreateWindowsDirectory((CChar*)waterScriptTexturePath[j].c_str());
+
+			for (CUInt j = 0; j < lightScriptPath.size(); j++)
+				CreateWindowsDirectory((CChar*)lightScriptPath[j].c_str());
 
 		}
 		else if (saveAlgorithm == 2)
@@ -11245,6 +11294,72 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 
 			///////
+
+
+			//Light
+			for (CUInt j = 0; j < g_engineLights.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", lightRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engineLights[j]->m_abstractLight->GetLastName(), g_engineLights[j]->m_abstractLight->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engineLights[j]->m_abstractLight->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engineLights[j]->m_abstractLight->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/temp", j, "/", g_engineLights[j]->m_abstractLight->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/temp", j, "/", g_engineLights[j]->m_abstractLight->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engineLights[j]->m_abstractLight->GetHasScript() && g_engineLights[j]->m_abstractLight->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineLights[j]->m_abstractLight->GetScript(), tempScriptPath);
+						g_engineLights[j]->m_abstractLight->SetUpdateScript(CFalse);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engineLights[j]->m_abstractLight->GetLastScriptPath());
+					RemoveDirectoryA(g_engineLights[j]->m_abstractLight->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engineLights[j]->m_abstractLight->GetHasScript() && g_engineLights[j]->m_abstractLight->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineLights[j]->m_abstractLight->GetScript(), g_engineLights[j]->m_abstractLight->GetTempScriptPath());
+						g_engineLights[j]->m_abstractLight->SetUpdateScript(CFalse);
+					}
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engineLights[j]->m_abstractLight->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engineLights[j]->m_abstractLight->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engineLights[j]->m_abstractLight->SetScript(NewPathAndName);
+
+				g_engineLights[j]->m_abstractLight->SetLastName(g_engineLights[j]->m_abstractLight->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engineLights.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", lightRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, lightRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+			///////
+
 
 			//VScene Script
 			if (g_VSceneScript)
@@ -11466,6 +11581,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		{
 			//copy the assets from current place to the saved directory
 			CopyAllFilesAndFoldersToDstDirectory(currentWaterRootPath, waterRootPath);
+			CopyAllFilesAndFoldersToDstDirectory(currentLightRootPath, lightRootPath);
 			CopyAllFilesFromSrcToDstDirectory(currentAmbientSoundPath, ambientSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(current3DSoundPath, ThreeDSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
@@ -11653,6 +11769,72 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 
 			/////////
+
+
+			//Light
+			for (CUInt j = 0; j < g_engineLights.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", lightRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engineLights[j]->m_abstractLight->GetLastName(), g_engineLights[j]->m_abstractLight->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engineLights[j]->m_abstractLight->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engineLights[j]->m_abstractLight->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/temp", j, "/", g_engineLights[j]->m_abstractLight->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/temp", j, "/", g_engineLights[j]->m_abstractLight->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engineLights[j]->m_abstractLight->GetHasScript() && g_engineLights[j]->m_abstractLight->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineLights[j]->m_abstractLight->GetScript(), tempScriptPath);
+						g_engineLights[j]->m_abstractLight->SetUpdateScript(CFalse);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engineLights[j]->m_abstractLight->GetLastScriptPath());
+					RemoveDirectoryA(g_engineLights[j]->m_abstractLight->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engineLights[j]->m_abstractLight->GetHasScript() && g_engineLights[j]->m_abstractLight->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineLights[j]->m_abstractLight->GetScript(), g_engineLights[j]->m_abstractLight->GetTempScriptPath());
+						g_engineLights[j]->m_abstractLight->SetUpdateScript(CFalse);
+					}
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engineLights[j]->m_abstractLight->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engineLights[j]->m_abstractLight->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engineLights[j]->m_abstractLight->SetScript(NewPathAndName);
+
+				g_engineLights[j]->m_abstractLight->SetLastName(g_engineLights[j]->m_abstractLight->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engineLights.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", lightRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, lightRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+			/////////
+
 
 			//VScene Script
 			if (g_VSceneScript)
@@ -12080,6 +12262,72 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 
 		m_deletedWaterObjects.clear();
+		///////
+
+		//Light
+		for (CUInt sc = 0; sc < lightScriptPath.size(); sc++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s", lightScriptPath[sc].c_str(), "*.*");
+			hFind = FindFirstFile(tempScriptPath, &data);
+			do
+			{
+				CChar scriptTempPath[MAX_NAME_SIZE];
+				sprintf(scriptTempPath, "%s%s", lightScriptPath[sc].c_str(), data.cFileName);
+
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < g_engineLights.size(); j++)
+				{
+					if (Cmp(g_engineLights[j]->m_abstractLight->GetName(), lightScriptFolderName[sc].c_str()))
+					{
+						if (g_engineLights[j]->m_abstractLight->GetHasScript() && Cmp(GetAfterPath(g_engineLights[j]->m_abstractLight->GetScript()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+
+					}
+				}
+
+				//Remove Files
+				if (!foundTarget)
+				{
+					if (!DeleteFile(scriptTempPath))
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+						//PrintInfo( temp, COLOR_RED );
+					}
+				}
+			} while (FindNextFile(hFind, &data));
+			FindClose(hFind);
+		}
+
+		lightScriptPath.clear();
+		lightScriptFolderName.clear();
+
+		//Delete removed light object's folders
+		for (CUInt k = 0; k < m_deletedLightObjects.size(); k++)
+		{
+			CBool foundTarget = CFalse;
+			for (CUInt j = 0; j < g_engineLights.size(); j++)
+			{
+				if (Cmp(m_deletedLightObjects[k].c_str(), g_engineLights[j]->m_abstractLight->GetName()))
+				{
+					foundTarget = CTrue;
+					break;
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar tempScriptPath[MAX_NAME_SIZE];
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/", (CChar*)m_deletedLightObjects[k].c_str());
+				RemoveAllFilesInDirectory(tempScriptPath);
+				RemoveDirectoryA(tempScriptPath);
+			}
+		}
+
+		m_deletedLightObjects.clear();
 		///////
 
 		//Delete removed VScene script
@@ -12654,6 +12902,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( g_engineLights[i]->m_abstractLight->GetDiffuse(), sizeof( CFloat ), 4, filePtr  );
 			fwrite( g_engineLights[i]->m_abstractLight->GetSpecular(), sizeof( CFloat ), 4, filePtr  );
 			fwrite( &g_engineLights[i]->m_abstractLight->m_lightType, sizeof( CLightType ), 1, filePtr  );
+
+			CBool lightHasScript = g_engineLights[i]->m_abstractLight->GetHasScript();
+			fwrite(&lightHasScript, sizeof(CBool), 1, filePtr);
+			fwrite(g_engineLights[i]->m_abstractLight->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
 			if( g_engineLights[i]->m_abstractLight->m_lightType == eLIGHTTYPE_SPOT)
 			{
 				fwrite( &g_engineLights[i]->m_abstractLight->m_spotCutoff, sizeof( CFloat ), 1, filePtr  );
@@ -12926,7 +13179,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -14076,7 +14329,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15902,7 +16155,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.4 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17120,6 +17373,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CFloat m_fSpotDirection[4]; CFloat m_fSpotExponent; CFloat m_fShininess; CFloat m_fAmbientColor[4]; CFloat m_fDiffuseColor[4];
 			CFloat m_fSpecularColor[4]; CLightType m_lightType;
 			CChar lightName[ MAX_NAME_SIZE ];
+
+			CBool lightHasScript;
+			CChar lightScript[MAX_NAME_SIZE];
+
 			for( CInt i = 0 ; i < tempLightCount; i++ )
 			{
 				fread( lightName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
@@ -17132,12 +17389,20 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread( m_fDiffuseColor, sizeof( CFloat ), 4, filePtr  );
 				fread( m_fSpecularColor, sizeof( CFloat ), 4, filePtr  );
 				fread( &m_lightType, sizeof( CLightType ), 1, filePtr  );
+				fread(&lightHasScript, sizeof(CBool), 1, filePtr);
+				fread(&lightScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
 				if( m_lightType == eLIGHTTYPE_SPOT)
 				{
 					fread( &m_fSpotCuttoff, sizeof( CFloat ), 1, filePtr  );
 					fread( m_fSpotDirection, sizeof( CFloat ), 4, filePtr  );
 					fread( &m_fSpotExponent, sizeof( CFloat ), 1, filePtr  );
 				}
+
+				CChar scriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(lightScript);
+				sprintf(scriptPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Lights/", lightName, "/", tempScriptPath);
+
 				CInstanceLight* instance_light = new CInstanceLight();
 				CLight* abstract_light = new CLight();
 
@@ -17162,6 +17427,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				abstract_light->SetConstantAttenuation( m_fConstantAttenuation );
 				abstract_light->SetLinearAttenuation( m_fLinearAttenuation );
 				abstract_light->SetQuadraticAttenuation( m_fQuadAttenuation );
+
+				abstract_light->SetLastName(lightName);
+				abstract_light->SetHasScript(lightHasScript);
+				abstract_light->SetScript(scriptPath);
 
 				instance_light->SetIndex();
 
@@ -17819,7 +18088,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.4 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -18590,6 +18859,8 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 					if (g_engineLights[i]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
 						if (Cmp(g_shadowProperties.m_directionalLightName, g_engineLights[i]->m_abstractLight->GetName()))
 							Cpy(g_shadowProperties.m_directionalLightName, "\n");
+
+					m_deletedLightObjects.push_back(g_engineLights[i]->m_abstractLight->GetName());
 
 					CDelete(g_engineLights[i]);
 					g_engineLights.erase(g_engineLights.begin() + i);
@@ -19580,6 +19851,12 @@ CVoid CVandaEngine1Dlg::ChangeLightProperties(CInstanceLight* light)
 	m_dlgAddLight->SetConstantAttenuation(light->m_abstractLight->GetConstantAttenuation());
 	m_dlgAddLight->SetLinearAttenuation(light->m_abstractLight->GetLinearAttenuation());
 	m_dlgAddLight->SetQuadAttenuation(light->m_abstractLight->GetQuadraticAttenuation());
+
+	m_dlgAddLight->SetLastName(light->m_abstractLight->GetLastName());
+	m_dlgAddLight->SetUpdateScript(light->m_abstractLight->GetUpdateScript());
+	m_dlgAddLight->SetHasScript(light->m_abstractLight->GetHasScript());
+	m_dlgAddLight->SetScriptPath(light->m_abstractLight->GetScript());
+
 	if (m_dlgAddLight->GetType() == eLIGHTTYPE_SPOT)
 	{
 		m_dlgAddLight->SetSpotDirection(light->m_abstractLight->GetSpotDirection());
@@ -19641,6 +19918,11 @@ CVoid CVandaEngine1Dlg::ChangeLightProperties(CInstanceLight* light)
 		abstract_light->SetConstantAttenuation(m_dlgAddLight->GetConstantAttenuation());
 		abstract_light->SetLinearAttenuation(m_dlgAddLight->GetLinearAttenuation());
 		abstract_light->SetQuadraticAttenuation(m_dlgAddLight->GetQuadAttenuation());
+
+		abstract_light->SetLastName(m_dlgAddLight->GetLastName());
+		abstract_light->SetUpdateScript(m_dlgAddLight->GetUpdateScript());
+		abstract_light->SetHasScript(m_dlgAddLight->GetHasScript());
+		abstract_light->SetScript(m_dlgAddLight->GetScriptPath());
 
 		instance_light->SetIndex();
 		instance_light->CalculateDistance();
@@ -22669,6 +22951,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar originalWaterPath[MAX_NAME_SIZE];
 			sprintf( originalWaterPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
 
+			CChar originalLightPath[MAX_NAME_SIZE];
+			sprintf(originalLightPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/");
+
 			CChar originalSoundPath[MAX_NAME_SIZE];
 			sprintf( originalSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/" );
 
@@ -22720,6 +23005,14 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CreateWindowsDirectory( waterPath );
 			CopyAllFilesAndFoldersToDstDirectory(originalWaterPath, waterPath);
 
+			PrintInfo("\nPublishing Lights...");
+
+			CChar lightPath[MAX_NAME_SIZE];
+			sprintf(lightPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Lights/");
+			CreateWindowsDirectory(lightPath);
+			CopyAllFilesAndFoldersToDstDirectory(originalLightPath, lightPath);
+
+			//sounds
 			CChar soundPath[MAX_NAME_SIZE];
 			sprintf( soundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/" );
 			CreateWindowsDirectory( soundPath );
@@ -22737,6 +23030,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			sprintf(ThreeDSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/3D/" );
 			CreateWindowsDirectory(ThreeDSoundPath );
 			CopyAllFilesFromSrcToDstDirectory(original3DSoundPath, ThreeDSoundPath);
+			//
 
 			PrintInfo("\nPublishing Main Character...");
 
@@ -24683,6 +24977,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 			g_engineWaters[i]->LoadLuaFile();
 		}
 
+		//Lights
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			if (g_engineLights[i]->m_abstractLight->GetHasScript())
+				g_engineLights[i]->m_abstractLight->LoadLuaFile();
+		}
+
 		//guis
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -25429,6 +25730,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			if (g_engineWaters[i]->GetHasScript())
 				g_engineWaters[i]->InitScript();
+		}
+
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			if (g_engineLights[i]->m_abstractLight->GetHasScript())
+				g_engineLights[i]->m_abstractLight->InitScript();
 		}
 
 	}

@@ -12844,7 +12844,7 @@ CInt GetWaterScriptBoolVariable(lua_State* L)
 	CBool foundWater = CFalse;
 
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
 	StringToUpper(luaToString);
 
 	CChar variable[MAX_NAME_SIZE];
@@ -12926,7 +12926,7 @@ CInt GetWaterScriptIntVariable(lua_State* L)
 	CBool foundWater = CFalse;
 
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
 	StringToUpper(luaToString);
 
 	CChar variable[MAX_NAME_SIZE];
@@ -13008,7 +13008,7 @@ CInt GetWaterScriptDoubleVariable(lua_State* L)
 	CBool foundWater = CFalse;
 
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
 	StringToUpper(luaToString);
 
 	CChar variable[MAX_NAME_SIZE];
@@ -13409,6 +13409,673 @@ CInt SetWaterScriptDoubleVariable(lua_State* L)
 
 	return 0;
 }
+
+
+CInt GetLightScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetLightScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetLightScriptStringVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetLightScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetLightScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetLightScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetLightScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetLightScriptBoolVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetLightScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetLightScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetLightScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetLightScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetLightScriptIntVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetLightScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetLightScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetLightScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for GetLightScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetLightScriptDoubleVariable(%s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGetLightScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGetLightScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetLightScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetLightScriptStringVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetLightScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetLightScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetLightScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						if (value)
+							sprintf(message, "\nSetLightScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), "true", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						else
+							sprintf(message, "\nSetLightScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), "false", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetLightScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetLightScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetLightScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetLightScriptIntVariable(%s, %s, %d) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetLightScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetLightScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetLightScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
+				{
+					CChar lightName[MAX_NAME_SIZE];
+					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+					StringToUpper(lightName);
+
+					if (Cmp(lightName, luaToString))
+					{
+						foundLight = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetLightScriptDoubleVariable(%s, %s, %.2f) will be executed for Project '%s', VScene '%s' : Light '%s'", lightName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundLight)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSetLightScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSetLightScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CInt GetMainCharacterScriptStringVariable(lua_State* L)
 {
@@ -21582,6 +22249,12 @@ CVoid CMultipleWindows::DrawPerspective()
 			{
 				if (g_engineWaters[i]->GetHasScript())
 					g_engineWaters[i]->UpdateScript();
+			}
+
+			for (CUInt i = 0; i < g_engineLights.size(); i++)
+			{
+				if (g_engineLights[i]->m_abstractLight->GetHasScript())
+					g_engineLights[i]->m_abstractLight->UpdateScript();
 			}
 
 			if (g_VSceneScript)

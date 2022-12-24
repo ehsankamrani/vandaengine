@@ -8695,7 +8695,7 @@ CInt GetWaterScriptBoolVariable(lua_State* L)
 	CBool foundWater = CFalse;
 
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
 	StringToUpper(luaToString);
 
 	CChar variable[MAX_NAME_SIZE];
@@ -8741,7 +8741,7 @@ CInt GetWaterScriptIntVariable(lua_State* L)
 	CBool foundWater = CFalse;
 
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
 	StringToUpper(luaToString);
 
 	CChar variable[MAX_NAME_SIZE];
@@ -8787,7 +8787,7 @@ CInt GetWaterScriptDoubleVariable(lua_State* L)
 	CBool foundWater = CFalse;
 
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy(luaToString, lua_tostring(L, 1)); //Trigge Name- First Argument
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
 	StringToUpper(luaToString);
 
 	CChar variable[MAX_NAME_SIZE];
@@ -9007,6 +9007,381 @@ CInt SetWaterScriptDoubleVariable(lua_State* L)
 
 	return 0;
 }
+
+
+CInt GetLightScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetLightScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetLightScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetLightScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetLightScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetLightScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetLightScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetLightScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetLightScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetLightScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetLightScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			value = g_engineLights[i]->m_abstractLight->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetLightScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetLightScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetLightScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetLightScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetLightScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetLightScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetLightScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetLightScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetLightScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+			g_engineLights[i]->m_abstractLight->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetLightScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CInt GetMainCharacterScriptStringVariable(lua_State* L)
 {
@@ -13037,6 +13412,12 @@ CBool CMain::Render()
 			g_engineWaters[i]->UpdateScript();
 	}
 
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetHasScript())
+			g_engineLights[i]->m_abstractLight->UpdateScript();
+	}
+
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
 
@@ -16441,6 +16822,10 @@ CBool CMain::Load(CChar* pathName)
 	CFloat m_fSpotDirection[4]; CFloat m_fSpotExponent; CFloat m_fShininess; CFloat m_fAmbientColor[4]; CFloat m_fDiffuseColor[4];
 	CFloat m_fSpecularColor[4]; CLightType m_lightType;
 	CChar lightName[MAX_NAME_SIZE];
+
+	CBool lightHasScript;
+	CChar lightScript[MAX_NAME_SIZE];
+
 	for (CInt i = 0; i < tempLightCount; i++)
 	{
 		fread(lightName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -16453,12 +16838,20 @@ CBool CMain::Load(CChar* pathName)
 		fread(m_fDiffuseColor, sizeof(CFloat), 4, filePtr);
 		fread(m_fSpecularColor, sizeof(CFloat), 4, filePtr);
 		fread(&m_lightType, sizeof(CLightType), 1, filePtr);
+		fread(&lightHasScript, sizeof(CBool), 1, filePtr);
+		fread(&lightScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
 		if (m_lightType == eLIGHTTYPE_SPOT)
 		{
 			fread(&m_fSpotCuttoff, sizeof(CFloat), 1, filePtr);
 			fread(m_fSpotDirection, sizeof(CFloat), 4, filePtr);
 			fread(&m_fSpotExponent, sizeof(CFloat), 1, filePtr);
 		}
+
+		CChar script[MAX_NAME_SIZE];
+		CChar* scriptAfterPath = GetAfterPath(lightScript);
+		sprintf(script, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Lights/", lightName, "/", scriptAfterPath);
+
 		CInstanceLight* instance_light = new CInstanceLight();
 		CLight* abstract_light = new CLight();
 
@@ -16483,7 +16876,9 @@ CBool CMain::Load(CChar* pathName)
 		abstract_light->SetConstantAttenuation(m_fConstantAttenuation);
 		abstract_light->SetLinearAttenuation(m_fLinearAttenuation);
 		abstract_light->SetQuadraticAttenuation(m_fQuadAttenuation);
-
+		abstract_light->SetHasScript(lightHasScript);
+		abstract_light->SetScript(script);
+		abstract_light->LoadLuaFile();
 		instance_light->SetIndex();
 
 		g_engineLights.push_back(instance_light);
@@ -17196,6 +17591,12 @@ CBool CMain::Load(CChar* pathName)
 	{
 		if (g_engineWaters[i]->GetHasScript())
 			g_engineWaters[i]->InitScript();
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetHasScript())
+			g_engineLights[i]->m_abstractLight->InitScript();
 	}
 
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )

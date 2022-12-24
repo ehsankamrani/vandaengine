@@ -244,6 +244,15 @@ private:
 	CChar SetWaterScriptIntVariable[MAX_URI_SIZE];
 	CChar SetWaterScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar GetLightScriptStringVariable[MAX_URI_SIZE];
+	CChar GetLightScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetLightScriptIntVariable[MAX_URI_SIZE];
+	CChar GetLightScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetLightScriptStringVariable[MAX_URI_SIZE];
+	CChar SetLightScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetLightScriptIntVariable[MAX_URI_SIZE];
+	CChar SetLightScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar GetMainCharacterScriptStringVariable[MAX_URI_SIZE];
 	CChar GetMainCharacterScriptBoolVariable[MAX_URI_SIZE];
 	CChar GetMainCharacterScriptIntVariable[MAX_URI_SIZE];

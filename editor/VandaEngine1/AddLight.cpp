@@ -8,6 +8,7 @@
 #include "VandaEngine1.h"
 #include "AddLight.h"
 #include  "AFXPRIV.H"
+#include "ViewScript.h"
 
 enum
 {
@@ -22,10 +23,13 @@ CAddLight::CAddLight(CWnd* pParent /*=NULL*/)
 {
 	m_create = CFalse;
 	m_editMode = CFalse;
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddLight::~CAddLight()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 void CAddLight::DoDataExchange(CDataExchange* pDX)
@@ -53,6 +57,7 @@ void CAddLight::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SPOT_DIRECTION_Y, m_editBoxSpotDirectionY);
 	DDX_Control(pDX, IDC_EDIT_SPOT_DIRECTION_Z, m_editBoxSpotDirectionZ);
 	DDX_Control(pDX, IDC_EDIT_LIGHT_NAME, m_editBoxLightName);
+	DDX_Control(pDX, IDC_EDIT_LIGHT_SCRIPT, m_editBoxScript);
 }
 
 
@@ -78,6 +83,9 @@ BEGIN_MESSAGE_MAP(CAddLight, CDialog)
 	ON_BN_CLICKED(IDOK, &CAddLight::OnBnClickedOk)
 	ON_EN_CHANGE(IDC_EDIT_LIGHT_NAME, &CAddLight::OnEnChangeEditLightName)
 	ON_BN_CLICKED(IDCANCEL, &CAddLight::OnBnClickedCancel)
+	ON_BN_CLICKED(IDC_BTN_ADD_LIGHT_SCRIPT, &CAddLight::OnBnClickedBtnAddLightScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_LIGHT_SCRIPT, &CAddLight::OnBnClickedBtnRemoveLightScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_LIGHT_SCRIPT, &CAddLight::OnBnClickedButtonViewLightScript)
 END_MESSAGE_MAP()
 
 
@@ -418,6 +426,14 @@ BOOL CAddLight::OnInitDialog()
 	}
 	m_strLightTempName = m_strLightName;
 
+	if (m_editMode)
+	{
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -591,4 +607,71 @@ void CAddLight::OnBnClickedCancel()
 {
 	// TODO: Add your control notification handler code here
 	CDialog::OnCancel();
+}
+
+
+void CAddLight::OnBnClickedBtnAddLightScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAddLight::OnBnClickedBtnRemoveLightScript()
+{
+	if (!m_strScript.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddLight::OnBnClickedButtonViewLightScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

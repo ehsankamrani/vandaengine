@@ -11,8 +11,6 @@
 
 const float kNormalMapScale = 0.25f;
 
-
-
 CWater::CWater()
 {
 	m_instancePrefab.clear();

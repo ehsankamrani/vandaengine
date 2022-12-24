@@ -281,6 +281,15 @@ CInt SetWaterScriptBoolVariable(lua_State* L);
 CInt SetWaterScriptIntVariable(lua_State* L);
 CInt SetWaterScriptDoubleVariable(lua_State* L);
 
+CInt GetLightScriptStringVariable(lua_State* L);
+CInt GetLightScriptBoolVariable(lua_State* L);
+CInt GetLightScriptIntVariable(lua_State* L);
+CInt GetLightScriptDoubleVariable(lua_State* L);
+CInt SetLightScriptStringVariable(lua_State* L);
+CInt SetLightScriptBoolVariable(lua_State* L);
+CInt SetLightScriptIntVariable(lua_State* L);
+CInt SetLightScriptDoubleVariable(lua_State* L);
+
 CInt GetMainCharacterScriptStringVariable(lua_State* L);
 CInt GetMainCharacterScriptBoolVariable(lua_State* L);
 CInt GetMainCharacterScriptIntVariable(lua_State* L);

@@ -886,6 +886,7 @@ public:
 	CVec3f m_initCharacterTranslate;
 	std::vector<std::string> m_deletedTriggerObjects;
 	std::vector<std::string> m_deletedWaterObjects;
+	std::vector<std::string> m_deletedLightObjects;
 protected:
 	virtual void OnCancel();
 public:

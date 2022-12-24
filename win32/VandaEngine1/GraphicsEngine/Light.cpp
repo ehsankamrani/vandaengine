@@ -99,11 +99,44 @@ CLight::CLight()
 	m_linearAttenuation	= 0.0f;
 	m_quadraticAttenuation = 0.0f;
 	m_lightType	= eLIGHTTYPE_POINT;
+
+	m_hasScript = CFalse;
+	m_updateScript = CFalse;
+	Cpy(m_script, "\n");
+	Cpy(m_lastScriptPath, "\n");
+
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+
 }
 
 CLight::~CLight()
 {
     Destroy(); 
+	LuaClose(m_lua);
+}
+
+CVoid CLight::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+}
+
+CBool CLight::LoadLuaFile()
+{
+	//ResetLua();
+
+	if (!m_hasScript)
+	{
+		return CFalse;
+	}
+
+	if (!LuaLoadFile(m_lua, m_script))
+		return CFalse;
+	return CTrue;
 }
 
 GLvoid CLight::EnableGL()
@@ -356,4 +389,105 @@ CLightType CLight::GetType()
 CFloat CLight::GetShininess()
 {
 	return m_shininess;
+}
+
+CChar* CLight::GetScriptStringVariable(CChar* variableName)
+{
+	CChar *s = NULL;
+	lua_getglobal(m_lua, variableName);
+	if (!lua_isnil(m_lua, -1))
+		s = _strdup(lua_tostring(m_lua, -1));
+	else
+		s = _strdup("");
+
+	lua_pop(m_lua, 1);
+	return s;
+}
+
+CBool CLight::GetScriptBoolVariable(CChar* variableName)
+{
+	CInt value;
+	CBool result;
+	lua_getglobal(m_lua, variableName);
+	value = lua_toboolean(m_lua, -1);
+	if (value)
+		result = CTrue;
+	else
+		result = CFalse;
+	lua_pop(m_lua, 1);
+	return result;
+}
+
+CInt CLight::GetScriptIntVariable(CChar* variableName)
+{
+	CInt value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tointeger(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CDouble CLight::GetScriptDoubleVariable(CChar* variableName)
+{
+	CDouble value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tonumber(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CVoid CLight::SetScriptStringVariable(CChar* variableName, CChar* value)
+{
+	lua_pushstring(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CLight::SetScriptBoolVariable(CChar* variableName, CBool value)
+{
+	lua_pushboolean(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CLight::SetScriptIntVariable(CChar* variableName, CInt value)
+{
+	lua_pushinteger(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CLight::SetScriptDoubleVariable(CChar* variableName, CDouble value)
+{
+	lua_pushnumber(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CLight::InitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Init");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CLight::UpdateScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Update");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
 }

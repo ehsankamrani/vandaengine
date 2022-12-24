@@ -33,11 +33,22 @@ public:
 	CFloat GetSpotExponent() { return m_fSpotExponent; }
 	CFloat GetShininess() { return m_fShininess; }
 	CLightType GetType() { return m_lightType; }
+	CBool GetHasScript() { return m_hasScript; }
+	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
+	CBool GetUpdateScript() { return m_scriptUpdated; }
+	CChar* GetLastName() { return m_lastName; }
 	//#######################
+
 	CVoid SetName( CChar* name )
 	{
 		m_strLightName = name;
 	}
+
+	CVoid SetLastName(CChar* name)
+	{
+		Cpy(m_lastName, name);
+	}
+
 	CVoid SetPos(CFloat* pos)
 	{
 		CChar posX[MAX_NAME_SIZE];
@@ -117,6 +128,7 @@ public:
 	{
 		m_lightType = lightType;
 	}
+
 	CVoid SetCreate( CBool create )
 	{
 		if( create )
@@ -129,6 +141,10 @@ public:
 	{
 		m_editMode = editMode;
 	}
+
+	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
+	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
+	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
 
 // Dialog Data
 	enum { IDD = IDD_DIALOG_ADD_LIGHT };
@@ -177,6 +193,8 @@ private:
 	CString m_strSpotDirectionZ;
 	CString m_strSpotExponent;
 	CString m_strShininess;
+
+	CChar m_lastName[MAX_NAME_SIZE];
 
 	//The above strings are converted to the following floating point values
 	CFloat m_fLightPos[4];
@@ -230,4 +248,13 @@ public:
 	CEdit m_editBoxLightName;
 	afx_msg void OnEnChangeEditLightName();
 	afx_msg void OnBnClickedCancel();
+	CRichEditCtrl m_editBoxScript;
+	afx_msg void OnBnClickedBtnAddLightScript();
+	afx_msg void OnBnClickedBtnRemoveLightScript();
+	afx_msg void OnBnClickedButtonViewLightScript();
+
+	private:
+		CBool m_scriptUpdated;
+		CString m_strScript;
+		CBool m_hasScript;
 };

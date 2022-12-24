@@ -294,6 +294,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetWaterScriptIntVariable", SetWaterScriptIntVariable);
 	lua_register(L, "SetWaterScriptDoubleVariable", SetWaterScriptDoubleVariable);
 
+	lua_register(L, "GetLightScriptStringVariable", GetLightScriptStringVariable);
+	lua_register(L, "GetLightScriptBoolVariable", GetLightScriptBoolVariable);
+	lua_register(L, "GetLightScriptIntVariable", GetLightScriptIntVariable);
+	lua_register(L, "GetLightScriptDoubleVariable", GetLightScriptDoubleVariable);
+	lua_register(L, "SetLightScriptStringVariable", SetLightScriptStringVariable);
+	lua_register(L, "SetLightScriptBoolVariable", SetLightScriptBoolVariable);
+	lua_register(L, "SetLightScriptIntVariable", SetLightScriptIntVariable);
+	lua_register(L, "SetLightScriptDoubleVariable", SetLightScriptDoubleVariable);
+
 	lua_register(L, "GetMainCharacterScriptStringVariable", GetMainCharacterScriptStringVariable);
 	lua_register(L, "GetMainCharacterScriptBoolVariable", GetMainCharacterScriptBoolVariable);
 	lua_register(L, "GetMainCharacterScriptIntVariable", GetMainCharacterScriptIntVariable);
