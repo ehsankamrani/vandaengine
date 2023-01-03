@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // AddEngineCamera.cpp : implementation file
@@ -8,7 +8,7 @@
 #include "VandaEngine1.h"
 #include "AddEngineCamera.h"
 #include "afxdialogex.h"
-
+#include "ViewScript.h"
 
 // CAddEngineCamera dialog
 
@@ -19,10 +19,13 @@ CAddEngineCamera::CAddEngineCamera(CWnd* pParent /*=NULL*/)
 {
 	m_create = CTrue;
 	m_isActive = CFalse;
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddEngineCamera::~CAddEngineCamera()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 void CAddEngineCamera::DoDataExchange(CDataExchange* pDX)
@@ -38,6 +41,7 @@ void CAddEngineCamera::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PAN, m_editBoxPan);
 	DDX_Control(pDX, IDC_TILT, m_editBoxTilt);
 	DDX_Control(pDX, IDC_BUTTON_ACTIVATE, m_activateButton);
+	DDX_Control(pDX, IDC_EDIT_CAMERA_SCRIPT, m_editBoxScript);
 }
 
 
@@ -53,6 +57,9 @@ BEGIN_MESSAGE_MAP(CAddEngineCamera, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_ACTIVATE, &CAddEngineCamera::OnBnClickedButtonActivate)
 	ON_EN_CHANGE(IDC_PAN, &CAddEngineCamera::OnEnChangePan)
 	ON_EN_CHANGE(IDC_TILT, &CAddEngineCamera::OnEnChangeTilt)
+	ON_BN_CLICKED(IDC_BTN_ADD_SCRIPT, &CAddEngineCamera::OnBnClickedBtnAddScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_SCRIPT, &CAddEngineCamera::OnBnClickedBtnRemoveScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddEngineCamera::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -146,6 +153,11 @@ BOOL CAddEngineCamera::OnInitDialog()
 		m_editBoxPosY.SetWindowTextA(m_strPosY);
 		m_editBoxPosZ.SetWindowTextA(m_strPosZ);
 		m_activateButton.EnableWindow(TRUE);
+
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
 	}
 
 	m_strTempName = m_strName;
@@ -220,4 +232,71 @@ void CAddEngineCamera::OnEnChangeTilt()
 {
 	m_editBoxTilt.GetWindowTextA(m_strTilt);
 	m_tilt = atof(m_strTilt);
+}
+
+
+void CAddEngineCamera::OnBnClickedBtnAddScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAddEngineCamera::OnBnClickedBtnRemoveScript()
+{
+	if (!m_strScript.IsEmpty())
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddEngineCamera::OnBnClickedButtonViewScript()
+{
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

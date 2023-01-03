@@ -1,5 +1,5 @@
 //Original Work: Copyright 2006 Sony Computer Entertainment Inc.
-//Modified Work: Copyright (C) 2022 Ehsan Kamrani 
+//Modified Work: Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 /*************************************************
@@ -46,22 +46,9 @@ class CCamera;
 class CInstanceCamera
 {
 public:
-	CInstanceCamera()
-	{
-		m_x=0;
-		m_y=0;
-		m_z=0;
-		m_pan=0;
-		m_tilt=0;
-		m_zoom=0;
-		m_ncp = 0.01f;
-		m_fcp = 50000.f;
-		m_active = CFalse;
-		m_cameraSpeed = DEFAULT_CAMERA_SPEED;
-		m_enableTimer = CFalse;
-		m_elaspedSeconds = 0.0f;
-		m_endTime = 0.0f;
-	};
+	CInstanceCamera();
+	~CInstanceCamera();
+
 	CNode *m_parent;			// Node where this instance was instantiated
 	CCamera	*m_abstractCamera;	// The abstract Camera where the CCamera parameters are stored
 	CMatrix m_transform;
@@ -163,6 +150,41 @@ public:
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }
 
+	CVoid SetHasScript(CBool set) { m_hasScript = set; }
+	CBool GetHasScript() { return m_hasScript; }
+	CVoid SetScript(CChar* script) { Cpy(m_script, script); }
+	CChar* GetScript() { return m_script; }
+	CVoid SetLastScriptPath(CChar* script) { Cpy(m_lastScriptPath, script); }
+	CChar* GetLastScriptPath() { return m_lastScriptPath; }
+
+	CVoid SetUpdateScript(CBool set) { m_updateScript = set; }
+	CBool GetUpdateScript() { return m_updateScript; }
+
+	CVoid SetTempScriptPath(CChar* path) { Cpy(m_tempScriptPath, path); }
+	CVoid SetTempCurrentScriptPath(CChar* path) { Cpy(m_tempCurrentScriptPath, path); }
+
+	CChar* GetTempScriptPath() { return m_tempScriptPath; }
+	CChar* GetTempCurrentScriptPath() { return m_tempCurrentScriptPath; }
+
+	CChar* GetLastName();
+	CVoid SetLastName(CChar* name);
+
+	CVoid ResetLua();
+	CBool LoadLuaFile();
+
+	CVoid InitScript();
+	CVoid UpdateScript();
+
+	//functions to get and set script variables
+	CChar* GetScriptStringVariable(CChar* variableName);
+	CBool GetScriptBoolVariable(CChar* variableName);
+	CInt GetScriptIntVariable(CChar* variableName);
+	CDouble GetScriptDoubleVariable(CChar* variableName);
+	CVoid SetScriptStringVariable(CChar* variableName, CChar* value);
+	CVoid SetScriptBoolVariable(CChar* variableName, CBool value);
+	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
+	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
+
 private:
 	CFloat	m_pan;
 	CFloat	m_tilt;
@@ -177,6 +199,16 @@ private:
 	CBool m_enableTimer;
 	CFloat m_elaspedSeconds;
 	CFloat m_endTime;
+
+	CChar m_lastName[MAX_NAME_SIZE];
+
+	lua_State* m_lua;
+	CBool m_hasScript;
+	CChar m_script[MAX_URI_SIZE];
+	CBool m_updateScript;
+	CChar m_tempScriptPath[MAX_URI_SIZE];
+	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
+	CChar m_lastScriptPath[MAX_URI_SIZE];
 
 public:
 	CVoid RenderIcon(CBool selectionMode = CFalse);

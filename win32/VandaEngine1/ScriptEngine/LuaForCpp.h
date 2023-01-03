@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -291,6 +291,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetLightScriptBoolVariable", SetLightScriptBoolVariable);
 	lua_register(L, "SetLightScriptIntVariable", SetLightScriptIntVariable);
 	lua_register(L, "SetLightScriptDoubleVariable", SetLightScriptDoubleVariable);
+
+	lua_register(L, "GetCameraScriptStringVariable", GetCameraScriptStringVariable);
+	lua_register(L, "GetCameraScriptBoolVariable", GetCameraScriptBoolVariable);
+	lua_register(L, "GetCameraScriptIntVariable", GetCameraScriptIntVariable);
+	lua_register(L, "GetCameraScriptDoubleVariable", GetCameraScriptDoubleVariable);
+	lua_register(L, "SetCameraScriptStringVariable", SetCameraScriptStringVariable);
+	lua_register(L, "SetCameraScriptBoolVariable", SetCameraScriptBoolVariable);
+	lua_register(L, "SetCameraScriptIntVariable", SetCameraScriptIntVariable);
+	lua_register(L, "SetCameraScriptDoubleVariable", SetCameraScriptDoubleVariable);
 
 	lua_register(L, "GetMainCharacterScriptStringVariable", GetMainCharacterScriptStringVariable);
 	lua_register(L, "GetMainCharacterScriptBoolVariable", GetMainCharacterScriptBoolVariable);

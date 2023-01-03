@@ -1,11 +1,43 @@
 //Original Work: Copyright 2006 Sony Computer Entertainment Inc.
-//Modified Work: Copyright (C) 2022 Ehsan Kamrani 
+//Modified Work: Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
 #include "camera.h"
 #include "../VandaEngine1Dlg.h"
 #include "..//GraphicsEngine/Render.h"
+
+CInstanceCamera::CInstanceCamera()
+{
+	m_x = 0;
+	m_y = 0;
+	m_z = 0;
+	m_pan = 0;
+	m_tilt = 0;
+	m_zoom = 0;
+	m_ncp = 0.01f;
+	m_fcp = 50000.f;
+	m_active = CFalse;
+	m_cameraSpeed = DEFAULT_CAMERA_SPEED;
+	m_enableTimer = CFalse;
+	m_elaspedSeconds = 0.0f;
+	m_endTime = 0.0f;
+
+	m_hasScript = CFalse;
+	m_updateScript = CFalse;
+	Cpy(m_script, "\n");
+	Cpy(m_lastScriptPath, "\n");
+
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+
+}
+
+CInstanceCamera::~CInstanceCamera()
+{
+	LuaClose(m_lua);
+}
 
 CVoid CInstanceCamera::SetTransform()
 {
@@ -81,6 +113,139 @@ CVoid CInstanceCamera::RenderIcon(CBool selectionMode)
 	if (selectionMode)
 		glPopName();
 
+}
+
+CChar* CInstanceCamera::GetLastName()
+{
+	return m_lastName;
+}
+
+CVoid CInstanceCamera::SetLastName(CChar* name)
+{
+	Cpy(m_lastName, name);
+}
+
+CVoid CInstanceCamera::ResetLua()
+{
+	LuaClose(m_lua);
+	m_lua = LuaNewState();
+	LuaOpenLibs(m_lua);
+	LuaRegisterFunctions(m_lua);
+}
+
+CBool CInstanceCamera::LoadLuaFile()
+{
+	ResetLua();
+
+	if (!m_hasScript)
+	{
+		return CFalse;
+	}
+
+	if (!LuaLoadFile(m_lua, m_script))
+		return CFalse;
+	return CTrue;
+}
+
+CChar* CInstanceCamera::GetScriptStringVariable(CChar* variableName)
+{
+	CChar *s = NULL;
+	lua_getglobal(m_lua, variableName);
+	if (!lua_isnil(m_lua, -1))
+		s = _strdup(lua_tostring(m_lua, -1));
+	else
+		s = _strdup("");
+
+	lua_pop(m_lua, 1);
+	return s;
+}
+
+CBool CInstanceCamera::GetScriptBoolVariable(CChar* variableName)
+{
+	CInt value;
+	CBool result;
+	lua_getglobal(m_lua, variableName);
+	value = lua_toboolean(m_lua, -1);
+	if (value)
+		result = CTrue;
+	else
+		result = CFalse;
+	lua_pop(m_lua, 1);
+	return result;
+}
+
+CInt CInstanceCamera::GetScriptIntVariable(CChar* variableName)
+{
+	CInt value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tointeger(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CDouble CInstanceCamera::GetScriptDoubleVariable(CChar* variableName)
+{
+	CDouble value;
+	lua_getglobal(m_lua, variableName);
+	value = lua_tonumber(m_lua, -1);
+	lua_pop(m_lua, 1);
+	return value;
+}
+
+CVoid CInstanceCamera::SetScriptStringVariable(CChar* variableName, CChar* value)
+{
+	lua_pushstring(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstanceCamera::SetScriptBoolVariable(CChar* variableName, CBool value)
+{
+	lua_pushboolean(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstanceCamera::SetScriptIntVariable(CChar* variableName, CInt value)
+{
+	lua_pushinteger(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstanceCamera::SetScriptDoubleVariable(CChar* variableName, CDouble value)
+{
+	lua_pushnumber(m_lua, value);
+	lua_setglobal(m_lua, variableName);
+}
+
+CVoid CInstanceCamera::InitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Init");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CInstanceCamera::UpdateScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "Update");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
 }
 
 CVoid CCamera::Update( CInt32 sWidth, CInt32 sHeight )

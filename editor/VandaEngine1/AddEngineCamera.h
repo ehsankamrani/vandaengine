@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -54,6 +54,7 @@ public:
 
 	CChar* GetName() { return (CChar*)m_strName.GetBuffer(m_strName.GetLength()); m_strName.ReleaseBuffer(); }
 	CChar* GetTempName() { return (CChar*)m_strTempName.GetBuffer(m_strTempName.GetLength()); m_strTempName.ReleaseBuffer(); }
+	CChar* GetLastName() { return m_lastName; }
 
 	CFloat GetPosX() { return m_posX; }
 	CFloat GetPosY() { return m_posY; }
@@ -65,6 +66,11 @@ public:
 	CFloat GetFOV() { return m_fov; }
 	CFloat GetNCP() { return m_ncp; }
 	CFloat GetFCP() { return m_fcp; }
+
+	CBool GetHasScript() { return m_hasScript; }
+	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
+	CBool GetUpdateScript() { return m_scriptUpdated; }
+
 	afx_msg void OnEnChangeEditCameraName();
 	afx_msg void OnEnChangePosX();
 	afx_msg void OnEnChangePosY();
@@ -143,6 +149,15 @@ public:
 		m_fcp = fcp;
 	}
 
+	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
+	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
+	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
+
+	CVoid SetLastName(CChar* name)
+	{
+		Cpy(m_lastName, name);
+	}
+
 	CBool IsActive() { return m_isActive; }
 	afx_msg void OnBnClickedButtonActivate();
 	CEdit m_editBoxPan;
@@ -150,4 +165,14 @@ public:
 	afx_msg void OnEnChangePan();
 	afx_msg void OnEnChangeTilt();
 	CButton m_activateButton;
+	afx_msg void OnBnClickedBtnAddScript();
+	afx_msg void OnBnClickedBtnRemoveScript();
+	afx_msg void OnBnClickedButtonViewScript();
+	CRichEditCtrl m_editBoxScript;
+
+	private:
+		CBool m_scriptUpdated;
+		CString m_strScript;
+		CBool m_hasScript;
+		CChar m_lastName[MAX_NAME_SIZE];
 };

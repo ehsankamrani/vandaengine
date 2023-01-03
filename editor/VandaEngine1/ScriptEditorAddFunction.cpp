@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // ScriptEditorAddFunction.cpp : implementation file
 //
@@ -239,6 +239,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetLightScriptBoolVariable, "SetLightScriptBoolVariable(string lightName, string variable, bool value)");
 	Cpy(SetLightScriptIntVariable, "SetLightScriptIntVariable(string lightName, string variable, int value)");
 	Cpy(SetLightScriptDoubleVariable, "SetLightScriptDoubleVariable(string lightName, string variable, double value)");
+
+	Cpy(GetCameraScriptStringVariable, "GetCameraScriptStringVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptBoolVariable, "GetCameraScriptBoolVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptIntVariable, "GetCameraScriptIntVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptDoubleVariable, "GetCameraScriptDoubleVariable(string cameraName, string variable)");
+	Cpy(SetCameraScriptStringVariable, "SetCameraScriptStringVariable(string cameraName, string variable, string value)");
+	Cpy(SetCameraScriptBoolVariable, "SetCameraScriptBoolVariable(string cameraName, string variable, bool value)");
+	Cpy(SetCameraScriptIntVariable, "SetCameraScriptIntVariable(string cameraName, string variable, int value)");
+	Cpy(SetCameraScriptDoubleVariable, "SetCameraScriptDoubleVariable(string cameraName, string variable, double value)");
 
 	Cpy(GetMainCharacterScriptStringVariable, "GetMainCharacterScriptStringVariable(string variable)");
 	Cpy(GetMainCharacterScriptBoolVariable, "GetMainCharacterScriptBoolVariable(string variable)");
@@ -1137,6 +1146,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetLightScriptDoubleVariable);
 		}
+		else if (Cmp(szBuffer, "GetCameraScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCameraScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetCameraScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCameraScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetCameraScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCameraScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetCameraScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCameraScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetCameraScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCameraScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetCameraScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCameraScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetCameraScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCameraScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetCameraScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetCameraScriptDoubleVariable);
+		}
 		else if (Cmp(szBuffer, "GetMainCharacterScriptStringVariable"))
 		{
 			m_richFunctionName.SetWindowTextA(GetMainCharacterScriptStringVariable);
@@ -1586,6 +1627,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetLightScriptBoolVariable");
 	InsertItem("SetLightScriptIntVariable");
 	InsertItem("SetLightScriptDoubleVariable");
+
+	InsertItem("GetCameraScriptStringVariable");
+	InsertItem("GetCameraScriptBoolVariable");
+	InsertItem("GetCameraScriptIntVariable");
+	InsertItem("GetCameraScriptDoubleVariable");
+	InsertItem("SetCameraScriptStringVariable");
+	InsertItem("SetCameraScriptBoolVariable");
+	InsertItem("SetCameraScriptIntVariable");
+	InsertItem("SetCameraScriptDoubleVariable");
 
 	InsertItem("GetMainCharacterScriptStringVariable");
 	InsertItem("GetMainCharacterScriptBoolVariable");

@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -252,6 +252,15 @@ private:
 	CChar SetLightScriptBoolVariable[MAX_URI_SIZE];
 	CChar SetLightScriptIntVariable[MAX_URI_SIZE];
 	CChar SetLightScriptDoubleVariable[MAX_URI_SIZE];
+
+	CChar GetCameraScriptStringVariable[MAX_URI_SIZE];
+	CChar GetCameraScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetCameraScriptIntVariable[MAX_URI_SIZE];
+	CChar GetCameraScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetCameraScriptStringVariable[MAX_URI_SIZE];
+	CChar SetCameraScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetCameraScriptIntVariable[MAX_URI_SIZE];
+	CChar SetCameraScriptDoubleVariable[MAX_URI_SIZE];
 
 	CChar GetMainCharacterScriptStringVariable[MAX_URI_SIZE];
 	CChar GetMainCharacterScriptBoolVariable[MAX_URI_SIZE];

@@ -8,7 +8,7 @@
 ///	Purpose: Implimentation of the CTerrainVBOCull class.
 ////////////////////////////////////////////////////////////////////////////
 
-//Modified work: Copyright (C) 2022 Ehsan Kamrani 
+//Modified work: Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 

@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngine1Dlg.cpp : implementation file
@@ -1476,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.5"));
+	SetWindowText(_T("Vanda Engine 1.9.6"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3044,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.5 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.6 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.5 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.6 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.5 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.6 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7608,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.5 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.6 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8041,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8050,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.5 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.6 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -9893,7 +9893,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10736,7 +10736,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10854,6 +10854,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar waterRootPath[MAX_NAME_SIZE];
 		sprintf( waterRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Waters/" );
 
+		CChar cameraRootPath[MAX_NAME_SIZE];
+		sprintf(cameraRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/");
+
 		CChar lightRootPath[MAX_NAME_SIZE];
 		sprintf(lightRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/");
 
@@ -10934,6 +10937,23 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 
 
+		std::vector<std::string> cameraScriptPath;
+		std::vector<std::string> cameraScriptFolderName;
+
+		for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/", g_engineCameraInstances[j]->m_abstractCamera->GetName());
+			cameraScriptPath.push_back(tempScriptPath);
+			cameraScriptFolderName.push_back(g_engineCameraInstances[j]->m_abstractCamera->GetName());
+			g_engineCameraInstances[j]->SetTempScriptPath(tempScriptPath);
+
+			//last script path
+			CChar tempLastScriptPath[MAX_NAME_SIZE];
+			sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/", g_engineCameraInstances[j]->GetLastName());
+			g_engineCameraInstances[j]->SetLastScriptPath(tempLastScriptPath);
+		}
+
 		std::vector<std::string> lightScriptPath;
 		std::vector<std::string> lightScriptFolderName;
 
@@ -10963,6 +10983,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		//Directories of g_currentVSceneName
 		CChar currentWaterRootPath[MAX_NAME_SIZE];
 		sprintf( currentWaterRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Waters/" );
+
+		CChar currentCameraRootPath[MAX_NAME_SIZE];
+		sprintf(currentCameraRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cameras/");
 
 		CChar currentLightRootPath[MAX_NAME_SIZE];
 		sprintf(currentLightRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Lights/");
@@ -11030,6 +11053,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_engineWaters[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
 		}
 
+		std::vector<std::string> currentCameraScriptPath;
+		std::vector<std::string> currentCameraScriptFolderName;
+
+		for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+		{
+			CChar tempCurrentScriptPath[MAX_NAME_SIZE];
+			sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cameras/", g_engineCameraInstances[j]->m_abstractCamera->GetName());
+			currentCameraScriptPath.push_back(tempCurrentScriptPath);
+			currentCameraScriptFolderName.push_back(g_engineCameraInstances[j]->m_abstractCamera->GetName());
+			g_engineCameraInstances[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
+		}
+
 		std::vector<std::string> currentLightScriptPath;
 		std::vector<std::string> currentLightScriptFolderName;
 
@@ -11057,6 +11092,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesAndFoldersInDirectory( waterRootPath );
 			//As Previous functions removes main directory, I'll recreate it
 			CreateWindowsDirectory(waterRootPath);
+
+			//Remove the contents of existing directory
+			RemoveAllFilesAndFoldersInDirectory(cameraRootPath);
+			//As Previous functions removes main directory, I'll recreate it
+			CreateWindowsDirectory(cameraRootPath);
 
 			RemoveAllFilesAndFoldersInDirectory(lightRootPath);
 			//As Previous functions removes main directory, I'll recreate it
@@ -11088,6 +11128,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//create a new directory based on the save file name
 			CreateWindowsDirectory( VScenePath );
 			CreateWindowsDirectory(waterRootPath);
+			CreateWindowsDirectory(cameraRootPath);
 			CreateWindowsDirectory(lightRootPath);
 			CreateWindowsDirectory( soundPath );
 			CreateWindowsDirectory( ambientSoundPath );
@@ -11109,6 +11150,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 			for (CUInt j = 0; j < waterScriptTexturePath.size(); j++)
 				CreateWindowsDirectory((CChar*)waterScriptTexturePath[j].c_str());
+
+			for (CUInt j = 0; j < cameraScriptPath.size(); j++)
+				CreateWindowsDirectory((CChar*)cameraScriptPath[j].c_str());
 
 			for (CUInt j = 0; j < lightScriptPath.size(); j++)
 				CreateWindowsDirectory((CChar*)lightScriptPath[j].c_str());
@@ -11289,6 +11333,70 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				sprintf(tempDirectory, "%s%s%d/", waterRootPath, "temp", j);
 
 				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, waterRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+			///////
+
+			//Camera
+			for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", cameraRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engineCameraInstances[j]->GetLastName(), g_engineCameraInstances[j]->m_abstractCamera->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engineCameraInstances[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engineCameraInstances[j]->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/temp", j, "/", g_engineCameraInstances[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/temp", j, "/", g_engineCameraInstances[j]->m_abstractCamera->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engineCameraInstances[j]->GetHasScript() && g_engineCameraInstances[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineCameraInstances[j]->GetScript(), tempScriptPath);
+						g_engineCameraInstances[j]->SetUpdateScript(CFalse);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engineCameraInstances[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_engineCameraInstances[j]->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engineCameraInstances[j]->GetHasScript() && g_engineCameraInstances[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineCameraInstances[j]->GetScript(), g_engineCameraInstances[j]->GetTempScriptPath());
+						g_engineCameraInstances[j]->SetUpdateScript(CFalse);
+					}
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engineCameraInstances[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engineCameraInstances[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engineCameraInstances[j]->SetScript(NewPathAndName);
+
+				g_engineCameraInstances[j]->SetLastName(g_engineCameraInstances[j]->m_abstractCamera->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", cameraRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, cameraRootPath);
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
@@ -11581,6 +11689,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		{
 			//copy the assets from current place to the saved directory
 			CopyAllFilesAndFoldersToDstDirectory(currentWaterRootPath, waterRootPath);
+			CopyAllFilesAndFoldersToDstDirectory(currentCameraRootPath, cameraRootPath);
 			CopyAllFilesAndFoldersToDstDirectory(currentLightRootPath, lightRootPath);
 			CopyAllFilesFromSrcToDstDirectory(currentAmbientSoundPath, ambientSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(current3DSoundPath, ThreeDSoundPath);
@@ -11764,6 +11873,70 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				sprintf(tempDirectory, "%s%s%d/", waterRootPath, "temp", j);
 
 				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, waterRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+			/////////
+
+			//Camera
+			for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", cameraRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engineCameraInstances[j]->GetLastName(), g_engineCameraInstances[j]->m_abstractCamera->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engineCameraInstances[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engineCameraInstances[j]->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/temp", j, "/", g_engineCameraInstances[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/temp", j, "/", g_engineCameraInstances[j]->m_abstractCamera->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engineCameraInstances[j]->GetHasScript() && g_engineCameraInstances[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineCameraInstances[j]->GetScript(), tempScriptPath);
+						g_engineCameraInstances[j]->SetUpdateScript(CFalse);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engineCameraInstances[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_engineCameraInstances[j]->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engineCameraInstances[j]->GetHasScript() && g_engineCameraInstances[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engineCameraInstances[j]->GetScript(), g_engineCameraInstances[j]->GetTempScriptPath());
+						g_engineCameraInstances[j]->SetUpdateScript(CFalse);
+					}
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engineCameraInstances[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engineCameraInstances[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engineCameraInstances[j]->SetScript(NewPathAndName);
+
+				g_engineCameraInstances[j]->SetLastName(g_engineCameraInstances[j]->m_abstractCamera->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", cameraRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, cameraRootPath);
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
@@ -12263,6 +12436,73 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		m_deletedWaterObjects.clear();
 		///////
+
+		//Camera
+		for (CUInt sc = 0; sc < cameraScriptPath.size(); sc++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s", cameraScriptPath[sc].c_str(), "*.*");
+			hFind = FindFirstFile(tempScriptPath, &data);
+			do
+			{
+				CChar scriptTempPath[MAX_NAME_SIZE];
+				sprintf(scriptTempPath, "%s%s", cameraScriptPath[sc].c_str(), data.cFileName);
+
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+				{
+					if (Cmp(g_engineCameraInstances[j]->m_abstractCamera->GetName(), cameraScriptFolderName[sc].c_str()))
+					{
+						if (g_engineCameraInstances[j]->GetHasScript() && Cmp(GetAfterPath(g_engineCameraInstances[j]->GetScript()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+
+					}
+				}
+
+				//Remove Files
+				if (!foundTarget)
+				{
+					if (!DeleteFile(scriptTempPath))
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+						//PrintInfo( temp, COLOR_RED );
+					}
+				}
+			} while (FindNextFile(hFind, &data));
+			FindClose(hFind);
+		}
+
+		cameraScriptPath.clear();
+		cameraScriptFolderName.clear();
+
+		//Delete removed camera object's folders
+		for (CUInt k = 0; k < m_deletedCameraObjects.size(); k++)
+		{
+			CBool foundTarget = CFalse;
+			for (CUInt j = 0; j < g_engineCameraInstances.size(); j++)
+			{
+				if (Cmp(m_deletedCameraObjects[k].c_str(), g_engineCameraInstances[j]->m_abstractCamera->GetName()))
+				{
+					foundTarget = CTrue;
+					break;
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar tempScriptPath[MAX_NAME_SIZE];
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/", (CChar*)m_deletedCameraObjects[k].c_str());
+				RemoveAllFilesInDirectory(tempScriptPath);
+				RemoveDirectoryA(tempScriptPath);
+			}
+		}
+
+		m_deletedCameraObjects.clear();
+		///////
+
 
 		//Light
 		for (CUInt sc = 0; sc < lightScriptPath.size(); sc++)
@@ -12935,6 +13175,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&fov, sizeof(CFloat), 1, filePtr);
 			fwrite(&ncp, sizeof(CFloat), 1, filePtr);
 			fwrite(&fcp, sizeof(CFloat), 1, filePtr);
+
+			CBool cameraHasScript = g_engineCameraInstances[i]->GetHasScript();
+			fwrite(&cameraHasScript, sizeof(CBool), 1, filePtr);
+			fwrite(g_engineCameraInstances[i]->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		}
 
 		//save 3D sounds data
@@ -13179,7 +13423,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -14329,7 +14573,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -16155,7 +16399,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.5 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17451,6 +17695,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			{
 				CChar cameraName[MAX_NAME_SIZE];
 				CFloat pos[3], pan, tilt, fov, ncp, fcp;
+				CBool cameraHasScript;
+				CChar cameraScript[MAX_NAME_SIZE];
 
 				fread(cameraName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(pos, sizeof(CFloat), 3, filePtr);
@@ -17459,6 +17705,12 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&fov, sizeof(CFloat), 1, filePtr);
 				fread(&ncp, sizeof(CFloat), 1, filePtr);
 				fread(&fcp, sizeof(CFloat), 1, filePtr);
+				fread(&cameraHasScript, sizeof(CBool), 1, filePtr);
+				fread(&cameraScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+				CChar scriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(cameraScript);
+				sprintf(scriptPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cameras/", cameraName, "/", tempScriptPath);
 
 				CInstanceCamera* instance_camera = new CInstanceCamera();
 				CCamera* abstract_camera = new CCamera();
@@ -17478,9 +17730,14 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				instance_camera->SetNCP(ncp);
 				instance_camera->SetFCP(fcp);
 
+				instance_camera->SetLastName(cameraName);
+				instance_camera->SetHasScript(cameraHasScript);
+				instance_camera->SetScript(scriptPath);
+
 				instance_camera->MoveTransform2(vec_pos.x, vec_pos.y, vec_pos.z);
 				instance_camera->SetPanAndTilt2(pan, tilt);
 				instance_camera->ZoomTransform2(0.0f);
+
 
 				instance_camera->SetIndex();
 
@@ -18088,7 +18345,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -18987,6 +19244,8 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 						g_showArrow = CFalse;
 					}
 
+					m_deletedCameraObjects.push_back(g_engineCameraInstances[i]->m_abstractCamera->GetName());
+
 					CDelete(g_engineCameraInstances[i]);
 					g_engineCameraInstances.erase(g_engineCameraInstances.begin() + i);
 
@@ -19737,6 +19996,12 @@ CVoid CVandaEngine1Dlg::ChangeEngineCameraProperties(CInstanceCamera* camera)
 	m_dlgAddEngineCamera->SetFOV(camera->m_abstractCamera->GetAngle());
 	m_dlgAddEngineCamera->SetFCP(camera->GetFCP());
 	m_dlgAddEngineCamera->SetNCP(camera->GetNCP());
+
+	m_dlgAddEngineCamera->SetLastName(camera->GetLastName());
+	m_dlgAddEngineCamera->SetUpdateScript(camera->GetUpdateScript());
+	m_dlgAddEngineCamera->SetHasScript(camera->GetHasScript());
+	m_dlgAddEngineCamera->SetScriptPath(camera->GetScript());
+
 	m_dlgAddEngineCamera->SetCreate(CFalse);
 	CFloat speed = camera->GetCameraSpeed();
 	INT_PTR result = m_dlgAddEngineCamera->DoModal();
@@ -19783,6 +20048,11 @@ CVoid CVandaEngine1Dlg::ChangeEngineCameraProperties(CInstanceCamera* camera)
 		instance_camera->SetPan(m_dlgAddEngineCamera->GetPan());
 		instance_camera->SetTilt(m_dlgAddEngineCamera->GetTilt());
 		instance_camera->SetCameraSpeed(speed);
+
+		instance_camera->SetLastName(m_dlgAddEngineCamera->GetLastName());
+		instance_camera->SetUpdateScript(m_dlgAddEngineCamera->GetUpdateScript());
+		instance_camera->SetHasScript(m_dlgAddEngineCamera->GetHasScript());
+		instance_camera->SetScript(m_dlgAddEngineCamera->GetScriptPath());
 
 		instance_camera->MoveTransform2(pos.x, pos.y, pos.z);
 		instance_camera->SetPanAndTilt2(m_dlgAddEngineCamera->GetPan(), m_dlgAddEngineCamera->GetTilt());
@@ -22954,6 +23224,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar originalLightPath[MAX_NAME_SIZE];
 			sprintf(originalLightPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Lights/");
 
+			CChar originalCameraPath[MAX_NAME_SIZE];
+			sprintf(originalCameraPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Cameras/");
+
 			CChar originalSoundPath[MAX_NAME_SIZE];
 			sprintf( originalSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/" );
 
@@ -23011,6 +23284,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			sprintf(lightPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Lights/");
 			CreateWindowsDirectory(lightPath);
 			CopyAllFilesAndFoldersToDstDirectory(originalLightPath, lightPath);
+
+			PrintInfo("\nPublishing Cameras...");
+
+			CChar CameraPath[MAX_NAME_SIZE];
+			sprintf(CameraPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Cameras/");
+			CreateWindowsDirectory(CameraPath);
+			CopyAllFilesAndFoldersToDstDirectory(originalCameraPath, CameraPath);
 
 			//sounds
 			CChar soundPath[MAX_NAME_SIZE];
@@ -24984,6 +25264,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 				g_engineLights[i]->m_abstractLight->LoadLuaFile();
 		}
 
+		//Cameras
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			if (g_engineCameraInstances[i]->GetHasScript())
+				g_engineCameraInstances[i]->LoadLuaFile();
+		}
+
 		//guis
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -25736,6 +26023,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			if (g_engineLights[i]->m_abstractLight->GetHasScript())
 				g_engineLights[i]->m_abstractLight->InitScript();
+		}
+
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			if (g_engineCameraInstances[i]->GetHasScript())
+				g_engineCameraInstances[i]->InitScript();
 		}
 
 	}
@@ -27785,6 +28078,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertEngineCamera()
 		instance_camera->SetFCP(m_dlgAddEngineCamera->GetFCP());
 		instance_camera->SetPan(m_dlgAddEngineCamera->GetPan());
 		instance_camera->SetTilt(m_dlgAddEngineCamera->GetTilt());
+
+		instance_camera->SetLastName(m_dlgAddEngineCamera->GetName());
+		instance_camera->SetUpdateScript(m_dlgAddEngineCamera->GetUpdateScript());
+		instance_camera->SetHasScript(m_dlgAddEngineCamera->GetHasScript());
+		instance_camera->SetScript(m_dlgAddEngineCamera->GetScriptPath());
 
 		instance_camera->MoveTransform2(pos.x, pos.y, pos.z);
 		instance_camera->SetPanAndTilt2(m_dlgAddEngineCamera->GetPan(), m_dlgAddEngineCamera->GetTilt());

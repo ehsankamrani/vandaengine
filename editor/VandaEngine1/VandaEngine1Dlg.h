@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngine1Dlg.h : header file
@@ -886,6 +886,7 @@ public:
 	CVec3f m_initCharacterTranslate;
 	std::vector<std::string> m_deletedTriggerObjects;
 	std::vector<std::string> m_deletedWaterObjects;
+	std::vector<std::string> m_deletedCameraObjects;
 	std::vector<std::string> m_deletedLightObjects;
 protected:
 	virtual void OnCancel();

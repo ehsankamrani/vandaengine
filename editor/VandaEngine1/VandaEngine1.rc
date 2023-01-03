@@ -1084,34 +1084,39 @@ BEGIN
     EDITTEXT        IDC_EDIT_TERRAIN_NAME,66,22,142,14,ES_AUTOHSCROLL
 END
 
-IDD_DIALOG_ADD_CAMERA DIALOGEX 0, 0, 265, 232
+IDD_DIALOG_ADD_CAMERA DIALOGEX 0, 0, 265, 309
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Engine Camera Properties"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,152,211,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,209,211,48,14
+    DEFPUSHBUTTON   "OK",IDOK,152,288,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,209,288,48,14
     EDITTEXT        IDC_POS_X,34,51,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_POS_Y,102,51,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_POS_Z,176,51,40,14,ES_AUTOHSCROLL
-    LTEXT           "Near Clip Plane",IDC_STATIC,20,143,50,10
-    EDITTEXT        IDC_NCP,72,141,39,15,ES_AUTOHSCROLL
-    LTEXT           "Far Clip Plane",IDC_STATIC,150,143,46,10
-    EDITTEXT        IDC_FCP,206,141,40,15,ES_AUTOHSCROLL
+    LTEXT           "Near Clip Plane",IDC_STATIC,20,140,50,10
+    EDITTEXT        IDC_NCP,72,138,39,15,ES_AUTOHSCROLL
+    LTEXT           "Far Clip Plane",IDC_STATIC,150,140,46,10
+    EDITTEXT        IDC_FCP,206,138,40,15,ES_AUTOHSCROLL
     LTEXT           "X",IDC_STATIC,19,54,8,10
     LTEXT           "Y",IDC_STATIC,89,54,8,10
     LTEXT           "Z",IDC_STATIC,157,54,8,10
-    LTEXT           "Angle",IDC_STATIC,20,171,45,10
-    EDITTEXT        IDC_FOV,72,169,39,15,ES_AUTOHSCROLL
+    LTEXT           "Angle",IDC_STATIC,20,168,45,10
+    EDITTEXT        IDC_FOV,72,166,39,15,ES_AUTOHSCROLL
     LTEXT           "Name",IDC_STATIC,12,11,29,11
     EDITTEXT        IDC_EDIT_CAMERA_NAME,45,9,121,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Activate",IDC_BUTTON_ACTIVATE,92,211,50,14
-    LTEXT           "Pan",IDC_STATIC,21,111,49,10
-    EDITTEXT        IDC_PAN,72,109,39,15,ES_AUTOHSCROLL
-    LTEXT           "Tilt",IDC_STATIC,151,111,46,10
-    EDITTEXT        IDC_TILT,206,109,40,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "Activate",IDC_BUTTON_ACTIVATE,92,288,50,14
+    LTEXT           "Pan",IDC_STATIC,21,108,49,10
+    EDITTEXT        IDC_PAN,72,106,39,15,ES_AUTOHSCROLL
+    LTEXT           "Tilt",IDC_STATIC,151,108,46,10
+    EDITTEXT        IDC_TILT,206,106,40,15,ES_AUTOHSCROLL
     GROUPBOX        "Position",IDC_STATIC,12,32,244,47
-    GROUPBOX        "Properties",IDC_STATIC,12,90,246,106
+    GROUPBOX        "Properties",IDC_STATIC,12,87,246,106
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,80,245,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,138,245,50,14
+    CONTROL         "",IDC_EDIT_CAMERA_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,19,220,227,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,196,245,50,14
+    GROUPBOX        "Script",IDC_STATIC,7,202,251,69
 END
 
 IDD_DIALOG_BACKUP_ALL_PROJECTS DIALOGEX 0, 0, 301, 71
@@ -1760,7 +1765,7 @@ BEGIN
         VERTGUIDE, 206
         VERTGUIDE, 246
         TOPMARGIN, 7
-        BOTTOMMARGIN, 225
+        BOTTOMMARGIN, 302
         HORZGUIDE, 13
     END
 
@@ -2742,8 +2747,8 @@ BEGIN
     LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
     CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 1.9.5",IDC_STATIC,7,33,60,8
-    LTEXT           "© 2022 Ehsan Kamrani",IDC_STATIC,7,50,126,9
+    LTEXT           "Version 1.9.6",IDC_STATIC,7,33,60,8
+    LTEXT           "© 2023 Ehsan Kamrani",IDC_STATIC,7,50,126,9
     CONTROL         "Donate",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
     LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
     CONTROL         "Website",IDOFFICIALWEBSITE,"Button",BS_OWNERDRAW | WS_TABSTOP,77,91,52,16
@@ -2900,7 +2905,7 @@ CAPTION "About Vanda Engine 1.6"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 1.9.5",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 1.9.6",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -3458,12 +3463,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "1.9.5"
+            VALUE "FileVersion", "1.9.6"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "1.9.5"
+            VALUE "ProductVersion", "1.9.6"
         END
     END
     BLOCK "VarFileInfo"

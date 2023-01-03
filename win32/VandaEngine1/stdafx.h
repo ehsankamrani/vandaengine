@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // stdafx.h : include file for standard system include files,
@@ -289,6 +289,15 @@ CInt SetLightScriptStringVariable(lua_State* L);
 CInt SetLightScriptBoolVariable(lua_State* L);
 CInt SetLightScriptIntVariable(lua_State* L);
 CInt SetLightScriptDoubleVariable(lua_State* L);
+
+CInt GetCameraScriptStringVariable(lua_State* L);
+CInt GetCameraScriptBoolVariable(lua_State* L);
+CInt GetCameraScriptIntVariable(lua_State* L);
+CInt GetCameraScriptDoubleVariable(lua_State* L);
+CInt SetCameraScriptStringVariable(lua_State* L);
+CInt SetCameraScriptBoolVariable(lua_State* L);
+CInt SetCameraScriptIntVariable(lua_State* L);
+CInt SetCameraScriptDoubleVariable(lua_State* L);
 
 CInt GetMainCharacterScriptStringVariable(lua_State* L);
 CInt GetMainCharacterScriptBoolVariable(lua_State* L);

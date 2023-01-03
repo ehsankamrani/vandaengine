@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani 
+//Copyright (C) 2023 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -9383,6 +9383,380 @@ CInt SetLightScriptDoubleVariable(lua_State* L)
 }
 
 
+CInt GetCameraScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetCameraScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			value = g_engineCameraInstances[i]->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetCameraScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetCameraScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetCameraScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			value = g_engineCameraInstances[i]->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetCameraScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' Camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetCameraScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetCameraScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			value = g_engineCameraInstances[i]->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetCameraScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetCameraScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetCameraScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			value = g_engineCameraInstances[i]->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetCameraScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetCameraScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetCameraScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			g_engineCameraInstances[i]->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetCameraScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetCameraScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetCameraScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			g_engineCameraInstances[i]->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetCameraScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetCameraScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetCameraScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			g_engineCameraInstances[i]->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetCameraScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetCameraScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetCameraScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCamera = CTrue;
+			g_engineCameraInstances[i]->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetCameraScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+
 CInt GetMainCharacterScriptStringVariable(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -13418,6 +13792,12 @@ CBool CMain::Render()
 			g_engineLights[i]->m_abstractLight->UpdateScript();
 	}
 
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		if (g_engineCameraInstances[i]->GetHasScript())
+			g_engineCameraInstances[i]->UpdateScript();
+	}
+
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
 
@@ -16893,6 +17273,8 @@ CBool CMain::Load(CChar* pathName)
 	{
 		CChar cameraName[MAX_NAME_SIZE];
 		CFloat pos[3], pan, tilt, fov, ncp, fcp;
+		CBool cameraHasScript;
+		CChar cameraScript[MAX_NAME_SIZE];
 
 		fread(cameraName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(pos, sizeof(CFloat), 3, filePtr);
@@ -16901,6 +17283,12 @@ CBool CMain::Load(CChar* pathName)
 		fread(&fov, sizeof(CFloat), 1, filePtr);
 		fread(&ncp, sizeof(CFloat), 1, filePtr);
 		fread(&fcp, sizeof(CFloat), 1, filePtr);
+		fread(&cameraHasScript, sizeof(CBool), 1, filePtr);
+		fread(&cameraScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+
+		CChar script[MAX_NAME_SIZE];
+		CChar* scriptAfterPath = GetAfterPath(cameraScript);
+		sprintf(script, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Cameras/", cameraName, "/", scriptAfterPath);
 
 		CInstanceCamera* instance_camera = new CInstanceCamera();
 		CCamera* abstract_camera = new CCamera();
@@ -16918,12 +17306,15 @@ CBool CMain::Load(CChar* pathName)
 		instance_camera->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
 		instance_camera->SetNCP(ncp);
 		instance_camera->SetFCP(fcp);
+		instance_camera->SetHasScript(cameraHasScript);
+		instance_camera->SetScript(script);
 
 		instance_camera->SetIndex();
 
 		instance_camera->MoveTransform2(vec_pos.x, vec_pos.y, vec_pos.z);
 		instance_camera->SetPanAndTilt2(pan, tilt);
 		instance_camera->ZoomTransform2(0.0f);
+		instance_camera->LoadLuaFile();
 
 		g_engineCameraInstances.push_back(instance_camera);
 	}
@@ -17597,6 +17988,12 @@ CBool CMain::Load(CChar* pathName)
 	{
 		if (g_engineLights[i]->m_abstractLight->GetHasScript())
 			g_engineLights[i]->m_abstractLight->InitScript();
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		if (g_engineCameraInstances[i]->GetHasScript())
+			g_engineCameraInstances[i]->InitScript();
 	}
 
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
@@ -19162,7 +19559,7 @@ CVoid CMain::DrawGUI()
 
 	g_font->StartRendering();
 	//g_font->Print( "Vanda Engine 1", 10.0f, 980.0f, 0.0f, 1.0f, 1.0f, 1.0f );
-	//g_font->Print( "Copyright (C) 2022 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
+	//g_font->Print( "Copyright (C) 2023 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "http://www.vandaengine.org", 10.0f, 920.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "Press F4 for help...", 10.0f, 890.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 
