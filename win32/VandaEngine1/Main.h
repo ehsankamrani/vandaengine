@@ -14,7 +14,6 @@
 #include "graphicsEngine/terrain.h"
 //#include "graphicsEngine/imagelib.h"
 #include "graphicsEngine/shadowMap.h"
-#include "graphicsEngine/particleSystem.h"
 #include "graphicsEngine/dof.h"
 #include "graphicsEngine/simpleFont.h"
 #include "PhysXEngine/Nx.h"
@@ -62,7 +61,6 @@ public:
 	CBool Load( CChar* pathName );
 	CBool Reset();
 	CVoid ResetTimer();
-	CParticleSystem* m_particleSystem;
 	CBool m_bQuery;
 	CBool m_renderQuery;
 	std::vector<CFloat> distance_vector;

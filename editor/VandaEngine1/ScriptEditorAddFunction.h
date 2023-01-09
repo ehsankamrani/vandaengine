@@ -208,6 +208,15 @@ private:
 	CChar SetSkyScriptIntVariable[MAX_URI_SIZE];
 	CChar SetSkyScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar GetTerrainScriptStringVariable[MAX_URI_SIZE];
+	CChar GetTerrainScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetTerrainScriptIntVariable[MAX_URI_SIZE];
+	CChar GetTerrainScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetTerrainScriptStringVariable[MAX_URI_SIZE];
+	CChar SetTerrainScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetTerrainScriptIntVariable[MAX_URI_SIZE];
+	CChar SetTerrainScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar GetPrefabInstanceScriptStringVariable[MAX_URI_SIZE];
 	CChar GetPrefabInstanceScriptBoolVariable[MAX_URI_SIZE];
 	CChar GetPrefabInstanceScriptIntVariable[MAX_URI_SIZE];

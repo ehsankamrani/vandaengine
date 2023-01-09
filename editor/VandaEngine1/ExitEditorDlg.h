@@ -1,3 +1,6 @@
+//Copyright (C) 2023 Ehsan Kamrani 
+//This file is licensed and distributed under MIT license
+
 #pragma once
 #include "afxwin.h"
 #include "CustomButton.h"

@@ -124,8 +124,6 @@
     <ClCompile Include="AudioEngine\3DSound.cpp" />
     <ClCompile Include="Common\Prefab.cpp" />
     <ClCompile Include="Common\VSceneScript.cpp" />
-    <ClCompile Include="GraphicsEngine\Actions.cpp" />
-    <ClCompile Include="GraphicsEngine\ActionsAPI.cpp" />
     <ClCompile Include="AudioEngine\AmbientSound.cpp" />
     <ClCompile Include="GraphicsEngine\Animation.cpp" />
     <ClCompile Include="GraphicsEngine\AVI.cpp" />
@@ -191,9 +189,6 @@
     <ClCompile Include="GraphicsEngine\OpenGLMatrix.cpp" />
     <ClCompile Include="GraphicsEngine\OpenGLUtility.cpp" />
     <ClCompile Include="GraphicsEngine\Orient.cpp" />
-    <ClCompile Include="GraphicsEngine\OtherAPI.cpp" />
-    <ClCompile Include="GraphicsEngine\ParticleSystem.cpp" />
-    <ClCompile Include="GraphicsEngine\PInternalState.cpp" />
     <ClCompile Include="Common\Point.cpp" />
     <ClCompile Include="GraphicsEngine\Render.cpp" />
     <ClCompile Include="GraphicsEngine\Scene.cpp" />
@@ -293,16 +288,7 @@
     <ClInclude Include="GraphicsEngine\OpenGLMatrix.h" />
     <ClInclude Include="GraphicsEngine\OpenGLUtility.h" />
     <ClInclude Include="GraphicsEngine\Orient.h" />
-    <ClInclude Include="GraphicsEngine\pAPI.h" />
-    <ClInclude Include="GraphicsEngine\Particle.h" />
-    <ClInclude Include="GraphicsEngine\ParticleGroup.h" />
-    <ClInclude Include="GraphicsEngine\ParticleSystem.h" />
-    <ClInclude Include="GraphicsEngine\pDomain.h" />
-    <ClInclude Include="GraphicsEngine\pError.h" />
-    <ClInclude Include="GraphicsEngine\PInternalSourceState.h" />
-    <ClInclude Include="GraphicsEngine\PInternalState.h" />
     <ClInclude Include="Common\Point.h" />
-    <ClInclude Include="GraphicsEngine\pVec.h" />
     <ClInclude Include="GraphicsEngine\Render.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="GraphicsEngine\Scene.h" />

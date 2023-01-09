@@ -247,6 +247,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetSkyScriptIntVariable", SetSkyScriptIntVariable);
 	lua_register(L, "SetSkyScriptDoubleVariable", SetSkyScriptDoubleVariable);
 
+	lua_register(L, "GetTerrainScriptStringVariable", GetTerrainScriptStringVariable);
+	lua_register(L, "GetTerrainScriptBoolVariable", GetTerrainScriptBoolVariable);
+	lua_register(L, "GetTerrainScriptIntVariable", GetTerrainScriptIntVariable);
+	lua_register(L, "GetTerrainScriptDoubleVariable", GetTerrainScriptDoubleVariable);
+	lua_register(L, "SetTerrainScriptStringVariable", SetTerrainScriptStringVariable);
+	lua_register(L, "SetTerrainScriptBoolVariable", SetTerrainScriptBoolVariable);
+	lua_register(L, "SetTerrainScriptIntVariable", SetTerrainScriptIntVariable);
+	lua_register(L, "SetTerrainScriptDoubleVariable", SetTerrainScriptDoubleVariable);
+
 	lua_register(L, "GetPrefabInstanceScriptStringVariable", GetPrefabInstanceScriptStringVariable);
 	lua_register(L, "GetPrefabInstanceScriptBoolVariable", GetPrefabInstanceScriptBoolVariable);
 	lua_register(L, "GetPrefabInstanceScriptIntVariable", GetPrefabInstanceScriptIntVariable);

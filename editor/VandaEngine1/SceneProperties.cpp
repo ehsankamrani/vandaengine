@@ -293,7 +293,13 @@ void CSceneProperties::OnBnClickedBtnAddPrefabScript()
 
 void CSceneProperties::OnBnClickedBtnRemovePrefabScript()
 {
-	if (!m_strScriptName.IsEmpty())
+	if (!m_hasScript)
+	{
+		MessageBox("Script was not found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_hasScript)
 	{
 		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
 		{
@@ -322,7 +328,7 @@ void CSceneProperties::OnBnClickedButtonCopyAnimation()
 
 void CSceneProperties::OnBnClickedButtonViewScript()
 {
-	if (m_strScriptName.IsEmpty())
+	if (!m_hasScript)
 	{
 		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
 		return;

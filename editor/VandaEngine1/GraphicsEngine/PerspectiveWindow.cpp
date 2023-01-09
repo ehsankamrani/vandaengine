@@ -10144,6 +10144,244 @@ CInt SetSkyScriptDoubleVariable(lua_State* L)
 	return 0;
 }
 
+
+CInt GetTerrainScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetTerrainScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar* value = NULL;
+	if (g_terrain)
+	{
+		value = g_terrain->GetScriptStringVariable(luaToString);
+	}
+	else
+	{
+		return 0;
+	}
+
+	lua_pushstring(L, value);
+
+	free(value);
+
+	return 1;
+}
+
+CInt GetTerrainScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetTerrainScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool value;
+	if (g_terrain)
+	{
+		value = g_terrain->GetScriptBoolVariable(luaToString);
+	}
+	lua_pushboolean(L, value);
+
+	return 1;
+}
+
+CInt GetTerrainScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetTerrainScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	if (g_terrain)
+	{
+		value = g_terrain->GetScriptIntVariable(luaToString);
+	}
+	lua_pushinteger(L, value);
+
+	return 1;
+}
+
+CInt GetTerrainScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetTerrainScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	if (g_terrain)
+	{
+		value = g_terrain->GetScriptDoubleVariable(luaToString);
+	}
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt SetTerrainScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetTerrainScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar value[MAX_URI_SIZE];
+	Cpy(value, lua_tostring(L, 2));
+	if (g_terrain)
+	{
+		g_terrain->SetScriptStringVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetTerrainScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetTerrainScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CBool bValue;
+	CInt iValue;
+	iValue = lua_toboolean(L, 2);
+	if (iValue)
+		bValue = CTrue;
+	else
+		bValue = CFalse;
+	if (g_terrain)
+	{
+		g_terrain->SetScriptBoolVariable(luaToString, bValue);
+	}
+
+	return 0;
+}
+
+CInt SetTerrainScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetTerrainScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CInt value;
+	value = lua_tointeger(L, 2);
+	if (g_terrain)
+	{
+		g_terrain->SetScriptIntVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+CInt SetTerrainScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 argument for SetTerrainScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_GUI || g_editorMode == eMODE_PREFAB)
+		return 0;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CDouble value;
+	value = lua_tonumber(L, 2);
+	if (g_terrain)
+	{
+		g_terrain->SetScriptDoubleVariable(luaToString, value);
+	}
+
+	return 0;
+}
+
+
 CInt GetPrefabInstanceScriptStringVariable(lua_State* L)
 {
 	if (g_testScript)
@@ -22934,6 +23172,9 @@ CVoid CMultipleWindows::DrawPerspective()
 
 			if (g_skyDome)
 				g_skyDome->UpdateScript();
+
+			if (g_terrain)
+				g_terrain->UpdateScript();
 
 			if (g_mainCharacter)
 				g_mainCharacter->UpdateScript();

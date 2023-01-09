@@ -87,6 +87,12 @@ void CAddVSceneScriptObject::OnBnClickedButtonAddScript()
 
 void CAddVSceneScriptObject::OnBnClickedButtonRemoveScript()
 {
+	if (m_strScript.IsEmpty())
+	{
+		MessageBox("No script was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if (!m_strScript.IsEmpty())
 	{
 		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)

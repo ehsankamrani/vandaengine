@@ -188,6 +188,10 @@ public:
 		}
 	}
 
+	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
+	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
+	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
+
 	CButton m_checkBoxFlatten;
 	afx_msg void OnEnChangeEditSlopeFactor();
 	afx_msg void OnEnChangeEditStartHeight();
@@ -226,4 +230,17 @@ public:
 
 	CBool GetChangedHeightMap() { return m_changedHeightMap; }
 
+	CBool GetHasScript() { return m_hasScript; }
+	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
+	CBool GetUpdateScript() { return m_scriptUpdated; }
+
+	CRichEditCtrl m_editBoxScript;
+	afx_msg void OnBnClickedBtnAddScript();
+	afx_msg void OnBnClickedBtnRemoveScript();
+	afx_msg void OnBnClickedButtonViewScript();
+
+	private:
+		CBool m_scriptUpdated;
+		CString m_strScript;
+		CBool m_hasScript;
 };

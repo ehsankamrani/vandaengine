@@ -289,6 +289,15 @@ CInt SetSkyScriptBoolVariable(lua_State* L);
 CInt SetSkyScriptIntVariable(lua_State* L);
 CInt SetSkyScriptDoubleVariable(lua_State* L);
 
+CInt GetTerrainScriptStringVariable(lua_State* L);
+CInt GetTerrainScriptBoolVariable(lua_State* L);
+CInt GetTerrainScriptIntVariable(lua_State* L);
+CInt GetTerrainScriptDoubleVariable(lua_State* L);
+CInt SetTerrainScriptStringVariable(lua_State* L);
+CInt SetTerrainScriptBoolVariable(lua_State* L);
+CInt SetTerrainScriptIntVariable(lua_State* L);
+CInt SetTerrainScriptDoubleVariable(lua_State* L);
+
 CInt GetPrefabInstanceScriptStringVariable(lua_State* L);
 CInt GetPrefabInstanceScriptBoolVariable(lua_State* L);
 CInt GetPrefabInstanceScriptIntVariable(lua_State* L);

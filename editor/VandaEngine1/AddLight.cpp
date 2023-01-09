@@ -649,7 +649,13 @@ void CAddLight::OnBnClickedBtnAddLightScript()
 
 void CAddLight::OnBnClickedBtnRemoveLightScript()
 {
-	if (!m_strScript.IsEmpty())
+	if (!m_hasScript)
+	{
+		MessageBox("No script was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_hasScript)
 	{
 		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
 		{
@@ -663,7 +669,7 @@ void CAddLight::OnBnClickedBtnRemoveLightScript()
 
 void CAddLight::OnBnClickedButtonViewLightScript()
 {
-	if (m_strScript.IsEmpty())
+	if (!m_hasScript)
 	{
 		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
 		return;

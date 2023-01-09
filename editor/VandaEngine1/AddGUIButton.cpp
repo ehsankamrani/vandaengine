@@ -370,6 +370,12 @@ void CAddGUIButton::OnBnClickedButtonAddLeftClkImg()
 
 void CAddGUIButton::OnBnClickedButtonRemoveLeftClkImg()
 {
+	if (m_strLeftClickImgPath.IsEmpty())
+	{
+		MessageBox("No image was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if (!m_strLeftClickImgPath.IsEmpty())
 		if (MessageBox("Delete current left click image?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
 			return;
@@ -530,6 +536,12 @@ void CAddGUIButton::OnBnClickedButtonAddHoverImg()
 
 void CAddGUIButton::OnBnClickedButtonRemoveHoverImg()
 {
+	if (m_strHoverImgPath.IsEmpty())
+	{
+		MessageBox("No image was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if (!m_strHoverImgPath.IsEmpty())
 		if (MessageBox("Delete current hover image?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
 			return;
@@ -692,6 +704,12 @@ void CAddGUIButton::OnBnClickedButtonAddRightClkImg()
 
 void CAddGUIButton::OnBnClickedButtonRemoveRightClkImg()
 {
+	if (m_strRightClickImgPath.IsEmpty())
+	{
+		MessageBox("No image was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if (!m_strRightClickImgPath.IsEmpty())
 		if (MessageBox("Delete current right click image?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
 			return;
@@ -854,6 +872,13 @@ void CAddGUIButton::OnBnClickedButtonAddDisableImg()
 
 void CAddGUIButton::OnBnClickedButtonRemoveDisableImg()
 {
+	if (m_strDisableImgPath.IsEmpty())
+	{
+		MessageBox("No image was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+
 	if (!m_strDisableImgPath.IsEmpty())
 		if (MessageBox("Delete current disable image?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
 			return;
@@ -906,6 +931,12 @@ void CAddGUIButton::OnBnClickedButtonAddScript()
 
 void CAddGUIButton::OnBnClickedButtonRemoveScript()
 {
+	if (m_strScriptPath.IsEmpty())
+	{
+		MessageBox("No script was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	if (!m_strScriptPath.IsEmpty())
 		if (MessageBox("Delete current script?", "Warning", MB_YESNO | MB_ICONINFORMATION) == IDNO)
 			return;

@@ -1,4 +1,4 @@
-//Vanda Engine version 1.9.6
+//Vanda Engine version 1.9.7
 //Copyright (C) 2023 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 

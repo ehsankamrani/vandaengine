@@ -150,6 +150,5 @@ private:
 	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
 	CChar m_lastScriptPath[MAX_URI_SIZE];
 
-
 };
 

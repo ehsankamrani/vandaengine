@@ -1476,7 +1476,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.6"));
+	SetWindowText(_T("Vanda Engine 1.9.7"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3044,7 +3044,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3105,7 +3105,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.6 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.7 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3294,7 +3294,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3380,7 +3380,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.6 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.7 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3454,7 +3454,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.6 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.7 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7608,7 +7608,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.6 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.7 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8041,7 +8041,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.7 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8050,7 +8050,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.6 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.7 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -9893,7 +9893,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.7 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10736,7 +10736,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.7 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -11498,7 +11498,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				g_skyDome->SetPath( newPathAndName );
 
 				//script
-				if (g_skyDome->GetUpdateScript())
+				if (g_skyDome->GetHasScript() && g_skyDome->GetUpdateScript())
 				{
 					CopyOneFileToDstDirectory(g_skyDome->GetScript(), skyPath);
 				}
@@ -11579,6 +11579,20 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 					Append(newTopNormalMapPathAndName, tempTopNormalMapAfterPath);
 					g_terrain->SetTopNormalMapPath(newTopNormalMapPathAndName);
 				}
+
+				//script
+				if (g_terrain->GetHasScript() && g_terrain->GetUpdateScript())
+				{
+					CopyOneFileToDstDirectory(g_terrain->GetScript(), terrainPath);
+				}
+
+				CChar* tempScriptAfterPath = GetAfterPath(g_terrain->GetScript());
+				CChar newScriptPathAndName[MAX_NAME_SIZE];
+				Cpy(newScriptPathAndName, terrainPath);
+				Append(newScriptPathAndName, tempScriptAfterPath);
+				g_terrain->SetScript(newScriptPathAndName);
+				g_terrain->SetUpdateScript(CFalse);
+
 			}
 
 			//ambient sound
@@ -12040,7 +12054,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				g_skyDome->IsInVSceneList(pureFileName,CTrue, CTrue );
 
 				//script
-				if (g_skyDome->GetUpdateScript())
+				if (g_skyDome->GetHasScript() && g_skyDome->GetUpdateScript())
 				{
 					CopyOneFileToDstDirectory(g_skyDome->GetScript(), skyPath);
 				}
@@ -12123,6 +12137,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 				}
 				g_terrain->IsInVSceneList(pureFileName, CTrue, CTrue);
+
+				//script
+				if (g_terrain->GetHasScript() && g_terrain->GetUpdateScript())
+				{
+					CopyOneFileToDstDirectory(g_terrain->GetScript(), terrainPath);
+				}
+				CChar* tempScriptAfterPath = GetAfterPath(g_terrain->GetScript());
+				CChar newScriptPathAndName[MAX_NAME_SIZE];
+				Cpy(newScriptPathAndName, terrainPath);
+				Append(newScriptPathAndName, tempScriptAfterPath);
+				g_terrain->SetScript(newScriptPathAndName);
+				g_terrain->SetUpdateScript(CFalse);
 
 			}
 
@@ -12654,7 +12680,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				CChar fileName[MAX_NAME_SIZE];
 				Cpy(fileName, data.cFileName);
 				if (Cmp(CharUpperA(PathFindExtensionA(fileName)), ".DDS") ||
-					Cmp(CharUpperA(PathFindExtensionA(fileName)), ".TGA"))
+					Cmp(CharUpperA(PathFindExtensionA(fileName)), ".TGA") ||
+					Cmp(CharUpperA(PathFindExtensionA(fileName)), ".LUA"))
 				{
 					CChar terrainTempPath[MAX_NAME_SIZE];
 					sprintf(terrainTempPath, "%s%s", terrainPath, data.cFileName);
@@ -12665,7 +12692,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 						Cmp(GetAfterPath(g_terrain->GetSlopeTexturePath()), data.cFileName) ||
 						Cmp(GetAfterPath(g_terrain->GetSlopeNormalMapPath()), data.cFileName) ||
 						Cmp(GetAfterPath(g_terrain->GetTopTexturePath()), data.cFileName) ||
-						Cmp(GetAfterPath(g_terrain->GetTopNormalMapPath()), data.cFileName))
+						Cmp(GetAfterPath(g_terrain->GetTopNormalMapPath()), data.cFileName) ||
+						Cmp(GetAfterPath(g_terrain->GetScript()), data.cFileName))
 					{
 						foundTarget = CTrue;
 					}
@@ -13091,6 +13119,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(g_terrain->GetAmbientColor(), sizeof(CFloat), 4, filePtr);
 			fwrite(g_terrain->GetDiffuseColor(), sizeof(CFloat), 4, filePtr);
 			fwrite(g_terrain->GetSpecularColor(), sizeof(CFloat), 4, filePtr);
+			//script
+			CBool hasScript = g_terrain->GetHasScript();
+			fwrite(&hasScript, sizeof(CBool), 1, filePtr);
+			fwrite(g_terrain->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
+			//
 		}
 
 		//save all the waters 
@@ -13423,7 +13456,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -14573,7 +14606,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.7 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -16399,7 +16432,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.6 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.7 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17397,6 +17430,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CInt smooth;
 				CBool flatten;
 				CFloat ambientColor[4], diffuseColor[4], specularColor[4];
+				CBool hasScript;
+				CChar scriptPath[MAX_NAME_SIZE];
 
 				fread(name, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(heightMapPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -17416,6 +17451,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(ambientColor, sizeof(CFloat), 4, filePtr);
 				fread(diffuseColor, sizeof(CFloat), 4, filePtr);
 				fread(specularColor, sizeof(CFloat), 4, filePtr);
+				fread(&hasScript, sizeof(CBool), 1, filePtr);
+				fread(&scriptPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 				temp_heightMapPath = GetAfterPath(heightMapPath);
 				sprintf(final_heightMapPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", temp_heightMapPath);
@@ -17440,6 +17477,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				CChar PhysicsPath[MAX_NAME_SIZE];
 				sprintf(PhysicsPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/");
+
+				CChar terrainScriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(scriptPath);
+				sprintf(terrainScriptPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Terrain/", tempScriptPath);
 
 				g_terrain = CNew(CTerrain);
 				g_terrain->SetCookPhysicsTriangles(CFalse);
@@ -17468,6 +17509,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_terrain->SetAmbientColor(ambientColor);
 				g_terrain->SetDiffuseColor(diffuseColor);
 				g_terrain->SetSpecularColor(specularColor);
+
+				g_terrain->SetHasScript(hasScript);
+				g_terrain->SetScript(terrainScriptPath);
 
 				g_terrain->Initialize();
 
@@ -18345,7 +18389,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.6 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -20737,6 +20781,11 @@ CVoid CVandaEngine1Dlg::ChangeTerrainProperties()
 	m_dlgAddTerrain->SetAmbientColor(g_terrain->GetAmbientColor());
 	m_dlgAddTerrain->SetDiffuseColor(g_terrain->GetDiffuseColor());
 	m_dlgAddTerrain->SetSpecularColor(g_terrain->GetSpecularColor());
+
+	m_dlgAddTerrain->SetUpdateScript(g_terrain->GetUpdateScript());
+	m_dlgAddTerrain->SetHasScript(g_terrain->GetHasScript());
+	m_dlgAddTerrain->SetScriptPath(g_terrain->GetScript());
+
 	m_dlgAddTerrain->SetEditMode(CTrue);
 
 	CBool flatten = g_terrain->GetFlatten();
@@ -20797,6 +20846,10 @@ CVoid CVandaEngine1Dlg::ChangeTerrainProperties()
 		g_terrain->SetAmbientColor(m_dlgAddTerrain->GetAmbientColor());
 		g_terrain->SetDiffuseColor(m_dlgAddTerrain->GetDiffuseColor());
 		g_terrain->SetSpecularColor(m_dlgAddTerrain->GetSpecularColor());
+
+		g_terrain->SetUpdateScript(m_dlgAddTerrain->GetUpdateScript());
+		g_terrain->SetHasScript(m_dlgAddTerrain->GetHasScript());
+		g_terrain->SetScript(m_dlgAddTerrain->GetScriptPath());
 
 		if (m_dlgAddTerrain->GetChangedHeightMap() || flatten != g_terrain->GetFlatten() || fabs(scaleWidth - g_terrain->GetScaleWidth()) > EPSILON ||
 			fabs(scaleHeight - g_terrain->GetScaleHeight()) > EPSILON || smooth != g_terrain->GetSmooth())
@@ -25246,6 +25299,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		if (g_skyDome)
 			g_skyDome->LoadLuaFile();
 
+		if (g_terrain)
+			g_terrain->LoadLuaFile();
+
 		//Main Character Script
 		if (g_mainCharacter)
 			g_mainCharacter->LoadLuaFile();
@@ -26008,6 +26064,9 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 
 		if (g_menu.m_insertAndShowSky)
 			g_skyDome->InitScript();
+
+		if (g_menu.m_insertAndShowTerrain)
+			g_terrain->InitScript();
 
 		//Main character script
 		if (g_menu.m_insertCharacter)
@@ -28207,6 +28266,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertTerrain()
 		g_terrain->SetAmbientColor(m_dlgAddTerrain->GetAmbientColor());
 		g_terrain->SetDiffuseColor(m_dlgAddTerrain->GetDiffuseColor());
 		g_terrain->SetSpecularColor(m_dlgAddTerrain->GetSpecularColor());
+
+		g_terrain->SetUpdateScript(m_dlgAddTerrain->GetUpdateScript());
+		g_terrain->SetHasScript(m_dlgAddTerrain->GetHasScript());
+		g_terrain->SetScript(m_dlgAddTerrain->GetScriptPath());
 
 		if (g_multipleView->IsPlayGameMode())
 		{

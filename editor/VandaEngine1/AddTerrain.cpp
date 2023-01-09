@@ -8,7 +8,7 @@
 #include "VandaEngine1.h"
 #include "AddTerrain.h"
 #include "afxdialogex.h"
-
+#include "ViewScript.h"
 
 // CAddTerrain dialog
 
@@ -19,10 +19,13 @@ CAddTerrain::CAddTerrain(CWnd* pParent /*=NULL*/)
 	, m_create(false)
 	, m_editMode(false)
 {
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddTerrain::~CAddTerrain()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 void CAddTerrain::DoDataExchange(CDataExchange* pDX)
@@ -46,6 +49,7 @@ void CAddTerrain::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_SPECULAR_COLOR, m_editBoxSpecularColor);
 	DDX_Control(pDX, IDC_EDIT_TERRAIN_NAME, m_editBoxName);
 	DDX_Control(pDX, IDC_FLAT_FILTER, m_checkBoxFlatten);
+	DDX_Control(pDX, IDC_EDIT_CHARACTER_SCRIPT, m_editBoxScript);
 }
 
 
@@ -69,6 +73,9 @@ BEGIN_MESSAGE_MAP(CAddTerrain, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_TERRAIN_NAME, &CAddTerrain::OnEnChangeEditTerrainName)
 	ON_EN_CHANGE(IDC_EDIT_SHININESS, &CAddTerrain::OnEnChangeEditShininess)
 	ON_BN_CLICKED(IDOK, &CAddTerrain::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BTN_ADD_SCRIPT, &CAddTerrain::OnBnClickedBtnAddScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_SCRIPT, &CAddTerrain::OnBnClickedBtnRemoveScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddTerrain::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -289,6 +296,7 @@ BOOL CAddTerrain::OnInitDialog()
 
 		m_changedHeightMap = CFalse;
 	}
+
 	m_ambientBrush.DeleteObject();
 	m_diffuseBrush.DeleteObject();
 	m_specularBrush.DeleteObject();
@@ -320,6 +328,14 @@ BOOL CAddTerrain::OnInitDialog()
 		m_checkBoxFlatten.SetCheck(BST_CHECKED);
 	else
 		m_checkBoxFlatten.SetCheck(BST_UNCHECKED);
+
+	if (m_editMode)
+	{
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
+	}
 
 	m_strTempName = m_strName;
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -538,4 +554,77 @@ void CAddTerrain::OnBnClickedOk()
 	CDelete(m_topNormalImg);
 
 	CDialog::OnOK();
+}
+
+
+void CAddTerrain::OnBnClickedBtnAddScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAddTerrain::OnBnClickedBtnRemoveScript()
+{
+	if (!m_hasScript)
+	{
+		MessageBox("No script was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_hasScript)
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddTerrain::OnBnClickedButtonViewScript()
+{
+	if (!m_hasScript)
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }
