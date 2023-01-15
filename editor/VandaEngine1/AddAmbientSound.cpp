@@ -7,7 +7,7 @@
 #include "VandaEngine1.h"
 #include "AddAmbientSound.h"
 #include  "AFXPRIV.H"
-
+#include "ViewScript.h"
 
 // CAddAmbientSound dialog
 
@@ -19,10 +19,13 @@ CAddAmbientSound::CAddAmbientSound(CWnd* pParent /*=NULL*/)
 	m_create = CFalse;
 	m_editMode = CFalse;
 	m_loop = m_play = CTrue;
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAddAmbientSound::~CAddAmbientSound()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 void CAddAmbientSound::DoDataExchange(CDataExchange* pDX)
@@ -34,6 +37,7 @@ void CAddAmbientSound::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_AMBIENT_SOUND_VOLUME, m_editBoxAmbientSoundVolume);
 	DDX_Control(pDX, IDC_COMBO_AMBIENT_SOUND_PLAY, m_comboAmbientSoundPlay);
 	DDX_Control(pDX, IDC_COMBO_AMBIENT_SOUND_LOOP, m_comboAmbientSoundLoop);
+	DDX_Control(pDX, IDC_EDIT_AMBIENT_SOUND_SCRIPT, m_editBoxScript);
 }
 
 
@@ -44,6 +48,9 @@ BEGIN_MESSAGE_MAP(CAddAmbientSound, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_AMBIENT_SOUND_VOLUME, &CAddAmbientSound::OnEnChangeEditAmbientSoundVolume)
 	ON_CBN_SELCHANGE(IDC_COMBO_AMBIENT_SOUND_LOOP, &CAddAmbientSound::OnCbnSelchangeComboAmbientSoundLoop)
 	ON_CBN_SELCHANGE(IDC_COMBO_AMBIENT_SOUND_PLAY, &CAddAmbientSound::OnCbnSelchangeComboAmbientSoundPlay)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAddAmbientSound::OnBnClickedButtonViewScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_SCRIPT, &CAddAmbientSound::OnBnClickedBtnRemoveScript)
+	ON_BN_CLICKED(IDC_BTN_ADD_SCRIPT, &CAddAmbientSound::OnBnClickedBtnAddScript)
 END_MESSAGE_MAP()
 
 
@@ -158,6 +165,15 @@ BOOL CAddAmbientSound::OnInitDialog()
 		m_strPureAmbientSoundBuffer = "defaultAmbient";
 		Cpy(m_soundFileName, "defaultAmbient.ogg");
 	}
+
+	if (m_editMode)
+	{
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
+	}
+
 	m_editBoxAmbientSoundName.SetWindowTextA( m_strAmbientSoundName );
 	m_editBoxAmbientSoundVolume.SetWindowTextA( m_strAmbientSoundVolume );
 	m_editBoxAmbientSoundPitch.SetWindowTextA( m_strAmbientSoundPitch );
@@ -233,5 +249,78 @@ void CAddAmbientSound::OnCbnSelchangeComboAmbientSoundPlay()
 	case 1: //false;
 		m_play = CFalse;
 		break;
+	}
+}
+
+
+void CAddAmbientSound::OnBnClickedButtonViewScript()
+{
+	if (!m_hasScript)
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
+}
+
+
+void CAddAmbientSound::OnBnClickedBtnRemoveScript()
+{
+	if (!m_hasScript)
+	{
+		MessageBox("No script was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_hasScript)
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAddAmbientSound::OnBnClickedBtnAddScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
 	}
 }

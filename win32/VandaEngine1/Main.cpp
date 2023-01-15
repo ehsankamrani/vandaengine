@@ -9197,6 +9197,379 @@ CInt SetWaterScriptDoubleVariable(lua_State* L)
 	return 0;
 }
 
+CInt GetAmbientSoundScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetAmbientSoundScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			value = g_engineAmbientSounds[i]->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetAmbientSoundScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetAmbientSoundScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetAmbientSoundScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			value = g_engineAmbientSounds[i]->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetAmbientSoundScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetAmbientSoundScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetAmbientSoundScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			value = g_engineAmbientSounds[i]->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetAmbientSoundScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetAmbientSoundScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetAmbientSoundScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			value = g_engineAmbientSounds[i]->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nGetAmbientSoundScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetAmbientSoundScriptStringVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetAmbientSoundScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			g_engineAmbientSounds[i]->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetAmbientSoundScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetAmbientSoundScriptBoolVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetAmbientSoundScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			g_engineAmbientSounds[i]->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetAmbientSoundScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetAmbientSoundScriptIntVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetAmbientSoundScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			g_engineAmbientSounds[i]->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetAmbientSoundScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetAmbientSoundScriptDoubleVariable(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetAmbientSoundScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //AmbientSound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+			g_engineAmbientSounds[i]->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\nSetAmbientSoundScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' ambient sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CInt GetLightScriptStringVariable(lua_State* L)
 {
@@ -13986,6 +14359,12 @@ CBool CMain::Render()
 			g_engineCameraInstances[i]->UpdateScript();
 	}
 
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetHasScript())
+			g_engineAmbientSounds[i]->UpdateScript();
+	}
+
 	if (g_VSceneScript)
 		g_VSceneScript->UpdateScript();
 
@@ -16902,7 +17281,7 @@ CBool CMain::Load(CChar* pathName)
 
 			CChar finalMainImagePath[MAX_NAME_SIZE];
 			CChar* tempMainImagePath = GetAfterPath(mainImagePath);
-			//Copy this to Win32 Project as well
+
 			sprintf(finalMainImagePath, "%s%s%s%s%s%s", "assets/GUIs/",packageName, "/", guiName, "/Textures/Buttons/", tempMainImagePath);
 
 			CGUIButton* guiButton = CNew(CGUIButton);
@@ -17022,7 +17401,7 @@ CBool CMain::Load(CChar* pathName)
 
 			CChar finalImagePath[MAX_NAME_SIZE];
 			CChar* tempPath = GetAfterPath(imagePath);
-			//Copy this to Win32 Project as well
+
 			sprintf(finalImagePath, "%s%s%s%s%s%s", "assets/GUIs/",packageName, "/", guiName, "/Textures/Images/", tempPath);
 
 			CGUIImage* guiImage = CNew(CGUIImage);
@@ -17137,7 +17516,7 @@ CBool CMain::Load(CChar* pathName)
 		g_skyDome = CNew(CSkyDome);
 		CChar skyPath[MAX_NAME_SIZE];
 		CChar* tempPath = GetAfterPath(path);
-		//Copy this to Win32 Project as well
+
 		sprintf(skyPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sky/", tempPath);
 
 		CChar skyScriptPath[MAX_NAME_SIZE];
@@ -17358,13 +17737,13 @@ CBool CMain::Load(CChar* pathName)
 		CChar dudvPath[MAX_NAME_SIZE];
 		CChar* DuDvAfterPath = GetAfterPath(strDuDvMap);
 
-		//Copy this to Win32 Project as well
+
 		sprintf(dudvPath, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", DuDvAfterPath);
 
 		CChar normalPath[MAX_NAME_SIZE];
 		CChar* normalAfterPath = GetAfterPath(strNormalMap);
 
-		//Copy this to Win32 Project as well
+
 		sprintf(normalPath, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Waters/", strWaterName, "/", normalAfterPath);
 
 		CChar script[MAX_NAME_SIZE];
@@ -17559,7 +17938,7 @@ CBool CMain::Load(CChar* pathName)
 
 		CChar ThreeDSoundPath[MAX_NAME_SIZE];
 		CChar* ThreeDSoundName = GetAfterPath(path);
-		//Copy this to Win32 Project as well
+
 		sprintf(ThreeDSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/3D/", ThreeDSoundName);
 
 		COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer(GetAfterPath(ThreeDSoundPath));
@@ -17615,6 +17994,8 @@ CBool CMain::Load(CChar* pathName)
 		CChar strAmbientSoundPath[MAX_NAME_SIZE];
 		CChar strAmbientSoundFileName[MAX_NAME_SIZE];
 		CFloat volume, pitch;
+		CBool soundHasScript;
+		CChar soundScript[MAX_NAME_SIZE];
 
 		fread(strAmbientSoundName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(strAmbientSoundPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -17623,11 +18004,16 @@ CBool CMain::Load(CChar* pathName)
 		fread(&pitch, sizeof(CFloat), 1, filePtr);
 		fread(&play, sizeof(CBool), 1, filePtr);
 		fread(&loop, sizeof(CBool), 1, filePtr);
+		fread(&soundHasScript, sizeof(CBool), 1, filePtr);
+		fread(&soundScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 		CChar AmbientSoundPath[MAX_NAME_SIZE];
 
-		//Copy this to Win32 Project as well
-		sprintf(AmbientSoundPath, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", strAmbientSoundName, "__", strAmbientSoundFileName);
+		sprintf(AmbientSoundPath, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", strAmbientSoundName, "/", strAmbientSoundFileName);
+
+		CChar script[MAX_NAME_SIZE];
+		CChar* scriptAfterPath = GetAfterPath(soundScript);
+		sprintf(script, "%s%s%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Sounds/Ambient/", strAmbientSoundName, "/", scriptAfterPath);
 
 		CChar message[MAX_NAME_SIZE];
 		sprintf(message, "%s%s", "Loading ambient sound: ", strAmbientSoundName);
@@ -17664,6 +18050,10 @@ CBool CMain::Load(CChar* pathName)
 		ambientSound->SetLoop(loop);
 		ambientSound->SetPlay(play);
 		ambientSound->SetSoundFileName(strAmbientSoundFileName);
+		ambientSound->SetHasScript(soundHasScript);
+		ambientSound->SetScript(script);
+
+		ambientSound->LoadLuaFile();
 
 		g_engineAmbientSounds.push_back(ambientSound);
 		//CChar temp[MAX_NAME_SIZE];
@@ -17840,19 +18230,19 @@ CBool CMain::Load(CChar* pathName)
 		//walk sound
 		CChar walkSoundPath[MAX_NAME_SIZE];
 		CChar* walkSoundName = GetAfterPath(strWalkSoundPath);
-		//Copy this to Win32 Project as well
+
 		sprintf(walkSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Character/", walkSoundName);
 		g_mainCharacter->SetWalkSoundPath(walkSoundPath);
 
 		CChar runSoundPath[MAX_NAME_SIZE];
 		CChar* runSoundName = GetAfterPath(strRunSoundPath);
-		//Copy this to Win32 Project as well
+
 		sprintf(runSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Character/", runSoundName);
 		g_mainCharacter->SetRunSoundPath(runSoundPath);
 
 		CChar jumpSoundPath[MAX_NAME_SIZE];
 		CChar* jumpSoundName = GetAfterPath(strJumpSoundPath);
-		//Copy this to Win32 Project as well
+
 		sprintf(jumpSoundPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Character/", jumpSoundName);
 		g_mainCharacter->SetJumpSoundPath(jumpSoundPath);
 
@@ -18018,7 +18408,7 @@ CBool CMain::Load(CChar* pathName)
 		fread(path, sizeof(CChar), MAX_URI_SIZE, filePtr);
 
 		CChar* tempPath = GetAfterPath(path);
-		//Copy this to Win32 Project as well
+
 		CChar newPath[MAX_URI_SIZE];
 		sprintf(newPath, "%s%s%s%s", "Assets/VScenes/", g_currentVSceneNameWithoutDot, "/VSceneScript/", tempPath);
 		if (!g_VSceneScript)
@@ -18202,6 +18592,12 @@ CBool CMain::Load(CChar* pathName)
 			g_engineCameraInstances[i]->InitScript();
 	}
 
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetHasScript())
+			g_engineAmbientSounds[i]->InitScript();
+	}
+
 	//if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
 	//{
 
@@ -18220,7 +18616,7 @@ CBool CMain::Load(CChar* pathName)
 		//Load Cursor Icon
 		CChar cursorPath[MAX_NAME_SIZE];
 		CChar* tempCursorPath = GetAfterPath(cursorName);
-		//Copy this to Win32 Project as well
+
 		sprintf(cursorPath, "%s%s%s%s", "assets/vscenes/", g_currentVSceneNameWithoutDot, "/Cursor/", tempCursorPath);
 		GenerateMenuCursorTexture(cursorPath);
 	//}

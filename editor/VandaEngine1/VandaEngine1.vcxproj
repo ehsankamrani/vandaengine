@@ -237,6 +237,7 @@
     <ClCompile Include="PleaseWait.cpp" />
     <ClCompile Include="PrefabDlg.cpp" />
     <ClCompile Include="PrefabNameDlg.cpp" />
+    <ClCompile Include="PrefabOptions.cpp" />
     <ClCompile Include="ResourceFile.cpp" />
     <ClCompile Include="SaveGUIDlg.cpp" />
     <ClCompile Include="SaveLoadCharacterProfile.cpp" />
@@ -284,7 +285,6 @@
     <ClCompile Include="GraphicsEngine\Render.cpp" />
     <ClCompile Include="GraphicsEngine\Scene.cpp" />
     <ClCompile Include="SceneBanner.cpp" />
-    <ClCompile Include="SceneProperties.cpp" />
     <ClCompile Include="GraphicsEngine\SceneRead.cpp" />
     <ClCompile Include="ScriptEditor.cpp" />
     <ClCompile Include="ScriptEditorAddEvent.cpp" />
@@ -412,6 +412,7 @@
     <ClInclude Include="PleaseWait.h" />
     <ClInclude Include="PrefabDlg.h" />
     <ClInclude Include="PrefabNameDlg.h" />
+    <ClInclude Include="PrefabOptions.h" />
     <ClInclude Include="ResourceFile.h" />
     <ClInclude Include="SaveGUIDlg.h" />
     <ClInclude Include="SaveLoadCharacterProfile.h" />
@@ -462,7 +463,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="GraphicsEngine\Scene.h" />
     <ClInclude Include="SceneBanner.h" />
-    <ClInclude Include="SceneProperties.h" />
     <ClInclude Include="ScriptEditor.h" />
     <ClInclude Include="ScriptEditorAddEvent.h" />
     <ClInclude Include="ScriptEditorAddFunction.h" />
@@ -691,6 +691,7 @@
     <Image Include="Assets\Icon\Default\Script Utility\ambientAudio.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\audio.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\camera.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\green_plus.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\GUIButton.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\GUIImage.bmp" />
     <Image Include="Assets\Icon\Default\Script Utility\GUIText.bmp" />
@@ -787,6 +788,10 @@
     <Image Include="Assets\Icon\Trigger\Trigger_Down.bmp" />
     <Image Include="Assets\Icon\Trigger\Trigger_Focus.bmp" />
     <Image Include="Assets\Icon\Trigger\Trigger_Up.bmp" />
+    <Image Include="Assets\Icon\Video\video_disable.bmp" />
+    <Image Include="Assets\Icon\Video\video_down.bmp" />
+    <Image Include="Assets\Icon\Video\video_focus.bmp" />
+    <Image Include="Assets\Icon\Video\video_up.bmp" />
     <Image Include="Assets\Icon\VSceneScript\VScene_Script_Disable.bmp" />
     <Image Include="Assets\Icon\VSceneScript\VScene_Script_Down.bmp" />
     <Image Include="Assets\Icon\VSceneScript\VScene_Script_Focus.bmp" />

@@ -43,4 +43,7 @@ public:
 	CChar m_onSelectEventName[MAX_URI_SIZE];
 
 	afx_msg void OnBnClickedCancel();
+	
+private:	
+	CImageList m_image;
 };

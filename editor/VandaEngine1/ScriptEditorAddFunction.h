@@ -253,6 +253,15 @@ private:
 	CChar SetWaterScriptIntVariable[MAX_URI_SIZE];
 	CChar SetWaterScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar GetAmbientSoundScriptStringVariable[MAX_URI_SIZE];
+	CChar GetAmbientSoundScriptBoolVariable[MAX_URI_SIZE];
+	CChar GetAmbientSoundScriptIntVariable[MAX_URI_SIZE];
+	CChar GetAmbientSoundScriptDoubleVariable[MAX_URI_SIZE];
+	CChar SetAmbientSoundScriptStringVariable[MAX_URI_SIZE];
+	CChar SetAmbientSoundScriptBoolVariable[MAX_URI_SIZE];
+	CChar SetAmbientSoundScriptIntVariable[MAX_URI_SIZE];
+	CChar SetAmbientSoundScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar GetLightScriptStringVariable[MAX_URI_SIZE];
 	CChar GetLightScriptBoolVariable[MAX_URI_SIZE];
 	CChar GetLightScriptIntVariable[MAX_URI_SIZE];
@@ -332,6 +341,9 @@ private:
 
 	CChar SetGlobalSoundVolume[MAX_URI_SIZE];
 	CChar GetGlobalSoundVolume[MAX_URI_SIZE];
+
+	CImageList m_image;
+
 public:
 	afx_msg void OnBnClickedCancel();
 };

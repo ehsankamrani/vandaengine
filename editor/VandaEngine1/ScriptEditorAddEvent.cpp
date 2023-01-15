@@ -150,8 +150,17 @@ BOOL CScriptEditorAddEvent::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	CBitmap cBmp;
+	CBitmap* cBmpMask = NULL;
+	m_image.Create(32, 32, ILC_COLOR24, 1, 1);
+
+	cBmp.LoadBitmap(IDB_BITMAP_ADD_ITEM);
+	m_image.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+
 	RECT tempRect;
 	m_listEvents.GetClientRect(&tempRect);
+	m_listEvents.SetImageList(&m_image, LVSIL_SMALL);
 	m_listEvents.InsertColumn(0, "Events", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempRect.right - tempRect.left) * 90 / 100);
 	m_listEvents.ShowWindow(SW_SHOW);
 	m_listEvents.UpdateWindow();
@@ -178,8 +187,9 @@ CVoid CScriptEditorAddEvent::InsertItem(CChar* name)
 	m_index++;
 	int index = m_index;
 	LVITEM lvItem;
-	lvItem.mask = LVIF_TEXT;
+	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 	lvItem.iItem = index;
+	lvItem.iImage = 0;
 	lvItem.iSubItem = 0;
 	lvItem.pszText = name;
 	m_listEvents.InsertItem(&lvItem);

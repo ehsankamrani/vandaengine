@@ -243,9 +243,6 @@
     <ClCompile Include="SceneBanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SceneProperties.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsEngine\SceneRead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -507,6 +504,9 @@
     <ClCompile Include="Add3DSound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PrefabOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddAmbientSound.h">
@@ -762,9 +762,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SceneBanner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneProperties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SelectCamera.h">
@@ -1035,6 +1032,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Add3DSound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PrefabOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1908,6 +1908,21 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Assets\Icon\EngineObjectList\3DSound.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Video\video_disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Video\video_down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Video\video_focus.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Video\video_up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Default\Script Utility\green_plus.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -30,6 +30,7 @@ public:
 	CString m_strAmbientSoundBuffer, m_strPureAmbientSoundBuffer, m_strAmbientSoundName, m_strAmbientSoundVolume, m_strAmbientSoundPitch;
 	CString m_strAmbientSoundTempName;
 	CChar m_soundFileName[MAX_NAME_SIZE];
+	CChar m_lastName[MAX_NAME_SIZE];
 	CFloat m_volume, m_pitch;
 	CBool m_loop, m_play;
 	CBool m_create;
@@ -50,6 +51,11 @@ public:
 	CBool GetLoop() { return m_loop; }
 	CBool GetPlay() { return m_play; }
 	CChar* GetSoundFileName() { return m_soundFileName; }
+
+	CChar* GetLastName() { return m_lastName; }
+	CBool GetHasScript() { return m_hasScript; }
+	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
+	CBool GetUpdateScript() { return m_scriptUpdated; }
 
 	CVoid SetEditMode( CBool editMode )
 	{
@@ -92,6 +98,14 @@ public:
 	CVoid SetLoop(CBool loop) { m_loop = loop; }
 	CVoid SetPlay(CBool play) { m_play = play; }
 
+	CVoid SetLastName(CChar* name)
+	{
+		Cpy(m_lastName, name);
+	}
+	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
+	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
+	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
+
 	//#######################
 
 public:
@@ -112,4 +126,14 @@ private:
 public:
 	afx_msg void OnCbnSelchangeComboAmbientSoundLoop();
 	afx_msg void OnCbnSelchangeComboAmbientSoundPlay();
+	CRichEditCtrl m_editBoxScript;
+	afx_msg void OnBnClickedButtonViewScript();
+	afx_msg void OnBnClickedBtnRemoveScript();
+	afx_msg void OnBnClickedBtnAddScript();
+
+	private:
+		CBool m_scriptUpdated;
+		CString m_strScript;
+		CBool m_hasScript;
+
 };

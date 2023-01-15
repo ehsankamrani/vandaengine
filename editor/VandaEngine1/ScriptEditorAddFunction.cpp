@@ -240,6 +240,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetWaterScriptIntVariable, "SetWaterScriptIntVariable(string waterName, string variable, int value)");
 	Cpy(SetWaterScriptDoubleVariable, "SetWaterScriptDoubleVariable(string waterName, string variable, double value)");
 
+	Cpy(GetAmbientSoundScriptStringVariable, "GetAmbientSoundScriptStringVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptBoolVariable, "GetAmbientSoundScriptBoolVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptIntVariable, "GetAmbientSoundScriptIntVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptDoubleVariable, "GetAmbientSoundScriptDoubleVariable(string ambientSoundName, string variable)");
+	Cpy(SetAmbientSoundScriptStringVariable, "SetAmbientSoundScriptStringVariable(string ambientSoundName, string variable, string value)");
+	Cpy(SetAmbientSoundScriptBoolVariable, "SetAmbientSoundScriptBoolVariable(string ambientSoundName, string variable, bool value)");
+	Cpy(SetAmbientSoundScriptIntVariable, "SetAmbientSoundScriptIntVariable(string ambientSoundName, string variable, int value)");
+	Cpy(SetAmbientSoundScriptDoubleVariable, "SetAmbientSoundScriptDoubleVariable(string ambientSoundName, string variable, double value)");
+
 	Cpy(GetLightScriptStringVariable, "GetLightScriptStringVariable(string lightName, string variable)");
 	Cpy(GetLightScriptBoolVariable, "GetLightScriptBoolVariable(string lightName, string variable)");
 	Cpy(GetLightScriptIntVariable, "GetLightScriptIntVariable(string lightName, string variable)");
@@ -1155,6 +1164,39 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetWaterScriptDoubleVariable);
 		}
+		
+		if (Cmp(szBuffer, "GetAmbientSoundScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetAmbientSoundScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "GetAmbientSoundScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetAmbientSoundScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "GetAmbientSoundScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetAmbientSoundScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "GetAmbientSoundScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(GetAmbientSoundScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "SetAmbientSoundScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetAmbientSoundScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "SetAmbientSoundScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetAmbientSoundScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "SetAmbientSoundScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetAmbientSoundScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "SetAmbientSoundScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(SetAmbientSoundScriptDoubleVariable);
+		}
 		else if (Cmp(szBuffer, "GetLightScriptStringVariable"))
 		{
 			m_richFunctionName.SetWindowTextA(GetLightScriptStringVariable);
@@ -1442,8 +1484,17 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	CBitmap cBmp;
+	CBitmap* cBmpMask = NULL;
+	m_image.Create(32, 32, ILC_COLOR24, 1, 1);
+
+	cBmp.LoadBitmap(IDB_BITMAP_ADD_ITEM);
+	m_image.Add(&cBmp, cBmpMask);
+	cBmp.DeleteObject();
+
 	RECT tempRect;
 	m_listFunctions.GetClientRect(&tempRect);
+	m_listFunctions.SetImageList(&m_image, LVSIL_SMALL);
 	m_listFunctions.InsertColumn(0, "Functions", LVCFMT_LEFT | LVS_SHOWSELALWAYS, (tempRect.right - tempRect.left) * 90 / 100);
 	m_listFunctions.ShowWindow(SW_SHOW);
 	m_listFunctions.UpdateWindow();
@@ -1669,6 +1720,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetWaterScriptIntVariable");
 	InsertItem("SetWaterScriptDoubleVariable");
 
+	InsertItem("GetAmbientSoundScriptStringVariable");
+	InsertItem("GetAmbientSoundScriptBoolVariable");
+	InsertItem("GetAmbientSoundScriptIntVariable");
+	InsertItem("GetAmbientSoundScriptDoubleVariable");
+	InsertItem("SetAmbientSoundScriptStringVariable");
+	InsertItem("SetAmbientSoundScriptBoolVariable");
+	InsertItem("SetAmbientSoundScriptIntVariable");
+	InsertItem("SetAmbientSoundScriptDoubleVariable");
+
 	InsertItem("GetLightScriptStringVariable");
 	InsertItem("GetLightScriptBoolVariable");
 	InsertItem("GetLightScriptIntVariable");
@@ -1761,8 +1821,9 @@ CVoid CScriptEditorAddFunction::InsertItem(CChar* name)
 	m_index++;
 	int index = m_index;
 	LVITEM lvItem;
-	lvItem.mask = LVIF_TEXT;
+	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 	lvItem.iItem = index;
+	lvItem.iImage = 0;
 	lvItem.iSubItem = 0;
 	lvItem.pszText = name;
 	m_listFunctions.InsertItem(&lvItem);

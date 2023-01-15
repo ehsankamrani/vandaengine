@@ -87,7 +87,7 @@
 #include "Common/Prefab.h"
 #include "Common/VSceneScript.h"
 #include "physXEngine\MainCharacter.h"
-#include "sceneProperties.h"
+#include "PrefabOptions.h"
 #include "resourceFile.h"
 #include "afxext.h"
 class CScene;
@@ -775,6 +775,7 @@ protected:
 	CVoid OnMenuClickedInsertVSceneScript();
 	CVoid OnMenuClickedInsertTerrain();
 	CVoid OnMenuClickedInsertEngineCamera();
+	CVoid OnMenuClickedInsertVideo();
 	CVoid OnMenuClickedWaterAttachment();
 	CVoid OnMenuClickedInsertWater();
 	CVoid OnMenuClickedInsertAmbientSound();
@@ -886,6 +887,7 @@ public:
 	CVec3f m_initCharacterTranslate;
 	std::vector<std::string> m_deletedTriggerObjects;
 	std::vector<std::string> m_deletedWaterObjects;
+	std::vector<std::string> m_deletedAmbientSoundObjects;
 	std::vector<std::string> m_deletedCameraObjects;
 	std::vector<std::string> m_deletedLightObjects;
 protected:
@@ -1089,6 +1091,8 @@ public:
 	CRichEditCtrl m_richSelectedObjectName;
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnDestroy();
+	CCustomBitmapButton m_mainBtnVideo;
+	afx_msg void OnBnClickedBtnVideo();
 };
 
 //Edition.MaxVersion.MinVersion.BugFixes;

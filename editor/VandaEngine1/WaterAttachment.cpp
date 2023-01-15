@@ -47,7 +47,7 @@ BOOL CWaterAttachment::OnInitDialog()
 	m_listBoxWaterObjects.GetClientRect(&rect);
 	CBitmap cBmp;
 	CBitmap* cBmpMask = NULL;
-	m_waterListImage.Create(16, 16, ILC_COLOR24, 1, 1);
+	m_waterListImage.Create(32, 32, ILC_COLOR24, 1, 1);
 
 	cBmp.LoadBitmap(IDB_BITMAP_DEFAULT_WATER);
 	m_waterListImage.Add(&cBmp, cBmpMask);
@@ -70,8 +70,9 @@ CVoid CWaterAttachment::InserItemToWaterList( char * objectName )
 {
 	waterObjectIndex++;
 	LVITEM lvItem;
-	lvItem.mask = LVIF_TEXT;
+	lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
 	lvItem.iItem = waterObjectIndex;
+	lvItem.iImage = 0;
 	lvItem.iSubItem = 0;
 	lvItem.pszText = objectName;
 	m_listBoxWaterObjects.InsertItem(&lvItem);
