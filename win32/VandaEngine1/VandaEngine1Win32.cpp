@@ -38,7 +38,6 @@ CChar g_currentPrefabAndSceneName[MAX_NAME_SIZE]; //save functions
 CChar g_currentZipFileName[MAX_NAME_SIZE];
 CChar g_currentInstancePrefabName[MAX_NAME_SIZE];
 CBool g_loadSceneViaScript = CFalse;
-std::vector<COpenALSoundBuffer*>g_soundBuffers;
 CChar g_currentPassword[MAX_NAME_SIZE];
 CWindow g_window;
 CRender g_render; //extern

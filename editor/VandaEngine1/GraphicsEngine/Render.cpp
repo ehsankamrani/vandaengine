@@ -6,7 +6,6 @@
 #include "render.h"
 #include "..\VandaEngine1.h"
 #include "../VandaEngine1Dlg.h"
-//#include "../common/utf8.h"
 CVoid CRender::Init()
 {
 	m_activeInstanceCamera = NULL;

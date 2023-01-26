@@ -14,7 +14,9 @@
     <ProjectGuid>{5D83F989-DD4A-47AB-B0E6-8AC97F44C4E9}</ProjectGuid>
     <RootNamespace>VandaEngine</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <ProjectName>VandaEngine1Win32</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -160,27 +162,6 @@
     <ClCompile Include="GraphicsEngine\Node.cpp" />
     <ClCompile Include="physXEngine\Nx.cpp" />
     <ClCompile Include="physXEngine\NxDebugRenderer.cpp" />
-    <ClCompile Include="physXEngine\NXU_Asc2Bin.cpp" />
-    <ClCompile Include="physXEngine\NXU_ColladaExport.cpp" />
-    <ClCompile Include="physXEngine\NXU_ColladaImport.cpp" />
-    <ClCompile Include="physXEngine\NXU_cooking.cpp" />
-    <ClCompile Include="physXEngine\NXU_customcopy.cpp" />
-    <ClCompile Include="physXEngine\NXU_File.cpp" />
-    <ClCompile Include="physXEngine\NXU_Geometry.cpp" />
-    <ClCompile Include="physXEngine\NXU_GraphicsMesh.cpp" />
-    <ClCompile Include="physXEngine\NXU_helper.cpp" />
-    <ClCompile Include="physXEngine\NXU_hull.cpp" />
-    <ClCompile Include="physXEngine\NXU_PhysicsExport.cpp" />
-    <ClCompile Include="physXEngine\NXU_PhysicsInstantiator.cpp" />
-    <ClCompile Include="physXEngine\NXU_ScaledCopy.cpp" />
-    <ClCompile Include="physXEngine\NXU_schema.cpp" />
-    <ClCompile Include="physXEngine\NXU_SchemaStream.cpp" />
-    <ClCompile Include="physXEngine\NXU_Streaming.cpp" />
-    <ClCompile Include="physXEngine\NXU_string.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinystr.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinyxml.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinyxmlerror.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinyxmlparser.cpp" />
     <ClCompile Include="sceneManagerEngine\Octree.cpp" />
     <ClCompile Include="AudioEngine\OpenALSoundBuffer.cpp" />
     <ClCompile Include="AudioEngine\OpenALSoundSource.cpp" />
@@ -216,7 +197,6 @@
     <ClInclude Include="AudioEngine\3DSound.h" />
     <ClInclude Include="Common\Prefab.h" />
     <ClInclude Include="Common\VSceneScript.h" />
-    <ClInclude Include="GraphicsEngine\Actions.h" />
     <ClInclude Include="AudioEngine\AmbientSound.h" />
     <ClInclude Include="GraphicsEngine\animation.h" />
     <ClInclude Include="GraphicsEngine\AVI.H" />
@@ -258,26 +238,6 @@
     <ClInclude Include="GraphicsEngine\Node.h" />
     <ClInclude Include="physXEngine\Nx.h" />
     <ClInclude Include="physXEngine\NxDebugRenderer.h" />
-    <ClInclude Include="physXEngine\NXU_Asc2Bin.h" />
-    <ClInclude Include="physXEngine\NXU_ColladaExport.h" />
-    <ClInclude Include="physXEngine\NXU_ColladaImport.h" />
-    <ClInclude Include="physXEngine\NXU_cooking.h" />
-    <ClInclude Include="physXEngine\NXU_customcopy.h" />
-    <ClInclude Include="physXEngine\NXU_File.h" />
-    <ClInclude Include="physXEngine\NXU_Geometry.h" />
-    <ClInclude Include="physXEngine\NXU_GraphicsMesh.h" />
-    <ClInclude Include="physXEngine\NXU_helper.h" />
-    <ClInclude Include="physXEngine\NXU_hull.h" />
-    <ClInclude Include="physXEngine\NXU_PhysicsExport.h" />
-    <ClInclude Include="physXEngine\NXU_PhysicsInstantiator.h" />
-    <ClInclude Include="physXEngine\NXU_ScaledCopy.h" />
-    <ClInclude Include="physXEngine\NXU_schema.h" />
-    <ClInclude Include="physXEngine\NXU_SchemaStream.h" />
-    <ClInclude Include="physXEngine\NXU_SchemaTypes.h" />
-    <ClInclude Include="physXEngine\NXU_Streaming.h" />
-    <ClInclude Include="physXEngine\NXU_string.h" />
-    <ClInclude Include="physXEngine\NXU_tinystr.h" />
-    <ClInclude Include="physXEngine\NXU_tinyxml.h" />
     <ClInclude Include="sceneManagerEngine\Octree.h" />
     <ClInclude Include="AudioEngine\OpenAL.h" />
     <ClInclude Include="AudioEngine\OpenALSoundBuffer.h" />

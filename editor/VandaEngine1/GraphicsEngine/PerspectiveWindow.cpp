@@ -14315,6 +14315,672 @@ CInt SetAmbientSoundScriptDoubleVariable(lua_State* L)
 }
 
 
+CInt Get3DSoundScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for Get3DSoundScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar* value = NULL;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGet3DSoundScriptStringVariable(%s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGet3DSoundScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			value = g_engine3DSounds[i]->GetScriptStringVariable(variable);
+
+			lua_pushstring(L, value);
+
+			free(value);
+
+			return 1;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGet3DSoundScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Get3DSoundScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for Get3DSoundScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CBool value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGet3DSoundScriptBoolVariable(%s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGet3DSoundScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			value = g_engine3DSounds[i]->GetScriptBoolVariable(variable);
+
+			lua_pushboolean(L, value);
+
+			return 1;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGet3DSoundScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Get3DSoundScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for Get3DSoundScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGet3DSoundScriptIntVariable(%s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGet3DSoundScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			value = g_engine3DSounds[i]->GetScriptIntVariable(variable);
+
+			lua_pushinteger(L, value);
+
+			return 1;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGet3DSoundScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Get3DSoundScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for Get3DSoundScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGet3DSoundScriptDoubleVariable(%s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nGet3DSoundScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			value = g_engine3DSounds[i]->GetScriptDoubleVariable(variable);
+
+			lua_pushnumber(L, value);
+
+			return 1;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nGet3DSoundScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Set3DSoundScriptStringVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for Set3DSoundScriptStringVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CChar value[MAX_NAME_SIZE];
+	Cpy(value, lua_tostring(L, 3));
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSet3DSoundScriptStringVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSet3DSoundScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			g_engine3DSounds[i]->SetScriptStringVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSet3DSoundScriptStringVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Set3DSoundScriptBoolVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for Set3DSoundScriptBoolVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt result;
+
+	CBool value;
+	result = lua_toboolean(L, 3);
+
+	if (result)
+		value = CTrue;
+	else
+		value = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						if (value)
+							sprintf(message, "\nSet3DSoundScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), "true", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						else
+							sprintf(message, "\nSet3DSoundScriptBoolVariable(%s, %s, %s) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), "false", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSet3DSoundScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			g_engine3DSounds[i]->SetScriptBoolVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSet3DSoundScriptBoolVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Set3DSoundScriptIntVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for Set3DSoundScriptIntVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CInt value;
+	value = lua_tointeger(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSet3DSoundScriptIntVariable(%s, %s, %d) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSet3DSoundScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			g_engine3DSounds[i]->SetScriptIntVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSet3DSoundScriptIntVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt Set3DSoundScriptDoubleVariable(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for Set3DSoundScriptDoubleVariable()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3D Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	CChar variable[MAX_NAME_SIZE];
+	Cpy(variable, lua_tostring(L, 2));
+
+	CDouble value;
+	value = lua_tonumber(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames.size(); j++)
+				{
+					CChar ThreeDSoundName[MAX_NAME_SIZE];
+					Cpy(ThreeDSoundName, g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+					StringToUpper(ThreeDSoundName);
+
+					if (Cmp(ThreeDSoundName, luaToString))
+					{
+						found3DSound = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSet3DSoundScriptDoubleVariable(%s, %s, %.2f) will be executed for Project '%s', VScene '%s' : 3D sound '%s'", ThreeDSoundName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!found3DSound)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nSet3DSoundScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar ThreeDSoundName[MAX_NAME_SIZE];
+		Cpy(ThreeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(ThreeDSoundName);
+		if (Cmp(ThreeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+			g_engine3DSounds[i]->SetScriptDoubleVariable(variable, value);
+
+			return 0;
+		}
+	}
+	if (!found3DSound)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nSet3DSoundScriptDoubleVariable() Error: %s%s%s", "Couldn't find '", luaToString, "' 3D sound");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+
 CInt GetLightScriptStringVariable(lua_State* L)
 {
 	if (g_testScript)
@@ -23837,6 +24503,12 @@ CVoid CMultipleWindows::DrawPerspective()
 			{
 				if (g_engineAmbientSounds[i]->GetHasScript())
 					g_engineAmbientSounds[i]->UpdateScript();
+			}
+
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+			{
+				if (g_engine3DSounds[i]->GetHasScript())
+					g_engine3DSounds[i]->UpdateScript();
 			}
 
 			if (g_VSceneScript)

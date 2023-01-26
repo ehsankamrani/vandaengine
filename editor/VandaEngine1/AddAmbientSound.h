@@ -131,9 +131,9 @@ public:
 	afx_msg void OnBnClickedBtnRemoveScript();
 	afx_msg void OnBnClickedBtnAddScript();
 
-	private:
-		CBool m_scriptUpdated;
-		CString m_strScript;
-		CBool m_hasScript;
+private:
+	CBool m_scriptUpdated;
+	CString m_strScript;
+	CBool m_hasScript;
 
 };

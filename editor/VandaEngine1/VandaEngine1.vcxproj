@@ -18,7 +18,9 @@
     <ProjectGuid>{9FCBF7E8-1656-4ECB-B7DE-83809BAE4C0F}</ProjectGuid>
     <RootNamespace>VandaEngine</RootNamespace>
     <Keyword>MFCProj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <ProjectName>VandaEngine1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -185,6 +187,7 @@
     <ClCompile Include="EditCurrentSceneOptions.cpp" />
     <ClCompile Include="EditGeneralPhysXProperties.cpp" />
     <ClCompile Include="EditGUI.cpp" />
+    <ClCompile Include="EditImportOptions.cpp" />
     <ClCompile Include="EditLOD.cpp" />
     <ClCompile Include="EditPhysX.cpp" />
     <ClCompile Include="EditPrefab.cpp" />
@@ -214,7 +217,6 @@
     <ClCompile Include="EditMaterial.cpp" />
     <ClCompile Include="EditOptions.cpp" />
     <ClCompile Include="EditSceneManager.cpp" />
-    <ClCompile Include="EditSceneOptions.cpp" />
     <ClCompile Include="GraphicsEngine\Effect.cpp" />
     <ClCompile Include="GraphicsEngine\Fog.cpp" />
     <ClCompile Include="GeneralAmbientColor.cpp" />
@@ -249,27 +251,6 @@
     <ClCompile Include="GraphicsEngine\Node.cpp" />
     <ClCompile Include="physXEngine\Nx.cpp" />
     <ClCompile Include="physXEngine\NxDebugRenderer.cpp" />
-    <ClCompile Include="physXEngine\NXU_Asc2Bin.cpp" />
-    <ClCompile Include="physXEngine\NXU_ColladaExport.cpp" />
-    <ClCompile Include="physXEngine\NXU_ColladaImport.cpp" />
-    <ClCompile Include="physXEngine\NXU_cooking.cpp" />
-    <ClCompile Include="physXEngine\NXU_customcopy.cpp" />
-    <ClCompile Include="physXEngine\NXU_File.cpp" />
-    <ClCompile Include="physXEngine\NXU_Geometry.cpp" />
-    <ClCompile Include="physXEngine\NXU_GraphicsMesh.cpp" />
-    <ClCompile Include="physXEngine\NXU_helper.cpp" />
-    <ClCompile Include="physXEngine\NXU_hull.cpp" />
-    <ClCompile Include="physXEngine\NXU_PhysicsExport.cpp" />
-    <ClCompile Include="physXEngine\NXU_PhysicsInstantiator.cpp" />
-    <ClCompile Include="physXEngine\NXU_ScaledCopy.cpp" />
-    <ClCompile Include="physXEngine\NXU_schema.cpp" />
-    <ClCompile Include="physXEngine\NXU_SchemaStream.cpp" />
-    <ClCompile Include="physXEngine\NXU_Streaming.cpp" />
-    <ClCompile Include="physXEngine\NXU_string.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinystr.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinyxml.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinyxmlerror.cpp" />
-    <ClCompile Include="physXEngine\NXU_tinyxmlparser.cpp" />
     <ClCompile Include="sceneManagerEngine\Octree.cpp" />
     <ClCompile Include="AudioEngine\OpenALSoundBuffer.cpp" />
     <ClCompile Include="AudioEngine\OpenALSoundSource.cpp" />
@@ -279,7 +260,6 @@
     <ClCompile Include="GraphicsEngine\OpenGLUtility.cpp" />
     <ClCompile Include="GraphicsEngine\Orient.cpp" />
     <ClCompile Include="GraphicsEngine\PerspectiveWindow.cpp" />
-    <ClCompile Include="PhysX.cpp" />
     <ClCompile Include="Common\Point.cpp" />
     <ClCompile Include="PublishProject.cpp" />
     <ClCompile Include="GraphicsEngine\Render.cpp" />
@@ -354,6 +334,7 @@
     <ClInclude Include="EditCurrentSceneOptions.h" />
     <ClInclude Include="EditGeneralPhysXProperties.h" />
     <ClInclude Include="EditGUI.h" />
+    <ClInclude Include="EditImportOptions.h" />
     <ClInclude Include="EditLOD.h" />
     <ClInclude Include="EditPhysX.h" />
     <ClInclude Include="EditPrefab.h" />
@@ -367,7 +348,6 @@
     <ClInclude Include="GraphicsEngine\Bloom.h" />
     <ClInclude Include="GraphicsEngine\Camera.h" />
     <ClInclude Include="GraphicsEngine\Cg.h" />
-    <ClInclude Include="Common\utf8\checked.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Common\utf8\core.h" />
     <ClInclude Include="CustomBitmapButton.h" />
@@ -387,7 +367,6 @@
     <ClInclude Include="EditMaterial.h" />
     <ClInclude Include="EditOptions.h" />
     <ClInclude Include="EditSceneManager.h" />
-    <ClInclude Include="EditSceneOptions.h" />
     <ClInclude Include="GraphicsEngine\Effect.h" />
     <ClInclude Include="GraphicsEngine\Fog.h" />
     <ClInclude Include="GeneralAmbientColor.h" />
@@ -425,26 +404,6 @@
     <ClInclude Include="GraphicsEngine\Node.h" />
     <ClInclude Include="physXEngine\Nx.h" />
     <ClInclude Include="physXEngine\NxDebugRenderer.h" />
-    <ClInclude Include="physXEngine\NXU_Asc2Bin.h" />
-    <ClInclude Include="physXEngine\NXU_ColladaExport.h" />
-    <ClInclude Include="physXEngine\NXU_ColladaImport.h" />
-    <ClInclude Include="physXEngine\NXU_cooking.h" />
-    <ClInclude Include="physXEngine\NXU_customcopy.h" />
-    <ClInclude Include="physXEngine\NXU_File.h" />
-    <ClInclude Include="physXEngine\NXU_Geometry.h" />
-    <ClInclude Include="physXEngine\NXU_GraphicsMesh.h" />
-    <ClInclude Include="physXEngine\NXU_helper.h" />
-    <ClInclude Include="physXEngine\NXU_hull.h" />
-    <ClInclude Include="physXEngine\NXU_PhysicsExport.h" />
-    <ClInclude Include="physXEngine\NXU_PhysicsInstantiator.h" />
-    <ClInclude Include="physXEngine\NXU_ScaledCopy.h" />
-    <ClInclude Include="physXEngine\NXU_schema.h" />
-    <ClInclude Include="physXEngine\NXU_SchemaStream.h" />
-    <ClInclude Include="physXEngine\NXU_SchemaTypes.h" />
-    <ClInclude Include="physXEngine\NXU_Streaming.h" />
-    <ClInclude Include="physXEngine\NXU_string.h" />
-    <ClInclude Include="physXEngine\NXU_tinystr.h" />
-    <ClInclude Include="physXEngine\NXU_tinyxml.h" />
     <ClInclude Include="sceneManagerEngine\Octree.h" />
     <ClInclude Include="AudioEngine\OpenAL.h" />
     <ClInclude Include="AudioEngine\OpenALSoundBuffer.h" />
@@ -456,7 +415,6 @@
     <ClInclude Include="GraphicsEngine\OpenGLUtility.h" />
     <ClInclude Include="GraphicsEngine\Orient.h" />
     <ClInclude Include="GraphicsEngine\PerspectiveWindow.h" />
-    <ClInclude Include="PhysX.h" />
     <ClInclude Include="Common\Point.h" />
     <ClInclude Include="PublishProject.h" />
     <ClInclude Include="GraphicsEngine\Render.h" />
@@ -488,9 +446,7 @@
     <ClInclude Include="GraphicsEngine\Texture.h" />
     <ClInclude Include="TimerEngine\Timer.h" />
     <ClInclude Include="GraphicsEngine\Transform.h" />
-    <ClInclude Include="Common\utf8\unchecked.h" />
     <ClInclude Include="physXEngine\UserAllocator.h" />
-    <ClInclude Include="Common\utf8.h" />
     <ClInclude Include="Common\Utility.h" />
     <ClInclude Include="VandaEngine1.h" />
     <ClInclude Include="VandaEngine1Dlg.h" />

@@ -19,7 +19,6 @@
 #include <PhysX/NxExtended.h>
 #include <PhysX/NxMath.h>
 #include "stream.h"
-#include "NXU_Helper.h"
 #include <map>
 #include <vector>
 #include <stdio.h>
@@ -121,9 +120,10 @@ public:
 	NxVec3 gRightDir;                  //Camera right direction  
 	NxF32 dist;
 	CFloat gDesiredDistance; //Camera distance from character
-	//3ds Max scene
-	CBool m_hasScene;
-	CChar m_sceneName[MAX_NAME_SIZE];
+	//3ds Max scene- No longer supported
+	CBool m_hasExternalScene;
+	CChar m_externalSceneName[MAX_NAME_SIZE];
+	////////
 	CVec3f m_horizontalDisp;
 	NxF32 GetHeight(NxF32 elapsedTime);
 	NxActor* m_groundBox;
@@ -138,10 +138,6 @@ private:
 	NxReal updateTime();
 
 public:
-	//3ds Max Scene 
-	CVoid SetSceneName( CChar* sceneName ) {  Cpy( m_sceneName, sceneName ); m_hasScene = CTrue; }
-	CVoid SetScene( CBool scene ) { if( scene ) m_hasScene = CTrue; else m_hasScene = CFalse; }
-
 	CVoid debugRenderer();
 	CVoid GetCameraAndCharacterPositions( const CFloat pitch, const CFloat yaw, NxVec3& cameraPos, NxVec3& characterPos, NxVec3& cameraDirection );
 	CVoid runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveDirection, CFloat elapsedTime );
@@ -195,6 +191,5 @@ public:
 	char* CheckHit();
 	char* CheckOtherActor();
 	NxActor* HitActor();
-	NX_BOOL LoadScene(const CChar *pFilename,NXU::NXU_FileType type );
 };
 

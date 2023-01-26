@@ -299,6 +299,15 @@ CInt SetAmbientSoundScriptBoolVariable(lua_State* L);
 CInt SetAmbientSoundScriptIntVariable(lua_State* L);
 CInt SetAmbientSoundScriptDoubleVariable(lua_State* L);
 
+CInt Get3DSoundScriptStringVariable(lua_State* L);
+CInt Get3DSoundScriptBoolVariable(lua_State* L);
+CInt Get3DSoundScriptIntVariable(lua_State* L);
+CInt Get3DSoundScriptDoubleVariable(lua_State* L);
+CInt Set3DSoundScriptStringVariable(lua_State* L);
+CInt Set3DSoundScriptBoolVariable(lua_State* L);
+CInt Set3DSoundScriptIntVariable(lua_State* L);
+CInt Set3DSoundScriptDoubleVariable(lua_State* L);
+
 CInt GetLightScriptStringVariable(lua_State* L);
 CInt GetLightScriptBoolVariable(lua_State* L);
 CInt GetLightScriptIntVariable(lua_State* L);

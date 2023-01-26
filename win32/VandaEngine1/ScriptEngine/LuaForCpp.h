@@ -301,6 +301,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetAmbientSoundScriptIntVariable", SetAmbientSoundScriptIntVariable);
 	lua_register(L, "SetAmbientSoundScriptDoubleVariable", SetAmbientSoundScriptDoubleVariable);
 
+	lua_register(L, "Get3DSoundScriptStringVariable", Get3DSoundScriptStringVariable);
+	lua_register(L, "Get3DSoundScriptBoolVariable", Get3DSoundScriptBoolVariable);
+	lua_register(L, "Get3DSoundScriptIntVariable", Get3DSoundScriptIntVariable);
+	lua_register(L, "Get3DSoundScriptDoubleVariable", Get3DSoundScriptDoubleVariable);
+	lua_register(L, "Set3DSoundScriptStringVariable", Set3DSoundScriptStringVariable);
+	lua_register(L, "Set3DSoundScriptBoolVariable", Set3DSoundScriptBoolVariable);
+	lua_register(L, "Set3DSoundScriptIntVariable", Set3DSoundScriptIntVariable);
+	lua_register(L, "Set3DSoundScriptDoubleVariable", Set3DSoundScriptDoubleVariable);
+
 	lua_register(L, "GetLightScriptStringVariable", GetLightScriptStringVariable);
 	lua_register(L, "GetLightScriptBoolVariable", GetLightScriptBoolVariable);
 	lua_register(L, "GetLightScriptIntVariable", GetLightScriptIntVariable);

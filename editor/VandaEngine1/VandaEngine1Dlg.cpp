@@ -27,11 +27,11 @@
 #endif
 
 //Edition.MaxVersion.MinVersion.BugFixes;
-//RTI.1.2.0
-CInt g_maxVersion = 1;
-CInt g_minVersion = 2;
-CInt g_bugFixesVersion = 0;
-CChar g_edition[MAX_NAME_SIZE] = "RTIBasic";
+CInt g_maxVersion;
+CInt g_minVersion;
+CInt g_bugFixesVersion;
+CChar g_edition[MAX_NAME_SIZE];
+
 CBool g_useOriginalPathOfDAETextures = CFalse;
 CBool g_updateTextureViaEditor = CFalse;
 CChar g_currentVSceneName[MAX_NAME_SIZE]; //save functions
@@ -93,7 +93,6 @@ CBool g_admin = CTrue;
 CBool g_importCOLLADA = CFalse;
 CBool g_openVINFile = CFalse;
 CChar g_fileNameInCommandLine[MAX_NAME_SIZE];
-std::vector<COpenALSoundBuffer*>g_soundBuffers;
 CRender g_render; //extern
 std::vector<CScene*> g_scene;
 std::vector<CPrefab*> g_prefab;
@@ -197,7 +196,6 @@ std::vector<std::vector<std::string>> g_prefabPackagesAndNames;
 std::vector<std::vector<std::string>> g_guiPackagesAndNames;
 std::vector<std::vector<std::string>> g_projectResourceNames;
 CBloom* g_bloom = NULL;
-CExternalPhysX*  g_externalPhysX = NULL;
 CVSceneBanner g_sceneBanner;
 CVSceneMenuCursor g_vsceneMenuCursor;
 CInt g_width;
@@ -1025,7 +1023,7 @@ CVandaEngine1Dlg::CVandaEngine1Dlg(CWnd* pParent /*=NULL*/)
 	m_dlgEditGeneralPhysXProperties = NULL;
 	m_dlgEditShadow = NULL;
 	m_dlgOptions = NULL;
-	m_dlgSceneOptions = NULL;
+	m_dlgImportOptions = NULL;
 	m_dlgCurrentSceneOptions = NULL;
 	m_dlgEditDOF = NULL;
 	m_dlgEditFog = NULL;
@@ -1107,10 +1105,6 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 	}
 	g_resourcePrefab.clear();
 
-	if( g_multipleView->m_nx->m_hasScene )
-	{
-		CDelete(g_externalPhysX);
-	}
 	//delete material editor
 	CDelete( m_dlgEditMaterial );
 	CDelete( m_dlgEditPhysX );
@@ -1169,12 +1163,7 @@ CVandaEngine1Dlg::~CVandaEngine1Dlg()
 
 	if( g_engineObjectNames.size() > 0 )
 		g_engineObjectNames.clear();
-	//delete the 3D sound buffers
-	for( std::vector<COpenALSoundBuffer*>::iterator it = g_soundBuffers.begin(); it != g_soundBuffers.end(); it++ )
-	{
-		CDelete( *it );
-	}
-	g_soundBuffers.clear();
+
 	CDelete( g_translateArrow );
 	CDelete( g_negativeZArrow );
 	CDelete (g_scaleArrow);
@@ -1328,7 +1317,6 @@ ON_BN_CLICKED(IDC_BTN_PLAYER, &CVandaEngine1Dlg::OnBnClickedBtnPlayer)
 ON_BN_CLICKED(IDC_BTN_CONSOLE, &CVandaEngine1Dlg::OnBnClickedBtnConsole)
 ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_SCENES, &CVandaEngine1Dlg::OnLvnItemchangedListScenes)
 ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_ENGINE_OBJECTS, &CVandaEngine1Dlg::OnLvnItemchangedListEngineObjects)
-ON_BN_CLICKED(IDC_BTN_REMOVE_PHYSX, &CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx)
 ON_BN_CLICKED(IDC_BTN_TWITTER, &CVandaEngine1Dlg::OnBnClickedBtnTwitter)
 ON_BN_CLICKED(IDC_BTN_YOUTUBE, &CVandaEngine1Dlg::OnBnClickedBtnYoutube)
 ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_PHYSX_ELEMENTS, &CVandaEngine1Dlg::OnLvnItemchangedListPhysxElements)
@@ -1372,6 +1360,7 @@ ON_WM_KILLFOCUS()
 ON_WM_ACTIVATE()
 ON_WM_DESTROY()
 ON_BN_CLICKED(IDC_BTN_VIDEO, &CVandaEngine1Dlg::OnBnClickedBtnVideo)
+ON_BN_CLICKED(IDC_BTN_REMOVE_PHYSX, &CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx)
 END_MESSAGE_MAP()
 
 
@@ -1479,7 +1468,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 1.9.8"));
+	SetWindowText(_T("Vanda Engine 1.9.9"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3046,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3107,7 @@ BOOL CVandaEngine1Dlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 1.9.8 initialized successfully" );
+		PrintInfo( "\nVersion 1.9.9 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3296,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3382,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.8 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.9 : Prefab Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3456,7 @@ BOOL CVandaEngine1Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 1.9.8 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 1.9.9 : GUI Mode (Untitled)");
 			ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7679,7 +7668,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.8 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.9 : GUI Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7688,7 +7677,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	CInt iResponse = IDNO;
 	if( askQuestion )
 	{ 
-		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() > 0 || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size())
+		if (g_menu.m_insertVSceneScript || g_guis.size() || g_scene.size() > 0 || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() > 0 || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size())
 			iResponse = MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	}
 
@@ -7748,7 +7737,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	g_vsceneMenuCursor.SetCursorPath("Assets/Engine/Textures/Cursor.dds");
 	g_sceneBanner.ClearVScenes();
 	g_vsceneMenuCursor.ClearVScenes();
-	CDelete(g_externalPhysX);
 	g_extraTexturesNamingConventions.Reset();
 	g_sceneManagerObjectsPerSplit = 15;
 	//g_options.Reset();
@@ -7840,7 +7828,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
 	}
 	Cpy(g_shadowProperties.m_directionalLightName, "\n" );
-	if( g_multipleView->m_nx->m_hasScene || gPhysXscene )
+	if(gPhysXscene )
 	{
 		if(!g_clickedOpen)
 			ResetPhysX();
@@ -7911,12 +7899,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	}
 	if( g_waterImages.size() > 0 )
 		g_waterImages.clear();
-
-	for( std::vector<COpenALSoundBuffer*>::iterator it = g_soundBuffers.begin(); it != g_soundBuffers.end(); it++ )
-	{
-		CDelete( *it );
-	}
-	g_soundBuffers.clear();
 
 	//Delete Resource Files
 	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
@@ -8112,7 +8094,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.8 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.9 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8121,7 +8103,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 1.9.8 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 1.9.9 : Prefab Mode (Untitled)");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 	}
 
@@ -8260,19 +8242,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportColladaMultipleAnimations(CChar* file
 			InsertItemToObjectList(tempScene->m_controllers[j]->GetName(), eOBJECTLIST_SKINCONTROLLER);
 		}
 
-		//Door
 		if (CmpIn(tempScene->GetName(), "trigger"))
 		{
-			if (!g_multipleView->m_nx->m_hasScene)
-			{
-				tempScene->m_isTrigger = CTrue;
-				tempScene->Update();
-				tempScene->CreateTrigger(g_multipleView->m_nx);
-			}
-			else
-			{
-				PrintInfo("\nCouldn't create triggers. Please remove current external PhysX scene", COLOR_RED);
-			}
+			tempScene->m_isTrigger = CTrue;
+			tempScene->Update();
+			tempScene->CreateTrigger(g_multipleView->m_nx);
 		}
 
 		if (g_scene.size() == 1)
@@ -8547,19 +8521,12 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 				InsertItemToObjectList( tempScene->m_controllers[j]->GetName(), eOBJECTLIST_SKINCONTROLLER);
 			}
 
-			//Door
+			//Trigger
 			if( CmpIn( tempScene->GetName(), "trigger" ) )
 			{
-				if(!g_multipleView->m_nx->m_hasScene)
-				{
-					tempScene->m_isTrigger = CTrue;
-					tempScene->Update();
-					tempScene->CreateTrigger( g_multipleView->m_nx );
-				}
-				else
-				{
-					PrintInfo( "\nCouldn't create triggers. Please remove current external PhysX scene", COLOR_RED );
-				}
+				tempScene->m_isTrigger = CTrue;
+				tempScene->Update();
+				tempScene->CreateTrigger( g_multipleView->m_nx );
 			}
 
 			if (g_scene.size() == 1)
@@ -8626,82 +8593,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedImportCollada()
 		ReleaseCapture();
 	}
 }
-//removed in version 1.4 or later
-CVoid CVandaEngine1Dlg::OnMenuClickedImportPhysX()
-{
-    // Create an Open dialog; the default file name extension is ".bmp".
-	CFileDialog dlgOpen(TRUE, _T("*.xml"), _T(""), OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
-		_T("PhysX XML File (*.xml)|*.xml||"), NULL, NULL);
-
-	if( dlgOpen.DoModal() == IDOK )
-	{
-		if( MessageBox( "Are you sure you want to replace the current PhysX scene with new PhysX scene?\nCurrent PhysX actors are lost", "Warning", MB_YESNO | MB_ICONWARNING) == IDYES )
-		{
-			SetCapture();
-			SetCursor(m_progressCursor);
-			CString fileName( dlgOpen.GetPathName() );
-			//for example this code converts 'test.nxb' to 'data\test\test.nxb'
-			//CChar fileWithoutDot[MAX_NAME_SIZE];
-			///Cpy( fileWithoutDot, (char*)fileName.GetString() );
-			//GetWithoutDot( fileWithoutDot );
-			CChar filePath[MAX_NAME_SIZE];
-			sprintf( filePath, "%s", (char*)fileName.GetString() );
-			
-			CChar temp[MAX_NAME_SIZE];
-
-			ResetPhysX();
-			for( CUInt i = 0; i < g_scene.size(); i++ )
-			{
-				for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
-				{
-					g_scene[i]->m_instanceGeometries[j]->m_hasPhysX = CFalse;
-					Cpy( g_scene[i]->m_instanceGeometries[j]->m_physXName, "\n" );
-					g_scene[i]->m_instanceGeometries[j]->EnablePhysicsMaterial(CFalse);
-				}
-			}
-			if( g_multipleView->m_nx->LoadScene( filePath, NXU::FT_XML) )
-			{
-				g_physXProperties.m_bDebugMode = CTrue;
-				GetMenu()->CheckMenuItem( ID_PHYSICS_DEBUGMODE, MF_CHECKED );
-				PrintInfo( "\nPhysX debug activated" );
-
-				g_multipleView->m_nx->SetSceneName( filePath );
-				sprintf( temp, "\nPhysX scene '%s' imported successufully", filePath );
-				PrintInfo( temp );
-				m_btnRemovePhysX.EnableWindow( TRUE );
-				m_physXElementListIndex = -1;
-				for (int nItem = m_listBoxPhysXElements.GetItemCount()-1; nItem >= 0 ;nItem-- )
-				{
-					m_listBoxPhysXElements.DeleteItem(nItem);
-				}
-				CInt count = 0;
-				for( std::vector<std::string>::iterator it = g_multipleView->m_nx->m_nxActorNames.begin(); it != g_multipleView->m_nx->m_nxActorNames.end();it++ )
-				{
-					CChar temp[MAX_NAME_SIZE];
-					Cpy( temp, (*it).c_str() );
-					InsertItemToPhysXList( temp, g_multipleView->m_nx->m_nxActorTypes[count] );
-					count++;
-				}
-				CDelete(g_externalPhysX);
-				g_externalPhysX = CNew(CExternalPhysX);
-				g_externalPhysX->SetPhysXPath(filePath);
-				//save functions/////////////////////////////////
-				for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
-				{
-					g_externalPhysX->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue);//Write to zip file and copy the texture
-				}
-				//save functions/////////////////////////////////
-
-			}
-			else
-			{
-				sprintf( temp, "\ncouldn't load the PhysX scene '%s'", filePath );
-				PrintInfo( temp, COLOR_RED );
-			}
-			ReleaseCapture();
-		}
-	}
-}
 
 CVoid CVandaEngine1Dlg::OnMenuClickedGeneralOptions()
 {
@@ -8712,9 +8603,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedGeneralOptions()
 
 CVoid CVandaEngine1Dlg::OnMenuClickedSceneOptions()
 {
-	m_dlgSceneOptions = CNew( CEditSceneOptions );
-	INT_PTR result = m_dlgSceneOptions->DoModal();
-	CDelete( m_dlgSceneOptions );
+	m_dlgImportOptions = CNew( CEditImportOptions );
+	INT_PTR result = m_dlgImportOptions->DoModal();
+	CDelete(m_dlgImportOptions);
 }
 
 CVoid CVandaEngine1Dlg::OnMenuClickedCurrentSceneOptions()
@@ -8880,43 +8771,26 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsert3DSound()
 
 		CChar temp[ MAX_NAME_SIZE];
 		sprintf( temp, "%s", (LPCSTR)m_dlgAdd3DSound->m_str3DSoundDataPath );
-		COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
-		if( m_3DSoundBuffer == NULL || (m_3DSoundBuffer && !m_3DSoundBuffer->m_loaded ) )
-		{
-			if( m_3DSoundBuffer == NULL )
-			{
-				m_3DSoundBuffer = CNew( COpenALSoundBuffer );
-				g_soundBuffers.push_back( m_3DSoundBuffer );
-			}
-			else 
-			{
-				CChar tempBuffer[MAX_NAME_SIZE];
-				sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_3DSoundBuffer->GetName() ), "'" );
-				PrintInfo( tempBuffer, COLOR_YELLOW );
-			}
-			if( !m_3DSoundBuffer->LoadOggVorbisFromFile( temp ) )
-			{
-				CChar buffer[MAX_NAME_SIZE];
-				sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", temp, "'" );
-				PrintInfo( buffer, COLOR_RED );
-				m_3DSoundBuffer->m_loaded = CFalse;
 
-			}
-			else
-			{
-				CChar buffer[MAX_NAME_SIZE];
-				sprintf( buffer, "\n%s%s%s", "ogg file '", temp, "' loaded successfully." );
-				PrintInfo( buffer );
-				m_3DSoundBuffer->m_loaded = CTrue;
-			}
-			m_3DSoundBuffer->SetName( temp );	
+		COpenALSoundBuffer* m_3DSoundBuffer = CNew(COpenALSoundBuffer);
+
+		if( !m_3DSoundBuffer->LoadOggVorbisFromFile( temp ) )
+		{
+			CChar buffer[MAX_NAME_SIZE];
+			sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", temp, "'" );
+			PrintInfo( buffer, COLOR_RED );
+			m_3DSoundBuffer->m_loaded = CFalse;
+
 		}
 		else
 		{
-				CChar temp[MAX_NAME_SIZE]; 
-				sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_3DSoundBuffer->GetName()), "' already exists." );
-				PrintInfo( temp, COLOR_YELLOW );
+			PrintInfo("\nogg file '");
+			PrintInfo(temp, COLOR_RED_GREEN);
+			PrintInfo("' loaded successfully");
+
+			m_3DSoundBuffer->m_loaded = CTrue;
 		}
+		m_3DSoundBuffer->SetName( temp );	
 
 		m_3DSoundSource->BindSoundBuffer (*m_3DSoundBuffer);
 		m_3DSoundSource->SetLooping( m_dlgAdd3DSound->GetLoopCondition() );
@@ -8930,6 +8804,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsert3DSound()
 			g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
 
 		m_3DSound->SetName( m_dlgAdd3DSound->GetName() );
+		m_3DSound->SetLastName(m_dlgAdd3DSound->GetName());
 		m_3DSound->SetPath( temp );
 		m_3DSound->SetPosition( m_dlgAdd3DSound->GetSoundPos() );
 		m_3DSound->SetLoop( m_dlgAdd3DSound->GetLoopCondition() );
@@ -8941,6 +8816,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsert3DSound()
 		m_3DSound->SetVolume(m_dlgAdd3DSound->GetVolume());
 		m_3DSound->SetSoundSource( m_3DSoundSource );
 		m_3DSound->SetSoundBuffer( m_3DSoundBuffer );
+		m_3DSound->SetUpdateScript(m_dlgAdd3DSound->GetUpdateScript());
+		m_3DSound->SetHasScript(m_dlgAdd3DSound->GetHasScript());
+		m_3DSound->SetScript(m_dlgAdd3DSound->GetScriptPath());
 
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
@@ -9245,7 +9123,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedInsertAmbientSound()
 		}
 		//save functions/////////////////////////////////
 
-		PrintInfo( "\nAmbient sound '" );
+		PrintInfo( "\nogg file '" );
 		sprintf( temp, "%s", (LPCSTR)m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
 		PrintInfo( temp, COLOR_RED_GREEN );
 		PrintInfo( "' loaded successfully" );
@@ -9968,7 +9846,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.8 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.9 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10570,8 +10448,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 			MessageBox(temp, "Vanda Engine Error", MB_OK);
 			return;
 		}
+
 		//Save version
 		CChar engineName[MAX_NAME_SIZE] = "VandaEngine";
+		g_maxVersion = 1;
+		g_minVersion = 9;
+		g_bugFixesVersion = 9;
+		Cpy(g_edition, "Free");
+
 		fwrite(&engineName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fwrite(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fwrite(&g_maxVersion, 1, sizeof(CInt), filePtr);
@@ -10610,8 +10494,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_cameraInstancePanTilt.y = g_render.GetDefaultInstanceCamera()->GetTilt();
 		CFloat cameraInstanceZoom = g_render.GetDefaultInstanceCamera()->m_abstractCamera->GetAngle();
 
-		fwrite(&g_multipleView->m_nx->m_hasScene, sizeof(CBool), 1, filePtr);
-		fwrite(g_multipleView->m_nx->m_sceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
+		fwrite(&g_multipleView->m_nx->m_hasExternalScene, sizeof(CBool), 1, filePtr);
+		fwrite(g_multipleView->m_nx->m_externalSceneName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fwrite(&g_characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 		fwrite(&g_cameraInstancePos, sizeof(CVec3f), 1, filePtr);
 		fwrite(&g_cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
@@ -10811,7 +10695,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.8 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.9 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -10941,14 +10825,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar ambientSoundRootPath[MAX_NAME_SIZE];
 		sprintf(ambientSoundRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/Ambient/");
 
+		CChar ThreeDSoundRootPath[MAX_NAME_SIZE];
+		sprintf(ThreeDSoundRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/");
+
 		CChar mainCharacterSoundPath[MAX_NAME_SIZE];
 		sprintf(mainCharacterSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
 
 		CChar mainCharacterScriptPath[MAX_NAME_SIZE];
 		sprintf(mainCharacterScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Character/");
-
-		CChar ThreeDSoundPath[MAX_NAME_SIZE];
-		sprintf(ThreeDSoundPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/" );
 
 		CChar VSceneScriptPath[MAX_NAME_SIZE];
 		sprintf(VSceneScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/VSceneScript/");
@@ -10965,28 +10849,25 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar cursorPath[MAX_NAME_SIZE];
 		sprintf(cursorPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Cursor/");
 
-		CChar rootScriptPath[MAX_NAME_SIZE];
-		sprintf(rootScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/");
+		CChar triggerRootPath[MAX_NAME_SIZE];
+		sprintf(triggerRootPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/");
 
-		CChar rootTriggersScriptPath[MAX_NAME_SIZE];
-		sprintf(rootTriggersScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/");
-
-		std::vector<std::string> scriptPath;
-		std::vector<std::string> scriptFolderName;
+		std::vector<std::string> triggerScriptPath;
+		std::vector<std::string> triggerScriptFolderName;
 
 		for (CUInt j = 0; j < g_triggers.size(); j++)
 		{
 			if (g_triggers[j]->GetHasScript())
 			{
 				CChar tempScriptPath[MAX_NAME_SIZE];
-				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetName());
-				scriptPath.push_back(tempScriptPath);
-				scriptFolderName.push_back(g_triggers[j]->GetName());
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/", g_triggers[j]->GetName());
+				triggerScriptPath.push_back(tempScriptPath);
+				triggerScriptFolderName.push_back(g_triggers[j]->GetName());
 				g_triggers[j]->SetTempScriptPath(tempScriptPath);
 
 				//last script path
 				CChar tempLastScriptPath[MAX_NAME_SIZE];
-				sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetLastName());
+				sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/", g_triggers[j]->GetLastName());
 				g_triggers[j]->SetLastScriptPath(tempLastScriptPath);
 			}
 		}
@@ -11025,6 +10906,22 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			g_engineAmbientSounds[j]->SetLastScriptPath(tempLastScriptPath);
 		}
 
+		std::vector<std::string> ThreeDSoundScriptSoundPath;
+		std::vector<std::string> ThreeDSoundScriptSoundFolderName;
+
+		for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/", g_engine3DSounds[j]->GetName());
+			ThreeDSoundScriptSoundPath.push_back(tempScriptPath);
+			ThreeDSoundScriptSoundFolderName.push_back(g_engine3DSounds[j]->GetName());
+			g_engine3DSounds[j]->SetTempScriptPath(tempScriptPath);
+
+			//last script path
+			CChar tempLastScriptPath[MAX_NAME_SIZE];
+			sprintf(tempLastScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/", g_engine3DSounds[j]->GetLastName());
+			g_engine3DSounds[j]->SetLastScriptPath(tempLastScriptPath);
+		}
 
 		std::vector<std::string> cameraScriptPath;
 		std::vector<std::string> cameraScriptFolderName;
@@ -11076,14 +10973,14 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar currentAmbientSoundRootPath[MAX_NAME_SIZE];
 		sprintf(currentAmbientSoundRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/Ambient/");
 
+		CChar current3DSoundRootPath[MAX_NAME_SIZE];
+		sprintf(current3DSoundRootPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/");
+
 		CChar currentMainCharacterSoundPath[MAX_NAME_SIZE];
 		sprintf(currentMainCharacterSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/");
 
 		CChar currentMainCharacterScriptPath[MAX_NAME_SIZE];
 		sprintf(currentMainCharacterScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Character/");
-
-		CChar current3DSoundPath[MAX_NAME_SIZE];
-		sprintf( current3DSoundPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/" );
 
 		CChar currentVSceneScriptPath[MAX_NAME_SIZE];
 		sprintf(currentVSceneScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/VSceneScript/");
@@ -11100,20 +10997,20 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		CChar currentCursorPath[MAX_NAME_SIZE];
 		sprintf(currentCursorPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Cursor/");
 
-		CChar rootCurrentScriptPath[MAX_NAME_SIZE];
-		sprintf(rootCurrentScriptPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/");
+		CChar currentTriggerPath[MAX_NAME_SIZE];
+		sprintf(currentTriggerPath, "%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Triggers/");
 
-		std::vector<std::string> currentScriptPath;
-		std::vector<std::string> currentScriptFolderName;
+		std::vector<std::string> currentTriggerScriptPath;
+		std::vector<std::string> currentTriggerScriptFolderName;
 
 		for (CUInt j = 0; j < g_triggers.size(); j++)
 		{
 			if (g_triggers[j]->GetHasScript())
 			{
 				CChar tempCurrentScriptPath[MAX_NAME_SIZE];
-				sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", g_triggers[j]->GetName());
-				currentScriptPath.push_back(tempCurrentScriptPath);
-				currentScriptFolderName.push_back(g_triggers[j]->GetName());
+				sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Triggers/", g_triggers[j]->GetName());
+				currentTriggerScriptPath.push_back(tempCurrentScriptPath);
+				currentTriggerScriptFolderName.push_back(g_triggers[j]->GetName());
 				g_triggers[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
 			}
 		}
@@ -11141,6 +11038,19 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			currentAmbientSoundScriptSoundFolderName.push_back(g_engineAmbientSounds[j]->GetName());
 			g_engineAmbientSounds[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
 		}
+
+		std::vector<std::string> current3DSoundScriptSoundPath;
+		std::vector<std::string> current3DSoundScriptSoundFolderName;
+
+		for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+		{
+			CChar tempCurrentScriptPath[MAX_NAME_SIZE];
+			sprintf(tempCurrentScriptPath, "%s%s%s%s/", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/", g_engine3DSounds[j]->GetName());
+			current3DSoundScriptSoundPath.push_back(tempCurrentScriptPath);
+			current3DSoundScriptSoundFolderName.push_back(g_engine3DSounds[j]->GetName());
+			g_engine3DSounds[j]->SetTempCurrentScriptPath(tempCurrentScriptPath);
+		}
+
 
 		std::vector<std::string> currentCameraScriptPath;
 		std::vector<std::string> currentCameraScriptFolderName;
@@ -11179,6 +11089,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory(ambientSoundRootPath);
 
 			//Remove the contents of existing directory
+			RemoveAllFilesAndFoldersInDirectory( ThreeDSoundRootPath );
+			//As Previous functions removes main directory, I'll recreate it
+			CreateWindowsDirectory(ThreeDSoundRootPath);
+
+			//Remove the contents of existing directory
 			RemoveAllFilesAndFoldersInDirectory(cameraRootPath);
 			//As Previous functions removes main directory, I'll recreate it
 			CreateWindowsDirectory(cameraRootPath);
@@ -11187,7 +11102,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//As Previous functions removes main directory, I'll recreate it
 			CreateWindowsDirectory(lightRootPath);
 
-			RemoveAllFilesInDirectory(ThreeDSoundPath);
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
 			//RemoveAllFilesInDirectory(mainCharacterScriptPath); //currently sound and script path are the same
 			RemoveAllFilesInDirectory(VSceneScriptPath); 
@@ -11195,13 +11109,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory(terrainPath);
 			RemoveAllFilesInDirectory(bannerPath);
 			RemoveAllFilesInDirectory(cursorPath);
-			//RemoveAllFilesInDirectory(scriptPath);
-			//for (CUInt j = 0; j < scriptPath.size(); j++)
-			//	RemoveAllFilesInDirectory((CChar*)scriptPath[j].c_str());
-			RemoveAllFilesAndFoldersInDirectory(rootScriptPath);
+			RemoveAllFilesAndFoldersInDirectory(triggerRootPath);
 			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(rootScriptPath);
-			CreateWindowsDirectory(rootTriggersScriptPath);
+			CreateWindowsDirectory(triggerRootPath);
 		}
 		else if( saveAlgorithm == 1 || saveAlgorithm == 4)
 		{
@@ -11212,7 +11122,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory(lightRootPath);
 			CreateWindowsDirectory( soundPath );
 			CreateWindowsDirectory(ambientSoundRootPath);
-			CreateWindowsDirectory(ThreeDSoundPath );
+			CreateWindowsDirectory(ThreeDSoundRootPath);
 			CreateWindowsDirectory(mainCharacterSoundPath);
 			//CreateWindowsDirectory(mainCharacterScriptPath); //currently script and sound path are the same
 			CreateWindowsDirectory(VSceneScriptPath);
@@ -11220,16 +11130,18 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CreateWindowsDirectory(terrainPath);
 			CreateWindowsDirectory(bannerPath);
 			CreateWindowsDirectory(cursorPath);
-			CreateWindowsDirectory(rootScriptPath);
-			CreateWindowsDirectory(rootTriggersScriptPath);
-			for (CUInt j = 0; j < scriptPath.size(); j++)
-				CreateWindowsDirectory((CChar*)scriptPath[j].c_str());
+			CreateWindowsDirectory(triggerRootPath);
+			for (CUInt j = 0; j < triggerScriptPath.size(); j++)
+				CreateWindowsDirectory((CChar*)triggerScriptPath[j].c_str());
 
 			for (CUInt j = 0; j < waterScriptTexturePath.size(); j++)
 				CreateWindowsDirectory((CChar*)waterScriptTexturePath[j].c_str());
 
 			for (CUInt j = 0; j < ambientSoundScriptSoundPath.size(); j++)
 				CreateWindowsDirectory((CChar*)ambientSoundScriptSoundPath[j].c_str());
+
+			for (CUInt j = 0; j < ThreeDSoundScriptSoundPath.size(); j++)
+				CreateWindowsDirectory((CChar*)ThreeDSoundScriptSoundPath[j].c_str());
 
 			for (CUInt j = 0; j < cameraScriptPath.size(); j++)
 				CreateWindowsDirectory((CChar*)cameraScriptPath[j].c_str());
@@ -11267,12 +11179,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			Append(newCursorPathAndName, tempCursorAfterPath);
 			g_vsceneMenuCursor.SetCursorPath(newCursorPathAndName);
 
-			//scripts
-
+			//Triggers
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
 				CChar tempDirectory[MAX_URI_SIZE];
-				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+				sprintf(tempDirectory, "%s%s%d/", triggerRootPath, "temp", j);
 				CreateWindowsDirectory(tempDirectory);
 
 				if (!Cmp(g_triggers[j]->GetLastName(), g_triggers[j]->GetName()))
@@ -11287,10 +11198,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 					//rename folder
 					CChar tempLastScriptPath[MAX_NAME_SIZE];
-					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetLastName());
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/temp", j, "/", g_triggers[j]->GetLastName());
 
 					CChar tempScriptPath[MAX_NAME_SIZE];
-					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetName());
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/temp", j, "/", g_triggers[j]->GetName());
 
 					rename(tempLastScriptPath, tempScriptPath);
 
@@ -11317,9 +11228,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
 				CChar tempDirectory[MAX_URI_SIZE];
-				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+				sprintf(tempDirectory, "%s%s%d/", triggerRootPath, "temp", j);
 
-				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, rootTriggersScriptPath);
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, triggerRootPath);
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
@@ -11488,6 +11399,86 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				sprintf(tempDirectory, "%s%s%d/", ambientSoundRootPath, "temp", j);
 
 				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, ambientSoundRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+
+			//3D Sound
+			for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", ThreeDSoundRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engine3DSounds[j]->GetLastName(), g_engine3DSounds[j]->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engine3DSounds[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engine3DSounds[j]->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/temp", j, "/", g_engine3DSounds[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/temp", j, "/", g_engine3DSounds[j]->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engine3DSounds[j]->GetHasScript() && g_engine3DSounds[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetScript(), tempScriptPath);
+						g_engine3DSounds[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engine3DSounds[j]->IsInVSceneList(pureFileName, CTrue, CTrue))
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetPath(), tempScriptPath);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engine3DSounds[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_engine3DSounds[j]->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engine3DSounds[j]->GetHasScript() && g_engine3DSounds[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetScript(), g_engine3DSounds[j]->GetTempScriptPath());
+						g_engine3DSounds[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engine3DSounds[j]->IsInVSceneList(pureFileName, CTrue, CTrue))
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetPath(), g_engine3DSounds[j]->GetTempScriptPath());
+					}
+
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engine3DSounds[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engine3DSounds[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engine3DSounds[j]->SetScript(NewPathAndName);
+
+				CChar* soundTempAfterPath = GetAfterPath(g_engine3DSounds[j]->GetPath());
+				CChar soundNewPathAndName[MAX_NAME_SIZE];
+				Cpy(soundNewPathAndName, g_engine3DSounds[j]->GetTempScriptPath());
+				Append(soundNewPathAndName, soundTempAfterPath);
+				g_engine3DSounds[j]->SetPath(soundNewPathAndName);
+
+				g_engine3DSounds[j]->SetLastName(g_engine3DSounds[j]->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", ThreeDSoundRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, ThreeDSoundRootPath);
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
@@ -11750,20 +11741,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 			}
 
-			//3d sounds
 			//scenes
-			for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
-			{
-				if( g_engine3DSounds[i]->IsInVSceneList(pureFileName,CTrue, CTrue ) )
-				{
-					CopyOneFileToDstDirectory( g_engine3DSounds[i]->GetPath(), ThreeDSoundPath );
-				}
-				CChar* tempAfterPath = GetAfterPath(g_engine3DSounds[i]->GetPath());
-				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, ThreeDSoundPath );
-				Append(newPathAndName, tempAfterPath );
-				g_engine3DSounds[i]->SetPath( newPathAndName );
-			}
 			if (g_mainCharacter)
 			{
 				if (g_mainCharacter->IsInVSceneList(pureFileName, CTrue, CTrue))
@@ -11807,9 +11785,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//copy the assets from current place to the saved directory
 			CopyAllFilesAndFoldersToDstDirectory(currentWaterRootPath, waterRootPath);
 			CopyAllFilesAndFoldersToDstDirectory(currentAmbientSoundRootPath, ambientSoundRootPath);
+			CopyAllFilesAndFoldersToDstDirectory(current3DSoundRootPath, ThreeDSoundRootPath);
 			CopyAllFilesAndFoldersToDstDirectory(currentCameraRootPath, cameraRootPath);
 			CopyAllFilesAndFoldersToDstDirectory(currentLightRootPath, lightRootPath);
-			CopyAllFilesFromSrcToDstDirectory(current3DSoundPath, ThreeDSoundPath);
 			CopyAllFilesFromSrcToDstDirectory(currentMainCharacterSoundPath, mainCharacterSoundPath);
 			//CopyAllFilesFromSrcToDstDirectory(currentMainCharacterScriptPath, mainCharacterScriptPath); //currently sound and script path are the same
 			CopyAllFilesFromSrcToDstDirectory(currentVSceneScriptPath, VSceneScriptPath);
@@ -11817,11 +11795,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			CopyAllFilesFromSrcToDstDirectory(currentTerrainPath, terrainPath);
 			CopyAllFilesFromSrcToDstDirectory(currentBannerPath, bannerPath);
 			CopyAllFilesFromSrcToDstDirectory(currentCursorPath, cursorPath);
-
-			//CopyAllFilesFromSrcToDstDirectory(currentScriptPath, scriptPath);
-			//for (CUInt j = 0; j < scriptPath.size(); j++)
-			//	CopyAllFilesFromSrcToDstDirectory((CChar*)currentScriptPath[j].c_str(), (CChar*)scriptPath[j].c_str());
-			CopyAllFilesAndFoldersToDstDirectory(rootCurrentScriptPath, rootScriptPath);
+			CopyAllFilesAndFoldersToDstDirectory(currentTriggerPath, triggerRootPath);
 
 			//Banner
 			if( g_sceneBanner.IsInVSceneList(g_currentVSceneName, CTrue, CFalse ) )
@@ -11853,7 +11827,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
 				CChar tempDirectory[MAX_URI_SIZE];
-				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+				sprintf(tempDirectory, "%s%s%d/", triggerRootPath, "temp", j);
 				CreateWindowsDirectory(tempDirectory);
 
 				if (!Cmp(g_triggers[j]->GetLastName(), g_triggers[j]->GetName()))
@@ -11868,10 +11842,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 					//rename folder
 					CChar tempLastScriptPath[MAX_NAME_SIZE];
-					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetLastName());
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/temp", j, "/", g_triggers[j]->GetLastName());
 
 					CChar tempScriptPath[MAX_NAME_SIZE];
-					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/temp", j, "/", g_triggers[j]->GetName());
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/temp", j, "/", g_triggers[j]->GetName());
 
 					rename(tempLastScriptPath, tempScriptPath);
 
@@ -11898,9 +11872,9 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			for (CUInt j = 0; j < g_triggers.size(); j++)
 			{
 				CChar tempDirectory[MAX_URI_SIZE];
-				sprintf(tempDirectory, "%s%s%d/", rootTriggersScriptPath, "temp", j);
+				sprintf(tempDirectory, "%s%s%d/", triggerRootPath, "temp", j);
 
-				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, rootTriggersScriptPath);
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, triggerRootPath);
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
@@ -12073,6 +12047,88 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				sprintf(tempDirectory, "%s%s%d/", ambientSoundRootPath, "temp", j);
 
 				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, ambientSoundRootPath);
+				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
+				RemoveDirectoryA(tempDirectory);
+			}
+
+
+			//3D Sound
+			for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", ThreeDSoundRootPath, "temp", j);
+				CreateWindowsDirectory(tempDirectory);
+
+				if (!Cmp(g_engine3DSounds[j]->GetLastName(), g_engine3DSounds[j]->GetName()))
+				{
+					CChar currentTempPath[MAX_URI_SIZE];
+					sprintf(currentTempPath, "%s%s/", tempDirectory, g_engine3DSounds[j]->GetLastName());
+					CreateWindowsDirectory(currentTempPath);
+
+					CopyAllFilesAndFoldersToDstDirectory(g_engine3DSounds[j]->GetLastScriptPath(), currentTempPath);
+
+					//rename folder
+					CChar tempLastScriptPath[MAX_NAME_SIZE];
+					sprintf(tempLastScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/temp", j, "/", g_engine3DSounds[j]->GetLastName());
+
+					CChar tempScriptPath[MAX_NAME_SIZE];
+					sprintf(tempScriptPath, "%s%s%s%d%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/temp", j, "/", g_engine3DSounds[j]->GetName());
+
+					rename(tempLastScriptPath, tempScriptPath);
+
+					if (g_engine3DSounds[j]->GetHasScript() && g_engine3DSounds[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetScript(), tempScriptPath);
+						g_engine3DSounds[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engine3DSounds[j]->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetPath(), tempScriptPath);
+					}
+
+					RemoveAllFilesAndFoldersInDirectory(g_engine3DSounds[j]->GetLastScriptPath());
+					RemoveDirectoryA(g_engine3DSounds[j]->GetLastScriptPath());
+
+				}
+				else
+				{
+					if (g_engine3DSounds[j]->GetHasScript() && g_engine3DSounds[j]->GetUpdateScript())
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetScript(), g_engine3DSounds[j]->GetTempScriptPath());
+						g_engine3DSounds[j]->SetUpdateScript(CFalse);
+					}
+
+					if (g_engine3DSounds[j]->IsInVSceneList(g_currentVSceneName, CTrue, CFalse))
+					{
+						CopyOneFileToDstDirectory(g_engine3DSounds[j]->GetPath(), g_engine3DSounds[j]->GetTempScriptPath());
+					}
+
+				}
+
+				CChar* TempAfterPath = GetAfterPath(g_engine3DSounds[j]->GetScript());
+				CChar NewPathAndName[MAX_NAME_SIZE];
+				Cpy(NewPathAndName, g_engine3DSounds[j]->GetTempScriptPath());
+				Append(NewPathAndName, TempAfterPath);
+				g_engine3DSounds[j]->SetScript(NewPathAndName);
+
+				CChar* soundTempAfterPath = GetAfterPath(g_engine3DSounds[j]->GetPath());
+				CChar soundNewPathAndName[MAX_NAME_SIZE];
+				Cpy(soundNewPathAndName, g_engine3DSounds[j]->GetTempScriptPath());
+				Append(soundNewPathAndName, soundTempAfterPath);
+				g_engine3DSounds[j]->SetPath(soundNewPathAndName);
+
+				g_engine3DSounds[j]->IsInVSceneList(pureFileName, CTrue, CTrue);
+
+				g_engine3DSounds[j]->SetLastName(g_engine3DSounds[j]->GetName());
+			}
+
+			for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+			{
+				CChar tempDirectory[MAX_URI_SIZE];
+				sprintf(tempDirectory, "%s%s%d/", ThreeDSoundRootPath, "temp", j);
+
+				CopyAllFilesAndFoldersToDstDirectory(tempDirectory, ThreeDSoundRootPath);
 				RemoveAllFilesAndFoldersInDirectory(tempDirectory);
 				RemoveDirectoryA(tempDirectory);
 			}
@@ -12338,23 +12394,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 			}
 
-			//3d sounds
-			for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
-			{
-				if( g_engine3DSounds[i]->IsInVSceneList(g_currentVSceneName,CTrue, CFalse ) )
-				{
-					CopyOneFileToDstDirectory( g_engine3DSounds[i]->GetPath(), ThreeDSoundPath );
-				}
-				CChar* tempAfterPath = GetAfterPath(g_engine3DSounds[i]->GetPath());
-				CChar newPathAndName[MAX_NAME_SIZE];
-				Cpy(newPathAndName, ThreeDSoundPath );
-				Append(newPathAndName, tempAfterPath );
-				g_engine3DSounds[i]->SetPath( newPathAndName );
-
-				g_engine3DSounds[i]->IsInVSceneList(pureFileName,CTrue, CTrue );
-
-			}
-
 			if (g_mainCharacter)
 			{
 				if (g_mainCharacter->IsInVSceneList(pureFileName, CTrue, CFalse))
@@ -12454,21 +12493,21 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		FindClose(hFind);
 
 
-		//Delete removed scripts
-		for (CUInt sc = 0; sc < scriptPath.size(); sc++)
+		//Delete removed trigger scripts
+		for (CUInt sc = 0; sc < triggerScriptPath.size(); sc++)
 		{
 			CChar tempScriptPath[MAX_NAME_SIZE];
-			sprintf(tempScriptPath, "%s%s", scriptPath[sc].c_str(), "*.*");
+			sprintf(tempScriptPath, "%s%s", triggerScriptPath[sc].c_str(), "*.*");
 			hFind = FindFirstFile(tempScriptPath, &data);
 			do
 			{
 				CChar scriptTempPath[MAX_NAME_SIZE];
-				sprintf(scriptTempPath, "%s%s", scriptPath[sc].c_str(), data.cFileName);
+				sprintf(scriptTempPath, "%s%s", triggerScriptPath[sc].c_str(), data.cFileName);
 
 				CBool foundTarget = CFalse;
 				for (CUInt j = 0; j < g_triggers.size(); j++)
 				{
-					if (Cmp(g_triggers[j]->GetName(), scriptFolderName[sc].c_str()))
+					if (Cmp(g_triggers[j]->GetName(), triggerScriptFolderName[sc].c_str()))
 					{
 						if (g_triggers[j]->GetHasScript() && Cmp(GetAfterPath(g_triggers[j]->GetScript()), data.cFileName))
 						{
@@ -12492,8 +12531,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			FindClose(hFind);
 		}
 
-		scriptPath.clear();
-		scriptFolderName.clear();
+		triggerScriptPath.clear();
+		triggerScriptFolderName.clear();
 
 		//Delete removed trigger object's folders
 		for (CUInt k = 0; k < m_deletedTriggerObjects.size(); k++)
@@ -12510,7 +12549,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			if (!foundTarget)
 			{
 				CChar tempScriptPath[MAX_NAME_SIZE];
-				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/Triggers/", (CChar*)m_deletedTriggerObjects[k].c_str());
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/", (CChar*)m_deletedTriggerObjects[k].c_str());
 				RemoveAllFilesInDirectory(tempScriptPath);
 				RemoveDirectoryA(tempScriptPath);
 			}
@@ -12665,6 +12704,78 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		}
 
 		m_deletedAmbientSoundObjects.clear();
+		///////
+
+		//3D Sound
+		for (CUInt sc = 0; sc < ThreeDSoundScriptSoundPath.size(); sc++)
+		{
+			CChar tempScriptPath[MAX_NAME_SIZE];
+			sprintf(tempScriptPath, "%s%s", ThreeDSoundScriptSoundPath[sc].c_str(), "*.*");
+			hFind = FindFirstFile(tempScriptPath, &data);
+			do
+			{
+				CChar scriptTempPath[MAX_NAME_SIZE];
+				sprintf(scriptTempPath, "%s%s", ThreeDSoundScriptSoundPath[sc].c_str(), data.cFileName);
+
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+				{
+					if (Cmp(g_engine3DSounds[j]->GetName(), ThreeDSoundScriptSoundFolderName[sc].c_str()))
+					{
+						if (g_engine3DSounds[j]->GetHasScript() && Cmp(GetAfterPath(g_engine3DSounds[j]->GetScript()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+
+						if (Cmp(GetAfterPath(g_engine3DSounds[j]->GetPath()), data.cFileName))
+						{
+							foundTarget = CTrue;
+							break;
+						}
+
+					}
+				}
+
+				//Remove Files
+				if (!foundTarget)
+				{
+					if (!DeleteFile(scriptTempPath))
+					{
+						//CChar temp[MAX_NAME_SIZE];
+						//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
+						//PrintInfo( temp, COLOR_RED );
+					}
+				}
+			} while (FindNextFile(hFind, &data));
+			FindClose(hFind);
+		}
+
+		ThreeDSoundScriptSoundPath.clear();
+		ThreeDSoundScriptSoundFolderName.clear();
+
+		//Delete removed 3D sound object's folders
+		for (CUInt k = 0; k < m_deleted3DSoundObjects.size(); k++)
+		{
+			CBool foundTarget = CFalse;
+			for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
+			{
+				if (Cmp(m_deleted3DSoundObjects[k].c_str(), g_engine3DSounds[j]->GetName()))
+				{
+					foundTarget = CTrue;
+					break;
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar tempScriptPath[MAX_NAME_SIZE];
+				sprintf(tempScriptPath, "%s%s%s%s/", g_currentProjectPath, currentSceneNameWithoutDot, "/Sounds/3D/", (CChar*)m_deleted3DSoundObjects[k].c_str());
+				RemoveAllFilesInDirectory(tempScriptPath);
+				RemoveDirectoryA(tempScriptPath);
+			}
+		}
+
+		m_deleted3DSoundObjects.clear();
 		///////
 
 		//Camera
@@ -12921,38 +13032,6 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			RemoveAllFilesInDirectory(terrainPath);
 		}
 
-		//Delete removed 3D sounds
-		CChar temp3DSoundPath[MAX_NAME_SIZE];
-		sprintf( temp3DSoundPath, "%s%s", ThreeDSoundPath, "*.*" );
-		hFind = FindFirstFile( temp3DSoundPath, &data );
-		do
-		{
-			CChar soundTempPath[MAX_NAME_SIZE];
-			sprintf( soundTempPath, "%s%s", ThreeDSoundPath, data.cFileName );
-
-			CBool foundTarget = CFalse;
-			for( CUInt i = 0 ; i < g_engine3DSounds.size(); i++ )
-			{
-				if( Cmp( GetAfterPath( g_engine3DSounds[i]->GetPath()), data.cFileName ) )
-				{
-					foundTarget = CTrue;
-					break;
-				}
-			}
-
-			//Remove Files
-			if( !foundTarget )
-			{
-				if( !DeleteFile( soundTempPath) )
-				{
-					//CChar temp[MAX_NAME_SIZE];
-					//sprintf( temp, "\n%s%s", "Error: Couldn't remove the file ", data.cFileName );
-					//PrintInfo( temp, COLOR_RED );
-				}
-			}
-		}while (FindNextFile( hFind, &data));
-		FindClose(hFind);
-
 		if (g_mainCharacter)
 		{
 			//note that sound and script path are the same
@@ -13036,6 +13115,11 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 
 		//Save version
 		CChar engineName[MAX_NAME_SIZE] = "VandaEngine";
+		g_maxVersion = 1;
+		g_minVersion = 9;
+		g_bugFixesVersion = 9;
+		Cpy(g_edition, "Free");
+
 		fwrite( &engineName, sizeof( CChar), MAX_NAME_SIZE, filePtr );
 		fwrite(  &g_edition, sizeof( CChar), MAX_NAME_SIZE, filePtr );
 		fwrite( &g_maxVersion, 1, sizeof( CInt ), filePtr );
@@ -13086,8 +13170,8 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 		g_cameraInstancePanTilt.y = g_render.GetDefaultInstanceCamera()->GetTilt();
 		CFloat cameraInstanceZoom = g_render.GetDefaultInstanceCamera()->m_abstractCamera->GetAngle();
 
-		fwrite( &g_multipleView->m_nx->m_hasScene, sizeof( CBool ), 1, filePtr  );
-		fwrite( g_multipleView->m_nx->m_sceneName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
+		fwrite( &g_multipleView->m_nx->m_hasExternalScene, sizeof( CBool ), 1, filePtr  );
+		fwrite( g_multipleView->m_nx->m_externalSceneName, sizeof( CChar ), MAX_NAME_SIZE, filePtr  );
 		fwrite(&characterPos, sizeof(NxExtendedVec3), 1, filePtr);
 		fwrite( &g_cameraInstancePos, sizeof( CVec3f ), 1, filePtr );
 		fwrite(&g_cameraInstancePanTilt, sizeof(CVec2f), 1, filePtr);
@@ -13398,6 +13482,10 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite( &g_engine3DSounds[i]->m_f3DSoundReferenceDistance, sizeof( CFloat ), 1, filePtr  );
 			fwrite( &g_engine3DSounds[i]->m_f3DSoundRolloff, sizeof( CFloat ), 1, filePtr  );
 			fwrite( &g_engine3DSounds[i]->m_f3DSoundVolume, sizeof( CFloat ), 1, filePtr  );
+
+			CBool soundHasScript = g_engine3DSounds[i]->GetHasScript();
+			fwrite(&soundHasScript, sizeof(CBool), 1, filePtr);
+			fwrite(g_engine3DSounds[i]->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		}
 		//Save ambient sounds data
 		CUInt tempAmbientSoundCount = g_engineAmbientSounds.size();
@@ -13629,7 +13717,7 @@ CVoid CVandaEngine1Dlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 				break;
@@ -14779,7 +14867,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.8 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.9 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 	}
@@ -15333,17 +15421,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* packag
 			}
 			if (CmpIn(tempScene->GetName(), "trigger")) //triggers
 			{
-				if (!g_multipleView->m_nx->m_hasScene)
-				{
-					tempScene->m_isTrigger = CTrue;
-					tempScene->Update();
-					tempScene->CreateTrigger(g_multipleView->m_nx);
-				}
-				else
-				{
-					PrintInfo("\nCouldn't create the triggers. In order to create triggers from COLLADA files, you should remove current external PhysX scene.", COLOR_RED);
-				}
-
+				tempScene->m_isTrigger = CTrue;
+				tempScene->Update();
+				tempScene->CreateTrigger(g_multipleView->m_nx);
 			}
 
 			for (CUInt j = 0; j < (CUInt)tempGeoSize; j++)
@@ -15967,58 +16047,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetMaxAngle(MAX_CAMERA_ANGLE);
 		PrintInfo("\nDefault Free camera info imported successfully");
 
-		if (insertPhysXScene)
-		{
-			//Copy this part to Win32 Project. Save functions
-			CChar temp[MAX_NAME_SIZE];
-			CChar* PhysXName = GetAfterPath(strPhysXSceneName);
-			CChar PhysXPath[MAX_NAME_SIZE];
-			sprintf(PhysXPath, "%s%s%s%s", packagePath, g_currentPrefabName, "/External Physics/", PhysXName);
-			if (g_multipleView->m_nx->LoadScene(PhysXPath, NXU::FT_XML))
-			{
-				g_physXProperties.m_bDebugMode = CTrue;
-				m_btnRemovePhysX.EnableWindow(TRUE);
-				GetMenu()->CheckMenuItem(ID_PHYSICS_DEBUGMODE, MF_CHECKED);
-				PrintInfo("\nPhysX debug activated");
-
-				g_multipleView->m_nx->SetSceneName(PhysXPath);
-				sprintf(temp, "\nPhysX scene '%s' imported successufully", PhysXPath);
-				PrintInfo(temp);
-
-				m_physXElementListIndex = -1;
-				for (int nItem = m_listBoxPhysXElements.GetItemCount() - 1; nItem >= 0; nItem--)
-				{
-					m_listBoxPhysXElements.DeleteItem(nItem);
-				}
-				CInt count = 0;
-				for (std::vector<std::string>::iterator it = g_multipleView->m_nx->m_nxActorNames.begin(); it != g_multipleView->m_nx->m_nxActorNames.end(); it++)
-				{
-					CChar temp[MAX_NAME_SIZE];
-					Cpy(temp, (*it).c_str());
-					InsertItemToPhysXList(temp, g_multipleView->m_nx->m_nxActorTypes[count]);
-					count++;
-				}
-				//save functions/////////////////////////////////
-				CDelete(g_externalPhysX);
-				g_externalPhysX = CNew(CExternalPhysX);
-				for (CUInt index = 0; index < g_allPrefabNames.size(); index++)
-				{
-					if (Cmp(g_currentPackageAndPrefabName, g_allPrefabNames[index].c_str())) //current scene name found
-						g_externalPhysX->AddVSceneToList(g_allPrefabNames[index], CFalse); //Do not write to zip file
-					else
-						g_externalPhysX->AddVSceneToList(g_allPrefabNames[index], CTrue); //Write to zip file
-				}
-				g_externalPhysX->SetPhysXPath(PhysXPath);
-				//save functions/////////////////////////////////
-
-			}
-			else
-			{
-				sprintf(temp, "\nCouldn't load the PhysX scene '%s'", PhysXPath);
-				PrintInfo(temp, COLOR_RED);
-				g_multipleView->m_nx->SetSceneName(PhysXPath);
-			}
-		}
 		CBool hasScript;
 		CChar script[MAX_NAME_SIZE];
 		fread(&hasScript, 1, sizeof(CBool), filePtr);
@@ -16228,17 +16256,9 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 			}
 			if (CmpIn(tempScene->GetName(), "trigger")) //triggers
 			{
-				if (!g_multipleView->m_nx->m_hasScene)
-				{
-					tempScene->m_isTrigger = CTrue;
-					tempScene->Update();
-					tempScene->CreateTrigger(g_multipleView->m_nx);
-				}
-				else
-				{
-					PrintInfo("\nCouldn't create the triggers. In order to create triggers from COLLADA files, you should remove current external PhysX scene.", COLOR_RED);
-				}
-
+				tempScene->m_isTrigger = CTrue;
+				tempScene->Update();
+				tempScene->CreateTrigger(g_multipleView->m_nx);
 			}
 
 			if (i == tempSceneSize - 1) //last scene is selected, so show its objects
@@ -16605,7 +16625,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.8 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 1.9.9 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -16656,7 +16676,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenPrefab()
 CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 {
 	CInt iResponse = IDNO;
-	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_guis.size() || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() || g_multipleView->m_nx->m_hasScene || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size()))
+	if (askQuestion && (g_menu.m_insertVSceneScript || g_scene.size() > 0 || g_guis.size() || g_engineLights.size() > 0 || g_engineWaters.size() > 0 || g_menu.m_insertAndShowSky || g_engineAmbientSounds.size() || g_engine3DSounds.size() || g_menu.m_insertAndShowTerrain || g_engineCameraInstances.size()))
 		iResponse= MessageBox( "Do you want to save your changes?", "Warning" , MB_YESNOCANCEL|MB_ICONSTOP);
 	else
 		iResponse = IDNO;
@@ -16885,61 +16905,6 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 			PrintInfo("\nDefault Free camera info imported successfully");
 
-			if (insertPhysXScene)
-			{
-				//Copy this part to Win32 Project. Save functions
-				CChar temp[MAX_NAME_SIZE];
-				CChar* PhysXName = GetAfterPath(strPhysXSceneName);
-				CChar PhysXPath[MAX_NAME_SIZE];
-				CChar g_currentVSceneNameWithoutDot[MAX_NAME_SIZE];
-				Cpy(g_currentVSceneNameWithoutDot, g_currentVSceneName);
-				GetWithoutDot(g_currentVSceneNameWithoutDot);
-				sprintf(PhysXPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/External Physics/", PhysXName);
-				if (g_multipleView->m_nx->LoadScene(PhysXPath, NXU::FT_XML))
-				{
-					g_physXProperties.m_bDebugMode = CTrue;
-					m_btnRemovePhysX.EnableWindow(TRUE);
-					GetMenu()->CheckMenuItem(ID_PHYSICS_DEBUGMODE, MF_CHECKED);
-					PrintInfo("\nPhysX debug activated");
-
-					g_multipleView->m_nx->SetSceneName(PhysXPath);
-					sprintf(temp, "\nPhysX scene '%s' imported successufully", PhysXPath);
-					PrintInfo(temp);
-
-					m_physXElementListIndex = -1;
-					for (int nItem = m_listBoxPhysXElements.GetItemCount() - 1; nItem >= 0; nItem--)
-					{
-						m_listBoxPhysXElements.DeleteItem(nItem);
-					}
-					CInt count = 0;
-					for (std::vector<std::string>::iterator it = g_multipleView->m_nx->m_nxActorNames.begin(); it != g_multipleView->m_nx->m_nxActorNames.end(); it++)
-					{
-						CChar temp[MAX_NAME_SIZE];
-						Cpy(temp, (*it).c_str());
-						InsertItemToPhysXList(temp, g_multipleView->m_nx->m_nxActorTypes[count]);
-						count++;
-					}
-					//save functions/////////////////////////////////
-					CDelete(g_externalPhysX);
-					g_externalPhysX = CNew(CExternalPhysX);
-					for (CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++)
-					{
-						if (Cmp(g_currentVSceneName, g_VSceneNamesOfCurrentProject[index].c_str())) //current scene name found
-							g_externalPhysX->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CFalse); //Do not write to zip file
-						else
-							g_externalPhysX->AddVSceneToList(g_VSceneNamesOfCurrentProject[index], CTrue); //Write to zip file
-					}
-					g_externalPhysX->SetPhysXPath(PhysXPath);
-					//save functions/////////////////////////////////
-
-				}
-				else
-				{
-					sprintf(temp, "\nCouldn't load the PhysX scene '%s'", PhysXPath);
-					PrintInfo(temp, COLOR_RED);
-					g_multipleView->m_nx->SetSceneName(PhysXPath);
-				}
-			}
 			g_multipleView->m_nx->ResetCharacterPos(characterPos);
 
 			//load prefab resources here
@@ -17975,6 +17940,8 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CFloat ThreeDSoundMaxDistance, ThreeDSoundPitch, ThreeDSoundReferenceDistance, ThreeDSoundRolloff, ThreeDSoundVolume;
 			CFloat ThreeDSoundPos[3];
 			CBool play, loop;
+			CBool soundHasScript;
+			CChar soundScript[MAX_NAME_SIZE];
 
 			CChar name[ MAX_NAME_SIZE ], path[ MAX_NAME_SIZE ];
 
@@ -17990,46 +17957,36 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread( &ThreeDSoundReferenceDistance, sizeof( CFloat ), 1, filePtr  );
 				fread( &ThreeDSoundRolloff, sizeof( CFloat ), 1, filePtr  );
 				fread( &ThreeDSoundVolume, sizeof( CFloat ), 1, filePtr  );
+				fread(&soundHasScript, sizeof(CBool), 1, filePtr);
+				fread(&soundScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 				CChar ThreeDSoundPath[MAX_NAME_SIZE];
-				CChar* ThreeDSoundName = GetAfterPath( path );
+				CChar* ThreeDSoundFileName = GetAfterPath( path );
 				//Copy this to Win32 Project as well
-				sprintf(ThreeDSoundPath, "%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/", ThreeDSoundName );
+				sprintf(ThreeDSoundPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/", name, "/", ThreeDSoundFileName );
 
-				COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer( GetAfterPath(ThreeDSoundPath) );
-				
-				if( m_3DSoundBuffer == NULL || (m_3DSoundBuffer && !m_3DSoundBuffer->m_loaded ) )
+				CChar scriptPath[MAX_NAME_SIZE];
+				CChar* tempScriptPath = GetAfterPath(soundScript);
+				sprintf(scriptPath, "%s%s%s%s%s%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Sounds/3D/", name, "/", tempScriptPath);
+
+				COpenALSoundBuffer* m_3DSoundBuffer = CNew(COpenALSoundBuffer);
+
+				if( !m_3DSoundBuffer->LoadOggVorbisFromFile(ThreeDSoundPath ) )
 				{
-					if( m_3DSoundBuffer == NULL )
-					{
-						m_3DSoundBuffer = CNew( COpenALSoundBuffer );
-						g_soundBuffers.push_back( m_3DSoundBuffer );
-					}
-					else 
-					{
-						CChar tempBuffer[MAX_NAME_SIZE];
-						sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_3DSoundBuffer->GetName() ), "'" );
-						PrintInfo( tempBuffer, COLOR_YELLOW );
-					}
+					PrintInfo("\nCouldn't load ogg file '", COLOR_RED);
+					PrintInfo(ThreeDSoundPath, COLOR_RED_GREEN);
+					PrintInfo("'", COLOR_RED);
 
-					if( !m_3DSoundBuffer->LoadOggVorbisFromFile(ThreeDSoundPath ) )
-					{
-						m_3DSoundBuffer->m_loaded = CFalse;
+					m_3DSoundBuffer->m_loaded = CFalse;
 
-					}
-					else
-					{
-						m_3DSoundBuffer->m_loaded = CTrue;
-					}
-
-					m_3DSoundBuffer->SetName(ThreeDSoundPath );
 				}
 				else
 				{
-						CChar temp[MAX_NAME_SIZE]; 
-						sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_3DSoundBuffer->GetName()), "' already exists." );
-						PrintInfo( temp, COLOR_YELLOW );
+					m_3DSoundBuffer->m_loaded = CTrue;
 				}
+
+				m_3DSoundBuffer->SetName(ThreeDSoundPath );
+
 				COpenALSoundSource* m_3DSoundSource = CNew( COpenALSoundSource );
 				C3DSound* m_3DSound = CNew( C3DSound );
 
@@ -18043,18 +18000,21 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				m_3DSoundSource->SetRolloff(ThreeDSoundRolloff );
 				m_3DSoundSource->SetSoundPosition(ThreeDSoundPos );
 
-				m_3DSound->SetName( name );
-				m_3DSound->SetPath(ThreeDSoundPath );
-				m_3DSound->SetPosition(ThreeDSoundPos );
-				m_3DSound->SetLoop( loop );
-				m_3DSound->SetMaxDistance(ThreeDSoundMaxDistance );
-				m_3DSound->SetPitch(ThreeDSoundPitch );
-				m_3DSound->SetPlay( play );
-				m_3DSound->SetReferenceDistance(ThreeDSoundReferenceDistance );
-				m_3DSound->SetRolloff(ThreeDSoundRolloff );
+				m_3DSound->SetName(name);
+				m_3DSound->SetLastName(name);
+				m_3DSound->SetPath(ThreeDSoundPath);
+				m_3DSound->SetPosition(ThreeDSoundPos);
+				m_3DSound->SetLoop(loop);
+				m_3DSound->SetMaxDistance(ThreeDSoundMaxDistance);
+				m_3DSound->SetPitch(ThreeDSoundPitch);
+				m_3DSound->SetPlay(play);
+				m_3DSound->SetReferenceDistance(ThreeDSoundReferenceDistance);
+				m_3DSound->SetRolloff(ThreeDSoundRolloff);
 				m_3DSound->SetVolume(ThreeDSoundVolume);
-				m_3DSound->SetSoundSource( m_3DSoundSource );
-				m_3DSound->SetSoundBuffer( m_3DSoundBuffer );
+				m_3DSound->SetSoundSource(m_3DSoundSource);
+				m_3DSound->SetSoundBuffer(m_3DSoundBuffer);
+				m_3DSound->SetHasScript(soundHasScript);
+				m_3DSound->SetScript(scriptPath);
 
 				//save functions/////////////////////////////////
 				for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
@@ -18126,6 +18086,10 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				//Initialize ambient sound here
 				if (!m_ambientSoundBuffer->LoadOggVorbisFromFile(AmbientSoundPath))
 				{
+					PrintInfo("\nCouldn't load ogg file '", COLOR_RED);
+					PrintInfo(AmbientSoundPath, COLOR_RED_GREEN);
+					PrintInfo("'", COLOR_RED);
+
 					m_ambientSoundBuffer->m_loaded = CFalse;
 				}
 				else
@@ -18286,7 +18250,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 				CChar scriptPath[MAX_NAME_SIZE];
 				CChar* tempScriptPath = GetAfterPath(m_script);
-				sprintf(scriptPath, "%s%s%s%s/%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Script/Triggers/", trigger_name, tempScriptPath);
+				sprintf(scriptPath, "%s%s%s%s/%s", g_currentProjectPath, g_currentVSceneNameWithoutDot, "/Triggers/", trigger_name, tempScriptPath);
 
 				new_trigger->SetScript(scriptPath);
 				new_trigger->SetHasScript(m_hasScript);
@@ -18574,7 +18538,7 @@ CBool CVandaEngine1Dlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 1.9.9 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngine1Dlg->SetWindowTextA(temp);
 
 					break;
@@ -19401,38 +19365,6 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 				}
 			}
 
-			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-			{
-				if (Cmp(g_engine3DSounds[i]->GetName(), szBuffer))
-				{
-					if (g_engine3DSounds[i]->GetIndex() == g_selectedName || g_engine3DSounds[i]->GetIndex() == g_lastEngineObjectSelectedName)
-					{
-						g_showArrow = CFalse;
-					}
-
-					//delete the 3d sound
-					CDelete(g_engine3DSounds[i]);
-					//delete the vector that holds the 3d sound
-					g_engine3DSounds.erase(g_engine3DSounds.begin() + i);
-
-					m_listBoxEngineObjects.DeleteItem(nSelected);
-					g_multipleView->SetElapsedTimeFromBeginning();
-					g_multipleView->RenderWindow();
-					if (m_listBoxEngineObjects.GetItemCount() == 0)
-					{
-						m_btnRemoveEngineObject.EnableWindow(FALSE);
-						m_btnEngineObjectProperties.EnableWindow(FALSE);
-					}
-					SortEngineObjectList(nSelected);
-
-					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
-					g_transformObject = CFalse;
-					SetDialogData3(CFalse);
-
-					return;
-				}
-			}
-
 			for (CUInt i = 0; i < g_triggers.size(); i++)
 			{
 				if (Cmp(g_triggers[i]->GetName(), szBuffer))
@@ -19550,6 +19482,40 @@ CVoid CVandaEngine1Dlg::RemoveEngineObject()
 					return;
 				}
 			}
+
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+			{
+				if (Cmp(g_engine3DSounds[i]->GetName(), szBuffer))
+				{
+					if (g_engine3DSounds[i]->GetIndex() == g_selectedName || g_engine3DSounds[i]->GetIndex() == g_lastEngineObjectSelectedName)
+					{
+						g_showArrow = CFalse;
+					}
+					m_deleted3DSoundObjects.push_back(g_engine3DSounds[i]->GetName());
+
+					//delete the 3d sound
+					CDelete(g_engine3DSounds[i]);
+					//delete the vector that holds the 3d sound
+					g_engine3DSounds.erase(g_engine3DSounds.begin() + i);
+
+					m_listBoxEngineObjects.DeleteItem(nSelected);
+					g_multipleView->SetElapsedTimeFromBeginning();
+					g_multipleView->RenderWindow();
+					if (m_listBoxEngineObjects.GetItemCount() == 0)
+					{
+						m_btnRemoveEngineObject.EnableWindow(FALSE);
+						m_btnEngineObjectProperties.EnableWindow(FALSE);
+					}
+					SortEngineObjectList(nSelected);
+
+					g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse);
+
+					return;
+				}
+			}
+
 		} //end of if( result == IDYES )
 	} // end of if( nSelected >= 0 )
 
@@ -20203,18 +20169,6 @@ CVoid CVandaEngine1Dlg::InsertItemToPhysXList( char * objectName, int imageIndex
 	m_listBoxPhysXElements.UpdateWindow();
 }
 
-COpenALSoundBuffer *CVandaEngine1Dlg::GetSoundBuffer( const CChar * name )
-{
-	if (name == NULL) return NULL;
-	for(CUInt i=0; i<g_soundBuffers.size(); i++)
-	{
-		if ( ICmp(GetAfterPath(g_soundBuffers[i]->GetName()), name ) )
-			return g_soundBuffers[i];
-	}
-	return NULL;
-}
-
-
 CVoid CVandaEngine1Dlg::ChangeEngineCameraProperties(CInstanceCamera* camera)
 {
 	m_dlgAddEngineCamera = CNew(CAddEngineCamera);
@@ -20613,6 +20567,7 @@ CVoid CVandaEngine1Dlg::Change3DSoundProperties(C3DSound* sound)
 	m_dlgAdd3DSound = CNew( CAdd3DSound );
 	m_dlgAdd3DSound->SetSoundPos( sound->GetPosition() );
 	m_dlgAdd3DSound->SetName( sound->GetName() );
+	m_dlgAdd3DSound->SetLastName(sound->GetLastName());
 
 	CChar ThreeDSoundPath[MAX_NAME_SIZE];
 	CChar* ThreeDSoundName = GetAfterPath( sound->GetPath() );
@@ -20626,6 +20581,9 @@ CVoid CVandaEngine1Dlg::Change3DSoundProperties(C3DSound* sound)
 	m_dlgAdd3DSound->SetReferenceDistance( sound->GetReferenceDistance() );
 	m_dlgAdd3DSound->SetPlay( sound->GetPlay() );
 	m_dlgAdd3DSound->SetLoop( sound->GetLoop() );
+	m_dlgAdd3DSound->SetUpdateScript(sound->GetUpdateScript());
+	m_dlgAdd3DSound->SetHasScript(sound->GetHasScript());
+	m_dlgAdd3DSound->SetScriptPath(sound->GetScript());
 	m_dlgAdd3DSound->SetEditMode( CTrue );
 	//m_dlgAdd3DSound->SetIndex( sound->GetIndex() );
 
@@ -20662,43 +20620,25 @@ CVoid CVandaEngine1Dlg::Change3DSoundProperties(C3DSound* sound)
 		//else
 		//	sprintf( temp, "%s%s.ogg", g_pathProperties.m_soundPath, m_dlgAdd3DSound->m_str3DSoundPureDataPath );
 
-		COpenALSoundBuffer* m_3DSoundBuffer = GetSoundBuffer( GetAfterPath(temp) );
-		if( m_3DSoundBuffer == NULL || (m_3DSoundBuffer && !m_3DSoundBuffer->m_loaded ) )
-		{
-			if( m_3DSoundBuffer == NULL )
-			{
-				m_3DSoundBuffer = CNew( COpenALSoundBuffer );
-				g_soundBuffers.push_back( m_3DSoundBuffer );
-			}
-			else 
-			{
-				CChar tempBuffer[MAX_NAME_SIZE];
-				sprintf( tempBuffer, "\nTrying to reload '%s%s", GetAfterPath(m_3DSoundBuffer->GetName() ), "'" );
-				PrintInfo( tempBuffer, COLOR_YELLOW );
-			}
-			if( !m_3DSoundBuffer->LoadOggVorbisFromFile( temp ) )
-			{
-				CChar buffer[MAX_NAME_SIZE];
-				sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", temp, "'" );
-				PrintInfo( buffer, COLOR_RED );
-				m_3DSoundBuffer->m_loaded = CFalse;
+		COpenALSoundBuffer* m_3DSoundBuffer = CNew(COpenALSoundBuffer);
 
-			}
-			else
-			{
-				CChar buffer[MAX_NAME_SIZE];
-				sprintf( buffer, "\n%s%s%s", "ogg file '", temp, "' loaded successfully." );
-				PrintInfo( buffer );
-				m_3DSoundBuffer->m_loaded = CTrue;
-			}
-			m_3DSoundBuffer->SetName( temp );	
+		if( !m_3DSoundBuffer->LoadOggVorbisFromFile( temp ) )
+		{
+			CChar buffer[MAX_NAME_SIZE];
+			sprintf( buffer, "\n%s%s%s", "Couldn't load the file '", temp, "'" );
+			PrintInfo( buffer, COLOR_RED );
+			m_3DSoundBuffer->m_loaded = CFalse;
+
 		}
 		else
 		{
-				CChar temp[MAX_NAME_SIZE]; 
-				sprintf( temp, "\n%s%s%s", "sound buffer '", GetAfterPath(m_3DSoundBuffer->GetName()), "' already exists." );
-				PrintInfo( temp, COLOR_YELLOW );
+			PrintInfo("\nogg file '");
+			PrintInfo(temp, COLOR_RED_GREEN);
+			PrintInfo("' loaded successfully");
+
+			m_3DSoundBuffer->m_loaded = CTrue;
 		}
+		m_3DSoundBuffer->SetName( temp );	
 
 		m_3DSoundSource->BindSoundBuffer (*m_3DSoundBuffer);
 		m_3DSoundSource->SetLooping( m_dlgAdd3DSound->GetLoopCondition() );
@@ -20710,6 +20650,7 @@ CVoid CVandaEngine1Dlg::Change3DSoundProperties(C3DSound* sound)
 		m_3DSoundSource->SetVolume(m_dlgAdd3DSound->GetVolume());
 
 		m_3DSound->SetName( m_dlgAdd3DSound->GetName() );
+		m_3DSound->SetLastName(m_dlgAdd3DSound->GetLastName());
 		m_3DSound->SetPath( temp );
 		m_3DSound->SetPosition( m_dlgAdd3DSound->GetSoundPos() );
 		m_3DSound->SetLoop( m_dlgAdd3DSound->GetLoopCondition() );
@@ -20719,6 +20660,10 @@ CVoid CVandaEngine1Dlg::Change3DSoundProperties(C3DSound* sound)
 		m_3DSound->SetReferenceDistance( m_dlgAdd3DSound->GetReferenceDistance() );
 		m_3DSound->SetRolloff( m_dlgAdd3DSound->GetRolloff() );
 		m_3DSound->SetVolume(m_dlgAdd3DSound->GetVolume());
+		m_3DSound->SetUpdateScript(m_dlgAdd3DSound->GetUpdateScript());
+		m_3DSound->SetHasScript(m_dlgAdd3DSound->GetHasScript());
+		m_3DSound->SetScript(m_dlgAdd3DSound->GetScriptPath());
+
 		//m_3DSound->SetIndex( m_dlgAdd3DSound->GetIndex() );
 
 		m_3DSound->SetSoundSource( m_3DSoundSource );
@@ -20848,7 +20793,7 @@ CVoid CVandaEngine1Dlg::ChangeAmbientSoundProperties(CAmbientSound* sound)
 		}
 		//save functions/////////////////////////////////
 
-		PrintInfo( "\nAmbient sound '" );
+		PrintInfo( "\nogg file '" );
 		sprintf( temp, "%s", (LPCSTR)m_dlgAddAmbientSound->m_strAmbientSoundBuffer );
 		PrintInfo( temp, COLOR_RED_GREEN );
 		PrintInfo( "' loaded successfully" );
@@ -23031,158 +22976,6 @@ void CVandaEngine1Dlg::ResetPhysX(CBool releaseActors)
 	}
 }
 
-void CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx()
-{
-	if (g_multipleView->IsPlayGameMode())
-	{
-		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
-		{
-			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
-
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		if (g_currentCameraType == eCAMERA_ENGINE)
-		{
-			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
-			{
-				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
-				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
-				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
-				{
-					g_engineCameraInstances[c]->SetActive(CFalse);
-				}
-			}
-			else
-			{
-				return;
-			}
-		}
-		if (g_currentCameraType == eCAMERA_COLLADA)
-		{
-			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
-			{
-				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
-				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
-			}
-			else
-			{
-				return;
-			}
-		}
-	}
-	g_multipleView->RenderWindow();
-
-	if( g_multipleView->m_enableTimer )
-		g_multipleView->EnableTimer( CFalse );
-
-	if( !g_multipleView->m_nx->m_hasScene )
-	{
-		int nSelected = -1; 
-		POSITION p = m_listBoxPhysXElements.GetFirstSelectedItemPosition();
-		while(p)
-		{
-			nSelected = m_listBoxPhysXElements.GetNextSelectedItem(p);
-		}
-		if( nSelected >= 0 )
-		{
-			TCHAR szBuffer[1024];
-			DWORD cchBuf(1024);
-			LVITEM lvi;
-			lvi.iItem = nSelected;
-			lvi.iSubItem = 0;
-			lvi.mask = LVIF_TEXT;
-			lvi.pszText = szBuffer;
-			lvi.cchTextMax = cchBuf;
-			m_listBoxPhysXElements.GetItem(&lvi);
-
-			CInt result = IDYES;
-			CChar tempString[MAX_NAME_SIZE];
-			sprintf( tempString, "Delete PhysX actor '%s' ?", szBuffer );
-			result = MessageBox( tempString, "Warning", MB_YESNO | MB_ICONERROR );
-			if( result == IDYES )
-			{
-				for( CUInt i = 0 ; i < g_scene.size(); i++ )
-				{
-					CBool foundTarget = CFalse;
-					for( CUInt j = 0 ; j < g_scene[i]->m_instanceGeometries.size(); j++ )
-					{
-						if( g_scene[i]->m_instanceGeometries[j]->m_hasPhysX && Cmp( g_scene[i]->m_instanceGeometries[j]->m_physXName, szBuffer ) )
-						{
-							foundTarget = CTrue;
-							if( gPhysXscene )
-							{
-								for( CUInt k = 0; k < gPhysXscene->getNbActors(); k++ )
-								{
-									CChar actorName[MAX_NAME_SIZE];
-
-									if( !gPhysXscene->getActors()[k]->getName() ) continue;
-									Cpy( actorName, gPhysXscene->getActors()[k]->getName() );
-
-									if( Cmp( actorName, g_scene[i]->m_instanceGeometries[j]->m_physXName ) )
-									{
-										gPhysXscene->releaseActor( *gPhysXscene->getActors()[k] );
-										g_scene[i]->m_instanceGeometries[j]->m_hasPhysX = CFalse;
-										Cpy( g_scene[i]->m_instanceGeometries[j]->m_physXName, "\n" );
-										g_scene[i]->m_instanceGeometries[j]->EnablePhysicsMaterial(CFalse);
-										PrintInfo( "\nActor removed successfully" );
-										m_listBoxPhysXElements.DeleteItem(nSelected);
-										SortPhysXList();
-										if( g_scene[i]->m_instanceGeometries[j]->m_physXDensity > 0 )
-											g_updateOctree = CTrue;
-
-										break;
-									}
-								}
-
-							}
-							break;
-						}
-					}
-					if( foundTarget )
-						break;
-				}
-			}
-		}
-	}
-	else
-	{
-
-		if( MessageBox( "Remove Current PhysX Scene?", "Vanda Engine 1 Warning", MB_YESNO | MB_ICONWARNING ) == IDYES )
-		{
-			CDelete(g_externalPhysX);
-			ResetPhysX();
-			m_physXElementListIndex = -1;
-			for (int nItem = m_listBoxPhysXElements.GetItemCount()-1; nItem >= 0 ;nItem-- )
-			{
-				m_listBoxPhysXElements.DeleteItem(nItem);
-			}
-			m_btnRemovePhysX.EnableWindow( FALSE );
-		}
-	}
-	g_multipleView->m_nx->gControllers->reportSceneChanged();
-	if( !g_multipleView->IsPlayGameMode() && gPhysXscene )
-	{
-	  // Run collision and dynamics for delta time since the last frame
-		g_multipleView->m_nx->gControllers->reportSceneChanged();
-		gPhysXscene->simulate(1.0f/60.0f/*elapsedTime*/);
-		gPhysXscene->flushStream();
-		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
-	}
-
-	if( g_multipleView->m_enableTimer )
-		g_multipleView->EnableTimer( CTrue );
-
-	g_multipleView->SetElapsedTimeFromBeginning();
-	g_multipleView->RenderWindow();
-
-}
-
 CVoid CVandaEngine1Dlg::OnMenuClickedGeneralAmbientColor()
 {
 	m_dlgGeneralAmbientColor = CNew( CGeneralAmbientColor );
@@ -23203,20 +22996,17 @@ void CVandaEngine1Dlg::OnBnClickedBtnYoutube()
 
 void CVandaEngine1Dlg::OnLvnItemchangedListPhysxElements(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	if( !g_multipleView->m_nx->m_hasScene )
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	POSITION p = m_listBoxPhysXElements.GetFirstSelectedItemPosition();
+	CInt nSelected = -1;
+	while(p)
 	{
-		LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-		POSITION p = m_listBoxPhysXElements.GetFirstSelectedItemPosition();
-		CInt nSelected = -1;
-		while(p)
-		{
-			nSelected = m_listBoxPhysXElements.GetNextSelectedItem(p);
-		}
-		if( nSelected >= 0 )
-			m_btnRemovePhysX.EnableWindow( TRUE );
-		else
-			m_btnRemovePhysX.EnableWindow( FALSE );
+		nSelected = m_listBoxPhysXElements.GetNextSelectedItem(p);
 	}
+	if( nSelected >= 0 )
+		m_btnRemovePhysX.EnableWindow( TRUE );
+	else
+		m_btnRemovePhysX.EnableWindow( FALSE );
 }
 
 void CVandaEngine1Dlg::OnBnClickedBtnBackupAllProjects()
@@ -23502,8 +23292,8 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar originalCursorPath[MAX_NAME_SIZE];
 			sprintf(originalCursorPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Cursor/");
 
-			CChar originalScriptPath[MAX_NAME_SIZE];
-			sprintf(originalScriptPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Script/");
+			CChar originalTriggerPath[MAX_NAME_SIZE];
+			sprintf(originalTriggerPath, "%s%s%s", g_currentProjectPath, currentSceneNameWithoutDot, "/Triggers/");
 
 			CChar originalResourcesPath[MAX_NAME_SIZE];
 			sprintf(originalResourcesPath, "%s%s", g_currentProjectPath, "Resources/");
@@ -23557,7 +23347,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CChar ThreeDSoundPath[MAX_NAME_SIZE];
 			sprintf(ThreeDSoundPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Sounds/3D/" );
 			CreateWindowsDirectory(ThreeDSoundPath );
-			CopyAllFilesFromSrcToDstDirectory(original3DSoundPath, ThreeDSoundPath);
+			CopyAllFilesAndFoldersToDstDirectory(original3DSoundPath, ThreeDSoundPath);
 			//
 
 			PrintInfo("\nPublishing Main Character...");
@@ -23588,6 +23378,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			CreateWindowsDirectory(terrainPath);
 			CopyAllFilesFromSrcToDstDirectory(originalTerrainPath, terrainPath);
 
+			PrintInfo("\nPublishing Triggers...");
+
+			CChar triggerPath[MAX_NAME_SIZE];
+			sprintf(triggerPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Triggers/");
+			CreateWindowsDirectory(triggerPath);
+			CopyAllFilesAndFoldersToDstDirectory(originalTriggerPath, triggerPath);
+
 			PrintInfo("\nPublishing Banner...");
 
 			CChar bannerPath[MAX_NAME_SIZE];
@@ -23601,13 +23398,6 @@ void CVandaEngine1Dlg::OnBnClickedBtnPublishSolution()
 			sprintf(cursorPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Cursor/");
 			CreateWindowsDirectory(cursorPath);
 			CopyAllFilesFromSrcToDstDirectory(originalCursorPath, cursorPath);
-
-			PrintInfo("\nPublishing Scripts...");
-
-			CChar scriptPath[MAX_NAME_SIZE];
-			sprintf(scriptPath, "%s%s%s%s", rootPath, "/assets/VScenes/", currentSceneNameWithoutDot, "/Script/");
-			CreateWindowsDirectory(scriptPath);
-			CopyAllFilesAndFoldersToDstDirectory(originalScriptPath, scriptPath);
 
 			PrintInfo("\nPublishing Resources...");
 
@@ -25150,16 +24940,6 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 		}
 	}
 
-	g_multipleView->m_nx->jumpTime = 0.0f;
-	g_multipleView->m_nx->m_V0 = 0.0f;
-	g_multipleView->m_nx->gJump = false;
-
-	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
-	g_multipleView->m_nx->gControllers->reportSceneChanged();
-	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
-	gPhysXscene->flushStream();
-	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
-
 	if (g_editorMode == eMODE_PREFAB)
 	{
 		for (CUInt i = 0; i < g_scene.size(); i++)
@@ -25193,8 +24973,30 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 				g_scene[i]->ClearCycle(l, 0.0f);
 				g_scene[i]->RemoveAction(l);
 			}
+
 		}
 	}
+
+	//Update physics//
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+
+	g_multipleView->m_nx->jumpTime = 0.0f;
+	g_multipleView->m_nx->m_V0 = 0.0f;
+	g_multipleView->m_nx->gJump = false;
+
+	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+	gPhysXscene->flushStream();
+	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+
+	g_multipleView->RenderWindow();
+	////
 
 	g_multipleView->SetPlayGameMode(CFalse);
 
@@ -25206,6 +25008,7 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayActive()
 			g_instancePrefab[i]->UpdateIsStaticOrAnimated();
 		}
 	}
+
 	g_multipleView->SetSwapBuffers(CFalse);
 	for (CUInt i = 0; i < 10; i++)
 		g_multipleView->RenderWindow();
@@ -25527,6 +25330,13 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			if (g_engineAmbientSounds[i]->GetHasScript())
 				g_engineAmbientSounds[i]->LoadLuaFile();
+		}
+
+		//3D Sounds
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+		{
+			if (g_engine3DSounds[i]->GetHasScript())
+				g_engine3DSounds[i]->LoadLuaFile();
 		}
 
 		//guis
@@ -26296,6 +26106,12 @@ void CVandaEngine1Dlg::OnBnClickedBtnPlayDeactive()
 		{
 			if (g_engineAmbientSounds[i]->GetHasScript())
 				g_engineAmbientSounds[i]->InitScript();
+		}
+
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+		{
+			if (g_engine3DSounds[i]->GetHasScript())
+				g_engine3DSounds[i]->InitScript();
 		}
 
 	}
@@ -29215,3 +29031,140 @@ void CVandaEngine1Dlg::OnBnClickedBtnVideo()
 	g_multipleView->SetElapsedTimeFromBeginning();
 	g_multipleView->RenderWindow();
 }
+
+
+void CVandaEngine1Dlg::OnBnClickedBtnRemovePhysx()
+{
+	if (g_multipleView->IsPlayGameMode())
+	{
+		if (MessageBox("Exit from play mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+		{
+			ex_pVandaEngine1Dlg->OnBnClickedBtnPlayActive();
+
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (g_currentCameraType == eCAMERA_ENGINE)
+		{
+			if (MessageBox("Exit From Engine Camera Object Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+				for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+				{
+					g_engineCameraInstances[c]->SetActive(CFalse);
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
+		if (g_currentCameraType == eCAMERA_COLLADA)
+		{
+			if (MessageBox("Exit From Imported Camera Mode?", "Vanda Engine Error", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			{
+				g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngine1Dlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+				g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+	g_multipleView->RenderWindow();
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CFalse);
+
+	int nSelected = -1;
+	POSITION p = m_listBoxPhysXElements.GetFirstSelectedItemPosition();
+	while (p)
+	{
+		nSelected = m_listBoxPhysXElements.GetNextSelectedItem(p);
+	}
+	if (nSelected >= 0)
+	{
+		TCHAR szBuffer[1024];
+		DWORD cchBuf(1024);
+		LVITEM lvi;
+		lvi.iItem = nSelected;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = szBuffer;
+		lvi.cchTextMax = cchBuf;
+		m_listBoxPhysXElements.GetItem(&lvi);
+
+		CInt result = IDYES;
+		CChar tempString[MAX_NAME_SIZE];
+		sprintf(tempString, "Delete PhysX actor '%s' ?", szBuffer);
+		result = MessageBox(tempString, "Warning", MB_YESNO | MB_ICONERROR);
+		if (result == IDYES)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				CBool foundTarget = CFalse;
+				for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+				{
+					if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX && Cmp(g_scene[i]->m_instanceGeometries[j]->m_physXName, szBuffer))
+					{
+						foundTarget = CTrue;
+						if (gPhysXscene)
+						{
+							for (CUInt k = 0; k < gPhysXscene->getNbActors(); k++)
+							{
+								CChar actorName[MAX_NAME_SIZE];
+
+								if (!gPhysXscene->getActors()[k]->getName()) continue;
+								Cpy(actorName, gPhysXscene->getActors()[k]->getName());
+
+								if (Cmp(actorName, g_scene[i]->m_instanceGeometries[j]->m_physXName))
+								{
+									gPhysXscene->releaseActor(*gPhysXscene->getActors()[k]);
+									g_scene[i]->m_instanceGeometries[j]->m_hasPhysX = CFalse;
+									Cpy(g_scene[i]->m_instanceGeometries[j]->m_physXName, "\n");
+									g_scene[i]->m_instanceGeometries[j]->EnablePhysicsMaterial(CFalse);
+									PrintInfo("\nActor removed successfully");
+									m_listBoxPhysXElements.DeleteItem(nSelected);
+									SortPhysXList();
+									if (g_scene[i]->m_instanceGeometries[j]->m_physXDensity > 0)
+										g_updateOctree = CTrue;
+
+									break;
+								}
+							}
+
+						}
+						break;
+					}
+				}
+				if (foundTarget)
+					break;
+			}
+		}
+	}
+
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+	if (!g_multipleView->IsPlayGameMode() && gPhysXscene)
+	{
+		// Run collision and dynamics for delta time since the last frame
+		g_multipleView->m_nx->gControllers->reportSceneChanged();
+		gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
+		gPhysXscene->flushStream();
+		gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
+	}
+
+	if (g_multipleView->m_enableTimer)
+		g_multipleView->EnableTimer(CTrue);
+
+	g_multipleView->SetElapsedTimeFromBeginning();
+	g_multipleView->RenderWindow();
+
+}
+

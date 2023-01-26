@@ -8,6 +8,7 @@
 #include "VandaEngine1.h"
 #include "Add3DSound.h"
 #include  "AFXPRIV.H"
+#include "ViewScript.h"
 
 // CAdd3DSound dialog
 
@@ -19,10 +20,13 @@ CAdd3DSound::CAdd3DSound(CWnd* pParent /*=NULL*/)
 	m_loop = m_play = CTrue;
 	m_create = CFalse; //I assume the user wants to edit the dialog data at the beginning. To change it, use the SetCreate() function.
 	m_editMode = CFalse;
+	m_scriptUpdated = CFalse;
+	m_hasScript = CFalse;
 }
 
 CAdd3DSound::~CAdd3DSound()
 {
+	m_strScript.ReleaseBuffer();
 }
 
 void CAdd3DSound::DoDataExchange(CDataExchange* pDX)
@@ -40,6 +44,7 @@ void CAdd3DSound::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_3D_SOUND_REFERENCE_DISTANCE, m_editBox3DSoundReferenceDistance);
 	DDX_Control(pDX, IDC_EDIT_3D_SOUND_MAX_DISTANCE, m_editBox3DSoundMaxDistance);
 	DDX_Control(pDX, IDC_EDIT_3D_SOUND_VOLUME, m_editBox3DSoundVolume);
+	DDX_Control(pDX, IDC_EDIT_3D_SOUND_SCRIPT, m_editBoxScript);
 }
 
 BOOL CAdd3DSound::OnInitDialog()
@@ -61,6 +66,14 @@ BOOL CAdd3DSound::OnInitDialog()
 		sprintf(ThreeDSoundPath, "%s%s", g_pathProperties.m_soundPath, "default3D.ogg" );
 		m_str3DSoundDataPath = ThreeDSoundPath;
 		m_str3DSoundPureDataPath = "defaultStatic";
+	}
+
+	if (m_editMode)
+	{
+		if (m_hasScript)
+		{
+			m_editBoxScript.SetWindowTextA(m_strScript);
+		}
 	}
 
 	m_editBox3DSoundPosX.SetWindowTextA( m_str3DSoundPosX );
@@ -111,6 +124,9 @@ BEGIN_MESSAGE_MAP(CAdd3DSound, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_3D_SOUND_MAX_DISTANCE, &CAdd3DSound::OnEnChangeEdit3DSoundMaxDistance)
 	ON_EN_CHANGE(IDC_EDIT_3D_SOUND_VOLUME, &CAdd3DSound::OnEnChangeEdit3DSoundVolume)
 	ON_BN_CLICKED(IDOK, &CAdd3DSound::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BTN_ADD_SCRIPT, &CAdd3DSound::OnBnClickedBtnAddScript)
+	ON_BN_CLICKED(IDC_BTN_REMOVE_SCRIPT, &CAdd3DSound::OnBnClickedBtnRemoveScript)
+	ON_BN_CLICKED(IDC_BUTTON_VIEW_SCRIPT, &CAdd3DSound::OnBnClickedButtonViewScript)
 END_MESSAGE_MAP()
 
 
@@ -304,4 +320,77 @@ void CAdd3DSound::OnBnClickedOk()
 {
 	// TODO: Add your control notification handler code here
 	OnOK();
+}
+
+
+void CAdd3DSound::OnBnClickedBtnAddScript()
+{
+	CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("LUA File (*.lua)|*.lua||"), NULL, NULL);
+	if (IDOK == dlgOpen.DoModal())
+	{
+		g_testScript = CTrue;
+		CString m_string;
+		m_string = (CString)dlgOpen.GetPathName();
+
+		lua_close(g_lua);
+		g_lua = LuaNewState();
+		LuaOpenLibs(g_lua);
+		LuaRegisterFunctions(g_lua);
+
+		int s = luaL_loadfile(g_lua, m_string);
+		if (s == 0) {
+			// execute Lua program
+			s = LuaExecuteProgram(g_lua);
+		}
+		if (s == 0)
+		{
+			m_editBoxScript.SetWindowText(m_string);
+			m_strScript = m_string;
+			m_scriptUpdated = CTrue;
+			m_hasScript = CTrue;
+			PrintInfo("\nScript loaded scuccessfully", COLOR_GREEN);
+		}
+		else
+		{
+			MessageBox("Script contains error(s).\nPlease use script editor to fix the issue(s)", "Error", MB_OK | MB_ICONERROR);
+		}
+		g_testScript = CFalse;
+	}
+}
+
+
+void CAdd3DSound::OnBnClickedBtnRemoveScript()
+{
+	if (!m_hasScript)
+	{
+		MessageBox("No script was found!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_hasScript)
+	{
+		if (MessageBox("Remove current script?", "Warning", MB_YESNO) == IDYES)
+		{
+			m_editBoxScript.SetWindowTextA("\n");
+			m_strScript.Empty();
+			m_hasScript = CFalse;
+		}
+	}
+}
+
+
+void CAdd3DSound::OnBnClickedButtonViewScript()
+{
+	if (!m_hasScript)
+	{
+		MessageBox("Please add a script!", "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	CViewScript* dlg = CNew(CViewScript);
+	dlg->SetScriptPath(m_strScript.GetBuffer(m_strScript.GetLength()));
+	m_strScript.ReleaseBuffer();
+	dlg->DoModal();
+	CDelete(dlg);
 }

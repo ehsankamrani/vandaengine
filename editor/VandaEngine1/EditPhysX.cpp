@@ -95,11 +95,6 @@ CVoid CEditPhysX::SetPhysX( CInstanceGeometry* instanceGeo )
 
 void CEditPhysX::OnBnClickedBtnPhysx()
 {
-	if( g_multipleView->m_nx->m_hasScene )
-	{
-		MessageBox( "PhysX generation does not work with external PhysX scenes.\nPlease remove the external PhysX scene and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
-		return;
-	}
 	if( !g_menu.m_geometryBasedSelection )
 	{
 		MessageBox( "PhysX generation only works in 'geometry based selection'", "Vanda Engine Error", MB_OK | MB_ICONERROR );
@@ -339,12 +334,6 @@ void CEditPhysX::OnBnClickedBtnPhysx()
 
 void CEditPhysX::OnBnClickedBtnDeletePhysx()
 {
-	if( g_multipleView->m_nx->m_hasScene )
-	{
-		MessageBox( "PhysX generation does not work with external PhysX scenes.\nPlease remove the external PhysX scene and try again.", "Vanda Engine Error", MB_OK | MB_ICONERROR );
-		return;
-	}
-
 	if( !g_menu.m_geometryBasedSelection )
 	{
 		MessageBox( "PhysX generation only works in 'geometry based selection'", "Vanda Engine Error", MB_OK | MB_ICONERROR );

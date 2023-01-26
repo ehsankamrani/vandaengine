@@ -30,6 +30,12 @@ public:
 	CBool GetPlayCondition() { return m_play; }
 	CBool GetLoopCondition() { return m_loop; }
 	CInt GetIndex() {return m_nameIndex; }
+
+	CChar* GetLastName() { return m_lastName; }
+	CBool GetHasScript() { return m_hasScript; }
+	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
+	CBool GetUpdateScript() { return m_scriptUpdated; }
+
 	CVoid SetSoundPos( CFloat* pos )
 	{
 		CChar posX[MAX_NAME_SIZE];
@@ -110,6 +116,15 @@ public:
 	{
 		m_nameIndex = index;
 	}
+
+	CVoid SetLastName(CChar* name)
+	{
+		Cpy(m_lastName, name);
+	}
+	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
+	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
+	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
+
 	//#######################
 
 
@@ -143,6 +158,7 @@ protected:
 	CBool m_loop, m_play;
 
 	CInt m_nameIndex; //selection
+	CChar m_lastName[MAX_NAME_SIZE];
 
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
@@ -182,4 +198,14 @@ public:
 public:
 	virtual INT_PTR DoModal();
 	afx_msg void OnBnClickedOk();
+	CRichEditCtrl m_editBoxScript;
+	afx_msg void OnBnClickedBtnAddScript();
+	afx_msg void OnBnClickedBtnRemoveScript();
+	afx_msg void OnBnClickedButtonViewScript();
+
+private:
+	CBool m_scriptUpdated;
+	CString m_strScript;
+	CBool m_hasScript;
+
 };

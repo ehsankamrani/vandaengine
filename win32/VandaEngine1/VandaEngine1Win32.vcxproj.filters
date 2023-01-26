@@ -87,69 +87,6 @@
     <ClCompile Include="physXEngine\NxDebugRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="physXEngine\NXU_Asc2Bin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_ColladaExport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_ColladaImport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_cooking.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_customcopy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_File.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_Geometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_GraphicsMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_helper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_hull.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_PhysicsExport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_PhysicsInstantiator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_ScaledCopy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_schema.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_SchemaStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_Streaming.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_string.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_tinystr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_tinyxml.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_tinyxmlerror.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physXEngine\NXU_tinyxmlparser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sceneManagerEngine\Octree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -278,9 +215,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GraphicsEngine\Actions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AudioEngine\AmbientSound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -366,66 +300,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="physXEngine\NxDebugRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_Asc2Bin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_ColladaExport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_ColladaImport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_cooking.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_customcopy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_File.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_GraphicsMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_helper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_hull.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_PhysicsExport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_PhysicsInstantiator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_ScaledCopy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_schema.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_SchemaStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_SchemaTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_Streaming.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_string.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_tinystr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physXEngine\NXU_tinyxml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sceneManagerEngine\Octree.h">

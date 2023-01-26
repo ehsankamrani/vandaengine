@@ -180,7 +180,6 @@ private:
 	CBool ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationName = NULL);
 	CBool GetJumpCurrentEndDuration(CFloat& duration);
 	CBool IsJumping(CBool &isInList);
-	COpenALSoundBuffer* GetSoundBuffer( const CChar * name );
 	
 	GLuint *m_guiPtr, m_guiMinZ, m_guiSelectedName, m_guiBuffer[MAX_NAME_SIZE];//gui selection
 private:

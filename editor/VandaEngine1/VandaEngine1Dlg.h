@@ -50,7 +50,7 @@
 #include "SetCurrentProject.h"
 #include "DeleteProject.h"
 #include "EditProjectVScenes.h"
-#include "EditSceneOptions.h"
+#include "EditImportOptions.h"
 #include "EditCurrentSceneOptions.h"
 #include "EditVSceneName.h"
 #include "WelcomeDialog.h"
@@ -75,7 +75,6 @@
 #include "ExitEditorDlg.h"
 #include "AddPrefabResource.h"
 #include "scenemanagerEngine/octree.h"
-#include "PhysX.h"
 #include "physXEngine/Trigger.h"
 #include "SceneBanner.h"
 #include "VsceneMenuCursor.h"
@@ -768,7 +767,6 @@ public:
 protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	CVoid OnMenuClickedImportCollada();
-	CVoid OnMenuClickedImportPhysX(); //removed in version 1.4 or later
 	CVoid OnMenuClickedInsertLight();
 	CVoid OnMenuClickedInsert3DSound();
 	CVoid OnMenuClickedInsertSkyDome();
@@ -823,7 +821,6 @@ public:
 	CVoid InsertItemToPhysXList( CChar * physXObjectName, int imageIndex = 0 );
 	CVoid InsertItemToGUIList(char * objectName, int imageIndex);
 	CVoid SortGUIList();
-	COpenALSoundBuffer* GetSoundBuffer( const CChar * name );
 	CInt m_engineObjectListIndex;
 	CInt m_guiListIndex;
 	CInt m_sceneListIndex;
@@ -872,7 +869,7 @@ public:
 	CEditGeneralPhysXProperties* m_dlgEditGeneralPhysXProperties;
 	CEditShadow* m_dlgEditShadow;
 	CEditOptions* m_dlgOptions;
-	CEditSceneOptions* m_dlgSceneOptions;
+	CEditImportOptions* m_dlgImportOptions;
 	CEditCurrentSceneOptions* m_dlgCurrentSceneOptions;
 	CWelcomeDialog m_dlgWelcome;
 	CEditDOF* m_dlgEditDOF;
@@ -888,6 +885,7 @@ public:
 	std::vector<std::string> m_deletedTriggerObjects;
 	std::vector<std::string> m_deletedWaterObjects;
 	std::vector<std::string> m_deletedAmbientSoundObjects;
+	std::vector<std::string> m_deleted3DSoundObjects;
 	std::vector<std::string> m_deletedCameraObjects;
 	std::vector<std::string> m_deletedLightObjects;
 protected:
@@ -1004,7 +1002,6 @@ public:
 	void ResetPhysX(CBool releaseActors = CTrue);
 	CListCtrl m_listBoxPhysXElements;
 	CCustomBitmapButton m_btnRemovePhysX;
-	afx_msg void OnBnClickedBtnRemovePhysx();
 	CCustomBitmapButton m_btnVandaText;
 	CCustomBitmapButton m_mainBtnTwitter;
 	afx_msg void OnBnClickedBtnTwitter();
@@ -1093,6 +1090,7 @@ public:
 	afx_msg void OnDestroy();
 	CCustomBitmapButton m_mainBtnVideo;
 	afx_msg void OnBnClickedBtnVideo();
+	afx_msg void OnBnClickedBtnRemovePhysx();
 };
 
 //Edition.MaxVersion.MinVersion.BugFixes;
@@ -1139,7 +1137,6 @@ extern CBool g_importCOLLADA;
 extern CBool g_openVINFile;
 extern CChar g_fileNameInCommandLine[MAX_NAME_SIZE];
 
-extern 	std::vector<COpenALSoundBuffer*>g_soundBuffers;
 extern CRichEditCtrl *ex_pRichEdit; // rich edit pointer
 extern CRichEditCtrl *ex_pRichEditScript;
 extern CVandaEngine1Dlg* ex_pVandaEngine1Dlg;
@@ -1221,7 +1218,6 @@ extern NxExtendedVec3 g_characterPos; //default camera attached to character con
 extern CVec3f g_cameraInstancePos; //default free camera
 extern CVec2f g_cameraInstancePanTilt; //default free camera
 extern 	CBloom*	g_bloom;
-extern 	CExternalPhysX*  g_externalPhysX;
 extern CVSceneBanner g_sceneBanner;
 extern CVSceneMenuCursor g_vsceneMenuCursor;
 extern std::vector<CImage*>g_images; // This variable holds the information of all the images of Engine

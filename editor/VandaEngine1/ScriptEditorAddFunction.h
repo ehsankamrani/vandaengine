@@ -262,6 +262,15 @@ private:
 	CChar SetAmbientSoundScriptIntVariable[MAX_URI_SIZE];
 	CChar SetAmbientSoundScriptDoubleVariable[MAX_URI_SIZE];
 
+	CChar Get3DSoundScriptStringVariable[MAX_URI_SIZE];
+	CChar Get3DSoundScriptBoolVariable[MAX_URI_SIZE];
+	CChar Get3DSoundScriptIntVariable[MAX_URI_SIZE];
+	CChar Get3DSoundScriptDoubleVariable[MAX_URI_SIZE];
+	CChar Set3DSoundScriptStringVariable[MAX_URI_SIZE];
+	CChar Set3DSoundScriptBoolVariable[MAX_URI_SIZE];
+	CChar Set3DSoundScriptIntVariable[MAX_URI_SIZE];
+	CChar Set3DSoundScriptDoubleVariable[MAX_URI_SIZE];
+
 	CChar GetLightScriptStringVariable[MAX_URI_SIZE];
 	CChar GetLightScriptBoolVariable[MAX_URI_SIZE];
 	CChar GetLightScriptIntVariable[MAX_URI_SIZE];

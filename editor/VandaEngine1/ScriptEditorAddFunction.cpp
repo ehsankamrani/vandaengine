@@ -249,6 +249,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetAmbientSoundScriptIntVariable, "SetAmbientSoundScriptIntVariable(string ambientSoundName, string variable, int value)");
 	Cpy(SetAmbientSoundScriptDoubleVariable, "SetAmbientSoundScriptDoubleVariable(string ambientSoundName, string variable, double value)");
 
+	Cpy(Get3DSoundScriptStringVariable, "Get3DSoundScriptStringVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptBoolVariable, "Get3DSoundScriptBoolVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptIntVariable, "Get3DSoundScriptIntVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptDoubleVariable, "Get3DSoundScriptDoubleVariable(string 3DSoundName, string variable)");
+	Cpy(Set3DSoundScriptStringVariable, "Set3DSoundScriptStringVariable(string 3DSoundName, string variable, string value)");
+	Cpy(Set3DSoundScriptBoolVariable, "Set3DSoundScriptBoolVariable(string 3DSoundName, string variable, bool value)");
+	Cpy(Set3DSoundScriptIntVariable, "Set3DSoundScriptIntVariable(string 3DSoundName, string variable, int value)");
+	Cpy(Set3DSoundScriptDoubleVariable, "Set3DSoundScriptDoubleVariable(string 3DSoundName, string variable, double value)");
+
 	Cpy(GetLightScriptStringVariable, "GetLightScriptStringVariable(string lightName, string variable)");
 	Cpy(GetLightScriptBoolVariable, "GetLightScriptBoolVariable(string lightName, string variable)");
 	Cpy(GetLightScriptIntVariable, "GetLightScriptIntVariable(string lightName, string variable)");
@@ -1197,6 +1206,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetAmbientSoundScriptDoubleVariable);
 		}
+		else if (Cmp(szBuffer, "Get3DSoundScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Get3DSoundScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "Get3DSoundScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Get3DSoundScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "Get3DSoundScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Get3DSoundScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "Get3DSoundScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Get3DSoundScriptDoubleVariable);
+		}
+		else if (Cmp(szBuffer, "Set3DSoundScriptStringVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Set3DSoundScriptStringVariable);
+		}
+		else if (Cmp(szBuffer, "Set3DSoundScriptBoolVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Set3DSoundScriptBoolVariable);
+		}
+		else if (Cmp(szBuffer, "Set3DSoundScriptIntVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Set3DSoundScriptIntVariable);
+		}
+		else if (Cmp(szBuffer, "Set3DSoundScriptDoubleVariable"))
+		{
+			m_richFunctionName.SetWindowTextA(Set3DSoundScriptDoubleVariable);
+		}
 		else if (Cmp(szBuffer, "GetLightScriptStringVariable"))
 		{
 			m_richFunctionName.SetWindowTextA(GetLightScriptStringVariable);
@@ -1728,6 +1769,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetAmbientSoundScriptBoolVariable");
 	InsertItem("SetAmbientSoundScriptIntVariable");
 	InsertItem("SetAmbientSoundScriptDoubleVariable");
+
+	InsertItem("Get3DSoundScriptStringVariable");
+	InsertItem("Get3DSoundScriptBoolVariable");
+	InsertItem("Get3DSoundScriptIntVariable");
+	InsertItem("Get3DSoundScriptDoubleVariable");
+	InsertItem("Set3DSoundScriptStringVariable");
+	InsertItem("Set3DSoundScriptBoolVariable");
+	InsertItem("Set3DSoundScriptIntVariable");
+	InsertItem("Set3DSoundScriptDoubleVariable");
 
 	InsertItem("GetLightScriptStringVariable");
 	InsertItem("GetLightScriptBoolVariable");

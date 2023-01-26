@@ -56,7 +56,6 @@ CBool CAmbientSound::LoadLuaFile()
 	return CTrue;
 }
 
-
 CChar* CAmbientSound::GetScriptStringVariable(CChar* variableName)
 {
 	CChar *s = NULL;
