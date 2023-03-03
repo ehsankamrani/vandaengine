@@ -1,0 +1,3655 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_VANDAENGINE         ICON                    "res\\VandaEngine.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CUSTOM_HAND         CURSOR                  "Assets\\Icon\\hand.cur"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_NEW_UP       BITMAP                  "Assets\\Icon\\New\\New_Up.bmp"
+
+IDB_BITMAP_SAVE_UP      BITMAP                  "Assets\\Icon\\Save\\Save_UP.bmp"
+
+IDB_BITMAP_SAVE_DOWN    BITMAP                  "Assets\\Icon\\Save\\Save_DOWN.bmp"
+
+IDB_BITMAP_SAVE_FOCUS   BITMAP                  "Assets\\Icon\\Save\\Save_Focus.bmp"
+
+IDB_BITMAP_NEW_DOWN     BITMAP                  "Assets\\Icon\\New\\New_Down.bmp"
+
+IDB_BITMAP_NEW_FOCUS    BITMAP                  "Assets\\Icon\\New\\New_Focus.bmp"
+
+IDB_BITMAP_COLLADA_DOWN BITMAP                  "Assets\\Icon\\ImportCollada\\Collada_Down.bmp"
+
+IDB_BITMAP_COLLADA_FOCUS BITMAP                  "Assets\\Icon\\ImportCollada\\Collada_Focus.bmp"
+
+IDB_BITMAP_COLLADA_UP   BITMAP                  "Assets\\Icon\\ImportCollada\\Collada_Up.bmp"
+
+IDB_BITMAP_PHYSX_DOWN   BITMAP                  "Assets\\Icon\\ImportPhysX\\PhysX_DOWN.bmp"
+
+IDB_BITMAP_PHYSX_FOCUS  BITMAP                  "Assets\\Icon\\ImportPhysX\\PhysX_Focus.bmp"
+
+IDB_BITMAP_PHYSX_UP     BITMAP                  "Assets\\Icon\\ImportPhysX\\PhysX_UP.bmp"
+
+IDB_BITMAP_ANIM_PREV_DOWN BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Down.bmp"
+
+IDB_BITMAP_ANIM_PREV_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Focus.bmp"
+
+IDB_BITMAP_ANIM_PREV_UP BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Up.bmp"
+
+IDB_BITMAP_OPEN_DOWN    BITMAP                  "Assets\\Icon\\Open\\Open_Down.bmp"
+
+IDB_BITMAP_OPEN_FOCUS   BITMAP                  "Assets\\Icon\\Open\\Open_Focus.bmp"
+
+IDB_BITMAP_OPEN_UP      BITMAP                  "Assets\\Icon\\Open\\Open_Up.bmp"
+
+IDB_BITMAP_SAVEAS_UP    BITMAP                  "Assets\\Icon\\Save As\\SaveAs_UP.bmp"
+
+IDB_BITMAP_SAVEAS_DOWN  BITMAP                  "Assets\\Icon\\Save As\\SaveAs_DOWN.bmp"
+
+IDB_BITMAP_SAVEAS_FOCUS BITMAP                  "Assets\\Icon\\Save As\\SaveAs_Focus.bmp"
+
+IDB_BITMAP_ANIM_PREV_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Prev\\Prev_Disable.bmp"
+
+IDB_BITMAP_ANIM_PLAY_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Disable.bmp"
+
+IDB_BITMAP_ANIM_PLAY_DOWN BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Down.bmp"
+
+IDB_BITMAP_ANIM_PLAY_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Focus.bmp"
+
+IDB_BITMAP_ANIM_PLAY_UP BITMAP                  "Assets\\Icon\\Animation\\Play\\Play_Up.bmp"
+
+IDB_BITMAP_ANIM_NEXT_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Disable.bmp"
+
+IDB_BITMAP_ANIM_NEXT_DOWN BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Down.bmp"
+
+IDB_BITMAP_ANIM_NEXT_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Focus.bmp"
+
+IDB_BITMAP_ANIM_NEXT_UP BITMAP                  "Assets\\Icon\\Animation\\Next\\Next_Up.bmp"
+
+IDB_BITMAP_TIMER_DOWN   BITMAP                  "Assets\\Icon\\Timer\\Timer_Down.bmp"
+
+IDB_BITMAP_TIMER_FOCUS  BITMAP                  "Assets\\Icon\\Timer\\Timer_Focus.bmp"
+
+IDB_BITMAP_TIMER_UP     BITMAP                  "Assets\\Icon\\Timer\\Timer_Up.bmp"
+
+IDB_BITMAP_ANIM_PAUSE_DISABLE BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Disable.bmp"
+
+IDB_BITMAP_ANIM_PAUSE_DOWN BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Down.bmp"
+
+IDB_BITMAP_ANIM_PAUSE_FOCUS BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Focus.bmp"
+
+IDB_BITMAP_ANIM_PAUSE_UP BITMAP                  "Assets\\Icon\\Animation\\Pause\\Pause_Up.bmp"
+
+IDB_BITMAP_WEB_DOWN     BITMAP                  "Assets\\Icon\\Web\\Web_Down.bmp"
+
+IDB_BITMAP_WEB_FOCUS    BITMAP                  "Assets\\Icon\\Web\\Web_Focus.bmp"
+
+IDB_BITMAP_WEB_UP       BITMAP                  "Assets\\Icon\\Web\\Web_Up.bmp"
+
+IDB_BITMAP_FACEBOOK_DOWN BITMAP                  "Assets\\Icon\\Facebook\\Facebook_Down.bmp"
+
+IDB_BITMAP_FACEBOOK_FOCUS BITMAP                  "Assets\\Icon\\Facebook\\Facebook_Focus.bmp"
+
+IDB_BITMAP_FACEBOOK_UP  BITMAP                  "Assets\\Icon\\Facebook\\Facebook_Up.bmp"
+
+IDB_BITMAP_PHYSXEDITOR_UP BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Up.bmp"
+
+IDB_BITMAP_PHYSXEDITOR_DOWN BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Down.bmp"
+
+IDB_BITMAP_PHYSXEDITOR_DISABLE BITMAP                  "Assets\\Icon\\PhysX Editor\\PhysX_Disable.bmp"
+
+IDB_BITMAP_LINK_UP      BITMAP                  "Assets\\Icon\\Welcome\\link.bmp"
+
+IDB_BITMAP_WELCOME_VERSION BITMAP                  "Assets\\Icon\\Welcome\\Welcome_version.bmp"
+
+IDB_BITMAP_WELCOME_SEPARATOR BITMAP                  "Assets\\Icon\\Welcome\\Seperator.bmp"
+
+IDB_BITMAP_LIGHT_DISABLE BITMAP                  "Assets\\Icon\\Light\\Light_Disable.bmp"
+
+IDB_BITMAP_WATER_DISABLE BITMAP                  "Assets\\Icon\\Water\\Water_Disable.bmp"
+
+IDB_BITMAP_3DSOUND_DISABLE BITMAP                  "Assets\\Icon\\3DSound\\3DSound_Disable.bmp"
+
+IDB_BITMAP_PREFAB_DISABLE BITMAP                  "Assets\\Icon\\Prefab\\prefab_Disable.bmp"
+
+IDB_BITMAP_PREFAB_DOWN  BITMAP                  "Assets\\Icon\\Prefab\\prefab_Down.bmp"
+
+IDB_BITMAP_PREFAB_FOCUS BITMAP                  "Assets\\Icon\\Prefab\\prefab_Focus.bmp"
+
+IDB_BITMAP_PREFAB_UP    BITMAP                  "Assets\\Icon\\Prefab\\prefab_Up.bmp"
+
+IDB_BITMAP_OPEN_DISABLE BITMAP                  "Assets\\Icon\\Open\\Open_Disable.bmp"
+
+IDB_BITMAP_PUBLISH_DISABLE BITMAP                  "Assets\\Icon\\Publish\\publish_disable.bmp"
+
+IDB_BITMAP_SAVE_DISABLE BITMAP                  "Assets\\Icon\\Save\\Save_Disable.bmp"
+
+IDB_BITMAP_SAVEAS_DISABLE BITMAP                  "Assets\\Icon\\Save As\\SaveAs_Disable.bmp"
+
+IDB_BITMAP_TRANSLATE_DISABLE BITMAP                  "Assets\\Icon\\Translate\\translate_Disable.bmp"
+
+IDB_BITMAP_TRANSLATE_DOWN BITMAP                  "Assets\\Icon\\Translate\\translate_Down.bmp"
+
+IDB_BITMAP_TRANSLATE_FOCUS BITMAP                  "Assets\\Icon\\Translate\\translate_Focus.bmp"
+
+IDB_BITMAP_TRANSLATE_UP BITMAP                  "Assets\\Icon\\Translate\\translate_Up.bmp"
+
+IDB_BITMAP_ROTATE_DISABLE BITMAP                  "Assets\\Icon\\Rotate\\rotate_Disable.bmp"
+
+IDB_BITMAP_ROTATE_DOWN  BITMAP                  "Assets\\Icon\\Rotate\\rotate_Down.bmp"
+
+IDB_BITMAP_ROTATE_FOCUS BITMAP                  "Assets\\Icon\\Rotate\\rotate_Focus.bmp"
+
+IDB_BITMAP_ROTATE_UP    BITMAP                  "Assets\\Icon\\Rotate\\rotate_Up.bmp"
+
+IDB_BITMAP_SCALE_DISABLE BITMAP                  "Assets\\Icon\\Scale\\Scale_Disable.bmp"
+
+IDB_BITMAP_SCALE_DOWN   BITMAP                  "Assets\\Icon\\Scale\\Scale_Down.bmp"
+
+IDB_BITMAP_SCALE_FOCUS  BITMAP                  "Assets\\Icon\\Scale\\Scale_Focus.bmp"
+
+IDB_BITMAP_SCALE_UP     BITMAP                  "Assets\\Icon\\Scale\\Scale_Up.bmp"
+
+IDB_BITMAP_OBJECTLIST_SCENE BITMAP                  "Assets\\Icon\\Object List\\scene.bmp"
+
+IDB_BITMAP_TIMER_PAUSE_DOWN BITMAP                  "Assets\\Icon\\Timer\\Pause\\Timer_Pause_Down.bmp"
+
+IDB_BITMAP_TIMER_PAUSE_FOCUS BITMAP                  "Assets\\Icon\\Timer\\Pause\\Timer_Pause_Focus.bmp"
+
+IDB_BITMAP_TIMER_PAUSE_UP BITMAP                  "Assets\\Icon\\Timer\\Pause\\Timer_Pause_Up.bmp"
+
+IDB_BITMAP_TEST_ACTIVE_DOWN BITMAP                  "Assets\\Icon\\Test\\Active\\test_active_down.bmp"
+
+IDB_BITMAP_TEST_ACTIVE_FOCUS BITMAP                  "Assets\\Icon\\Test\\Active\\test_active_focus.bmp"
+
+IDB_BITMAP_TEST_ACTIVE_UP BITMAP                  "Assets\\Icon\\Test\\Active\\test_active_up.bmp"
+
+IDB_BITMAP_TEST_DEACTIVE_DOWN BITMAP                  "Assets\\Icon\\Test\\Deactive\\test_deactive_down.bmp"
+
+IDB_BITMAP_TEST_DEACTIVE_FOCUS BITMAP                  "Assets\\Icon\\Test\\Deactive\\test_deactive_focus.bmp"
+
+IDB_BITMAP_TEST_DEACTIVE_UP BITMAP                  "Assets\\Icon\\Test\\Deactive\\test_deactive_up.bmp"
+
+IDB_BITMAP_DEFAULT_VIN  BITMAP                  "Assets\\Icon\\Default\\Default_vin.bmp"
+
+IDB_BITMAP_DEFAULT_VPF  BITMAP                  "Assets\\Icon\\Default\\Default_vpf.bmp"
+
+IDB_BITMAP_DEFAULT_PACKAGE BITMAP                  "Assets\\Icon\\Default\\Default_package.bmp"
+
+IDB_BITMAP_DEFAULT_PROJECT BITMAP                  "Assets\\Icon\\Default\\Default_Project.bmp"
+
+IDB_BITMAP_DEFAULT_WATER BITMAP                  "Assets\\Icon\\Default\\Default_Water.bmp"
+
+IDB_BITMAP_WATER_ATTACH_DOWN BITMAP                  "Assets\\Icon\\WaterAttach\\WaterAttach_Down.bmp"
+
+IDB_BITMAP_WATER_ATTACH_FOCUS BITMAP                  "Assets\\Icon\\WaterAttach\\WaterAttach_Focus.bmp"
+
+IDB_BITMAP_WATER_ATTACH_UP BITMAP                  "Assets\\Icon\\WaterAttach\\WaterAttach_Up.bmp"
+
+IDB_BITMAP_TRIGGER_DISABLE BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Disable.bmp"
+
+IDB_BITMAP_TRIGGER_DOWN BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Down.bmp"
+
+IDB_BITMAP_TRIGGER_FOCUS BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Focus.bmp"
+
+IDB_BITMAP_TRIGGER_UP   BITMAP                  "Assets\\Icon\\Trigger\\Trigger_Up.bmp"
+
+IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_DISABLE BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Disable.bmp"
+
+IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_DOWN BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Down.bmp"
+
+IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_FOCUS BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Focus.bmp"
+
+IDB_BITMAP_COLLADA_MULTIPLE_ANIMATIONS_UP BITMAP                  "Assets\\Icon\\ImportColladaMultipleAnimations\\Collada_Multiple_Animations_Up.bmp"
+
+IDB_BITMAP_PLAYER_DISABLE BITMAP                  "Assets\\Icon\\Player\\Player_Disable.bmp"
+
+IDB_BITMAP_DEFAULT_PRF  BITMAP                  "Assets\\Icon\\Default\\Default_prf.bmp"
+
+IDB_BITMAP_GUI_BUTTON_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Disable.bmp"
+
+IDB_BITMAP_GUI_BUTTON_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Down.bmp"
+
+IDB_BITMAP_GUI_BUTTON_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Focus.bmp"
+
+IDB_BITMAP_GUI_BUTTON_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Button_Up.bmp"
+
+IDB_BITMAP_GUI_IMAGE_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Disable.bmp"
+
+IDB_BITMAP_GUI_IMAGE_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Down.bmp"
+
+IDB_BITMAP_GUI_IMAGE_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Focus.bmp"
+
+IDB_BITMAP_GUI_IMAGE_UP BITMAP                  "Assets\\Icon\\GUI\\GUI_Image_Up.bmp"
+
+IDB_BITMAP_GUI_TEXT_DISABLE BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Disable.bmp"
+
+IDB_BITMAP_GUI_TEXT_DOWN BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Down.bmp"
+
+IDB_BITMAP_GUI_TEXT_FOCUS BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Focus.bmp"
+
+IDB_BITMAP_GUI_TEXT_UP  BITMAP                  "Assets\\Icon\\GUI\\GUI_Text_Up.bmp"
+
+IDB_BITMAP_GUILIST_IMAGE BITMAP                  "Assets\\Icon\\GUI List\\GUIImage.bmp"
+
+IDB_BITMAP_GUILIST_BUTTON BITMAP                  "Assets\\Icon\\GUI List\\GUIButton.bmp"
+
+IDB_BITMAP_GUILIST_TEXT BITMAP                  "Assets\\Icon\\GUI List\\GUIText.bmp"
+
+IDB_BITMAP_GUI_EDITOR_DISABLE BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Disable.bmp"
+
+IDB_BITMAP_GUI_EDITOR_DOWN BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Down.bmp"
+
+IDB_BITMAP_GUI_EDITOR_FOCUS BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Focus.bmp"
+
+IDB_BITMAP_GUI_EDITOR_UP BITMAP                  "Assets\\Icon\\InsertGUI\\InsertGUI_Up.bmp"
+
+IDB_BITMAP_DEFAULT_GUI  BITMAP                  "Assets\\Icon\\Default\\Default_gui.bmp"
+
+IDB_BITMAP_OBJECTLIST_VSCENE_SCRIPT BITMAP                  "Assets\\Icon\\EngineObjectList\\VSceneScript.bmp"
+
+IDB_BITMAP_TERRAIN_UP   BITMAP                  "Assets\\Icon\\Terrain\\terrain_up.bmp"
+
+IDB_BITMAP_TERRAIN_FOCUS BITMAP                  "Assets\\Icon\\Terrain\\terrain_focus.bmp"
+
+IDB_BITMAP_TERRAIN_DOWN BITMAP                  "Assets\\Icon\\Terrain\\terrain_down.bmp"
+
+IDB_BITMAP_TERRAIN_DISABLE BITMAP                  "Assets\\Icon\\Terrain\\terrain_disable.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_TERRAIN BITMAP                  "Assets\\Icon\\EngineObjectList\\Terrain.bmp"
+
+IDB_BITMAP_ENGINE_CAMERA_DISABLE BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_disable.bmp"
+
+IDB_BITMAP_ENGINE_CAMERA_DOWN BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_down.bmp"
+
+IDB_BITMAP_ENGINE_CAMERA_FOCUS BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_focus.bmp"
+
+IDB_BITMAP_ENGINE_CAMERA_UP BITMAP                  "Assets\\Icon\\EngineCamera\\engine_camera_up.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_ENGINE_CAMERA BITMAP                  "Assets\\Icon\\EngineObjectList\\engine_camera.bmp"
+
+IDB_BITMAP_CAMERA_DISABLE BITMAP                  "Assets\\Icon\\Camera\\camera_disable.bmp"
+
+IDB_BITMAP_PREFAB_SETTINGS_FOCUS BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings.bmp"
+
+IDB_BITMAP_PREFAB_SETTINGS_DISABLE BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Disable.bmp"
+
+IDB_BITMAP_PREFAB_SETTINGS_DOWN BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Down.bmp"
+
+IDB_BITMAP_PREFAB_SETTINGS BITMAP                  "Assets\\Icon\\PrefabSettings\\PrefabSettings_Focus.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_3D_SOUND BITMAP                  "Assets\\Icon\\Default\\Script Utility\\audio.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_CAMERA BITMAP                  "Assets\\Icon\\Default\\Script Utility\\camera.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_LIGHT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\light.bmp"
+
+IDB_BITMAP_COFFEE       BITMAP                  "Assets\\Icon\\Welcome\\coffee.bmp"
+
+IDB_BITMAP_VANDA_LOGO_DARK BITMAP                  "Assets\\Icon\\Welcome\\vanda_logo.bmp"
+
+IDB_BITMAP_VSCENE_SCRIPT_UP BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Up.bmp"
+
+IDB_BITMAP_VSCENE_SCRIPT_FOCUS BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Focus.bmp"
+
+IDB_BITMAP_VSCENE_SCRIPT_DOWN BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Down.bmp"
+
+IDB_BITMAP_VSCENE_SCRIPT_DISABLE BITMAP                  "Assets\\Icon\\VSceneScript\\VScene_Script_Disable.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_TRIGGER BITMAP                  "Assets\\Icon\\Default\\Script Utility\\trigger.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_GUI_BUTTON BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIButton.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_GUI_IMAGE BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIImage.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_GUI_TEXT BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUIText.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_WATER BITMAP                  "Assets\\Icon\\Default\\Script Utility\\water.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_AMBIENT_SOUND BITMAP                  "Assets\\Icon\\Default\\Script Utility\\ambientAudio.bmp"
+
+IDB_BITMAP_VIDEO_DISABLE BITMAP                  "Assets\\Icon\\Video\\video_disable.bmp"
+
+IDB_BITMAP_VIDEO_DOWN   BITMAP                  "Assets\\Icon\\Video\\video_down.bmp"
+
+IDB_BITMAP_VIDEO_FOCUS  BITMAP                  "Assets\\Icon\\Video\\video_focus.bmp"
+
+IDB_BITMAP_VIDEO_UP     BITMAP                  "Assets\\Icon\\Video\\video_up.bmp"
+
+IDB_BITMAP_ADD_ITEM     BITMAP                  "Assets\\Icon\\Default\\Script Utility\\Package.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_PREFAB BITMAP                  "Assets\\Icon\\Default\\Script Utility\\Prefab.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_ANIMATION BITMAP                  "Assets\\Icon\\Default\\Script Utility\\animation.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_GUI BITMAP                  "Assets\\Icon\\Default\\Script Utility\\GUI.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_VIDEO BITMAP                  "Assets\\Icon\\EngineObjectList\\Video.bmp"
+
+IDB_BITMAP_SCRIPT_UTILITY_VIDEO BITMAP                  "Assets\\Icon\\Default\\Script Utility\\video.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_EDIT_PHYSX DIALOGEX 0, 0, 350, 262
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Physics Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,234,239,51,16
+    PUSHBUTTON      "Generate",IDC_BTN_PHYSX,221,196,51,16
+    PUSHBUTTON      "Remove",IDC_BTN_DELETE_PHYSX,278,196,52,16
+    CONTROL         "",IDC_EDIT_PHYSX,"RichEdit20A",ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,218,73,113,15
+    COMBOBOX        IDC_COMBO_PHYSX,41,73,129,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_EDIT_PHYSX_PERCENTAGE,"RichEdit20A",ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,61,98,37,14
+    CONTROL         "",IDC_EDIT_PHYSX_DENSITY,"RichEdit20A",ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,151,98,41,14
+    CONTROL         "Trigger",IDC_CHECK_TRIGGER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,212,100,40,10
+    LTEXT           "Percentage",IDC_STATIC,20,101,38,8
+    LTEXT           "Density",IDC_STATIC,120,101,27,8
+    CONTROL         "Invisible Geometry",IDC_CHECK_INVISIBLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,23,80,10
+    PUSHBUTTON      "Cancel",IDCANCEL,290,239,53,16
+    LTEXT           "Type",IDC_STATIC,18,75,17,8
+    LTEXT           "Name",IDC_STATIC,193,75,21,8
+    GROUPBOX        "General Options",IDC_STATIC,7,7,336,39
+    GROUPBOX        "Physics Collider",IDC_STATIC,7,53,336,173
+    CONTROL         "Has Physics Material",IDC_CHECK_HAS_PHYSICS_MATERIAL,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,176,79,10
+    LTEXT           "Restitution",IDC_STATIC,19,128,40,8
+    LTEXT           "Static Friction",IDC_STATIC,147,128,52,8
+    LTEXT           "Skin Width",IDC_STATIC,19,153,42,8
+    LTEXT           "Dynamic Friction",IDC_STATIC,147,153,60,8
+    EDITTEXT        IDC_EDIT_PHYSICS_RESTITUTION,69,126,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PHYSICS_STATIC_FRICTION,208,126,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PHYSICS_SKIN_WIDTH,69,150,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PHYSICS_DYNAMIC_FRICTION,208,150,40,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_EDIT_GENERAL_PHYSX_PROPERTIES DIALOGEX 0, 0, 319, 353
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General PhysX Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,205,331,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,262,331,50,14
+    CONTROL         "Debug Mode",IDC_CHECK_DEBUG_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,51,56,10
+    CONTROL         "Apply Gravity",IDC_CHECK_APPLY_GRAVITY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,84,59,10
+    LTEXT           "Distance between main camera and character",IDC_STATIC,15,118,147,8
+    LTEXT           "Gravity",IDC_STATIC,79,85,26,8
+    LTEXT           "X",IDC_STATIC,109,85,8,8
+    LTEXT           "Y",IDC_STATIC,171,85,8,8
+    LTEXT           "Z",IDC_STATIC,238,85,8,8
+    GROUPBOX        "Gravity",IDC_STATIC,7,72,305,29
+    GROUPBOX        "Character Controller",IDC_STATIC,7,105,305,118
+    CONTROL         "Jumping",IDC_CHECK_JUMP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,201,42,10
+    GROUPBOX        "General",IDC_STATIC,7,3,305,65
+    LTEXT           "Default Restitution",IDC_STATIC,15,18,61,8
+    LTEXT           "Default Static Friction",IDC_STATIC,136,18,72,8
+    LTEXT           "Default Skin Width",IDC_STATIC,15,34,61,8
+    LTEXT           "Default Dynamic Friction",IDC_STATIC,136,34,85,8
+    LTEXT           "Capsule Radius",IDC_STATIC,13,138,50,8
+    LTEXT           "Capsule Height",IDC_STATIC,118,138,54,8
+    LTEXT           "Force Power",IDC_STATIC,222,118,41,8
+    EDITTEXT        IDC_EDIT_DEFAULT_RESTITUTION,81,14,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEFAULT_STATIC_FRICTION,217,14,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEFAULT_SKIN_WIDTH,81,32,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_GRAVITY_X,118,81,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEFAULT_DYNAMIC_FRICTION,217,32,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_GRAVITY_Y,181,81,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_GRAVITY_Z,248,81,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CHARACTER_RADIUS,68,136,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CHARACTER_HEIGHT,171,136,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CHARACTER_POWER,266,115,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CAMERA_CHARACTER_DISTANCE,171,115,40,14,ES_AUTOHSCROLL
+    LTEXT           "Walk Speed",IDC_STATIC,13,180,38,8
+    EDITTEXT        IDC_EDIT_CHARACTER_WALKSPEED,68,177,40,14,ES_AUTOHSCROLL
+    LTEXT           "Jump Power",IDC_STATIC,119,201,40,8
+    EDITTEXT        IDC_EDIT_CHARACTER_JUMP_POWER,172,199,40,14,ES_AUTOHSCROLL
+    LTEXT           "Slope Limit",IDC_STATIC,13,159,39,8
+    EDITTEXT        IDC_EDIT_CHARACTER_SLOPE_LIMIT,68,156,40,14,ES_AUTOHSCROLL
+    LTEXT           "Skin Width",IDC_STATIC,222,139,34,8
+    EDITTEXT        IDC_EDIT_CHARACTER_SKIN_WIDTH,266,136,40,14,ES_AUTOHSCROLL
+    LTEXT           "Step Offset",IDC_STATIC,119,158,38,8
+    EDITTEXT        IDC_EDIT_CHARACTER_STEP_OFFSET,172,156,40,14,ES_AUTOHSCROLL
+    CONTROL         "Ground Plane",IDC_CHECK_GROUND_PLANE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,93,51,56,10
+    LTEXT           "Ground Height",IDC_STATIC,164,51,48,8
+    EDITTEXT        IDC_EDIT_GROUND_HEIGHT,217,49,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Reset",IDC_BUTTON_RESET,143,331,50,14
+    LTEXT           "Run Speed",IDC_STATIC,119,180,38,8
+    EDITTEXT        IDC_EDIT_CHARACTER_RUNSPEED,172,177,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Collision Flags",IDC_STATIC,7,227,305,91
+    CONTROL         "Kinematic-Dynamic",IDC_CHECK_KINEMATIC_DYNAMIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,242,77,10
+    CONTROL         "Trigger-Kinematic",IDC_CHECK_TRIGGER_KINEMATIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,278,73,10
+    CONTROL         "Dynamic-Dynamic",IDC_CHECK_DYNAMIC_DYNAMIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,260,71,10
+    CONTROL         "Dynamic-Static",IDC_CHECK_DYNAMIC_STATIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,260,71,10
+    CONTROL         "Dynamic-Ground",IDC_CHECK_DYNAMIC_GROUND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,201,260,71,10
+    CONTROL         "Trigger-Trigger",IDC_CHECK_TRIGGER_TRIGGER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,278,71,10
+    CONTROL         "Trigger-Static",IDC_CHECK_TRIGGER_STATIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,201,278,73,10
+    CONTROL         "Trigger-Dynamic",IDC_CHECK_TRIGGER_DYNAMIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,296,71,10
+    CONTROL         "Trigger-Ground",IDC_CHECK_TRIGGER_GROUND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,296,71,10
+END
+
+IDD_DIALOG_NEW_EDIT_PROJECT DIALOGEX 0, 0, 183, 60
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Project Name"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,72,39,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,126,39,50,14
+    LTEXT           "Name",IDC_STATIC,13,16,21,11
+    EDITTEXT        IDC_PROJECT_NAME,35,13,140,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_SET_CURRENT_PROJECT DIALOGEX 0, 0, 221, 179
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Current Project"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Set",IDOK,108,158,50,14
+    PUSHBUTTON      "Close",IDCANCEL,164,158,50,14
+    CONTROL         "",IDC_LIST_AVAILABLE_PROJECTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,7,207,139,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_PREFAB DIALOGEX 0, 0, 663, 346
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_NOPARENTNOTIFY
+CAPTION "Prefabs"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,595,307,61,17
+    CONTROL         "",IDC_LIST_PREFABS_PROPERTIES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,357,3,14,13,WS_EX_STATICEDGE
+    PUSHBUTTON      "Insert",ID_INSERT,523,307,63,18
+    CONTROL         "",IDC_SLIDER_PREFAB,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | NOT WS_VISIBLE | WS_TABSTOP,313,8,44,15
+    CONTROL         "",IDC_LIST_PREFABS,"SysListView32",LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,175,23,473,263,WS_EX_STATICEDGE
+    GROUPBOX        "Properties of Selected Prefab",IDC_STATIC,288,8,14,15,NOT WS_VISIBLE
+    CONTROL         "",IDC_LIST_PREFABS_PROJECTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,14,23,142,263,WS_EX_STATICEDGE
+    GROUPBOX        "Prefabs",IDC_STATIC,169,6,487,289
+    GROUPBOX        "Packages",IDC_STATIC,6,6,158,289
+END
+
+IDD_DIALOG_SAVE_PREFAB DIALOGEX 0, 0, 193, 79
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Save Prefab"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,83,58,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,137,58,50,14
+    LTEXT           "Name",IDC_STATIC,14,38,21,11
+    EDITTEXT        IDC_PREFAB_NAME,45,36,141,14,ES_AUTOHSCROLL
+    LTEXT           "Package",IDC_STATIC,12,13,40,11
+    COMBOBOX        IDC_COMB_PREFAB_PACKAGE,45,12,119,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "+",IDC_BUTTON_ADD_PACKAGE,171,11,15,14
+END
+
+IDD_DIALOG_PREFAB_NAME DIALOGEX 0, 0, 189, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Package & Prefab Names"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,76,41,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,132,41,50,14
+    EDITTEXT        IDC_PREFAB_NAME,38,15,143,15,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,16,18,19,8
+END
+
+IDD_DIALOG_CURRENT_SCENE_OPTIONS DIALOGEX 0, 0, 309, 248
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Current Scene Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,198,227,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,254,227,48,14
+    PUSHBUTTON      "Choose",IDC_BTN_LOADING_BANNER,240,27,51,15
+    EDITTEXT        IDC_EDIT_BANNER,14,27,211,15,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Banner",IDC_STATIC,7,9,295,45
+    CONTROL         "Set As Menu",IDC_CHECKBOX_SETASMENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,80,61,10
+    PUSHBUTTON      "Choose",IDC_BTN_LOADING_CURSOR_ICON,240,102,51,15
+    EDITTEXT        IDC_EDIT_CURSOR_ICON,67,102,158,15,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Menu Properties",IDC_STATIC,7,62,295,97
+    LTEXT           "Cursor Size:",IDC_STATIC,16,133,39,8
+    EDITTEXT        IDC_EDIT_CURSOR_PERCENT,60,130,34,15,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Percents of Window Width",IDC_STATIC,103,133,86,8
+    LTEXT           "Cursor Image",IDC_STATIC,15,104,44,8
+    LTEXT           "Global Sound Volume",IDC_STATIC,16,188,69,8
+    EDITTEXT        IDC_EDIT_GLOBAL_SOUND_VOLUME,92,185,34,15,ES_AUTOHSCROLL
+    GROUPBOX        "Sound Properties",IDC_STATIC,7,167,295,46
+END
+
+IDD_DIALOG_PROJECT_VSCENES DIALOGEX 0, 0, 483, 219
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "VScenes of current project"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,367,195,50,17
+    PUSHBUTTON      "Delete",ID_DELETE,63,195,50,17
+    CONTROL         "",IDC_LIST_VSCENES,"SysListView32",LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,7,469,173,WS_EX_STATICEDGE
+    PUSHBUTTON      "Rename",ID_RENAME,7,195,50,17
+    PUSHBUTTON      "Cancel",IDCANCEL,426,195,50,17
+END
+
+IDD_DIALOG_VSCENE_NAME DIALOGEX 0, 0, 483, 208
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "VScene Name"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,364,187,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,426,187,50,14
+    EDITTEXT        IDC_PREFAB_NAME,72,166,186,15,ES_AUTOHSCROLL
+    LTEXT           "Enter New Name",IDC_STATIC,14,168,54,8
+    CONTROL         "",IDC_LIST_VSCENES,"SysListView32",LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,7,469,150,WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_ADD_TRIGGER DIALOGEX 0, 0, 398, 139
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Trigger Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,287,118,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,341,118,50,14
+    LTEXT           "Type",IDC_STATIC,13,36,17,8
+    COMBOBOX        IDC_COMB_TRIGGER,41,33,101,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Name",IDC_STATIC,13,12,31,13
+    EDITTEXT        IDC_EDIT_TRIGGER,42,11,150,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "Add",IDC_BTN_ADD_TRIGGER,223,75,50,16
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_TRIGGER,278,75,50,16
+    CONTROL         "",IDC_EDIT_TRIGGER_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,14,75,201,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,332,75,50,16
+    GROUPBOX        "Script",IDC_STATIC,7,55,384,48
+END
+
+IDD_DIALOG_ADD_MULTIPLE_ANIMATIONS DIALOGEX 0, 0, 283, 85
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Import Multiple Animations"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Animations",IDC_STATIC,14,36,36,8
+    COMBOBOX        IDC_COMBO_ANIMATIONS,53,34,135,58,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add Animation...",IDC_BUTTON_ADD_TO_LIST,205,33,70,14
+    DEFPUSHBUTTON   "Import",IDOK,167,64,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,226,64,50,14
+    LTEXT           "Name",IDC_STATIC,15,14,19,8
+    EDITTEXT        IDC_EDIT_BASE_MODEL,53,12,135,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Base Model...",IDC_BUTTON_ADD_BASE_MODEL,205,12,70,14
+END
+
+IDD_DIALOG_PLEASE_WAIT DIALOGEX 0, 0, 177, 50
+STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_SYSMENU
+FONT 12, "Tahoma", 400, 0, 0x0
+BEGIN
+    LTEXT           "Please Wait...",IDC_STATIC,69,21,65,8
+END
+
+IDD_DIALOG_ADD_CHARACTER DIALOGEX 0, 0, 550, 272
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Main Character Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,436,251,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,491,251,50,14
+    EDITTEXT        IDC_EDIT_PREFAB_INSTANCE,44,75,177,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Select...",IDC_BUTTON_SELECT_CHARACTER,232,75,54,14
+    COMBOBOX        IDC_COMBO_IDLE,44,122,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Idle",IDC_STATIC,22,124,13,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_IDLE,232,121,54,14
+    COMBOBOX        IDC_COMBO_WALK,44,174,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Walk",IDC_STATIC,22,176,16,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_WALK,232,173,54,14
+    COMBOBOX        IDC_COMBO_RUN,44,195,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Run",IDC_STATIC,22,195,14,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_RUN,232,194,54,14
+    COMBOBOX        IDC_COMBO_JUMP,44,217,173,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Jump",IDC_STATIC,22,219,18,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_JUMP,232,216,54,14
+    PUSHBUTTON      "General Properties...",IDC_BUTTON_PROPERTIES,452,63,79,16
+    CONTROL         "First Person",IDC_RADIO_FIRST_PERSON,"Button",BS_AUTORADIOBUTTON | WS_GROUP,372,20,54,10
+    CONTROL         "Third Person",IDC_RADIO_THIRD_PERSON,"Button",BS_AUTORADIOBUTTON,445,20,56,10
+    GROUPBOX        "Basic Information",IDC_STATIC,10,7,340,94
+    GROUPBOX        "Main Animations",IDC_STATIC,11,108,339,135
+    GROUPBOX        "Type",IDC_STATIC,365,7,178,31
+    PUSHBUTTON      "Reset",IDC_BUTTON_REMOVE_CHARACTER,290,75,50,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_IDLE,290,121,50,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_WALK,290,173,50,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_RUN,290,194,50,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_JUMP,290,216,50,14
+    LTEXT           "Model",IDC_STATIC,22,77,20,8
+    LTEXT           "Name",IDC_STATIC,22,31,19,8
+    EDITTEXT        IDC_EDIT_NAME,44,28,177,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Load Profile...",IDC_BUTTON_LOAD_PROFILE,447,113,66,16
+    PUSHBUTTON      "Save Profile...",IDC_BUTTON_SAVE_PROFILE,371,113,66,16
+    LTEXT           "Position",IDC_STATIC,20,53,30,8
+    LTEXT           "Scale",IDC_STATIC,252,53,20,12
+    EDITTEXT        IDC_EDIT_POS_X,62,51,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Y,121,51,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Z,182,51,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_SCALE,278,51,40,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,53,53,8,8
+    LTEXT           "Y",IDC_STATIC,112,53,8,8
+    LTEXT           "Z",IDC_STATIC,173,53,8,8
+    LTEXT           "Play more idle animations every",IDC_STATIC,21,151,104,8
+    LTEXT           "seconds",IDC_STATIC,183,151,33,8
+    EDITTEXT        IDC_EDIT_DELAY_PLAY_MORE_IDLES_RANDOMLY,131,149,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Sounds...",IDC_BUTTON_SOUNDS,371,63,66,16
+    GROUPBOX        "Profile",IDC_STATIC,364,100,179,38
+    GROUPBOX        "More Options",IDC_STATIC,364,49,179,42
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,376,191,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,430,191,50,14
+    CONTROL         "",IDC_EDIT_CHARACTER_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,376,166,158,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,484,191,50,14
+    GROUPBOX        "Script",IDC_STATIC,364,147,179,69
+END
+
+IDD_DIALOG_SELECT_ANIMATION_CLIPS DIALOGEX 0, 0, 233, 161
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Animation Clips"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Select",IDOK,177,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,177,26,50,14
+    CONTROL         "",IDC_LIST_ANIMATION_CLIPS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,7,7,160,147,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_SAVE_LOAD_CHARACTER_PROFILE DIALOGEX 0, 0, 403, 198
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Character Profiles"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,287,177,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,346,177,50,14
+    EDITTEXT        IDC_PROFILE_NAME,65,159,186,15,ES_AUTOHSCROLL
+    LTEXT           "Enter New Name",IDC_STATIC,7,161,54,8
+    CONTROL         "",IDC_LIST_CHARACTER_PROFILES,"SysListView32",LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,7,389,143,WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_CHARACTER_PROPERTIES DIALOGEX 0, 0, 437, 276
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Character Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,320,255,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,380,255,50,14
+    LTEXT           "Camera Distance",IDC_STATIC,242,20,55,8
+    GROUPBOX        "Character Controller",IDC_STATIC,7,141,220,107
+    CONTROL         "Jumping",IDC_CHECK_JUMP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,227,42,10
+    LTEXT           "Capsule Radius",IDC_STATIC,13,180,50,8
+    LTEXT           "Capsule Height",IDC_STATIC,118,180,49,8
+    LTEXT           "Force Power",IDC_STATIC,15,158,41,8
+    EDITTEXT        IDC_EDIT_CHARACTER_RADIUS,68,178,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CHARACTER_HEIGHT,171,178,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CHARACTER_POWER,68,155,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CAMERA_CHARACTER_DISTANCE,308,18,40,14,ES_AUTOHSCROLL
+    LTEXT           "Walk Speed",IDC_STATIC,13,20,38,8
+    EDITTEXT        IDC_EDIT_WALK_CHARACTER_SPEED,55,18,40,14,ES_AUTOHSCROLL
+    LTEXT           "Jump Power",IDC_STATIC,62,228,40,8
+    EDITTEXT        IDC_EDIT_CHARACTER_JUMP_POWER,107,226,40,14,ES_AUTOHSCROLL
+    LTEXT           "Slope Limit",IDC_STATIC,121,157,46,8
+    EDITTEXT        IDC_EDIT_CHARACTER_SLOPE_LIMIT,171,155,40,14,ES_AUTOHSCROLL
+    LTEXT           "Skin Width",IDC_STATIC,14,204,34,8
+    EDITTEXT        IDC_EDIT_CHARACTER_SKIN_WIDTH,68,201,40,14,ES_AUTOHSCROLL
+    LTEXT           "Step Offset",IDC_STATIC,119,203,38,8
+    EDITTEXT        IDC_EDIT_CHARACTER_STEP_OFFSET,172,201,40,14,ES_AUTOHSCROLL
+    LTEXT           "Run Speed",IDC_STATIC,114,20,39,8
+    EDITTEXT        IDC_EDIT_CHARACTER_RUN_SPEED,155,18,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Speed",IDC_STATIC,7,7,220,31
+    CONTROL         "Debug Mode",IDC_CHECK_DEBUG_MODE,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,247,181,56,10
+    PUSHBUTTON      "Reset",IDC_BUTTON_RESET,258,255,50,14
+    GROUPBOX        "Blending",IDC_STATIC,7,49,220,86
+    LTEXT           "Idle Delay In",IDC_STATIC,16,69,42,8
+    EDITTEXT        IDC_EDIT_IDLE_DELAY_IN,63,66,40,14,ES_AUTOHSCROLL
+    LTEXT           "Walk Delay In",IDC_STATIC,120,69,45,8
+    EDITTEXT        IDC_EDIT_WALK_DELAY_IN,167,66,40,14,ES_AUTOHSCROLL
+    LTEXT           "Run Delay In",IDC_STATIC,16,116,42,8
+    EDITTEXT        IDC_EDIT_RUN_DELAY_IN,63,113,40,14,ES_AUTOHSCROLL
+    LTEXT           "Jump Delay In",IDC_STATIC,15,92,46,8
+    EDITTEXT        IDC_EDIT_JUMP_DELAY_IN,63,89,40,14,ES_AUTOHSCROLL
+    LTEXT           "Jump Delay Out",IDC_STATIC,114,92,52,8
+    EDITTEXT        IDC_EDIT_JUMP_DELAY_OUT,167,89,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Camera",IDC_STATIC,236,7,194,107
+    LTEXT           "Min FOV",IDC_STATIC,249,157,27,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_CAMERA_MAX_FOV,390,154,40,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    LTEXT           "Max FOV",IDC_STATIC,351,157,30,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_CAMERA_MIN_FOV,298,154,40,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    LTEXT           "Min Tilt",IDC_STATIC,243,90,38,8
+    EDITTEXT        IDC_EDIT_CAMERA_MAX_TILT,384,88,40,14,ES_AUTOHSCROLL
+    LTEXT           "Max Tilt",IDC_STATIC,347,90,26,8
+    EDITTEXT        IDC_EDIT_CAMERA_MIN_TILT,292,88,40,14,ES_AUTOHSCROLL
+    LTEXT           "Default FOV",IDC_STATIC,242,43,40,8
+    EDITTEXT        IDC_EDIT_CAMERA_DEFAULT_FOV,292,40,40,14,ES_AUTOHSCROLL
+    LTEXT           "Default Tilt",IDC_STATIC,242,69,36,8
+    EDITTEXT        IDC_EDIT_CAMERA_DEFAULT_TILT,292,65,40,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_CHARACTER_SOUNDS DIALOGEX 0, 0, 309, 116
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Sound Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,198,95,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,252,95,50,14
+    LTEXT           "Walk",IDC_STATIC,22,20,16,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_WALK,232,17,54,14
+    LTEXT           "Run",IDC_STATIC,22,41,14,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_RUN,232,38,54,14
+    LTEXT           "Jump",IDC_STATIC,22,64,18,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_SELECT_JUMP,232,61,54,14
+    EDITTEXT        IDC_EDIT_CHARACTER_WALK_SOUND,42,17,175,15,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_CHARACTER_RUN_SOUND,42,38,175,15,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_CHARACTER_JUMP_SOUND,42,61,175,15,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_DIALOG_GUI_BUTTON DIALOGEX 0, 0, 430, 301
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create Button"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,318,280,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,373,280,50,14
+    LTEXT           "Main",IDC_STATIC,20,92,16,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_MAIN_IMG,306,89,54,14
+    GROUPBOX        "Image",IDC_STATIC,7,74,416,137
+    LTEXT           "Left Click",IDC_STATIC,20,115,30,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_LEFT_CLK_IMG,306,112,54,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_LEFT_CLK_IMG,364,112,50,14
+    LTEXT           "Hover",IDC_STATIC,19,138,20,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_HOVER_IMG,306,135,54,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_HOVER_IMG,364,135,50,14
+    LTEXT           "Right Click",IDC_STATIC,19,161,34,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_RIGHT_CLK_IMG,306,159,54,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_RIGHT_CLK_IMG,364,159,50,14
+    LTEXT           "Disable",IDC_STATIC,19,184,24,8
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_DISABLE_IMG,306,182,54,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_DISABLE_IMG,364,182,50,14
+    GROUPBOX        "Script",IDC_STATIC,7,220,416,46
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_LEFT_CLK_SCRIPT,251,238,54,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_LEFT_CLK_SCRIPT,309,238,50,14
+    EDITTEXT        IDC_EDIT_MAIN_IMG,61,89,227,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_LEFT_CLK_IMG,61,112,227,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_HOVER_IMG,61,135,227,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_RIGHT_CLK_IMG,61,159,227,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_DISABLE_IMG,61,182,227,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_LEFT_CLK_SCRIPT,64,238,170,14,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Options",IDC_STATIC,7,3,416,64
+    EDITTEXT        IDC_EDIT_SIZE,74,41,40,14,ES_AUTOHSCROLL
+    LTEXT           "Size (Percents)",IDC_STATIC,18,44,49,8
+    LTEXT           "Position",IDC_STATIC,192,19,26,10
+    EDITTEXT        IDC_EDIT_POS_X,240,17,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Y,306,17,40,14,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,17,19,40,11
+    EDITTEXT        IDC_EDIT_NAME,63,17,107,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,226,19,8,10
+    LTEXT           "Y",IDC_STATIC,292,19,8,10
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,364,238,50,14
+END
+
+IDD_DIALOG_GUI_IMAGE DIALOGEX 0, 0, 295, 150
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "GUI Image"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,181,129,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,239,129,50,14
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_MAIN_IMG,226,92,54,14
+    GROUPBOX        "Image",IDC_STATIC,7,79,281,37
+    EDITTEXT        IDC_EDIT_MAIN_IMG,36,92,182,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Path",IDC_STATIC,15,95,16,8
+    GROUPBOX        "Properties",IDC_STATIC,7,7,281,64
+    EDITTEXT        IDC_EDIT_PERCENTAGE,237,46,40,14,ES_AUTOHSCROLL
+    LTEXT           "Size (Percents)",IDC_STATIC,184,49,49,8
+    LTEXT           "Position",IDC_STATIC,12,49,26,10
+    EDITTEXT        IDC_EDIT_POS_X,58,46,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Y,125,46,40,14,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,12,23,40,11
+    EDITTEXT        IDC_EDIT_NAME,58,22,107,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,45,49,8,10
+    LTEXT           "Y",IDC_STATIC,112,49,8,10
+END
+
+IDD_DIALOG_GUI_TEXT DIALOGEX 0, 0, 281, 184
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Text"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,170,163,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,224,163,50,14
+    EDITTEXT        IDC_EDIT_SIZE,222,46,40,14,ES_AUTOHSCROLL
+    LTEXT           "Font Size",IDC_STATIC,180,49,30,8
+    EDITTEXT        IDC_EDIT_TEXT,57,74,215,14,ES_AUTOHSCROLL
+    LTEXT           "Text",IDC_STATIC,15,77,16,8
+    LTEXT           "Font Type",IDC_STATIC,16,101,34,8
+    COMBOBOX        IDC_COMBO_TYPE,57,99,173,52,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Color",IDC_STATIC,16,127,30,10
+    EDITTEXT        IDC_EDIT_COLOR,57,124,157,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    PUSHBUTTON      "Select...",IDC_BUTTON_COLOR,223,124,52,15
+    LTEXT           "Position",IDC_STATIC,16,49,26,10
+    EDITTEXT        IDC_EDIT_POS_X,57,46,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Y,118,46,40,14,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,16,23,40,11
+    EDITTEXT        IDC_EDIT_NAME,57,22,107,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,47,49,8,10
+    LTEXT           "Y",IDC_STATIC,108,49,8,10
+END
+
+IDD_DIALOG_SAVE_GUI DIALOGEX 0, 0, 197, 93
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Save GUI"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,82,72,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,140,72,50,14
+    LTEXT           "Name",IDC_STATIC,14,38,21,11
+    EDITTEXT        IDC_GUI_NAME,45,36,141,14,ES_AUTOHSCROLL
+    LTEXT           "Package",IDC_STATIC,12,13,40,11
+    COMBOBOX        IDC_COMB_GUI_PACKAGE,45,12,119,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "+",IDC_BUTTON_ADD_PACKAGE,171,11,15,14
+END
+
+IDD_DIALOG_GUI_NAME DIALOGEX 0, 0, 189, 68
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "GUI Name"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,71,47,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,132,47,50,14
+    EDITTEXT        IDC_GUI_NAME,38,15,143,15,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,16,18,19,8
+END
+
+IDD_DIALOG_GUI_EDITOR DIALOGEX 0, 0, 665, 347
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "GUI Elements"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,597,305,61,17
+    PUSHBUTTON      "Insert",ID_INSERT,525,305,63,18
+    CONTROL         "",IDC_LIST_GUIS,"SysListView32",LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,182,21,466,260,WS_EX_STATICEDGE
+    CONTROL         "",IDC_LIST_PACKAGES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,12,21,145,260,WS_EX_STATICEDGE
+    GROUPBOX        "GUIs",IDC_STATIC,173,7,485,286
+    GROUPBOX        "Packages",IDC_STATIC,6,7,158,286
+    PUSHBUTTON      "OK",IDOK,453,305,63,18,NOT WS_VISIBLE
+    CONTROL         "",IDC_RICHED_GUI_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,306,153,14
+END
+
+IDD_DIALOG_ADD_RESOURCE DIALOGEX 0, 0, 265, 300
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Resource To Current Project"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,207,279,50,14
+    LTEXT           "Choose Directory",IDC_STATIC,13,23,72,11
+    COMBOBOX        IDC_COMB_PACKAGE,78,21,169,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "New Directory",IDC_BUTTON_NEW_DIRECTORY,98,47,72,14
+    CONTROL         "",IDC_LIST_RESOURCES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,14,94,235,144,WS_EX_STATICEDGE
+    PUSHBUTTON      "Add Resource",IDC_BUTTON_ADD_RESOURCE,98,247,72,14
+    PUSHBUTTON      "Remove Resource",IDC_BUTTON_REMOVE_RESOURCE,177,247,72,14
+    PUSHBUTTON      "Remove Directory",IDC_BUTTON_REMOVE_DIRECTORY,176,47,72,14
+    GROUPBOX        "Directory",IDC_STATIC,7,7,251,64
+    GROUPBOX        "File",IDC_STATIC,7,78,251,191
+END
+
+IDD_DIALOG_NEW_DIRECTORY DIALOGEX 0, 0, 189, 71
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "New Directory"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,77,50,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,131,50,50,14
+    EDITTEXT        IDC_DIRECTORY_NAME,38,15,143,15,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,16,18,19,8
+END
+
+IDD_DIALOG_SCRIPT_EDITOR DIALOGEX 0, 0, 695, 355
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Editor"
+FONT 8, "Microsoft Sans Serif", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,578,319,51,14
+    CONTROL         "",IDC_RICHED_REPORT,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,19,234,657,66
+    GROUPBOX        "Script Editor",IDC_STATIC,7,7,681,203
+    GROUPBOX        "Errors",IDC_STATIC,7,219,681,90
+    PUSHBUTTON      "Cancel",IDC_CANCEL,638,319,50,14
+    CONTROL         "",IDC_RICHED_SCRIPT_EDITOR,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,19,21,657,178
+END
+
+IDD_DIALOG_VSCENE_SCRIPT_OBJECT DIALOGEX 0, 0, 364, 120
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "VScene Script Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,251,99,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,306,99,50,14
+    LTEXT           "Name",IDC_STATIC,14,13,23,13
+    EDITTEXT        IDC_EDIT_VSCENE_SCRIPT_NAME,39,11,162,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "Add...",IDC_BUTTON_ADD_SCRIPT,183,54,54,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_SCRIPT,243,54,50,14
+    EDITTEXT        IDC_EDIT_SCRIPT,15,54,162,13,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,299,54,50,14
+    GROUPBOX        "Script",IDC_STATIC,7,35,350,48
+END
+
+IDD_DIALOG_EDIT_LOD DIALOGEX 0, 0, 428, 245
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "LOD Editor"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,304,224,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,363,224,58,14
+    CONTROL         "",IDC_RICHEDIT_LOD1_MAX,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,65,36,40,14
+    CONTROL         "",IDC_RICHEDIT_LOD2_MIN,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,49,102,40,14
+    CONTROL         "",IDC_RICHEDIT_LOD2_MAX,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,110,102,40,14
+    CONTROL         "",IDC_RICHEDIT_LOD3_MIN,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,49,151,40,14
+    CONTROL         "",IDC_RICHEDIT_LOD3_MAX,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,110,151,40,14
+    LTEXT           "LOD 1:",IDC_STATIC,20,22,24,8
+    LTEXT           "LOD 2:",IDC_STATIC,20,85,24,8
+    LTEXT           "LOD 3:",IDC_STATIC,20,133,24,8
+    LTEXT           "Between",IDC_STATIC,20,104,27,8
+    LTEXT           "Between",IDC_STATIC,20,153,27,8
+    LTEXT           "And",IDC_STATIC,92,104,14,8
+    LTEXT           "And",IDC_STATIC,93,153,14,8
+    LTEXT           "Greater Than",IDC_STATIC,20,38,42,8
+    LTEXT           "Percents",IDC_STATIC,110,38,27,8
+    LTEXT           "Percents",IDC_STATIC,155,104,27,8
+    LTEXT           "Percents",IDC_STATIC,154,153,27,8
+    PUSHBUTTON      "Reset",IDC_BUTTON_RESET,237,224,50,14
+    LTEXT           "Distance",IDC_STATIC,20,58,27,8
+    CONTROL         "",IDC_RICHEDIT_LOD1_MIN_OC_DISTANCE,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,65,56,40,14
+    LTEXT           "INVISIBLE:",IDC_STATIC,20,184,37,8
+    LTEXT           "Distance",IDC_STATIC,20,203,27,8
+    CONTROL         "",IDC_RICHEDIT_LOD4_OC_DISTANCE,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,58,201,40,14
+    GROUPBOX        "Prefab Instance",IDC_STATIC,11,7,213,215
+    GROUPBOX        "Water",IDC_STATIC,241,7,180,163
+    LTEXT           "Greater Than",IDC_STATIC,252,46,42,8
+    CONTROL         "",IDC_RICHEDIT_WATER_REFLECTION_PERCENTS,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,298,44,40,14
+    LTEXT           "Percents",IDC_STATIC,343,46,27,8
+    LTEXT           "Distance",IDC_STATIC,253,67,27,8
+    CONTROL         "",IDC_RICHEDIT_WATER_REFLECTION_DISTANCE,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,298,65,40,14
+    LTEXT           "REFLECTION:",IDC_STATIC,252,25,45,8
+    LTEXT           "INVISIBLE:",IDC_STATIC,252,107,37,8
+    LTEXT           "Less Than",IDC_STATIC,253,128,33,8
+    CONTROL         "",IDC_RICHEDIT_WATER_INVISIBLE_PERCENTS,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,296,126,40,14
+    LTEXT           "Percents",IDC_STATIC,341,128,27,8
+    LTEXT           "Distance",IDC_STATIC,253,150,27,8
+    CONTROL         "",IDC_RICHEDIT_WATER_INVISIBLE_MIN_DISTANCE,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,297,148,40,14
+END
+
+IDD_DIALOG_EDIT_CAMERA DIALOGEX 0, 0, 310, 243
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Camera Editor"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,199,222,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,253,222,50,14
+    LTEXT           "FOV",IDC_STATIC,86,209,14,8,NOT WS_VISIBLE
+    LTEXT           "Near Clip Plane",IDC_STATIC,20,84,49,8
+    LTEXT           "Far Clip Plane",IDC_STATIC,128,84,44,8
+    CONTROL         "",IDC_RICHEDIT_PERSPECTIVE_CAMERA_FOV,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,111,207,40,14
+    CONTROL         "",IDC_RICHEDIT_PERSPECTIVE_CAMERA_NCP,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,77,82,40,14
+    CONTROL         "",IDC_RICHEDIT_PERSPECTIVE_CAMERA_FCP,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,178,82,40,14
+    GROUPBOX        "Perspective Camera (Play Mode)",IDC_STATIC,7,64,296,43
+    LTEXT           "FOV",IDC_STATIC,19,29,14,8
+    LTEXT           "Near Clip Plane",IDC_STATIC,97,29,49,8
+    LTEXT           "Far Clip Plane",IDC_STATIC,203,29,44,8
+    CONTROL         "",IDC_RICHEDIT_FREE_PERSPECTIVE_CAMERA_FOV2,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,44,27,40,14
+    CONTROL         "",IDC_RICHEDIT_FREE_PERSPECTIVE_CAMERA_NCP2,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,152,27,40,14
+    CONTROL         "",IDC_RICHEDIT_FREE_PERSPECTIVE_CAMERA_FCP2,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,253,27,40,14
+    GROUPBOX        "Default Free Camera",IDC_STATIC,7,7,296,48
+    LTEXT           "Min FOV",IDC_STATIC,7,209,28,8,NOT WS_VISIBLE
+    LTEXT           "Max FOV",IDC_STATIC,7,224,29,8,NOT WS_VISIBLE
+    CONTROL         "",IDC_RICHEDIT_PERSPECTIVE_CAMERA_MINFOV,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,43,207,40,14
+    CONTROL         "",IDC_RICHEDIT_PERSPECTIVE_CAMERA_MAXFOV,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,43,222,40,14
+    GROUPBOX        "COLLADA Cameras",IDC_STATIC,6,114,296,88
+    CONTROL         "Read FOV from DAE File",IDC_OPTIONS_DAE_CAMERA_READ_FOV_FROM_FILE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,130,95,10
+    CONTROL         "",IDC_RICHEDIT_DAE_CAMERA_FOV,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,249,129,40,14
+    LTEXT           "Or Use This Value:",IDC_STATIC,185,131,61,8
+    CONTROL         "Read Near Clip Plane from DAE File",IDC_OPTIONS_DAE_CAMERA_READ_NCP_FROM_FILE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,154,145,10
+    CONTROL         "",IDC_RICHEDIT_DAE_CAMERA_NEAR_CLIP_PLANE,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,249,153,40,14
+    LTEXT           "Or Use This Value:",IDC_STATIC,185,155,61,8
+    CONTROL         "Read Far Clip Plane from DAE File",IDC_OPTIONS_DAE_CAMERA_READ_FCP_FROM_FILE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,178,135,10
+    CONTROL         "",IDC_RICHEDIT_DAE_CAMERA_FAR_CLIP_PLANE,"RichEdit20A",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,249,177,40,14
+    LTEXT           "Or Use This Value:",IDC_STATIC,185,179,61,8
+    PUSHBUTTON      "Reset",IDC_BUTTON_RESET_CAMERA_PROPERTIES,144,222,50,14
+END
+
+IDD_DIALOG_ADD_TERRAIN DIALOGEX 0, 0, 477, 350
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Terrain Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,360,329,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,419,329,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_HEIGHTMAP,405,22,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_BOTTOM_TEXTURE,158,70,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_BOTTOM_NORMALMAP,158,95,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_SLOPE_NORMALMAP,159,172,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_SLOPE_TEXTURE,159,148,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_TOP_TEXTURE,159,247,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_TOP_NORMALMAP,159,271,50,14
+    LTEXT           "Ambient",IDC_STATIC,245,71,30,10
+    EDITTEXT        IDC_EDIT_AMBIENT_COLOR,285,68,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    LTEXT           "Diffuse",IDC_STATIC,245,95,26,10
+    EDITTEXT        IDC_EDIT_DIFFUSE_COLOR,285,91,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    LTEXT           "Specular",IDC_STATIC,245,118,31,10
+    EDITTEXT        IDC_EDIT_SPECULAR_COLOR,285,114,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_AMBIENT_COLOR,406,68,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_DIFFUSE_COLOR,406,91,50,14
+    PUSHBUTTON      "Select...",IDC_BUTTON_ADD_SPECULAR_COLOR,406,114,50,14
+    LTEXT           "Shininess",IDC_STATIC,245,141,38,10
+    EDITTEXT        IDC_EDIT_SHININESS,285,139,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_BOTTOM_TEXTURE_PATH,16,70,129,13,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_BOTTOM_NORMALMAP_PATH,17,95,129,13,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_SLOPE_TEXTURE_PATH,16,148,129,13,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_SLOPE_NORMALMAP_PATH,16,173,129,13,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_TOP_TEXTURE_PATH,16,247,129,13,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_TOP_NORMALMAP_PATH,16,271,129,13,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT_HEIGHTMAP_TEXTURE_PATH,254,22,138,13,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "Flatten",IDC_FLAT_FILTER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,245,189,42,10
+    LTEXT           "Smooth",IDC_STATIC,347,190,32,10
+    EDITTEXT        IDC_EDIT_SMOOTH,385,188,40,14,ES_AUTOHSCROLL
+    LTEXT           "Times",IDC_STATIC,431,190,24,10
+    LTEXT           "Scale Height",IDC_STATIC,245,212,43,10
+    EDITTEXT        IDC_EDIT_SCALE_HEIGHT,294,210,40,14,ES_AUTOHSCROLL
+    LTEXT           "Scale Width",IDC_STATIC,361,212,43,10
+    EDITTEXT        IDC_EDIT_SCALE_WIDTH,410,210,40,14,ES_AUTOHSCROLL
+    LTEXT           "Slope Factor",IDC_STATIC,18,197,43,10
+    EDITTEXT        IDC_EDIT_SLOPE_FACTOR,67,195,40,14,ES_AUTOHSCROLL
+    LTEXT           "Start Height",IDC_STATIC,17,295,43,10
+    EDITTEXT        IDC_EDIT_START_HEIGHT,66,293,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Height Map",IDC_STATIC,234,3,236,42
+    GROUPBOX        "Bottom Texture",IDC_STATIC,7,54,210,66
+    GROUPBOX        "Slope Texture",IDC_STATIC,7,130,210,88
+    GROUPBOX        "Top Texture",IDC_STATIC,7,230,210,87
+    GROUPBOX        "Material",IDC_STATIC,234,54,236,108
+    GROUPBOX        "Tools",IDC_STATIC,234,172,236,67
+    GROUPBOX        "Name",IDC_STATIC,7,3,210,42
+    LTEXT           "Terrain Name",IDC_STATIC,16,24,44,10
+    EDITTEXT        IDC_EDIT_TERRAIN_NAME,66,22,142,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,292,292,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,348,292,50,14
+    CONTROL         "",IDC_EDIT_CHARACTER_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,246,267,210,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,405,292,50,14
+    GROUPBOX        "Script",IDC_STATIC,234,248,236,69
+END
+
+IDD_DIALOG_ADD_CAMERA DIALOGEX 0, 0, 265, 309
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Engine Camera Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,152,288,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,209,288,48,14
+    EDITTEXT        IDC_POS_X,34,51,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POS_Y,102,51,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POS_Z,176,51,40,14,ES_AUTOHSCROLL
+    LTEXT           "Near Clip Plane",IDC_STATIC,20,140,50,10
+    EDITTEXT        IDC_NCP,72,138,39,15,ES_AUTOHSCROLL
+    LTEXT           "Far Clip Plane",IDC_STATIC,150,140,46,10
+    EDITTEXT        IDC_FCP,206,138,40,15,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,19,54,8,10
+    LTEXT           "Y",IDC_STATIC,89,54,8,10
+    LTEXT           "Z",IDC_STATIC,157,54,8,10
+    LTEXT           "Angle",IDC_STATIC,20,168,45,10
+    EDITTEXT        IDC_FOV,72,166,39,15,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,12,11,29,11
+    EDITTEXT        IDC_EDIT_CAMERA_NAME,45,9,121,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Activate",IDC_BUTTON_ACTIVATE,92,288,50,14
+    LTEXT           "Pan",IDC_STATIC,21,108,49,10
+    EDITTEXT        IDC_PAN,72,106,39,15,ES_AUTOHSCROLL
+    LTEXT           "Tilt",IDC_STATIC,151,108,46,10
+    EDITTEXT        IDC_TILT,206,106,40,15,ES_AUTOHSCROLL
+    GROUPBOX        "Position",IDC_STATIC,12,32,244,47
+    GROUPBOX        "Properties",IDC_STATIC,12,87,246,106
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,80,245,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,138,245,50,14
+    CONTROL         "",IDC_EDIT_CAMERA_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,19,220,227,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,196,245,50,14
+    GROUPBOX        "Script",IDC_STATIC,7,202,251,69
+END
+
+IDD_DIALOG_BACKUP_ALL_PROJECTS DIALOGEX 0, 0, 301, 71
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Backup All Projects"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,185,50,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,240,50,50,14
+    LTEXT           "Destination",IDC_STATIC,8,22,37,8
+    PUSHBUTTON      "Select",IDC_BUTTON_DESTINATION,240,19,50,15
+    CONTROL         "",IDC_EDIT_DESTINATION,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,52,19,180,16
+END
+
+IDD_DIALOG_SCRIPT_UTILITY DIALOGEX 0, 0, 319, 257
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Utility"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,262,236,50,14
+    COMBOBOX        IDC_COMB_PROJECT_NAME,20,21,145,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMB_VSCENE_NAME,20,60,145,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Prefab Instances",IDC_PREFAB_INSTANCES,20,109,65,14
+    PUSHBUTTON      "Game Objects",IDC_GAMEOBJECTS,20,155,65,14
+    PUSHBUTTON      "Imported Cameras",IDC_IMPORTED_CAMERAS,20,132,65,14
+    PUSHBUTTON      "Project Resources",IDC_RESOURCES,186,20,65,14
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,194,107,101,50,WS_EX_TRANSPARENT
+    GROUPBOX        "Projects And VScenes",IDC_STATIC,7,7,305,172
+    LTEXT           "Selected VScene Preview",IDC_STATIC,186,85,78,8
+    GROUPBOX        "",IDC_STATIC,185,95,118,69
+    PUSHBUTTON      "Copy VScene Name",IDC_COPY_VSCENE_NAME,186,59,65,14
+    LTEXT           "VScenes of Selected Project",IDC_STATIC,20,44,94,12
+    CONTROL         "",IDC_RICHED_VSCENE_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,20,236,91,14
+    GROUPBOX        "GUIs",IDC_STATIC,7,187,305,38
+    PUSHBUTTON      "All GUI Items",IDC_ALL_GUI_ITEMS,20,202,65,14
+    LTEXT           "Click the following buttons to see selected\nVScene components",IDC_STATIC,20,85,134,20
+    PUSHBUTTON      "GUIs",IDC_GUIs,100,132,65,14
+    PUSHBUTTON      "Prefabs",IDC_PREFABS,100,109,65,14
+END
+
+IDD_DIALOG_SCRIPT_UTILITY_PREFAB_INSTANCES DIALOGEX 0, 0, 674, 264
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Utility - Prefab Instances"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,617,243,50,14
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,549,61,101,50,WS_EX_TRANSPARENT
+    LTEXT           "Selected Prefab Instance Preview",IDC_STATIC,541,39,119,8
+    GROUPBOX        "",IDC_STATIC,540,49,118,69
+    LTEXT           "Current Project And VScene Name",IDC_STATIC_PROJECT_VSCENE_NAME,7,9,309,8
+    PUSHBUTTON      "Copy Prefab Instance Name",IDC_BUTTON_COPY_PREFAB_INSTANCE_NAME,14,207,117,14
+    GROUPBOX        "Prefab Instances",IDC_STATIC,7,24,660,206
+    CONTROL         "",IDC_LIST_PREFAB_INSTANCES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,52,195,146
+    CONTROL         "",IDC_RICHED_PREFAB_INSTANCE_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,243,117,14
+    LTEXT           "Prefab Instance Names",IDC_STATIC,15,39,73,8
+    PUSHBUTTON      "Copy Prefab Instance Animation",IDC_BUTTON_COPY_PREFAB_INSTANCE_ANIMATION_NAME,222,207,117,14
+    CONTROL         "",IDC_RICHED_PREFAB_INSTANCE_ANIMATION_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,222,243,117,14
+    CONTROL         "",IDC_LIST_PREFAB_INSTANCE_ANIMATIONS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,222,53,141,146
+    LTEXT           "Animation Clips of Selected Prefab Instance",IDC_STATIC,222,40,163,8
+    PUSHBUTTON      "Copy Prefab Instance Camera",IDC_BUTTON_COPY_PREFAB_INSTANCE_CAMERA_NAME,377,207,117,14
+    CONTROL         "",IDC_LIST_PREFAB_INSTANCE_CAMERAS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,377,53,150,146
+    LTEXT           "Imported Cameras of Selected Prefab Instance",IDC_STATIC,377,40,147,8
+    CONTROL         "",IDC_RICHED_PREFAB_INSTANCE_CAMERA_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,378,243,117,14
+END
+
+IDD_DIALOG_SCRIPT_UTILITY_IMPORTED_CAMERAS DIALOGEX 0, 0, 369, 243
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Utility - Imported Cameras"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,312,222,50,14
+    CONTROL         "",IDC_LIST_IMPORTED_CAMERAS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,55,231,146
+    GROUPBOX        "Imported Cameras",IDC_STATIC,7,36,355,175
+    LTEXT           "Selected Project And VScene Names",IDC_STATIC_PROJECT_VSCENE_NAME,7,16,355,8
+    PUSHBUTTON      "Copy Selected Camera Name",IDC_BUTTON_COPY_IMPORTED_CAMERA_NAME,262,55,94,14
+    CONTROL         "",IDC_RICHED_IMPORTED_CAMERAS_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,262,82,96,14
+END
+
+IDD_DIALOG_SCRIPT_UTILITY_GAME_OBJECTS DIALOGEX 0, 0, 369, 245
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Utility - Game Objects"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,312,224,50,14
+    CONTROL         "",IDC_LIST_GAME_OBJECTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,55,231,146
+    GROUPBOX        "Game Objects",IDC_STATIC,7,36,355,175
+    LTEXT           "Selected Project And VScene Names",IDC_STATIC_PROJECT_VSCENE_NAME,7,16,355,8
+    PUSHBUTTON      "Copy Selected Item Name",IDC_BUTTON_COPY_GAME_OBJECT_NAME,262,55,94,14
+    CONTROL         "",IDC_RICHED_GAME_OBJECT_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,262,82,96,14
+END
+
+IDD_DIALOG_SCRIPT_UTILITY_GUIS DIALOGEX 0, 0, 571, 277
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Utility - GUIs"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,514,256,50,14
+    CONTROL         "",IDC_LIST_GUIS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,61,197,146
+    GROUPBOX        "GUIs",IDC_STATIC,7,30,557,213
+    LTEXT           "Selected Project And VScene Names",IDC_STATIC_PROJECT_VSCENE_NAME,7,10,355,8
+    PUSHBUTTON      "Copy Selected GUI Name",IDC_BUTTON_COPY_GUI_NAME,15,219,91,14
+    CONTROL         "",IDC_RICHED_GUI_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,256,96,14
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,444,70,101,50,WS_EX_TRANSPARENT
+    LTEXT           "Selected GUI Preview",IDC_STATIC,437,44,68,8
+    GROUPBOX        "",IDC_STATIC,436,58,118,69
+    LTEXT           "GUIs",IDC_STATIC,16,44,17,8
+    CONTROL         "",IDC_LIST_GUI_ELEMENT,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,226,61,197,146
+    PUSHBUTTON      "Copy Selected Element",IDC_BUTTON_COPY_GUI_ELEMENT_NAME,226,219,91,14
+    LTEXT           "Selected GUI Elements",IDC_STATIC,227,44,72,8
+    CONTROL         "",IDC_RICHED_GUI_ELEMENT,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,123,256,96,14
+END
+
+IDD_DIALOG_SCRIPT_UTILITY_RESOURCES DIALOGEX 0, 0, 265, 325
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Utility - Resources"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,208,304,50,14
+    LTEXT           "Choose Folder",IDC_STATIC,13,53,72,11
+    COMBOBOX        IDC_COMB_RESOURCE_FOLDER,78,51,169,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_LIST_RESOURCE_FILES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,14,116,235,144,WS_EX_STATICEDGE
+    GROUPBOX        "Directory",IDC_STATIC,7,37,251,56
+    GROUPBOX        "File",IDC_STATIC,7,100,251,191
+    PUSHBUTTON      "Copy Folder Name",IDC_BUTTON_COPY_RESOURCE_FOLDER,169,72,78,14
+    PUSHBUTTON      "Copy File Name",IDC_BUTTON_COPY_RESOURCE_FILE,14,268,78,14
+    PUSHBUTTON      "Copy Folder_File Name",IDC_BUTTON_COPY_RESOURCE_FOLDER_FILE,108,268,78,14
+    LTEXT           "Selected Project Name",IDC_STATIC_PROJECT_VSCENE_NAME,7,16,251,8
+    CONTROL         "",IDC_RICHED_RESOURCE_FOLDER_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,296,37,14
+    CONTROL         "",IDC_RICHED_RESOURCE_FILE_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,55,296,37,14
+    CONTROL         "",IDC_RICHED_RESOURCE_FOLDER_FILE_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,108,296,37,14
+END
+
+IDD_DIALOG_SCRIPT_EDITOR_ADD_EVENT DIALOGEX 0, 0, 245, 187
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Events..."
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Add",IDOK,131,166,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,188,166,50,14
+    CONTROL         "",IDC_LIST_EVENTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,7,231,146
+    CONTROL         "",IDC_RICHED_EVENT_NAME,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP,7,166,96,14
+END
+
+IDD_DIALOG_SCRIPT_EDITOR_ADD_FUNCTION DIALOGEX 0, 0, 245, 187
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Functions"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Add",IDOK,134,166,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,188,166,50,14
+    CONTROL         "",IDC_LIST_FUNCTIONS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,7,231,146
+    CONTROL         "",IDC_RICHED_FUNCTION_NAME,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP,7,166,96,14
+END
+
+IDD_DIALOG_DELETE_PROJECT DIALOGEX 0, 0, 221, 181
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Delete Project"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Delete",IDOK,110,160,50,14
+    PUSHBUTTON      "Close",IDCANCEL,164,160,50,14
+    CONTROL         "",IDC_LIST_AVAILABLE_PROJECTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,7,207,139,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_EDIT_PREFAB DIALOGEX 0, 0, 756, 357
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Prefab Instance Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,643,336,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,699,336,50,14
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,637,80,101,50,WS_EX_TRANSPARENT
+    PUSHBUTTON      "Copy Prefab Instance Animation",IDC_BUTTON_COPY_PREFAB_INSTANCE_ANIMATION_NAME,459,162,117,14
+    CONTROL         "",IDC_RICHED_PREFAB_INSTANCE_ANIMATION_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,90,336,77,14
+    CONTROL         "",IDC_LIST_PREFAB_INSTANCE_ANIMATIONS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,458,62,141,91
+    PUSHBUTTON      "Copy Prefab Instance Camera",IDC_BUTTON_COPY_PREFAB_INSTANCE_CAMERA_NAME,286,162,117,14
+    CONTROL         "",IDC_LIST_PREFAB_INSTANCE_CAMERAS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,285,62,140,91
+    CONTROL         "",IDC_RICHED_PREFAB_INSTANCE_CAMERA_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,336,69,14
+    LTEXT           "Position",IDC_STATIC,18,254,28,10
+    EDITTEXT        IDC_EDIT_POS_X,66,252,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Y,137,252,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_POS_Z,208,252,40,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,52,254,10,10
+    LTEXT           "Y",IDC_STATIC,123,255,10,10
+    LTEXT           "Z",IDC_STATIC,193,255,10,10
+    LTEXT           "Rotation",IDC_STATIC,18,279,28,10
+    EDITTEXT        IDC_EDIT_ROT_X,66,277,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ROT_Y,137,277,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ROT_Z,208,277,40,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,52,279,10,10
+    LTEXT           "Y",IDC_STATIC,123,280,10,10
+    LTEXT           "Z",IDC_STATIC,193,280,10,10
+    LTEXT           "Scale",IDC_STATIC,19,304,28,10
+    EDITTEXT        IDC_EDIT_SCALE_X,66,302,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE_Y,137,302,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE_Z,208,302,40,14,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,52,304,10,10
+    LTEXT           "Y",IDC_STATIC,123,305,10,10
+    LTEXT           "Z",IDC_STATIC,193,305,10,10
+    LTEXT           "Prefab Instance Name",IDC_STATIC_PREFAB_INSTANCE_NAME,12,22,274,8
+    PUSHBUTTON      "Copy Name",IDC_BUTTON_COPY_PREFAB_INSTANCE_NAME,303,19,63,14
+    CONTROL         "",IDC_RICHED_PREFAB_INSTANCE_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,181,336,74,14
+    GROUPBOX        "Transformation",IDC_STATIC,7,230,256,98
+    GROUPBOX        "Prefab Instance Preview",IDC_STATIC,625,50,125,103
+    GROUPBOX        "Animation Clips",IDC_STATIC,449,48,161,137
+    GROUPBOX        "Imported Cameras",IDC_STATIC,276,48,161,137
+    GROUPBOX        "Prefab Instance Name",IDC_STATIC,7,7,368,35
+    GROUPBOX        "Material",IDC_STATIC,7,48,256,177
+    LTEXT           "Ambient",IDC_STATIC,14,68,30,10
+    EDITTEXT        IDC_EDIT_AMBIENT_COLOR,55,65,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_AMBIENT,201,65,52,13
+    LTEXT           "Diffuse",IDC_STATIC,14,93,26,10
+    EDITTEXT        IDC_EDIT_DIFFUSE_COLOR,55,90,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    PUSHBUTTON      "Select...",IDC_BUTTON_DIFFUSE,201,90,52,13
+    LTEXT           "Specular",IDC_STATIC,14,117,31,10
+    EDITTEXT        IDC_EDIT_SPECULAR_COLOR,55,114,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    PUSHBUTTON      "Select...",IDC_BUTTON_SPECULAR,201,115,52,13
+    LTEXT           "Emission",IDC_STATIC,14,142,31,10
+    EDITTEXT        IDC_EDIT_EMISSION_COLOR,54,139,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    PUSHBUTTON      "Select...",IDC_BUTTON_EMISSION,200,139,52,13
+    LTEXT           "Shininess",IDC_STATIC,15,172,33,8
+    EDITTEXT        IDC_EDIT_SHININESS,56,169,40,14,ES_AUTOHSCROLL
+    LTEXT           "Transparency",IDC_STATIC,116,172,50,8
+    EDITTEXT        IDC_EDIT_TRANSPARENCY,170,170,40,14,ES_AUTOHSCROLL
+    CONTROL         "Enable Prefab Instance Material",IDC_PREFAB_INSTANCE_MATERIAL_ENABLECHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,202,121,10
+    LTEXT           "Prefab Name",IDC_STATIC_PREFAB_NAME,386,22,275,8
+    PUSHBUTTON      "Copy Name",IDC_BUTTON_COPY_PREFAB_NAME,677,19,63,14
+    GROUPBOX        "Prefab Name",IDC_STATIC,381,7,368,35
+    CONTROL         "",IDC_RICHED_PREFAB_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,272,336,74,14
+END
+
+IDD_DIALOG_EDIT_GUI DIALOGEX 0, 0, 425, 149
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit GUI"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,311,128,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,368,128,50,14
+    GROUPBOX        "Name",IDC_STATIC,7,7,275,60
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,305,41,101,50,WS_EX_TRANSPARENT
+    LTEXT           "Prefab Instance Name",IDC_STATIC_GUI_INSTANCE_NAME,14,25,260,16
+    PUSHBUTTON      "Copy Name",IDC_BUTTON_COPY_GUI_INSTANCE_NAME,211,44,63,14
+    GROUPBOX        "Preview",IDC_STATIC,292,7,126,110
+    CONTROL         "",IDC_RICHED_GUI_INSTANCE_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,7,128,117,14
+    GROUPBOX        "Position",IDC_STATIC,7,77,275,40
+    LTEXT           "X",IDC_STATIC,13,96,8,8
+    EDITTEXT        IDC_EDIT_POS_X,26,94,40,14,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,97,96,8,8
+    EDITTEXT        IDC_EDIT_POS_Y,109,94,40,14,ES_AUTOHSCROLL
+    LTEXT           "%",IDC_STATIC,71,97,8,8
+    LTEXT           "%",IDC_STATIC,155,97,8,8
+END
+
+IDD_DIALOG_VIEW_SCRIPT DIALOGEX 0, 0, 573, 251
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "View Script"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,513,230,50,14
+    CONTROL         "",IDC_RICHED_VIEW_SCRIPT,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,11,12,552,202
+END
+
+IDD_DIALOG_EXIT_EDITOR DIALOGEX 0, 0, 202, 149
+STYLE DS_SETFONT | WS_POPUP | WS_SYSMENU
+FONT 10, "Lucida Sans Unicode", 400, 0, 0x0
+BEGIN
+    CONTROL         "Exit",IDOK,"Button",BS_OWNERDRAW | WS_TABSTOP,7,83,188,33
+    CONTROL         "Open Official Website and Exit",ID_OPEN_WEBSITE,"Button",BS_OWNERDRAW | WS_TABSTOP,7,38,188,33
+    LTEXT           "Thank you for using Vanda Engine :)",IDC_STATIC,42,15,116,8
+    CONTROL         "Check",IDC_EXIT_BUTTON_CHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,7,130,12,12
+    LTEXT           "Do not show this dialog again",IDC_STATIC,22,132,155,10
+    CONTROL         "Tick",IDC_EXIT_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,7,130,12,12
+END
+
+IDD_DIALOG_ADD_PREFAB_RESOURCE DIALOGEX 0, 0, 348, 224
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add/Remove Prefab Resource"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,291,203,50,14
+    PUSHBUTTON      "Copy Name",IDC_BUTTON_COPY_PREFAB_NAME,139,180,53,14
+    CONTROL         "",IDC_LIST_PREFAB_NAMES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,22,195,146
+    CONTROL         "",IDC_RICHED_PREFAB_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,203,117,14
+    LTEXT           "Prefab Names",IDC_STATIC,15,9,45,8
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,231,30,101,50,WS_EX_TRANSPARENT
+    LTEXT           "Selected Prefab Preview",IDC_STATIC,223,9,109,8
+    PUSHBUTTON      "Add",IDC_BUTTON_ADD_PREFAB,14,180,53,14
+    PUSHBUTTON      "Remove",IDC_BUTTON_REMOVE_PREFAB,77,180,52,14
+    GROUPBOX        "",IDC_STATIC,223,19,118,69
+END
+
+IDD_DIALOG_SCRIPT_UTILITY_PREFABS DIALOGEX 0, 0, 348, 240
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Script Uitility - Prefabs"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,291,219,50,14
+    PUSHBUTTON      "Copy Name",IDC_BUTTON_COPY_PREFAB_NAME,14,197,69,14
+    CONTROL         "",IDC_LIST_PREFAB_NAMES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,41,195,146
+    CONTROL         "",IDC_RICHED_PREFAB_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,218,117,14
+    LTEXT           "Prefab Names",IDC_STATIC,15,28,45,8
+    CONTROL         "",IDC_PHOTO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,231,49,101,50,WS_EX_TRANSPARENT
+    LTEXT           "Selected Prefab Preview",IDC_STATIC,223,28,109,8
+    GROUPBOX        "",IDC_STATIC,223,38,118,69
+    LTEXT           "Current Project And VScene Name",IDC_STATIC_PROJECT_VSCENE_NAME,14,9,309,8
+END
+
+IDD_DIALOG_ADD_VIDEO DIALOGEX 0, 0, 310, 272
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Video Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,194,251,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,253,251,50,14
+    LTEXT           "Name",IDC_STATIC,8,15,21,13
+    EDITTEXT        IDC_EDIT_VIDEO_NAME,31,13,193,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_VIDEO_DATA,16,59,208,15,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Select...",IDC_BUTTON_VIDEO_DATA,239,59,55,15
+    GROUPBOX        "Video",IDC_STATIC,7,40,296,50
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,128,205,50,15
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,186,205,50,15
+    CONTROL         "",IDC_EDIT_VIDEO_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,19,178,275,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,244,205,50,15
+    GROUPBOX        "Script",IDC_STATIC,7,159,296,74
+    GROUPBOX        "Properties",IDC_STATIC,7,101,296,45
+    LTEXT           "Play",IDC_STATIC,17,122,18,11
+    COMBOBOX        IDC_COMBO_VIDEO_PLAY,40,121,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Loop",IDC_STATIC,119,121,18,11
+    COMBOBOX        IDC_COMBO_VIDEO_LOOP,142,120,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Volume",IDC_STATIC,223,121,25,8
+    EDITTEXT        IDC_EDIT_AUDIO_VOLUME,251,119,42,13,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG_EDIT_PHYSX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        VERTGUIDE, 18
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 255
+    END
+
+    IDD_DIALOG_EDIT_GENERAL_PHYSX_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 312
+        VERTGUIDE, 14
+        VERTGUIDE, 104
+        VERTGUIDE, 201
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 345
+        HORZGUIDE, 262
+        HORZGUIDE, 280
+        HORZGUIDE, 298
+    END
+
+    IDD_DIALOG_NEW_EDIT_PROJECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 176
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 53
+    END
+
+    IDD_DIALOG_SET_CURRENT_PROJECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 172
+    END
+
+    IDD_DIALOG_PREFAB, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 656
+        BOTTOMMARGIN, 338
+        HORZGUIDE, 6
+        HORZGUIDE, 23
+        HORZGUIDE, 41
+        HORZGUIDE, 212
+        HORZGUIDE, 286
+        HORZGUIDE, 295
+    END
+
+    IDD_DIALOG_SAVE_PREFAB, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 186
+        VERTGUIDE, 45
+        VERTGUIDE, 164
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 72
+    END
+
+    IDD_DIALOG_PREFAB_NAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_DIALOG_CURRENT_SCENE_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        VERTGUIDE, 14
+        VERTGUIDE, 225
+        VERTGUIDE, 240
+        VERTGUIDE, 242
+        VERTGUIDE, 291
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 241
+        HORZGUIDE, 127
+    END
+
+    IDD_DIALOG_PROJECT_VSCENES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 476
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 212
+    END
+
+    IDD_DIALOG_VSCENE_NAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 476
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 201
+    END
+
+    IDD_DIALOG_ADD_TRIGGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 391
+        VERTGUIDE, 13
+        VERTGUIDE, 41
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 132
+    END
+
+    IDD_DIALOG_ADD_MULTIPLE_ANIMATIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 276
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 78
+        HORZGUIDE, 26
+    END
+
+    IDD_DIALOG_PLEASE_WAIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 170
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 43
+    END
+
+    IDD_DIALOG_ADD_CHARACTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 10
+        RIGHTMARGIN, 543
+        VERTGUIDE, 20
+        VERTGUIDE, 350
+        VERTGUIDE, 534
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 265
+    END
+
+    IDD_DIALOG_SELECT_ANIMATION_CLIPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 226
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_DIALOG_SAVE_LOAD_CHARACTER_PROFILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 396
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+
+    IDD_DIALOG_CHARACTER_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 430
+        VERTGUIDE, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 269
+    END
+
+    IDD_DIALOG_CHARACTER_SOUNDS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        VERTGUIDE, 42
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 109
+        HORZGUIDE, 13
+        HORZGUIDE, 34
+        HORZGUIDE, 57
+    END
+
+    IDD_DIALOG_GUI_BUTTON, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 423
+        VERTGUIDE, 61
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 294
+        HORZGUIDE, 238
+    END
+
+    IDD_DIALOG_GUI_IMAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 288
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 143
+    END
+
+    IDD_DIALOG_GUI_TEXT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 274
+        VERTGUIDE, 15
+        VERTGUIDE, 57
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 177
+    END
+
+    IDD_DIALOG_SAVE_GUI, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 190
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+
+    IDD_DIALOG_GUI_NAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 61
+    END
+
+    IDD_DIALOG_GUI_EDITOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 658
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 340
+        HORZGUIDE, 7
+        HORZGUIDE, 21
+        HORZGUIDE, 281
+    END
+
+    IDD_DIALOG_ADD_RESOURCE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 258
+        VERTGUIDE, 179
+        VERTGUIDE, 257
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 293
+        HORZGUIDE, 38
+        HORZGUIDE, 209
+    END
+
+    IDD_DIALOG_NEW_DIRECTORY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_DIALOG_SCRIPT_EDITOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 688
+        VERTGUIDE, 19
+        VERTGUIDE, 676
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 348
+        HORZGUIDE, 319
+        HORZGUIDE, 333
+    END
+
+    IDD_DIALOG_VSCENE_SCRIPT_OBJECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 357
+        VERTGUIDE, 39
+        VERTGUIDE, 317
+        VERTGUIDE, 323
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 113
+        HORZGUIDE, 39
+    END
+
+    IDD_DIALOG_EDIT_LOD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 421
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 238
+    END
+
+    IDD_DIALOG_EDIT_CAMERA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 303
+        VERTGUIDE, 20
+        VERTGUIDE, 44
+        VERTGUIDE, 152
+        VERTGUIDE, 253
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 236
+        HORZGUIDE, 27
+        HORZGUIDE, 29
+        HORZGUIDE, 80
+        HORZGUIDE, 104
+    END
+
+    IDD_DIALOG_ADD_TERRAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 470
+        VERTGUIDE, 16
+        VERTGUIDE, 159
+        VERTGUIDE, 208
+        VERTGUIDE, 245
+        VERTGUIDE, 257
+        VERTGUIDE, 297
+        VERTGUIDE, 392
+        VERTGUIDE, 406
+        VERTGUIDE, 418
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 343
+        HORZGUIDE, 21
+        HORZGUIDE, 22
+        HORZGUIDE, 54
+        HORZGUIDE, 76
+        HORZGUIDE, 160
+        HORZGUIDE, 192
+        HORZGUIDE, 213
+        HORZGUIDE, 233
+    END
+
+    IDD_DIALOG_ADD_CAMERA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 258
+        VERTGUIDE, 12
+        VERTGUIDE, 206
+        VERTGUIDE, 246
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 302
+        HORZGUIDE, 13
+    END
+
+    IDD_DIALOG_BACKUP_ALL_PROJECTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        VERTGUIDE, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 312
+        VERTGUIDE, 20
+        VERTGUIDE, 85
+        VERTGUIDE, 165
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 250
+        HORZGUIDE, 109
+        HORZGUIDE, 132
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY_PREFAB_INSTANCES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 667
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 257
+        HORZGUIDE, 207
+        HORZGUIDE, 243
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY_IMPORTED_CAMERAS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 362
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 236
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY_GAME_OBJECTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 362
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 238
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY_GUIS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 564
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 270
+        HORZGUIDE, 44
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY_RESOURCES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 258
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 318
+        HORZGUIDE, 268
+        HORZGUIDE, 296
+    END
+
+    IDD_DIALOG_SCRIPT_EDITOR_ADD_EVENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 238
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 180
+    END
+
+    IDD_DIALOG_SCRIPT_EDITOR_ADD_FUNCTION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 238
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 180
+    END
+
+    IDD_DIALOG_DELETE_PROJECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 214
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 174
+    END
+
+    IDD_DIALOG_EDIT_PREFAB, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 749
+        VERTGUIDE, 276
+        VERTGUIDE, 366
+        VERTGUIDE, 375
+        VERTGUIDE, 454
+        VERTGUIDE, 575
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 350
+        HORZGUIDE, 52
+        HORZGUIDE, 243
+        HORZGUIDE, 282
+    END
+
+    IDD_DIALOG_EDIT_GUI, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 418
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 142
+        HORZGUIDE, 93
+        HORZGUIDE, 117
+    END
+
+    IDD_DIALOG_VIEW_SCRIPT, DIALOG
+    BEGIN
+        LEFTMARGIN, 11
+        RIGHTMARGIN, 563
+        TOPMARGIN, 12
+        BOTTOMMARGIN, 244
+    END
+
+    IDD_DIALOG_EXIT_EDITOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 195
+        VERTGUIDE, 100
+        VERTGUIDE, 160
+        VERTGUIDE, 195
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 142
+    END
+
+    IDD_DIALOG_ADD_PREFAB_RESOURCE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 341
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 217
+        HORZGUIDE, 9
+        HORZGUIDE, 180
+    END
+
+    IDD_DIALOG_SCRIPT_UTILITY_PREFABS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 341
+        VERTGUIDE, 14
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 233
+    END
+
+    IDD_DIALOG_ADD_VIDEO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 303
+        VERTGUIDE, 224
+        VERTGUIDE, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 265
+        HORZGUIDE, 119
+        HORZGUIDE, 181
+        HORZGUIDE, 239
+        HORZGUIDE, 255
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU2 MENU
+BEGIN
+    POPUP "PACKAGE"
+    BEGIN
+        MENUITEM "New",                         ID_PACKAGE_NEW
+        MENUITEM "Rename Selected",             ID_PACKAGE_RENAMESELECTED
+        MENUITEM "Delete Selected",             ID_PACKAGE_DELETESELECTED
+    END
+    POPUP "PREFAB"
+    BEGIN
+        MENUITEM "New",                         ID_PREFAB_NEW
+        MENUITEM "Open Selected",               ID_PREFAB_OPENSELECTED
+        MENUITEM "Rename Selected",             ID_PREFAB_RENAMESELECTED
+        MENUITEM "Delete Selected",             ID_PREFAB_DELETESELECTED
+    END
+END
+
+IDR_MENU3 MENU
+BEGIN
+    POPUP "FILE"
+    BEGIN
+        MENUITEM "New",                         ID_FILE_NEW_GUI
+        MENUITEM SEPARATOR
+        MENUITEM "Save",                        ID_FILE_SAVE_GUI
+        MENUITEM "Save As",                     ID_FILE_SAVEAS_GUI
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_FILE_EXIT_GUI
+    END
+    POPUP "INSERT"
+    BEGIN
+        MENUITEM "Image",                       ID_INSERT_GUI_IMAGE
+        MENUITEM "Button",                      ID_INSERT_GUI_BUTTON
+        MENUITEM "Text",                        ID_INSERT_GUI_TEXT
+    END
+    POPUP "MODE"
+    BEGIN
+        MENUITEM "VScene",                      ID_MODE_VSCENE2
+        MENUITEM "Prefab",                      ID_MODE_PREFAB2
+        MENUITEM "GUI",                         ID_MODE_GUI2, CHECKED
+    END
+    POPUP "TOOLS"
+    BEGIN
+        MENUITEM "Script Editor...",            ID_TOOLS_SCRIPT_EDITOR
+    END
+END
+
+IDR_MENU4 MENU
+BEGIN
+    POPUP "PACKAGE"
+    BEGIN
+        MENUITEM "New",                         ID_PACKAGE_NEW
+        MENUITEM "Rename Selected",             ID_PACKAGE_RENAMESELECTED
+        MENUITEM "Delete Selected",             ID_PACKAGE_DELETESELECTED
+    END
+    POPUP "GUI"
+    BEGIN
+        MENUITEM "New",                         ID_GUI_NEW
+        MENUITEM "Open Selected",               ID_GUI_OPENSELECTED
+        MENUITEM "Rename Selected",             ID_GUI_RENAMESELECTED
+        MENUITEM "Delete Selected",             ID_GUI_DELETESELECTED
+    END
+END
+
+IDR_MENU5 MENU
+BEGIN
+    POPUP "FILE"
+    BEGIN
+        POPUP "New"
+        BEGIN
+            MENUITEM "Blank",                       ID_NEWSCRIPT_BLANK
+            MENUITEM "Prefab",                      ID_NEWSCRIPT_PREFAB
+            MENUITEM "Trigger",                     ID_NEWSCRIPT_TRIGGER
+            MENUITEM "GUI",                         ID_NEWSCRIPT_GUI
+            MENUITEM "Main Character",              ID_NEWSCRIPT_MAINCHARACTER
+            MENUITEM "Other Objects",               ID_NEWSCRIPT_VSCENE_SCRIPT
+        END
+        MENUITEM "Open...",                     ID_FILE_OPEN_SCRIPT
+        MENUITEM SEPARATOR
+        MENUITEM "Save",                        ID_FILE_SAVE_SCRIPT
+        MENUITEM "Save As...",                  ID_FILE_SAVEAS_SCRIPT
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    POPUP "EDIT"
+    BEGIN
+        MENUITEM "Undo",                        ID_EDIT_UNDO_SCRIPT
+        MENUITEM "Redo",                        ID_EDIT_REDO_SCRIPT
+        MENUITEM SEPARATOR
+        MENUITEM "Copy",                        ID_EDIT_COPY_SCRIPT
+        MENUITEM "Paste",                       ID_EDIT_PASTE_SCRIPT
+    END
+    POPUP "DEBUG"
+    BEGIN
+        MENUITEM "Debug Script",                ID_DEBUG_STARTDEBUGGING
+    END
+    POPUP "TOOLS"
+    BEGIN
+        MENUITEM "Script Utility...",           ID_TOOLS_SCRIPTUTILITY
+        MENUITEM "Add Event...",                ID_TOOLS_ADDEVENT
+        MENUITEM "Add Function...",             ID_TOOLS_ADDFUNCTION
+    END
+    POPUP "HELP"
+    BEGIN
+        MENUITEM "Script Reference Manual",     ID_HELP_SCRIPT_REFERENCE_MANUAL
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_ADD_CHARACTER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_CURRENT_SCENE_OPTIONS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_SCRIPT_EDITOR AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_EDIT_GUI AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_VSCENE_SCRIPT_OBJECT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_TRIGGER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_CAMERA AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_TERRAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_PREFAB AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_GUI_EDITOR AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_VIDEO AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Persian (Iran) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FAR)
+LANGUAGE LANG_PERSIAN, SUBLANG_DEFAULT
+#pragma code_page(1256)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\VandaEngine.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_MOVE                CURSOR                  "Assets\\Icon\\H_MOVE.CUR"
+
+IDC_DEFAULT_ARROW       CURSOR                  "Assets\\Icon\\arrow.cur"
+
+IDC_ZOOMIN              CURSOR                  "Assets\\Icon\\zoom in.cur"
+
+IDC_POINTER             CURSOR                  "Assets\\Icon\\pointer.cur"
+
+IDC_UNAVAILABLE         CURSOR                  "Assets\\Icon\\Unavailable.cur"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_SCENE_LIST   BITMAP                  "Assets\\bitmap\\colladaScene.bmp"
+
+IDB_BITMAP_PHYSX_LOGO   BITMAP                  "Assets\\bitmap\\nvidia-physx-logo.bmp"
+
+IDB_BITMAP_OPENAL_LOGO  BITMAP                  "Assets\\bitmap\\openal-logo.bmp"
+
+IDB_BITMAP_OPENGL3_LOGO BITMAP                  "Assets\\bitmap\\opengl3_logo.bmp"
+
+IDB_BITMAP_DELETE_DOWN  BITMAP                  "Assets\\Icon\\Delete\\Delete_Down.bmp"
+
+IDB_BITMAP_DELETE_FOCUS BITMAP                  "Assets\\Icon\\Delete\\Delete_Focus.bmp"
+
+IDB_BITMAP_DELETE_UP    BITMAP                  "Assets\\Icon\\Delete\\Delete_Up.bmp"
+
+IDB_BITMAP_DELETE_DISABLE BITMAP                  "Assets\\Icon\\Delete\\Delete_Disable.bmp"
+
+IDB_BITMAP_EDIT_DISABLE BITMAP                  "Assets\\Icon\\Edit\\Edit_Disable.bmp"
+
+IDB_BITMAP_EDIT_DOWN    BITMAP                  "Assets\\Icon\\Edit\\Edit_Down.bmp"
+
+IDB_BITMAP_EDIT_FOCUS   BITMAP                  "Assets\\Icon\\Edit\\Edit_Focus.bmp"
+
+IDB_BITMAP_EDIT_UP      BITMAP                  "Assets\\Icon\\Edit\\Edit_Up.bmp"
+
+IDB_BITMAP_MATERIAL_DISABLE BITMAP                  "Assets\\Icon\\Material\\Material_Disable.bmp"
+
+IDB_BITMAP_MATERIAL_DOWN BITMAP                  "Assets\\Icon\\Material\\Material_Down.bmp"
+
+IDB_BITMAP_MATERIAL_UP  BITMAP                  "Assets\\Icon\\Material\\Material_Up.bmp"
+
+IDB_BITMAP_MATERIAL_FOCUS BITMAP                  "Assets\\Icon\\Material\\Material_Focus.bmp"
+
+IDB_BITMAP_SKY_DISABLE  BITMAP                  "Assets\\Icon\\Sky\\Sky_Disable.bmp"
+
+IDB_BITMAP_SKY_DOWN     BITMAP                  "Assets\\Icon\\Sky\\Sky_Down.bmp"
+
+IDB_BITMAP_SKY_FOCUS    BITMAP                  "Assets\\Icon\\Sky\\Sky_Focus.bmp"
+
+IDB_BITMAP_SKY_UP       BITMAP                  "Assets\\Icon\\Sky\\Sky_Up.bmp"
+
+IDB_BITMAP_3DSOUND_DOWN BITMAP                  "Assets\\Icon\\3DSound\\3DSound_Down.bmp"
+
+IDB_BITMAP_3DSOUND_FOCUS BITMAP                  "Assets\\Icon\\3DSound\\3DSound_Focus.bmp"
+
+IDB_BITMAP_3DSOUND_UP   BITMAP                  "Assets\\Icon\\3DSound\\3DSound_Up.bmp"
+
+IDB_BITMAP_AMBIENTSOUND_DISABLE BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Disable.bmp"
+
+IDB_BITMAP_AMBIENTSOUND_DOWN BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Down.bmp"
+
+IDB_BITMAP_AMBIENTSOUND_FOCUS BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Focus.bmp"
+
+IDB_BITMAP_AMBIENTSOUND_UP BITMAP                  "Assets\\Icon\\AmbientSound\\AmbientSound_Up.bmp"
+
+IDB_BITMAP_LIGHT_DOWN   BITMAP                  "Assets\\Icon\\Light\\Light_Down.bmp"
+
+IDB_BITMAP_LIGHT_FOCUS  BITMAP                  "Assets\\Icon\\Light\\Light_Focus.bmp"
+
+IDB_BITMAP_LIGHT_UP     BITMAP                  "Assets\\Icon\\Light\\Light_Up.bmp"
+
+IDB_BITMAP_WATER_DOWN   BITMAP                  "Assets\\Icon\\Water\\Water_Down.bmp"
+
+IDB_BITMAP_WATER_FOCUS  BITMAP                  "Assets\\Icon\\Water\\Water_Focus.bmp"
+
+IDB_BITMAP_WATER_UP     BITMAP                  "Assets\\Icon\\Water\\Water_Up.bmp"
+
+IDB_BITMAP_PLAYER_DOWN  BITMAP                  "Assets\\Icon\\Player\\Player_Down.bmp"
+
+IDB_BITMAP_PLAYER_FOCUS BITMAP                  "Assets\\Icon\\Player\\Player_Focus.bmp"
+
+IDB_BITMAP_PLAYER_UP    BITMAP                  "Assets\\Icon\\Player\\Player_Up.bmp"
+
+IDB_BITMAP_CONSOLE_DOWN BITMAP                  "Assets\\Icon\\Console\\Console_Down.bmp"
+
+IDB_BITMAP_CONSOLE_FOCUS BITMAP                  "Assets\\Icon\\Console\\Console_Focus.bmp"
+
+IDB_BITMAP_CONSOLE_UP   BITMAP                  "Assets\\Icon\\Console\\Console_Up.bmp"
+
+IDB_BITMAP_SUMMARY_DOWN BITMAP                  "Assets\\Icon\\Summary\\Summary_Down.bmp"
+
+IDB_BITMAP_SUMMARY_FOCUS BITMAP                  "Assets\\Icon\\Summary\\Summary_Focus.bmp"
+
+IDB_BITMAP_SUMMARY_UP   BITMAP                  "Assets\\Icon\\Summary\\Summary_Up.bmp"
+
+IDB_BITMAP_OBJECTLIST_CAMERA BITMAP                  "Assets\\Icon\\Object List\\Camera.bmp"
+
+IDB_BITMAP_OBJECTLIST_IMAGE BITMAP                  "Assets\\Icon\\Object List\\Image.bmp"
+
+IDB_BITMAP_OBJECTLIST_MATERIAL BITMAP                  "Assets\\Icon\\Object List\\Material.bmp"
+
+IDB_BITMAP_OBJECTLIST_MESH BITMAP                  "Assets\\Icon\\Object List\\Mesh.bmp"
+
+IDB_BITMAP_OBJECTLIST_ANIMATION BITMAP                  "Assets\\Icon\\Object List\\animation.bmp"
+
+IDB_BITMAP_OBJECTLIST_LIGHT BITMAP                  "Assets\\Icon\\Object List\\light.bmp"
+
+IDB_BITMAP_OBJECTLIST_EFFECT BITMAP                  "Assets\\Icon\\Object List\\fx.bmp"
+
+IDB_BITMAP_OBJECTLIST_ANIMATIONCLIP BITMAP                  "Assets\\Icon\\Object List\\animation_clip.bmp"
+
+IDB_BITMAP_OBJECTLIST_SKINCONTROLLER BITMAP                  "Assets\\Icon\\Object List\\skin_cnotroller.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_AMBIENTSOUND BITMAP                  "Assets\\Icon\\EngineObjectList\\AmbientSound.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_LIGHT BITMAP                  "Assets\\Icon\\EngineObjectList\\Light.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_SKY BITMAP                  "Assets\\Icon\\EngineObjectList\\Sky.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_3DSOUND BITMAP                  "Assets\\Icon\\EngineObjectList\\3DSound.bmp"
+
+IDB_BITMAP_ENGINEOBJECTLIST_WATER BITMAP                  "Assets\\Icon\\EngineObjectList\\Water.bmp"
+
+IDB_BITMAP_WELCOME_UNCHECK BITMAP                  "Assets\\Icon\\Welcome\\Uncheck.bmp"
+
+IDB_BITMAP_WELCOME_CHECK BITMAP                  "Assets\\Icon\\Welcome\\Check.bmp"
+
+IDB_BITMAP_VANDA_TEXT   BITMAP                  "Assets\\Icon\\Vanda.bmp"
+
+IDB_BITMAP_VANDA_LOGO2  BITMAP                  "Assets\\Icon\\Vanda_logo2.bmp"
+
+IDB_BITMAP_TWITTER_DOWN BITMAP                  "Assets\\Icon\\Twitter\\twitter_down.bmp"
+
+IDB_BITMAP_TWITTER_FOCUS BITMAP                  "Assets\\Icon\\Twitter\\twitter_focus.bmp"
+
+IDB_BITMAP_TWITTER_UP   BITMAP                  "Assets\\Icon\\Twitter\\twitter_up.bmp"
+
+IDB_BITMAP_YOUTUBE_DOWN BITMAP                  "Assets\\Icon\\YouTube\\youtube_down.bmp"
+
+IDB_BITMAP_YOUTUBE_FOCUS BITMAP                  "Assets\\Icon\\YouTube\\youtube_focus.bmp"
+
+IDB_BITMAP_YOUTUBE_UP   BITMAP                  "Assets\\Icon\\YouTube\\youtube_up.bmp"
+
+IDB_BITMAP_SCRIPT_DOWN  BITMAP                  "Assets\\Icon\\Script\\script_down.bmp"
+
+IDB_BITMAP_SCRIPT_FOCUS BITMAP                  "Assets\\Icon\\Script\\script_focus.bmp"
+
+IDB_BITMAP_SCRIPT_UP    BITMAP                  "Assets\\Icon\\Script\\script_up.bmp"
+
+IDB_BITMAP_PUBLISH_DOWN BITMAP                  "Assets\\Icon\\Publish\\publish_down.bmp"
+
+IDB_BITMAP_PUBLISH_FOCUS BITMAP                  "Assets\\Icon\\Publish\\publish_focus.bmp"
+
+IDB_BITMAP_PUBLISH_UP   BITMAP                  "Assets\\Icon\\Publish\\publish_up.bmp"
+
+IDB_BITMAP_CAMERA_DOWN  BITMAP                  "Assets\\Icon\\Camera\\camera_down.bmp"
+
+IDB_BITMAP_CAMERA_FOCUS BITMAP                  "Assets\\Icon\\Camera\\camera_focus.bmp"
+
+IDB_BITMAP_CAMERA_UP    BITMAP                  "Assets\\Icon\\Camera\\camera_up.bmp"
+
+IDB_BITMAP_VANDA_VERSION BITMAP                  "Assets\\Icon\\Vanda_Version.bmp"
+
+IDB_BITMAP_PHYSXELEMENTLIST_TRIGGER BITMAP                  "Assets\\Icon\\PhysXElementList\\TR.bmp"
+
+IDB_BITMAP_PHYSXELEMENTLIST_STATICRIGIDBODY BITMAP                  "Assets\\Icon\\PhysXElementList\\SRB.bmp"
+
+IDB_BITMAP_PHYSXELEMENTLIST_DYNAMICRIGIDBODY BITMAP                  "Assets\\Icon\\PhysXElementList\\DRB.bmp"
+
+IDB_BITMAP_LOGO_PUBLISH BITMAP                  "Assets\\Icon\\Publish\\Logo_Publish.bmp"
+
+IDB_BITMAP_SCRIPT_DISABLE BITMAP                  "Assets\\Icon\\Script\\script_disable.bmp"
+
+IDB_BITMAP_VANDA_LOGO   BITMAP                  "Assets\\bitmap\\Vanda-Logo.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_VANDAENGINE_DIALOG DIALOGEX 0, 0, 424, 296
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_STATICEDGE
+CAPTION " "
+MENU IDR_MENU1
+FONT 9, "Consolas", 400, 0, 0x0
+BEGIN
+    CONTROL         "External Scenes",IDC_STATIC_SCENES,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,190,8,66,14
+    CONTROL         "",IDC_LIST_SCENES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_TABSTOP,191,19,103,36
+    CONTROL         "Delete",IDC_BTN_REMOVE_SCENE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,298,19,46,12
+    CONTROL         "External Elements",IDC_STATIC_OBJECTS,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,190,57,71,14
+    CONTROL         "",IDC_LIST_OBJECTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_TABSTOP,191,67,103,37
+    CONTROL         "Delete",IDC_BTN_REMOVE_OBJECT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,298,72,46,12
+    CONTROL         "Game Objects",IDC_STATIC_ENGINE_OBJECTS,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,189,109,105,14
+    CONTROL         "",IDC_LIST_ENGINE_OBJECTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_TABSTOP,189,126,103,37
+    CONTROL         "Delete",IDC_BTN_REMOVE_ENGINE_OBJECT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,297,121,46,12
+    CONTROL         "Properties",IDC_BTN_ENGINE_OBJECT_PROPERTIES,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,297,138,46,12
+    CONTROL         "",IDC_RICHEDIT21,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | NOT WS_VISIBLE,8,262,57,27
+    CONTROL         "New",IDC_BTN_NEW,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,194,38,13
+    CONTROL         "Save",IDC_BTN_SAVE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,229,38,13
+    CONTROL         "Import",IDC_BTN_COLLADA,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,57,195,38,13
+    CONTROL         "Prev Anim",IDC_BTN_ANIM_PREV,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,174,171,42,13
+    CONTROL         "Open",IDC_BTN_OPEN,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,212,38,13
+    CONTROL         "Save As",IDC_BTN_SAVEAS,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,244,38,13
+    CONTROL         "Anim Play",IDC_BTN_ANIM_PLAY,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,174,189,42,13
+    CONTROL         "Next Anim",IDC_BTN_ANIM_NEXT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,174,205,42,13
+    CONTROL         "Timer",IDC_BTN_TIMER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,242,172,47,13
+    CONTROL         "Pause Anim",IDC_BTN_ANIM_PAUSE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,174,221,42,13
+    CONTROL         "Web",IDC_BTN_WEB,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,295,224,38,13
+    CONTROL         "Facebook",IDC_BTN_FACEBOOK,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,295,206,38,13
+    CONTROL         "",IDC_STATIC_SELECTEDOBJECT,"RichEdit20A",ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | NOT WS_VISIBLE,304,243,40,14
+    CONTROL         "Material",IDC_BTN_MATERIAL,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,367,111,38,13
+    CONTROL         "Water",IDC_BTN_WATER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,48,38,13
+    CONTROL         "Sky",IDC_BTN_SKY,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,27,38,13
+    CONTROL         "A Sound",IDC_BTN_AMBIENTSOUND,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,92,38,13
+    CONTROL         "S Sound",IDC_BTN_3DSOUND,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,69,38,13
+    CONTROL         "Player",IDC_BTN_PLAYER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,113,39,13
+    CONTROL         "Light",IDC_BTN_LIGHT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,133,38,13
+    CONTROL         "Console",IDC_BTN_CONSOLE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,215,239,38,13
+    CONTROL         "PhysX Elements",IDC_STATIC_PHYSX_ELEMENTS,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,77,7,94,14
+    CONTROL         "",IDC_LIST_PHYSX_ELEMENTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_TABSTOP,77,24,103,37
+    CONTROL         "Delete",IDC_BTN_REMOVE_PHYSX,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,79,67,46,12
+    CONTROL         "Vanda Text",IDC_BTN_VANDA_TEXT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,364,177,52,13
+    CONTROL         "Twitter",IDC_BTN_TWITTER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,294,171,38,13
+    CONTROL         "YouTube",IDC_BTN_YOUTUBE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,294,189,38,13
+    CONTROL         "Publish",IDC_BTN_PUBLISH_SOLUTION,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,126,188,38,13
+    CONTROL         "Script",IDC_BTN_SCRIPT_MANAGER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,367,147,38,13
+    CONTROL         "Free Cam",IDC_BTN_CAMERA_RENDERING_MANAGER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,126,218,38,13
+    CONTROL         "Vanda Version",IDC_BTN_VANDA_VERSION,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,364,195,52,13
+    CONTROL         "Properties",IDC_BTN_SCENE_PROPERTIES,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,298,35,46,12
+    CONTROL         "PhysX",IDC_BTN_PHYSX_EDITOR,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,367,129,38,13
+    CONTROL         "Prefabs",IDC_BTN_PREFABS,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,126,203,38,13
+    CONTROL         "Translate",IDC_BTN_TRANSLATE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,57,211,38,13
+    CONTROL         "Rotate",IDC_BTN_ROTATE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,57,227,38,13
+    CONTROL         "Scale",IDC_BTN_SCALE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,57,243,38,13
+    CONTROL         "Prefabs && GUIs",IDC_STATIC_PREFABS,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,261,8,84,9
+    CONTROL         "Prefab and GUI Elements",IDC_STATIC_PREFAB_ELEMENTS,
+                    "Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,268,57,104,10
+    CONTROL         "Timer Pause",IDC_BTN_TIMER_PAUSE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,243,187,46,13
+    CONTROL         "Deactivate Play",IDC_BTN_DEACTIVATE_PLAY,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,220,205,69,13
+    CONTROL         "Activate Play",IDC_BTN_ACTIVATE_PLAY,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,220,221,69,13
+    CONTROL         "X:",IDC_STATIC_X,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,107,260,10,10
+    CONTROL         "Y:",IDC_STATIC_Y,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,167,261,13,10
+    CONTROL         "Z:",IDC_STATIC_Z,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,234,261,10,10
+    CONTROL         "",IDC_EDIT_X,"RichEdit20A",ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | NOT WS_VISIBLE,118,255,34,15
+    CONTROL         "",IDC_EDIT_Y,"RichEdit20A",ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | NOT WS_VISIBLE,182,256,34,15
+    CONTROL         "",IDC_EDIT_Z,"RichEdit20A",ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | NOT WS_VISIBLE,251,258,34,15
+    CONTROL         "WaterAttach",IDC_BTN_WATER_ATTACH,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,120,171,48,13
+    CONTROL         "Trigger",IDC_BTN_TRIGGER,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,152,38,13
+    CONTROL         "Import Multi Animations",IDC_BTN_COLLADA_MULTIPLE_ANIMATIONS,
+                    "Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,7,172,110,13
+    CONTROL         "GUI Button",IDC_BTN_GUI,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,359,217,49,13
+    CONTROL         "GUI Elements",IDC_STATIC_GUI_ELEMENTS,"Static",SS_LEFTNOWORDWRAP | SS_WORDELLIPSIS | NOT WS_VISIBLE | WS_GROUP,74,83,54,9
+    CONTROL         "GUI Image",IDC_BTN_GUI_IMAGE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,356,237,60,13
+    CONTROL         "GUI Text",IDC_BTN_GUI_TEXT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,356,258,60,13
+    CONTROL         "",IDC_LIST_GUI_ELEMENTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | NOT WS_VISIBLE | WS_TABSTOP,74,91,103,37
+    CONTROL         "Delete",IDC_BTN_REMOVE_GUI,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,82,133,46,12
+    CONTROL         "Properties",IDC_BTN_GUI_PROPERTIES,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,134,133,46,12
+    CONTROL         "GUI Package",IDC_BTN_GUI_PACKAGE,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,97,239,51,13
+    CONTROL         "VScript",IDC_BTN_VSCENE_SCRIPT,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,8,6,38,13
+    CONTROL         "Terrain",IDC_BTN_TERRAIN,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,52,152,38,13
+    CONTROL         "Cam",IDC_BTN_ENGINE_CAMERA,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,99,152,38,13
+    CONTROL         "Prefab Settings",IDC_BTN_PREFAB_SETTINGS,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,153,239,55,13
+    CONTROL         "",IDC_STATIC_COPY_SELECTEDOBJECT_NAME,"RichEdit20A",ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | NOT WS_VISIBLE,304,264,40,14
+    CONTROL         "Video",IDC_BTN_VIDEO,"Button",BS_OWNERDRAW | NOT WS_VISIBLE | WS_TABSTOP,145,152,38,13
+END
+
+IDD_DIALOG_ADD_LIGHT DIALOGEX 0, 0, 517, 286
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Light Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Light Type",IDC_STATIC,268,10,40,11
+    COMBOBOX        IDC_COMB_LIGHT_TYPE,314,9,109,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Ambient",IDC_STATIC,21,54,30,10
+    EDITTEXT        IDC_EDIT_LIGHT_AMBIENT_COLOR,68,51,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_AMBIENT_LIGHT,191,51,52,13
+    LTEXT           "Diffuse",IDC_STATIC,21,81,26,10
+    EDITTEXT        IDC_EDIT_LIGHT_DIFFUSE_COLOR,68,78,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    PUSHBUTTON      "Select...",IDC_BUTTON_DIFFUSE_LIGHT,191,79,52,13
+    LTEXT           "Specular",IDC_STATIC,21,110,31,10
+    EDITTEXT        IDC_EDIT_LIGHT_SPECULAR_COLOR,68,107,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    PUSHBUTTON      "Select...",IDC_BUTTON_SPECULAR_LIGHT,191,108,52,13
+    EDITTEXT        IDC_EDIT_LIGHT_POS_X,21,164,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LIGHT_POS_Y,79,164,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LIGHT_POS_Z,140,164,40,14,ES_AUTOHSCROLL
+    LTEXT           "Constant Attenuation",IDC_STATIC,276,52,70,10
+    EDITTEXT        IDC_EDIT_CONSTANT_ATTENUATION,352,48,27,15,ES_AUTOHSCROLL
+    LTEXT           "Linear Attenuation",IDC_STATIC,398,51,65,10
+    EDITTEXT        IDC_EDIT_LINEAR_ATTENUATION,470,48,28,15,ES_AUTOHSCROLL
+    LTEXT           "Quadratic Attenuation",IDC_STATIC,276,79,73,10
+    EDITTEXT        IDC_EDIT_QUAD_ATTENUATION,352,74,27,15,ES_AUTOHSCROLL
+    LTEXT           "Shininess",IDC_STATIC,397,78,41,10
+    EDITTEXT        IDC_EDIT_SHININESS,471,74,27,15,ES_AUTOHSCROLL
+    LTEXT           "Spot CutOff",IDC_STATIC,276,136,41,10
+    EDITTEXT        IDC_EDIT_SPOT_CUTOFF,352,132,27,15,ES_AUTOHSCROLL
+    LTEXT           "Spot Exponent",IDC_STATIC,397,135,52,10
+    EDITTEXT        IDC_EDIT_SPOT_EXPONENT,470,132,28,15,ES_AUTOHSCROLL
+    LTEXT           "Spot Direction",IDC_STATIC,276,165,52,10
+    EDITTEXT        IDC_EDIT_SPOT_DIRECTION_X,339,161,40,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SPOT_DIRECTION_Y,397,161,40,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SPOT_DIRECTION_Z,458,161,40,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "OK",IDOK,403,265,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,462,265,49,14
+    LTEXT           "Name",IDC_STATIC,14,10,28,11
+    EDITTEXT        IDC_EDIT_LIGHT_NAME,60,9,134,14,ES_AUTOHSCROLL
+    GROUPBOX        "Colors",IDC_STATIC,12,32,239,104
+    GROUPBOX        "Position/Diretction",IDC_STATIC,12,147,239,43
+    GROUPBOX        "General Properties",IDC_STATIC,266,32,244,71
+    GROUPBOX        "Spot Light Properties",IDC_STATIC,266,115,244,75
+    PUSHBUTTON      "Add",IDC_BTN_ADD_LIGHT_SCRIPT,333,219,50,16
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_LIGHT_SCRIPT,391,219,50,16
+    CONTROL         "",IDC_EDIT_LIGHT_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,17,219,299,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_LIGHT_SCRIPT,449,219,50,16
+    GROUPBOX        "Script",IDC_STATIC,7,200,503,48
+END
+
+IDD_DIALOG_ADD_WATER DIALOGEX 0, 0, 430, 368
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Water Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_WATER_NAME,46,11,161,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_WATER_DUDV,16,54,121,14,ES_AUTOHSCROLL | ES_READONLY
+    DEFPUSHBUTTON   "Du/Dv...",ID_BUTTON_WATER_DUDV,152,54,50,14
+    EDITTEXT        IDC_EDIT_WATER_NORMAL,16,81,121,14,ES_AUTOHSCROLL | ES_READONLY
+    DEFPUSHBUTTON   "Normal...",ID_BUTTON_WATER_NORMAL,152,81,50,14
+    LTEXT           "Height",IDC_STATIC,224,350,29,11,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_WATER_HEIGHT,250,346,36,15,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_WATER_SPEED,190,221,42,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_WATER_UV,286,221,40,15,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,232,25,10,11
+    EDITTEXT        IDC_EDIT_WATER_CENTER_X,249,22,35,15,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,292,25,13,11
+    EDITTEXT        IDC_EDIT_WATER_CENTER_Y,311,22,37,15,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,361,25,8,11
+    EDITTEXT        IDC_EDIT_WATER_CENTER_Z,377,22,36,15,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,233,170,12,11
+    EDITTEXT        IDC_EDIT_WATER_LIGHT_X,250,167,35,15,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,293,170,15,11
+    EDITTEXT        IDC_EDIT_WATER_LIGHT_Y,312,167,37,15,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,362,170,12,11
+    EDITTEXT        IDC_EDIT_WATER_LIGHT_Z,378,167,36,15,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,313,347,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,373,347,50,14
+    CONTROL         "Is Visible",IDC_CHECK_IS_WATER_VISIBLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,249,44,10
+    EDITTEXT        IDC_EDIT_WATER_TRANSPARENCY,69,221,41,15,ES_AUTOHSCROLL
+    LTEXT           "Color",IDC_STATIC,16,140,18,8
+    EDITTEXT        IDC_EDIT_WATER_COLOR,42,138,94,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_WATER_COLOR,150,138,52,15
+    LTEXT           "Fog Density",IDC_STATIC,15,169,38,8
+    EDITTEXT        IDC_EDIT_WATER_FOG_DENSITy,59,166,35,15,ES_AUTOHSCROLL
+    GROUPBOX        "Position",IDC_STATIC,224,7,199,40
+    LTEXT           "Y",IDC_STATIC,232,73,12,11
+    EDITTEXT        IDC_EDIT_WATER_ROTATE_Y,248,70,36,15,ES_AUTOHSCROLL
+    LTEXT           "X",IDC_STATIC,232,119,12,11
+    EDITTEXT        IDC_EDIT_WATER_SCALE_X,249,116,35,15,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,293,119,12,11
+    EDITTEXT        IDC_EDIT_WATER_SCALE_Z,309,116,36,15,ES_AUTOHSCROLL
+    GROUPBOX        "Scale",IDC_STATIC,224,103,199,38
+    GROUPBOX        "Light Position",IDC_STATIC,224,150,199,42
+    GROUPBOX        "Rotation",IDC_STATIC,224,57,199,37
+    GROUPBOX        "Underwater",IDC_STATIC,7,121,204,72
+    PUSHBUTTON      "Add",IDC_BTN_ADD_WATER_SCRIPT,256,303,50,16
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_WATER_SCRIPT,311,303,50,16
+    CONTROL         "",IDC_EDIT_WATER_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,17,303,225,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_WATER_SCRIPT,365,303,50,16
+    GROUPBOX        "Script",IDC_STATIC,7,284,416,48
+    GROUPBOX        "Textures",IDC_STATIC,7,36,203,74
+    CONTROL         "Shadow",IDC_CHECK_WATER_SHADOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,83,249,41,10
+    CONTROL         "Sun Reflection",IDC_CHECK_WATER_SUN_REFLECTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,156,249,61,10
+    LTEXT           "Name",IDC_STATIC,16,14,22,11
+    LTEXT           "Transparency",IDC_STATIC,16,223,47,11
+    LTEXT           "Flow Speed",IDC_STATIC,141,223,44,11
+    LTEXT           "UV",IDC_STATIC,266,223,17,11
+    GROUPBOX        "Other Properties",IDC_STATIC,7,203,416,69
+END
+
+IDD_DIALOG_ADD_AMBIENT_SOUND DIALOGEX 0, 0, 248, 273
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Ambient Sound Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "Name",IDC_STATIC,9,10,20,8
+    EDITTEXT        IDC_EDIT_AMBIENT_SOUND_NAME,34,8,133,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_AMBIENT_SOUND_BUFFER,17,47,150,15,ES_AUTOHSCROLL | ES_READONLY
+    DEFPUSHBUTTON   "Select",ID_BUTTON_AMBIENT_SOUND,180,47,48,15
+    LTEXT           "Volume",IDC_STATIC,14,107,25,8
+    EDITTEXT        IDC_EDIT_AMBIENT_SOUND_VOLUME,43,105,42,14,ES_AUTOHSCROLL
+    LTEXT           "Pitch",IDC_STATIC,121,108,19,8
+    EDITTEXT        IDC_EDIT_AMBIENT_SOUND_PITCH,143,105,42,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,132,252,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,190,252,50,14
+    LTEXT           "Play",IDC_STATIC,15,135,18,11
+    COMBOBOX        IDC_COMBO_AMBIENT_SOUND_PLAY,38,134,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Loop",IDC_STATIC,119,135,22,11
+    COMBOBOX        IDC_COMBO_AMBIENT_SOUND_LOOP,143,133,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Data",IDC_STATIC,7,30,233,45
+    GROUPBOX        "Properties",IDC_STATIC,7,85,233,75
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,62,212,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,120,212,50,14
+    CONTROL         "",IDC_EDIT_AMBIENT_SOUND_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,17,187,211,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,178,212,50,14
+    GROUPBOX        "Script",IDC_STATIC,7,169,233,69
+END
+
+IDD_DIALOG_ADD_3D_SOUND DIALOGEX 0, 0, 519, 253
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "3D Sound Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Name",IDC_STATIC,8,15,21,13
+    EDITTEXT        IDC_EDIT_3D_SOUND_NAME,31,13,162,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_3D_SOUND_DATA,16,59,177,15,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Select...",IDC_BUTTON_3D_SOUND_DATA,198,59,43,15
+    LTEXT           "X",IDC_STATIC,13,122,8,10
+    EDITTEXT        IDC_EDIT_3D_SOUND_X_POS,23,120,40,14,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,80,122,8,10
+    EDITTEXT        IDC_EDIT_3D_SOUND_Y_POS,92,120,40,14,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,152,122,8,10
+    EDITTEXT        IDC_EDIT_3D_SOUND_Z_POS,164,120,40,14,ES_AUTOHSCROLL
+    LTEXT           "Pitch",IDC_STATIC,274,29,17,11
+    EDITTEXT        IDC_EDIT_3D_SOUND_PITCH,291,27,40,13,ES_AUTOHSCROLL
+    LTEXT           "Volume",IDC_STATIC,436,27,24,11
+    EDITTEXT        IDC_EDIT_3D_SOUND_VOLUME,463,27,40,13,ES_AUTOHSCROLL
+    LTEXT           "RollOff",IDC_STATIC,274,62,26,11
+    EDITTEXT        IDC_EDIT_3D_SOUND_ROLLOFF,304,61,40,13,ES_AUTOHSCROLL
+    LTEXT           "Play",IDC_STATIC,432,92,18,11
+    COMBOBOX        IDC_COMBO_3D_SOUND_PLAY,455,91,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Loop",IDC_STATIC,274,122,20,11
+    COMBOBOX        IDC_COMBO_3D_SOUND_LOOP,297,121,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Reference Distance",IDC_STATIC,395,62,62,11
+    EDITTEXT        IDC_EDIT_3D_SOUND_REFERENCE_DISTANCE,462,61,40,13,ES_AUTOHSCROLL
+    LTEXT           "Maximum Distance",IDC_STATIC,274,93,64,11
+    EDITTEXT        IDC_EDIT_3D_SOUND_MAX_DISTANCE,342,91,40,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,403,232,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,462,232,50,14
+    GROUPBOX        "Data",IDC_STATIC,7,40,244,50
+    GROUPBOX        "Position",IDC_STATIC,7,102,244,46
+    GROUPBOX        "Properties",IDC_STATIC,268,7,244,141
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SCRIPT,337,183,50,14
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SCRIPT,395,183,50,14
+    CONTROL         "",IDC_EDIT_3D_SOUND_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,16,182,306,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,453,183,50,14
+    GROUPBOX        "Script",IDC_STATIC,7,161,505,52
+END
+
+IDD_DIALOG_ADD_SKYDOM DIALOGEX 0, 0, 439, 256
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Sky Dome Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_SKYDOME_NAME,35,16,127,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SKYDOM_PATH,235,56,129,15,ES_AUTOHSCROLL | ES_READONLY
+    DEFPUSHBUTTON   "Select...",ID_BUTTON_SKYDOM_PATH,373,56,50,16
+    LTEXT           "X",IDC_STATIC,18,60,8,10
+    EDITTEXT        IDC_EDIT_SKYDOME_X_POS,29,56,40,16,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,83,60,8,10
+    EDITTEXT        IDC_EDIT_SKYDOME_Y_POS,93,56,40,16,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,147,60,8,10
+    EDITTEXT        IDC_EDIT_SKYDOME_Z_POS,157,56,40,16,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SKYDOME_RADIUS,46,106,40,16,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SKYDOME_DAMPENING,153,106,40,16,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SKYDOME_SIDES,239,106,40,16,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SKYDOME_SLICES,337,106,40,16,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_SKYDOM_EXPONENTIAL,63,139,48,14,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,325,235,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,382,235,50,14
+    CONTROL         "Fog",IDC_FOG_ENABLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,139,33,10
+    PUSHBUTTON      "Add",IDC_BTN_ADD_SKY_SCRIPT,264,189,50,16
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_SKY_SCRIPT,319,189,50,16
+    CONTROL         "",IDC_EDIT_SKY_SCRIPT,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,17,189,230,16
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SKY_SCRIPT,373,189,50,16
+    GROUPBOX        "Script",IDC_STATIC,7,170,425,48
+    GROUPBOX        "Position",IDC_STATIC,7,41,204,41
+    GROUPBOX        "Texture",IDC_STATIC,225,41,207,41
+    LTEXT           "Sides",IDC_STATIC,214,109,22,8
+    LTEXT           "Slices",IDC_STATIC,311,109,22,8
+    LTEXT           "Radius",IDC_STATIC,19,109,22,8
+    LTEXT           "Dampening",IDC_STATIC,112,109,37,8
+    LTEXT           "Exponential",IDC_STATIC,19,139,37,8
+    LTEXT           "Name",IDC_STATIC,7,18,19,8
+    GROUPBOX        "Other Properties",IDC_STATIC,7,90,425,71
+END
+
+IDD_DIALOG_WATER_ATTACHMENT DIALOGEX 0, 0, 215, 178
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Water Attachment"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Water Objects",IDC_STATIC,7,4,65,12
+    CONTROL         "",IDC_LIST_WATER_ATTACHMENT,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,19,136,132
+    PUSHBUTTON      "Attach",IDATTACH,150,20,58,14
+    PUSHBUTTON      "Detach",IDDETACH,150,37,58,14
+    DEFPUSHBUTTON   "OK",IDOK,150,155,58,16
+END
+
+IDD_DIALOG_SELECT_CAMERA DIALOGEX 0, 0, 370, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Imported Cameras"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Activate Selected Camera",IDOK,228,22,122,14
+    PUSHBUTTON      "OK",IDCANCEL,311,179,50,14
+    CONTROL         "",IDC_LIST_SELECT_CAMERA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,14,22,199,137,WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "Activate and Render",ID_ACIVATE_AND_RENDER,228,69,122,14,NOT WS_VISIBLE
+    CONTROL         "",IDC_RICHED_CAMERA_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,14,179,97,14
+    PUSHBUTTON      "Copy Selected Camera Name",IDC_BUTTON_COPY_CAMERA_NAME,228,45,122,14
+    GROUPBOX        "Imported Cameras",IDC_STATIC,7,7,354,162
+END
+
+IDD_DIALOG_EDIT_MATERIAL DIALOGEX 0, 0, 287, 308
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Material Editor"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "OK",IDOK,170,285,50,16
+    PUSHBUTTON      "Normal...",IDC_BTN_NORMALMAP,168,163,59,14
+    PUSHBUTTON      "-",IDC_BTN_DELETE_NORMALMAP,234,163,30,14
+    PUSHBUTTON      "Gloss...",IDC_BTN_GLOSSMAP,168,182,59,14
+    PUSHBUTTON      "-",IDC_BTN_DELETE_GLOSSMAP,234,182,30,14
+    PUSHBUTTON      "Dirt...",IDC_BTN_DIRTMAP,168,201,59,14
+    PUSHBUTTON      "-",IDC_BTN_DELETE_DIRTMAP,234,201,30,14
+    PUSHBUTTON      "Diffuse...",IDC_BTN_DIFFUSE,168,220,59,14
+    PUSHBUTTON      "-",IDC_BTN_DELETE_DIFFUSE,234,220,30,14
+    CONTROL         "",IDC_EDIT_NORMALMAP,"RichEdit20A",ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,25,163,133,14
+    CONTROL         "",IDC_EDIT_GLOSSMAP,"RichEdit20A",ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,25,182,133,14
+    CONTROL         "",IDC_EDIT_DIFFUSE,"RichEdit20A",ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,25,220,133,14
+    CONTROL         "",IDC_EDIT_DIRTMAP,"RichEdit20A",ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,25,201,133,14
+    LTEXT           "Bias",IDC_STATIC,25,246,20,8
+    LTEXT           "Scale",IDC_STATIC,114,247,24,8
+    EDITTEXT        IDC_EDIT_NORMALMAP_BIAS,53,244,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NORMALMAP_SCALE,140,244,40,14,ES_AUTOHSCROLL
+    LTEXT           "Ambient",IDC_STATIC,21,29,30,10
+    EDITTEXT        IDC_EDIT_AMBIENT_COLOR,62,26,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_AMBIENT,212,26,52,13
+    LTEXT           "Diffuse",IDC_STATIC,21,47,26,10
+    EDITTEXT        IDC_EDIT_DIFFUSE_COLOR,62,44,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    PUSHBUTTON      "Select...",IDC_BUTTON_DIFFUSE,212,44,52,13
+    LTEXT           "Specular",IDC_STATIC,21,65,31,10
+    EDITTEXT        IDC_EDIT_SPECULAR_COLOR,62,62,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    PUSHBUTTON      "Select...",IDC_BUTTON_SPECULAR,212,63,52,13
+    LTEXT           "Shininess",IDC_STATIC,22,112,33,8
+    EDITTEXT        IDC_EDIT_SHININESS,63,109,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Colors",IDC_STATIC,7,9,273,128
+    GROUPBOX        "Textures",IDC_STATIC,7,146,273,125
+    PUSHBUTTON      "Cancel",IDCANCEL,230,285,50,16
+    LTEXT           "Transparency",IDC_STATIC,123,112,50,8
+    EDITTEXT        IDC_EDIT_TRANSPARENCY,177,110,40,14,ES_AUTOHSCROLL
+    LTEXT           "Emission",IDC_STATIC,21,84,31,10
+    EDITTEXT        IDC_EDIT_EMISSION_COLOR,61,81,133,14,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    PUSHBUTTON      "Select...",IDC_BUTTON_EMISSION,211,81,52,13
+END
+
+IDD_DIALOG_CONSOLE DIALOGEX 0, 0, 499, 247
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_CAPTION | WS_SYSMENU
+CAPTION "Report"
+FONT 8, "Consolas", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,442,226,50,14
+    CONTROL         "",IDC_RICHEDIT_CONSOLE,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_NOHIDESEL | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_VSCROLL | WS_HSCROLL,7,15,485,203,WS_EX_STATICEDGE
+    PUSHBUTTON      "Clear",ID_REMOVE_TEXT,384,226,50,14
+END
+
+IDD_DIALOG_SHADOW DIALOGEX 0, 0, 275, 145
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Shadow Properties"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,163,124,50,14
+    EDITTEXT        IDC_EDIT_SHADOW_SPLITWEIGHT,210,29,51,14,ES_AUTOHSCROLL
+    LTEXT           "Weight of Splits",IDC_STATIC,151,31,54,8
+    PUSHBUTTON      "Cancel",IDCANCEL,218,124,50,14
+    EDITTEXT        IDC_EDIT_SHADOW_NEARCLIPPLANE,65,53,51,14,ES_AUTOHSCROLL
+    LTEXT           "Near Clip Plane",IDC_STATIC,7,55,51,10
+    EDITTEXT        IDC_EDIT_SHADOW_FARCLIPPLANE,210,53,51,14,ES_AUTOHSCROLL
+    LTEXT           "Far Clip Plane",IDC_STATIC,152,55,58,10
+    LTEXT           "Rendering Algorithm",IDC_STATIC,7,10,76,8
+    LTEXT           "Number of Splits",IDC_STATIC,7,31,65,8
+    COMBOBOX        IDC_COMBO_SHADOW_RENDERINGALGORITHM,83,8,114,110,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_SHADOW_SPLITS,65,30,51,55,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Enable dynamic shadow",IDC_SHADOW_ENABLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,169,101,99,10
+    LTEXT           "Resolution",IDC_STATIC,7,79,65,8
+    COMBOBOX        IDC_COMBO_SHADOW_RESOLUTION,65,77,63,55,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Intensity",IDC_STATIC,172,79,36,8
+    EDITTEXT        IDC_EDIT_SHADOW_INTENSITY,210,76,51,14,ES_AUTOHSCROLL
+    LTEXT           "Directional Light",IDC_STATIC,7,103,61,8
+    COMBOBOX        IDC_COMBO_SHADOW_DIRECTIONAL_LIGHT,65,101,91,55,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_DIALOG_DOF DIALOGEX 0, 0, 258, 73
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DOF Properties"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,150,52,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,202,52,50,14
+    EDITTEXT        IDC_EDIT_FOCAL_DISTANCE,66,7,51,14,ES_AUTOHSCROLL
+    LTEXT           "Focal Distance",IDC_STATIC,7,9,51,8
+    EDITTEXT        IDC_EDIT_FOCAL_RANGE,196,7,51,14,ES_AUTOHSCROLL
+    LTEXT           "Focal Range",IDC_STATIC,139,9,48,10
+    CONTROL         "Enable depth of field",IDC_DOF_ENABLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,32,100,10
+    CONTROL         "Debug",De,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,32,100,10
+END
+
+IDD_DIALOG_FOG DIALOGEX 0, 0, 227, 85
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Fog Properties"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,113,64,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,170,64,50,14
+    LTEXT           "Color",IDC_STATIC,8,16,30,12
+    EDITTEXT        IDC_EDIT_FOG_COLOR,36,14,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_FOG_COLOR,158,13,52,15
+    EDITTEXT        IDC_EDIT_FOG_DENSITY,44,42,51,14,ES_AUTOHSCROLL
+    LTEXT           "Density",IDC_STATIC,7,44,32,10
+    CONTROL         "Enable Fog",IDC_FOG_ENABLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,133,44,60,10
+END
+
+IDD_DIALOG_BLOOM DIALOGEX 0, 0, 255, 75
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Bloom Properties"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,143,54,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,198,54,50,14
+    CONTROL         "Enable bloom",IDC_BLOOM_ENABLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,158,33,68,10
+    LTEXT           "Color",IDC_STATIC,23,10,30,10
+    EDITTEXT        IDC_BLOOM_COLOR,57,7,118,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    LTEXT           "Intensity",IDC_STATIC,17,33,36,10
+    EDITTEXT        IDC_BLOOM_INTENSITY,57,30,40,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_BLOOM_COLOR,188,7,52,15
+END
+
+IDD_DIALOG_WELCOME DIALOGEX 0, 0, 208, 215
+STYLE DS_SETFONT | DS_SETFOREGROUND | DS_CENTER | WS_POPUP
+FONT 10, "Lucida Sans Unicode", 400, 0, 0x0
+BEGIN
+    CONTROL         "OK",IDOK,"Button",BS_OWNERDRAW | WS_TABSTOP,158,191,45,16
+    CONTROL         "Check",IDC_WELCOME_BUTTON_CHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
+    LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
+    CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
+    CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
+    LTEXT           "Version 2.0.0",IDC_STATIC,7,33,60,8
+    LTEXT           "© 2023 Ehsan Kamrani",IDC_STATIC,7,50,126,9
+    CONTROL         "Donate",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
+    LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
+    CONTROL         "Website",IDOFFICIALWEBSITE,"Button",BS_OWNERDRAW | WS_TABSTOP,77,91,52,16
+    CONTROL         "Contact",IDEMAILME,"Button",BS_OWNERDRAW | WS_TABSTOP,141,91,52,16
+    LTEXT           "You can always access this dialog from Help | About menu",IDC_STATIC,6,170,199,9
+    CONTROL         "GitHub",IDGITHUB,"Button",BS_OWNERDRAW | WS_TABSTOP,15,118,52,16
+    CONTROL         "Sourceforge",IDSOURCEFORGE,"Button",BS_OWNERDRAW | WS_TABSTOP,77,118,52,16
+    CONTROL         "Facebook",IDFACEBOOK,"Button",BS_OWNERDRAW | WS_TABSTOP,141,118,52,16
+    CONTROL         IDB_BITMAP_VANDA_LOGO_DARK,IDC_STATIC,"Static",SS_BITMAP,150,14,43,45
+END
+
+IDD_DIALOG_OPTIONS DIALOGEX 0, 0, 211, 164
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Options"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,99,143,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,154,143,50,14
+    COMBOBOX        IDC_COMBO_OPTIONS_NUMSAMPLES,83,14,52,110,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Shader",IDC_OPTIONS_SHADERCHECK,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,122,101,52,10
+    COMBOBOX        IDC_COMBO_OPTIONS_NUMANISOTROPY,134,38,52,110,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Multisampling",IDC_OPTIONS_MULTISAMPLECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,15,66,10
+    CONTROL         "Anisotropic Texture Filtering",IDC_OPTIONS_ANISOTROPYECHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,39,115,10
+    CONTROL         "Framebuffer Object",IDC_OPTIONS_FBOCHECK,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,110,64,94,10
+    CONTROL         "Vertex Buffer Object",IDC_OPTIONS_VBOCHECK,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,114,88,90,10
+    CONTROL         "Disable VSync",IDC_OPTIONS_VSYNCCHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,64,67,10
+    CONTROL         "Water Reflection",IDC_OPTIONS_WATERREFLECTIONCHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,88,90,10
+    CONTROL         "Show welcome dialog",IDC_OPTIONS_SHOWWELCOMEDIALOGCHECK,
+                    "Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,110,78,94,10
+    LTEXT           "Note: Some of these changes will take effect the next time you run Vanda Engine",IDC_STATIC,17,120,187,21
+END
+
+IDD_DIALOG_EDIT_LIGHT DIALOGEX 0, 0, 251, 167
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General Properties of Lights"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,137,146,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,194,146,50,14
+    GROUPBOX        "COLLADA Lights",IDC_STATIC,7,5,237,85
+    LTEXT           "Tolerance",IDC_STATIC,12,115,39,8
+    EDITTEXT        IDC_EDIT_LIGHT_TOLERANCE,47,113,46,14,ES_AUTOHSCROLL
+    LTEXT           "Ambient",IDC_STATIC,14,23,30,10
+    EDITTEXT        IDC_EDIT_LIGHT_AMBIENT_COLOR,61,20,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_AMBIENT_LIGHT,184,20,52,13
+    LTEXT           "Specular",IDC_STATIC,14,45,31,10
+    EDITTEXT        IDC_EDIT_LIGHT_SPECULAR_COLOR,61,42,108,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    PUSHBUTTON      "Select...",IDC_BUTTON_SPECULAR_LIGHT,184,43,52,13
+    LTEXT           "Shininess",IDC_STATIC,14,68,41,10
+    EDITTEXT        IDC_EDIT_SHININESS,61,64,45,15,ES_AUTOHSCROLL
+    GROUPBOX        "COLLADA and Engine Lights",IDC_STATIC,7,99,237,37
+END
+
+IDD_DIALOG_IMPORT_OPTIONS DIALOGEX 0, 0, 255, 164
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Import Options"
+FONT 8, "Arial", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,141,143,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,198,143,50,14
+    GROUPBOX        "Naming Conventions",IDC_STATIC,7,7,241,129
+    LTEXT           "Normal Map:  Prefix +",IDC_STATIC,14,64,73,10
+    EDITTEXT        IDC_EDIT_NORMALMAP_NAME,93,61,67,16,ES_AUTOHSCROLL
+    LTEXT           "Gloss Map:    Prefix +",IDC_STATIC,14,89,75,10
+    EDITTEXT        IDC_EDIT_DIRTMAP_NAME,93,111,67,16,ES_AUTOHSCROLL
+    LTEXT           "Dirt Map:        Prefix +",IDC_STATIC,14,114,73,10
+    EDITTEXT        IDC_EDIT_GLOSSMAP_NAME,93,86,66,16,ES_AUTOHSCROLL
+    LTEXT           "Prefix:  Diffuse Texture name except the following string at its end",IDC_STATIC,14,23,213,13
+    EDITTEXT        IDC_EDIT_DIFFUSE_EXCEPT,14,37,67,16,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_AMBIENT DIALOGEX 0, 0, 189, 75
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General Ambient Color"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,79,54,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,132,54,50,14
+    CONTROL         "Use this ambient color for all the geometries",IDC_CHECK_USE_AMBIENT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,7,176,15
+    EDITTEXT        IDC_EDIT_AMBIENT_COLOR,6,27,117,14,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_DISABLED
+    DEFPUSHBUTTON   "Select...",IDC_BUTTON_AMBIENT,130,27,52,14
+END
+
+IDD_DIALOG_EDIT_SCENEMANAGER DIALOGEX 0, 0, 191, 75
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Scene Manager Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,78,54,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,134,54,50,14
+    LTEXT           "Number of static instanced geometries per final split",IDC_STATIC,7,12,178,12
+    EDITTEXT        IDC_EDIT_SCENEMANAGER_OBJECT_PER_SPLIT,7,25,58,16,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_PUBLISH_PROJECT DIALOGEX 0, 0, 339, 259
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Publish Project"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Publish",IDOK,228,238,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,282,238,50,14
+    PUSHBUTTON      "Destination",IDC_BTN_DESTINATION,150,34,47,14
+    CONTROL         "",IDC_EDIT_DESTINATION,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,7,33,132,14
+    PUSHBUTTON      "Icon",IDC_BTN_ICON,150,56,47,14
+    CONTROL         "",IDC_EDIT_ICON,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,7,56,132,14
+    CONTROL         "If current scene is in publish list, save it automatically",IDC_CHECK_SAVE,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,191,174,19
+    LTEXT           "Project Name",IDC_STATIC,8,9,52,8
+    EDITTEXT        IDC_EDIT_NAME,62,7,135,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_LIST_SCENES_TO_PUBLISH,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,191,111,126,70,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+    PUSHBUTTON      ">",IDADD,153,126,28,14
+    PUSHBUTTON      "<",IDREMOVE,153,147,28,14
+    CONTROL         "",IDC_LIST_AVAILABLE_SCENES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,12,111,126,70,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+    GROUPBOX        "",IDC_STATIC,7,100,143,87
+    GROUPBOX        "",IDC_STATIC,186,100,136,112
+    PUSHBUTTON      "Splash",IDC_BTN_SPLASH_IMAGE,150,79,47,14
+    CONTROL         "",IDC_EDIT_SPLASH_LOGO,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,7,79,132,14
+    CONTROL         IDB_BITMAP_LOGO_PUBLISH,IDC_STATIC,"Static",SS_BITMAP,229,11,85,79
+    PUSHBUTTON      "Mark current selection as first scene",ID_MARK_AS_FIRST_SCENE,191,190,126,14
+    CONTROL         "Publish Debug Version",IDC_CHECK_PUBLISH_DEBUG,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,215,89,19
+END
+
+IDD_DIALOG_PREFAB_OPTIONS DIALOGEX 0, 0, 386, 243
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Prefab Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,272,223,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,330,223,50,14
+    COMBOBOX        IDC_COMBO_ANIMATION_CLIP,15,23,255,110,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Play Animation at the Beginning",IDC_PLAY_ANIMATION_ENABLECHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,148,9
+    CONTROL         "Loop Animation at the Beginning",IDC_LOOP_ANIMATION_ENABLECHECK2,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,92,141,9
+    CONTROL         "Always Visible",IDC_ALWAYS_VISIBLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,111,73,9
+    CONTROL         "Cast Shadow",IDC_CASTSHADOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,131,73,9
+    PUSHBUTTON      "Add",IDC_BTN_ADD_PREFAB_SCRIPT,210,179,51,15
+    PUSHBUTTON      "Remove",IDC_BTN_REMOVE_PREFAB_SCRIPT,266,179,50,15
+    CONTROL         "",IDC_PREFAB_SCRIPT_PATH,"RichEdit20A",ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_TABSTOP,15,179,187,15
+    PUSHBUTTON      "Copy Animation Name",IDC_BUTTON_COPY_ANIMATION,288,22,84,14
+    CONTROL         "",IDC_RICHED_ANIMATION_NAME,"RichEdit20A",ES_AUTOHSCROLL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,15,223,83,14
+    PUSHBUTTON      "View",IDC_BUTTON_VIEW_SCRIPT,322,179,50,15
+    CONTROL         "Transformable",IDC_TRANSFORMABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,174,74,73,9
+    CONTROL         "Selectable",IDC_SELECTABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,174,92,73,9
+    GROUPBOX        "Script",IDC_STATIC,7,162,373,44
+    GROUPBOX        "Properties",IDC_STATIC,7,57,373,95
+    GROUPBOX        "Animation Clip",IDC_STATIC,7,7,373,40
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 298, 137
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Vanda Engine"
+FONT 9, "Century Gothic", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
+    LTEXT           "VandaEngine Version 2.0.0",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
+    CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
+    CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
+    CONTROL         IDB_BITMAP_PHYSX_LOGO,IDC_STATIC,"Static",SS_BITMAP,217,67,67,38
+    CONTROL         IDB_BITMAP_VANDA_LOGO,IDC_STATIC,"Static",SS_BITMAP,15,7,85,64
+    LTEXT           "Copyright (C) 2021, Ehsan Kamrani \nAll rights reserved",IDC_STATIC,103,16,134,17
+    CONTROL         "vanda3d.org",IDC_MFCLINK1,"MfcLink",WS_TABSTOP,103,36,76,13
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_VANDAENGINE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 416
+        VERTGUIDE, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 289
+    END
+
+    IDD_DIALOG_ADD_LIGHT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 510
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 279
+    END
+
+    IDD_DIALOG_ADD_WATER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 423
+        VERTGUIDE, 15
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 361
+    END
+
+    IDD_DIALOG_ADD_AMBIENT_SOUND, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 240
+        VERTGUIDE, 240
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 266
+    END
+
+    IDD_DIALOG_ADD_3D_SOUND, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 512
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 246
+    END
+
+    IDD_DIALOG_ADD_SKYDOM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 432
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 249
+    END
+
+    IDD_DIALOG_WATER_ATTACHMENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 208
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 171
+        HORZGUIDE, 10
+    END
+
+    IDD_DIALOG_SELECT_CAMERA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 361
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_DIALOG_EDIT_MATERIAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 280
+        VERTGUIDE, 62
+        VERTGUIDE, 142
+        VERTGUIDE, 150
+        VERTGUIDE, 195
+        VERTGUIDE, 240
+        VERTGUIDE, 264
+        VERTGUIDE, 273
+        TOPMARGIN, 9
+        BOTTOMMARGIN, 301
+        HORZGUIDE, 9
+        HORZGUIDE, 26
+        HORZGUIDE, 42
+        HORZGUIDE, 58
+        HORZGUIDE, 74
+        HORZGUIDE, 79
+        HORZGUIDE, 87
+        HORZGUIDE, 110
+        HORZGUIDE, 121
+    END
+
+    IDD_DIALOG_CONSOLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 492
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 240
+    END
+
+    IDD_DIALOG_SHADOW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 65
+        VERTGUIDE, 73
+        VERTGUIDE, 117
+        VERTGUIDE, 201
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 138
+        HORZGUIDE, 31
+        HORZGUIDE, 55
+        HORZGUIDE, 76
+        HORZGUIDE, 77
+        HORZGUIDE, 101
+    END
+
+    IDD_DIALOG_DOF, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 252
+        VERTGUIDE, 139
+        VERTGUIDE, 156
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
+        HORZGUIDE, 32
+    END
+
+    IDD_DIALOG_FOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 78
+        HORZGUIDE, 44
+    END
+
+    IDD_DIALOG_BLOOM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 248
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+
+    IDD_DIALOG_WELCOME, DIALOG
+    BEGIN
+        LEFTMARGIN, 2
+        RIGHTMARGIN, 205
+        TOPMARGIN, 3
+        BOTTOMMARGIN, 207
+    END
+
+    IDD_DIALOG_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 204
+        VERTGUIDE, 17
+        VERTGUIDE, 115
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 157
+        HORZGUIDE, 39
+        HORZGUIDE, 64
+        HORZGUIDE, 88
+    END
+
+    IDD_DIALOG_EDIT_LIGHT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 244
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 160
+    END
+
+    IDD_DIALOG_IMPORT_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 248
+        VERTGUIDE, 14
+        VERTGUIDE, 80
+        VERTGUIDE, 248
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 157
+        HORZGUIDE, 10
+    END
+
+    IDD_DIALOG_AMBIENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+
+    IDD_DIALOG_EDIT_SCENEMANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+
+    IDD_DIALOG_PUBLISH_PROJECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 332
+        VERTGUIDE, 150
+        VERTGUIDE, 181
+        VERTGUIDE, 191
+        VERTGUIDE, 197
+        VERTGUIDE, 317
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 252
+        HORZGUIDE, 79
+        HORZGUIDE, 90
+    END
+
+    IDD_DIALOG_PREFAB_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 380
+        VERTGUIDE, 372
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 237
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 291
+        VERTGUIDE, 14
+        VERTGUIDE, 79
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 130
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU
+BEGIN
+    POPUP "FILE"
+    BEGIN
+        MENUITEM "New",                         ID_FILE_NEW
+        MENUITEM "Open...",                     ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "Save",                        ID_FILE_SAVE
+        MENUITEM "Save As...",                  ID_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        POPUP "Import"
+        BEGIN
+            MENUITEM "External Scene (*.dae) ...",  ID_IMPORT_COLLADA
+            MENUITEM "Multiple Animations (*.dae)", ID_IMPORT_COLLADA_MULTIPLE_ANIMATIONS
+        END
+        MENUITEM SEPARATOR
+        POPUP "Project"
+        BEGIN
+            MENUITEM "New Project...",              ID_PROJECT_NEW
+            MENUITEM "Set Project...",              ID_PROJECT_SETCURRENT
+            MENUITEM "Delete Project...",           ID_PROJECT_DELETEPROJECTS
+            MENUITEM SEPARATOR
+            MENUITEM "Edit Current Project...",     ID_PROJECT_EDITCURRENT
+            MENUITEM "Edit VScenes of Current Project...", ID_PROJECT_EDITVSCENESOFCURRENTPROJECT
+            MENUITEM "Add/Remove Resource to/from Current Project...", ID_PROJECT_ADDRESOURCETOCURRENTPROJECT
+            MENUITEM SEPARATOR
+            MENUITEM "Backup All Projects...",      ID_PROJECT_BACKUPPROJECTS
+            MENUITEM SEPARATOR
+            MENUITEM "Publish...",                  ID_PUBLISH_PROJECT
+        END
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    POPUP "EDIT"
+    BEGIN
+        MENUITEM "Translate",                   ID_EDIT_TRANSLATE
+        MENUITEM "Rotate",                      ID_EDIT_ROTATE
+        MENUITEM "Scale",                       ID_EDIT_SCALE
+        MENUITEM SEPARATOR
+        POPUP "Copy "
+        BEGIN
+            MENUITEM "Selected Object Name",        ID_COPY_SELECTEDOBJECTNAME
+        END
+    END
+    POPUP "VIEW"
+    BEGIN
+        POPUP "Icons"
+        BEGIN
+            MENUITEM "Light Icons",                 ID_VIEW_LIGHT_POSITIONS
+            MENUITEM "Sound Icons",                 ID_VIEW_SOUND_POSITIONS
+            MENUITEM "Water Icons",                 ID_ICONS_WATERICONS
+            MENUITEM "Camera Icons",                ID_ICONS_CAMERAICONS
+            MENUITEM "Sky Icon",                    ID_ICONS_SKYICON
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Perspective Grids",           ID_VIEW_PERSPECTIVE_GRIDS
+        MENUITEM "Octree",                      ID_VIEW_OCTREE
+        POPUP "Bounding Box"
+        BEGIN
+            MENUITEM "Prefab",                      ID_VIEW_PREFAB_BOUNDINGBOX
+            MENUITEM "Terrain",                     ID_VIEW_TERRAIN_BOUNDINGBOX
+            MENUITEM "Physics",                     ID_VIEW_PHYSICS_BOUNDINGBOX
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Shadow Depth Map",            ID_VIEW_SHADOWDEPTHMAP
+        MENUITEM SEPARATOR
+        POPUP "Polygon Mode"
+        BEGIN
+            MENUITEM "Fill",                        ID_POLGYGONMODE_FILL, CHECKED
+            MENUITEM "Line",                        ID_POLGYGONMODE_LINE
+            MENUITEM "Point",                       ID_POLGYGONMODE_POINT
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Statistics",                  ID_VIEW_STATISTICS
+        MENUITEM SEPARATOR
+        MENUITEM "Report...",                   ID_VIEW_REPORT
+        MENUITEM SEPARATOR
+        POPUP "Layers"
+        BEGIN
+            MENUITEM "All Channels",                ID_VIEW_ALLCHANNELS
+            MENUITEM "Diffuse Channel",             ID_VIEW_DIFFUSECHANNEL
+            MENUITEM "Normal Map Channel",          ID_VIEW_NORMALMAPCHANNEL
+            MENUITEM "Dirt Map Channel",            ID_VIEW_DIRTMAPCHANNEL
+            MENUITEM "Gloss Map Channel",           ID_VIEW_GLOSSMAPCHANNEL
+            MENUITEM "Alpha Map Channel",           ID_VIEW_ALPHAMAPCHANNEL
+            MENUITEM "Normal Vectors",              ID_VIEW_NORMALVECTORS
+            MENUITEM "Vertex Positions",            ID_VIEW_VERTEXPOSITIONS
+        END
+    END
+    POPUP "MODE"
+    BEGIN
+        MENUITEM "VScene",                      ID_MODE_VSCENE, CHECKED
+        MENUITEM "Prefab",                      ID_MODE_PREFAB
+        MENUITEM "GUI",                         ID_MODE_GUI
+    END
+    POPUP "TEST"
+    BEGIN
+        MENUITEM "Start",                       ID_TEST_START
+        MENUITEM "Stop",                        ID_TEST_STOP, CHECKED
+    END
+    POPUP "INSERT"
+    BEGIN
+        MENUITEM "VScene Script...",            ID_INSERT_VSCENE_SCRIPT
+        MENUITEM SEPARATOR
+        MENUITEM "Sky Dome...",                 ID_INSERT_SKYDOME
+        MENUITEM SEPARATOR
+        MENUITEM "Water...",                    ID_INSERT_WATER
+        MENUITEM SEPARATOR
+        MENUITEM "Light...",                    ID_INSERT_LIGHT
+        MENUITEM SEPARATOR
+        MENUITEM "Ambient Sound...",            ID_INSERT_SOUND_AMBIENT
+        MENUITEM "3D Sound...",                 ID_INSERT_SOUND_STATIC
+        MENUITEM SEPARATOR
+        MENUITEM "Player...",                   ID_INSERT_PLAYER
+        MENUITEM SEPARATOR
+        MENUITEM "Terrain...",                  ID_INSERT_TERRAIN
+        MENUITEM SEPARATOR
+        MENUITEM "Trigger...",                  ID_INSERT_TRIGGER
+        MENUITEM SEPARATOR
+        MENUITEM "Camera...",                   ID_INSERT_ENGINE_CAMERA
+        MENUITEM SEPARATOR
+        MENUITEM "Video...",                    ID_INSERT_VIDEO
+    END
+    POPUP "PREFAB"
+    BEGIN
+        MENUITEM "Prefab List...",              ID_PREFAB_LIST
+        MENUITEM SEPARATOR
+        MENUITEM "Prefab Resource...",          ID_PREFAB_PREFAB_RESOURCE
+    END
+    POPUP "GUI"
+    BEGIN
+        MENUITEM "GUI List...",                 ID_GUI_LIST
+    END
+    POPUP "MODIFY"
+    BEGIN
+        MENUITEM SEPARATOR
+        MENUITEM "Shadow...",                   ID_MODIFY_SHADOW
+        MENUITEM "Depth of Field...",           ID_MODIFY_DOF
+        MENUITEM "Fog...",                      ID_MODIFY_FOG
+        MENUITEM "Bloom...",                    ID_MODIFY_BLOOM
+        MENUITEM "Light...",                    ID_MODIFY_LIGHT
+        MENUITEM "LOD...",                      ID_MODIFY_LOD
+        MENUITEM "Camera...",                   ID_MODIFY_CAMERA
+        MENUITEM "Scene Manager...",            ID_MODIFY_SCENEMANAGER
+        MENUITEM "PhysX Properties...",         ID_MODIFY_GENERALPHYSXOPTIONS
+        MENUITEM "Prefab Properties...",        ID_MODIFY_PREFABOPTIONS
+        MENUITEM SEPARATOR
+        POPUP "Free Camera"
+        BEGIN
+            MENUITEM "Increase Speed \tCTRL+W",     ID_TOOLS_CAMERASPEED_INCREASE
+            MENUITEM "Decrease Speed \tCTRL+S",     ID_TOOLS_CAMERASPEED_DECREASE
+            MENUITEM "Default Speed \tCTRL+SHIFT",  ID_TOOLS_CAMERASPEED_DEFAULT
+            MENUITEM "Default Zoom\tCTRL+Z",        ID_TOOLS_CAMERAZOOM_DEFAULT
+        END
+        MENUITEM SEPARATOR
+        POPUP "Geometry"
+        BEGIN
+            MENUITEM "Cull Faces (Selected Instance)", ID_TOOLS_CULLFACES, INACTIVE
+            MENUITEM "Material... (Selected Instance)", ID_TOOLS_MATERIALEDITOR, INACTIVE
+            MENUITEM "Physics... (Selected Instance)", ID_TOOLS_PHYSXEDITOR, INACTIVE
+            MENUITEM SEPARATOR
+            MENUITEM "Ambient Color (All Instances)", ID_GEOMETRY_AMBIENTCOLOR
+            MENUITEM "Geometry Based Selection (All instances)", ID_TOOLS_GEOMETRYBASEDSELECTION, CHECKED
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Current VScene Properties",   ID_MODIFY_CURRENT_VSCENE_PROPERTIES
+        MENUITEM SEPARATOR
+        MENUITEM "Import Options...",           ID_MODIFY_IMPORTOPTIONS
+        MENUITEM SEPARATOR
+        MENUITEM "General Game Properties...",  ID_MODIFY_GENERAL_PROPERTIES
+    END
+    POPUP "TOOLS"
+    BEGIN
+        MENUITEM "Imported Camera...",          ID_TOOLS_SELECTCAMERA
+        MENUITEM "Water Attachment...",         ID_TOOLS_WATERATTACHMENT
+        MENUITEM "Script Editor...",            ID_TOOLS_SCRIPT_EDITOR
+    END
+    POPUP "WINDOW"
+    BEGIN
+        POPUP "Layouts"
+        BEGIN
+            MENUITEM "4 Split",                     ID_LAYOUTS_4SPLIT
+            MENUITEM "Perspective",                 ID_LAYOUTS_PERSPECTIVE, CHECKED
+        END
+    END
+    POPUP "HELP"
+    BEGIN
+        MENUITEM "Online Help",                 ID_HELP_ONLINEHELP
+        MENUITEM "About ",                      ID_HELP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_DOF AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_AMBIENT_SOUND AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_WATER AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_SKYDOM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_3D_SOUND AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_ADD_LIGHT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_WELCOME AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_VANDAENGINE_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_WATER_ATTACHMENT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_PREFAB_OPTIONS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FAR)\r\n"
+    "LANGUAGE 41, 1\r\n"
+    "#pragma code_page(1256)\r\n"
+    "#include ""res\\VandaEngine.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "Ehsan Kamrani "
+            VALUE "FileDescription", "Vanda Engine"
+            VALUE "FileVersion", "2.0.0"
+            VALUE "internalName", "VandaEngine.exe"
+            VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
+            VALUE "OriginalFilename", "VandaEngine.exe"
+            VALUE "ProductName", " Vanda Engine"
+            VALUE "ProductVersion", "2.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_ANICURSOR
+//
+
+IDR_RT_ANICURSOR        RT_ANICURSOR            "Assets\\Engine\\Icons\\progress.ani"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_ABOUTBOX DLGINIT
+BEGIN
+    IDC_MFCLINK1, 0x37c, 183, 0
+0x4d3c, 0x4346, 0x694c, 0x6b6e, 0x555f, 0x6c72, 0x683e, 0x7474, 0x3a70, 
+0x2f2f, 0x7777, 0x2e77, 0x6176, 0x646e, 0x6561, 0x676e, 0x6e69, 0x2e65, 
+0x6f63, 0x3c6d, 0x4d2f, 0x4346, 0x694c, 0x6b6e, 0x555f, 0x6c72, 0x3c3e, 
+0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x7255, 0x506c, 0x6572, 0x6966, 0x3e78, 
+0x2f3c, 0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x7255, 0x506c, 0x6572, 0x6966, 
+0x3e78, 0x4d3c, 0x4346, 0x694c, 0x6b6e, 0x545f, 0x6f6f, 0x746c, 0x7069, 
+0x3c3e, 0x4d2f, 0x4346, 0x694c, 0x6b6e, 0x545f, 0x6f6f, 0x746c, 0x7069, 
+0x3c3e, 0x464d, 0x4c43, 0x6e69, 0x5f6b, 0x7546, 0x6c6c, 0x6554, 0x7478, 
+0x6f54, 0x6c6f, 0x6974, 0x3e70, 0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 
+0x694c, 0x6b6e, 0x465f, 0x6c75, 0x546c, 0x7865, 0x5474, 0x6f6f, 0x746c, 
+0x7069, "\076" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ABOUTBOX            "&About VandaEngine..."
+END
+
+#endif    // Persian (Iran) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FAR)
+LANGUAGE 41, 1
+#pragma code_page(1256)
+#include "res\VandaEngine.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

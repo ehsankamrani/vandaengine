@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5D83F989-DD4A-47AB-B0E6-8AC97F44C4E9}</ProjectGuid>
+    <RootNamespace>VandaEngine</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <ProjectName>VandaEngineWin32</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;$(ProjectDir);$(ProjectDir)\Requirements\vc-include\ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libcollada14dom22-sd.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcred.lib;pcrecppd.lib;minizip-d.lib;libboost_filesystem-d.lib;libboost_system-d.lib;ComCtl32.lib;legacy_stdio_definitions.lib;libavcodec.a;libavformat.a;libavutil.a;libswresample.a;libswscale.a;libavdevice.a;libavfilter.a;libpostproc.a;Bcrypt.lib;Secur32.lib;Mfplat.lib;Mfuuid.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc15;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;$(ProjectDir)\Requirements\external-libs\boost\lib\vc15;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <IgnoreSpecificDefaultLibraries>msvcrt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/ignore:4099 /ignore:4049 /NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)VandaEngineWin32.exe</OutputFile>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Manifest>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;$(ProjectDir);$(ProjectDir)\Requirements\vc-include\ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;PCRE_STATIC;DOM_INCLUDE_LIBXML;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <Optimization>Full</Optimization>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libcollada14dom22-s.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcre.lib;pcrecpp.lib;minizip.lib;ComCtl32.lib;libboost_filesystem.lib;libboost_system.lib;legacy_stdio_definitions.lib;libavcodec.a;libavformat.a;libavutil.a;libswresample.a;libswscale.a;libavdevice.a;libavfilter.a;libpostproc.a;Bcrypt.lib;Secur32.lib;Mfplat.lib;Mfuuid.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)VandaEngineWin32.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc15;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;$(ProjectDir)\Requirements\external-libs\boost\lib\vc15;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <StackReserveSize>
+      </StackReserveSize>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <HeapReserveSize>
+      </HeapReserveSize>
+      <AdditionalOptions>/ignore:4099 /ignore:4049 /NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Manifest>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AudioEngine\3DSound.cpp" />
+    <ClCompile Include="Common\Prefab.cpp" />
+    <ClCompile Include="Common\VSceneScript.cpp" />
+    <ClCompile Include="AudioEngine\AmbientSound.cpp" />
+    <ClCompile Include="GraphicsEngine\Animation.cpp" />
+    <ClCompile Include="GraphicsEngine\Base.cpp" />
+    <ClCompile Include="GraphicsEngine\Bloom.cpp" />
+    <ClCompile Include="GraphicsEngine\Camera.cpp" />
+    <ClCompile Include="GraphicsEngine\CHeightClass.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainTexture.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainVBOCull.cpp" />
+    <ClCompile Include="GraphicsEngine\dds.cpp" />
+    <ClCompile Include="Common\DecomposeMatrix.cpp" />
+    <ClCompile Include="GraphicsEngine\DOF.cpp" />
+    <ClCompile Include="GraphicsEngine\dxtctool.cpp" />
+    <ClCompile Include="GraphicsEngine\Effect.cpp" />
+    <ClCompile Include="GraphicsEngine\Fog.cpp" />
+    <ClCompile Include="GraphicsEngine\Geometry.cpp" />
+    <ClCompile Include="GraphicsEngine\Image.cpp" />
+    <ClCompile Include="GraphicsEngine\terrain.cpp" />
+    <ClCompile Include="GUIEngine\GUI.cpp" />
+    <ClCompile Include="GUIEngine\GUIButton.cpp" />
+    <ClCompile Include="GUIEngine\GUIImage.cpp" />
+    <ClCompile Include="GUIEngine\GUIText.cpp" />
+    <ClCompile Include="Icon.cpp" />
+    <ClCompile Include="InputEngine\Input.cpp" />
+    <ClCompile Include="GraphicsEngine\Light.cpp" />
+    <ClCompile Include="GraphicsEngine\LightModel.cpp" />
+    <ClCompile Include="physXEngine\MainCharacter.cpp" />
+    <ClCompile Include="physXEngine\Trigger.cpp" />
+    <ClCompile Include="ResourceFile.cpp" />
+    <ClCompile Include="sceneManagerEngine\LOD.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="GraphicsEngine\Material.cpp" />
+    <ClCompile Include="GraphicsEngine\Matrix.cpp" />
+    <ClCompile Include="GraphicsEngine\Node.cpp" />
+    <ClCompile Include="physXEngine\Nx.cpp" />
+    <ClCompile Include="physXEngine\NxDebugRenderer.cpp" />
+    <ClCompile Include="sceneManagerEngine\Octree.cpp" />
+    <ClCompile Include="AudioEngine\OpenALSoundBuffer.cpp" />
+    <ClCompile Include="AudioEngine\OpenALSoundSource.cpp" />
+    <ClCompile Include="AudioEngine\OpenALSystem.cpp" />
+    <ClCompile Include="GraphicsEngine\OpenGLMaterial.cpp" />
+    <ClCompile Include="GraphicsEngine\OpenGLMatrix.cpp" />
+    <ClCompile Include="GraphicsEngine\OpenGLUtility.cpp" />
+    <ClCompile Include="GraphicsEngine\Orient.cpp" />
+    <ClCompile Include="Common\Point.cpp" />
+    <ClCompile Include="GraphicsEngine\Render.cpp" />
+    <ClCompile Include="GraphicsEngine\Scene.cpp" />
+    <ClCompile Include="GraphicsEngine\SceneRead.cpp" />
+    <ClCompile Include="GraphicsEngine\ShadowMap.cpp" />
+    <ClCompile Include="GraphicsEngine\SimpleFont.cpp" />
+    <ClCompile Include="GraphicsEngine\skin.cpp" />
+    <ClCompile Include="GraphicsEngine\Sky.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="physXEngine\Stream.cpp" />
+    <ClCompile Include="GraphicsEngine\targa.cpp" />
+    <ClCompile Include="GraphicsEngine\Texture.cpp" />
+    <ClCompile Include="TimerEngine\Timer.cpp" />
+    <ClCompile Include="GraphicsEngine\Transform.cpp" />
+    <ClCompile Include="physXEngine\UserAllocator.cpp" />
+    <ClCompile Include="Common\Vector.cpp" />
+    <ClCompile Include="GraphicsEngine\Water.cpp" />
+    <ClCompile Include="GraphicsEngine\Window.cpp" />
+    <ClCompile Include="VandaEngineWin32.cpp" />
+    <ClCompile Include="VideoEngine\Video.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AudioEngine\3DSound.h" />
+    <ClInclude Include="Common\Prefab.h" />
+    <ClInclude Include="Common\VSceneScript.h" />
+    <ClInclude Include="AudioEngine\AmbientSound.h" />
+    <ClInclude Include="GraphicsEngine\animation.h" />
+    <ClInclude Include="GraphicsEngine\Base.h" />
+    <ClInclude Include="GraphicsEngine\Bloom.h" />
+    <ClInclude Include="GraphicsEngine\Camera.h" />
+    <ClInclude Include="GraphicsEngine\Cg.h" />
+    <ClInclude Include="GraphicsEngine\CHeightClass.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainTexture.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainVBOCull.h" />
+    <ClInclude Include="GraphicsEngine\dds.h" />
+    <ClInclude Include="Common\DecomposeMatrix.h" />
+    <ClInclude Include="Common\Defines.h" />
+    <ClInclude Include="GraphicsEngine\DOF.h" />
+    <ClInclude Include="GraphicsEngine\dxtctool.h" />
+    <ClInclude Include="GraphicsEngine\Effect.h" />
+    <ClInclude Include="GraphicsEngine\Fog.h" />
+    <ClInclude Include="GraphicsEngine\geometry.h" />
+    <ClInclude Include="GraphicsEngine\Image.h" />
+    <ClInclude Include="GraphicsEngine\imageLib.h" />
+    <ClInclude Include="GraphicsEngine\terrain.h" />
+    <ClInclude Include="GUIEngine\GUI.h" />
+    <ClInclude Include="GUIEngine\GUIButton.h" />
+    <ClInclude Include="GUIEngine\GUIImage.h" />
+    <ClInclude Include="GUIEngine\GUIText.h" />
+    <ClInclude Include="Icon.h" />
+    <ClInclude Include="InputEngine\Input.h" />
+    <ClInclude Include="GraphicsEngine\Light.h" />
+    <ClInclude Include="GraphicsEngine\LightModel.h" />
+    <ClInclude Include="Common\list.h" />
+    <ClInclude Include="physXEngine\MainCharacter.h" />
+    <ClInclude Include="physXEngine\Trigger.h" />
+    <ClInclude Include="ResourceFile.h" />
+    <ClInclude Include="sceneManagerEngine\LOD.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="GraphicsEngine\Material.h" />
+    <ClInclude Include="GraphicsEngine\Matrix.h" />
+    <ClInclude Include="Common\minizip.h" />
+    <ClInclude Include="GraphicsEngine\Node.h" />
+    <ClInclude Include="physXEngine\Nx.h" />
+    <ClInclude Include="physXEngine\NxDebugRenderer.h" />
+    <ClInclude Include="sceneManagerEngine\Octree.h" />
+    <ClInclude Include="AudioEngine\OpenAL.h" />
+    <ClInclude Include="AudioEngine\OpenALSoundBuffer.h" />
+    <ClInclude Include="AudioEngine\OpenALSoundSource.h" />
+    <ClInclude Include="AudioEngine\OpenALSystem.h" />
+    <ClInclude Include="GraphicsEngine\OpenGL.h" />
+    <ClInclude Include="GraphicsEngine\OpenGLMaterial.h" />
+    <ClInclude Include="GraphicsEngine\OpenGLMatrix.h" />
+    <ClInclude Include="GraphicsEngine\OpenGLUtility.h" />
+    <ClInclude Include="GraphicsEngine\Orient.h" />
+    <ClInclude Include="Common\Point.h" />
+    <ClInclude Include="GraphicsEngine\Render.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="GraphicsEngine\Scene.h" />
+    <ClInclude Include="GraphicsEngine\ShadowMap.h" />
+    <ClInclude Include="GraphicsEngine\SimpleFont.h" />
+    <ClInclude Include="GraphicsEngine\skin.h" />
+    <ClInclude Include="GraphicsEngine\Sky.h" />
+    <ClInclude Include="ScriptEngine\LuaForCpp.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="physXEngine\Stream.h" />
+    <ClInclude Include="GraphicsEngine\targa.h" />
+    <ClInclude Include="GraphicsEngine\Texture.h" />
+    <ClInclude Include="TimerEngine\Timer.h" />
+    <ClInclude Include="GraphicsEngine\Transform.h" />
+    <ClInclude Include="physXEngine\UserAllocator.h" />
+    <ClInclude Include="Common\Utility.h" />
+    <ClInclude Include="Common\Vector.h" />
+    <ClInclude Include="GraphicsEngine\Water.h" />
+    <ClInclude Include="GraphicsEngine\Window.h" />
+    <ClInclude Include="VandaEngineWin32.h" />
+    <ClInclude Include="VideoEngine\Video.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Logo_Init.bmp" />
+    <None Include="small.ico" />
+    <None Include="VandaEngine.ico" />
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VandaEngineWin32.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

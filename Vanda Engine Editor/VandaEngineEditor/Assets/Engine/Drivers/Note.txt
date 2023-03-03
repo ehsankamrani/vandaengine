@@ -1,0 +1,1 @@
+Copy soft_oal.dll in Windows/System32 or Windows/SysWOW64 depending on 32 or 64 bits OS.

@@ -1,0 +1,781 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|Win32">
+      <Configuration>Template</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9FCBF7E8-1656-4ECB-B7DE-83809BAE4C0F}</ProjectGuid>
+    <RootNamespace>VandaEngine</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <ProjectName>VandaEngineEditor</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;$(ProjectDir);$(ProjectDir)\Requirements\vc-include\ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <OutputFile>$(OutDir)VandaEngineEditor.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc15;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;$(ProjectDir)\Requirements\external-libs\boost\lib\vc15;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcollada14dom22-sd.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcred.lib;pcrecppd.lib;minizip-d.lib;libboost_filesystem-d.lib;libboost_system-d.lib;ComCtl32.lib;legacy_stdio_definitions.lib;libavcodec.a;libavformat.a;libavutil.a;libswresample.a;libswscale.a;libavdevice.a;libavfilter.a;libpostproc.a;Bcrypt.lib;Secur32.lib;Mfplat.lib;Mfuuid.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>msvcrt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <StackReserveSize>
+      </StackReserveSize>
+      <HeapCommitSize>
+      </HeapCommitSize>
+      <StackCommitSize>
+      </StackCommitSize>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalOptions>/ignore:4099 /ignore:4049 /NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Common;$(ProjectDir)\Requirements\dom\include;$(ProjectDir)\Requirements\vc-include\boost;$(ProjectDir)\Requirements\dom\include\1.4;$(ProjectDir)\Requirements\vc-include;$(ProjectDir);$(ProjectDir)\Requirements\vc-include\ffmpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;PCRE_STATIC;DOM_INCLUDE_LIBXML;_CRT_SECURE_NO_DEPRECATE;NO_WARN_MBCS_MFC_DEPRECATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>libcollada14dom22-s.lib;libxml2_a.lib;zlib.lib;wsock32.lib;pcre.lib;pcrecpp.lib;minizip.lib;ComCtl32.lib;libboost_filesystem.lib;libboost_system.lib;legacy_stdio_definitions.lib;libavcodec.a;libavformat.a;libavutil.a;libswresample.a;libswscale.a;libavdevice.a;libavfilter.a;libpostproc.a;Bcrypt.lib;Secur32.lib;Mfplat.lib;Mfuuid.lib;Strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)VandaEngineEditor.exe</OutputFile>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Requirements\external-libs\boost\lib\vc15;$(ProjectDir)\Requirements\external-libs\libxml2\win32\lib;$(ProjectDir)\Requirements\external-libs\boost;$(ProjectDir)\Requirements\external-libs\minizip\win32\lib;$(ProjectDir)\Requirements\external-libs\pcre\lib\vc15;$(ProjectDir)\Requirements\DOM Libs;$(ProjectDir)\Requirements\vc-lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <UACUIAccess>false</UACUIAccess>
+      <StackReserveSize>
+      </StackReserveSize>
+      <AdditionalOptions>/ignore:4099 /ignore:4049  /NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Add3DSound.cpp" />
+    <ClCompile Include="AddAmbientSound.cpp" />
+    <ClCompile Include="AddCharacterSound.cpp" />
+    <ClCompile Include="AddEngineCamera.cpp" />
+    <ClCompile Include="AddGUIButton.cpp" />
+    <ClCompile Include="AddGUIImage.cpp" />
+    <ClCompile Include="AddGUIText.cpp" />
+    <ClCompile Include="AddLight.cpp" />
+    <ClCompile Include="AddMainCharacter.cpp" />
+    <ClCompile Include="AddMultipleAnimations.cpp" />
+    <ClCompile Include="AddNewDirectory.cpp" />
+    <ClCompile Include="AddPrefabResource.cpp" />
+    <ClCompile Include="AddResource.cpp" />
+    <ClCompile Include="AddSkyDome.cpp" />
+    <ClCompile Include="AddTerrain.cpp" />
+    <ClCompile Include="AddTrigger.cpp" />
+    <ClCompile Include="AddVideo.cpp" />
+    <ClCompile Include="AddVSceneScriptObject.cpp" />
+    <ClCompile Include="AddWater.cpp" />
+    <ClCompile Include="AudioEngine\3DSound.cpp" />
+    <ClCompile Include="AudioEngine\AmbientSound.cpp" />
+    <ClCompile Include="BackupAllProjects.cpp" />
+    <ClCompile Include="Common\HyperLink.cpp" />
+    <ClCompile Include="Common\Prefab.cpp" />
+    <ClCompile Include="Common\VSceneScript.cpp" />
+    <ClCompile Include="CustomRichEditCtrl.cpp" />
+    <ClCompile Include="DeleteProject.cpp" />
+    <ClCompile Include="EditCamera.cpp" />
+    <ClCompile Include="EditCurrentSceneOptions.cpp" />
+    <ClCompile Include="EditGeneralPhysXProperties.cpp" />
+    <ClCompile Include="EditGUI.cpp" />
+    <ClCompile Include="EditImportOptions.cpp" />
+    <ClCompile Include="EditLOD.cpp" />
+    <ClCompile Include="EditPhysX.cpp" />
+    <ClCompile Include="EditPrefab.cpp" />
+    <ClCompile Include="EditProjectProperties.cpp" />
+    <ClCompile Include="EditProjectVScenes.cpp" />
+    <ClCompile Include="EditVSceneName.cpp" />
+    <ClCompile Include="ExitEditorDlg.cpp" />
+    <ClCompile Include="GraphicsEngine\Animation.cpp" />
+    <ClCompile Include="GraphicsEngine\AviPlayer.cpp" />
+    <ClCompile Include="GraphicsEngine\Base.cpp" />
+    <ClCompile Include="GraphicsEngine\Bloom.cpp" />
+    <ClCompile Include="GraphicsEngine\Camera.cpp" />
+    <ClCompile Include="Console.cpp" />
+    <ClCompile Include="CustomBitmapButton.cpp" />
+    <ClCompile Include="CustomButton.cpp" />
+    <ClCompile Include="GraphicsEngine\CHeightClass.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainTexture.cpp" />
+    <ClCompile Include="GraphicsEngine\CTerrainVBOCull.cpp" />
+    <ClCompile Include="GraphicsEngine\dds.cpp" />
+    <ClCompile Include="Common\DecomposeMatrix.cpp" />
+    <ClCompile Include="GraphicsEngine\DOF.cpp" />
+    <ClCompile Include="GraphicsEngine\dxtctool.cpp" />
+    <ClCompile Include="EditBloom.cpp" />
+    <ClCompile Include="EditDOF.cpp" />
+    <ClCompile Include="EditFog.cpp" />
+    <ClCompile Include="EditLight.cpp" />
+    <ClCompile Include="EditMaterial.cpp" />
+    <ClCompile Include="EditOptions.cpp" />
+    <ClCompile Include="EditSceneManager.cpp" />
+    <ClCompile Include="GraphicsEngine\Effect.cpp" />
+    <ClCompile Include="GraphicsEngine\Fog.cpp" />
+    <ClCompile Include="GeneralAmbientColor.cpp" />
+    <ClCompile Include="GraphicsEngine\Geometry.cpp" />
+    <ClCompile Include="GraphicsEngine\Image.cpp" />
+    <ClCompile Include="GraphicsEngine\terrain.cpp" />
+    <ClCompile Include="GUIDlg.cpp" />
+    <ClCompile Include="GUIEngine\GUI.cpp" />
+    <ClCompile Include="GUIEngine\GUIButton.cpp" />
+    <ClCompile Include="GUIEngine\GUIImage.cpp" />
+    <ClCompile Include="GUIEngine\GUIText.cpp" />
+    <ClCompile Include="GUINameDlg.cpp" />
+    <ClCompile Include="Icon.cpp" />
+    <ClCompile Include="InputEngine\Input.cpp" />
+    <ClCompile Include="GraphicsEngine\Light.cpp" />
+    <ClCompile Include="GraphicsEngine\LightModel.cpp" />
+    <ClCompile Include="MainCharacterProperties.cpp" />
+    <ClCompile Include="physXEngine\MainCharacter.cpp" />
+    <ClCompile Include="physXEngine\Trigger.cpp" />
+    <ClCompile Include="PleaseWait.cpp" />
+    <ClCompile Include="PrefabDlg.cpp" />
+    <ClCompile Include="PrefabNameDlg.cpp" />
+    <ClCompile Include="PrefabOptions.cpp" />
+    <ClCompile Include="ResourceFile.cpp" />
+    <ClCompile Include="SaveGUIDlg.cpp" />
+    <ClCompile Include="SaveLoadCharacterProfile.cpp" />
+    <ClCompile Include="SavePrefabDlg.cpp" />
+    <ClCompile Include="sceneManagerEngine\LOD.cpp" />
+    <ClCompile Include="GraphicsEngine\Material.cpp" />
+    <ClCompile Include="GraphicsEngine\Matrix.cpp" />
+    <ClCompile Include="MouseTranslationController.cpp" />
+    <ClCompile Include="GraphicsEngine\Node.cpp" />
+    <ClCompile Include="physXEngine\Nx.cpp" />
+    <ClCompile Include="physXEngine\NxDebugRenderer.cpp" />
+    <ClCompile Include="sceneManagerEngine\Octree.cpp" />
+    <ClCompile Include="AudioEngine\OpenALSoundBuffer.cpp" />
+    <ClCompile Include="AudioEngine\OpenALSoundSource.cpp" />
+    <ClCompile Include="AudioEngine\OpenALSystem.cpp" />
+    <ClCompile Include="GraphicsEngine\OpenGLMaterial.cpp" />
+    <ClCompile Include="GraphicsEngine\OpenGLMatrix.cpp" />
+    <ClCompile Include="GraphicsEngine\OpenGLUtility.cpp" />
+    <ClCompile Include="GraphicsEngine\Orient.cpp" />
+    <ClCompile Include="GraphicsEngine\PerspectiveWindow.cpp" />
+    <ClCompile Include="Common\Point.cpp" />
+    <ClCompile Include="PublishProject.cpp" />
+    <ClCompile Include="GraphicsEngine\Render.cpp" />
+    <ClCompile Include="GraphicsEngine\Scene.cpp" />
+    <ClCompile Include="SceneBanner.cpp" />
+    <ClCompile Include="GraphicsEngine\SceneRead.cpp" />
+    <ClCompile Include="ScriptEditor.cpp" />
+    <ClCompile Include="ScriptEditorAddEvent.cpp" />
+    <ClCompile Include="ScriptEditorAddFunction.cpp" />
+    <ClCompile Include="ScriptUtility.cpp" />
+    <ClCompile Include="ScriptUtilityGameObjects.cpp" />
+    <ClCompile Include="ScriptUtilityGUIs.cpp" />
+    <ClCompile Include="ScriptUtilityImportedCameras.cpp" />
+    <ClCompile Include="ScriptUtilityPrefabInstances.cpp" />
+    <ClCompile Include="ScriptUtilityPrefabs.cpp" />
+    <ClCompile Include="ScriptUtilityResources.cpp" />
+    <ClCompile Include="SelectAnimationClips.cpp" />
+    <ClCompile Include="SelectCamera.cpp" />
+    <ClCompile Include="SetCurrentProject.cpp" />
+    <ClCompile Include="ShadowDialog.cpp" />
+    <ClCompile Include="GraphicsEngine\ShadowMap.cpp" />
+    <ClCompile Include="GraphicsEngine\SimpleFont.cpp" />
+    <ClCompile Include="GraphicsEngine\skin.cpp" />
+    <ClCompile Include="GraphicsEngine\Sky.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="physXEngine\Stream.cpp" />
+    <ClCompile Include="GraphicsEngine\targa.cpp" />
+    <ClCompile Include="GraphicsEngine\Texture.cpp" />
+    <ClCompile Include="TimerEngine\Timer.cpp" />
+    <ClCompile Include="GraphicsEngine\Transform.cpp" />
+    <ClCompile Include="physXEngine\UserAllocator.cpp" />
+    <ClCompile Include="Common\Vector.cpp" />
+    <ClCompile Include="GraphicsEngine\Water.cpp" />
+    <ClCompile Include="VandaEngineEditor.cpp" />
+    <ClCompile Include="VandaEngineEditorDlg.cpp" />
+    <ClCompile Include="VideoEngine\Video.cpp" />
+    <ClCompile Include="ViewScript.cpp" />
+    <ClCompile Include="VsceneMenuCursor.cpp" />
+    <ClCompile Include="WaterAttachment.cpp" />
+    <ClCompile Include="WelcomeDialog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Add3DSound.h" />
+    <ClInclude Include="AddAmbientSound.h" />
+    <ClInclude Include="AddCharacterSound.h" />
+    <ClInclude Include="AddEngineCamera.h" />
+    <ClInclude Include="AddGUIButton.h" />
+    <ClInclude Include="AddGUIImage.h" />
+    <ClInclude Include="AddGUIText.h" />
+    <ClInclude Include="AddLight.h" />
+    <ClInclude Include="AddMainCharacter.h" />
+    <ClInclude Include="AddMultipleAnimations.h" />
+    <ClInclude Include="AddNewDirectory.h" />
+    <ClInclude Include="AddPrefabResource.h" />
+    <ClInclude Include="AddResource.h" />
+    <ClInclude Include="AddSkyDome.h" />
+    <ClInclude Include="AddTerrain.h" />
+    <ClInclude Include="AddTrigger.h" />
+    <ClInclude Include="AddVideo.h" />
+    <ClInclude Include="AddVSceneScriptObject.h" />
+    <ClInclude Include="AddWater.h" />
+    <ClInclude Include="AudioEngine\3DSound.h" />
+    <ClInclude Include="AudioEngine\AmbientSound.h" />
+    <ClInclude Include="BackupAllProjects.h" />
+    <ClInclude Include="Common\HyperLink.h" />
+    <ClInclude Include="Common\Prefab.h" />
+    <ClInclude Include="Common\VSceneScript.h" />
+    <ClInclude Include="CustomRichEditCtrl.h" />
+    <ClInclude Include="DeleteProject.h" />
+    <ClInclude Include="EditCamera.h" />
+    <ClInclude Include="EditCurrentSceneOptions.h" />
+    <ClInclude Include="EditGeneralPhysXProperties.h" />
+    <ClInclude Include="EditGUI.h" />
+    <ClInclude Include="EditImportOptions.h" />
+    <ClInclude Include="EditLOD.h" />
+    <ClInclude Include="EditPhysX.h" />
+    <ClInclude Include="EditPrefab.h" />
+    <ClInclude Include="EditProjectProperties.h" />
+    <ClInclude Include="EditProjectVScenes.h" />
+    <ClInclude Include="EditVSceneName.h" />
+    <ClInclude Include="ExitEditorDlg.h" />
+    <ClInclude Include="GraphicsEngine\Animation.h" />
+    <ClInclude Include="GraphicsEngine\Aviplayer.h" />
+    <ClInclude Include="GraphicsEngine\Base.h" />
+    <ClInclude Include="GraphicsEngine\Bloom.h" />
+    <ClInclude Include="GraphicsEngine\Camera.h" />
+    <ClInclude Include="GraphicsEngine\Cg.h" />
+    <ClInclude Include="Console.h" />
+    <ClInclude Include="Common\utf8\core.h" />
+    <ClInclude Include="CustomBitmapButton.h" />
+    <ClInclude Include="CustomButton.h" />
+    <ClInclude Include="GraphicsEngine\CHeightClass.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainTexture.h" />
+    <ClInclude Include="GraphicsEngine\CTerrainVBOCull.h" />
+    <ClInclude Include="GraphicsEngine\dds.h" />
+    <ClInclude Include="Common\DecomposeMatrix.h" />
+    <ClInclude Include="Common\Defines.h" />
+    <ClInclude Include="GraphicsEngine\DOF.h" />
+    <ClInclude Include="GraphicsEngine\dxtctool.h" />
+    <ClInclude Include="EditBloom.h" />
+    <ClInclude Include="EditDOF.h" />
+    <ClInclude Include="EditFog.h" />
+    <ClInclude Include="EditLight.h" />
+    <ClInclude Include="EditMaterial.h" />
+    <ClInclude Include="EditOptions.h" />
+    <ClInclude Include="EditSceneManager.h" />
+    <ClInclude Include="GraphicsEngine\Effect.h" />
+    <ClInclude Include="GraphicsEngine\Fog.h" />
+    <ClInclude Include="GeneralAmbientColor.h" />
+    <ClInclude Include="GraphicsEngine\Geometry.h" />
+    <ClInclude Include="GraphicsEngine\Image.h" />
+    <ClInclude Include="GraphicsEngine\imageLib.h" />
+    <ClInclude Include="GraphicsEngine\terrain.h" />
+    <ClInclude Include="GUIDlg.h" />
+    <ClInclude Include="GUIEngine\GUI.h" />
+    <ClInclude Include="GUIEngine\GUIButton.h" />
+    <ClInclude Include="GUIEngine\GUIImage.h" />
+    <ClInclude Include="GUIEngine\GUIText.h" />
+    <ClInclude Include="GUINameDlg.h" />
+    <ClInclude Include="Icon.h" />
+    <ClInclude Include="InputEngine\Input.h" />
+    <ClInclude Include="GraphicsEngine\Light.h" />
+    <ClInclude Include="GraphicsEngine\LightModel.h" />
+    <ClInclude Include="Common\list.h" />
+    <ClInclude Include="MainCharacterProperties.h" />
+    <ClInclude Include="physXEngine\MainCharacter.h" />
+    <ClInclude Include="physXEngine\Trigger.h" />
+    <ClInclude Include="PleaseWait.h" />
+    <ClInclude Include="PrefabDlg.h" />
+    <ClInclude Include="PrefabNameDlg.h" />
+    <ClInclude Include="PrefabOptions.h" />
+    <ClInclude Include="ResourceFile.h" />
+    <ClInclude Include="SaveGUIDlg.h" />
+    <ClInclude Include="SaveLoadCharacterProfile.h" />
+    <ClInclude Include="SavePrefabDlg.h" />
+    <ClInclude Include="sceneManagerEngine\LOD.h" />
+    <ClInclude Include="GraphicsEngine\Material.h" />
+    <ClInclude Include="GraphicsEngine\Matrix.h" />
+    <ClInclude Include="Common\minizip.h" />
+    <ClInclude Include="MouseTranslationController.h" />
+    <ClInclude Include="GraphicsEngine\Node.h" />
+    <ClInclude Include="physXEngine\Nx.h" />
+    <ClInclude Include="physXEngine\NxDebugRenderer.h" />
+    <ClInclude Include="sceneManagerEngine\Octree.h" />
+    <ClInclude Include="AudioEngine\OpenAL.h" />
+    <ClInclude Include="AudioEngine\OpenALSoundBuffer.h" />
+    <ClInclude Include="AudioEngine\OpenALSoundSource.h" />
+    <ClInclude Include="AudioEngine\OpenALSystem.h" />
+    <ClInclude Include="GraphicsEngine\OpenGL.h" />
+    <ClInclude Include="GraphicsEngine\OpenGLMaterial.h" />
+    <ClInclude Include="GraphicsEngine\OpenGLMatrix.h" />
+    <ClInclude Include="GraphicsEngine\OpenGLUtility.h" />
+    <ClInclude Include="GraphicsEngine\Orient.h" />
+    <ClInclude Include="GraphicsEngine\PerspectiveWindow.h" />
+    <ClInclude Include="Common\Point.h" />
+    <ClInclude Include="PublishProject.h" />
+    <ClInclude Include="GraphicsEngine\Render.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="GraphicsEngine\Scene.h" />
+    <ClInclude Include="SceneBanner.h" />
+    <ClInclude Include="ScriptEditor.h" />
+    <ClInclude Include="ScriptEditorAddEvent.h" />
+    <ClInclude Include="ScriptEditorAddFunction.h" />
+    <ClInclude Include="ScriptEngine\LuaForCpp.h" />
+    <ClInclude Include="ScriptUtility.h" />
+    <ClInclude Include="ScriptUtilityGameObjects.h" />
+    <ClInclude Include="ScriptUtilityGUIs.h" />
+    <ClInclude Include="ScriptUtilityImportedCameras.h" />
+    <ClInclude Include="ScriptUtilityPrefabInstances.h" />
+    <ClInclude Include="ScriptUtilityPrefabs.h" />
+    <ClInclude Include="ScriptUtilityResources.h" />
+    <ClInclude Include="SelectAnimationClips.h" />
+    <ClInclude Include="SelectCamera.h" />
+    <ClInclude Include="SetCurrentProject.h" />
+    <ClInclude Include="ShadowDialog.h" />
+    <ClInclude Include="GraphicsEngine\ShadowMap.h" />
+    <ClInclude Include="GraphicsEngine\SimpleFont.h" />
+    <ClInclude Include="GraphicsEngine\skin.h" />
+    <ClInclude Include="GraphicsEngine\Sky.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="physXEngine\Stream.h" />
+    <ClInclude Include="GraphicsEngine\targa.h" />
+    <ClInclude Include="GraphicsEngine\Texture.h" />
+    <ClInclude Include="TimerEngine\Timer.h" />
+    <ClInclude Include="GraphicsEngine\Transform.h" />
+    <ClInclude Include="physXEngine\UserAllocator.h" />
+    <ClInclude Include="Common\Utility.h" />
+    <ClInclude Include="Common\Vector.h" />
+    <ClInclude Include="GraphicsEngine\Water.h" />
+    <ClInclude Include="VandaEngineEditor.h" />
+    <ClInclude Include="VandaEngineEditorDlg.h" />
+    <ClInclude Include="VideoEngine\Video.h" />
+    <ClInclude Include="ViewScript.h" />
+    <ClInclude Include="VsceneMenuCursor.h" />
+    <ClInclude Include="WaterAttachment.h" />
+    <ClInclude Include="WelcomeDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Icon\EngineObjectList\AmbientSound.bmp" />
+    <None Include="Assets\Icon\AmbientSound\AmbientSound_Disable.bmp" />
+    <None Include="Assets\Icon\AmbientSound\AmbientSound_Down.bmp" />
+    <None Include="Assets\Icon\AmbientSound\AmbientSound_Focus.bmp" />
+    <None Include="Assets\Icon\AmbientSound\AmbientSound_Up.bmp" />
+    <None Include="Assets\Icon\Object List\animation.bmp" />
+    <None Include="Assets\Icon\Object List\animation_clip.bmp" />
+    <None Include="Assets\Icon\arrow.cur" />
+    <None Include="Assets\Icon\Object List\Camera.bmp" />
+    <None Include="Assets\Icon\Camera\camera_down.bmp" />
+    <None Include="Assets\Icon\Camera\camera_focus.bmp" />
+    <None Include="Assets\Icon\Camera\camera_up.bmp" />
+    <None Include="Assets\Icon\PhysX Editor\PhysX_Disable.bmp" />
+    <None Include="Assets\Icon\PhysX Editor\PhysX_Down.bmp" />
+    <None Include="Assets\Icon\PhysX Editor\PhysX_Up.bmp" />
+    <None Include="Assets\Icon\sceneList\active_preview.bmp" />
+    <None Include="Assets\Icon\sceneList\no_preview.bmp" />
+    <None Include="Assets\Icon\Vanda_logo3.bmp" />
+    <None Include="assets\icon\welcome\bitmap6.bmp" />
+    <None Include="Assets\Icon\Welcome\Check.bmp" />
+    <None Include="Assets\Icon\ImportCollada\Collada_Down.bmp" />
+    <None Include="Assets\Icon\ImportCollada\Collada_Focus.bmp" />
+    <None Include="Assets\Icon\ImportCollada\Collada_Up.bmp" />
+    <None Include="Assets\bitmap\colladaScene.bmp" />
+    <None Include="Assets\Icon\Console\Console_Down.bmp" />
+    <None Include="Assets\Icon\Console\Console_Focus.bmp" />
+    <None Include="Assets\Icon\Console\Console_Up.bmp" />
+    <None Include="Assets\Icon\Delete\Delete_Disable.bmp" />
+    <None Include="Assets\Icon\Delete\Delete_Down.bmp" />
+    <None Include="Assets\Icon\Delete\Delete_Focus.bmp" />
+    <None Include="Assets\Icon\Delete\Delete_Up.bmp" />
+    <None Include="Assets\Icon\PhysXElementList\DRB.bmp" />
+    <None Include="Assets\Icon\Edit\Edit_Disable.bmp" />
+    <None Include="Assets\Icon\Edit\Edit_Down.bmp" />
+    <None Include="Assets\Icon\Edit\Edit_Focus.bmp" />
+    <None Include="Assets\Icon\Edit\Edit_Up.bmp" />
+    <None Include="Assets\Icon\Facebook\Facebook_Down.bmp" />
+    <None Include="Assets\Icon\Facebook\Facebook_Focus.bmp" />
+    <None Include="Assets\Icon\Facebook\Facebook_Up.bmp" />
+    <None Include="Assets\Icon\Object List\fx.bmp" />
+    <None Include="Assets\Icon\Welcome\Donate_Down.bmp" />
+    <None Include="Assets\Icon\Welcome\Donate_Focus.bmp" />
+    <None Include="Assets\Icon\Welcome\Donate_Up.bmp" />
+    <None Include="Assets\Icon\Welcome\gift_down.bmp" />
+    <None Include="Assets\Icon\Welcome\gift_focus.bmp" />
+    <None Include="Assets\Icon\Welcome\gift_up.bmp" />
+    <None Include="Assets\Icon\h_move.cur" />
+    <None Include="Assets\Icon\hand.cur" />
+    <None Include="Assets\Icon\Welcome\Help_Down.bmp" />
+    <None Include="Assets\Icon\Welcome\Help_Focus.bmp" />
+    <None Include="Assets\Icon\Welcome\Help_Up.bmp" />
+    <None Include="Assets\Icon\Object List\Image.bmp" />
+    <None Include="Assets\Icon\EngineObjectList\Light.bmp" />
+    <None Include="Assets\Icon\Object List\light.bmp" />
+    <None Include="Assets\Icon\Light\Light_Down.bmp" />
+    <None Include="Assets\Icon\Light\Light_Focus.bmp" />
+    <None Include="Assets\Icon\Light\Light_Up.bmp" />
+    <None Include="Assets\Icon\Publish\Logo_Publish.bmp" />
+    <None Include="Assets\Icon\Object List\Material.bmp" />
+    <None Include="Assets\Icon\Material\Material_Disable.bmp" />
+    <None Include="Assets\Icon\Material\Material_Down.bmp" />
+    <None Include="Assets\Icon\Material\Material_Focus.bmp" />
+    <None Include="Assets\Icon\Material\Material_Up.bmp" />
+    <None Include="Assets\Icon\Object List\Mesh.bmp" />
+    <None Include="Assets\Icon\New\New_Down.bmp" />
+    <None Include="Assets\Icon\New\New_Focus.bmp" />
+    <None Include="Assets\Icon\New\New_Up.bmp" />
+    <None Include="Assets\Icon\Animation\Next\Next_Disable.bmp" />
+    <None Include="Assets\Icon\Animation\Next\Next_Down.bmp" />
+    <None Include="Assets\Icon\Animation\Next\Next_Focus.bmp" />
+    <None Include="Assets\Icon\Animation\Next\Next_Up.bmp" />
+    <None Include="Assets\bitmap\nvidia-physx-logo.bmp" />
+    <None Include="Assets\Icon\Open\Open_Down.bmp" />
+    <None Include="Assets\Icon\Open\Open_Focus.bmp" />
+    <None Include="Assets\Icon\Open\Open_Up.bmp" />
+    <None Include="Assets\bitmap\openal-logo.bmp" />
+    <None Include="Assets\bitmap\opengl3_logo.bmp" />
+    <None Include="Assets\Icon\Welcome\link.bmp" />
+    <None Include="Assets\Icon\Welcome\Overview_Down.bmp" />
+    <None Include="Assets\Icon\Welcome\Overview_Focus.bmp" />
+    <None Include="Assets\Icon\Welcome\Overview_Up.bmp" />
+    <None Include="Assets\Icon\Animation\Pause\Pause_Disable.bmp" />
+    <None Include="Assets\Icon\Animation\Pause\Pause_Down.bmp" />
+    <None Include="Assets\Icon\Animation\Pause\Pause_Focus.bmp" />
+    <None Include="Assets\Icon\Animation\Pause\Pause_Up.bmp" />
+    <None Include="Assets\Icon\ImportPhysX\PhysX_DOWN.bmp" />
+    <None Include="Assets\Icon\ImportPhysX\PhysX_Focus.bmp" />
+    <None Include="Assets\Icon\ImportPhysX\PhysX_UP.bmp" />
+    <None Include="Assets\Icon\Animation\Play\Play_Disable.bmp" />
+    <None Include="Assets\Icon\Animation\Play\Play_Down.bmp" />
+    <None Include="Assets\Icon\Animation\Play\Play_Focus.bmp" />
+    <None Include="Assets\Icon\Animation\Play\Play_Up.bmp" />
+    <None Include="Assets\Icon\Player\Player_Down.bmp" />
+    <None Include="Assets\Icon\Player\Player_Focus.bmp" />
+    <None Include="Assets\Icon\Player\Player_Up.bmp" />
+    <None Include="Assets\Icon\pointer.cur" />
+    <None Include="Assets\Icon\Animation\Prev\Prev_Disable.bmp" />
+    <None Include="Assets\Icon\Animation\Prev\Prev_Down.bmp" />
+    <None Include="Assets\Icon\Animation\Prev\Prev_Focus.bmp" />
+    <None Include="Assets\Icon\Animation\Prev\Prev_Up.bmp" />
+    <None Include="Assets\Icon\Publish\publish_down.bmp" />
+    <None Include="Assets\Icon\Publish\publish_focus.bmp" />
+    <None Include="Assets\Icon\Publish\publish_up.bmp" />
+    <None Include="Assets\Icon\Save\Save_Down.bmp" />
+    <None Include="Assets\Icon\Save\Save_Focus.bmp" />
+    <None Include="Assets\Icon\Save\Save_UP.bmp" />
+    <None Include="Assets\Icon\Save As\SaveAs_DOWN.bmp" />
+    <None Include="Assets\Icon\Save As\SaveAs_Focus.bmp" />
+    <None Include="Assets\Icon\Save As\SaveAs_UP.bmp" />
+    <None Include="Assets\Icon\Script\script_disable.bmp" />
+    <None Include="Assets\Icon\Script\script_down.bmp" />
+    <None Include="Assets\Icon\Script\script_focus.bmp" />
+    <None Include="Assets\Icon\Script\script_up.bmp" />
+    <None Include="Assets\Icon\Separator.bmp" />
+    <None Include="Assets\Icon\Object List\skin_cnotroller.bmp" />
+    <None Include="Assets\Icon\EngineObjectList\Sky.bmp" />
+    <None Include="Assets\Icon\Sky\Sky_Disable.bmp" />
+    <None Include="Assets\Icon\Sky\Sky_Down.bmp" />
+    <None Include="Assets\Icon\Sky\Sky_Focus.bmp" />
+    <None Include="Assets\Icon\Sky\Sky_Up.bmp" />
+    <None Include="Assets\Icon\PhysXElementList\SRB.bmp" />
+    <None Include="Assets\Icon\EngineObjectList\StaticSound.bmp" />
+    <None Include="Assets\Icon\StaticSound\StaticSound_Down.bmp" />
+    <None Include="Assets\Icon\StaticSound\StaticSound_Focus.bmp" />
+    <None Include="Assets\Icon\StaticSound\StaticSound_Up.bmp" />
+    <None Include="Assets\Icon\Summary\Summary_Down.bmp" />
+    <None Include="Assets\Icon\Summary\Summary_Focus.bmp" />
+    <None Include="Assets\Icon\Summary\Summary_Up.bmp" />
+    <None Include="Assets\Icon\Timer\Timer_Down.bmp" />
+    <None Include="Assets\Icon\Timer\Timer_Focus.bmp" />
+    <None Include="Assets\Icon\Timer\Timer_Up.bmp" />
+    <None Include="Assets\Icon\PhysXElementList\TR.bmp" />
+    <None Include="Assets\Icon\Welcome\Seperator.bmp" />
+    <None Include="Assets\Icon\Welcome\tutorial_down.bmp" />
+    <None Include="Assets\Icon\Welcome\tutorial_focus.bmp" />
+    <None Include="Assets\Icon\Welcome\tutorial_up.bmp" />
+    <None Include="Assets\Icon\Twitter\twitter_down.bmp" />
+    <None Include="Assets\Icon\Twitter\twitter_focus.bmp" />
+    <None Include="Assets\Icon\Twitter\twitter_up.bmp" />
+    <None Include="Assets\Icon\Unavailable.cur" />
+    <None Include="Assets\Icon\Welcome\Uncheck.bmp" />
+    <None Include="Assets\bitmap\Vanda-Logo.bmp" />
+    <None Include="..\..\Web\Photos\Logos\Vanda-Logo.bmp" />
+    <None Include="Assets\Icon\Vanda.bmp" />
+    <None Include="Assets\Icon\Vanda2.bmp" />
+    <None Include="Assets\Icon\Vanda_logo2.bmp" />
+    <None Include="Assets\Icon\Vanda_Version.bmp" />
+    <None Include="Assets\Icon\Welcome\Welcome_image.bmp" />
+    <None Include="Assets\Icon\Welcome\Welcome_version.bmp" />
+    <None Include="ClassDiagram.cd" />
+    <None Include="res\VandaEngine.ico" />
+    <None Include="Assets\Icon\VandaRTI.bmp" />
+    <None Include="Assets\Icon\Welcome\video_Down.bmp" />
+    <None Include="Assets\Icon\Welcome\video_Focus.bmp" />
+    <None Include="Assets\Icon\Welcome\video_Up.bmp" />
+    <None Include="Assets\Icon\EngineObjectList\Water.bmp" />
+    <None Include="Assets\Icon\Water\Water_Down.bmp" />
+    <None Include="Assets\Icon\Water\Water_Focus.bmp" />
+    <None Include="Assets\Icon\Water\Water_Up.bmp" />
+    <None Include="Assets\Icon\Web\Web_Down.bmp" />
+    <None Include="Assets\Icon\Web\Web_Focus.bmp" />
+    <None Include="Assets\Icon\Web\Web_Up.bmp" />
+    <None Include="Assets\Icon\YouTube\youtube_down.bmp" />
+    <None Include="Assets\Icon\YouTube\youtube_focus.bmp" />
+    <None Include="Assets\Icon\YouTube\youtube_up.bmp" />
+    <None Include="Assets\Icon\zoom in.cur" />
+    <None Include="Assets\Engine\Icons\progress.ani" />
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Icon\3DSound\3DSound_Disable.bmp" />
+    <Image Include="Assets\Icon\3DSound\3DSound_Down.bmp" />
+    <Image Include="Assets\Icon\3DSound\3DSound_Focus.bmp" />
+    <Image Include="Assets\Icon\3DSound\3DSound_Up.bmp" />
+    <Image Include="Assets\Icon\Camera\camera_disable.bmp" />
+    <Image Include="Assets\Icon\Default\Default.bmp" />
+    <Image Include="Assets\Icon\Default\Default_gui.bmp" />
+    <Image Include="Assets\Icon\Default\Default_package.bmp" />
+    <Image Include="Assets\Icon\Default\Default_prf.bmp" />
+    <Image Include="Assets\Icon\Default\Default_Project.bmp" />
+    <Image Include="Assets\Icon\Default\Default_vin.bmp" />
+    <Image Include="Assets\Icon\Default\Default_vpf.bmp" />
+    <Image Include="Assets\Icon\Default\Default_Water.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\ambientAudio.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\animation.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\audio.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\camera.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\green_plus.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\GUI.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\GUIButton.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\GUIImage.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\GUIText.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\light.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\Package.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\Prefab.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\trigger.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\video.bmp" />
+    <Image Include="Assets\Icon\Default\Script Utility\water.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_disable.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_down.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_focus.bmp" />
+    <Image Include="Assets\Icon\EngineCamera\engine_camera_up.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\3DSound.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\engine_camera.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\Start.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\Terrain.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\Video.bmp" />
+    <Image Include="Assets\Icon\EngineObjectList\VSceneScript.bmp" />
+    <Image Include="Assets\Icon\GUI List\GUIBackground.bmp" />
+    <Image Include="Assets\Icon\GUI List\GUIButton.bmp" />
+    <Image Include="Assets\Icon\GUI List\GUIImage.bmp" />
+    <Image Include="Assets\Icon\GUI List\GUIText.bmp" />
+    <Image Include="assets\icon\gui\bitmap18.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Background_Disable.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Background_Down.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Background_Focus.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Background_Up.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Button_Disable.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Button_Down.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Button_Focus.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Button_Up.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Disable.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Down.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Focus.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Image_Disable.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Image_Down.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Image_Focus.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Image_Up.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Text_Disable.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Text_Down.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Text_Focus.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Text_Up.bmp" />
+    <Image Include="Assets\Icon\GUI\GUI_Up.bmp" />
+    <Image Include="Assets\Icon\ImportColladaMultipleAnimations\Collada_Multiple_Animations_Disable.bmp" />
+    <Image Include="Assets\Icon\ImportColladaMultipleAnimations\Collada_Multiple_Animations_Down.bmp" />
+    <Image Include="Assets\Icon\ImportColladaMultipleAnimations\Collada_Multiple_Animations_Focus.bmp" />
+    <Image Include="Assets\Icon\ImportColladaMultipleAnimations\Collada_Multiple_Animations_Up.bmp" />
+    <Image Include="Assets\Icon\InsertGUI\InsertGUI_Disable.bmp" />
+    <Image Include="Assets\Icon\InsertGUI\InsertGUI_Down.bmp" />
+    <Image Include="Assets\Icon\InsertGUI\InsertGUI_Focus.bmp" />
+    <Image Include="Assets\Icon\InsertGUI\InsertGUI_Up.bmp" />
+    <Image Include="Assets\Icon\Light\Light_Disable.bmp" />
+    <Image Include="Assets\Icon\Object List\scene.bmp" />
+    <Image Include="Assets\Icon\Open\Open_Disable.bmp" />
+    <Image Include="Assets\Icon\Player\Player_Disable.bmp" />
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings.bmp" />
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings_Disable.bmp" />
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings_Down.bmp" />
+    <Image Include="Assets\Icon\PrefabSettings\PrefabSettings_Focus.bmp" />
+    <Image Include="Assets\Icon\Prefab\prefab_Disable.bmp" />
+    <Image Include="Assets\Icon\Prefab\prefab_Down.bmp" />
+    <Image Include="Assets\Icon\Prefab\prefab_Focus.bmp" />
+    <Image Include="Assets\Icon\Prefab\prefab_Up.bmp" />
+    <Image Include="Assets\Icon\Publish\publish_disable.bmp" />
+    <Image Include="Assets\Icon\Rotate\rotate_Disable.bmp" />
+    <Image Include="Assets\Icon\Rotate\rotate_Down.bmp" />
+    <Image Include="Assets\Icon\Rotate\rotate_Focus.bmp" />
+    <Image Include="Assets\Icon\Rotate\rotate_Up.bmp" />
+    <Image Include="Assets\Icon\Save As\SaveAs_Disable.bmp" />
+    <Image Include="Assets\Icon\Save\Save_Disable.bmp" />
+    <Image Include="Assets\Icon\Scale\Scale_Disable.bmp" />
+    <Image Include="Assets\Icon\Scale\Scale_Down.bmp" />
+    <Image Include="Assets\Icon\Scale\Scale_Focus.bmp" />
+    <Image Include="Assets\Icon\Scale\Scale_Up.bmp" />
+    <Image Include="Assets\Icon\Startup\Start_Disable.bmp" />
+    <Image Include="Assets\Icon\Startup\Start_Down.bmp" />
+    <Image Include="Assets\Icon\Startup\Start_Focus.bmp" />
+    <Image Include="Assets\Icon\Startup\Start_Up.bmp" />
+    <Image Include="Assets\Icon\StaticSound\StaticSound_Disable.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_disable.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_down.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_focus.bmp" />
+    <Image Include="Assets\Icon\Terrain\terrain_up.bmp" />
+    <Image Include="Assets\Icon\Test\Active\test_active_down.bmp" />
+    <Image Include="Assets\Icon\Test\Active\test_active_focus.bmp" />
+    <Image Include="Assets\Icon\Test\Active\test_active_up.bmp" />
+    <Image Include="Assets\Icon\Test\Deactive\test_deactive_down.bmp" />
+    <Image Include="Assets\Icon\Test\Deactive\test_deactive_focus.bmp" />
+    <Image Include="Assets\Icon\Test\Deactive\test_deactive_up.bmp" />
+    <Image Include="Assets\Icon\Timer\Pause\Timer_Pause_Down.bmp" />
+    <Image Include="Assets\Icon\Timer\Pause\Timer_Pause_Focus.bmp" />
+    <Image Include="Assets\Icon\Timer\Pause\Timer_Pause_Up.bmp" />
+    <Image Include="Assets\Icon\Translate\translate_Disable.bmp" />
+    <Image Include="Assets\Icon\Translate\translate_Down.bmp" />
+    <Image Include="Assets\Icon\Translate\translate_Focus.bmp" />
+    <Image Include="Assets\Icon\Translate\translate_Up.bmp" />
+    <Image Include="Assets\Icon\Trigger\Trigger_Disable.bmp" />
+    <Image Include="Assets\Icon\Trigger\Trigger_Down.bmp" />
+    <Image Include="Assets\Icon\Trigger\Trigger_Focus.bmp" />
+    <Image Include="Assets\Icon\Trigger\Trigger_Up.bmp" />
+    <Image Include="Assets\Icon\Video\video_disable.bmp" />
+    <Image Include="Assets\Icon\Video\video_down.bmp" />
+    <Image Include="Assets\Icon\Video\video_focus.bmp" />
+    <Image Include="Assets\Icon\Video\video_up.bmp" />
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Disable.bmp" />
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Down.bmp" />
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Focus.bmp" />
+    <Image Include="Assets\Icon\VSceneScript\VScene_Script_Up.bmp" />
+    <Image Include="Assets\Icon\WaterAttach\WaterAttach_Down.bmp" />
+    <Image Include="Assets\Icon\WaterAttach\WaterAttach_Focus.bmp" />
+    <Image Include="Assets\Icon\WaterAttach\WaterAttach_Up.bmp" />
+    <Image Include="Assets\Icon\Water\Water_Disable.bmp" />
+    <Image Include="Assets\Icon\Welcome\coffee.bmp" />
+    <Image Include="Assets\Icon\Welcome\vanda_logo.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VandaEngineEditor.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="VandaEngine1.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
