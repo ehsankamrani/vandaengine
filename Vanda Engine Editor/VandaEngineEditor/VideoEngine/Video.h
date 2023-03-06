@@ -43,9 +43,8 @@ public:
 	CBool UpdateVideo();
 	CBool UpdateAudio();
 	CBool Render();
-	CVoid SeekFrame(CInt frame);
-	CBool SeekIFrame(CInt frame_index);
-	CVoid SetSeekFrame(CBool set) { m_seekFrame = set; }
+	CVoid ResetFrame();
+	CVoid SetResetFrame(CBool set) { m_resetFrame = set; }
 	CVoid StopSound();
 	CVoid PauseSound();
 	CVoid PlaySound();
@@ -137,7 +136,7 @@ private:
 	CInt m_video_stream_index;
 	AVStream* m_videoStream;
 	CFloat m_videoFrameTime;
-	CBool m_seekFrame;
+	CBool m_resetFrame;
 
 	CBool InitVideoStream();
 	CInt DecodeVideoPacket();

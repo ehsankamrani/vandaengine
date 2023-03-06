@@ -26,7 +26,7 @@ CVideo::CVideo()
 	m_frameBuffer = NULL;
 	Cpy(m_videoFileName, "\n");
 	m_videoStream = NULL;
-	m_seekFrame = CFalse;
+	m_resetFrame = CFalse;
 	//
 
 	//audio
@@ -109,8 +109,8 @@ CVoid CVideo::Reset()
 {
 	if (!m_pFormatVideoContext)
 		return;
-	SeekFrame(0);
-	alSourceStop(m_soundSource);
+	StopSound();
+	alSourcei(m_soundSource, AL_BUFFER, NULL);
 	alDeleteSources(1, &m_soundSource);
 	alDeleteBuffers(NUM_VIDEO_SOUND_BUFFERS, &m_soundBuffers[0]);
 	alGenSources(1, &m_soundSource);
@@ -121,38 +121,22 @@ CVoid CVideo::Reset()
 	m_elapsedAudioTime = 0.0f;
 	m_updateAudio = CTrue;
 
-	m_seekFrame = CTrue;
-	UpdateAudio(); //reload audio
+	ResetFrame();
+
+	m_resetFrame = CTrue;
+	UpdateAudio();
 	UpdateVideo();
-	UpdateVideo(); //Previous UpdateVideo() results in EAGAIN error so I have to request the video update again
-	m_seekFrame = CFalse;
+	m_resetFrame = CFalse;
 }
 
-CVoid CVideo::SeekFrame(CInt frame)
+CVoid CVideo::ResetFrame()
 {
 	if(m_pFormatVideoContext)
-		av_seek_frame(m_pFormatVideoContext, -1, frame, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
+		av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
 	if(m_pFormatAudioContext)
-		av_seek_frame(m_pFormatAudioContext, -1, frame, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
-	//avcodec_flush_buffers(m_pVideoCodecContext);
-	//avcodec_flush_buffers(m_pAudioCodecContext);
-}
-
-CBool CVideo::SeekIFrame(CInt frame_index)
-{
-	double m_streamTimebase = av_q2d(m_videoStream->time_base) * 1000.0 * 10000.0; // Convert timebase to ticks so we can easily convert stream's timestamps to ticks
-	long startTime = m_videoStream->start_time != AV_NOPTS_VALUE ? (long)(m_videoStream->start_time * m_streamTimebase) : 0; // We will need this when we seek (adding it to seek timestamp)
-	double avgFrameDuration = 10000000 / av_q2d(m_videoStream->avg_frame_rate); // eg. 1 sec / 25 fps = 400.000 ticks (40ms)	avcodec_flush_buffers(m_pVideoCodecContext);
-	long frameTimestamp = (long)(frame_index * avgFrameDuration);
-	int ret = av_seek_frame(m_pFormatVideoContext, m_video_stream_index, (startTime + frameTimestamp) / 10, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_BACKWARD);
-	if (ret < 0)
-	{
-		PrintInfo("\nCVideo::SeekIFrame() ERROR: Couldn't seek the frame");
-		return CFalse;
-	}
-	//avcodec_flush_buffers(m_pVideoCodecContext);
-
-	return CTrue;
+		av_seek_frame(m_pFormatAudioContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
+	avcodec_flush_buffers(m_pVideoCodecContext);
+	avcodec_flush_buffers(m_pAudioCodecContext);
 }
 
 CBool CVideo::Load()
@@ -165,12 +149,11 @@ CBool CVideo::Load()
 		PrintInfo("\nCouldn't initialize audio stream. Does your video format contain audio?", COLOR_YELLOW);
 	}
 
-	SeekFrame(0);
-	m_seekFrame = CTrue;
-	UpdateAudio(); //reload audio
+	ResetFrame();
+	m_resetFrame = CTrue;
+	UpdateAudio(); 
 	UpdateVideo();
-	UpdateVideo(); //Previous UpdateVideo() results in EAGAIN error so I have to request the video update again
-	m_seekFrame = CFalse;
+	m_resetFrame = CFalse;
 
 	m_initialized = CTrue;
 	return CTrue;
@@ -199,7 +182,7 @@ CBool CVideo::UpdateVideo()
 		return CFalse;
 
 	//if you want to seek sepecific frame over time
-	//make sure to enable m_seekFrame variable as well
+	//make sure to enable m_resetFrame variable as well
 	//CFloat frame_time = (CFloat)m_videoStream->time_base.den / m_videoStream->r_frame_rate.num;
 	//int frame_index = int(m_elapsedVideoTime * (CFloat)m_videoStream->time_base.den / frame_time);
 	//SeekIFrame(frame_index);
@@ -211,7 +194,7 @@ CBool CVideo::UpdateVideo()
 
 	CBool exit = CFalse;
 
-	if (!m_seekFrame)
+	if (!m_resetFrame)
 	{
 		while (m_elapsedVideoTime >= m_nextVideoFrameTime)
 		{
@@ -423,7 +406,7 @@ CInt CVideo::DecodeVideoPacket()
 		}
 
 		//do not update the frame if m_elapsedVideoTime is much higher than m_nextvideoFrameTime. Just update last frame
-		if (response >= 0 && ((m_elapsedVideoTime - m_nextVideoFrameTime) / m_videoFrameTime <= 1.0f || m_seekFrame))
+		if (response >= 0 && ((m_elapsedVideoTime - m_nextVideoFrameTime) / m_videoFrameTime <= 1.0f || m_resetFrame))
 		{
 			//CChar temp[MAX_URI_SIZE];
 			/*sprintf(temp,

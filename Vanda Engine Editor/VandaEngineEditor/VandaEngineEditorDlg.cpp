@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.0.0"));
+	SetWindowText(_T("Vanda Engine 2.0.1"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.0.0 initialized successfully" );
+		PrintInfo( "\nVersion 2.0.1 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.0.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.0.1 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.0.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.0.1 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7679,7 +7679,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.0.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.0.1 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8112,7 +8112,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8121,7 +8121,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.0.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.0.1 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -8818,8 +8818,8 @@ CVoid CVandaEngineDlg::OnMenuClickedInsert3DSound()
 		m_3DSoundSource->SetRolloff( m_dlgAdd3DSound->GetRolloff() );
 		m_3DSoundSource->SetSoundPosition( m_dlgAdd3DSound->GetSoundPos() );
 		m_3DSoundSource->SetVolume(m_dlgAdd3DSound->GetVolume());
-		if( m_dlgAdd3DSound->GetPlayCondition() )
-			g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
+		//if( m_dlgAdd3DSound->GetPlayCondition() )
+		//	g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
 
 		m_3DSound->SetName( m_dlgAdd3DSound->GetName() );
 		m_3DSound->SetLastName(m_dlgAdd3DSound->GetName());
@@ -9138,8 +9138,8 @@ CVoid CVandaEngineDlg::OnMenuClickedInsertAmbientSound()
 		ambientSound->SetHasScript(m_dlgAddAmbientSound->GetHasScript());
 		ambientSound->SetScript(m_dlgAddAmbientSound->GetScriptPath());
 
-		if(ambientSound->GetPlay())
-			g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
+		//if(ambientSound->GetPlay())
+		//	g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
@@ -9872,7 +9872,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10714,7 +10714,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -11134,33 +11134,11 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 		{
 			//Remove the contents of existing directory
 			RemoveAllFilesAndFoldersInDirectory( waterRootPath );
-			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(waterRootPath);
-
-			//Remove the contents of existing directory
 			RemoveAllFilesAndFoldersInDirectory( videoRootPath );
-			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(videoRootPath);
-
-			//Remove the contents of existing directory
 			RemoveAllFilesAndFoldersInDirectory( ambientSoundRootPath );
-			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(ambientSoundRootPath);
-
-			//Remove the contents of existing directory
 			RemoveAllFilesAndFoldersInDirectory( ThreeDSoundRootPath );
-			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(ThreeDSoundRootPath);
-
-			//Remove the contents of existing directory
 			RemoveAllFilesAndFoldersInDirectory(cameraRootPath);
-			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(cameraRootPath);
-
 			RemoveAllFilesAndFoldersInDirectory(lightRootPath);
-			//As Previous functions removes main directory, I'll recreate it
-			CreateWindowsDirectory(lightRootPath);
-
 			RemoveAllFilesInDirectory(mainCharacterSoundPath);
 			//RemoveAllFilesInDirectory(mainCharacterScriptPath); //currently sound and script path are the same
 			RemoveAllFilesInDirectory(VSceneScriptPath); 
@@ -11172,47 +11150,45 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 			//As Previous functions removes main directory, I'll recreate it
 			CreateWindowsDirectory(triggerRootPath);
 		}
-		else if( saveAlgorithm == 1 || saveAlgorithm == 4)
-		{
-			//create a new directory based on the save file name
-			CreateWindowsDirectory( VScenePath );
-			CreateWindowsDirectory(waterRootPath);
-			CreateWindowsDirectory(videoRootPath);
-			CreateWindowsDirectory(cameraRootPath);
-			CreateWindowsDirectory(lightRootPath);
-			CreateWindowsDirectory( soundPath );
-			CreateWindowsDirectory(ambientSoundRootPath);
-			CreateWindowsDirectory(ThreeDSoundRootPath);
-			CreateWindowsDirectory(mainCharacterSoundPath);
-			//CreateWindowsDirectory(mainCharacterScriptPath); //currently script and sound path are the same
-			CreateWindowsDirectory(VSceneScriptPath);
-			CreateWindowsDirectory(skyPath);
-			CreateWindowsDirectory(terrainPath);
-			CreateWindowsDirectory(bannerPath);
-			CreateWindowsDirectory(cursorPath);
-			CreateWindowsDirectory(triggerRootPath);
-			for (CUInt j = 0; j < triggerScriptPath.size(); j++)
-				CreateWindowsDirectory((CChar*)triggerScriptPath[j].c_str());
 
-			for (CUInt j = 0; j < waterScriptTexturePath.size(); j++)
-				CreateWindowsDirectory((CChar*)waterScriptTexturePath[j].c_str());
 
-			for (CUInt j = 0; j < videoScriptDataPath.size(); j++)
-				CreateWindowsDirectory((CChar*)videoScriptDataPath[j].c_str());
+		//create required directories
+		CreateWindowsDirectory( VScenePath );
+		CreateWindowsDirectory(waterRootPath);
+		CreateWindowsDirectory(videoRootPath);
+		CreateWindowsDirectory(cameraRootPath);
+		CreateWindowsDirectory(lightRootPath);
+		CreateWindowsDirectory( soundPath );
+		CreateWindowsDirectory(ambientSoundRootPath);
+		CreateWindowsDirectory(ThreeDSoundRootPath);
+		CreateWindowsDirectory(mainCharacterSoundPath);
+		//CreateWindowsDirectory(mainCharacterScriptPath); //currently script and sound path are the same
+		CreateWindowsDirectory(VSceneScriptPath);
+		CreateWindowsDirectory(skyPath);
+		CreateWindowsDirectory(terrainPath);
+		CreateWindowsDirectory(bannerPath);
+		CreateWindowsDirectory(cursorPath);
+		CreateWindowsDirectory(triggerRootPath);
+		for (CUInt j = 0; j < triggerScriptPath.size(); j++)
+			CreateWindowsDirectory((CChar*)triggerScriptPath[j].c_str());
 
-			for (CUInt j = 0; j < ambientSoundScriptSoundPath.size(); j++)
-				CreateWindowsDirectory((CChar*)ambientSoundScriptSoundPath[j].c_str());
+		for (CUInt j = 0; j < waterScriptTexturePath.size(); j++)
+			CreateWindowsDirectory((CChar*)waterScriptTexturePath[j].c_str());
 
-			for (CUInt j = 0; j < ThreeDSoundScriptSoundPath.size(); j++)
-				CreateWindowsDirectory((CChar*)ThreeDSoundScriptSoundPath[j].c_str());
+		for (CUInt j = 0; j < videoScriptDataPath.size(); j++)
+			CreateWindowsDirectory((CChar*)videoScriptDataPath[j].c_str());
 
-			for (CUInt j = 0; j < cameraScriptPath.size(); j++)
-				CreateWindowsDirectory((CChar*)cameraScriptPath[j].c_str());
+		for (CUInt j = 0; j < ambientSoundScriptSoundPath.size(); j++)
+			CreateWindowsDirectory((CChar*)ambientSoundScriptSoundPath[j].c_str());
 
-			for (CUInt j = 0; j < lightScriptPath.size(); j++)
-				CreateWindowsDirectory((CChar*)lightScriptPath[j].c_str());
+		for (CUInt j = 0; j < ThreeDSoundScriptSoundPath.size(); j++)
+			CreateWindowsDirectory((CChar*)ThreeDSoundScriptSoundPath[j].c_str());
 
-		}
+		for (CUInt j = 0; j < cameraScriptPath.size(); j++)
+			CreateWindowsDirectory((CChar*)cameraScriptPath[j].c_str());
+
+		for (CUInt j = 0; j < lightScriptPath.size(); j++)
+			CreateWindowsDirectory((CChar*)lightScriptPath[j].c_str());
 
 		if( saveAlgorithm == 0 || saveAlgorithm == 1 || saveAlgorithm == 2 )
 		{
@@ -14035,7 +14011,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15204,7 +15180,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.1 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -16952,7 +16928,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.1 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -18931,7 +18907,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -18949,17 +18925,17 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 		{
 			g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
 
-			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-			{
-				if (g_engine3DSounds[i]->GetPlay())
-					g_multipleView->m_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-			}
+			//for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+			//{
+			//	if (g_engine3DSounds[i]->GetPlay())
+			//		g_multipleView->m_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			//}
 
-			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-			{
-				if(g_engineAmbientSounds[i]->GetPlay())
-					g_multipleView->m_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-			}
+			//for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+			//{
+			//	if(g_engineAmbientSounds[i]->GetPlay())
+			//		g_multipleView->m_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			//}
 
 			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 			{
@@ -21104,10 +21080,10 @@ CVoid CVandaEngineDlg::Change3DSoundProperties(C3DSound* sound)
 		m_3DSound->SetSoundSource( m_3DSoundSource );
 		m_3DSound->SetSoundBuffer( m_3DSoundBuffer );
 
-		if( m_dlgAdd3DSound->GetPlayCondition() )
-		{
-			g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
-		}
+		//if( m_dlgAdd3DSound->GetPlayCondition() )
+		//{
+		//	g_multipleView->m_soundSystem->PlayALSound( *m_3DSoundSource );
+		//}
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
@@ -21225,8 +21201,8 @@ CVoid CVandaEngineDlg::ChangeAmbientSoundProperties(CAmbientSound* sound)
 		ambientSound->SetHasScript(m_dlgAddAmbientSound->GetHasScript());
 		ambientSound->SetScript(m_dlgAddAmbientSound->GetScriptPath());
 
-		if (ambientSound->GetPlay())
-			g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
+		//if (ambientSound->GetPlay())
+		//	g_multipleView->m_soundSystem->PlayALSound( *m_ambientSoundSource );
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
@@ -24914,16 +24890,16 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 					g_engine3DSounds[j]->SetReferenceDistance(m_engine3DSounds[i]->GetReferenceDistance());
 					g_engine3DSounds[j]->GetSoundSource()->SetReferenceDistance(m_engine3DSounds[i]->GetReferenceDistance());
 					
-					if (g_engine3DSounds[j]->GetPlay())
-					{
-						g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+					//if (g_engine3DSounds[j]->GetPlay())
+					//{
+					//	g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+					//	g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+					//	g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+					//}
+					//else
+					//{
 						g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
-						g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
-					}
-					else
-					{
-						g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
-					}
+					//}
 					CDelete(m_engine3DSounds[i]);
 					break;
 				}
@@ -24948,16 +24924,16 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 					g_engineAmbientSounds[j]->SetVolume(m_engineAmbientSounds[i]->GetVolume());
 					g_engineAmbientSounds[j]->GetSoundSource()->SetVolume(m_engineAmbientSounds[i]->GetVolume());
 
-					if (g_engineAmbientSounds[j]->GetPlay())
-					{
-						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					//if (g_engineAmbientSounds[j]->GetPlay())
+					//{
+					//	g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					//	g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					//	g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					//}
+					//else
+					//{
 						g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
-						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
-					}
-					else
-					{
-						g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
-					}
+					//}
 					CDelete(m_engineAmbientSounds[i]);
 					break;
 				}
@@ -24979,7 +24955,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 					g_engineVideos[j]->SetLoop(m_engineVideos[i]->GetLoop());
 					g_engineVideos[j]->SetPlay(m_engineVideos[i]->GetPlay());
 					g_engineVideos[j]->SetVolume(m_engineVideos[i]->GetVolume());
-					g_engineVideos[j]->Reset();
+					if(g_engineVideos[j]->GetPlay())
+						g_engineVideos[j]->Reset();
 					g_engineVideos[j]->SetMaintenanceMode(CTrue); //prevent from updating and rendering
 					CDelete(m_engineVideos[i]);
 					break;
@@ -25494,20 +25471,6 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 				CDelete(g_guis[i]);
 				g_guis.erase(g_guis.begin() + i);
 			}
-		}
-
-		//restore 3D sound states
-		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-		{
-			if (g_engine3DSounds[i]->GetLoop())
-				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
-			else
-				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
-
-			if (g_engine3DSounds[i]->GetPlay())
-				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-			else
-				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
 		}
 	}
 
@@ -26673,6 +26636,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 	g_multipleView->SetSwapBuffers(CTrue);
 
 	g_multipleView->m_loadScene = CFalse;
+
+	g_multipleView->m_lockEscape = CFalse;
 
 	if (g_editorMode == eMODE_VSCENE)
 	{

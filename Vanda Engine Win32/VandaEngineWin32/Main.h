@@ -203,6 +203,7 @@ private:
 	GLuint *ptr, minZ, selectedName, Buffer[MAX_NAME_SIZE], m_selectedPrefabName;//selection
 
 	CInt m_padding;
+	CBool m_renderVideo;
 public:
 	CBool m_lockInput;
 	CBool m_lockEscape;

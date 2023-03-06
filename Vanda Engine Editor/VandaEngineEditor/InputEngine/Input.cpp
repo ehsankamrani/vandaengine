@@ -326,3 +326,9 @@ CBool CInputSystem::KeyUp(CInt key)
 {
 	return (m_pKeyboard && m_pKeyboard->KeyUp(key) && g_camera && g_camera->m_activatePerspectiveCamera);
 }
+
+//Is Key Up?
+CBool CInputSystem::KeyUp2(CInt key)
+{
+    return (m_pKeyboard && m_pKeyboard->KeyUp(key));
+}

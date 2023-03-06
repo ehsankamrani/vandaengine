@@ -22278,6 +22278,7 @@ CMultipleWindows::CMultipleWindows()
 	m_renderArrow = CFalse;
 	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
 	m_selectedGUI = NULL;
+	m_renderVideo = CFalse;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -22820,6 +22821,9 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 	GetCursorPos(&m_point);
 	m_dx = m_prev_dx = m_point.x;
 	m_dy = m_prev_dy = m_point.y;
+
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
+		return;
 
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
@@ -23591,6 +23595,9 @@ CVoid CMultipleWindows::EnableTimer( CBool enable )
 
 CVoid CMultipleWindows::OnRButtonDown(UINT nFlags, CPoint point)
 {
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
+		return;
+
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
@@ -23682,6 +23689,9 @@ CVoid CMultipleWindows::OnRButtonUp(UINT nFlags, CPoint point)
 
 CVoid CMultipleWindows::OnMButtonDown(UINT nFlags, CPoint point)
 {
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
+		return;
+
 	m_mMouseDown = CTrue;
 	if(!m_isPlayingGame)
 		OnLButtonDown( nFlags, point );
@@ -23701,6 +23711,9 @@ CVoid CMultipleWindows::OnMButtonUp(UINT nFlags, CPoint point)
 
 CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 {
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
+		return;
+
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
 		m_mousePosition = point;
@@ -24719,16 +24732,22 @@ CVoid CMultipleWindows::DrawPerspective()
 		}
 		if (renderVideo)
 		{
+			m_renderVideo = CTrue;
+
 			DrawGUI();
 
 			glFlush();
 			return;
 		}
+		else
+		{
+			m_renderVideo = CFalse;
+		}
 	}
 
-	if (m_inputSystem->KeyUp(DIK_ESCAPE))
-		m_lockEscape = CFalse;
-
+	if (g_multipleView->IsPlayGameMode())
+		if (m_inputSystem->KeyUp2(DIK_ESCAPE))
+			m_lockEscape = CFalse;
 	///////////////////////
 
 	if (g_camera->m_activatePerspectiveCamera && g_transformObject && m_translationController->Initialized())
@@ -29953,10 +29972,13 @@ CVoid CMultipleWindows::DrawGUI()
 
 		}
 	}
-	if( m_totalElapsedTime >= 5.0f ) //Every 5 seconds update the FPS
+	if( m_totalElapsedTime >= 1.0f ) //update the FPS every 1 second 
 	{
 		SetElapsedTimeFromBeginning();
 	}
+
+	if (m_renderVideo)
+		return;
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{

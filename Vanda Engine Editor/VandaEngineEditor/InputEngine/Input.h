@@ -127,7 +127,7 @@ public:
 
   CBool KeyDown(CInt key);
   CBool KeyUp(CInt key);
-
+  CBool KeyUp2(CInt key);
   CBool ButtonDown(CInt button) { return (m_pMouse && m_pMouse->ButtonDown(button)); }
   CBool ButtonUp(CInt button) { return (m_pMouse && m_pMouse->ButtonUp(button)); }
   CVoid GetMouseMovement(CInt &dx, CInt &dy) { if (m_pMouse) m_pMouse->GetMovement(dx, dy); }

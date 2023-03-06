@@ -367,6 +367,7 @@ private:
 	CInt m_prev_dx, m_prev_dy;
 	POINT m_point;
 	CGUI* m_selectedGUI;
+	CBool m_renderVideo;
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );

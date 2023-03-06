@@ -14118,6 +14118,7 @@ CMain::CMain()
 	m_pushTransparentGeometry = CFalse;
 	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
 	m_padding = 0;
+	m_renderVideo = CFalse;
 }
 
 CMain::~CMain()
@@ -14727,10 +14728,15 @@ CBool CMain::Render()
 	}
 	if (renderVideo)
 	{
+		m_renderVideo = CTrue;
 		DrawGUI();
 
 		glFlush();
 		return CTrue;
+	}
+	else
+	{
+		m_renderVideo = CFalse;
 	}
 
 	if (g_input.KeyUp(DIK_ESCAPE))
@@ -21124,6 +21130,9 @@ CVoid CMain::DrawGUI()
 	//}
 
 	g_font->EndRendering();
+
+	if (m_renderVideo)
+		return;
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
