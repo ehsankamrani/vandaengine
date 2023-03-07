@@ -9,7 +9,7 @@
 #include "..\AudioEngine/openal.h"
 #include "..\AudioEngine/OpenALSystem.h"
 
-#define NUM_VIDEO_SOUND_BUFFERS 30
+#define NUM_VIDEO_SOUND_BUFFERS 5
 
 extern "C"
 {
@@ -119,10 +119,9 @@ private:
 	CBool m_initialized;
 	CBool m_maintenanceMode;
 
-	CFloat m_elapsedVideoTime;
+	CFloat m_elapsedTime;
 	CFloat m_nextVideoFrameTime;
 
-	CFloat m_elapsedAudioTime;
 	//Video
 	AVCodecContext* m_pVideoCodecContext;
 	AVFormatContext* m_pFormatVideoContext;

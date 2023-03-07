@@ -6,16 +6,14 @@
 #include "stdafx.h"
 #include "Video.h"
 #include "VandaEngineEditorDlg.h"
-#include <thread>
 
 CVideo::CVideo()
 {
 	m_sws_ctx = NULL;
 	m_initialized = CFalse;
 	m_maintenanceMode = CFalse;
-	m_elapsedVideoTime = 0.0f;
+	m_elapsedTime = 0.0f;
 	m_nextVideoFrameTime = 0.0f;
-	m_elapsedAudioTime = 0.0f;
 	//video
 	m_pFormatVideoContext = NULL;
 	m_pVideoCodecContext = NULL;
@@ -116,9 +114,8 @@ CVoid CVideo::Reset()
 	alGenSources(1, &m_soundSource);
 	alGenBuffers(NUM_VIDEO_SOUND_BUFFERS, &m_soundBuffers[0]);
 	m_num_sound_buffers = 0;
-	m_elapsedVideoTime = 0.0f;
+	m_elapsedTime = 0.0f;
 	m_nextVideoFrameTime = 0.0f;
-	m_elapsedAudioTime = 0.0f;
 	m_updateAudio = CTrue;
 
 	ResetFrame();
@@ -181,22 +178,16 @@ CBool CVideo::UpdateVideo()
 	if (!m_play)
 		return CFalse;
 
-	//if you want to seek sepecific frame over time
-	//make sure to enable m_resetFrame variable as well
-	//CFloat frame_time = (CFloat)m_videoStream->time_base.den / m_videoStream->r_frame_rate.num;
-	//int frame_index = int(m_elapsedVideoTime * (CFloat)m_videoStream->time_base.den / frame_time);
-	//SeekIFrame(frame_index);
-
 	CInt response = 0;
 	CBool videoFrameLoaded = CFalse;
 
 	//PrintInfo("\nReading Frame...", COLOR_YELLOW);
 
 	CBool exit = CFalse;
-
+	CFloat pts_sec = 0.0f;
 	if (!m_resetFrame)
 	{
-		while (m_elapsedVideoTime >= m_nextVideoFrameTime)
+		while (m_elapsedTime >= m_nextVideoFrameTime)
 		{
 			while (!videoFrameLoaded)
 			{
@@ -204,9 +195,10 @@ CBool CVideo::UpdateVideo()
 				{
 					if (m_pVideoPacket->stream_index == m_video_stream_index)
 					{
+						//pts_sec = (CFloat)m_pVideoPacket->pts * (CFloat)m_videoStream->time_base.num / (CFloat)m_videoStream->time_base.den;
 						//CChar temp[MAX_URI_SIZE];
-						//sprintf(temp, "\nVIDEO: AVPacket->pts %lld (%.2f sec)", m_pVideoPacket->pts, (CFloat)m_pVideoPacket->pts / (CFloat)m_videoStream->time_base.den);
-						//PrintInfo(temp);
+						//sprintf(temp, "\nVIDEO: AVPacket->pts %lld (%.2f sec)", m_pVideoPacket->pts, pts_sec);
+						//PrintInfo(temp, COLOR_YELLOW);
 
 						response = DecodeVideoPacket();
 
@@ -225,7 +217,8 @@ CBool CVideo::UpdateVideo()
 					if (m_loop)
 					{
 						av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
-						m_elapsedVideoTime = m_nextVideoFrameTime = 0.0f;
+						avcodec_flush_buffers(m_pVideoCodecContext);
+						m_elapsedTime = m_nextVideoFrameTime = 0.0f;
 					}
 					else
 					{
@@ -238,12 +231,9 @@ CBool CVideo::UpdateVideo()
 			videoFrameLoaded = CFalse;
 			m_nextVideoFrameTime += m_videoFrameTime;
 
-
 			if (exit)
 				break;
 		}
-
-		m_elapsedVideoTime += g_elapsedTime;
 	}
 	else
 	{
@@ -253,9 +243,9 @@ CBool CVideo::UpdateVideo()
 			{
 				if (m_pVideoPacket->stream_index == m_video_stream_index)
 				{
-					//CChar temp[MAX_URI_SIZE];
-					//sprintf(temp, "\nVIDEO: AVPacket->pts %lld (%.2f sec)", m_pVideoPacket->pts, (CFloat)m_pVideoPacket->pts / (CFloat)m_videoStream->time_base.den);
-					//PrintInfo(temp);
+					CChar temp[MAX_URI_SIZE];
+					sprintf(temp, "\nVIDEO: AVPacket->pts %lld (%.2f sec)", m_pVideoPacket->pts, (CFloat)m_pVideoPacket->pts * (CFloat)m_videoStream->time_base.num / (CFloat)m_videoStream->time_base.den);
+					PrintInfo(temp);
 
 					response = DecodeVideoPacket();
 
@@ -274,7 +264,8 @@ CBool CVideo::UpdateVideo()
 				if (m_loop)
 				{
 					av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
-					m_elapsedVideoTime = m_nextVideoFrameTime = 0.0f;
+					avcodec_flush_buffers(m_pVideoCodecContext);
+					m_elapsedTime = m_nextVideoFrameTime = 0.0f;
 				}
 				else
 				{
@@ -327,8 +318,9 @@ CBool CVideo::UpdateAudio()
 		{
 			if (m_pAudioPacket->stream_index == m_audio_stream_index)
 			{
+				CFloat pts_sec = (CFloat)m_pAudioPacket->pts * (CFloat)m_audioStream->time_base.num / (CFloat)m_audioStream->time_base.den;
 				//CChar temp[MAX_URI_SIZE];
-				//sprintf(temp, "\nAUDIO: AVPacket->pts %" PRId64, m_pAudioPacket->pts);
+				//sprintf(temp, "\nAUDIO: AVPacket->pts %lld (%.2f sec)", m_pAudioPacket->pts, pts_sec);
 				//PrintInfo(temp);
 
 				response = DecodeAudioPacket();
@@ -340,6 +332,9 @@ CBool CVideo::UpdateAudio()
 				}
 				if (m_num_sound_buffers >= NUM_VIDEO_SOUND_BUFFERS)
 					buffersProcessed--;
+
+				//sync video with audio. audio time is our reference
+				m_elapsedTime = pts_sec;
 			}
 
 			av_packet_unref(m_pAudioPacket);
@@ -349,6 +344,8 @@ CBool CVideo::UpdateAudio()
 			if (m_loop)
 			{
 				av_seek_frame(m_pFormatAudioContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
+				avcodec_flush_buffers(m_pAudioCodecContext);
+				m_elapsedTime = m_nextVideoFrameTime = 0.0f;
 			}
 			else
 			{
@@ -405,8 +402,8 @@ CInt CVideo::DecodeVideoPacket()
 			return response;
 		}
 
-		//do not update the frame if m_elapsedVideoTime is much higher than m_nextvideoFrameTime. Just update last frame
-		if (response >= 0 && ((m_elapsedVideoTime - m_nextVideoFrameTime) / m_videoFrameTime <= 1.0f || m_resetFrame))
+		//do not update the frame if m_elapsedTime is much higher than m_nextvideoFrameTime. Just update last frame
+		if (response >= 0 && ((m_elapsedTime - m_nextVideoFrameTime) / m_videoFrameTime <= 1.0f || m_resetFrame))
 		{
 			//CChar temp[MAX_URI_SIZE];
 			/*sprintf(temp,
