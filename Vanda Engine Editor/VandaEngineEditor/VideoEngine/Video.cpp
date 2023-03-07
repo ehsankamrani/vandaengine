@@ -123,17 +123,24 @@ CVoid CVideo::Reset()
 	m_resetFrame = CTrue;
 	UpdateAudio();
 	UpdateVideo();
+	UpdateVideo();
 	m_resetFrame = CFalse;
 }
 
 CVoid CVideo::ResetFrame()
 {
-	if(m_pFormatVideoContext)
+	if (m_pFormatVideoContext)
+	{
 		av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
-	if(m_pFormatAudioContext)
+		if(m_pVideoCodecContext)
+			avcodec_flush_buffers(m_pVideoCodecContext);
+	}
+	if (m_pFormatAudioContext)
+	{
 		av_seek_frame(m_pFormatAudioContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
-	avcodec_flush_buffers(m_pVideoCodecContext);
-	avcodec_flush_buffers(m_pAudioCodecContext);
+		if(m_pAudioCodecContext)
+			avcodec_flush_buffers(m_pAudioCodecContext);
+	}
 }
 
 CBool CVideo::Load()
@@ -141,14 +148,12 @@ CBool CVideo::Load()
 	if (!InitVideoStream())
 		return CFalse;
 
-	if(!InitAudioStream())
-	{
-		PrintInfo("\nCouldn't initialize audio stream. Does your video format contain audio?", COLOR_YELLOW);
-	}
+	InitAudioStream();
 
 	ResetFrame();
 	m_resetFrame = CTrue;
 	UpdateAudio(); 
+	UpdateVideo();
 	UpdateVideo();
 	m_resetFrame = CFalse;
 
@@ -218,6 +223,13 @@ CBool CVideo::UpdateVideo()
 					{
 						av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
 						avcodec_flush_buffers(m_pVideoCodecContext);
+						if (m_pFormatAudioContext)
+						{
+							av_seek_frame(m_pFormatAudioContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
+							if (m_pAudioCodecContext)
+								avcodec_flush_buffers(m_pAudioCodecContext);
+						}
+
 						m_elapsedTime = m_nextVideoFrameTime = 0.0f;
 					}
 					else
@@ -234,6 +246,10 @@ CBool CVideo::UpdateVideo()
 			if (exit)
 				break;
 		}
+		if (m_audioStream == NULL) //video has no audio
+		{
+			m_elapsedTime += g_elapsedTime;
+		}
 	}
 	else
 	{
@@ -243,9 +259,9 @@ CBool CVideo::UpdateVideo()
 			{
 				if (m_pVideoPacket->stream_index == m_video_stream_index)
 				{
-					CChar temp[MAX_URI_SIZE];
-					sprintf(temp, "\nVIDEO: AVPacket->pts %lld (%.2f sec)", m_pVideoPacket->pts, (CFloat)m_pVideoPacket->pts * (CFloat)m_videoStream->time_base.num / (CFloat)m_videoStream->time_base.den);
-					PrintInfo(temp);
+					//CChar temp[MAX_URI_SIZE];
+					//sprintf(temp, "\nVIDEO: AVPacket->pts %lld (%.2f sec)", m_pVideoPacket->pts, (CFloat)m_pVideoPacket->pts * (CFloat)m_videoStream->time_base.num / (CFloat)m_videoStream->time_base.den);
+					//PrintInfo(temp);
 
 					response = DecodeVideoPacket();
 
@@ -265,6 +281,12 @@ CBool CVideo::UpdateVideo()
 				{
 					av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
 					avcodec_flush_buffers(m_pVideoCodecContext);
+					if (m_pFormatAudioContext)
+					{
+						av_seek_frame(m_pFormatAudioContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
+						if (m_pAudioCodecContext)
+							avcodec_flush_buffers(m_pAudioCodecContext);
+					}
 					m_elapsedTime = m_nextVideoFrameTime = 0.0f;
 				}
 				else
@@ -345,6 +367,12 @@ CBool CVideo::UpdateAudio()
 			{
 				av_seek_frame(m_pFormatAudioContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
 				avcodec_flush_buffers(m_pAudioCodecContext);
+				if (m_pFormatVideoContext)
+				{
+					av_seek_frame(m_pFormatVideoContext, -1, 0, AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY);
+					if (m_pVideoCodecContext)
+						avcodec_flush_buffers(m_pVideoCodecContext);
+				}
 				m_elapsedTime = m_nextVideoFrameTime = 0.0f;
 			}
 			else
