@@ -161,10 +161,10 @@ CVoid CPolyGroup::EnableShader()
 						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), g_currentInstanceLight->GetRadius());
 					else if (num_point_lights == 2)
 						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), g_currentInstanceLight->GetRadius());
-					//else if (num_point_lights == 3)
-					//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
-					//else if (num_point_lights == 4)
-					//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
+					else if (num_point_lights == 3)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), g_currentInstanceLight->GetRadius());
+					else if (num_point_lights == 4)
+						glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), g_currentInstanceLight->GetRadius());
 				}
 
 				if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
@@ -172,6 +172,8 @@ CVoid CPolyGroup::EnableShader()
 					num_spot_lights++;
 					if (num_spot_lights == 1)
 						glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[0]"), g_currentInstanceLight->GetRadius());
+					else if (num_spot_lights == 2)
+						glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[1]"), g_currentInstanceLight->GetRadius());
 				}
 			}
 			glUniform1i(glGetUniformLocation(g_shaderType, "nr_dir_lights"), num_dir_lights);

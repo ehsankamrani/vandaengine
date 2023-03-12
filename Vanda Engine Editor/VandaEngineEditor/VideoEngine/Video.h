@@ -121,7 +121,6 @@ private:
 	
 	CFloat m_elapsedTime;
 	CFloat m_nextVideoFrameTime;
-
 	//Video
 	AVCodecContext* m_pVideoCodecContext;
 	AVFormatContext* m_pFormatVideoContext;

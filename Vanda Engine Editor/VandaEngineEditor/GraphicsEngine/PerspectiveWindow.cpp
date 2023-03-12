@@ -13,7 +13,7 @@
 #include "../VandaEngineEditor.h"
 #include "../VandaEngineEditorDlg.h"
 #include "Animation.h"
-#include <thread>
+//#include <thread>
 #include "imageLib.h"
 
 // CMultipleWindows
@@ -22,9 +22,9 @@ CInt g_totalLights = 0;
 IMPLEMENT_DYNAMIC(CMultipleWindows, CWnd)
 
 //Vanda C Functions to be used in Lua scripts
-CInt PlaySoundLoop(lua_State *L)
+CInt PlaySoundLoop(lua_State* L)
 {
-	if( g_testScript )
+	if (g_testScript)
 		return 0;
 	int argc = lua_gettop(L);
 
@@ -100,7 +100,7 @@ CInt PlaySoundLoop(lua_State *L)
 			if (Cmp(soundName, luaToString))
 			{
 				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
-				g_engine3DSounds[i]->SetLoop( CTrue );
+				g_engine3DSounds[i]->SetLoop(CTrue);
 				g_engine3DSounds[i]->SetPlay(CTrue);
 				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
 				//CChar temp[MAX_NAME_SIZE];
@@ -142,7 +142,7 @@ CInt PlaySoundLoop(lua_State *L)
 	return 0; // number of return values
 }
 
-CInt PlaySoundOnce(lua_State *L)
+CInt PlaySoundOnce(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -221,7 +221,7 @@ CInt PlaySoundOnce(lua_State *L)
 			if (Cmp(soundName, luaToString))
 			{
 				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
-				g_engine3DSounds[i]->SetLoop( CFalse );
+				g_engine3DSounds[i]->SetLoop(CFalse);
 				g_engine3DSounds[i]->SetPlay(CTrue);
 				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
 				//CChar temp[MAX_NAME_SIZE];
@@ -264,9 +264,9 @@ CInt PlaySoundOnce(lua_State *L)
 }
 
 
-CInt PauseSound(lua_State *L)
+CInt PauseSound(lua_State* L)
 {
-	if( g_testScript )
+	if (g_testScript)
 		return 0;
 
 	int argc = lua_gettop(L);
@@ -382,9 +382,9 @@ CInt PauseSound(lua_State *L)
 	return 0; // number of return values
 }
 
-CInt StopSound(lua_State *L)
+CInt StopSound(lua_State* L)
 {
-	if( g_testScript )
+	if (g_testScript)
 		return 0;
 
 	int argc = lua_gettop(L);
@@ -503,15 +503,15 @@ CInt StopSound(lua_State *L)
 	return 0; // number of return values
 }
 
-CInt BlendCycle(lua_State *L)
+CInt BlendCycle(lua_State* L)
 {
-	if( g_testScript )
+	if (g_testScript)
 		return 0;
 
 	int argc = lua_gettop(L);
-	if( argc < 4 )
+	if (argc < 4)
 	{
-		PrintInfo( "\nPlease specify 4 arguments for BlendCycle()", COLOR_RED );
+		PrintInfo("\nPlease specify 4 arguments for BlendCycle()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -762,7 +762,7 @@ CInt BlendCycle(lua_State *L)
 	return 0;
 }
 
-CInt ClearCycle(lua_State *L)
+CInt ClearCycle(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1024,7 +1024,7 @@ CInt ClearCycle(lua_State *L)
 	return 0;
 }
 
-CInt ExecuteAction(lua_State *L)
+CInt ExecuteAction(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1323,7 +1323,7 @@ CInt ExecuteAction(lua_State *L)
 	return 0;
 }
 
-CInt ReverseExecuteAction(lua_State *L)
+CInt ReverseExecuteAction(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1587,7 +1587,7 @@ CInt ReverseExecuteAction(lua_State *L)
 
 //First argument: prefab instance name
 //Second argument: animation clip name
-CInt RemoveAction(lua_State *L)
+CInt RemoveAction(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1852,7 +1852,7 @@ CInt RemoveAction(lua_State *L)
 
 //First Argument: Prefab Instance Name
 //Second Argument: Animation Clip Name
-CInt GetAnimationClipDuration(lua_State *L)
+CInt GetAnimationClipDuration(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2082,7 +2082,7 @@ CInt GetAnimationClipDuration(lua_State *L)
 						return 0;
 					}
 
-					lua_pushnumber( L, scene->m_animationClips[index]->GetDuration());
+					lua_pushnumber(L, scene->m_animationClips[index]->GetDuration());
 					return 1;
 
 				}
@@ -2100,7 +2100,7 @@ CInt GetAnimationClipDuration(lua_State *L)
 	return 0;
 }
 
-CInt ShowPrefabInstance(lua_State *L)
+CInt ShowPrefabInstance(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2188,7 +2188,7 @@ CInt ShowPrefabInstance(lua_State *L)
 	return 0;
 }
 
-CInt HidePrefabInstance(lua_State *L)
+CInt HidePrefabInstance(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2276,7 +2276,7 @@ CInt HidePrefabInstance(lua_State *L)
 	return 0;
 }
 
-CInt PauseAnimations(lua_State *L)
+CInt PauseAnimations(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2426,22 +2426,22 @@ CInt PauseAnimations(lua_State *L)
 	return 0;
 }
 
-CInt LoadVScene(lua_State *L)
+CInt LoadVScene(lua_State* L)
 {
-	if( g_testScript )
+	if (g_testScript)
 		return 0;
 
 	int argc = lua_gettop(L);
-	if( argc < 1 )
+	if (argc < 1)
 	{
-		PrintInfo( "\nPlease specify 1 argument for LoadVScene()", COLOR_RED );
+		PrintInfo("\nPlease specify 1 argument for LoadVScene()", COLOR_RED);
 		return 0;
 	}
 	//g_clickedNew = g_clickedOpen = CTrue;
 	//g_multipleView->m_loadScene = CTrue;
 	//find the scene
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy( luaToString, lua_tostring(L, 1) );
+	Cpy(luaToString, lua_tostring(L, 1));
 
 	CChar VSceneName[MAX_NAME_SIZE];
 	sprintf(VSceneName, "%s%s", luaToString, ".vin");
@@ -2587,7 +2587,7 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 				}
 
 				//resume matched ambient sound
-				for(CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
+				for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
 				{
 					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_engineAmbientSounds[j]->GetName()))
 						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
@@ -2670,13 +2670,13 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 	return 0;
 }
 
-CInt ExitGame(lua_State *L)
+CInt ExitGame(lua_State* L)
 {
 	PrintInfo("\nGame Will Exit", COLOR_YELLOW);
 	return 0;
 }
 
-CInt ActivateThirdPersonCamera(lua_State *L)
+CInt ActivateThirdPersonCamera(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2703,7 +2703,7 @@ CInt ActivateThirdPersonCamera(lua_State *L)
 	}
 }
 
-CInt ActivateFirstPersonCamera(lua_State *L)
+CInt ActivateFirstPersonCamera(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2732,7 +2732,7 @@ CInt ActivateFirstPersonCamera(lua_State *L)
 
 //First Argument: Imported Camera Name
 //Second Argument: End Time. Should Be Positive Value. Arbitrary Argument
-CInt ActivateImportedCamera( lua_State* L )
+CInt ActivateImportedCamera(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2746,8 +2746,8 @@ CInt ActivateImportedCamera( lua_State* L )
 
 	//find the scene
 	CChar luaToString[MAX_NAME_SIZE];
-	Cpy( luaToString, lua_tostring(L, 1) );
-	StringToUpper( luaToString );
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
 
 	CBool foundTarget = CFalse;
 
@@ -2759,20 +2759,20 @@ CInt ActivateImportedCamera( lua_State* L )
 			{
 				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames.size(); j++)
 				{
-					 CChar camera[MAX_NAME_SIZE];
-					 Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames[j].c_str());
-					 StringToUpper(camera);
+					CChar camera[MAX_NAME_SIZE];
+					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames[j].c_str());
+					StringToUpper(camera);
 
-					 if (Cmp(camera, luaToString))
-					 {
-						 foundTarget = CTrue;
+					if (Cmp(camera, luaToString))
+					{
+						foundTarget = CTrue;
 
-						 CChar message[MAX_NAME_SIZE];
-						 sprintf(message, "\nActivateImportedCamera() will execute for Project '%s', VScene '%s', Imported Camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames[j].c_str());
-						 PrintInfo(message, COLOR_GREEN);
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nActivateImportedCamera() will execute for Project '%s', VScene '%s', Imported Camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_importedCameraNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
 
-						 break;
-					 }
+						break;
+					}
 				}
 			}
 		}
@@ -2786,13 +2786,13 @@ CInt ActivateImportedCamera( lua_State* L )
 		return 0;
 	}
 
-	for( CUInt i = 0; i < g_importedCameraInstances.size(); i++ )
+	for (CUInt i = 0; i < g_importedCameraInstances.size(); i++)
 	{
 		CChar camera[MAX_NAME_SIZE];
-		Cpy( camera, g_importedCameraInstances[i]->m_abstractCamera->GetName() );
-		StringToUpper( camera );
+		Cpy(camera, g_importedCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(camera);
 
-		if( Cmp( camera, luaToString ) )
+		if (Cmp(camera, luaToString))
 		{
 			CFloat end_time = 0.0f;
 			CBool enableTimer = CFalse;
@@ -2810,7 +2810,7 @@ CInt ActivateImportedCamera( lua_State* L )
 				}
 			}
 
-			g_render.SetActiveInstanceCamera(  g_importedCameraInstances[i] );
+			g_render.SetActiveInstanceCamera(g_importedCameraInstances[i]);
 			g_importedCameraInstances[i]->SetIsTimerEnabled(enableTimer);
 			g_importedCameraInstances[i]->SetEndTime(end_time);
 			g_currentCameraType = eCAMERA_COLLADA;
@@ -3258,7 +3258,7 @@ CInt ActivateEngineCamera(lua_State* L)
 }
 
 //Argument: Angle in degrees
-CInt SetPhysicsCameraAngle(lua_State *L)
+CInt SetPhysicsCameraAngle(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3277,7 +3277,7 @@ CInt SetPhysicsCameraAngle(lua_State *L)
 	return 0;
 }
 
-CInt GetPhysicsCameraAngle(lua_State *L)
+CInt GetPhysicsCameraAngle(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3290,7 +3290,7 @@ CInt GetPhysicsCameraAngle(lua_State *L)
 	return 0;
 }
 
-CInt SetPhysicsCameraTilt(lua_State *L)
+CInt SetPhysicsCameraTilt(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3310,7 +3310,7 @@ CInt SetPhysicsCameraTilt(lua_State *L)
 	return 0;
 }
 
-CInt SetPhysicsCameraMaxTilt(lua_State *L)
+CInt SetPhysicsCameraMaxTilt(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3329,7 +3329,7 @@ CInt SetPhysicsCameraMaxTilt(lua_State *L)
 	return 0;
 }
 
-CInt SetPhysicsCameraMinTilt(lua_State *L)
+CInt SetPhysicsCameraMinTilt(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3348,7 +3348,7 @@ CInt SetPhysicsCameraMinTilt(lua_State *L)
 	return 0;
 }
 
-CInt GetPhysicsCameraTilt(lua_State *L)
+CInt GetPhysicsCameraTilt(lua_State* L)
 {
 	if (g_camera)
 	{
@@ -3359,7 +3359,7 @@ CInt GetPhysicsCameraTilt(lua_State *L)
 	return 0;
 }
 
-CInt GetPhysicsCameraMaxTilt(lua_State *L)
+CInt GetPhysicsCameraMaxTilt(lua_State* L)
 {
 	if (g_camera)
 	{
@@ -3370,7 +3370,7 @@ CInt GetPhysicsCameraMaxTilt(lua_State *L)
 	return 0;
 }
 
-CInt GetPhysicsCameraMinTilt(lua_State *L)
+CInt GetPhysicsCameraMinTilt(lua_State* L)
 {
 	if (g_camera)
 	{
@@ -3381,7 +3381,7 @@ CInt GetPhysicsCameraMinTilt(lua_State *L)
 	return 0;
 }
 
-CInt SetPhysicsCameraYaw(lua_State *L)
+CInt SetPhysicsCameraYaw(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3401,18 +3401,18 @@ CInt SetPhysicsCameraYaw(lua_State *L)
 	return 0;
 }
 
-CInt GetPhysicsCameraYaw(lua_State *L)
+CInt GetPhysicsCameraYaw(lua_State* L)
 {
 	if (g_camera)
 	{
 		lua_pushnumber(L, NxMath::radToDeg(g_camera->m_perspectiveCameraYaw));
 		return 1;
 	}
-	
+
 	return 0;
 }
 
-CInt LoadResource(lua_State *L)
+CInt LoadResource(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3460,7 +3460,7 @@ CInt LoadResource(lua_State *L)
 							foundTarget = CTrue;
 							foundTargetInCurrentProject = CTrue;
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nLoadResource() will load '%s/%s' resource in Project '%s'", lua_tostring(L, 1), lua_tostring(L, 2), g_projects[pr]->m_name );
+							sprintf(message, "\nLoadResource() will load '%s/%s' resource in Project '%s'", lua_tostring(L, 1), lua_tostring(L, 2), g_projects[pr]->m_name);
 							PrintInfo(message, COLOR_GREEN);
 							break;
 						}
@@ -3648,14 +3648,14 @@ CInt DeleteAllResources(lua_State* L)
 	for (CUInt j = 0; j < g_resourceFiles.size(); j++)
 		CDelete(g_resourceFiles[j]);
 	g_resourceFiles.clear();
-	
+
 	if (g_multipleView && g_multipleView->GetCursorIcon())
 		g_multipleView->GetCursorIcon()->SetVisible(CFalse);
 
 	return 0;
 }
 
-CInt PlayResourceSoundLoop(lua_State *L)
+CInt PlayResourceSoundLoop(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3761,7 +3761,7 @@ CInt PlayResourceSoundLoop(lua_State *L)
 	return 0;
 }
 
-CInt PlayResourceSoundOnce(lua_State *L)
+CInt PlayResourceSoundOnce(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3867,7 +3867,7 @@ CInt PlayResourceSoundOnce(lua_State *L)
 	return 0;
 }
 
-CInt StopResourceSound(lua_State *L)
+CInt StopResourceSound(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3943,7 +3943,7 @@ CInt StopResourceSound(lua_State *L)
 
 		CBool foundTarget = CFalse;
 		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
-		{ 
+		{
 			if (g_resourceFiles[i]->GetSoundSource())
 			{
 				CChar string[MAX_NAME_SIZE];
@@ -3972,7 +3972,7 @@ CInt StopResourceSound(lua_State *L)
 	return 0;
 }
 
-CInt StopAllResourceSounds(lua_State *L)
+CInt StopAllResourceSounds(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -3994,7 +3994,7 @@ CInt StopAllResourceSounds(lua_State *L)
 	return 0;
 }
 
-CInt PauseResourceSound(lua_State *L)
+CInt PauseResourceSound(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -4099,7 +4099,7 @@ CInt PauseResourceSound(lua_State *L)
 	return 0;
 }
 
-CInt ShowGUI(lua_State *L)
+CInt ShowGUI(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -4259,7 +4259,7 @@ CInt HideGUI(lua_State* L)
 	return 0;
 }
 
-CInt ShowCursorIcon(lua_State *L)
+CInt ShowCursorIcon(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -4363,7 +4363,7 @@ CInt ShowCursorIcon(lua_State *L)
 	return 0;
 }
 
-CInt HideCursorIcon(lua_State *L)
+CInt HideCursorIcon(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -4463,7 +4463,7 @@ CInt HideCursorIcon(lua_State *L)
 	return 0;
 }
 
-CInt PrintConsole(lua_State *L)
+CInt PrintConsole(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -4484,7 +4484,7 @@ CInt PrintConsole(lua_State *L)
 
 }
 
-CInt IsKeyDown(lua_State *L)
+CInt IsKeyDown(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -5521,7 +5521,7 @@ CInt IsKeyDown(lua_State *L)
 	return 0;
 }
 
-CInt SetSelectionDistance(lua_State *L)
+CInt SetSelectionDistance(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -5536,7 +5536,7 @@ CInt SetSelectionDistance(lua_State *L)
 	return 0;
 }
 
-CInt GetSelectionDistance(lua_State *L)
+CInt GetSelectionDistance(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -5546,7 +5546,7 @@ CInt GetSelectionDistance(lua_State *L)
 	return 1;
 }
 
-CInt SelectPrefabInstances(lua_State *L)
+CInt SelectPrefabInstances(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -9015,7 +9015,7 @@ CInt SetPhysicGroundHeight(lua_State* L)
 
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 	g_physXProperties.m_fGroundHeight = value;
-	
+
 	if (g_physXProperties.m_bGroundPlane)
 	{
 		g_multipleView->m_nx->ReleaseGroundPlane();
@@ -11228,7 +11228,7 @@ CInt SetPrefabInstanceScriptDoubleVariable(lua_State* L)
 					{
 						foundPrefabInstance = CTrue;
 						CChar message[MAX_NAME_SIZE];
-						sprintf(message, "\nSetPrefabInstanceScriptDoubleVariable(%s, %s, %.2f) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), value , g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						sprintf(message, "\nSetPrefabInstanceScriptDoubleVariable(%s, %s, %.2f) will be executed for Project '%s', VScene '%s' : Prefab Instance '%s'", prefabInstanceName, lua_tostring(L, 2), value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
 						PrintInfo(message, COLOR_GREEN);
 						break;
 					}
@@ -11359,7 +11359,7 @@ CInt GetGUIButtonScriptStringVariable(lua_State* L)
 		if (Cmp(gui, GUIName))
 		{
 			foundGUI = CTrue;
-			
+
 			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
 			{
 				CChar button[MAX_NAME_SIZE];
@@ -12116,7 +12116,7 @@ CInt SetGUIButtonScriptIntVariable(lua_State* L)
 							{
 								foundGUIButton = CTrue;
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nSetGUIButtonScriptIntVariable(%s, %s, %s, %d) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, value , g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
+								sprintf(message, "\nSetGUIButtonScriptIntVariable(%s, %s, %s, %d) will be executed for: Project '%s', VScene '%s', GUI '%s'", GUIName, buttonName, variableName, value, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_guiNames[j].m_name);
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -19379,7 +19379,7 @@ CInt SetGUIPosition(lua_State* L)
 		CChar gui[MAX_NAME_SIZE];
 		Cpy(gui, g_guis[i]->GetName());
 		StringToUpper(gui);
-		
+
 		CFloat x = (CFloat)lua_tonumber(L, 2);
 		CFloat y = (CFloat)lua_tonumber(L, 3);
 
@@ -20241,7 +20241,7 @@ CInt AttachPrefabInstanceToWater(lua_State* L)
 		PrintInfo("\nPlease specify 2 arguments for AttachPrefabInstanceToWater()", COLOR_RED);
 		return 0;
 	}
-	
+
 	if (lua_tostring(L, 1) == NULL) return 0;
 
 	CChar prefabInstanceName[MAX_NAME_SIZE];
@@ -20685,7 +20685,7 @@ CInt SetSoundVolume(lua_State* L)
 	}
 
 	CBool foundTarget = CFalse;
-	
+
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
 		for (CUInt pr = 0; pr < g_projects.size(); pr++)
@@ -20933,7 +20933,7 @@ CInt SetSoundPlay(lua_State* L)
 					if (Cmp(ThreeDSoundName, soundName))
 					{
 						CChar temp[MAX_NAME_SIZE];
-						if(play)
+						if (play)
 							sprintf(temp, "\nProject '%s', VScene '%s' : SetSoundPlay(%s, true) wil execute for 3D sound", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
 						else
 							sprintf(temp, "\nProject '%s', VScene '%s' : SetSoundPlay(%s, false) wil execute for 3D sound", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_3DSoundsNames[j].c_str());
@@ -21777,7 +21777,7 @@ CInt GetSoundPlay(lua_State* L)
 
 		if (Cmp(currentSoundName, soundName))
 		{
-			if(g_engine3DSounds[i]->GetPlay())
+			if (g_engine3DSounds[i]->GetPlay())
 				lua_pushboolean(L, 1);
 			else
 				lua_pushboolean(L, 0);
@@ -21793,7 +21793,7 @@ CInt GetSoundPlay(lua_State* L)
 
 		if (Cmp(currentSoundName, soundName))
 		{
-			if(g_engineAmbientSounds[i]->GetPlay())
+			if (g_engineAmbientSounds[i]->GetPlay())
 				lua_pushboolean(L, 1);
 			else
 				lua_pushboolean(L, 0);
@@ -22234,28 +22234,28 @@ CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
 
 CMultipleWindows::CMultipleWindows()
-: m_multiSample(CFalse)
-, m_grid( CTrue )
-, m_numSamples( 8 )
-, m_lMouseDown(CFalse)
-,m_rMouseDown(CFalse)
-,m_mMouseDown(CFalse)
-,m_selectObject(CTrue)
-,m_tempMovement(CFalse)
-,m_tempSelectedName( -1 )
-,m_lastSelectedName( -1 )
-,m_loadData( CTrue )
-,m_dynamicShadowMap(NULL)
-,m_timerCounter(0)
-,m_lockInput(CFalse)
-,m_lockEscape(CFalse)
-,m_loadScene(CFalse)
-,m_isPlayingGame(CFalse)
-, m_renderQuery(CFalse)
-, m_characterRotationTransition(CFalse)
-, m_previousCharacterRotation(0.0f)
-, m_initError(CFalse)
-, m_idleCounter(0.0f)
+	: m_multiSample(CFalse)
+	, m_grid(CTrue)
+	, m_numSamples(8)
+	, m_lMouseDown(CFalse)
+	, m_rMouseDown(CFalse)
+	, m_mMouseDown(CFalse)
+	, m_selectObject(CTrue)
+	, m_tempMovement(CFalse)
+	, m_tempSelectedName(-1)
+	, m_lastSelectedName(-1)
+	, m_loadData(CTrue)
+	, m_dynamicShadowMap(NULL)
+	, m_timerCounter(0)
+	, m_lockInput(CFalse)
+	, m_lockEscape(CFalse)
+	, m_loadScene(CFalse)
+	, m_isPlayingGame(CFalse)
+	, m_renderQuery(CFalse)
+	, m_characterRotationTransition(CFalse)
+	, m_previousCharacterRotation(0.0f)
+	, m_initError(CFalse)
+	, m_idleCounter(0.0f)
 {
 	m_selectedGUIIndex = -1;
 	m_cursorIcon = CNew(CIcon);
@@ -22286,46 +22286,46 @@ CMultipleWindows::~CMultipleWindows()
 	CDelete(m_cursorIcon);
 	DeleteMenuCursorTexture();
 
-	glDeleteTextures(eGBUFFER_NUM_TEXTURES, &m_textureTarget[0] );								
+	glDeleteTextures(eGBUFFER_NUM_TEXTURES, &m_textureTarget[0]);
 
-	glDeleteFramebuffersEXT( 1, &m_mFboID );
-	glDeleteFramebuffersEXT( 1, &m_fboID );
-	
-	CDelete( g_translateArrow );
-	CDelete( g_negativeZArrow );
-	CDelete (g_scaleArrow);
+	glDeleteFramebuffersEXT(1, &m_mFboID);
+	glDeleteFramebuffersEXT(1, &m_fboID);
+
+	CDelete(g_translateArrow);
+	CDelete(g_negativeZArrow);
+	CDelete(g_scaleArrow);
 	CDelete(g_rotateArrow);
-	CDelete( g_centerArrowScene );
-	CDelete( g_soundImg );
-	CDelete( g_pointLightImg );
-	CDelete( g_directionalLightImg );
-	CDelete( g_spotLightImg );
-	CDelete( g_pointLightCOLLADAImg );
-	CDelete( g_directionalLightCOLLADAImg );
-	CDelete( g_spotLightCOLLADAImg );
-	CDelete( g_waterImg );
-	CDelete( g_skyImg );
-	CDelete( g_cameraImg );
+	CDelete(g_centerArrowScene);
+	CDelete(g_soundImg);
+	CDelete(g_pointLightImg);
+	CDelete(g_directionalLightImg);
+	CDelete(g_spotLightImg);
+	CDelete(g_pointLightCOLLADAImg);
+	CDelete(g_directionalLightCOLLADAImg);
+	CDelete(g_spotLightCOLLADAImg);
+	CDelete(g_waterImg);
+	CDelete(g_skyImg);
+	CDelete(g_cameraImg);
 
-	CDelete( m_translationController );
+	CDelete(m_translationController);
 	CDelete(g_mainCharacter);
 	//Release physX here
-	if( m_nx )
+	if (m_nx)
 	{
 		m_nx->releaseNx();
 		delete m_nx;
 		m_nx = NULL;
 	}
 	//Release Audio
-	CDelete(m_soundSystem );
+	CDelete(m_soundSystem);
 
 	//Release input here
 	m_inputSystem->UnacquireAll();
 	m_inputSystem->Shutdown();
-	CDelete( m_inputSystem );
+	CDelete(m_inputSystem);
 
-	CDelete( g_camera );
-	CDelete( m_dynamicShadowMap );
+	CDelete(g_camera);
+	CDelete(m_dynamicShadowMap);
 	g_octree->ResetState();
 	m_dof.DeleteFBOs();
 	m_simpleFont.Release();
@@ -22362,52 +22362,52 @@ CInt CMultipleWindows::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	// TODO:  Add your specialized creation code here
 	// Can we put this in the constructor?
-  
+
 	CInt PixelFormat;
 	PIXELFORMATDESCRIPTOR pfd;
-	memset (&pfd, 0, sizeof(pfd));
-	pfd.nSize		= sizeof(PIXELFORMATDESCRIPTOR);
-	pfd.nVersion	= 1;
-	pfd.dwFlags		= PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.cColorBits	= 24;
+	memset(&pfd, 0, sizeof(pfd));
+	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	pfd.cColorBits = 24;
 	pfd.cAlphaBits = 8;
-	pfd.cDepthBits	= 32;
+	pfd.cDepthBits = 32;
 	pfd.cStencilBits = 0;
 
 	//Get a DC for the Client Area
-    m_pDC = new CClientDC(this);
+	m_pDC = new CClientDC(this);
 
-    //Failure to Get DC
-    if(m_pDC == NULL) {
-        MessageBox(_T("Failure to Get DC"));
-        return -1;
+	//Failure to Get DC
+	if (m_pDC == NULL) {
+		MessageBox(_T("Failure to Get DC"));
+		return -1;
 	}
-	if( m_multiSample )
+	if (m_multiSample)
 	{
-		switch( g_options.m_numSamples )
+		switch (g_options.m_numSamples)
 		{
-			case 2:
-				m_numSamples = 2;
-				break;
-			case 4:
-				m_numSamples = 4;
-				break;
-			case 8:
-				m_numSamples = 8;
-				break;
-			case 16:
-				m_numSamples = 16;
-				break;
-			default:
-				m_numSamples = 0;
+		case 2:
+			m_numSamples = 2;
+			break;
+		case 4:
+			m_numSamples = 4;
+			break;
+		case 8:
+			m_numSamples = 8;
+			break;
+		case 16:
+			m_numSamples = 16;
+			break;
+		default:
+			m_numSamples = 0;
 		}
 		GLint samples;
 		glGetIntegerv(GL_MAX_SAMPLES_EXT, &samples);
-		if( m_numSamples > (CInt)samples )
+		if (m_numSamples > (CInt)samples)
 			m_numSamples = samples;
-		if( WGLEW_ARB_pixel_format )
+		if (WGLEW_ARB_pixel_format)
 		{
-			CFloat fAttributes[] = {0,0};
+			CFloat fAttributes[] = { 0,0 };
 			UINT numFormats;
 			CInt attributes[] = {
 				WGL_DRAW_TO_WINDOW_ARB,GL_TRUE,
@@ -22423,72 +22423,72 @@ CInt CMultipleWindows::OnCreate(LPCREATESTRUCT lpCreateStruct)
 				0,0
 			};
 
-			wglChoosePixelFormatARB( m_pDC->GetSafeHdc(), attributes, fAttributes, 1, &PixelFormat, &numFormats );
-			if( numFormats == 0 )
+			wglChoosePixelFormatARB(m_pDC->GetSafeHdc(), attributes, fAttributes, 1, &PixelFormat, &numFormats);
+			if (numFormats == 0)
 			{
-				AfxMessageBox( "Couldn't initialize your window with your desired samples");
+				AfxMessageBox("Couldn't initialize your window with your desired samples");
 				CInt temp = m_numSamples / 2;
 				//Test for 2 samples
-				while( numFormats == 0 )
+				while (numFormats == 0)
 				{
-					if( temp < 2 )
+					if (temp < 2)
 					{
 						m_multiSample = CFalse;
 						break;
 					}
 					attributes[19] = temp;
-					wglChoosePixelFormatARB( m_pDC->GetSafeHdc(), attributes, fAttributes, 1, &PixelFormat, &numFormats );
-					temp = m_numSamples / 2 ;
+					wglChoosePixelFormatARB(m_pDC->GetSafeHdc(), attributes, fAttributes, 1, &PixelFormat, &numFormats);
+					temp = m_numSamples / 2;
 				}
-				if( numFormats == 0 )
-					AfxMessageBox( "Couldn't support multisampling" );
+				if (numFormats == 0)
+					AfxMessageBox("Couldn't support multisampling");
 				else
-					AfxMessageBox( "I could enable multisampling with lower samples" );
+					AfxMessageBox("I could enable multisampling with lower samples");
 			}
 		}
 		else
 		{
-			AfxMessageBox( "Couldn't support multisampling" );
+			AfxMessageBox("Couldn't support multisampling");
 			m_multiSample = CFalse;
 		}
 
 	}//if( multisampling )
 
-	if( !m_multiSample )
+	if (!m_multiSample)
 	{
-		PixelFormat = ChoosePixelFormat( m_pDC->GetSafeHdc(), &pfd);
+		PixelFormat = ChoosePixelFormat(m_pDC->GetSafeHdc(), &pfd);
 		if (PixelFormat == 0)
-		{	
+		{
 			AfxMessageBox("Couldn't choose the pixel format.");
 			delete m_pDC;
 			m_pDC = NULL;
-			return (-1);							
+			return (-1);
 		}
 	}
-	if (SetPixelFormat(m_pDC->GetSafeHdc(), PixelFormat, &pfd ) == FALSE)	
+	if (SetPixelFormat(m_pDC->GetSafeHdc(), PixelFormat, &pfd) == FALSE)
 	{
 		AfxMessageBox("Couldn't set the pixel format.");
 		delete m_pDC;
 		m_pDC = NULL;
-		return (-1);							
+		return (-1);
 	}
-	m_hRC = wglCreateContext( m_pDC->GetSafeHdc() );
-	if ( m_hRC == NULL)
+	m_hRC = wglCreateContext(m_pDC->GetSafeHdc());
+	if (m_hRC == NULL)
 	{
 		AfxMessageBox("Couldn't create the OpenGL context.");
 		delete m_pDC;
 		m_pDC = NULL;
-		return (-1);								
+		return (-1);
 	}
 
-	if (!wglMakeCurrent(m_pDC->GetSafeHdc(), m_hRC))					
+	if (!wglMakeCurrent(m_pDC->GetSafeHdc(), m_hRC))
 	{
 		AfxMessageBox("Couldn't make a stream between HDC and HRC.");
 		wglDeleteContext(m_hRC);
 		delete m_pDC;
 		m_pDC = NULL;
 		m_hRC = NULL;
-		return (-1);								
+		return (-1);
 	}
 	//if( !InitAll() )
 	//	return (-1);
@@ -22497,53 +22497,53 @@ CInt CMultipleWindows::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 CBool CMultipleWindows::InitAll()
 {
-	for( CInt i = 0; i < 8; i++ )
+	for (CInt i = 0; i < 8; i++)
 	{
 		glEnable(GL_LIGHT0 + i);	 //just for per vertex lighting 	
 
 		//This is the properties of the camera light
-		GLfloat light_pos0[4] = {0.0f, 0.0f, 0.0f, 0.0f };
+		GLfloat light_pos0[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		GLfloat light_ambient0[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		GLfloat light_diffuse0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		GLfloat light_specular0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-		glLightfv( GL_LIGHT0 + i, GL_POSITION, light_pos0  );
-		glLightfv( GL_LIGHT0 + i, GL_AMBIENT , light_ambient0 );
-		glLightfv( GL_LIGHT0 + i, GL_DIFFUSE , light_diffuse0 );
-		glLightfv( GL_LIGHT0 + i, GL_SPECULAR, light_specular0 );
-		glLightf ( GL_LIGHT0 + i, GL_SPOT_CUTOFF,(GLfloat)180.0f );
-		glLightf ( GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION , (GLfloat)0.0f );
-		glLightf ( GL_LIGHT0 + i, GL_LINEAR_ATTENUATION,	(GLfloat)0.0f );
-		glLightf ( GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f );
+		glLightfv(GL_LIGHT0 + i, GL_POSITION, light_pos0);
+		glLightfv(GL_LIGHT0 + i, GL_AMBIENT, light_ambient0);
+		glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, light_diffuse0);
+		glLightfv(GL_LIGHT0 + i, GL_SPECULAR, light_specular0);
+		glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, (GLfloat)180.0f);
+		glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, (GLfloat)0.0f);
+		glLightf(GL_LIGHT0 + i, GL_LINEAR_ATTENUATION, (GLfloat)0.0f);
+		glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f);
 	}
 	glShadeModel(GL_SMOOTH);										// Enable Smooth Shading
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);							// Black Background
-	glClearDepth( 1.0 );
+	glClearDepth(1.0);
 
 	//glEnable(GL_TEXTURE_2D);							
-	glEnable(GL_DEPTH_TEST);							
-	glDepthFunc(GL_LEQUAL);								
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
-	glEnable( GL_CULL_FACE );
-	glCullFace( GL_BACK ); 
-	glLightModeli( GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR );
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 	GLfloat globalAmbientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	glLightModelfv( GL_LIGHT_MODEL_AMBIENT, globalAmbientLight );
-	glEnable( GL_NORMALIZE );
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbientLight);
+	glEnable(GL_NORMALIZE);
 
 	CFog fog;
-	fog.SetColor( g_fogProperties.m_fogColor );
-	fog.SetDensity( g_fogProperties.m_fogDensity );
+	fog.SetColor(g_fogProperties.m_fogColor);
+	fog.SetDensity(g_fogProperties.m_fogDensity);
 
-	if( m_multiSample )
-		glDisable( GL_MULTISAMPLE );
+	if (m_multiSample)
+		glDisable(GL_MULTISAMPLE);
 	//glDrawBuffer( GL_BACK );
 
-	if( !m_dynamicShadowMap )
+	if (!m_dynamicShadowMap)
 	{
-		m_dynamicShadowMap = CNew( CShadowMap );
+		m_dynamicShadowMap = CNew(CShadowMap);
 		g_dynamicShadowMap = m_dynamicShadowMap;
-		if( m_dynamicShadowMap->Init() )
+		if (m_dynamicShadowMap->Init())
 			g_render.m_useDynamicShadowMap = CTrue;
 		else
 		{
@@ -22553,16 +22553,16 @@ CBool CMultipleWindows::InitAll()
 
 	// I use this variable to load the data once. We may destroy and create the window multiple times,
 	// But we don't need to load and unload some data for multiple times
-	if( m_loadData ) 
+	if (m_loadData)
 	{
-		m_dof.InitFBOs( g_width, g_height );
-		g_octree = CNew( COctree );
+		m_dof.InitFBOs(g_width, g_height);
+		g_octree = CNew(COctree);
 		g_updateOctree = CTrue;
 		//initialize audio
 		// Position of the listener.
 		m_listenerPos[0] = m_listenerPos[1] = m_listenerPos[2] = 0.0f;
 		// Velocity of the listener.
-		m_listenerVel[0] = m_listenerVel[1] = m_listenerVel[2] =  0.0f;
+		m_listenerVel[0] = m_listenerVel[1] = m_listenerVel[2] = 0.0f;
 		// Orientation of the listener. (first 3 elements are "at", second 3 are "up")
 		m_listenerOri[0] = 0.0f;
 		m_listenerOri[1] = 0.0f;
@@ -22573,19 +22573,19 @@ CBool CMultipleWindows::InitAll()
 
 		g_soundSystem = m_soundSystem = CNew(COpenALSystem);
 		m_soundSystem->Init();
-		alDistanceModel( AL_INVERSE_DISTANCE );
+		alDistanceModel(AL_INVERSE_DISTANCE);
 
 		//initialize input
 		m_inputSystem = new CInputSystem();
 		m_inputSystem->AcquireAll();
 
-		if( !m_inputSystem->Initialize( CWnd::m_hWnd, AfxGetInstanceHandle(), true, IS_USEKEYBOARD | IS_USEMOUSE ) )
+		if (!m_inputSystem->Initialize(CWnd::m_hWnd, AfxGetInstanceHandle(), true, IS_USEKEYBOARD | IS_USEMOUSE))
 		{
-			PrintInfo( "\nCouldn't initialize Input Engine", COLOR_RED );
+			PrintInfo("\nCouldn't initialize Input Engine", COLOR_RED);
 			return false;
 		}
 		else
-			PrintInfo( "\nKeyboard and Mouse manager initialized successfully", COLOR_WHITE );
+			PrintInfo("\nKeyboard and Mouse manager initialized successfully", COLOR_WHITE);
 
 		//Initialize physX here
 
@@ -22599,17 +22599,17 @@ CBool CMultipleWindows::InitAll()
 		else
 		{
 			char temp[MAX_NAME_SIZE];
-			sprintf( temp, "\nPhysX version %i.%i.%i initialized successfully", NX_SDK_VERSION_MAJOR, NX_SDK_VERSION_MINOR, NX_SDK_VERSION_BUGFIX );
-			PrintInfo( temp, COLOR_WHITE );
+			sprintf(temp, "\nPhysX version %i.%i.%i initialized successfully", NX_SDK_VERSION_MAJOR, NX_SDK_VERSION_MINOR, NX_SDK_VERSION_BUGFIX);
+			PrintInfo(temp, COLOR_WHITE);
 		}
 
-		if( !timer.Init() )
+		if (!timer.Init())
 		{
 			PrintInfo("\nCouldn't initialize timer.", COLOR_RED);
-			return false; 
+			return false;
 		}
 		else
-			PrintInfo( "\nTimer initialized successfully\n", COLOR_WHITE );
+			PrintInfo("\nTimer initialized successfully\n", COLOR_WHITE);
 
 		if (!m_simpleFont.Init("Arial", 14))
 		{
@@ -22625,24 +22625,24 @@ CBool CMultipleWindows::InitAll()
 
 		m_loadData = CFalse;
 	}
-	SetTimer( 1, 1, 0 );
+	SetTimer(1, 1, 0);
 	m_enableTimer = CTrue;
 	SetElapsedTimeFromBeginning(); //reset the timer
-	g_translateArrow = CNew( CScene );
+	g_translateArrow = CNew(CScene);
 	//Load Default Arrows
 	g_reportInfo = CFalse;
 
 	g_shareGeometriesBetweenScenes = CFalse;
-	if( !g_translateArrow->Load( "Assets/engine/Arrows/ArrowTranslate.dae", CFalse ) )
+	if (!g_translateArrow->Load("Assets/engine/Arrows/ArrowTranslate.dae", CFalse))
 	{
-		PrintInfo( "\nCouldn't load the arrows", COLOR_RED );
+		PrintInfo("\nCouldn't load the arrows", COLOR_RED);
 		//return false;
 	}
-	g_render.SetScene( g_translateArrow );
+	g_render.SetScene(g_translateArrow);
 	g_translateArrow->Update();
 
-	g_scaleArrow = CNew( CScene );
-	if( !g_scaleArrow->Load( "Assets/engine/Arrows/ArrowScale.dae", CFalse ) )
+	g_scaleArrow = CNew(CScene);
+	if (!g_scaleArrow->Load("Assets/engine/Arrows/ArrowScale.dae", CFalse))
 	{
 		PrintInfo("\nCouldn't load the Scale arrow", COLOR_RED);
 		//return false;
@@ -22659,28 +22659,28 @@ CBool CMultipleWindows::InitAll()
 	g_render.SetScene(g_rotateArrow);
 	g_rotateArrow->Update();
 
-	g_negativeZArrow = CNew( CScene );
-	if( !g_negativeZArrow->Load( "Assets/engine/Arrows/NegativeZArrow.dae", CFalse ) )
+	g_negativeZArrow = CNew(CScene);
+	if (!g_negativeZArrow->Load("Assets/engine/Arrows/NegativeZArrow.dae", CFalse))
 	{
-		PrintInfo( "\nCouldn't load the negative Z arrow", COLOR_RED );
+		PrintInfo("\nCouldn't load the negative Z arrow", COLOR_RED);
 		return false;
 	}
-	g_render.SetScene( g_negativeZArrow );
+	g_render.SetScene(g_negativeZArrow);
 	g_negativeZArrow->Update();
 
-	g_centerArrowScene = CNew( CScene );
+	g_centerArrowScene = CNew(CScene);
 	//Load Default Arrows
-	if( !g_centerArrowScene->Load( "Assets/engine/Arrows/ArrowCenter.dae", CFalse ) )
+	if (!g_centerArrowScene->Load("Assets/engine/Arrows/ArrowCenter.dae", CFalse))
 	{
-		PrintInfo( "\nCouldn't load the arrows", COLOR_RED );
+		PrintInfo("\nCouldn't load the arrows", COLOR_RED);
 		return false;
 	}
-	g_render.SetScene( g_centerArrowScene );
+	g_render.SetScene(g_centerArrowScene);
 	g_shareGeometriesBetweenScenes = CTrue;
 	g_reportInfo = CTrue;
 
 	g_centerArrowScene->Update();
-	m_translationController = CNew( CMouseTranslationController );
+	m_translationController = CNew(CMouseTranslationController);
 	//Load Default Textures
 	GenerateDefaultTextures();
 	return true;
@@ -22689,92 +22689,92 @@ CBool CMultipleWindows::InitAll()
 
 CBool CMultipleWindows::GenerateDefaultTextures()
 {
-	g_soundImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_soundImg, "Assets/Engine/Icons/sound.dds", NULL ) )
+	g_soundImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_soundImg, "Assets/Engine/Icons/sound.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the sound texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the sound texture");
 		return CFalse;
 	}
-	g_soundImg->SetFileName( "sound.dds" );
+	g_soundImg->SetFileName("sound.dds");
 
 	//point light
-	g_pointLightImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_pointLightImg, "Assets/Engine/Icons/point_light.dds", NULL ) )
+	g_pointLightImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_pointLightImg, "Assets/Engine/Icons/point_light.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the point light texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the point light texture");
 		return CFalse;
 	}
-	g_pointLightImg->SetFileName( "point_light.dds" );
+	g_pointLightImg->SetFileName("point_light.dds");
 
 	//directional light
-	g_directionalLightImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_directionalLightImg, "Assets/Engine/Icons/directional_light.dds", NULL ) )
+	g_directionalLightImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_directionalLightImg, "Assets/Engine/Icons/directional_light.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the directional light texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the directional light texture");
 		return CFalse;
 	}
-	g_directionalLightImg->SetFileName( "directional_light.dds" );
+	g_directionalLightImg->SetFileName("directional_light.dds");
 
 	//spot light
-	g_spotLightImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_spotLightImg, "Assets/Engine/Icons/spot_light.dds", NULL ) )
+	g_spotLightImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_spotLightImg, "Assets/Engine/Icons/spot_light.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the spot light texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the spot light texture");
 		return CFalse;
 	}
-	g_spotLightImg->SetFileName( "spot_light.dds" );
+	g_spotLightImg->SetFileName("spot_light.dds");
 
 	//COLLADA icons
 	//point light
-	g_pointLightCOLLADAImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_pointLightCOLLADAImg, "Assets/Engine/Icons/point_light_collada.dds", NULL ) )
+	g_pointLightCOLLADAImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_pointLightCOLLADAImg, "Assets/Engine/Icons/point_light_collada.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the point_light_collada texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the point_light_collada texture");
 		return CFalse;
 	}
-	g_pointLightCOLLADAImg->SetFileName( "point_light_collada.dds" );
+	g_pointLightCOLLADAImg->SetFileName("point_light_collada.dds");
 
 	//directional light
-	g_directionalLightCOLLADAImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_directionalLightCOLLADAImg, "Assets/Engine/Icons/directional_light_collada.dds", NULL ) )
+	g_directionalLightCOLLADAImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_directionalLightCOLLADAImg, "Assets/Engine/Icons/directional_light_collada.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the directional_light_collada texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the directional_light_collada texture");
 		return CFalse;
 	}
-	g_directionalLightCOLLADAImg->SetFileName( "directional_light_collada.dds" );
+	g_directionalLightCOLLADAImg->SetFileName("directional_light_collada.dds");
 
 	//spot light
-	g_spotLightCOLLADAImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_spotLightCOLLADAImg, "Assets/Engine/Icons/spot_light_collada.dds", NULL ) )
+	g_spotLightCOLLADAImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_spotLightCOLLADAImg, "Assets/Engine/Icons/spot_light_collada.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the spot_light_collada texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the spot_light_collada texture");
 		return CFalse;
 	}
-	g_spotLightCOLLADAImg->SetFileName( "spot_light_collada.dds" );
+	g_spotLightCOLLADAImg->SetFileName("spot_light_collada.dds");
 	//////////////////
-	g_skyImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_skyImg, "Assets/Engine/Icons/sky.dds", NULL ) )
+	g_skyImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_skyImg, "Assets/Engine/Icons/sky.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the sky texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the sky texture");
 		return CFalse;
 	}
-	g_skyImg->SetFileName( "sky.dds" );
+	g_skyImg->SetFileName("sky.dds");
 
-	g_waterImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_waterImg, "Assets/Engine/Icons/water.dds", NULL ) )
+	g_waterImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_waterImg, "Assets/Engine/Icons/water.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the water texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the water texture");
 		return CFalse;
 	}
-	g_waterImg->SetFileName( "water.dds" );
+	g_waterImg->SetFileName("water.dds");
 	//camera
-	g_cameraImg = CNew( CImage );
-	if(!CTexture::LoadDDSTexture( g_cameraImg, "Assets/Engine/Icons/camera.dds", NULL ) )
+	g_cameraImg = CNew(CImage);
+	if (!CTexture::LoadDDSTexture(g_cameraImg, "Assets/Engine/Icons/camera.dds", NULL))
 	{
-		PrintInfo( "\nGenerateDefaultTextures>Couldn't load the camera texture");
+		PrintInfo("\nGenerateDefaultTextures>Couldn't load the camera texture");
 		return CFalse;
 	}
-	g_cameraImg->SetFileName( "camera.dds" );
+	g_cameraImg->SetFileName("camera.dds");
 
 	return CTrue;
 }
@@ -22782,7 +22782,7 @@ CBool CMultipleWindows::GenerateDefaultTextures()
 CVoid CMultipleWindows::OnSize(UINT nType, CInt cx, CInt cy)
 {
 	CWnd::OnSize(nType, cx, cy);
-	
+
 	// TODO: Add your message handler code here
 	m_width = cx;
 	m_height = cy;
@@ -22790,10 +22790,10 @@ CVoid CMultipleWindows::OnSize(UINT nType, CInt cx, CInt cy)
 
 CVoid CMultipleWindows::OnDestroy()
 {
-	wglMakeCurrent( NULL, NULL );
-	if( m_hRC )
-		wglDeleteContext( m_hRC );
-	if( m_pDC )
+	wglMakeCurrent(NULL, NULL);
+	if (m_hRC)
+		wglDeleteContext(m_hRC);
+	if (m_pDC)
 		delete m_pDC;
 
 	KillTimer(1);
@@ -22816,7 +22816,7 @@ CVoid CMultipleWindows::OnTimer(UINT_PTR nIDEvent)
 	OnPaint();
 }
 
-CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
+CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	GetCursorPos(&m_point);
 	m_dx = m_prev_dx = m_point.x;
@@ -23054,24 +23054,24 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 		return;
 	}
 
-	ActivateCamera( point );
+	ActivateCamera(point);
 	m_isPlayingGame = CTrue;
 	SetCapture();
 	SetFocus();
-	if( !m_enableTimer )
+	if (!m_enableTimer)
 	{
 		SetElapsedTimeFromBeginning();
-		SetTimer( 1, 1, 0 );
+		SetTimer(1, 1, 0);
 	}
-	if( !g_menu.m_justPerspective )
+	if (!g_menu.m_justPerspective)
 	{
 		m_translateMousePosition.x = point.x * 2;
-		m_translateMousePosition.y =   ( 2 * point.y )  -  g_height;
+		m_translateMousePosition.y = (2 * point.y) - g_height;
 	}
 	else
 		m_translateMousePosition = point;
 
-	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 	{
 		CUInt m_name;
 		m_name = GetSelectedObject(CTrue);
@@ -23194,20 +23194,20 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point )
 	m_lMouseDown = CTrue;
 	m_mousePosition = point;  //It's used for selection
 	m_tempMovement = CFalse; //It's used for selection
-	
-	if( g_camera->m_activatePerspectiveCamera )
+
+	if (g_camera->m_activatePerspectiveCamera)
 	{
 		//if( g_camera->m_activatePerspectiveCamera && g_transformObject && !m_translationController->Initialized() )
 		//	m_currentCursor = LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_UNAVAILABLE));
 		//else
-			m_currentCursor = LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_MOVE));
+		m_currentCursor = LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_MOVE));
 	}
 	else
 		m_currentCursor = LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_CUSTOM_HAND));
 
-	SetCursor( m_currentCursor );
+	SetCursor(m_currentCursor);
 
-	CWnd::OnLButtonDown(nFlags, point );
+	CWnd::OnLButtonDown(nFlags, point);
 }
 
 CVoid CMultipleWindows::OnLButtonUp(UINT nFlags, CPoint point)
@@ -23243,7 +23243,7 @@ CVoid CMultipleWindows::OnLButtonUp(UINT nFlags, CPoint point)
 		}
 	}
 
-	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 	{
 		if (!g_transformObject && !m_tempMovement && g_camera->m_activatePerspectiveCamera)
 		{
@@ -23568,17 +23568,17 @@ CVoid CMultipleWindows::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 	RenderWindow();
-	if( !m_enableTimer )
+	if (!m_enableTimer)
 		KillTimer(1);
 	CWnd::OnLButtonUp(nFlags, point);
 }
 
-CVoid CMultipleWindows::EnableTimer( CBool enable )
+CVoid CMultipleWindows::EnableTimer(CBool enable)
 {
-	if( enable )
-		SetTimer( 1, 1, 0 );
+	if (enable)
+		SetTimer(1, 1, 0);
 	else
-		KillTimer( 1 );
+		KillTimer(1);
 
 	if (!enable)
 	{
@@ -23616,7 +23616,7 @@ CVoid CMultipleWindows::OnRButtonDown(UINT nFlags, CPoint point)
 			}
 		}
 	}
-	if (g_editorMode == eMODE_VSCENE &&  g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
 		for (CUInt i = 0; i < g_guis.size(); i++)
@@ -23644,13 +23644,13 @@ CVoid CMultipleWindows::OnRButtonDown(UINT nFlags, CPoint point)
 	}
 
 
-	m_isPlayingGame	= CTrue;
-	ActivateCamera( point );
+	m_isPlayingGame = CTrue;
+	ActivateCamera(point);
 
-	if( !m_enableTimer )
+	if (!m_enableTimer)
 	{
 		SetElapsedTimeFromBeginning();
-		SetTimer( 1, 1, 0 );
+		SetTimer(1, 1, 0);
 	}
 
 	SetCapture();
@@ -23678,11 +23678,11 @@ CVoid CMultipleWindows::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	m_isPlayingGame = CFalse;
 	// TODO: Add your message handler code here and/or call default
-	if( GetCapture() == this )
+	if (GetCapture() == this)
 		ReleaseCapture();
 	m_rMouseDown = CFalse;
 
-	if( !m_enableTimer )
+	if (!m_enableTimer)
 		KillTimer(1);
 	CWnd::OnRButtonUp(nFlags, point);
 }
@@ -23693,10 +23693,10 @@ CVoid CMultipleWindows::OnMButtonDown(UINT nFlags, CPoint point)
 		return;
 
 	m_mMouseDown = CTrue;
-	if(!m_isPlayingGame)
-		OnLButtonDown( nFlags, point );
+	if (!m_isPlayingGame)
+		OnLButtonDown(nFlags, point);
 	else
-		OnLButtonUp( nFlags, point );
+		OnLButtonUp(nFlags, point);
 	//CWnd::OnMButtonDown(nFlags, point);
 }
 
@@ -23723,7 +23723,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 		{
 			if (g_guiButtons[k]->GetIndex() == m_selectedGUIIndex)
 			{
-				if (g_guiButtons[k]->GetCurrentImageType() == eBUTTON_IMAGE_MAIN &&  g_guiButtons[k]->GetHasHoverImage())
+				if (g_guiButtons[k]->GetCurrentImageType() == eBUTTON_IMAGE_MAIN && g_guiButtons[k]->GetHasHoverImage())
 				{
 					if (g_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 					{
@@ -23745,7 +23745,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (g_editorMode == eMODE_VSCENE &&  g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
 		for (CUInt i = 0; i < g_guis.size(); i++)
@@ -23760,7 +23760,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 						{
 							if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
 								g_guis[i]->m_guiButtons[k]->OnSelectMouseEnterScript();
-							
+
 						}
 
 						g_guis[i]->m_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
@@ -23774,7 +23774,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		m_previousSelectedGUIIndex = m_selectedGUIIndex;
 	}
-	else if ( g_editorMode == eMODE_VSCENE && g_camera->m_activatePerspectiveCamera && !g_multipleView->IsPlayGameMode() && m_selectedGUI && m_lMouseDown)
+	else if (g_editorMode == eMODE_VSCENE && g_camera->m_activatePerspectiveCamera && !g_multipleView->IsPlayGameMode() && m_selectedGUI && m_lMouseDown)
 	{
 		m_mousePosition = point;
 
@@ -23811,7 +23811,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 	else if (g_editorMode == eMODE_GUI && !g_multipleView->IsPlayGameMode())
 	{
 		if (m_selectedGUIIndex != -1 && m_lMouseDown)
-		{ 
+		{
 			m_mousePosition = point;
 
 			CVec2f position;
@@ -23908,30 +23908,30 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 
 }
 
-CVoid CMultipleWindows::ActivateCamera( CPoint point )
+CVoid CMultipleWindows::ActivateCamera(CPoint point)
 {
-	if( g_menu.m_justPerspective || ( point.x < m_width / 2 && point.y > m_height / 2 ) ) //perspective window
+	if (g_menu.m_justPerspective || (point.x < m_width / 2 && point.y > m_height / 2)) //perspective window
 	{
 		g_camera->m_activatePerspectiveCamera = CTrue;
 		g_camera->m_activateLowerRightCamera = CFalse;
 		g_camera->m_activateUpperLeftCamera = CFalse;
 		g_camera->m_activateUpperRightCamera = CFalse;
 	}
-	else if( ( point.x < m_width / 2 && point.y < m_height / 2 ) ) //upper left
+	else if ((point.x < m_width / 2 && point.y < m_height / 2)) //upper left
 	{
 		g_camera->m_activatePerspectiveCamera = CFalse;
 		g_camera->m_activateLowerRightCamera = CFalse;
 		g_camera->m_activateUpperLeftCamera = CTrue;
 		g_camera->m_activateUpperRightCamera = CFalse;
 	}
-	else if( ( point.x > m_width / 2 && point.y < m_height / 2 ) ) //upper right
+	else if ((point.x > m_width / 2 && point.y < m_height / 2)) //upper right
 	{
 		g_camera->m_activatePerspectiveCamera = CFalse;
 		g_camera->m_activateLowerRightCamera = CFalse;
 		g_camera->m_activateUpperLeftCamera = CFalse;
 		g_camera->m_activateUpperRightCamera = CTrue;
 	}
-	else if( ( point.x > m_width / 2 && point.y > m_height / 2 ) ) //lower right
+	else if ((point.x > m_width / 2 && point.y > m_height / 2)) //lower right
 	{
 		g_camera->m_activatePerspectiveCamera = CFalse;
 		g_camera->m_activateLowerRightCamera = CTrue;
@@ -24007,7 +24007,7 @@ CVoid CMultipleWindows::DrawGUIMode()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	////Draw grids of the GUI window 
-	glViewport(0, 0, m_width ,m_height );// resets the viewport to new dimensions.
+	glViewport(0, 0, m_width, m_height);// resets the viewport to new dimensions.
 
 	g_camera->m_cameraManager->Set2DOrtho(-100.0f, 100.0f, -100.0f, 100.0f);
 	g_render.ModelViewMatrix();
@@ -24170,65 +24170,65 @@ CVoid CMultipleWindows::DrawUpperLeft()
 	if (m_initError)
 		return;
 
-	glPushAttrib( GL_VIEWPORT_BIT );
-	glMatrixMode( GL_PROJECTION );
+	glPushAttrib(GL_VIEWPORT_BIT);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	////Draw grids of the upper left window 
-	glViewport( 0, m_height / 2 , m_width / 2 , m_height / 2 );// resets the viewport to new dimensions.
-	g_camera->m_cameraManager->Set2DOrtho( -m_width * g_camera->m_upperLeftZoom , m_width * g_camera->m_upperLeftZoom, -m_height * g_camera->m_upperLeftZoom, m_height * g_camera->m_upperLeftZoom ); 
+	glViewport(0, m_height / 2, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+	g_camera->m_cameraManager->Set2DOrtho(-m_width * g_camera->m_upperLeftZoom, m_width * g_camera->m_upperLeftZoom, -m_height * g_camera->m_upperLeftZoom, m_height * g_camera->m_upperLeftZoom);
 	g_render.ModelViewMatrix();
 	g_render.IdentityMatrix();
-	gluLookAt( g_camera->m_upperLeftMoveHorizantal , g_camera->m_upperLeftMoveVertical, 1.0f,
+	gluLookAt(g_camera->m_upperLeftMoveHorizantal, g_camera->m_upperLeftMoveVertical, 1.0f,
 		g_camera->m_upperLeftMoveHorizantal, g_camera->m_upperLeftMoveVertical,
-		0.0f, 0.0f, 1.0f, 0.0f );
+		0.0f, 0.0f, 1.0f, 0.0f);
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-	glLineWidth( 1.0f );
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glLineWidth(1.0f);
 	g_render.m_useShader = CFalse;
 
-	glPushAttrib( GL_CURRENT_BIT | GL_ENABLE_BIT );
-	glDisable( GL_TEXTURE_2D );
-	glEnable( GL_DEPTH_TEST );
-	glBegin( GL_LINES );
-	for( CInt index = -100; index <= 100; index++ )
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glBegin(GL_LINES);
+	for (CInt index = -100; index <= 100; index++)
 	{
 		CInt layer = -1;
-		if( index == 0 )
+		if (index == 0)
 		{
-			glColor3f( 0.0f, 0.0f, 0.0f );
+			glColor3f(0.0f, 0.0f, 0.0f);
 			layer = -49000;
 		}
-		else if( index % 5 ==  0 ) 
+		else if (index % 5 == 0)
 		{
-			glColor3f( 0.2f, 0.2f, 0.2f );
+			glColor3f(0.2f, 0.2f, 0.2f);
 			layer = -49000;
 		}
 		else
 		{
-			glColor3f( 0.45f, 0.45f, 0.45f );
+			glColor3f(0.45f, 0.45f, 0.45f);
 			layer = -49001;
 		}
 
-		if( g_camera->m_upperLeftZoom > 0.05 )
+		if (g_camera->m_upperLeftZoom > 0.05)
 		{
-			if( index % 5 == 0 )
+			if (index % 5 == 0)
 			{
-				glVertex3f( 0.0f + (CFloat)index, -100.0f, layer );
-				glVertex3f( 0.0f + (CFloat)index, 100.0f, layer );
+				glVertex3f(0.0f + (CFloat)index, -100.0f, layer);
+				glVertex3f(0.0f + (CFloat)index, 100.0f, layer);
 
-				glVertex3f( -100.0f ,(CFloat)index, layer );
-				glVertex3f( 100.0f,(CFloat)index, layer );
+				glVertex3f(-100.0f, (CFloat)index, layer);
+				glVertex3f(100.0f, (CFloat)index, layer);
 			}
 		}
 		else
 		{
-			glVertex3f( 0.0f + (CFloat)index, -100.0f, layer );
-			glVertex3f( 0.0f + (CFloat)index, 100.0f, layer );
+			glVertex3f(0.0f + (CFloat)index, -100.0f, layer);
+			glVertex3f(0.0f + (CFloat)index, 100.0f, layer);
 
-			glVertex3f( -100.0f ,(CFloat)index, layer );
-			glVertex3f( 100.0f,(CFloat)index, layer );
+			glVertex3f(-100.0f, (CFloat)index, layer);
+			glVertex3f(100.0f, (CFloat)index, layer);
 		}
 	}
 	glEnd();
@@ -24303,9 +24303,9 @@ CVoid CMultipleWindows::DrawUpperLeft()
 			}
 		}
 	}
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	m_simpleFont.StartRendering();
 	m_simpleFont.Print("Front", 10.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f);
@@ -24318,41 +24318,41 @@ CVoid CMultipleWindows::DrawUpperRight()
 	if (m_initError)
 		return;
 
-	glPushAttrib( GL_VIEWPORT_BIT );
-	glMatrixMode( GL_PROJECTION );
+	glPushAttrib(GL_VIEWPORT_BIT);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
 	//Draw grids of the upper right window 
-	glViewport( m_width / 2, m_height / 2 , m_width / 2 , m_height / 2 );// resets the viewport to new dimensions.
-	g_camera->m_cameraManager->Set2DOrtho( -m_width * g_camera->m_upperRightZoom, m_width * g_camera->m_upperRightZoom, -m_height * g_camera->m_upperRightZoom, m_height * g_camera->m_upperRightZoom ); 
+	glViewport(m_width / 2, m_height / 2, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+	g_camera->m_cameraManager->Set2DOrtho(-m_width * g_camera->m_upperRightZoom, m_width * g_camera->m_upperRightZoom, -m_height * g_camera->m_upperRightZoom, m_height * g_camera->m_upperRightZoom);
 
 	g_render.ModelViewMatrix();
 	g_render.IdentityMatrix();
-	gluLookAt( 1.0, g_camera->m_upperRightMoveVertical, g_camera->m_upperRightMoveHorizantal,
+	gluLookAt(1.0, g_camera->m_upperRightMoveVertical, g_camera->m_upperRightMoveHorizantal,
 		0.0f, g_camera->m_upperRightMoveVertical, g_camera->m_upperRightMoveHorizantal,
-		0.0f, 1.0f, 0.0f );
+		0.0f, 1.0f, 0.0f);
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	g_render.m_useShader = CFalse;
 
-	glPushAttrib( GL_CURRENT_BIT | GL_ENABLE_BIT );
-	glLineWidth( 1.0f );
-	glDisable( GL_TEXTURE_2D );
-	glEnable( GL_DEPTH_TEST );
-	glBegin( GL_LINES );
-	for( CInt index = -100; index <= 100; index++ )
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glLineWidth(1.0f);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glBegin(GL_LINES);
+	for (CInt index = -100; index <= 100; index++)
 	{
 		CInt layer = -1;
-		if( index == 0 )
+		if (index == 0)
 		{
-			glColor3f( 0.0f, 0.0f, 0.0f );
+			glColor3f(0.0f, 0.0f, 0.0f);
 			layer = -49000;
 		}
-		else if( index % 5 ==  0 ) 
+		else if (index % 5 == 0)
 		{
-			glColor3f( 0.2f, 0.2f, 0.2f );
+			glColor3f(0.2f, 0.2f, 0.2f);
 			layer = -49000;
 		}
 		else
@@ -24361,24 +24361,24 @@ CVoid CMultipleWindows::DrawUpperRight()
 			layer = -49001;
 		}
 
-		if( g_camera->m_upperRightZoom > 0.05f )
+		if (g_camera->m_upperRightZoom > 0.05f)
 		{
-			if( index % 5 == 0 )
+			if (index % 5 == 0)
 			{
-				glVertex3f( layer, -100.f, (CFloat)index );
-				glVertex3f( layer, 100.f, (CFloat)index );
+				glVertex3f(layer, -100.f, (CFloat)index);
+				glVertex3f(layer, 100.f, (CFloat)index);
 
-				glVertex3f( layer,(CFloat)index, -100.f );
-				glVertex3f( layer,(CFloat)index, 100.f );
+				glVertex3f(layer, (CFloat)index, -100.f);
+				glVertex3f(layer, (CFloat)index, 100.f);
 			}
 		}
 		else
 		{
-			glVertex3f( layer, -100.f, (CFloat)index );
-			glVertex3f( layer, 100.f, (CFloat)index);
+			glVertex3f(layer, -100.f, (CFloat)index);
+			glVertex3f(layer, 100.f, (CFloat)index);
 
-			glVertex3f(  layer,(CFloat)index, -100.f );
-			glVertex3f( layer,(CFloat)index, 100.f );
+			glVertex3f(layer, (CFloat)index, -100.f);
+			glVertex3f(layer, (CFloat)index, 100.f);
 		}
 	}
 	glEnd();
@@ -24452,12 +24452,12 @@ CVoid CMultipleWindows::DrawUpperRight()
 			}
 		}
 	}
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	m_simpleFont.StartRendering();
-	m_simpleFont.Print( "Side", 10.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f );
+	m_simpleFont.Print("Side", 10.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 	m_simpleFont.EndRendering();
 	glPopAttrib();
 }
@@ -24467,41 +24467,41 @@ CVoid CMultipleWindows::DrawLowerRight()
 	if (m_initError)
 		return;
 
-	glPushAttrib( GL_VIEWPORT_BIT );
-	glMatrixMode( GL_PROJECTION );
+	glPushAttrib(GL_VIEWPORT_BIT);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
 	//Draw grids of the lower right window 
-	glViewport( m_width / 2, 0 , m_width / 2 , m_height / 2 );// resets the viewport to new dimensions.
-	g_camera->m_cameraManager->Set2DOrtho( -m_width * g_camera->m_lowerRightZoom, m_width * g_camera->m_lowerRightZoom, -m_height * g_camera->m_lowerRightZoom, m_height * g_camera->m_lowerRightZoom ); 
+	glViewport(m_width / 2, 0, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+	g_camera->m_cameraManager->Set2DOrtho(-m_width * g_camera->m_lowerRightZoom, m_width * g_camera->m_lowerRightZoom, -m_height * g_camera->m_lowerRightZoom, m_height * g_camera->m_lowerRightZoom);
 
 	g_render.ModelViewMatrix();
 	g_render.IdentityMatrix();
-	gluLookAt( g_camera->m_lowerRightMoveHorizantal, 1.0, g_camera->m_lowerRightMoveVertical,
+	gluLookAt(g_camera->m_lowerRightMoveHorizantal, 1.0, g_camera->m_lowerRightMoveVertical,
 		g_camera->m_lowerRightMoveHorizantal, 0.0f, g_camera->m_lowerRightMoveVertical,
-		0.0f, 0.0f , 1.0f );
+		0.0f, 0.0f, 1.0f);
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	g_render.m_useShader = CFalse;
 
-	glPushAttrib( GL_CURRENT_BIT | GL_ENABLE_BIT );
-	glDisable( GL_TEXTURE_2D );
-	glEnable( GL_DEPTH_TEST );
-	glLineWidth( 1.0f );
-	glBegin( GL_LINES );
-	for( CInt index = -100; index <= 100; index++ )
+	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glLineWidth(1.0f);
+	glBegin(GL_LINES);
+	for (CInt index = -100; index <= 100; index++)
 	{
 		CInt layer = -1;
-		if( index == 0 )
+		if (index == 0)
 		{
-			glColor3f( 0.0f, 0.0f, 0.0f );
+			glColor3f(0.0f, 0.0f, 0.0f);
 			layer = -49000;
 		}
-		else if( index % 5 ==  0 ) 
+		else if (index % 5 == 0)
 		{
-			glColor3f( 0.2f, 0.2f, 0.2f );
+			glColor3f(0.2f, 0.2f, 0.2f);
 			layer = -49000;
 		}
 		else
@@ -24510,24 +24510,24 @@ CVoid CMultipleWindows::DrawLowerRight()
 			layer = -49001;
 		}
 
-		if( g_camera->m_lowerRightZoom > 0.05 )
+		if (g_camera->m_lowerRightZoom > 0.05)
 		{
-			if( index % 5 == 0 )
+			if (index % 5 == 0)
 			{
-				glVertex3f( -100.0f, layer, (CFloat)index );
-				glVertex3f(  100.0f, layer, (CFloat)index );
+				glVertex3f(-100.0f, layer, (CFloat)index);
+				glVertex3f(100.0f, layer, (CFloat)index);
 
-				glVertex3f( (CFloat)index, layer, -100.0f );
-				glVertex3f( (CFloat)index, layer, 100.0f );
+				glVertex3f((CFloat)index, layer, -100.0f);
+				glVertex3f((CFloat)index, layer, 100.0f);
 			}
 		}
 		else
 		{
-			glVertex3f( -100.0f, layer, (CFloat)index );
-			glVertex3f(  100.0f, layer, (CFloat)index );
+			glVertex3f(-100.0f, layer, (CFloat)index);
+			glVertex3f(100.0f, layer, (CFloat)index);
 
-			glVertex3f( (CFloat)index, layer, -100.0f );
-			glVertex3f( (CFloat)index, layer, 100.0f );
+			glVertex3f((CFloat)index, layer, -100.0f);
+			glVertex3f((CFloat)index, layer, 100.0f);
 		}
 	}
 	glEnd();
@@ -24603,22 +24603,22 @@ CVoid CMultipleWindows::DrawLowerRight()
 
 		}
 	}
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	m_simpleFont.StartRendering();
-	m_simpleFont.Print( "Top", 10.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f );
+	m_simpleFont.Print("Top", 10.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 	m_simpleFont.EndRendering();
 	glPopAttrib();
 }
 
 CVoid CMultipleWindows::SetElapsedTimeFromBeginning()
 {
-	elapsedTime = timer.GetElapsedSeconds( CTrue ); //start from the beginning
-	timer.GetFps( 1, CTrue );
+	elapsedTime = timer.GetElapsedSeconds(CTrue); //start from the beginning
+	timer.GetFps(1, CTrue);
 	g_elapsedTime = elapsedTime;
-	m_timerCounter  = 0;
+	m_timerCounter = 0;
 	m_totalElapsedTime = 0;
 }
 
@@ -24780,10 +24780,10 @@ CVoid CMultipleWindows::DrawPerspective()
 		UpdateDynamicPhysicsObjects();
 	}
 
-	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 		g_render.BindForWriting(m_mFboID);
-	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-		g_render.BindForWriting( m_fboID );
+	else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
+		g_render.BindForWriting(m_fboID);
 	//if( !g_useOldRenderingStyle )
 	//{
 	//	GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
@@ -24791,13 +24791,13 @@ CVoid CMultipleWindows::DrawPerspective()
 	//	glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
 	//}
 	//else
-		glDrawBuffer( GL_BACK );
+	glDrawBuffer(GL_BACK);
 
 	m_cameraTypeOfPreviousFrame = m_cameraType;
 
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 	{
-		CInstanceCamera *instanceCamera = g_render.GetDefaultInstanceCamera();
+		CInstanceCamera* instanceCamera = g_render.GetDefaultInstanceCamera();
 		if (instanceCamera)
 		{
 			m_cameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
@@ -24811,10 +24811,10 @@ CVoid CMultipleWindows::DrawPerspective()
 			g_currentCameraType = eCAMERA_PHYSX;
 		}
 	}
-	CInstanceCamera *instanceCamera = g_render.GetActiveInstanceCamera();
-	if( g_currentCameraType == eCAMERA_COLLADA )
+	CInstanceCamera* instanceCamera = g_render.GetActiveInstanceCamera();
+	if (g_currentCameraType == eCAMERA_COLLADA)
 	{
-		if( instanceCamera )		
+		if (instanceCamera)
 		{
 			CBool enableColladaCamera = CTrue;
 			if (instanceCamera->IsTimerEnabled())
@@ -24898,14 +24898,14 @@ CVoid CMultipleWindows::DrawPerspective()
 			g_currentCameraType = eCAMERA_PHYSX;
 	}
 
-	if( g_currentCameraType == eCAMERA_PHYSX )
+	if (g_currentCameraType == eCAMERA_PHYSX)
 	{
 		m_cameraType = eCAMERA_PHYSX;
 
 		m_lockInput = CFalse;
 		g_camera->m_cameraManager->SetPerspective(g_camera->m_cameraManager->GetAngle(), m_width / 2., m_height / 2., g_cameraProperties.m_playModePerspectiveNCP, g_cameraProperties.m_playModePerspectiveFCP);
 
-		if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
+		if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
 		{
 			//shadow
 			glGetFloatv(GL_PROJECTION_MATRIX, cam_proj);
@@ -24913,25 +24913,25 @@ CVoid CMultipleWindows::DrawPerspective()
 
 		//previous position of character controller
 		g_camera->m_perspectiveCharacterPosOfPreviousFrame = g_camera->m_perspectiveCharacterPos;
-		m_nx->GetCameraAndCharacterPositions( g_camera->m_perspectiveCameraPitch,
+		m_nx->GetCameraAndCharacterPositions(g_camera->m_perspectiveCameraPitch,
 			g_camera->m_perspectiveCameraYaw,
 			g_camera->m_perspectiveCameraPos,
 			g_camera->m_perspectiveCharacterPos,
-			g_camera->m_perspectiveCameraDir );
+			g_camera->m_perspectiveCameraDir);
 
 		//Update camera position and orientation
-		g_camera->m_cameraManager->UpdateCameraPosDir( g_camera->m_perspectiveCameraPos,
+		g_camera->m_cameraManager->UpdateCameraPosDir(g_camera->m_perspectiveCameraPos,
 			g_camera->m_perspectiveCharacterPos,
 			g_camera->m_perspectiveCameraDir,
-			g_camera->m_perspectiveCurrentCameraTilt );
+			g_camera->m_perspectiveCurrentCameraTilt);
 
 		//if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 		//{
 			// store the inverse of the resulting modelview matrix for the shadow computation
-			glGetFloatv(GL_MODELVIEW_MATRIX, cam_modelview);
-			g_camera->m_cameraManager->GetInverseMatrix( cam_inverse_modelview );
+		glGetFloatv(GL_MODELVIEW_MATRIX, cam_modelview);
+		g_camera->m_cameraManager->GetInverseMatrix(cam_inverse_modelview);
 		//}
-			g_showArrow = CFalse;
+		g_showArrow = CFalse;
 	}
 
 	g_camera->m_cameraManager->UpdateFrustum();
@@ -24942,22 +24942,22 @@ CVoid CMultipleWindows::DrawPerspective()
 		g_octree->ResetOctreeGeoCount();
 	}
 	m_calculateDistance = CFalse;
-	if ( m_cameraType != m_cameraTypeOfPreviousFrame )
+	if (m_cameraType != m_cameraTypeOfPreviousFrame)
 	{
 		m_calculateDistance = CTrue;
 	}
 	//calculate distance between geometries and main camera
-	else if( !(g_camera->m_perspectiveCharacterPosOfPreviousFrame.x - g_camera->m_perspectiveCharacterPos.x == 0.0f &&
+	else if (!(g_camera->m_perspectiveCharacterPosOfPreviousFrame.x - g_camera->m_perspectiveCharacterPos.x == 0.0f &&
 		g_camera->m_perspectiveCharacterPosOfPreviousFrame.y - g_camera->m_perspectiveCharacterPos.y == 0.0f &&
-		g_camera->m_perspectiveCharacterPosOfPreviousFrame.z - g_camera->m_perspectiveCharacterPos.z == 0.0f ) )
+		g_camera->m_perspectiveCharacterPosOfPreviousFrame.z - g_camera->m_perspectiveCharacterPos.z == 0.0f))
 	{
 		m_calculateDistance = CTrue;
 	}
-	else if( instanceCamera )
+	else if (instanceCamera)
 	{
-		if( !(g_camera->m_perspectiveCameraPosOfPreviousFrame.x - g_camera->m_perspectiveCameraPos.x == 0.0f &&
+		if (!(g_camera->m_perspectiveCameraPosOfPreviousFrame.x - g_camera->m_perspectiveCameraPos.x == 0.0f &&
 			g_camera->m_perspectiveCameraPosOfPreviousFrame.y - g_camera->m_perspectiveCameraPos.y == 0.0f &&
-			g_camera->m_perspectiveCameraPosOfPreviousFrame.z - g_camera->m_perspectiveCameraPos.z == 0.0f ) )
+			g_camera->m_perspectiveCameraPosOfPreviousFrame.z - g_camera->m_perspectiveCameraPos.z == 0.0f))
 		{
 			m_calculateDistance = CTrue;
 		}
@@ -25000,46 +25000,46 @@ CVoid CMultipleWindows::DrawPerspective()
 	m_listenerOri[1] = g_camera->m_perspectiveCameraDir.y;
 	m_listenerOri[2] = -g_camera->m_perspectiveCameraDir.z;
 
-	m_soundSystem->SetListenerPosition( m_listenerPos );
+	m_soundSystem->SetListenerPosition(m_listenerPos);
 	//m_soundSystem->SetListenerVelocity( m_listenerVel );
-	m_soundSystem->SetListenerOrientation( m_listenerOri );
+	m_soundSystem->SetListenerOrientation(m_listenerOri);
 
 	//set ambient sound
-	for(CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 		g_engineAmbientSounds[i]->GetSoundSource()->SetSoundPosition(m_ambientSourcePos);
 
-	if( g_polygonMode == ePOLYGON_LINE )
+	if (g_polygonMode == ePOLYGON_LINE)
 	{
 		g_render.m_useShader = CFalse;
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		glDisable(GL_LIGHTING );
-		glDisable(GL_CULL_FACE );
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
 		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_MULTISAMPLE );
+		glDisable(GL_MULTISAMPLE);
 		glLineWidth(0.5f);
 	}
-	else if( g_polygonMode == ePOLYGON_POINT )
+	else if (g_polygonMode == ePOLYGON_POINT)
 	{
 		g_render.m_useShader = CFalse;
-		glPolygonMode( GL_FRONT_AND_BACK, GL_POINT );
-		glDisable(GL_LIGHTING );
-		glDisable(GL_CULL_FACE );
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
 		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_MULTISAMPLE );
+		glDisable(GL_MULTISAMPLE);
 		glPointSize(1.0);
 	}
-	else if( g_polygonMode == ePOLYGON_FILL )
+	else if (g_polygonMode == ePOLYGON_FILL)
 	{
 		g_render.m_useShader = CTrue;
-		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	glPushAttrib(GL_LIGHTING_BIT);
 
 	//create all the water textures here
-	if ( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
+	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-		for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
 		{
 			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
 
@@ -25058,40 +25058,40 @@ CVoid CMultipleWindows::DrawPerspective()
 			}
 		}
 	}
-	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 		g_render.BindForWriting(m_mFboID);
-	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-		g_render.BindForWriting( m_fboID );
+	else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
+		g_render.BindForWriting(m_fboID);
 
 	//glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-	if( g_useOldRenderingStyle || !g_options.m_enableFBO)
-		glClearColor( 0.3f, 0.3f, 0.3f, 1.0f );
+	if (g_useOldRenderingStyle || !g_options.m_enableFBO)
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	else
-		glClearColor( 0.0f, 0.0f, 0.f, 1.0f );
+		glClearColor(0.0f, 0.0f, 0.f, 1.0f);
 
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 
 	//Draw grids of the lower left window (perspective)
-	if( g_menu.m_justPerspective )
+	if (g_menu.m_justPerspective)
 	{
-		glViewport( 0, 0 , m_width , m_height );// resets the viewport to new dimensions.
-		if( m_multiSample && g_options.m_numSamples ) glEnable( GL_MULTISAMPLE );
-		else glDisable( GL_MULTISAMPLE );
+		glViewport(0, 0, m_width, m_height);// resets the viewport to new dimensions.
+		if (m_multiSample && g_options.m_numSamples) glEnable(GL_MULTISAMPLE);
+		else glDisable(GL_MULTISAMPLE);
 	}
 	else
 	{
-		if( g_useOldRenderingStyle || !g_options.m_enableFBO)
+		if (g_useOldRenderingStyle || !g_options.m_enableFBO)
 		{
-			if( m_multiSample ) glDisable( GL_MULTISAMPLE );
-			glViewport( 0, 0 , m_width /2 , m_height /2 );// resets the viewport to new dimensions.
+			if (m_multiSample) glDisable(GL_MULTISAMPLE);
+			glViewport(0, 0, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
 		}
 		else
 		{
-			glViewport( 0, 0 , m_width, m_height );// resets the viewport to new dimensions.
-			if( m_multiSample && g_options.m_numSamples ) glEnable( GL_MULTISAMPLE );
-			else glDisable( GL_MULTISAMPLE );
+			glViewport(0, 0, m_width, m_height);// resets the viewport to new dimensions.
+			if (m_multiSample && g_options.m_numSamples) glEnable(GL_MULTISAMPLE);
+			else glDisable(GL_MULTISAMPLE);
 		}
 	}
 
@@ -25126,12 +25126,12 @@ CVoid CMultipleWindows::DrawPerspective()
 		}
 
 		//ambient sound
-		for(CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 
 	}
 
-	if( m_selectObject  )
+	if (m_selectObject)
 	{
 		if (g_camera->m_activatePerspectiveCamera)
 		{
@@ -25153,29 +25153,29 @@ CVoid CMultipleWindows::DrawPerspective()
 	}
 
 	//render waters here
-	CVec3f cameraPos( g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z );
+	CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
 
-	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
+	if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
 	{
-		glActiveTexture(GL_TEXTURE7 );
+		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, m_dynamicShadowMap->depth_tex_ar);
-		if( g_shadowProperties.m_shadowType > 3 || g_shadowProperties.m_shadowType == 0 /* 0 is debug state*/)
-			glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-		else 
-			glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		if (g_shadowProperties.m_shadowType > 3 || g_shadowProperties.m_shadowType == 0 /* 0 is debug state*/)
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		else
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-		for(int i=m_dynamicShadowMap->cur_num_splits; i<MAX_SPLITS; i++)
+		for (int i = m_dynamicShadowMap->cur_num_splits; i < MAX_SPLITS; i++)
 			far_bound[i] = 0;
 
 		// for every active split
-		for(int i=0; i<m_dynamicShadowMap->cur_num_splits; i++)
+		for (int i = 0; i < m_dynamicShadowMap->cur_num_splits; i++)
 		{
 			float light_m[16];
 
 			// f[i].fard is originally in eye space - tell's us how far we can see.
 			// Here we compute it in camera homogeneous coordinates. Basically, we calculate
 			// cam_proj * (0, 0, f[i].fard, 1)^t and then normalize to [0; 1]
-			far_bound[i] = 0.5f*(-m_dynamicShadowMap->f[i].fard*cam_proj[10]+cam_proj[14])/m_dynamicShadowMap->f[i].fard + 0.5f;
+			far_bound[i] = 0.5f * (-m_dynamicShadowMap->f[i].fard * cam_proj[10] + cam_proj[14]) / m_dynamicShadowMap->f[i].fard + 0.5f;
 
 			// compute a matrix that transforms from camera eye space to light clip space
 			// and pass it to the shader through the OpenGL texture matrices, since we
@@ -25187,7 +25187,7 @@ CVoid CMultipleWindows::DrawPerspective()
 			// multiply the light's (bias*crop*proj*modelview) by the inverse camera modelview
 			// so that we can transform a pixel as seen from the camera
 			glMultMatrixf(cam_inverse_modelview);
-			
+
 			// compute a normal matrix for the same thing (to transform the normals)
 			// Basically, N = ((L)^-1)^-t
 			glGetFloatv(GL_TEXTURE_MATRIX, light_m);
@@ -25196,11 +25196,11 @@ CVoid CMultipleWindows::DrawPerspective()
 			nm = inverse(nm);
 			nm = transpose(nm);
 
-			glActiveTexture(GL_TEXTURE0 + (GLenum)(i+4));
+			glActiveTexture(GL_TEXTURE0 + (GLenum)(i + 4));
 			glMatrixMode(GL_TEXTURE);
 			glLoadMatrixf(nm._array);
 		}
-		glMatrixMode( GL_MODELVIEW );
+		glMatrixMode(GL_MODELVIEW);
 	}
 
 	//render the scene
@@ -25358,10 +25358,10 @@ CVoid CMultipleWindows::DrawPerspective()
 				g_terrain->GetTerrain()->DrawBoundingBox();
 	}
 
-	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
-		g_render.BindForWriting( m_mFboID );
-	else if( !g_useOldRenderingStyle && g_options.m_enableFBO)
-		g_render.BindForWriting( m_fboID );
+	if (!g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
+		g_render.BindForWriting(m_mFboID);
+	else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
+		g_render.BindForWriting(m_fboID);
 
 	g_currentInstanceLight = NULL;
 
@@ -25385,36 +25385,36 @@ CVoid CMultipleWindows::DrawPerspective()
 		m_translationController->DrawPlane();
 	}
 
-	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
+	if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
 	{
 		//reset matrice
-		for( CUInt i = 0; i < 8; i++ )
+		for (CUInt i = 0; i < 8; i++)
 		{
-			glActiveTexture(GL_TEXTURE0 + i );
-			glMatrixMode( GL_TEXTURE );
+			glActiveTexture(GL_TEXTURE0 + i);
+			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
 		}
 		glActiveTexture(GL_TEXTURE0);
-		glMatrixMode( GL_MODELVIEW );
+		glMatrixMode(GL_MODELVIEW);
 	}
-	
-	if( g_menu.m_insertAndShowSky )
+
+	if (g_menu.m_insertAndShowSky)
 	{
-		if( g_menu.m_showSkyIcon && !g_dofProperties.m_debug )
+		if (g_menu.m_showSkyIcon && !g_dofProperties.m_debug)
 			g_skyDome->RenderIcon();
 	}
 
 	//render water icons after the scene rendering
-	if ( g_menu.m_showWaterIcons && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader && !g_dofProperties.m_debug)
+	if (g_menu.m_showWaterIcons && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader && !g_dofProperties.m_debug)
 	{
-		for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
 			g_engineWaters[i]->RenderIcon();
 	}
 	//Render light icons after the scene rendering
 	//Engine lights
-	if( !g_dofProperties.m_debug )
+	if (!g_dofProperties.m_debug)
 	{
-		for( CUInt i = 0; i < g_engineLights.size(); i++ )
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
 		{
 			g_engineLights[i]->RenderIcon();
 			g_engineLights[i]->RenderExtents();
@@ -25434,18 +25434,18 @@ CVoid CMultipleWindows::DrawPerspective()
 		g_glUtil.Billboarding(cameraPos.x, cameraPos.y, cameraPos.z, g_cameraImg->GetId(), 1.0f, 1.0f);
 	}
 
-	if( !g_dofProperties.m_debug )
+	if (!g_dofProperties.m_debug)
 	{
 		//COLLADA Lights. Not recommended
-		for( CUInt i = 0 ; i < g_scene.size(); i++ )
+		for (CUInt i = 0; i < g_scene.size(); i++)
 		{
-			g_render.SetScene( g_scene[i] );
-			
+			g_render.SetScene(g_scene[i]);
+
 			//set all the lights here
-			for( CUInt j = 0; j < g_render.GetScene()->GetLightInstanceCount(); j++ )
+			for (CUInt j = 0; j < g_render.GetScene()->GetLightInstanceCount(); j++)
 			{
-				CInstanceLight *instanceLight = g_render.GetScene()->GetLightInstances(j);
-				if( instanceLight )
+				CInstanceLight* instanceLight = g_render.GetScene()->GetLightInstances(j);
+				if (instanceLight)
 				{
 					instanceLight->RenderIcon();
 					instanceLight->RenderExtents();
@@ -25453,31 +25453,31 @@ CVoid CMultipleWindows::DrawPerspective()
 			}
 		}
 	}
-	if( !g_dofProperties.m_debug )
+	if (!g_dofProperties.m_debug)
 	{
-		for( CUInt i = 0; i < g_importedCameraInstances.size(); i++ )
+		for (CUInt i = 0; i < g_importedCameraInstances.size(); i++)
 		{
-			CInstanceCamera * instanceCamera = g_importedCameraInstances[i];
-			if( instanceCamera )
+			CInstanceCamera* instanceCamera = g_importedCameraInstances[i];
+			if (instanceCamera)
 				instanceCamera->RenderIcon();
 		}
 	}
 
-	if( g_physXProperties.m_bDebugMode )
+	if (g_physXProperties.m_bDebugMode)
 		m_nx->debugMode = CTrue;
 	else
 		m_nx->debugMode = CFalse;
 
-	if( m_nx->debugMode )
+	if (m_nx->debugMode)
 		m_nx->debugRenderer();
 
-	if( g_menu.m_showPerspectiveGrids && !g_dofProperties.m_debug)
+	if (g_menu.m_showPerspectiveGrids && !g_dofProperties.m_debug)
 		DrawGrid();
-	if( g_menu.m_showSoundIcons && !g_dofProperties.m_debug)
+	if (g_menu.m_showSoundIcons && !g_dofProperties.m_debug)
 	{
-		for( CUInt i = 0; i < g_engine3DSounds.size(); i++ )
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
-			 g_engine3DSounds[i]->RenderIcon();
+			g_engine3DSounds[i]->RenderIcon();
 		}
 	}
 
@@ -25496,10 +25496,10 @@ CVoid CMultipleWindows::DrawPerspective()
 
 	if (g_showArrow && !g_multipleView->IsPlayGameMode())
 	{
-		CFloat distance = sqrt( pow( g_camera->m_perspectiveCameraPos.x - g_arrowPosition.x, 2 ) + 
-			pow( g_camera->m_perspectiveCameraPos.y - g_arrowPosition.y, 2 ) + 
-			pow( g_camera->m_perspectiveCameraPos.z - g_arrowPosition.z, 2 ) );
-		if( distance < 10.0f )
+		CFloat distance = sqrt(pow(g_camera->m_perspectiveCameraPos.x - g_arrowPosition.x, 2) +
+			pow(g_camera->m_perspectiveCameraPos.y - g_arrowPosition.y, 2) +
+			pow(g_camera->m_perspectiveCameraPos.z - g_arrowPosition.z, 2));
+		if (distance < 10.0f)
 			distance = 10.0f;
 
 		CUInt m_name = g_selectedName;
@@ -25519,8 +25519,8 @@ CVoid CMultipleWindows::DrawPerspective()
 
 			glDisable(GL_DEPTH_TEST);
 			glPushMatrix();
-			glTranslatef( g_arrowPosition.x, g_arrowPosition.y, g_arrowPosition.z );
-			glScalef( distance * 0.15f , distance * 0.15f, distance * 0.15f);
+			glTranslatef(g_arrowPosition.x, g_arrowPosition.y, g_arrowPosition.z);
+			glScalef(distance * 0.15f, distance * 0.15f, distance * 0.15f);
 			if (g_currentTransformType == eCTranslate)
 			{
 				g_translateArrow->Render(CFalse);
@@ -25559,26 +25559,26 @@ CVoid CMultipleWindows::DrawPerspective()
 
 	g_render.m_useShader = CTrue;
 
-	glDisable( GL_LIGHT0 );
+	glDisable(GL_LIGHT0);
 
-	for( CInt i = 0; i <g_numLights; i++ )
+	for (CInt i = 0; i < g_numLights; i++)
 	{
-		glDisable( GL_LIGHT0 + i );
+		glDisable(GL_LIGHT0 + i);
 	}
-	glDisable( GL_LIGHTING ); //just for per vertex lighting'
-	glMatrixMode( GL_MODELVIEW );
+	glDisable(GL_LIGHTING); //just for per vertex lighting'
+	glMatrixMode(GL_MODELVIEW);
 
-	for( CUInt i = 0 ; i < g_scene.size(); i++ )
+	for (CUInt i = 0; i < g_scene.size(); i++)
 	{
-		g_render.SetScene( g_scene[i] );
-		if( !g_render.GetScene()->m_isTrigger )
+		g_render.SetScene(g_scene[i]);
+		if (!g_render.GetScene()->m_isTrigger)
 		{
-			for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
+			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
 			{
 				g_scene[i]->m_instanceGeometries[j]->m_renderCount = 0;
 			}
 		}
-		if( g_render.GetScene()->m_hasAnimation )
+		if (g_render.GetScene()->m_hasAnimation)
 		{
 			g_render.GetScene()->m_updateAnimation = CTrue;
 		}
@@ -25586,14 +25586,14 @@ CVoid CMultipleWindows::DrawPerspective()
 
 	glPopAttrib(); //lighting
 
-	if( !g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
 	{
-		g_render.BindForReading( m_mFboID );
+		g_render.BindForReading(m_mFboID);
 		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
-		g_render.BindForWriting( m_fboID );
+		g_render.BindForWriting(m_fboID);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 
-		g_render.SetReadBuffer( eGBUFFER_TEXTURE_TYPE_DEFAULT );
+		g_render.SetReadBuffer(eGBUFFER_TEXTURE_TYPE_DEFAULT);
 
 		glBlitFramebufferEXT(0, 0, g_width, g_height, 0, 0, g_width, g_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
@@ -25635,7 +25635,7 @@ CVoid CMultipleWindows::DrawPerspective()
 		//glDrawBuffer(GL_COLOR_ATTACHMENT5_EXT);
 	}
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (!g_useOldRenderingStyle && g_options.m_enableFBO)
 	{
 		if (g_dofProperties.m_enable && g_polygonMode == ePOLYGON_FILL)
@@ -25905,196 +25905,196 @@ CVoid CMultipleWindows::ResetData()
 CVoid CMultipleWindows::DrawJustPerspectiveBorders()
 {
 	//Draw black borders here
-    glMatrixMode(GL_PROJECTION);    // Sets the projection matrix.
+	glMatrixMode(GL_PROJECTION);    // Sets the projection matrix.
 	glPushMatrix();
-    glLoadIdentity();               // Reset the modelview matrix.
+	glLoadIdentity();               // Reset the modelview matrix.
 
-    // calculate the aspect ratio of the window.
-	glOrtho( 0, 1024, 0, 768, -50000, 50000 );
-	
+	// calculate the aspect ratio of the window.
+	glOrtho(0, 1024, 0, 768, -50000, 50000);
 
-	glPushAttrib( GL_VIEWPORT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
-	glDisable( GL_TEXTURE_2D );
-	glEnable( GL_DEPTH_TEST );
+
+	glPushAttrib(GL_VIEWPORT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
 
 	//main borders
-    glMatrixMode(GL_MODELVIEW);     // Sets the model view matrix.
+	glMatrixMode(GL_MODELVIEW);     // Sets the model view matrix.
 	glPushMatrix();
-    glLoadIdentity();               // Reset the modelview matrix.
+	glLoadIdentity();               // Reset the modelview matrix.
 
-	glColor4f( 0.4f, 0.4f, 0.4f, 0.0f );
-	glLineWidth( 3.0f );
+	glColor4f(0.4f, 0.4f, 0.4f, 0.0f);
+	glLineWidth(3.0f);
 
-	glBegin( GL_LINE_LOOP );
-	glVertex3f( 0 , 0, 49999.0 ); 
-	glVertex3f( 1024 , 0, 49999.0 ); 
-	glVertex3f( 1024 , 768, 49999.0 ); 
-	glVertex3f( 0, 768, 49999.0 ); 
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(0, 0, 49999.0);
+	glVertex3f(1024, 0, 49999.0);
+	glVertex3f(1024, 768, 49999.0);
+	glVertex3f(0, 768, 49999.0);
 	glEnd();
 	glPopAttrib();
 
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 }
 
 CVoid CMultipleWindows::DrawBordersAndUI()
 {
 	//Draw black borders here
-    glMatrixMode(GL_PROJECTION);    // Sets the projection matrix.
+	glMatrixMode(GL_PROJECTION);    // Sets the projection matrix.
 	glPushMatrix();
-    glLoadIdentity();               // Reset the modelview matrix.
+	glLoadIdentity();               // Reset the modelview matrix.
 
-    // calculate the aspect ratio of the window.
-	glOrtho( 0, 1024, 0, 768, -50000, 50000 );
-	
-    glMatrixMode(GL_MODELVIEW);     // Sets the model view matrix.
+	// calculate the aspect ratio of the window.
+	glOrtho(0, 1024, 0, 768, -50000, 50000);
+
+	glMatrixMode(GL_MODELVIEW);     // Sets the model view matrix.
 	glPushMatrix();
-    glLoadIdentity();               // Reset the modelview matrix.
+	glLoadIdentity();               // Reset the modelview matrix.
 
-	glPushAttrib( GL_VIEWPORT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
-	glDisable( GL_TEXTURE_2D );
-	glEnable( GL_DEPTH_TEST );
+	glPushAttrib(GL_VIEWPORT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
 
 	//main borders
 
-	glViewport( 0, 0, m_width, m_height );
-	glMatrixMode( GL_PROJECTION );
+	glViewport(0, 0, m_width, m_height);
+	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho( 0.0, 1024.0, 0.0, 768.0, -50000.0, 50000.0 );
-	glMatrixMode( GL_MODELVIEW );
+	glOrtho(0.0, 1024.0, 0.0, 768.0, -50000.0, 50000.0);
+	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
-	glColor4f( 0.157f, 0.157f, 0.157f, 0.0f );
-	glLineWidth( 5.0f );
+	glColor4f(0.157f, 0.157f, 0.157f, 0.0f);
+	glLineWidth(5.0f);
 
-	glBegin( GL_LINES );
-	glVertex3f( 1024 / 2 , 0, 49999.0 ); 
-	glVertex3f( 1024 / 2 , 768, 49999.0 ); 
-	glVertex3f( 0 , 768 / 2, 49999.0 ); 
-	glVertex3f( 1024, 768 / 2, 49999.0 ); 
+	glBegin(GL_LINES);
+	glVertex3f(1024 / 2, 0, 49999.0);
+	glVertex3f(1024 / 2, 768, 49999.0);
+	glVertex3f(0, 768 / 2, 49999.0);
+	glVertex3f(1024, 768 / 2, 49999.0);
 	glEnd();
 
-	glMatrixMode( GL_PROJECTION );
+	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
+	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glLineWidth( 2.0f );
+	glLineWidth(2.0f);
 	//perspective borders
 	glViewport(0, 0, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
-	if( g_camera->m_activatePerspectiveCamera )
-		glColor4f( 1.0f, 0.6f, 0.0f, 0.0f );
+	if (g_camera->m_activatePerspectiveCamera)
+		glColor4f(1.0f, 0.6f, 0.0f, 0.0f);
 	else
 		glColor4f(0.1f, 0.1f, 0.1f, 0.0f);
 	glBegin(GL_LINE_LOOP);
-	glVertex3f( 2, 2, 49999.0 ); 
-	glVertex3f( 1024 - 6, 2, 49999.0 ); 
-	glVertex3f( 1024 - 6, 768 - 8, 49999.0 ); 
-	glVertex3f( 2, 768 - 8, 49999.0 ); 
+	glVertex3f(2, 2, 49999.0);
+	glVertex3f(1024 - 6, 2, 49999.0);
+	glVertex3f(1024 - 6, 768 - 8, 49999.0);
+	glVertex3f(2, 768 - 8, 49999.0);
 	glEnd();
 
 	//Lower right borders
-	glLineWidth( 2.0f );
+	glLineWidth(2.0f);
 
-	glViewport(m_width / 2, 0, m_width / 2 , m_height / 2);// resets the viewport to new dimensions.
-	if( g_camera->m_activateLowerRightCamera )
-		glColor4f( 1.0f, 0.6f, 0.0f, 0.0f );
+	glViewport(m_width / 2, 0, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+	if (g_camera->m_activateLowerRightCamera)
+		glColor4f(1.0f, 0.6f, 0.0f, 0.0f);
 	else
 		glColor4f(0.1f, 0.1f, 0.1f, 0.0f);
 	glBegin(GL_LINE_LOOP);
-	glVertex3f( 5, 2, 49999.0 ); 
-	glVertex3f( 1024 - 2, 2, 49999.0 ); 
-	glVertex3f( 1024 - 2, 768 - 8, 49999.0 ); 
-	glVertex3f( 5, 768 - 8, 49999.0 ); 
+	glVertex3f(5, 2, 49999.0);
+	glVertex3f(1024 - 2, 2, 49999.0);
+	glVertex3f(1024 - 2, 768 - 8, 49999.0);
+	glVertex3f(5, 768 - 8, 49999.0);
 	glEnd();
 
 	//Axes of lower right window
-	glLineWidth( 1.0f );
-	glColor4f( 0.7f, 0.0f, 0.0f, 0.0f );
-	glBegin( GL_LINES );
-	glVertex2i( 31 , 39 ); 
-	glVertex2i( 77 , 39 ); 
-	glColor4f( 0.0f, 0.0f, 1.0f, 0.0f );
-	glVertex2i( 77 , 39 ); 
-	glVertex2i( 77 , 100 ); 
+	glLineWidth(1.0f);
+	glColor4f(0.7f, 0.0f, 0.0f, 0.0f);
+	glBegin(GL_LINES);
+	glVertex2i(31, 39);
+	glVertex2i(77, 39);
+	glColor4f(0.0f, 0.0f, 1.0f, 0.0f);
+	glVertex2i(77, 39);
+	glVertex2i(77, 100);
 	glEnd();
 
 	m_simpleFont.StartRendering();
-	m_simpleFont.Print( "y", 60.0f, 40.0f, 0.0f, 0.00f, 0.7f, 0.0f );
-	m_simpleFont.Print( "z", 55.0f, 140.0f, 0.0f, 0.0f, 0.0f, 1.0f );
-	m_simpleFont.Print( "x", 15.0f, 35.0f, 0.0f, 0.7f, 0.0f, 0.0f );
+	m_simpleFont.Print("y", 60.0f, 40.0f, 0.0f, 0.00f, 0.7f, 0.0f);
+	m_simpleFont.Print("z", 55.0f, 140.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	m_simpleFont.Print("x", 15.0f, 35.0f, 0.0f, 0.7f, 0.0f, 0.0f);
 	m_simpleFont.EndRendering();
 
 	//Upper left borders
-	glLineWidth( 2.0f );
+	glLineWidth(2.0f);
 
-	glViewport(0, m_height / 2 , m_width / 2 , m_height / 2 );// resets the viewport to new dimensions.
-	if( g_camera->m_activateUpperLeftCamera )
-		glColor4f( 1.0f, 0.6f, 0.0f, 0.0f );
+	glViewport(0, m_height / 2, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+	if (g_camera->m_activateUpperLeftCamera)
+		glColor4f(1.0f, 0.6f, 0.0f, 0.0f);
 	else
 		glColor4f(0.1f, 0.1f, 0.1f, 0.0f);
 	glBegin(GL_LINE_LOOP);
-	glVertex3f( 2, 6, 49999.0 ); 
-	glVertex3f( 1024 - 6, 6, 49999.0 ); 
-	glVertex3f( 1024 - 6, 768 - 2, 49999.0 ); 
-	glVertex3f( 2, 768 - 2, 49999.0 ); 
+	glVertex3f(2, 6, 49999.0);
+	glVertex3f(1024 - 6, 6, 49999.0);
+	glVertex3f(1024 - 6, 768 - 2, 49999.0);
+	glVertex3f(2, 768 - 2, 49999.0);
 	glEnd();
 
 	//Axes of upper left window
-	glLineWidth( 1.0f );
-	glColor4f( 0.7f, 0.0f, 0.0f, 0.0f );
-	glBegin( GL_LINES );
-	glVertex2i( 31 , 39 ); 
-	glVertex2i( 77 , 39 ); 
-	glColor4f( 0.0f, 0.7f, 0.0f, 0.0f );
-	glVertex2i( 31 , 39 ); 
-	glVertex2i( 31 , 100 ); 
+	glLineWidth(1.0f);
+	glColor4f(0.7f, 0.0f, 0.0f, 0.0f);
+	glBegin(GL_LINES);
+	glVertex2i(31, 39);
+	glVertex2i(77, 39);
+	glColor4f(0.0f, 0.7f, 0.0f, 0.0f);
+	glVertex2i(31, 39);
+	glVertex2i(31, 100);
 	glEnd();
 
 	m_simpleFont.StartRendering();
-	m_simpleFont.Print( "x", 60.0f, 40.0f, 0.0f, 0.7f, 0.0f, 0.0f );
-	m_simpleFont.Print( "y", 20.0f, 140.0f, 0.0f, 0.0f, 0.7f, 0.0f );
-	m_simpleFont.Print( "z", 15.0f, 35.0f, 0.0f, 0.0f, 0.0f, 1.0f );
+	m_simpleFont.Print("x", 60.0f, 40.0f, 0.0f, 0.7f, 0.0f, 0.0f);
+	m_simpleFont.Print("y", 20.0f, 140.0f, 0.0f, 0.0f, 0.7f, 0.0f);
+	m_simpleFont.Print("z", 15.0f, 35.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	m_simpleFont.EndRendering();
 
 	//Upper right borders
-	glLineWidth( 2.0f );
+	glLineWidth(2.0f);
 
-	glViewport(m_width / 2, m_height / 2 , m_width / 2 , m_height / 2 );// resets the viewport to new dimensions.
-	if( g_camera->m_activateUpperRightCamera )
-		glColor4f( 1.0f, 0.6f, 0.0f, 0.0f );
+	glViewport(m_width / 2, m_height / 2, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+	if (g_camera->m_activateUpperRightCamera)
+		glColor4f(1.0f, 0.6f, 0.0f, 0.0f);
 	else
 		glColor4f(0.1f, 0.1f, 0.1f, 0.0f);
 	glBegin(GL_LINE_LOOP);
-	glVertex3f( 5, 6, 49999.0 ); 
-	glVertex3f( 1024 - 2, 6, 49999.0 ); 
-	glVertex3f( 1024 - 2, 768 - 2, 49999.0 ); 
-	glVertex3f( 5, 768 - 2, 49999.0 ); 
+	glVertex3f(5, 6, 49999.0);
+	glVertex3f(1024 - 2, 6, 49999.0);
+	glVertex3f(1024 - 2, 768 - 2, 49999.0);
+	glVertex3f(5, 768 - 2, 49999.0);
 	glEnd();
 	//Axes of upper right window
-	glLineWidth( 1.0f );
-	glColor4f( 0.0f, 0.0f, 1.0f, 0.0f );
-	glBegin( GL_LINES );
-	glVertex2i( 31 , 39 ); 
-	glVertex2i( 77 , 39 ); 
-	glColor4f( 0.0f, 0.7f, 0.0f, 0.0f );
-	glVertex2i( 77 , 39 ); 
-	glVertex2i( 77 , 100 ); 
+	glLineWidth(1.0f);
+	glColor4f(0.0f, 0.0f, 1.0f, 0.0f);
+	glBegin(GL_LINES);
+	glVertex2i(31, 39);
+	glVertex2i(77, 39);
+	glColor4f(0.0f, 0.7f, 0.0f, 0.0f);
+	glVertex2i(77, 39);
+	glVertex2i(77, 100);
 	glEnd();
 
-    glMatrixMode(GL_PROJECTION);    // Sets the projection matrix.
+	glMatrixMode(GL_PROJECTION);    // Sets the projection matrix.
 	glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);     // Sets the model view matrix.
+	glMatrixMode(GL_MODELVIEW);     // Sets the model view matrix.
 	glPopMatrix();
 
 	m_simpleFont.StartRendering();
-	m_simpleFont.Print( "x", 60.0f, 40.0f, 0.0f, 0.7f, 0.0f, 0.0f );
-	m_simpleFont.Print( "y", 55.0f, 140.0f, 0.0f, 0.0f, 0.7f, 0.0f );
-	m_simpleFont.Print( "z", 15.0f, 35.0f, 0.0f, 0.0f, 0.0f, 1.0f );
+	m_simpleFont.Print("x", 60.0f, 40.0f, 0.0f, 0.7f, 0.0f, 0.0f);
+	m_simpleFont.Print("y", 55.0f, 140.0f, 0.0f, 0.0f, 0.7f, 0.0f);
+	m_simpleFont.Print("z", 15.0f, 35.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	m_simpleFont.EndRendering();
 
 
@@ -26148,9 +26148,9 @@ CVoid CMultipleWindows::RenderWindow()
 
 CVoid CMultipleWindows::ResetPhysXCounts()
 {
-	for( CUInt i = 0 ; i < g_scene.size(); i++ )
+	for (CUInt i = 0; i < g_scene.size(); i++)
 	{
-		for( CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++ )
+		for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
 			g_scene[i]->m_instanceGeometries[j]->m_physXCount = 0;
 	}
 }
@@ -26159,15 +26159,15 @@ BOOL CMultipleWindows::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: Add your specialized code here and/or call the base class
 
-		if( pMsg->message == WM_KEYDOWN )
-		{
-			return TRUE;
-		}
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		return TRUE;
+	}
 
 	return CWnd::PreTranslateMessage(pMsg);
 }
 
-CVoid CMultipleWindows::ApplyForce( CInt direction, CFloat elapsedTime )
+CVoid CMultipleWindows::ApplyForce(CInt direction, CFloat elapsedTime)
 {
 	if (m_nx->bPushCharacter)
 	{
@@ -26197,7 +26197,7 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 
 	if (Cmp(m_previousCharacterAnimationType, animationType))
 		return CFalse;
-	else 
+	else
 		Cpy(m_previousCharacterAnimationType, animationType);
 
 	if (g_mainCharacter && g_mainCharacter->GetCameraType() == ePHYSX_CAMERA_FIRST_PERSON && g_multipleView->IsPlayGameMode()) return CFalse;
@@ -26395,7 +26395,7 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 
 	}
 	else if (Cmp(animationType, ""))
-	//reset
+		//reset
 	{
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
@@ -26413,7 +26413,7 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 
 }
 
-CBool CMultipleWindows::IsJumping(CBool &isInList)
+CBool CMultipleWindows::IsJumping(CBool& isInList)
 {
 	if (!g_mainCharacter)
 		return CFalse;
@@ -26538,7 +26538,7 @@ CVoid CMultipleWindows::ProcessInputs()
 		}
 		else if (m_rMouseDown) //zoom in and out
 		{
-			if (m_dy > 0 && g_camera->m_lowerRightZoom <  0.2f)
+			if (m_dy > 0 && g_camera->m_lowerRightZoom < 0.2f)
 				g_camera->m_lowerRightZoom += (CFloat)m_dy * g_camera->m_lowerRightZoom * 0.002f;
 			else if (m_dy < 0 && g_camera->m_lowerRightZoom > 0.001f)
 				g_camera->m_lowerRightZoom += (CFloat)m_dy * g_camera->m_lowerRightZoom * 0.002f;
@@ -26592,7 +26592,7 @@ CVoid CMultipleWindows::ProcessInputs()
 	}
 
 	if (m_notFocus) return;
-	if(m_loadScene) return;
+	if (m_loadScene) return;
 
 	if ((m_lockInput || m_isMenu) && IsPlayGameMode())
 	{
@@ -26614,19 +26614,19 @@ CVoid CMultipleWindows::ProcessInputs()
 	//		bEscapeDown = CFalse;
 	//}
 
-	if( g_currentCameraType == eCAMERA_PHYSX )
+	if (g_currentCameraType == eCAMERA_PHYSX)
 	{
 		CBool forceApplied = false;
 		CBool move = CFalse;
 
-		if( true/*m_lMouseDown*/ )
+		if (true/*m_lMouseDown*/)
 		{
 			//if( m_inputSystem->KeyDown( DIK_LCONTROL ) && m_inputSystem->KeyDown( DIK_W ) )
 			//{
 			//	g_multipleView->m_nx->gCharacterWalkSpeed += 1.0f;
 			//}
 			//else 	if( m_inputSystem->KeyDown( DIK_LCONTROL ) && m_inputSystem->KeyDown( DIK_S ) )
- 		//	{
+		//	{
 			//	g_multipleView->m_nx->gCharacterWalkSpeed -= 1.0f;
 			//	if(	g_multipleView->m_nx->gCharacterWalkSpeed <= 0.0 )
 			//		g_multipleView->m_nx->gCharacterWalkSpeed += 1.0f;
@@ -26640,9 +26640,9 @@ CVoid CMultipleWindows::ProcessInputs()
 			//{
 			//	g_camera->m_cameraManager->SetAngle( DEFAULT_CAMERA_ANGLE );
 			//}
-			/*else*/	if( (m_inputSystem->KeyDown( DIK_W ) || m_inputSystem->KeyDown( DIK_UP )) && (m_inputSystem->KeyDown( DIK_D ) || m_inputSystem->KeyDown( DIK_RIGHT )) )
+			/*else*/	if ((m_inputSystem->KeyDown(DIK_W) || m_inputSystem->KeyDown(DIK_UP)) && (m_inputSystem->KeyDown(DIK_D) || m_inputSystem->KeyDown(DIK_RIGHT)))
 			{
-				ApplyForce( MOVE_FRONT_RIGHT, elapsedTime );
+				ApplyForce(MOVE_FRONT_RIGHT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26670,9 +26670,9 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 
 			}
-			else	if( (m_inputSystem->KeyDown( DIK_W ) || m_inputSystem->KeyDown( DIK_UP )) && (m_inputSystem->KeyDown( DIK_A ) || m_inputSystem->KeyDown( DIK_LEFT )) )
+			else	if ((m_inputSystem->KeyDown(DIK_W) || m_inputSystem->KeyDown(DIK_UP)) && (m_inputSystem->KeyDown(DIK_A) || m_inputSystem->KeyDown(DIK_LEFT)))
 			{
-				ApplyForce( MOVE_FRONT_LEFT, elapsedTime );
+				ApplyForce(MOVE_FRONT_LEFT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26700,9 +26700,9 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 
 			}
-			else if( (m_inputSystem->KeyDown( DIK_S ) || m_inputSystem->KeyDown( DIK_DOWN )) && (m_inputSystem->KeyDown( DIK_D ) || m_inputSystem->KeyDown( DIK_RIGHT )) )
+			else if ((m_inputSystem->KeyDown(DIK_S) || m_inputSystem->KeyDown(DIK_DOWN)) && (m_inputSystem->KeyDown(DIK_D) || m_inputSystem->KeyDown(DIK_RIGHT)))
 			{
-				ApplyForce( MOVE_BACK_RIGHT, elapsedTime );
+				ApplyForce(MOVE_BACK_RIGHT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26730,9 +26730,9 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 
 			}
-			else if( (m_inputSystem->KeyDown( DIK_S ) || m_inputSystem->KeyDown( DIK_DOWN )) && (m_inputSystem->KeyDown( DIK_A ) || m_inputSystem->KeyDown( DIK_LEFT )) )
+			else if ((m_inputSystem->KeyDown(DIK_S) || m_inputSystem->KeyDown(DIK_DOWN)) && (m_inputSystem->KeyDown(DIK_A) || m_inputSystem->KeyDown(DIK_LEFT)))
 			{
-				ApplyForce( MOVE_BACK_LEFT, elapsedTime );
+				ApplyForce(MOVE_BACK_LEFT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26761,9 +26761,9 @@ CVoid CMultipleWindows::ProcessInputs()
 
 			}
 
-			else	if( m_inputSystem->KeyDown( DIK_W ) || m_inputSystem->KeyDown( DIK_UP ) )
+			else	if (m_inputSystem->KeyDown(DIK_W) || m_inputSystem->KeyDown(DIK_UP))
 			{
-				ApplyForce( MOVE_FRONT, elapsedTime );
+				ApplyForce(MOVE_FRONT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26791,9 +26791,9 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 
 			}
-			else if( m_inputSystem->KeyDown( DIK_S ) || m_inputSystem->KeyDown( DIK_DOWN ) )
+			else if (m_inputSystem->KeyDown(DIK_S) || m_inputSystem->KeyDown(DIK_DOWN))
 			{
-				ApplyForce( MOVE_BACK, elapsedTime );
+				ApplyForce(MOVE_BACK, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26821,9 +26821,9 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 
 			}
-			else if( m_inputSystem->KeyDown( DIK_A ) || m_inputSystem->KeyDown( DIK_LEFT ) )
+			else if (m_inputSystem->KeyDown(DIK_A) || m_inputSystem->KeyDown(DIK_LEFT))
 			{
-				ApplyForce( MOVE_LEFT, elapsedTime );
+				ApplyForce(MOVE_LEFT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26850,9 +26850,9 @@ CVoid CMultipleWindows::ProcessInputs()
 					}
 				}
 			}
-			else if( m_inputSystem->KeyDown( DIK_D ) || m_inputSystem->KeyDown( DIK_RIGHT ) )
+			else if (m_inputSystem->KeyDown(DIK_D) || m_inputSystem->KeyDown(DIK_RIGHT))
 			{
-				ApplyForce( MOVE_RIGHT, elapsedTime );
+				ApplyForce(MOVE_RIGHT, elapsedTime);
 				forceApplied = true;
 				m_tempMovement = CTrue;
 				if (!g_multipleView->m_nx->gJump)
@@ -26999,8 +26999,8 @@ CVoid CMultipleWindows::ProcessInputs()
 		if (forceApplied)
 			m_idleCounter = 0.0f;
 
-		if( /*g_physXProperties.m_bApplyGravity &&*/ g_physXProperties.m_bJumping)
-			if( g_multipleView->m_inputSystem->KeyDown( DIK_SPACE ) )
+		if ( /*g_physXProperties.m_bApplyGravity &&*/ g_physXProperties.m_bJumping)
+			if (g_multipleView->m_inputSystem->KeyDown(DIK_SPACE))
 				if (!g_multipleView->m_nx->gJump)
 				{
 					CBool jumping = CFalse;
@@ -27020,29 +27020,29 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 
 
-		if( m_lMouseDown || m_rMouseDown )
+		if (m_lMouseDown || m_rMouseDown)
 		{
 			if (m_dx != 0 || m_dy != 0)
 				m_calculateDistance = CTrue;
 
-			if( !m_selectObject )
+			if (!m_selectObject)
 			{
 				//perspective viewport
-				if( g_camera->m_activatePerspectiveCamera )
+				if (g_camera->m_activatePerspectiveCamera)
 				{
-					if( m_lMouseDown )
+					if (m_lMouseDown)
 					{
-						if( m_dx > 0 ) 
+						if (m_dx > 0)
 						{
 							g_camera->m_perspectiveCameraYaw -= (CFloat)m_dx * 0.002f;
 							m_tempMovement = CTrue;
 						}
-						else if( m_dx < 0 )
+						else if (m_dx < 0)
 						{
 							g_camera->m_perspectiveCameraYaw -= (CFloat)m_dx * 0.002f;
 							m_tempMovement = CTrue;
 						}
-						if(m_dy > 0 )
+						if (m_dy > 0)
 						{
 							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)m_dy * 0.002f;
 							if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
@@ -27052,7 +27052,7 @@ CVoid CMultipleWindows::ProcessInputs()
 							m_tempMovement = CTrue;
 
 						}
-						else if(m_dy < 0 )
+						else if (m_dy < 0)
 						{
 							g_camera->m_perspectiveCurrentCameraTilt -= (CFloat)m_dy * 0.002f;
 							if (g_camera->m_perspectiveCurrentCameraTilt > g_camera->m_perspectiveCameraMaxTilt)
@@ -27076,7 +27076,7 @@ CVoid CMultipleWindows::ProcessInputs()
 	else if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 	{
 		//add keyboard input here
-		if( true/*m_lMouseDown*/ )
+		if (true/*m_lMouseDown*/)
 		{
 			//default speed
 			if ((m_inputSystem->KeyDown(DIK_LCONTROL) || m_inputSystem->KeyDown(DIK_RCONTROL)) &&
@@ -27099,7 +27099,7 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 			}
 
-			if (m_inputSystem->KeyDown( DIK_S ))
+			if (m_inputSystem->KeyDown(DIK_S))
 			{
 				//Decrease Speed?
 				if (m_inputSystem->KeyDown(DIK_LCONTROL) || m_inputSystem->KeyDown(DIK_RCONTROL))
@@ -27124,7 +27124,7 @@ CVoid CMultipleWindows::ProcessInputs()
 				}
 			}
 
-			if (m_inputSystem->KeyDown( DIK_W ))
+			if (m_inputSystem->KeyDown(DIK_W))
 			{
 				//Increase Speed
 				if (m_inputSystem->KeyDown(DIK_LCONTROL) || m_inputSystem->KeyDown(DIK_RCONTROL))
@@ -27137,54 +27137,54 @@ CVoid CMultipleWindows::ProcessInputs()
 				else
 				{
 					// UI code to move the camera farther away
-					g_render.GetDefaultInstanceCamera()->MoveTransform(-elapsedTime* g_camera->m_cameraSpeed, 0.0f, 0.0f);
+					g_render.GetDefaultInstanceCamera()->MoveTransform(-elapsedTime * g_camera->m_cameraSpeed, 0.0f, 0.0f);
 				}
 			}
 
-			if (m_inputSystem->KeyDown( DIK_Q ))
+			if (m_inputSystem->KeyDown(DIK_Q))
 			{
 				// UI code to move the camera farther up
-				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, 0.0f, elapsedTime* g_camera->m_cameraSpeed);
+				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, 0.0f, elapsedTime * g_camera->m_cameraSpeed);
 			}
 
-			if (m_inputSystem->KeyDown( DIK_E ))
+			if (m_inputSystem->KeyDown(DIK_E))
 			{
 				// UI code to move the camera farther down
-				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, 0.0f, -elapsedTime* g_camera->m_cameraSpeed);
+				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, 0.0f, -elapsedTime * g_camera->m_cameraSpeed);
 			}
 
-			if (m_inputSystem->KeyDown( DIK_D ))
+			if (m_inputSystem->KeyDown(DIK_D))
 			{
 				// UI code to move the camera farther right
-				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, -elapsedTime* g_camera->m_cameraSpeed, 0.0f);
+				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, -elapsedTime * g_camera->m_cameraSpeed, 0.0f);
 			}
 
-			if (m_inputSystem->KeyDown( DIK_A ))
+			if (m_inputSystem->KeyDown(DIK_A))
 			{
 				// UI code to move the camera farther left
-				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, elapsedTime* g_camera->m_cameraSpeed, 0.0f);
+				g_render.GetDefaultInstanceCamera()->MoveTransform(0.0f, elapsedTime * g_camera->m_cameraSpeed, 0.0f);
 			}
 		}
-		if( m_lMouseDown || m_rMouseDown )
+		if (m_lMouseDown || m_rMouseDown)
 		{
 			if (m_dx != 0 || m_dy != 0)
 				m_calculateDistance = CTrue;
 
 
-			if( !m_selectObject )
+			if (!m_selectObject)
 			{
 				//perspective viewport
-				if( g_camera->m_activatePerspectiveCamera )
+				if (g_camera->m_activatePerspectiveCamera)
 				{
-					if( m_lMouseDown )
+					if (m_lMouseDown)
 					{
-						if(!m_selectedGUI)
-							g_render.GetDefaultInstanceCamera()->SetPanAndTilt( -(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f );
-						if(m_dx != 0 || m_dy != 0 )
+						if (!m_selectedGUI)
+							g_render.GetDefaultInstanceCamera()->SetPanAndTilt(-(CFloat)m_dx * 0.2f, -(CFloat)m_dy * 0.2f);
+						if (m_dx != 0 || m_dy != 0)
 							m_tempMovement = CTrue;
 					}
-					else if( m_rMouseDown )
-					{  
+					else if (m_rMouseDown)
+					{
 						if (m_dy > 0)
 							g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetZoomOut(elapsedTime * 50.0f);
 						else if (m_dy < 0)
@@ -27262,32 +27262,32 @@ CVoid CMultipleWindows::ProcessInputs()
 					else
 					{
 						// UI code to move the camera farther away
-						instance_camera->MoveTransform(-elapsedTime* instance_camera->GetCameraSpeed(), 0.0f, 0.0f);
+						instance_camera->MoveTransform(-elapsedTime * instance_camera->GetCameraSpeed(), 0.0f, 0.0f);
 					}
 				}
 
 				if (m_inputSystem->KeyDown(DIK_Q))
 				{
 					// UI code to move the camera farther up
-					instance_camera->MoveTransform(0.0f, 0.0f, elapsedTime* instance_camera->GetCameraSpeed());
+					instance_camera->MoveTransform(0.0f, 0.0f, elapsedTime * instance_camera->GetCameraSpeed());
 				}
 
 				if (m_inputSystem->KeyDown(DIK_E))
 				{
 					// UI code to move the camera farther down
-					instance_camera->MoveTransform(0.0f, 0.0f, -elapsedTime* instance_camera->GetCameraSpeed());
+					instance_camera->MoveTransform(0.0f, 0.0f, -elapsedTime * instance_camera->GetCameraSpeed());
 				}
 
 				if (m_inputSystem->KeyDown(DIK_D))
 				{
 					// UI code to move the camera farther right
-					instance_camera->MoveTransform(0.0f, -elapsedTime* instance_camera->GetCameraSpeed(), 0.0f);
+					instance_camera->MoveTransform(0.0f, -elapsedTime * instance_camera->GetCameraSpeed(), 0.0f);
 				}
 
 				if (m_inputSystem->KeyDown(DIK_A))
 				{
 					// UI code to move the camera farther left
-					instance_camera->MoveTransform(0.0f, elapsedTime* instance_camera->GetCameraSpeed(), 0.0f);
+					instance_camera->MoveTransform(0.0f, elapsedTime * instance_camera->GetCameraSpeed(), 0.0f);
 				}
 			}
 			if (m_lMouseDown || m_rMouseDown)
@@ -27703,7 +27703,7 @@ CUInt CMultipleWindows::GetSelectedObject(CBool renderArrowOnly)
 
 	glPopAttrib();
 
-	if(!renderArrowOnly)
+	if (!renderArrowOnly)
 		m_tempSelectedName = (CUInt)selectedName;
 	return selectedName;
 }
@@ -27724,7 +27724,7 @@ CVoid CMultipleWindows::InitPrefabSelection(CDouble mouseXPos, CDouble mouseYPos
 	}
 	else
 	{
-		gluPickMatrix(mouseXPos / 2.0 - (selectionWidth / 4.0),  mouseYPos / 2.0 - (selectionHeight / 4.0), selectionWidth / 2.0, selectionHeight / 2.0, viewport);
+		gluPickMatrix(mouseXPos / 2.0 - (selectionWidth / 4.0), mouseYPos / 2.0 - (selectionHeight / 4.0), selectionWidth / 2.0, selectionHeight / 2.0, viewport);
 	}
 
 	if (g_currentCameraType == eCAMERA_PHYSX)
@@ -27821,7 +27821,7 @@ CChar* CMultipleWindows::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseY
 
 			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
 			scene = g_instancePrefab[i]->GetScene(0);
-			
+
 			if (!scene) continue;
 
 			if (!scene->m_isSelectable) continue;
@@ -27896,15 +27896,15 @@ CChar* CMultipleWindows::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseY
 	return m_selectedPrefabInstanceName;
 }
 
-CBool CMultipleWindows::InitFBOs( CInt channels, CInt type )
+CBool CMultipleWindows::InitFBOs(CInt channels, CInt type)
 {
 	//glGetIntegerv( GL_MAX_DRAW_BUFFERS, &g_numBuffers );
 
 	CUInt numSamples;
 	GLenum status;
-	if( m_multiSample ) //initialize 2 separate FBOs
+	if (m_multiSample) //initialize 2 separate FBOs
 	{
-		switch( g_options.m_numSamples  )
+		switch (g_options.m_numSamples)
 		{
 		case 2:
 			numSamples = 2;
@@ -27923,86 +27923,86 @@ CBool CMultipleWindows::InitFBOs( CInt channels, CInt type )
 		}
 		GLint samples;
 		glGetIntegerv(GL_MAX_SAMPLES_EXT, &samples);
-		if( numSamples > (CUInt)samples )
+		if (numSamples > (CUInt)samples)
 			numSamples = samples;
 		m_mFboID = g_render.GenerateFBO();
-		g_render.BindFBO( m_mFboID );
+		g_render.BindFBO(m_mFboID);
 		//g_render.BindForWriting( m_mFboID );
 		//g_render.Attach2DTextureToFBOColor( m_bloomTexture );
 		m_rbDepthID = g_render.GenerateRenderBuffer();
-		g_render.BindRenderBuffer( m_rbDepthID );
-		g_render.RenderbufferDepthStorageMultisample( numSamples, g_width, g_height );
-		g_render.AttachRenderBufferToFBODepth( m_rbDepthID );
+		g_render.BindRenderBuffer(m_rbDepthID);
+		g_render.RenderbufferDepthStorageMultisample(numSamples, g_width, g_height);
+		g_render.AttachRenderBufferToFBODepth(m_rbDepthID);
 
-		for( CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++ )
+		for (CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++)
 		{
 			m_rbColorID[i] = g_render.GenerateRenderBuffer();
-			g_render.BindRenderBuffer( m_rbColorID[i] );
-			g_render.RenderbufferColorStorageMultisample( numSamples, type, g_width, g_height );
-			g_render.AttachRenderBufferToFBOColor( m_rbColorID[i], i );
+			g_render.BindRenderBuffer(m_rbColorID[i]);
+			g_render.RenderbufferColorStorageMultisample(numSamples, type, g_width, g_height);
+			g_render.AttachRenderBufferToFBOColor(m_rbColorID[i], i);
 		}
 		GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
-		GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT};
+		GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT };
 		glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
 
 		status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-		switch(status)
+		switch (status)
 		{
-			case GL_FRAMEBUFFER_COMPLETE_EXT:
-				break;
-			default:
-				PrintInfo("\nCMain::InitFBo(): An error occured while creating the FBO", COLOR_RED );
-				break;
+		case GL_FRAMEBUFFER_COMPLETE_EXT:
+			break;
+		default:
+			PrintInfo("\nCMain::InitFBo(): An error occured while creating the FBO", COLOR_RED);
+			break;
 		}
 
 		g_render.BindFBO(0);
 		g_render.BindRenderBuffer(0);
 	}
 
-	for( CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++ )
+	for (CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++)
 	{
-		glGenTextures(1, &m_textureTarget[i] );								
-		glBindTexture(GL_TEXTURE_2D, m_textureTarget[i] );					
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glGenTextures(1, &m_textureTarget[i]);
+		glBindTexture(GL_TEXTURE_2D, m_textureTarget[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		if( i == eGBUFFER_TEXTURE_TYPE_POSITION || i == eGBUFFER_TEXTURE_TYPE_NORMAL ) //vertex or normal
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, g_width, g_height, 0, GL_RGBA, GL_FLOAT, NULL);	
+		if (i == eGBUFFER_TEXTURE_TYPE_POSITION || i == eGBUFFER_TEXTURE_TYPE_NORMAL) //vertex or normal
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, g_width, g_height, 0, GL_RGBA, GL_FLOAT, NULL);
 		else
-    		glTexImage2D(GL_TEXTURE_2D, 0, channels, g_width, g_height, 0, type, GL_UNSIGNED_BYTE, NULL );
+			glTexImage2D(GL_TEXTURE_2D, 0, channels, g_width, g_height, 0, type, GL_UNSIGNED_BYTE, NULL);
 	}
 
 	m_fboID = g_render.GenerateFBO();
-	g_render.BindFBO( m_fboID );
+	g_render.BindFBO(m_fboID);
 	//g_render.BindForWriting( m_fboID );
 
 
-	for( CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++ )
+	for (CInt i = 0; i < eGBUFFER_NUM_TEXTURES; i++)
 	{
-		g_render.Attach2DTextureToFBOColor( m_textureTarget[i], i );
+		g_render.Attach2DTextureToFBOColor(m_textureTarget[i], i);
 	}
 
 	m_rbDepthID2 = g_render.GenerateRenderBuffer();
-	g_render.BindRenderBuffer( m_rbDepthID2 );
-	g_render.RenderbufferStorage( g_width, g_height );
-	g_render.AttachRenderBufferToFBODepth( m_rbDepthID2 );
+	g_render.BindRenderBuffer(m_rbDepthID2);
+	g_render.RenderbufferStorage(g_width, g_height);
+	g_render.AttachRenderBufferToFBODepth(m_rbDepthID2);
 
 	GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
-	GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT};
+	GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT };
 	glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
 
 	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch(status)
+	switch (status)
 	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
-			break;
-		default:
-			PrintInfo( "\nCMain::InitFBo(): An error occured while creating the FBO", COLOR_RED );
-			break;
+	case GL_FRAMEBUFFER_COMPLETE_EXT:
+		break;
+	default:
+		PrintInfo("\nCMain::InitFBo(): An error occured while creating the FBO", COLOR_RED);
+		break;
 	}
 
-	g_render.BindFBO( 0 );
+	g_render.BindFBO(0);
 	g_render.BindRenderBuffer(0);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -28010,7 +28010,7 @@ CBool CMultipleWindows::InitFBOs( CInt channels, CInt type )
 	return CTrue;
 }
 
-CVoid CMultipleWindows::SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar)
+CVoid CMultipleWindows::SetInstanceCamera(CInstanceCamera* inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar)
 {
 	//previous position of the perspective camera (used while instanced camera is enabled)
 	g_camera->m_perspectiveCameraPosOfPreviousFrame = g_camera->m_perspectiveCameraPos;
@@ -28019,11 +28019,11 @@ CVoid CMultipleWindows::SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth,
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(fov,
-					( sWidth / sHeight ),
-					zNear,
-					zFar);
+		(sWidth / sHeight),
+		zNear,
+		zFar);
 
-	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
+	if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
 	{
 		//shadow
 		glGetFloatv(GL_PROJECTION_MATRIX, cam_proj);
@@ -28033,14 +28033,14 @@ CVoid CMultipleWindows::SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth,
 	// the node's matrix.
 	glMatrixMode(GL_MODELVIEW);
 	CMatrix mat;
-	const CMatrix *ltow;
+	const CMatrix* ltow;
 	ltow = inst->m_parent->GetLocalToWorldMatrix();
-	CMatrixCopy(*ltow, mat); 
+	CMatrixCopy(*ltow, mat);
 	//CMatrix3x4Invert( mat, mat);
 	//LoadMatrix( mat );
-	CVec3f at(0,0,-1),pos( 0,0,0);
-	CMatrixTransform( mat, at, free_dae_cam_at );
-	CMatrixTransform( mat, pos, free_dae_cam_pos );
+	CVec3f at(0, 0, -1), pos(0, 0, 0);
+	CMatrixTransform(mat, at, free_dae_cam_at);
+	CMatrixTransform(mat, pos, free_dae_cam_pos);
 	g_camera->m_perspectiveCameraPos.x = free_dae_cam_pos.x;
 	g_camera->m_perspectiveCameraPos.y = free_dae_cam_pos.y;
 	g_camera->m_perspectiveCameraPos.z = free_dae_cam_pos.z;
@@ -28065,8 +28065,8 @@ CVoid CMultipleWindows::SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth,
 	//if( g_shadowProperties.m_enable && g_render.UsingShadowShader()  && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	//{
 		// store the inverse of the resulting modelview matrix for the shadow computation
-		glGetFloatv(GL_MODELVIEW_MATRIX, cam_modelview);
-		g_camera->m_cameraManager->GetInverseMatrix( cam_inverse_modelview );
+	glGetFloatv(GL_MODELVIEW_MATRIX, cam_modelview);
+	g_camera->m_cameraManager->GetInverseMatrix(cam_inverse_modelview);
 	//}
 
 }
@@ -28170,7 +28170,7 @@ CVoid CMultipleWindows::UpdateAnimations(CBool init)
 					if (prefab && prefab->GetHasLod(j))
 						update = CTrue;
 				}
-				else if( j == 3 )
+				else if (j == 3)
 				{
 					if (prefab && g_instancePrefab[i]->GetHasCollider())
 						update = CTrue;
@@ -28318,26 +28318,26 @@ CVoid CMultipleWindows::Render3DModelsControlledByPhysX(CBool sceneManager)
 	{
 		//if (g_multipleView->IsPlayGameMode())
 		//{
-			for (CUInt i = 0; i < g_scene.size(); i++)
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			if (!g_scene[i]->m_isVisible) continue;
+			g_render.SetScene(g_scene[i]);
+
+			if (!g_render.GetScene()->m_isTrigger)
 			{
-				if (!g_scene[i]->m_isVisible) continue;
-				g_render.SetScene(g_scene[i]);
-
-				if (!g_render.GetScene()->m_isTrigger)
+				if (g_render.GetScene()->m_update)
 				{
-					if (g_render.GetScene()->m_update)
-					{
-						g_render.GetScene()->Update();
-						g_render.GetScene()->m_update = CFalse;
-					}
-					g_render.GetScene()->RenderModelsControlledByPhysX(sceneManager);
+					g_render.GetScene()->Update();
+					g_render.GetScene()->m_update = CFalse;
+				}
+				g_render.GetScene()->RenderModelsControlledByPhysX(sceneManager);
 
-					if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
-					{
-						glUseProgram(0);
-					}
+				if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
+				{
+					glUseProgram(0);
 				}
 			}
+		}
 		//}
 	}
 
@@ -28722,7 +28722,7 @@ CVoid CMultipleWindows::RenderCharacter(CBool sceneManager)
 		CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
 		for (CUInt j = 0; j < 3; j++)
 		{
-			if (prefab && prefab->GetHasLod(j) )
+			if (prefab && prefab->GetHasLod(j))
 			{
 				scene = g_currentInstancePrefab->GetScene(j);
 				break;
@@ -28839,7 +28839,7 @@ CVoid CMultipleWindows::Render3DAnimatedModels(CBool sceneManager)
 				{
 					glUseProgram(0);
 				}
-				
+
 			}
 			g_instancePrefab[i]->UpdateArrow();
 		}
@@ -28855,7 +28855,7 @@ CVoid CMultipleWindows::Render3DAnimatedModels(CBool sceneManager)
 			{
 				if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
 				{
-					if (m_enableTimer && g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
+					if (m_enableTimer && g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists())
 					{
 						g_render.GetScene()->Update(elapsedTime);
 						g_render.GetScene()->m_updateAnimation = CFalse;
@@ -28943,7 +28943,7 @@ CVoid CMultipleWindows::Render3DAnimatedModelsForWater(CWater* water, CBool scen
 			{
 				if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
 				{
-					if (m_enableTimer && g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY  && g_render.GetScene()->UpdateAnimationLists())
+					if (m_enableTimer && g_render.GetScene()->GetAnimationStatus() == eANIM_PLAY && g_render.GetScene()->UpdateAnimationLists())
 					{
 						g_render.GetScene()->Update(elapsedTime);
 						g_render.GetScene()->m_updateAnimation = CFalse;
@@ -29178,7 +29178,7 @@ CVoid CMultipleWindows::RenderQueries(CBool init)
 			if (g_currentCameraType == eCAMERA_PHYSX)
 			{
 				gluLookAt(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z,
-				ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
+					ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
 			}
 			else
 			{
@@ -29218,7 +29218,7 @@ CVoid CMultipleWindows::RenderQueries(CBool init)
 					if (g_currentCameraType == eCAMERA_PHYSX)
 					{
 						gluLookAt(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z,
-						WaterCenter.x, WaterCenter.y, WaterCenter.z, 0.0f, 1.0f, 0.0f);
+							WaterCenter.x, WaterCenter.y, WaterCenter.z, 0.0f, 1.0f, 0.0f);
 					}
 					else
 					{
@@ -29247,7 +29247,7 @@ CVoid CMultipleWindows::RenderQueries(CBool init)
 						if (g_currentCameraType == eCAMERA_PHYSX)
 						{
 							gluLookAt(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z,
-							ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
+								ObjectCenter.x, ObjectCenter.y, ObjectCenter.z, 0.0f, 1.0f, 0.0f);
 						}
 						else
 						{
@@ -29267,12 +29267,12 @@ CVoid CMultipleWindows::RenderQueries(CBool init)
 		}
 
 		//render engine lights here
-		if ( g_engineLights.size() > 0)
+		if (g_engineLights.size() > 0)
 		{
 			//set all the lights here
 			for (CUInt j = 0; j < g_engineLights.size(); j++)
 			{
-				CInstanceLight *instanceLight = g_engineLights[j];
+				CInstanceLight* instanceLight = g_engineLights[j];
 
 				if (g_engineLights[j]->m_abstractLight->GetType() == eLIGHTTYPE_DIRECTIONAL)
 				{
@@ -29284,7 +29284,7 @@ CVoid CMultipleWindows::RenderQueries(CBool init)
 				CVec3f  Position;
 				if (instanceLight->m_parent)
 				{
-					float *matrix = (float *)instanceLight->m_parent->GetLocalToWorldMatrix();
+					float* matrix = (float*)instanceLight->m_parent->GetLocalToWorldMatrix();
 					Position.x = matrix[12]; Position.y = matrix[13]; Position.z = matrix[14];
 				}
 				else
@@ -29395,7 +29395,7 @@ CVoid CMultipleWindows::Render3DModels(CBool sceneManager, CChar* parentTreeName
 	{
 		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 		{
-			if (!g_instancePrefab[i]->GetVisible() ) continue;
+			if (!g_instancePrefab[i]->GetVisible()) continue;
 			g_currentInstancePrefab = g_instancePrefab[i];
 			if (!checkVisibility)
 				if (!g_instancePrefab[i]->GetRenderForQuery())
@@ -29590,7 +29590,7 @@ CVoid CMultipleWindows::DrawGUI()
 	else if (g_materialChannels == eCHANNELS_NORMAL)
 		Cpy(layerMode, "Layer Mode: Normals");
 
-	if(g_polygonMode == ePOLYGON_POINT)
+	if (g_polygonMode == ePOLYGON_POINT)
 		Cpy(polygonMode, "Polygon Mode: Point");
 	else if (g_polygonMode == ePOLYGON_LINE)
 		Cpy(polygonMode, "Polygon Mode: Line");
@@ -29599,8 +29599,8 @@ CVoid CMultipleWindows::DrawGUI()
 	{
 		if (g_editorMode == eMODE_PREFAB && g_multipleView->IsPlayGameMode())
 			m_simpleFont.Print("Perspective : Prefab : Play Mode", 5.0f, 1000.0f, 0.0f, 0.85f, 0.67f, 0.0f);
-		else if ( g_editorMode == eMODE_PREFAB)
-			m_simpleFont.Print( "Perspective : Prefab", 5.0f, 1000.0f, 0.0f, 0.85f, 0.67f, 0.0f );
+		else if (g_editorMode == eMODE_PREFAB)
+			m_simpleFont.Print("Perspective : Prefab", 5.0f, 1000.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 		else if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode())
 			m_simpleFont.Print("Perspective : VScene : Play Mode", 5.0f, 1000.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 		else
@@ -29656,9 +29656,9 @@ CVoid CMultipleWindows::DrawGUI()
 
 			sprintf(temp, "FPS : %i", fps);
 			m_simpleFont2.Print(temp, 5.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f);
-			sprintf( temp, "Rendered Vertexes : %i", g_numVerts );
+			sprintf(temp, "Rendered Vertexes : %i", g_numVerts);
 			m_simpleFont2.Print(temp, 5.0f, 940.0f, 0.0f, 0.85f, 0.67f, 0.0f);
-			sprintf( temp, "Rendered Triangles : %i", g_numVerts / 3 );
+			sprintf(temp, "Rendered Triangles : %i", g_numVerts / 3);
 			m_simpleFont2.Print(temp, 5.0f, 910.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 			m_simpleFont2.Print("Object -------------------- Samples", 5.0f, 880.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 
@@ -29817,16 +29817,16 @@ CVoid CMultipleWindows::DrawGUI()
 			y += 50.0f;
 		}
 
-		if( g_menu.m_showStatistics )
+		if (g_menu.m_showStatistics)
 		{
 			CChar temp[MAX_NAME_SIZE];
 			CInt fps = (CInt)(timer.GetFps(m_timerCounter));
-			sprintf( temp, "FPS : %i", fps );
-			m_simpleFont2.Print( temp, 10.0f, 920.0f, 0.0f, 0.85f, 0.67f, 0.0f );
-			sprintf( temp, "Rendered Vertexes : %i", g_numVerts );
-			m_simpleFont2.Print( temp, 10.0f, 870.0f, 0.0f, 0.85f, 0.67f, 0.0f );
-			sprintf( temp, "Rendered Triangles : %i", g_numVerts / 3 );
-			m_simpleFont2.Print( temp, 10.0f, 820.0f, 0.0f, 0.85f, 0.67f, 0.0f );
+			sprintf(temp, "FPS : %i", fps);
+			m_simpleFont2.Print(temp, 10.0f, 920.0f, 0.0f, 0.85f, 0.67f, 0.0f);
+			sprintf(temp, "Rendered Vertexes : %i", g_numVerts);
+			m_simpleFont2.Print(temp, 10.0f, 870.0f, 0.0f, 0.85f, 0.67f, 0.0f);
+			sprintf(temp, "Rendered Triangles : %i", g_numVerts / 3);
+			m_simpleFont2.Print(temp, 10.0f, 820.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 		}
 	}
 	m_simpleFont.EndRendering();
@@ -29972,7 +29972,7 @@ CVoid CMultipleWindows::DrawGUI()
 
 		}
 	}
-	if( m_totalElapsedTime >= 1.0f ) //update the FPS every 1 second 
+	if (m_totalElapsedTime >= 1.0f) //update the FPS every 1 second 
 	{
 		SetElapsedTimeFromBeginning();
 	}
@@ -30114,7 +30114,7 @@ CVoid CMultipleWindows::ManageLODs()
 	//if (index == g_instancePrefab.size() + numLights)
 	//{
 		//all results are available
-		m_bQuery = CTrue;
+	m_bQuery = CTrue;
 	//}
 	if (m_bQuery)
 	{
@@ -30145,7 +30145,7 @@ CVoid CMultipleWindows::ManageLODs()
 			percentage = ((CFloat)g_instancePrefab[i]->GetResult() / (CFloat)m_numSamples) * 100.0f;
 
 
-			if ( result == 0 && (g_instancePrefab[i]->GetDistanceFromCamera() > g_instancePrefab[i]->GetRadius() + g_instancePrefabLODPercent.m_lod1) && g_instancePrefab[i]->GetNameIndex() != g_selectedName)
+			if (result == 0 && (g_instancePrefab[i]->GetDistanceFromCamera() > g_instancePrefab[i]->GetRadius() + g_instancePrefabLODPercent.m_lod1) && g_instancePrefab[i]->GetNameIndex() != g_selectedName)
 			{
 				g_instancePrefab[i]->SetSceneVisible(0, CFalse);
 				g_instancePrefab[i]->SetSceneVisible(1, CFalse);
@@ -30400,7 +30400,7 @@ CVoid CMultipleWindows::Draw3DObjects()
 	if (!g_useOldRenderingStyle && g_options.m_enableFBO/* && g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader*/)
 	{
 		if (!g_useOldRenderingStyle && m_multiSample && g_options.m_numSamples && g_options.m_enableFBO)
-				g_render.BindForWriting(m_mFboID);
+			g_render.BindForWriting(m_mFboID);
 		else if (!g_useOldRenderingStyle && g_options.m_enableFBO)
 			g_render.BindForWriting(m_fboID);
 
@@ -30465,7 +30465,7 @@ CVoid CMultipleWindows::Draw3DObjects()
 
 		RenderWaters();
 
-		Render3DTransparentModels(!condition); 
+		Render3DTransparentModels(!condition);
 		m_checkBlending = CFalse;
 
 		++g_numLights;
@@ -30479,21 +30479,21 @@ CVoid CMultipleWindows::SetDefaultLight()
 	glEnable(GL_LIGHT0);	 //just for per vertex lighting 	
 
 	//This is the properties of the camera light
-	GLfloat light_pos0[4] = {g_camera->m_perspectiveCameraPos.x,g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z, 1.0f };
+	GLfloat light_pos0[4] = { g_camera->m_perspectiveCameraPos.x,g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z, 1.0f };
 
 	GLfloat light_ambient0[4] = { 0.5f, 0.5f, 0.5f, 0.0f };
 	GLfloat light_diffuse0[4] = { 0.6f, 0.6f, 0.6f, 1.0f };
 	GLfloat light_specular0[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	GLfloat light_shininess0 = 100.0f;
 
-	glLightfv( GL_LIGHT0, GL_POSITION, light_pos0  );
-	glLightfv( GL_LIGHT0, GL_AMBIENT , light_ambient0 );
-	glLightfv( GL_LIGHT0, GL_DIFFUSE , light_diffuse0 );
-	glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular0 );
-	glLightf ( GL_LIGHT0, GL_SHININESS, light_shininess0 );
-	glLightf ( GL_LIGHT0, GL_CONSTANT_ATTENUATION , (GLfloat)1.0f );
-	glLightf ( GL_LIGHT0, GL_LINEAR_ATTENUATION,	(GLfloat)0.0f );
-	glLightf ( GL_LIGHT0, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f );
+	glLightfv(GL_LIGHT0, GL_POSITION, light_pos0);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient0);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse0);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0);
+	glLightf(GL_LIGHT0, GL_SHININESS, light_shininess0);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, (GLfloat)1.0f);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, (GLfloat)0.0f);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, (GLfloat)0.0f);
 
 	g_numLights++;
 }
@@ -31139,7 +31139,7 @@ CVoid CMultipleWindows::DrawLightIconArrows()
 		CVec4f  Position;
 		if (lightInstance->m_parent)
 		{
-			float *matrix = (float *)lightInstance->m_parent->GetLocalToWorldMatrix();
+			float* matrix = (float*)lightInstance->m_parent->GetLocalToWorldMatrix();
 			Position.x = matrix[12]; Position.y = matrix[13]; Position.z = matrix[14]; Position.w = 1.0f;
 		}
 		CColor4f color = lightInstance->m_abstractLight->GetColor();
@@ -31151,7 +31151,7 @@ CVoid CMultipleWindows::DrawLightIconArrows()
 			{
 				CVec3f  olddirection(0.0f, 0.0f, 1.0f);
 				CVec3f  newdirection;//(0.0f, -1.0f, 0.0f);
-				float * localmatrix = (float *)lightInstance->m_parent->GetLocalToWorldMatrix();
+				float* localmatrix = (float*)lightInstance->m_parent->GetLocalToWorldMatrix();
 				CMatrixRotate(localmatrix, olddirection, newdirection);
 
 				//render direction
@@ -31167,7 +31167,7 @@ CVoid CMultipleWindows::DrawLightIconArrows()
 			{
 				CVec3f  olddirection(0.0f, 0.0f, -1.0f);
 				CVec3f  newdirection;//(0.0f, -1.0f, 0.0f);
-				float * localmatrix = (float *)lightInstance->m_parent->GetLocalToWorldMatrix();
+				float* localmatrix = (float*)lightInstance->m_parent->GetLocalToWorldMatrix();
 				CMatrixRotate(localmatrix, olddirection, newdirection);
 
 				//render direction
@@ -31175,7 +31175,7 @@ CVoid CMultipleWindows::DrawLightIconArrows()
 				g_render.PushMatrix();
 				g_render.MultMatrix(localmatrix);
 				g_negativeZArrow->Render(CFalse);
-				CFloat *color = lightInstance->m_abstractLight->GetDiffuse();
+				CFloat* color = lightInstance->m_abstractLight->GetDiffuse();
 				color[3] = 0.0f;
 				g_glUtil.DrawCone(1, 1, 10, 10, color);
 				g_render.PopMatrix();
@@ -31250,7 +31250,7 @@ CVoid CMultipleWindows::GetMouseMovement()
 		resetMouse = CTrue;
 	}
 
-	if(resetMouse)
+	if (resetMouse)
 		SetCursorPos(m_point.x, m_point.y);
 
 	m_prev_dx = m_point.x;

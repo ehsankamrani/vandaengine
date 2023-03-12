@@ -1,4 +1,4 @@
-//Copyright (C) 2022 Ehsan Kamrani
+//Copyright (C) 2023 Ehsan Kamrani
 //This file is licensed and distributed under MIT license
 [vert]
 
@@ -10,10 +10,17 @@ uniform int nr_dir_lights;
 varying vec3 lightDir[NR_DIR_LIGHTS];
 
 //Point Light
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 4    
 uniform int nr_point_lights;
 varying float pointLightDist[NR_POINT_LIGHTS];
 varying vec3 pointLightPos[NR_POINT_LIGHTS];
+
+//spot Lights
+#define NR_SPOT_LIGHTS 2
+uniform int nr_spot_lights;
+varying float spotLightDist[NR_SPOT_LIGHTS];
+varying vec3 spotLightPos[NR_SPOT_LIGHTS];
+varying vec3 spotLightDir[NR_SPOT_LIGHTS];
 
 varying vec3 viewDir;
 varying vec3 normal;
@@ -53,6 +60,16 @@ void main()
 		light_index++;
 	}	
 	
+	//Spot Light
+	for(int i = 0; i < nr_spot_lights; i++)
+	{
+		tempVec = (gl_LightSource[light_index].position.xyz - vPos.xyz);
+		spotLightDist[i] = length(tempVec);
+		spotLightPos[i] = normalize( tempVec );
+		spotLightDir[i] = normalize( gl_LightSource[light_index].spotDirection );
+		light_index++;
+	}	
+
     // fix of the clipping bug for both Nvidia and ATi
     #ifdef __GLSL_CG_DATA_TYPES
     gl_ClipVertex = vPos;
@@ -84,11 +101,19 @@ uniform int nr_dir_lights;
 varying vec3 lightDir[NR_DIR_LIGHTS];
 
 //Point Light
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 4    
 uniform int nr_point_lights;
 varying float pointLightDist[NR_POINT_LIGHTS];
 varying vec3 pointLightPos[NR_POINT_LIGHTS];
 uniform float point_light_radius[NR_POINT_LIGHTS];
+
+//spot Lights
+#define NR_SPOT_LIGHTS 2
+uniform int nr_spot_lights;
+varying float spotLightDist[NR_SPOT_LIGHTS];
+varying vec3 spotLightPos[NR_SPOT_LIGHTS];
+varying vec3 spotLightDir[NR_SPOT_LIGHTS];
+uniform float spot_light_radius[NR_SPOT_LIGHTS];
 
 varying vec3 viewDir;
 varying vec3 normal;  //It's just used for per pixel lighting without normal map
@@ -220,6 +245,61 @@ void main()
 		finalColor += color;
 		light_index++;
 	}
+
+	//Spot Lights
+	for(int i = 0; i < nr_spot_lights; i++)
+	{
+		color = vec4(0.0);
+		ldir = normalize(spotLightPos[i]); 
+		sdir = normalize(spotLightDir[i]);
+		NdotL = max(dot(n,ldir),0.0);
+		if( NdotL > 0.0 )
+		{
+			spotEffect = dot(sdir, -ldir);
+			if (spotEffect > gl_LightSource[light_index].spotCosCutoff)
+			{
+				ambient = gl_FrontMaterial.ambient * gl_LightSource[light_index].ambient;
+				diffuse = gl_FrontMaterial.diffuse * gl_LightSource[light_index].diffuse;
+
+				spotEffect = pow(spotEffect, gl_LightSource[light_index].spotExponent);
+				float tempAtt = ( 1 - ( spotLightDist[i] /  spot_light_radius[i] ) ) / gl_LightSource[light_index].constantAttenuation;
+				att = spotEffect * tempAtt;
+
+				color = att * ambient;
+
+				color += att * (diffuse * NdotL );
+			
+		 		specular = gl_FrontMaterial.specular * gl_LightSource[light_index].specular;
+	
+				float l_specular = pow(clamp(dot(reflect(-ldir, n), viewV), 0.0, 1.0), 
+							gl_FrontMaterial.shininess );
+	
+				if( enableGlossMap )
+				{
+	 				glossColor = texture2D(glossMap, newTexCoord );
+					color += att * specular * l_specular * glossColor;
+				}
+				else
+					color += att * specular * l_specular;
+
+				if( enableColorMap )
+				{
+  					textureColor = texture2D(colorMap, newTexCoord );
+					color *= textureColor;
+				}
+
+				if( enableDirtMap )
+				{
+  					dirtColor = texture2D(dirtMap, gl_TexCoord[1].st );
+					color *= dirtColor;
+				}
+
+			}
+		}
+	
+		finalColor += color;
+		light_index++;
+	}	
 
 	if( enableFog )
 	{

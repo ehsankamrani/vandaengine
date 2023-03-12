@@ -729,12 +729,12 @@ void CTerrainVBOCull::draw()
 						num_point_lights++;
 						if (num_point_lights == 1)
 							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[0]"), instanceLight->GetRadius());
-						//else if (num_point_lights == 2)
-						//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), instanceLight->GetRadius());
-						//else if (num_point_lights == 3)
-						//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), instanceLight->GetRadius());
-						//else if (num_point_lights == 4)
-						//	glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), instanceLight->GetRadius());
+						else if (num_point_lights == 2)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[1]"), instanceLight->GetRadius());
+						else if (num_point_lights == 3)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[2]"), instanceLight->GetRadius());
+						else if (num_point_lights == 4)
+							glUniform1f(glGetUniformLocation(g_shaderType, "point_light_radius[3]"), instanceLight->GetRadius());
 					}
 
 					if (instanceLight->m_abstractLight->GetType() == eLIGHTTYPE_SPOT)
@@ -742,6 +742,8 @@ void CTerrainVBOCull::draw()
 						num_spot_lights++;
 						if (num_spot_lights == 1)
 							glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[0]"), instanceLight->GetRadius());
+						else if (num_spot_lights == 2)
+							glUniform1f(glGetUniformLocation(g_shaderType, "spot_light_radius[1]"), instanceLight->GetRadius());
 					}
 
 				}

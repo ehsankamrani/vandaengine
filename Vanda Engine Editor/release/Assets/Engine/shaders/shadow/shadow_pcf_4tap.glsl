@@ -10,13 +10,13 @@ uniform int nr_dir_lights;
 varying vec3 lightDir[NR_DIR_LIGHTS];
 
 //Point Light
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 4    
 uniform int nr_point_lights;
 varying float pointLightDist[NR_POINT_LIGHTS];
 varying vec3 pointLightPos[NR_POINT_LIGHTS];
 
 //spot Lights
-#define NR_SPOT_LIGHTS 1
+#define NR_SPOT_LIGHTS 2
 uniform int nr_spot_lights;
 varying float spotLightDist[NR_SPOT_LIGHTS];
 varying vec3 spotLightPos[NR_SPOT_LIGHTS];
@@ -103,14 +103,14 @@ varying vec3 lightDir[NR_DIR_LIGHTS];
 uniform int defaultDirLightIndex;
 
 //Point Light
-#define NR_POINT_LIGHTS 2  
+#define NR_POINT_LIGHTS 4    
 uniform int nr_point_lights;
 varying float pointLightDist[NR_POINT_LIGHTS];
 varying vec3 pointLightPos[NR_POINT_LIGHTS];
 uniform float point_light_radius[NR_POINT_LIGHTS];
 
 //spot Lights
-#define NR_SPOT_LIGHTS 1
+#define NR_SPOT_LIGHTS 2
 uniform int nr_spot_lights;
 varying float spotLightDist[NR_SPOT_LIGHTS];
 varying vec3 spotLightPos[NR_SPOT_LIGHTS];
