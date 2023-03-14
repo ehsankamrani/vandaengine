@@ -146,7 +146,8 @@ void CWelcomeDialog::OnBnClickedWelcomeButtonUncheck()
 
 void CWelcomeDialog::OnBnClickedDonate()
 {
-	ShellExecute(NULL, "open", "https://vanda3d.org/donate/", NULL, NULL, SW_SHOWNORMAL);
+	//ShellExecute(NULL, "open", "https://vanda3d.org/donate/", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", "https://vanda3d.org/tutorials/", NULL, NULL, SW_SHOWNORMAL);
 }
 
 

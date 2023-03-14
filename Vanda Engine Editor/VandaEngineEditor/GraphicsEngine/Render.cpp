@@ -21,7 +21,6 @@ CVoid CRender::Init()
 	m_shaderProgram = 0;
 	m_waterShaderProgram = 0;
 	m_shader_normalProgram = 0;
-	m_deferredProgram = 0;
 	m_blendTexturesProgram = 0;
 	m_waterProgram = 0;
 	m_blurProgram = 0;
@@ -69,8 +68,6 @@ CVoid CRender::Init()
 	m_shaderGlossMapLayerProgram = 0;
 	m_shaderDirtMapLayerProgram = 0;
 	m_shaderAlphaMapLayerProgram = 0;
-	m_shaderPositionLayerProgram = 0;
-	m_shaderNormalLayerProgram = 0;
 
 	m_iconProgram = 0;
 
@@ -157,25 +154,6 @@ CVoid CRender::Init()
 		else
 		{
 			PrintInfo("\nDefault_Normal shader loaded successfully", COLOR_WHITE);
-			m_shaderAvailable = CTrue;
-		}
-
-		m_deferredProgram = LoadShaderProgram( "Assets/Engine/shaders/deferred.glsl", infoLog);
-		if( m_deferredProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/deferred.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\ndeferred shader loaded successfully", COLOR_WHITE );
 			m_shaderAvailable = CTrue;
 		}
 
@@ -1014,44 +992,6 @@ CVoid CRender::Init()
 			m_shaderAvailable = CTrue;
 		}
 
-		m_shaderPositionLayerProgram = LoadShaderProgram( "Assets/Engine/shaders/Layers/PositionLayer.glsl", infoLog);
-		if( m_shaderPositionLayerProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/Layers/PositionLayer.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nLayers/PositionLayer shader loaded successfully", COLOR_WHITE );
-			m_shaderAvailable = CTrue;
-		}
-
-		m_shaderNormalLayerProgram = LoadShaderProgram( "Assets/Engine/shaders/Layers/NormalLayer.glsl", infoLog);
-		if( m_shaderNormalLayerProgram == 0 )
-		{
-			if( infoLog.c_str() )
-			{
-				PrintShaderLog( "\n" );
-				PrintShaderLog( infoLog.c_str() );
-			}
-			PrintInfo( "\nCouldn't load shader : Assets/Engine/shaders/Layers/NormalLayer.glsl", COLOR_RED );
-			infoLog.erase();
-			m_shaderAvailable = CFalse;
-			return;
-		}
-		else
-		{
-			PrintInfo( "\nLayers/NormalLayer shader loaded successfully", COLOR_WHITE );
-			m_shaderAvailable = CTrue;
-		}
-
 		m_iconProgram = LoadShaderProgram("Assets/Engine/shaders/icon.glsl", infoLog);
 		if (m_iconProgram == 0)
 		{
@@ -1268,11 +1208,8 @@ CVoid CRender::Destroy()
     glDeleteProgram(m_shaderGlossMapLayerProgram);
     glDeleteProgram(m_shaderDirtMapLayerProgram);
     glDeleteProgram(m_shaderAlphaMapLayerProgram);
-	glDeleteProgram( m_shaderPositionLayerProgram);
-	glDeleteProgram(m_shaderNormalLayerProgram);
 
 	glDeleteProgram( m_blendTexturesProgram );
-	glDeleteProgram( m_deferredProgram );
 
 	glDeleteProgram(m_iconProgram);
 

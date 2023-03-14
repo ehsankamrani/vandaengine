@@ -360,7 +360,7 @@ const CInt32 MAX_TEX_COORDS = 20;
 #define NR_SPOT_LIGHTS 2
 
 #define NR_TERRAIN_POINT_LIGHTS 4
-#define NR_TERRAIN_SPOT_LIGHTS 2
+#define NR_TERRAIN_SPOT_LIGHTS 2 
 
 struct CPhysXMaterial
 {

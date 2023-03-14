@@ -1020,13 +1020,17 @@ CBool CVideo::Render()
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	glViewport(0, 0, g_width, g_height);// resets the viewport to new dimensions.
+	glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+	if (g_menu.m_justPerspective)
+		glViewport(0, 0, g_width, g_height);// resets the viewport to new dimensions.
+	else
+		glViewport(0, 0, g_width / 2, g_height / 2);// resets the viewport to new dimensions.
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	glUseProgram(0);
 	glDrawBuffer(GL_BACK);
+	glClearColor(0.37f, 0.37f, 0.37f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glPushAttrib(GL_ENABLE_BIT);
 	glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
 	gluOrtho2D(0, g_width, 0, g_height);
 	glMatrixMode(GL_MODELVIEW); glPushMatrix();	glLoadIdentity();

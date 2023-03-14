@@ -14728,7 +14728,20 @@ CBool CMain::Render()
 	}
 	if (renderVideo)
 	{
+		if (m_publishDebug)
+		{
+			static CBool f1KeyDown = CFalse;
+			if (!m_loadScene && g_input.KeyDown(DIK_F1) && !f1KeyDown)
+			{
+				f1KeyDown = CTrue;
+				m_showHelpInfo = !m_showHelpInfo;
+			}
+			if (g_input.KeyUp(DIK_F1))
+				f1KeyDown = CFalse;
+		}
 		m_renderVideo = CTrue;
+		glViewport(0, m_padding, g_width, g_height);
+
 		DrawGUI();
 
 		glFlush();
@@ -20997,8 +21010,79 @@ CVoid CMain::Render3DModelsForWater(CWater* water, CBool sceneManager, CChar* pa
 
 CVoid CMain::DrawGUI()
 {
-	m_timerCounter++;
+	if (!m_renderVideo)
+	{
+		for (CUInt i = 0; i < g_guis.size(); i++)
+		{
+			if (g_guis[i]->GetVisible())
+			{
+				for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+				{
+					g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue));
+				}
+				for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+				{
+					g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue));
+				}
+				for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
+				{
+					g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue));
+				}
+			}
+		}
 
+		//Draw Cursor
+		if (g_currentVSceneProperties.m_isMenu && !g_main->GetCursorIcon()->GetVisible())
+		{
+			CFloat cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_width) / 100.0f;
+			CFloat halfCursorSize = cursorSize / 2.0f;
+			glUseProgram(0);
+			glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.5f);
+			glDisable(GL_LIGHTING);
+			glEnable(GL_BLEND);
+			glBlendEquation(GL_FUNC_ADD);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glViewport(0, g_main->GetPadding(), g_width, g_height);
+			g_render.ProjectionMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			gluOrtho2D(0.0, g_width, 0.0, g_height);
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+			glEnable(GL_TEXTURE_2D);
+			if (m_menuCursorImg)
+			{
+				glBindTexture(GL_TEXTURE_2D, m_menuCursorImg->GetId());
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			}
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 0.0f);
+			glVertex2f(g_main->m_mousePosition.x - halfCursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize - cursorSize);
+			glTexCoord2f(1.0f, 0.0f);
+			glVertex2f(g_main->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize - cursorSize);
+			glTexCoord2f(1.0f, 1.0f);
+			glVertex2f(g_main->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize);
+			glTexCoord2f(0.0f, 1.0f);
+			glVertex2f(g_main->m_mousePosition.x - halfCursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize);
+			glEnd();
+			glDisable(GL_TEXTURE_2D);
+			g_render.ProjectionMatrix();
+			g_render.PopMatrix();
+
+			g_render.ModelViewMatrix();
+			g_render.PopMatrix();
+			glPopAttrib(); //viewport
+		}
+
+		CVec2f pos(g_main->m_mousePosition.x, g_height - g_main->m_mousePosition.y);
+		m_cursorIcon->Render(pos);
+	}
+
+	m_timerCounter++;
 	g_font->StartRendering();
 	//g_font->Print( "Vanda Engine", 10.0f, 980.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "Copyright (C) 2023 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
@@ -21007,6 +21091,41 @@ CVoid CMain::DrawGUI()
 
 	if( m_showHelpInfo )
 	{
+		//draw a transparent quad
+		glUseProgram(0);
+		glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
+		glViewport(0, 0, g_width, g_height);
+		g_render.ProjectionMatrix();
+		g_render.PushMatrix();
+		g_render.IdentityMatrix();
+		gluOrtho2D(0.0, g_width, 0.0, g_height);
+		g_render.ModelViewMatrix();
+		g_render.PushMatrix();
+		g_render.IdentityMatrix();
+
+		CDouble window_width = (CDouble)g_width;
+		CDouble window_height = (CDouble)g_height;
+
+		glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
+		glBegin(GL_QUADS);
+		glVertex2d(0.0, 0.0);
+		glVertex2d(window_width / 3.0, 0.0);
+		glVertex2d(window_width / 3.0, window_height);
+		glVertex2d(0.0, window_height);
+		glEnd();
+		glDisable(GL_BLEND);
+
+		g_render.ProjectionMatrix();
+		g_render.PopMatrix();
+
+		g_render.ModelViewMatrix();
+		g_render.PopMatrix();
+		glPopAttrib();
+		//End of drawing a transparent quad
+
 		//g_font->Print( "F1 key: Enable / Disable help.\n", 10.0f, 830.0f, 0.0f, 1.0f, 1.0f, 0.5f );
 		//g_font->Print( "Right Arrow key or D key: Move Right.\n", 10.0f, 800.0f, 0.0f, 1.0f, 1.0f, 0.5f );
 		//g_font->Print( "Up Arrow key or W key: Move Front.\n", 10.0f, 770.0f, 0.0f, 1.0f, 1.0f, 0.5f );
@@ -21033,7 +21152,15 @@ CVoid CMain::DrawGUI()
 			static int m_fps = 0;
 
 			CChar temp[MAX_NAME_SIZE];
-			CInt fps = (CInt)g_timer->GetFps(m_timerCounter);
+			static CFloat fps_timer = 0.0f;
+			static CInt fps = (CInt)g_timer->GetFps(m_timerCounter);
+
+			fps_timer += g_elapsedTime;
+			if (fps_timer >= 1.0f)
+			{
+				fps = (CInt)g_timer->GetFps(m_timerCounter);
+				fps_timer = 0.0f;
+			}
 
 			if( m_totalElapsedTime >= 0.5 ) //Every 0.5 seconds update the FPS
 			{
@@ -21109,99 +21236,25 @@ CVoid CMain::DrawGUI()
 				g_font->Print(temp, 10.0f, 870.0f - (index + g_engineLights.size() + i + 1) * 30, 0.0f, 0.65f, 0.5f, 0.65f);
 			}
 
-			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-			{
-				if (i <= 25)
-				{
-					char temp[200];
-					sprintf(temp, "%s Distance: %.2f", g_instancePrefab[i]->GetName(), g_instancePrefab[i]->GetDistanceFromCamera());
-					g_font->Print(temp, 140.0, 1020.0 - (i + 1) * 30, 0.0f, 0.85f, 0.85f, 0.0f);
-				}
-				else
-				{
-					break;
-				}
-			}
+			//for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			//{
+			//	if (i <= 25)
+			//	{
+			//		char temp[200];
+			//		sprintf(temp, "%s Distance: %.2f", g_instancePrefab[i]->GetName(), g_instancePrefab[i]->GetDistanceFromCamera());
+			//		g_font->Print(temp, 140.0, 1020.0 - (i + 1) * 30, 0.0f, 0.85f, 0.85f, 0.0f);
+			//	}
+			//	else
+			//	{
+			//		break;
+			//	}
+			//}
 
 		}
 	}
-	//if( g_databaseVariables.m_showStatistics )
-	//{
-	//}
 
 	g_font->EndRendering();
 
-	if (m_renderVideo)
-		return;
-
-	for (CUInt i = 0; i < g_guis.size(); i++)
-	{
-		if (g_guis[i]->GetVisible())
-		{
-			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
-			{
-				g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue));
-			}
-			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
-			{
-				g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue));
-			}
-			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
-			{
-				g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue));
-			}
-		}
-	}
-
-	//Draw Cursor
-	if (g_currentVSceneProperties.m_isMenu && !g_main->GetCursorIcon()->GetVisible())
-	{
-		CFloat cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_width) / 100.0f;
-		CFloat halfCursorSize = cursorSize / 2.0f;
-		glUseProgram(0);
-		glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.5f);
-		glDisable(GL_LIGHTING);
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glViewport(0, g_main->GetPadding(), g_width, g_height);
-		g_render.ProjectionMatrix();
-		g_render.PushMatrix();
-		g_render.IdentityMatrix();
-		gluOrtho2D(0.0, g_width, 0.0, g_height);
-		g_render.ModelViewMatrix();
-		g_render.PushMatrix();
-		g_render.IdentityMatrix();
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glEnable(GL_TEXTURE_2D);
-		if (m_menuCursorImg)
-		{
-			glBindTexture(GL_TEXTURE_2D, m_menuCursorImg->GetId());
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		}
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(g_main->m_mousePosition.x - halfCursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize - cursorSize);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(g_main->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize - cursorSize);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(g_main->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(g_main->m_mousePosition.x - halfCursorSize, g_height - g_main->m_mousePosition.y + halfCursorSize);
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
-		g_render.ProjectionMatrix();
-		g_render.PopMatrix();
-
-		g_render.ModelViewMatrix();
-		g_render.PopMatrix();
-		glPopAttrib(); //viewport
-	}
-
-	CVec2f pos(g_main->m_mousePosition.x, g_height - g_main->m_mousePosition.y);
-	m_cursorIcon->Render(pos);
 }
 
 void CMain::ResetPhysX(CBool releaseActors)

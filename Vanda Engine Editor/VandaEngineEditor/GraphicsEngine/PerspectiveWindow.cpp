@@ -24734,6 +24734,11 @@ CVoid CMultipleWindows::DrawPerspective()
 		{
 			m_renderVideo = CTrue;
 
+			if (g_menu.m_justPerspective)
+				glViewport(0, 0, m_width, m_height);// resets the viewport to new dimensions.
+			else
+				glViewport(0, 0, m_width / 2, m_height / 2);// resets the viewport to new dimensions.
+
 			DrawGUI();
 
 			glFlush();
@@ -25748,22 +25753,6 @@ CVoid CMultipleWindows::DrawPerspective()
 		glEnable(GL_TEXTURE_2D);
 		glClearColor(0.37f, 0.37f, 0.37f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//if( !found ) //render default texture with deferred shader
-		//{
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, m_textureTarget[1]);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, m_textureTarget[2]);
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, m_textureTarget[3]);
-		//glUseProgram(g_render.m_deferredProgram);
-		//glUniform1i( glGetUniformLocation(g_render.m_deferredProgram, "tPosition"), 0 );
-		//glUniform1i( glGetUniformLocation(g_render.m_deferredProgram, "tNormals"), 1 );
-		//glUniform1i( glGetUniformLocation(g_render.m_deferredProgram, "tDiffuse"), 2 );
-		//CFloat cameraPos[3] = { g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z };
-		//glUniform3fv(glGetUniformLocation(g_render.m_deferredProgram, "cameraPosition"), 1, cameraPos);
-		//}
 
 		glBegin(GL_QUADS);
 		glTexCoord2d(0, 0);	glVertex2d(0, 0);
@@ -29011,10 +29000,6 @@ CVoid CMultipleWindows::RenderTerrain(CBool useFBO)
 			g_shaderType = g_render.m_terrainNormalMapLayerProgram;
 		else if (g_materialChannels == eCHANNELS_DIFFUSE)
 			g_shaderType = g_render.m_terrainDiffuseLayerProgram;
-		else if (g_materialChannels == eCHANNELS_POSITION)
-			g_shaderType = g_render.m_shaderPositionLayerProgram;
-		else if (g_materialChannels == eCHANNELS_NORMAL)
-			g_shaderType = g_render.m_shaderNormalLayerProgram;
 		else if (g_materialChannels != eCHANNELS_ALL)
 			g_shaderType = g_render.m_terrainOtherLayerProgram;
 
@@ -29570,6 +29555,93 @@ CVoid CMultipleWindows::Render3DModelsForWater(CWater* water, CBool sceneManager
 
 CVoid CMultipleWindows::DrawGUI()
 {
+	if (!m_renderVideo)
+	{
+		for (CUInt i = 0; i < g_guis.size(); i++)
+		{
+			if (g_guis[i]->GetVisible())
+			{
+				for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
+				{
+					g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue));
+				}
+				for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
+				{
+					g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue));
+				}
+				for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
+				{
+					g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue));
+				}
+			}
+		}
+
+		CBool renderCursor = CTrue;
+		if (!g_menu.m_justPerspective)
+		{
+			if ((g_multipleView->m_mousePosition.x > g_width / 2.0) || (g_multipleView->m_mousePosition.y < g_height / 2.0))
+				renderCursor = CFalse;
+		}
+
+		//Draw Cursor
+		if (g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu && !g_multipleView->GetCursorIcon()->GetVisible() && renderCursor)
+		{
+			CFloat cursorSize;
+			if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
+				cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_multipleView->m_width) / 100.0f;
+			else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
+				cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * 0.5f * (CFloat)g_multipleView->m_width) / 100.0f;
+
+			CFloat halfCursorSize = cursorSize / 2.0f;
+			glUseProgram(0);
+			glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.5f);
+			glDisable(GL_LIGHTING);
+			glEnable(GL_BLEND);
+			glBlendEquation(GL_FUNC_ADD);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glViewport(0, 0, g_width, g_height);
+			g_render.ProjectionMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			gluOrtho2D(0.0, g_width, 0.0, g_height);
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			glActiveTextureARB(GL_TEXTURE0_ARB);
+			glEnable(GL_TEXTURE_2D);
+			if (m_menuCursorImg)
+			{
+				glBindTexture(GL_TEXTURE_2D, m_menuCursorImg->GetId());
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			}
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 0.0f);
+			glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize - cursorSize);
+			glTexCoord2f(1.0f, 0.0f);
+			glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize - cursorSize);
+			glTexCoord2f(1.0f, 1.0f);
+			glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize);
+			glTexCoord2f(0.0f, 1.0f);
+			glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize);
+			glEnd();
+			glDisable(GL_TEXTURE_2D);
+			g_render.ProjectionMatrix();
+			g_render.PopMatrix();
+
+			g_render.ModelViewMatrix();
+			g_render.PopMatrix();
+			glPopAttrib(); //viewport
+		}
+
+		POINT p;
+		GetCursorPos(&p);
+		ScreenToClient(&p);
+		CVec2f pos(p.x, g_height - p.y);
+		m_cursorIcon->Render(pos);
+	}
+
 	m_timerCounter++;
 	m_simpleFont.StartRendering();
 
@@ -29585,18 +29657,126 @@ CVoid CMultipleWindows::DrawGUI()
 		Cpy(layerMode, "Layer Mode: Gloss Map");
 	else if (g_materialChannels == eCHANNELS_ALPHAMAP)
 		Cpy(layerMode, "Layer Mode: Alpha Map");
-	else if (g_materialChannels == eCHANNELS_POSITION)
-		Cpy(layerMode, "Layer Mode: Positions");
-	else if (g_materialChannels == eCHANNELS_NORMAL)
-		Cpy(layerMode, "Layer Mode: Normals");
 
 	if (g_polygonMode == ePOLYGON_POINT)
 		Cpy(polygonMode, "Polygon Mode: Point");
 	else if (g_polygonMode == ePOLYGON_LINE)
 		Cpy(polygonMode, "Polygon Mode: Line");
 
+	static CFloat fps_timer = 0.0f;
+	static CInt fps = (CInt)timer.GetFps(m_timerCounter);
+
 	if (g_menu.m_justPerspective)
 	{
+		if (g_menu.m_showStatistics)
+		{
+			//draw a transparent quad
+			glUseProgram(0);
+			glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_TEXTURE_2D);
+			glViewport(0, 0, g_width, g_height);
+			g_render.ProjectionMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			gluOrtho2D(0.0, g_width, 0.0, g_height);
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+
+			CDouble window_width = (CDouble)g_width;
+			CDouble window_height = (CDouble)g_height;
+
+			glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
+			glBegin(GL_QUADS);
+			glVertex2d(0.0, 0.0);
+			glVertex2d(window_width / 3.0, 0.0);
+			glVertex2d(window_width / 3.0, window_height);
+			glVertex2d(0.0, window_height);
+			glEnd();
+			glDisable(GL_BLEND);
+
+			g_render.ProjectionMatrix();
+			g_render.PopMatrix();
+
+			g_render.ModelViewMatrix();
+			g_render.PopMatrix();
+			glPopAttrib();
+			//End of drawing a transparent quad
+		}
+
+		CFloat y_offset = 0.0f;
+		if (g_materialChannels != eCHANNELS_ALL)
+			y_offset += 40.0f;
+		if (g_polygonMode != ePOLYGON_FILL)
+		{
+			if (y_offset <= 0.0f)
+				y_offset += 40.0f;
+			else
+				y_offset += 28.0f;
+		}
+		if (g_physXProperties.m_bDebugMode)
+		{
+			if (y_offset <= 0.0f)
+				y_offset += 40.0f;
+			else
+				y_offset += 28.0f;
+		}
+		for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+		{
+			if (g_engineCameraInstances[c]->IsActive())
+			{
+				if (y_offset <= 0.0f)
+					y_offset += 40.0f;
+				else
+					y_offset += 28.0f;
+				break;
+			}
+		}
+		if (!g_menu.m_geometryBasedSelection && g_editorMode == eMODE_PREFAB)
+		{
+			if (y_offset <= 0.0f)
+				y_offset += 40.0f;
+			else
+				y_offset += 28.0f;
+		}
+
+		if (y_offset > 0.0f)
+		{
+			//draw a transparent quad
+			glUseProgram(0);
+			glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_TEXTURE_2D);
+			glViewport(0, 0, g_width, g_height);
+			g_render.ProjectionMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+			gluOrtho2D(0.0, 1024.0, 0.0, 768.0);
+			g_render.ModelViewMatrix();
+			g_render.PushMatrix();
+			g_render.IdentityMatrix();
+
+			glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
+			glBegin(GL_QUADS);
+			glVertex2f(870.0f, 0.0f);
+			glVertex2f(1024.0f, 0.0);
+			glVertex2f(1024.0f, y_offset);
+			glVertex2f(870.0f, y_offset);
+			glEnd();
+			glDisable(GL_BLEND);
+
+			g_render.ProjectionMatrix();
+			g_render.PopMatrix();
+
+			g_render.ModelViewMatrix();
+			g_render.PopMatrix();
+			glPopAttrib();
+			//End of drawing a transparent quad
+		}
+
 		if (g_editorMode == eMODE_PREFAB && g_multipleView->IsPlayGameMode())
 			m_simpleFont.Print("Perspective : Prefab : Play Mode", 5.0f, 1000.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 		else if (g_editorMode == eMODE_PREFAB)
@@ -29647,12 +29827,17 @@ CVoid CMultipleWindows::DrawGUI()
 			y += 35.0f;
 		}
 
-
 		if (g_menu.m_showStatistics)
 		{
 			CChar temp[MAX_NAME_SIZE];
 
-			CInt fps = (CInt)timer.GetFps(m_timerCounter);
+			//update every second
+			fps_timer += g_elapsedTime;
+			if (fps_timer >= 1.0f)
+			{
+				fps = (CInt)timer.GetFps(m_timerCounter);
+				fps_timer = 0.0f;
+			}
 
 			sprintf(temp, "FPS : %i", fps);
 			m_simpleFont2.Print(temp, 5.0f, 970.0f, 0.0f, 0.85f, 0.67f, 0.0f);
@@ -29741,19 +29926,19 @@ CVoid CMultipleWindows::DrawGUI()
 				m_simpleFont2.Print(temp, 5.0f, 880.0f - (index + g_engineLights.size() + i + 1) * 30, 0.0f, 0.65f, 0.5f, 0.65f);
 			}
 
-			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-			{
-				if (i <= 25)
-				{
-					char temp[200];
-					sprintf(temp, "%s Distance: %.2f", g_instancePrefab[i]->GetName(), g_instancePrefab[i]->GetDistanceFromCamera());
-					m_simpleFont2.Print(temp, 250.0, 1030.0 - (i + 1) * 30, 0.0f, 0.65f, 0.5f, 0.65f);
-				}
-				else
-				{
-					break;
-				}
-			}
+			//for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			//{
+			//	if (i <= 25)
+			//	{
+			//		char temp[200];
+			//		sprintf(temp, "%s Distance: %.2f", g_instancePrefab[i]->GetName(), g_instancePrefab[i]->GetDistanceFromCamera());
+			//		m_simpleFont2.Print(temp, 250.0, 1030.0 - (i + 1) * 30, 0.0f, 0.65f, 0.5f, 0.65f);
+			//	}
+			//	else
+			//	{
+			//		break;
+			//	}
+			//}
 
 		}
 	}
@@ -29820,7 +30005,13 @@ CVoid CMultipleWindows::DrawGUI()
 		if (g_menu.m_showStatistics)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			CInt fps = (CInt)(timer.GetFps(m_timerCounter));
+			//update every second
+			fps_timer += g_elapsedTime;
+			if (fps_timer >= 1.0f)
+			{
+				fps = (CInt)timer.GetFps(m_timerCounter);
+				fps_timer = 0.0f;
+			}
 			sprintf(temp, "FPS : %i", fps);
 			m_simpleFont2.Print(temp, 10.0f, 920.0f, 0.0f, 0.85f, 0.67f, 0.0f);
 			sprintf(temp, "Rendered Vertexes : %i", g_numVerts);
@@ -29977,93 +30168,6 @@ CVoid CMultipleWindows::DrawGUI()
 		SetElapsedTimeFromBeginning();
 	}
 
-	if (m_renderVideo)
-		return;
-
-	for (CUInt i = 0; i < g_guis.size(); i++)
-	{
-		if (g_guis[i]->GetVisible())
-		{
-			for (CUInt j = 0; j < g_guis[i]->m_guiImages.size(); j++)
-			{
-				g_guis[i]->m_guiImages[j]->Render(g_guis[i]->GetPosition(CTrue));
-			}
-			for (CUInt j = 0; j < g_guis[i]->m_guiButtons.size(); j++)
-			{
-				g_guis[i]->m_guiButtons[j]->Render(g_guis[i]->GetPosition(CTrue));
-			}
-			for (CUInt j = 0; j < g_guis[i]->m_guiTexts.size(); j++)
-			{
-				g_guis[i]->m_guiTexts[j]->Render(g_guis[i]->GetPosition(CTrue));
-			}
-		}
-	}
-
-	CBool renderCursor = CTrue;
-	if (!g_menu.m_justPerspective)
-	{
-		if ((g_multipleView->m_mousePosition.x > g_width / 2.0) || (g_multipleView->m_mousePosition.y < g_height / 2.0))
-			renderCursor = CFalse;
-	}
-
-	//Draw Cursor
-	if (g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu && !g_multipleView->GetCursorIcon()->GetVisible() && renderCursor)
-	{
-
-		CFloat cursorSize;
-		if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
-			cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_multipleView->m_width) / 100.0f;
-		else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
-			cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * 0.5f * (CFloat)g_multipleView->m_width) / 100.0f;
-
-		CFloat halfCursorSize = cursorSize / 2.0f;
-		glUseProgram(0);
-		glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.5f);
-		glDisable(GL_LIGHTING);
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glViewport(0, 0, g_width, g_height);
-		g_render.ProjectionMatrix();
-		g_render.PushMatrix();
-		g_render.IdentityMatrix();
-		gluOrtho2D(0.0, g_width, 0.0, g_height);
-		g_render.ModelViewMatrix();
-		g_render.PushMatrix();
-		g_render.IdentityMatrix();
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glEnable(GL_TEXTURE_2D);
-		if (m_menuCursorImg)
-		{
-			glBindTexture(GL_TEXTURE_2D, m_menuCursorImg->GetId());
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		}
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize - cursorSize);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize - cursorSize);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize + cursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(g_multipleView->m_mousePosition.x - halfCursorSize, g_height - g_multipleView->m_mousePosition.y + halfCursorSize);
-		glEnd();
-		glDisable(GL_TEXTURE_2D);
-		g_render.ProjectionMatrix();
-		g_render.PopMatrix();
-
-		g_render.ModelViewMatrix();
-		g_render.PopMatrix();
-		glPopAttrib(); //viewport
-	}
-
-	POINT p;
-	GetCursorPos(&p);
-	ScreenToClient(&p);
-	CVec2f pos(p.x, g_height - p.y);
-	m_cursorIcon->Render(pos);
 }
 
 CVoid CMultipleWindows::ManageLODs()

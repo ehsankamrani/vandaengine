@@ -592,12 +592,6 @@ CVoid CNode::EnableShader(CInstanceGeometry* instanceGeometry)
 			case eCHANNELS_ALPHAMAP:
 				g_shaderType = g_render.m_shaderAlphaMapLayerProgram;
 				break;
-			case eCHANNELS_POSITION:
-				g_shaderType = g_render.m_shaderPositionLayerProgram;
-				break;
-			case eCHANNELS_NORMAL:
-				g_shaderType = g_render.m_shaderNormalLayerProgram;
-				break;
 			}
 		}
 		else if (g_renderForWater)

@@ -54,7 +54,6 @@ public:
 	GLuint m_shaderProgram;
 	GLuint m_waterShaderProgram;
 	GLuint m_shader_normalProgram;
-	GLuint m_deferredProgram;
 	GLuint m_blendTexturesProgram;
 	GLuint m_waterProgram;
 	GLuint m_blurProgram;
@@ -104,8 +103,6 @@ public:
 	GLuint m_shaderGlossMapLayerProgram;
 	GLuint m_shaderDirtMapLayerProgram;
 	GLuint m_shaderAlphaMapLayerProgram;
-	GLuint m_shaderPositionLayerProgram;
-	GLuint m_shaderNormalLayerProgram;
 
 	GLuint m_iconProgram;
 
