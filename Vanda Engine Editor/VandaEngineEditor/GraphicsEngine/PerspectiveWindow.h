@@ -307,6 +307,7 @@ public:
 	CBool m_loadScene;
 	CBool m_notFocus;
 	CBool m_isMenu;
+	CBool m_updatePhysX;
 	CBool m_isPlayingGame;
 	CCameraType m_cameraType;
 	CCameraType m_cameraTypeOfPreviousFrame;

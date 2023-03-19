@@ -462,6 +462,7 @@ CInt CVideo::DecodeVideoPacket()
 			//SaveGrayscaleFrame("c://temp/gray-%s-%d.pgm");
 			//SaveRGBFrame("c://temp/RGB-%s-%d.ppm");
 			glActiveTexture(GL_TEXTURE0);
+			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, m_texureID);
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width,
 				m_height, GL_RGB, GL_UNSIGNED_BYTE,
@@ -1039,8 +1040,8 @@ CBool CVideo::Render()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glBindTexture(GL_TEXTURE_2D, m_texureID);
 	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_texureID);
 
 	glBegin(GL_QUADS);
 	glTexCoord2d(0, 1);	glVertex2d(0, 0);

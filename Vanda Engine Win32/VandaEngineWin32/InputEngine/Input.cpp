@@ -236,6 +236,8 @@ CBool CInputSystem::Initialize(HWND hwnd, HINSTANCE appInstance, CBool isExclusi
       return false;
   }
 
+  m_updated = CFalse;
+
   return true;
 } // end CInputSystem::Initialize()
 
@@ -281,7 +283,7 @@ CBool CInputSystem::Update()
     m_pKeyboard->Update();
   if (m_pMouse)
     m_pMouse->Update();
-
+  m_updated = CTrue;
   return true;
 } // end CInputSystem::Update()
 
@@ -316,6 +318,9 @@ CVoid CInputSystem::UnacquireAll()
 //Is Key Down?
 CBool CInputSystem::KeyDown(CInt key)
 {
+    if (!m_updated)
+        return CFalse;
+
     if (key == DIK_ESCAPE)
         return (m_pKeyboard && !g_main->m_lockEscape && m_pKeyboard->KeyDown(key));
     return (m_pKeyboard && m_pKeyboard->KeyDown(key));
@@ -324,5 +329,8 @@ CBool CInputSystem::KeyDown(CInt key)
 //Is Key Up?
 CBool CInputSystem::KeyUp(CInt key)
 {
+    if (!m_updated)
+        return CFalse;
+
     return (m_pKeyboard && m_pKeyboard->KeyUp(key));
 }

@@ -346,6 +346,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(SetGlobalSoundVolume, "SetGlobalSoundVolume(float volume)");
 	Cpy(GetGlobalSoundVolume, "GetGlobalSoundVolume()");
+
+	Cpy(SetVideoPlay, "SetVideoPlay(string videoName, bool play)");
+	Cpy(SetVideoLoop, "SetVideoLoop(string videoName, bool loop)");
+	Cpy(SetVideoVolume, "SetVideoVolume(string videoName, float volume)");
+
+	Cpy(GetVideoPlay, "GetVideoPlay(string videoName)");
+	Cpy(GetVideoLoop, "GetVideoLoop(string videoName)");
+	Cpy(GetVideoVolume, "GetVideoVolume(string videoName)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1548,6 +1557,30 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetGlobalSoundVolume);
 		}
+		else if (Cmp(szBuffer, "SetVideoPlay"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVideoPlay);
+		}
+		else if (Cmp(szBuffer, "SetVideoLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVideoLoop);
+		}
+		else if (Cmp(szBuffer, "SetVideoVolume"))
+		{
+			m_richFunctionName.SetWindowTextA(SetVideoVolume);
+		}
+		else if (Cmp(szBuffer, "GetVideoPlay"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVideoPlay);
+		}
+		else if (Cmp(szBuffer, "GetVideoLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVideoLoop);
+		}
+		else if (Cmp(szBuffer, "GetVideoVolume"))
+		{
+			m_richFunctionName.SetWindowTextA(GetVideoVolume);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1909,6 +1942,13 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetGlobalSoundVolume");
 	InsertItem("GetGlobalSoundVolume");
 	
+	InsertItem("SetVideoPlay");
+	InsertItem("SetVideoLoop");
+	InsertItem("SetVideoVolume");
+	InsertItem("GetVideoPlay");
+	InsertItem("GetVideoLoop");
+	InsertItem("GetVideoVolume");
+
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);
 

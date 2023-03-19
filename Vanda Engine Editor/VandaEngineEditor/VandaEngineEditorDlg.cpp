@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 205;
+CInt g_version = 210;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.0.5"));
+	SetWindowText(_T("Vanda Engine 2.1.0"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.0.5 initialized successfully" );
+		PrintInfo( "\nVersion 2.1.0 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.0.5 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.1.0 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.0.5 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.1.0 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7625,7 +7625,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.0.5 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.1.0 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8058,7 +8058,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.5 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8067,7 +8067,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.0.5 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.1.0 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -9818,7 +9818,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.5 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10660,7 +10660,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.5 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -13957,7 +13957,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15126,7 +15126,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.5 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -16874,7 +16874,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.0.5 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -18853,7 +18853,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.0.5 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -23351,6 +23351,19 @@ void CVandaEngineDlg::ResetPhysX(CBool releaseActors)
 		}
 	}
 
+	//reset physx matrix of  geometry instances
+	if (releaseActors && g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+			{
+				//set to identity matrix
+				CMatrix m;
+				CMatrixCopy(g_scene[i]->m_instanceGeometries[j]->m_localToWorldMatrixControlledByPhysX, m);
+			}
+		}
+	}
 	//collision flags
 	if (gPhysXscene)
 	{
@@ -25427,21 +25440,6 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 			g_render.SetScene(g_scene[i]);
 			g_scene[i]->Update();
 
-			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
-			{
-				CPhysXMaterial physicsMaterial;
-				physicsMaterial.HasMaterial = g_scene[i]->m_instanceGeometries[j]->HasPhysicsMaterial();
-				physicsMaterial.Restitution = g_scene[i]->m_instanceGeometries[j]->GetPhysicsRestitution();
-				physicsMaterial.SkinWidth = g_scene[i]->m_instanceGeometries[j]->GetPhysicsSkinWidth();
-				physicsMaterial.StaticFriction = g_scene[i]->m_instanceGeometries[j]->GetPhysicsStaticFriction();
-				physicsMaterial.DynamicFriction = g_scene[i]->m_instanceGeometries[j]->GetPhysicsDynamicFriction();
-
-				if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
-				{
-					g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, physicsMaterial, g_scene[i]->m_instanceGeometries[j]);
-				}
-			}
-
 			//Deactivate all animations
 			if (g_scene[i]->GetNumClips() == 0)
 				continue;
@@ -25471,14 +25469,46 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 	g_multipleView->m_nx->gControllers->setPosition(m_currentCharacterPos);
 	g_multipleView->m_nx->gControllers->reportSceneChanged();
+
 	gPhysXscene->simulate(1.0f / 60.0f/*elapsedTime*/);
 	gPhysXscene->flushStream();
 	gPhysXscene->fetchResults(NX_ALL_FINISHED, true);
 
-	g_multipleView->RenderWindow();
-	////
+	if (g_editorMode == eMODE_PREFAB)
+	{
+		ResetPhysX(CFalse);
+
+		g_multipleView->m_updatePhysX = CTrue;
+		g_multipleView->RenderWindow();
+		g_multipleView->m_updatePhysX = CFalse;
+
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			for (CUInt j = 0; j < g_scene[i]->m_instanceGeometries.size(); j++)
+			{
+				if (g_scene[i]->m_instanceGeometries[j]->m_hasPhysX)
+				{
+					CPhysXMaterial physicsMaterial;
+					physicsMaterial.HasMaterial = g_scene[i]->m_instanceGeometries[j]->HasPhysicsMaterial();
+					physicsMaterial.Restitution = g_scene[i]->m_instanceGeometries[j]->GetPhysicsRestitution();
+					physicsMaterial.SkinWidth = g_scene[i]->m_instanceGeometries[j]->GetPhysicsSkinWidth();
+					physicsMaterial.StaticFriction = g_scene[i]->m_instanceGeometries[j]->GetPhysicsStaticFriction();
+					physicsMaterial.DynamicFriction = g_scene[i]->m_instanceGeometries[j]->GetPhysicsDynamicFriction();
+
+					g_scene[i]->GeneratePhysX(g_scene[i]->m_instanceGeometries[j]->m_lodAlgorithm, g_scene[i]->m_instanceGeometries[j]->m_physXDensity, g_scene[i]->m_instanceGeometries[j]->m_physXPercentage, g_scene[i]->m_instanceGeometries[j]->m_isTrigger, g_scene[i]->m_instanceGeometries[j]->m_isInvisible, physicsMaterial, g_scene[i]->m_instanceGeometries[j]);
+				}
+			}
+		}
+
+		g_multipleView->m_updatePhysX = CTrue;
+		g_multipleView->RenderWindow();
+		g_multipleView->m_updatePhysX = CFalse;
+	}
+	/////////////////
 
 	g_multipleView->SetPlayGameMode(CFalse);
+
+	g_multipleView->RenderWindow();
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
@@ -25761,15 +25791,23 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 	dlgWaiting->Create(IDD_DIALOG_PLEASE_WAIT, this);
 	dlgWaiting->ShowWindow(SW_SHOW);
 
-	ResetPhysX(CFalse);
+	if(g_editorMode == eMODE_VSCENE)
+		ResetPhysX(CFalse);
 
 	gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
 
 	g_multipleView->m_loadScene = CTrue;
 
-	g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetDefaultAngle());
-	g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraTilt;
-	/*g_camera->m_perspectiveCameraYaw = */g_camera->m_perspectiveCameraPitch = 0.0f;
+	if (g_editorMode == eMODE_PREFAB)
+	{
+		g_camera->Reset();
+	}
+	else
+	{
+		g_camera->m_cameraManager->SetAngle(g_camera->m_cameraManager->GetDefaultAngle());
+		g_camera->m_perspectiveCurrentCameraTilt = g_camera->m_perspectiveCameraTilt;
+		/*g_camera->m_perspectiveCameraYaw = */g_camera->m_perspectiveCameraPitch = 0.0f;
+	}
 
 	//for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
 	//{

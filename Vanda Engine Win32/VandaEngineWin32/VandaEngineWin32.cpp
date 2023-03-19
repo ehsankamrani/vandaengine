@@ -838,7 +838,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// main message loop
 	while (!g_done)
 	{
-		PeekMessage(&msg, g_hwnd, NULL, NULL, PM_REMOVE);
+		PeekMessage(& msg, g_hwnd, NULL, NULL, PM_REMOVE);
 
 		TranslateMessage(&msg);		// translate and dispatch to event queue
 		DispatchMessage(&msg);

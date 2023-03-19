@@ -136,6 +136,6 @@ public:
 private:
   CKeyboard  *m_pKeyboard;
   CMouse     *m_pMouse;
-  
+  CBool m_updated;
   LPDIRECTINPUT8 m_pDI;
 };

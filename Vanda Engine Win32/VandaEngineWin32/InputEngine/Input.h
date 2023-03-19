@@ -114,28 +114,28 @@ private:
 class CInputSystem
 {
 public:
-  CBool Initialize(HWND hwnd, HINSTANCE appInstance, CBool isExclusive, DWORD flags = 0);
-  CBool Shutdown();
+	CBool Initialize(HWND hwnd, HINSTANCE appInstance, CBool isExclusive, DWORD flags = 0);
+	CBool Shutdown();
 
-  CVoid AcquireAll();
-  CVoid UnacquireAll();
+	CVoid AcquireAll();
+	CVoid UnacquireAll();
 
-  CKeyboard  *GetKeyboard() { return m_pKeyboard; }
-  CMouse     *GetMouse()    { return m_pMouse; }
+	CKeyboard  *GetKeyboard() { return m_pKeyboard; }
+	CMouse     *GetMouse()    { return m_pMouse; }
 
-  CBool Update();
+	CBool Update();
 
-  CBool KeyDown(CInt key);
-  CBool KeyUp(CInt key);
+	CBool KeyDown(CInt key);
+	CBool KeyUp(CInt key);
 
-  CBool ButtonDown(CInt button) { return (m_pMouse && m_pMouse->ButtonDown(button)); }
-  CBool ButtonUp(CInt button) { return (m_pMouse && m_pMouse->ButtonUp(button)); }
-  CVoid GetMouseMovement(CInt &dx, CInt &dy) { if (m_pMouse) m_pMouse->GetMovement(dx, dy); }
-  CInt GetMouseWheelMovement() { return (m_pMouse) ? m_pMouse->GetWheelMovement() : 0; }
+	CBool ButtonDown(CInt button) { return (m_pMouse && m_pMouse->ButtonDown(button)); }
+	CBool ButtonUp(CInt button) { return (m_pMouse && m_pMouse->ButtonUp(button)); }
+	CVoid GetMouseMovement(CInt &dx, CInt &dy) { if (m_pMouse) m_pMouse->GetMovement(dx, dy); }
+	CInt GetMouseWheelMovement() { return (m_pMouse) ? m_pMouse->GetWheelMovement() : 0; }
 
 private:
-  CKeyboard  *m_pKeyboard;
-  CMouse     *m_pMouse;
-  
-  LPDIRECTINPUT8 m_pDI;
+	CKeyboard  *m_pKeyboard;
+	CMouse     *m_pMouse;
+	CBool m_updated;
+	LPDIRECTINPUT8 m_pDI;
 };

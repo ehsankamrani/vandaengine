@@ -22230,6 +22230,488 @@ CInt GetGlobalSoundVolume(lua_State* L)
 	return 1;
 }
 
+
+CInt SetVideoPlay(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetVideoPlay()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CInt isPlay = (CFloat)lua_toboolean(L, 2);
+	CBool play = CFalse;
+	if (isPlay)
+		play = CTrue;
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						if (play)
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoPlay(%s, true) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						else
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoPlay(%s, false) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(play);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt SetVideoLoop(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetVideoLoop()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CInt isLoop = (CFloat)lua_toboolean(L, 2);
+	CBool loop = CFalse;
+	if (isLoop)
+		loop = CTrue;
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						if (loop)
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoLoop(%s, true) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						else
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoLoop(%s, false) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetLoop(loop);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt SetVideoVolume(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetVideoVolume()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CFloat volume = (CFloat)lua_tonumber(L, 2);
+
+	if (volume < 0.0 || volume > 1.0)
+	{
+		PrintInfo("\nSetVideoVolume() Error: value must be in [0,1] range", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoVolume(%s, %.2f) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str(), volume);
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetVolume(volume);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt GetVideoPlay(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVideoPlay()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoPlay(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			if (g_engineVideos[i]->GetPlay())
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+			return 1;
+		}
+	}
+
+	CChar temp[MAX_NAME_SIZE];
+	sprintf(temp, "%s%s%s", "\nGetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+	PrintInfo(temp, COLOR_RED);
+
+	return 0;
+}
+
+CInt GetVideoLoop(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVideoLoop()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoLoop(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			if (g_engineVideos[i]->GetLoop())
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+			return 1;
+		}
+	}
+
+	CChar temp[MAX_NAME_SIZE];
+	sprintf(temp, "%s%s%s", "\nGetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+	PrintInfo(temp, COLOR_RED);
+
+	return 0;
+}
+
+CInt GetVideoVolume(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVideoVolume()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoVolume(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			lua_pushnumber(L, g_engineVideos[i]->GetVolume());
+			return 1;
+		}
+	}
+
+	CChar temp[MAX_NAME_SIZE];
+	sprintf(temp, "%s%s%s", "\nGetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+	PrintInfo(temp, COLOR_RED);
+
+	return 0;
+}
+
+
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
 
@@ -22279,6 +22761,7 @@ CMultipleWindows::CMultipleWindows()
 	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
 	m_selectedGUI = NULL;
 	m_renderVideo = CFalse;
+	m_updatePhysX = CFalse;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -26579,6 +27062,9 @@ CVoid CMultipleWindows::ProcessInputs()
 				g_camera->m_upperRightZoom += (CFloat)m_dy * g_camera->m_upperRightZoom * 0.002f;
 		}
 	}
+	
+	if(m_updatePhysX)
+		ApplyForce(IDLE, elapsedTime);
 
 	if (m_notFocus) return;
 	if (m_loadScene) return;
