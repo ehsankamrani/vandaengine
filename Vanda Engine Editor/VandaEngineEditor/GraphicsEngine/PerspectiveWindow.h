@@ -369,6 +369,7 @@ private:
 	POINT m_point;
 	CGUI* m_selectedGUI;
 	CBool m_renderVideo;
+	CBool m_updateScript;
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );
@@ -378,6 +379,8 @@ public:
 	CBool GetInitError() { return m_initError; }
 	CBool IsPlayGameMode() { return m_playGameMode; }
 	CVoid SetPlayGameMode(CBool set) { m_playGameMode = set; }
+	CVoid SetUpdateScript(CBool set) { m_updateScript = set; }
+	CBool GetUpdateScript() { return m_updateScript; }
 	CIcon* GetCursorIcon() { return m_cursorIcon; }
 	CVoid InitGUISelection();
 	CUInt GetSelectedGUI();

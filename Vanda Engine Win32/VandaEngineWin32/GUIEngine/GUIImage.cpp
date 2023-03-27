@@ -75,6 +75,7 @@ CVoid CGUIImage::Render(CVec2f globalPosition, CBool selectionMode)
 
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_image->GetId());
 
 	if (m_image->GetFormat() == 4)

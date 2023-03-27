@@ -1491,7 +1491,7 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 			}
 		}
 
-		//static 3D sounds
+		//3D sounds
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			ALint state;
@@ -14073,6 +14073,136 @@ CInt GetGlobalSoundVolume(lua_State* L)
 	return 1;
 }
 
+CInt PlayVideoLoop(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PlayVideoLoop()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			g_engineVideos[i]->SetPlay(true);
+			g_engineVideos[i]->SetLoop(true);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nPlayVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt PlayVideoOnce(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PlayVideoOnce()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			g_engineVideos[i]->SetPlay(true);
+			g_engineVideos[i]->SetLoop(false);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nPlayVideoOnce() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt StopVideo(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for StopVideo()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
 CInt SetVideoPlay(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -14332,6 +14462,44 @@ CInt GetVideoVolume(lua_State* L)
 
 	//CChar temp[MAX_NAME_SIZE];
 	//sprintf(temp, "%s%s%s", "\nGetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+	//PrintInfo(temp, COLOR_RED);
+
+	return 0;
+}
+
+CInt GetVideoDuration(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetVideoDuration()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			lua_pushnumber(L, g_engineVideos[i]->GetDuration());
+			return 1;
+		}
+	}
+
+	//CChar temp[MAX_NAME_SIZE];
+	//sprintf(temp, "%s%s%s", "\nGetVideoDuration() Error: Couldn't find video '", lua_tostring(L, 1), "'");
 	//PrintInfo(temp, COLOR_RED);
 
 	return 0;
@@ -14968,10 +15136,17 @@ CBool CMain::Render()
 	//manage videos here
 	CBool renderVideo = CFalse;
 
+	if (g_engineVideos.size() == 0)
+		m_renderVideo = CFalse;
+
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
-		if (g_engineVideos[i]->GetHasScript())
+		if (g_engineVideos[i]->Render() && g_engineVideos[i]->GetHasScript())
 			g_engineVideos[i]->UpdateScript();
+
+		//force exit
+		if (!m_loadScene && g_input.KeyDown(DIK_F5) && g_input.KeyDown(DIK_LCONTROL))
+			m_exitGame = CTrue;
 
 		if (GetExitGame()) return CFalse; //exit game 
 
@@ -14983,7 +15158,7 @@ CBool CMain::Render()
 			if (!m_loadScene)
 				g_input.Update();
 
-			if (!m_loadScene && g_input.KeyDown(DIK_ESCAPE))
+			if (!m_loadScene && g_engineVideos[i]->GetExitWithEscKey() && g_input.KeyDown(DIK_ESCAPE))
 			{
 				m_lockEscape = CTrue;
  				g_engineVideos[i]->SetPlay(CFalse);
@@ -15333,7 +15508,7 @@ CBool CMain::Render()
 			}
 		}
 
-		//static 3D sounds
+		//3D sounds
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
@@ -17322,6 +17497,12 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 		CInt engine_version;
 		fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&engine_version, 1, sizeof(CInt), filePtr);
+		if (engine_version > g_version)
+		{
+			fclose(filePtr);
+			MessageBoxA(NULL, "Prefab file has been saved with newer version of Vanda Engine. Please Update!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return CFalse;
+		}
 		fread(&g_currentPassword, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 		//read engine options
@@ -17891,6 +18072,12 @@ CBool CMain::Load(CChar* pathName)
 	CInt engine_version;
 	fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 	fread(&engine_version, 1, sizeof(CInt), filePtr);
+	if (engine_version > g_version)
+	{
+		fclose(filePtr);
+		MessageBoxA(NULL, "VIN file has been saved with newer version of Vanda Engine. Please Update!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return CFalse;
+	}
 	fread(&g_currentPassword, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 	//read engine options
@@ -18249,6 +18436,12 @@ CBool CMain::Load(CChar* pathName)
 
 		CInt engine_version;
 		fread(&engine_version, 1, sizeof(CInt), filePtr);
+		if (engine_version > g_version)
+		{
+			fclose(filePtr);
+			MessageBoxA(NULL, "GUI file has been saved with newer version of Vanda Engine. Please Update!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return CFalse;
+		}
 
 		CUInt numButtons;
 		fread(&numButtons, sizeof(CUInt), 1, filePtr);
@@ -19122,6 +19315,8 @@ CBool CMain::Load(CChar* pathName)
 		CBool playVideo, loopVideo;
 		CBool videoHasScript;
 		CChar videoScript[MAX_NAME_SIZE];
+		CBool ExitEscKey = CTrue;
+		CBool PlayAudio = CTrue;
 
 		fread(strVideoName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(strVideoPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -19129,6 +19324,11 @@ CBool CMain::Load(CChar* pathName)
 		fread(&volume, sizeof(CFloat), 1, filePtr);
 		fread(&playVideo, sizeof(CBool), 1, filePtr);
 		fread(&loopVideo, sizeof(CBool), 1, filePtr);
+		if (engine_version >= 211)
+		{
+			fread(&ExitEscKey, sizeof(CBool), 1, filePtr);
+			fread(&PlayAudio, sizeof(CBool), 1, filePtr);
+		}
 		fread(&videoHasScript, sizeof(CBool), 1, filePtr);
 		fread(&videoScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -19157,6 +19357,8 @@ CBool CMain::Load(CChar* pathName)
 		video->SetVolume(volume);
 		video->SetLoop(loopVideo);
 		video->SetPlay(playVideo);
+		video->SetExitWithEscKey(ExitEscKey);
+		video->SetPlayAudio(PlayAudio);
 		video->SetVideoFileName(strVideoFileName);
 		video->SetHasScript(videoHasScript);
 		video->SetScript(script);

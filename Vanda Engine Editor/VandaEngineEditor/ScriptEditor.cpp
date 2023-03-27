@@ -110,42 +110,49 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 	else if (wParam == ID_NEWSCRIPT_VSCENE_SCRIPT)
 	{
 		if (!SaveChanges())
-			return CDialog::OnCommand(wParam, lParam);;
+			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/VSceneScript.txt");
 	}
 	else if (wParam == ID_NEWSCRIPT_PREFAB)
 	{
 		if (!SaveChanges())
-			return CDialog::OnCommand(wParam, lParam);;
+			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/Prefab.txt");
 	}
 	else if (wParam == ID_NEWSCRIPT_TRIGGER)
 	{
 		if (!SaveChanges())
-			return CDialog::OnCommand(wParam, lParam);;
+			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/Trigger.txt");
+	}
+	else if (wParam == ID_NEWSCRIPT_VIDEO)
+	{
+		if (!SaveChanges())
+			return CDialog::OnCommand(wParam, lParam);
+		savePath.Empty();
+		LoadFile("Assets/Engine/Scripts/Video.txt");
 	}
 	else if (wParam == ID_NEWSCRIPT_GUI)
 	{
 		if (!SaveChanges())
-			return CDialog::OnCommand(wParam, lParam);;
+			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/GUI.txt");
 	}
 	else if (wParam == ID_NEWSCRIPT_MAINCHARACTER)
 	{
 		if (!SaveChanges())
-			return CDialog::OnCommand(wParam, lParam);;
+			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/MainCharacter.txt");
 	}
 	else if (wParam == ID_FILE_OPEN_SCRIPT)
 	{
 		if (!SaveChanges())
-			return CDialog::OnCommand(wParam, lParam);;
+			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 
 		CFileDialog dlgOpen(TRUE, _T("*.lua"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,

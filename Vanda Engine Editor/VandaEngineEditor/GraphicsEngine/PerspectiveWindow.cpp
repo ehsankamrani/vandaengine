@@ -2612,7 +2612,7 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 			}
 		}
 
-		//static 3D sounds
+		//3D sounds
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			ALint state;
@@ -22230,6 +22230,240 @@ CInt GetGlobalSoundVolume(lua_State* L)
 	return 1;
 }
 
+CInt PlayVideoLoop(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for PlayVideoLoop()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideoLoop(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nPlayVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			g_engineVideos[i]->SetPlay(true);
+			g_engineVideos[i]->SetLoop(true);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nPlayVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt PlayVideoOnce(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for PlayVideoOnce()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideoOnce(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nPlayVideoOnce() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			g_engineVideos[i]->SetPlay(true);
+			g_engineVideos[i]->SetLoop(false);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nPlayVideoOnce() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt StopVideo(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for StopVideo()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : StopVideo(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
 
 CInt SetVideoPlay(lua_State* L)
 {
@@ -22711,6 +22945,78 @@ CInt GetVideoVolume(lua_State* L)
 	return 0;
 }
 
+CInt GetVideoDuration(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetVideoDuration()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoDuration(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetVideoDuration() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			lua_pushnumber(L, g_engineVideos[i]->GetDuration());
+			return 1;
+		}
+	}
+
+	CChar temp[MAX_NAME_SIZE];
+	sprintf(temp, "%s%s%s", "\nGetVideoDuration() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+	PrintInfo(temp, COLOR_RED);
+
+	return 0;
+}
 
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
@@ -22762,6 +23068,7 @@ CMultipleWindows::CMultipleWindows()
 	m_selectedGUI = NULL;
 	m_renderVideo = CFalse;
 	m_updatePhysX = CFalse;
+	m_updateScript = CTrue;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -24210,7 +24517,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 				{
 					if (g_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 					{
-						if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
+						if (m_previousSelectedGUIIndex != m_selectedGUIIndex && g_multipleView->GetUpdateScript())
 							g_guiButtons[k]->OnSelectMouseEnterScript();
 					}
 					g_guiButtons[k]->SetCurrentImageType(eBUTTON_IMAGE_HOVER);
@@ -24241,7 +24548,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 					{
 						if (g_guis[i]->m_guiButtons[k]->GetCurrentImageType() != eBUTTON_IMAGE_HOVER)
 						{
-							if (m_previousSelectedGUIIndex != m_selectedGUIIndex)
+							if (m_previousSelectedGUIIndex != m_selectedGUIIndex && g_multipleView->GetUpdateScript())
 								g_guis[i]->m_guiButtons[k]->OnSelectMouseEnterScript();
 
 						}
@@ -25189,11 +25496,15 @@ CVoid CMultipleWindows::DrawPerspective()
 
 	//manage videos here
 	CBool renderVideo = CFalse;
+
+	if (g_engineVideos.size() == 0)
+		m_renderVideo = CFalse;
+
 	if (g_multipleView->IsPlayGameMode())
 	{
 		for (CUInt i = 0; i < g_engineVideos.size(); i++)
 		{
-			if (g_engineVideos[i]->GetHasScript())
+			if (g_engineVideos[i]->Render() && g_engineVideos[i]->GetHasScript() && g_multipleView->GetUpdateScript())
 				g_engineVideos[i]->UpdateScript();
 
 			g_engineVideos[i]->Update();
@@ -25204,7 +25515,7 @@ CVoid CMultipleWindows::DrawPerspective()
 				if (!m_translationController->Initialized())
 					m_inputSystem->Update();
 
-				if (m_inputSystem->KeyDown(DIK_ESCAPE))
+				if (g_engineVideos[i]->GetExitWithEscKey() && m_inputSystem->KeyDown(DIK_ESCAPE))
 				{
 					m_lockEscape = CTrue;
 					g_engineVideos[i]->SetPlay(CFalse);
@@ -25607,7 +25918,7 @@ CVoid CMultipleWindows::DrawPerspective()
 			}
 		}
 
-		//static 3D sounds
+		//3D sounds
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
@@ -25696,7 +26007,7 @@ CVoid CMultipleWindows::DrawPerspective()
 	if (g_polygonMode == ePOLYGON_FILL)
 		glEnable(GL_LIGHTING);   //just for per vertex lighting
 
-	if (g_multipleView->IsPlayGameMode())
+	if (g_multipleView->IsPlayGameMode() && g_multipleView->GetUpdateScript())
 	{
 		if (g_editorMode == eMODE_VSCENE)
 		{
@@ -28346,7 +28657,7 @@ CChar* CMultipleWindows::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseY
 	//run OnSelect function
 	if (g_editorMode == eMODE_PREFAB)
 	{
-		if (m_selectedPrefabName != -1 && g_prefabProperties.m_hasScript)
+		if (m_selectedPrefabName != -1 && g_prefabProperties.m_hasScript && g_multipleView->GetUpdateScript())
 		{
 			lua_getglobal(g_lua, "OnSelect");
 			if (lua_isfunction(g_lua, -1))
@@ -28362,7 +28673,8 @@ CChar* CMultipleWindows::SelectPrefabInstances(CDouble mouseXPos, CDouble mouseY
 		{
 			if (m_selectedPrefabName != -1 && g_instancePrefab[i]->GetNameIndex() == m_selectedPrefabName)
 			{
-				g_instancePrefab[i]->OnSelectScript();
+				if (g_multipleView->GetUpdateScript())
+					g_instancePrefab[i]->OnSelectScript();
 				Cpy(m_selectedPrefabInstanceName, g_instancePrefab[i]->GetName());
 				break;
 			}
@@ -30041,7 +30353,11 @@ CVoid CMultipleWindows::Render3DModelsForWater(CWater* water, CBool sceneManager
 
 CVoid CMultipleWindows::DrawGUI()
 {
-	if (!m_renderVideo)
+	CBool renderVideo = CFalse;
+	if (m_playGameMode && m_renderVideo)
+		renderVideo = CTrue;
+
+	if (!renderVideo)
 	{
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{

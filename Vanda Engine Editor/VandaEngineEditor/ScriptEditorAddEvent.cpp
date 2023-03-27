@@ -30,6 +30,7 @@ CScriptEditorAddEvent::CScriptEditorAddEvent(CWnd* pParent /*=NULL*/)
 	Cpy(m_onSelectMouseRButtonDown, "function OnSelectMouseRButtonDown()\n\nend\n");
 	Cpy(m_onSelectMouseEnter, "function OnSelectMouseEnter()\n\nend\n");
 	Cpy(m_onSelectEventName, "function OnSelect()\n\nend\n");
+	Cpy(m_onExitEventName, "function OnExit()\n\nend\n");
 }
 
 CScriptEditorAddEvent::~CScriptEditorAddEvent()
@@ -133,6 +134,10 @@ void CScriptEditorAddEvent::OnLvnItemchangedListEvents(NMHDR *pNMHDR, LRESULT *p
 		{
 			m_richEventName.SetWindowTextA(m_onSelectEventName);
 		}
+		else if (Cmp(szBuffer, "OnExit"))
+		{
+			m_richEventName.SetWindowTextA(m_onExitEventName);
+		}
 		CInt end = m_richEventName.GetWindowTextLengthA();
 		m_richEventName.SetSel(0, end);
 	}
@@ -174,6 +179,7 @@ BOOL CScriptEditorAddEvent::OnInitDialog()
 	InsertItem("OnSelectMouseRButtonDown");
 	InsertItem("OnSelectMouseEnter");
 	InsertItem("OnSelect");
+	InsertItem("OnExit");
 
 	m_listEvents.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listEvents.SetSelectionMark(0);

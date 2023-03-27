@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 210;
+CInt g_version = 211;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.1.0"));
+	SetWindowText(_T("Vanda Engine 2.1.1"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.1.0 initialized successfully" );
+		PrintInfo( "\nVersion 2.1.1 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.1.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.1.1 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.1.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.1.1 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7625,7 +7625,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.1.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.1.1 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8058,7 +8058,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8067,7 +8067,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.1.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.1.1 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -9818,7 +9818,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10660,7 +10660,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -13741,7 +13741,14 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&g_engineVideos[i]->m_volume, sizeof(CFloat), 1, filePtr);
 			fwrite(&g_engineVideos[i]->m_play, sizeof(CBool), 1, filePtr);
 			fwrite(&g_engineVideos[i]->m_loop, sizeof(CBool), 1, filePtr);
+			if (g_version >= 211)
+			{
+				CBool ExitEscKey = g_engineVideos[i]->GetExitWithEscKey();
+				fwrite(&ExitEscKey, sizeof(CBool), 1, filePtr);
 
+				CBool playAudio = g_engineVideos[i]->GetPlayAudio();
+				fwrite(&playAudio, sizeof(CBool), 1, filePtr);
+			}
 			CBool videoHasScript = g_engineVideos[i]->GetHasScript();
 			fwrite(&videoHasScript, sizeof(CBool), 1, filePtr);
 			fwrite(g_engineVideos[i]->GetScript(), sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -13957,7 +13964,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -14417,6 +14424,12 @@ CBool CVandaEngineDlg::OnMenuClickedInsertGUI()
 
 		CInt engine_version;
 		fread(&engine_version, 1, sizeof(CInt), filePtr);
+		if (engine_version > g_version)
+		{
+			fclose(filePtr);
+			PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+			return CFalse;
+		}
 
 		fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
 
@@ -14845,6 +14858,12 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		
 		CInt engine_version;
 		fread(&engine_version, 1, sizeof(CInt), filePtr);
+		if (engine_version > g_version)
+		{
+			fclose(filePtr);
+			PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+			return CFalse;
+		}
 
 		fread(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
 
@@ -15126,7 +15145,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.1 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -15387,6 +15406,12 @@ CBool CVandaEngineDlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* package
 		CInt engine_version;
 		fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&engine_version, 1, sizeof(CInt), filePtr);
+		if (engine_version > g_version)
+		{
+			fclose(filePtr);
+			PrintInfo("\nPrefab file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+			return CFalse;
+		}
 
 		fread(&g_currentPassword, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -16202,6 +16227,12 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		CInt engine_version;
 		fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 		fread(&engine_version, 1, sizeof(CInt), filePtr);
+		if (engine_version > g_version)
+		{
+			fclose(filePtr);
+			PrintInfo("\nPrefab file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+			return CFalse;
+		}
 		fread(&g_currentPassword, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 		//read engine options
@@ -16874,7 +16905,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.1.1 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17030,6 +17061,13 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			CInt engine_version;
 			fread(&g_edition, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 			fread(&engine_version, 1, sizeof(CInt), filePtr);
+			if (engine_version > g_version)
+			{
+				fclose(filePtr);
+				PrintInfo("\nVIN file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+				return CFalse;
+			}
+
 			fread(&g_currentPassword, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
 			//read engine options
@@ -17440,6 +17478,12 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 					CInt engine_version;
 					fread(&engine_version, 1, sizeof(CInt), filePtr);
+					if (engine_version > g_version)
+					{
+						fclose(filePtr);
+						PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+						return CFalse;
+					}
 
 					CUInt numButtons;
 					fread(&numButtons, sizeof(CUInt), 1, filePtr);
@@ -18413,6 +18457,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CBool playVideo, loopVideo;
 				CBool videoHasScript;
 				CChar videoScript[MAX_NAME_SIZE];
+				CBool ExitEscKey = CTrue;
+				CBool PlayAudio = CTrue;
 
 				fread(strVideoName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 				fread(strVideoPath, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -18420,6 +18466,11 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&volume, sizeof(CFloat), 1, filePtr);
 				fread(&playVideo, sizeof(CBool), 1, filePtr);
 				fread(&loopVideo, sizeof(CBool), 1, filePtr);
+				if (engine_version >= 211)
+				{
+					fread(&ExitEscKey, sizeof(CBool), 1, filePtr);
+					fread(&PlayAudio, sizeof(CBool), 1, filePtr);
+				}
 				fread(&videoHasScript, sizeof(CBool), 1, filePtr);
 				fread(&videoScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
 
@@ -18437,6 +18488,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				video->SetVolume(volume);
 				video->SetLoop(loopVideo);
 				video->SetPlay(playVideo);
+				video->SetExitWithEscKey(ExitEscKey);
+				video->SetPlayAudio(PlayAudio);
 				video->SetVideoFileName(strVideoFileName);
 				video->SetLastName(strVideoName);
 				video->SetHasScript(videoHasScript);
@@ -18853,7 +18906,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.1.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -21204,6 +21257,8 @@ CVoid CVandaEngineDlg::ChangeVideoProperties(CVideo* video)
 	m_dlgAddVideo->SetVolume(video->GetVolume());
 	m_dlgAddVideo->SetPlay(video->GetPlay());
 	m_dlgAddVideo->SetLoop(video->GetLoop());
+	m_dlgAddVideo->SetExitWithEscKey(video->GetExitWithEscKey());
+	m_dlgAddVideo->SetPlayAudio(video->GetPlayAudio());
 	m_dlgAddVideo->SetVideoFileName(video->GetVideoFileName());
 	m_dlgAddVideo->SetUpdateScript(video->GetUpdateScript());
 	m_dlgAddVideo->SetHasScript(video->GetHasScript());
@@ -21239,6 +21294,8 @@ CVoid CVandaEngineDlg::ChangeVideoProperties(CVideo* video)
 		video->SetVolume(m_dlgAddVideo->GetVolume());
 		video->SetPlay(m_dlgAddVideo->GetPlay());
 		video->SetLoop(m_dlgAddVideo->GetLoop());
+		video->SetExitWithEscKey(m_dlgAddVideo->GetExitWithEscKey());
+		video->SetPlayAudio(m_dlgAddVideo->GetPlayAudio());
 		video->SetVideoFileName(m_dlgAddVideo->GetVideoFileName());
 		video->SetUpdateScript(m_dlgAddVideo->GetUpdateScript());
 		video->SetHasScript(m_dlgAddVideo->GetHasScript());
@@ -24744,6 +24801,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 {
 	ClearObjectNames();
 
+	g_multipleView->SetUpdateScript(CFalse);
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		//Load GUI info
@@ -25433,28 +25492,6 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		}
 	}
 
-	if (g_editorMode == eMODE_PREFAB)
-	{
-		for (CUInt i = 0; i < g_scene.size(); i++)
-		{
-			g_render.SetScene(g_scene[i]);
-			g_scene[i]->Update();
-
-			//Deactivate all animations
-			if (g_scene[i]->GetNumClips() == 0)
-				continue;
-
-			g_scene[i]->SetAnimationStatus(eANIM_PLAY);
-
-			for (CInt l = 0; l < g_scene[i]->GetNumClips(); l++)
-			{
-				g_scene[i]->ClearCycle(l, 0.0f);
-				g_scene[i]->RemoveAction(l);
-			}
-
-		}
-	}
-
 	//Update physics//
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
@@ -25504,7 +25541,30 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		g_multipleView->RenderWindow();
 		g_multipleView->m_updatePhysX = CFalse;
 	}
+
 	/////////////////
+
+	if (g_editorMode == eMODE_PREFAB)
+	{
+		for (CUInt i = 0; i < g_scene.size(); i++)
+		{
+			g_render.SetScene(g_scene[i]);
+			g_scene[i]->Update();
+
+			//Deactivate all animations
+			if (g_scene[i]->GetNumClips() == 0)
+				continue;
+
+			g_scene[i]->SetAnimationStatus(eANIM_PLAY);
+
+			for (CInt l = 0; l < g_scene[i]->GetNumClips(); l++)
+			{
+				g_scene[i]->ClearCycle(l, 0.0f);
+				g_scene[i]->RemoveAction(l);
+			}
+
+		}
+	}
 
 	g_multipleView->SetPlayGameMode(CFalse);
 
@@ -25722,6 +25782,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 	}
 
 	LoadObjectNames();
+
+	g_multipleView->SetUpdateScript(CTrue);
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -28828,6 +28890,8 @@ CVoid CVandaEngineDlg::OnMenuClickedInsertVideo()
 		video->SetPlay(m_dlgAddVideo->GetPlay());
 		video->SetLoop(m_dlgAddVideo->GetLoop());
 		video->SetVolume(m_dlgAddVideo->GetVolume());
+		video->SetExitWithEscKey(m_dlgAddVideo->GetExitWithEscKey());
+		video->SetPlayAudio(m_dlgAddVideo->GetPlayAudio());
 		video->SetUpdateScript(m_dlgAddVideo->GetUpdateScript());
 		video->SetHasScript(m_dlgAddVideo->GetHasScript());
 		video->SetScript(m_dlgAddVideo->GetScriptPath());
@@ -29244,6 +29308,12 @@ CVoid CVandaEngineDlg::LoadObjectNames()
 			//read data here
 			CInt engine_version;
 			fread(&engine_version, 1, sizeof(CInt), ObjectNamefilePtr);
+			if (engine_version > g_version)
+			{
+				fclose(ObjectNamefilePtr);
+				PrintInfo("\nONM file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+				return;
+			}
 
 			//prefab instances
 			CUInt prefabInstanceSize;

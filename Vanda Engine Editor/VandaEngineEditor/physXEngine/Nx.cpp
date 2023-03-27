@@ -1331,14 +1331,15 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			//Trigger Objects in VScene Mode
 			if (g_editorMode == eMODE_VSCENE)
 			{
-				if (g_mainCharacter)
+				if (g_mainCharacter && g_multipleView->GetUpdateScript())
 					g_mainCharacter->OnTriggerEnterScript(otherName);
 
 				for (CUInt i = 0; i < g_triggers.size(); i++)
 				{
 					if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 					{
-						g_triggers[i]->OnTriggerEnterScript(otherName);
+						if(g_multipleView->GetUpdateScript())
+							g_triggers[i]->OnTriggerEnterScript(otherName);
 						return;
 					}
 				}
@@ -1357,7 +1358,8 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 								{
 									if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 									{
-										g_instancePrefab[i]->OnTriggerEnterScript(otherName);
+										if (g_multipleView->GetUpdateScript())
+											g_instancePrefab[i]->OnTriggerEnterScript(otherName);
 										return;
 									}
 								}
@@ -1370,7 +1372,8 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 							{
 								if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 								{
-									g_instancePrefab[i]->OnTriggerEnterScript(otherName);
+									if (g_multipleView->GetUpdateScript())
+										g_instancePrefab[i]->OnTriggerEnterScript(otherName);
 									return;
 								}
 							}
@@ -1380,7 +1383,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			}
 			else if (g_editorMode == eMODE_PREFAB)
 			{
-				if (g_prefabProperties.m_hasScript)
+				if (g_prefabProperties.m_hasScript && g_multipleView->GetUpdateScript())
 				{
 					CScene* scene = NULL;
 					for (CUInt i = 0; i < g_scene.size(); i++)
@@ -1416,14 +1419,15 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			//Trigger Objects in VScene Mode
 			if (g_editorMode == eMODE_VSCENE)
 			{
-				if (g_mainCharacter)
+				if (g_mainCharacter && g_multipleView->GetUpdateScript())
 					g_mainCharacter->OnTriggerExitScript(otherName);
 
 				for (CUInt i = 0; i < g_triggers.size(); i++)
 				{
 					if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 					{
-						g_triggers[i]->OnTriggerExitScript(otherName);
+						if (g_multipleView->GetUpdateScript())
+							g_triggers[i]->OnTriggerExitScript(otherName);
 						return;
 					}
 				}
@@ -1441,7 +1445,8 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 								{
 									if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 									{
-										g_instancePrefab[i]->OnTriggerExitScript(otherName);
+										if (g_multipleView->GetUpdateScript())
+											g_instancePrefab[i]->OnTriggerExitScript(otherName);
 										return;
 									}
 								}
@@ -1454,7 +1459,8 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 							{
 								if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 								{
-									g_instancePrefab[i]->OnTriggerExitScript(otherName);
+									if (g_multipleView->GetUpdateScript())
+										g_instancePrefab[i]->OnTriggerExitScript(otherName);
 									return;
 								}
 							}
@@ -1465,7 +1471,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 			else if (g_editorMode == eMODE_PREFAB)
 			{
 				CScene* scene = NULL;
-				if (g_prefabProperties.m_hasScript)
+				if (g_prefabProperties.m_hasScript && g_multipleView->GetUpdateScript())
 				{
 					for (CUInt i = 0; i < g_scene.size(); i++)
 					{
@@ -1506,14 +1512,15 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 				//Trigger Objects in VScene Mode
 				if (g_editorMode == eMODE_VSCENE)
 				{
-					if(g_mainCharacter)
+					if(g_mainCharacter && g_multipleView->GetUpdateScript())
 						g_mainCharacter->OnTriggerStayScript(otherName);
 
 					for (CUInt i = 0; i < g_triggers.size(); i++)
 					{
 						if (g_triggers[i]->GetHasScript() && Cmp(hitName, g_triggers[i]->GetInstancePrefab()->GetScene(0)->m_instanceGeometries[0]->m_physXName))
 						{
-							g_triggers[i]->OnTriggerStayScript(otherName);
+							if (g_multipleView->GetUpdateScript())
+								g_triggers[i]->OnTriggerStayScript(otherName);
 							return;
 						}
 					}
@@ -1532,7 +1539,8 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 									{
 										if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 										{
-											g_instancePrefab[i]->OnTriggerStayScript(otherName);
+											if (g_multipleView->GetUpdateScript())
+												g_instancePrefab[i]->OnTriggerStayScript(otherName);
 											return;
 										}
 									}
@@ -1545,7 +1553,8 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 								{
 									if (CmpIn(hitName, g_instancePrefab[i]->GetName()) && scene->m_instanceGeometries[k]->m_isTrigger && Cmp(hitName, scene->m_instanceGeometries[k]->m_physXName))
 									{
-										g_instancePrefab[i]->OnTriggerStayScript(otherName);
+										if (g_multipleView->GetUpdateScript())
+											g_instancePrefab[i]->OnTriggerStayScript(otherName);
 										return;
 									}
 								}
@@ -1555,7 +1564,7 @@ CVoid TriggerReport::onTrigger(NxShape& triggerShape, NxShape& otherShape, NxTri
 				}
 				else if (g_editorMode == eMODE_PREFAB)
 				{
-					if (g_prefabProperties.m_hasScript)
+					if (g_prefabProperties.m_hasScript && g_multipleView->GetUpdateScript())
 					{
 						CScene* scene = NULL;
 						for (CUInt i = 0; i < g_scene.size(); i++)

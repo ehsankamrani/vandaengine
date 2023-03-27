@@ -220,7 +220,8 @@ CVoid CGUIButton::Render(CVec2f globalPosition, CBool selectionMode)
 				m_currentImageType = eBUTTON_IMAGE_MAIN;
 			}
 
-			OnSelectMouseLButtonDownScript();
+			if(g_multipleView->GetUpdateScript())
+				OnSelectMouseLButtonDownScript();
 		}
 
 	}
@@ -242,12 +243,14 @@ CVoid CGUIButton::Render(CVec2f globalPosition, CBool selectionMode)
 			{
 				m_currentImageType = eBUTTON_IMAGE_MAIN;
 			}
-
-			OnSelectMouseRButtonDownScript();
+			if(g_multipleView->GetUpdateScript())
+				OnSelectMouseRButtonDownScript();
 		}
 	}
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glEnable(GL_TEXTURE_2D);
+
 	switch (m_currentImageType)
 	{
 	case eBUTTON_IMAGE_MAIN:

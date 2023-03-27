@@ -41,6 +41,7 @@ public:
 	CChar m_onSelectMouseRButtonDown[MAX_URI_SIZE];
 	CChar m_onSelectMouseEnter[MAX_URI_SIZE];
 	CChar m_onSelectEventName[MAX_URI_SIZE];
+	CChar m_onExitEventName[MAX_URI_SIZE];
 
 	afx_msg void OnBnClickedCancel();
 	

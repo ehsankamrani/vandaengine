@@ -360,6 +360,10 @@ private:
 	CChar SetGlobalSoundVolume[MAX_URI_SIZE];
 	CChar GetGlobalSoundVolume[MAX_URI_SIZE];
 
+	CChar PlayVideoLoop[MAX_URI_SIZE];
+	CChar PlayVideoOnce[MAX_URI_SIZE];
+	CChar StopVideo[MAX_URI_SIZE];
+
 	CChar SetVideoPlay[MAX_URI_SIZE];
 	CChar SetVideoLoop[MAX_URI_SIZE];
 	CChar SetVideoVolume[MAX_URI_SIZE];
@@ -367,6 +371,7 @@ private:
 	CChar GetVideoPlay[MAX_URI_SIZE];
 	CChar GetVideoLoop[MAX_URI_SIZE];
 	CChar GetVideoVolume[MAX_URI_SIZE];
+	CChar GetVideoDuration[MAX_URI_SIZE];
 
 	CImageList m_image;
 

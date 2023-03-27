@@ -54,10 +54,12 @@ public:
 	CVoid SetPath(CChar* path) { Cpy(m_path, path); }
 	CVoid SetVolume(CFloat volume) { m_volume = volume; }
 	CVoid SetLoop(CBool loop) { m_loop = loop; }
-	CVoid SetPlay(CBool play) { m_play = play; if (!m_play) Reset(); }
+	CVoid SetPlay(CBool play);
 	CVoid SetVideoFileName(CChar* soundName) { Cpy(m_videoFileName, soundName); }
 	CVoid SetLastName(CChar* name);
 	CVoid SetUpdateData(CBool update) { m_updateData = update; }
+	CVoid SetExitWithEscKey(CBool set) { m_exitWithEscKey = set; }
+	CVoid SetPlayAudio(CBool set) { m_playAudio = set; }
 
 	CChar* GetName() { return m_name; }
 	CChar* GetPath() { return m_path; }
@@ -67,6 +69,9 @@ public:
 	CChar* GetVideoFileName() { return m_videoFileName; }
 	CChar* GetLastName();
 	CBool GetUpdateData() { return m_updateData; }
+	CBool GetExitWithEscKey() { return m_exitWithEscKey; }
+	CBool GetPlayAudio() { return m_playAudio; }
+	CFloat GetDuration() { return m_duration; }
 
 	CVoid ResetLua();
 	CBool LoadLuaFile();
@@ -89,7 +94,7 @@ public:
 
 	CVoid InitScript();
 	CVoid UpdateScript();
-
+	CVoid OnExitScript();
 	//functions to get and set script variables
 	CChar* GetScriptStringVariable(CChar* variableName);
 	CBool GetScriptBoolVariable(CChar* variableName);
@@ -118,9 +123,12 @@ private:
 	CBool m_updateData;
 	CBool m_initialized;
 	CBool m_maintenanceMode;
-	
+	CBool m_exitWithEscKey;
+	CBool m_playAudio;
 	CFloat m_elapsedTime;
 	CFloat m_nextVideoFrameTime;
+	CFloat m_duration;
+
 	//Video
 	AVCodecContext* m_pVideoCodecContext;
 	AVFormatContext* m_pFormatVideoContext;

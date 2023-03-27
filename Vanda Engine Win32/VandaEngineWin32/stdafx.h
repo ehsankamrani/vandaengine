@@ -397,6 +397,10 @@ CInt GetSoundMaxDistance(lua_State* L);
 CInt SetGlobalSoundVolume(lua_State* L);
 CInt GetGlobalSoundVolume(lua_State* L);
 
+CInt PlayVideoLoop(lua_State* L);
+CInt PlayVideoOnce(lua_State* L);
+CInt StopVideo(lua_State* L);
+
 CInt SetVideoPlay(lua_State* L);
 CInt SetVideoLoop(lua_State* L);
 CInt SetVideoVolume(lua_State* L);
@@ -404,6 +408,7 @@ CInt SetVideoVolume(lua_State* L);
 CInt GetVideoPlay(lua_State* L);
 CInt GetVideoLoop(lua_State* L);
 CInt GetVideoVolume(lua_State* L);
+CInt GetVideoDuration(lua_State* L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();

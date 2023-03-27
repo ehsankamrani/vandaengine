@@ -710,6 +710,7 @@
 #define IDC_CHECK_INVISIBLE             1079
 #define IDC_CHECK_PUBLISH_DEBUG         1079
 #define IDC_CHECK_WATER_SHADOW          1079
+#define IDC_CHECK_IS_WATER_VISIBLE2     1079
 #define IDC_CHECK_JUMP                  1080
 #define IDC_BTN_PREFABS                 1080
 #define IDC_CHECK_IS_WATER_SUN_REFLECTION 1080
@@ -1051,6 +1052,8 @@
 #define IDC_EDIT_VIDEO_SCRIPT           1331
 #define IDC_COMBO_VIDEO_LOOP            1332
 #define IDC_EDIT_AUDIO_VOLUME           1333
+#define IDC_CHECK_EXIT_WITH_ESC_KEY     1334
+#define IDC_CHECK_PLAY_SOUND            1335
 #define ID_FILE_SAVE32771               32771
 #define ID_HELP_ABOUTHARMONICENGIINE    32772
 #define ID_FILE_SAVEAS                  32773
@@ -1386,14 +1389,16 @@
 #define ID_NEWSCRIPT_MAINCHARACTER      33118
 #define ID_INSERT_VIDEO                 33119
 #define ID_FILE_EXIT33120               33120
+#define ID_NEW_VIDEO                    33121
+#define ID_NEWSCRIPT_VIDEO              33122
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        550
-#define _APS_NEXT_COMMAND_VALUE         33121
-#define _APS_NEXT_CONTROL_VALUE         1334
+#define _APS_NEXT_COMMAND_VALUE         33123
+#define _APS_NEXT_CONTROL_VALUE         1335
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -399,6 +399,10 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetGlobalSoundVolume", SetGlobalSoundVolume);
 	lua_register(L, "GetGlobalSoundVolume", GetGlobalSoundVolume);
 
+	lua_register(L, "PlayVideoLoop", PlayVideoLoop);
+	lua_register(L, "PlayVideoOnce", PlayVideoOnce);
+	lua_register(L, "StopVideo", StopVideo);
+
 	lua_register(L, "SetVideoPlay", SetVideoPlay);
 	lua_register(L, "SetVideoLoop", SetVideoLoop);
 	lua_register(L, "SetVideoVolume", SetVideoVolume);
@@ -406,5 +410,6 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetVideoPlay", GetVideoPlay);
 	lua_register(L, "GetVideoLoop", GetVideoLoop);
 	lua_register(L, "GetVideoVolume", GetVideoVolume);
+	lua_register(L, "GetVideoDuration", GetVideoDuration);
 
 }

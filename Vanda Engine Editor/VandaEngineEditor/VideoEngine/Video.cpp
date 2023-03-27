@@ -25,6 +25,8 @@ CVideo::CVideo()
 	Cpy(m_videoFileName, "\n");
 	m_videoStream = NULL;
 	m_resetFrame = CFalse;
+	m_exitWithEscKey = CTrue;
+	m_playAudio = CTrue;
 	//
 
 	//audio
@@ -101,6 +103,15 @@ CVideo::~CVideo()
 
 	//Free Script
 	LuaClose(m_lua);
+}
+
+CVoid CVideo::SetPlay(CBool play)
+{
+	if (m_play && m_elapsedTime > 0.0f && !play && g_multipleView->IsPlayGameMode() && g_multipleView->GetUpdateScript())
+		OnExitScript();
+	m_play = play;
+	if (!m_play)
+		Reset();
 }
 
 CVoid CVideo::Reset()
@@ -235,6 +246,8 @@ CBool CVideo::UpdateVideo()
 					else
 					{
 						m_play = CFalse;
+						if(g_multipleView->IsPlayGameMode() && g_multipleView->GetUpdateScript())
+							OnExitScript();
 					}
 					exit = CTrue;
 					break;
@@ -246,7 +259,7 @@ CBool CVideo::UpdateVideo()
 			if (exit)
 				break;
 		}
-		if (m_audioStream == NULL) //video has no audio
+		if (m_audioStream == NULL || !m_playAudio) //video has no audio
 		{
 			m_elapsedTime += g_elapsedTime;
 		}
@@ -292,6 +305,8 @@ CBool CVideo::UpdateVideo()
 				else
 				{
 					m_play = CFalse;
+					if (g_multipleView->IsPlayGameMode() && g_multipleView->GetUpdateScript())
+						OnExitScript();
 				}
 				exit = CTrue;
 				break;
@@ -307,7 +322,7 @@ CBool CVideo::UpdateAudio()
 	CInt response = 0;
 
 	ALint buffersProcessed = 0;
-	if (m_audioStream == NULL) //video has no audio
+	if (m_audioStream == NULL || !m_playAudio) //video has no audio
 	{
 		buffersProcessed = 1; 
 		m_num_sound_buffers = NUM_VIDEO_SOUND_BUFFERS;
@@ -377,7 +392,10 @@ CBool CVideo::UpdateAudio()
 			}
 			else
 			{
+				m_play = CFalse;
 				m_updateAudio = CFalse;
+				if (g_multipleView->IsPlayGameMode())
+					OnExitScript();
 				break;
 			}
 		}
@@ -501,11 +519,13 @@ CBool CVideo::InitVideoStream()
 		return CFalse;
 	}
 
+	m_duration = (CFloat)m_pFormatVideoContext->duration / (CFloat)AV_TIME_BASE;
+
 	// now we have access to some information about our file
 	// since we read its header we can say what format (container) it's
 	// and some other information related to the format itself.
 	//CChar temp[MAX_URI_SIZE];
-	//sprintf(temp, "\nformat %s, duration %lld us, bit_rate %lld", m_pFormatContext->iformat->name, m_pFormatContext->duration, m_pFormatContext->bit_rate);
+	//sprintf(temp, "\nformat %s, duration %lld us, bit_rate %lld", m_pFormatVideoContext->iformat->name, m_pFormatVideoContext->duration, m_pFormatVideoContext->bit_rate);
 	//PrintInfo(temp);
 
 	//PrintInfo("\nfinding stream info from format");
@@ -787,7 +807,7 @@ CBool CVideo::InitAudioStream()
 	// since we read its header we can say what format (container) it's
 	// and some other information related to the format itself.
 	//CChar temp[MAX_URI_SIZE];
-	//sprintf(temp, "\nformat %s, duration %lld us, bit_rate %lld", m_pFormatContext->iformat->name, m_pFormatContext->duration, m_pFormatContext->bit_rate);
+	//sprintf(temp, "\nformat %s, duration %lld us, bit_rate %lld", m_pFormatAudioContext->iformat->name, m_pFormatAudioContext->duration, m_pFormatAudioContext->bit_rate);
 	//PrintInfo(temp);
 
 	//PrintInfo("\nfinding stream info from format");
@@ -817,10 +837,10 @@ CBool CVideo::InitAudioStream()
 		//CChar temp2[MAX_URI_SIZE];
 		//CChar temp3[MAX_URI_SIZE];
 		//CChar temp4[MAX_URI_SIZE];
-		//sprintf(temp1, "\nAVStream->time_base before open coded %d/%d", m_pFormatContext->streams[i]->time_base.num, m_pFormatContext->streams[i]->time_base.den);
-		//sprintf(temp2, "\nAVStream->r_frame_rate before open coded %d/%d", m_pFormatContext->streams[i]->r_frame_rate.num, m_pFormatContext->streams[i]->r_frame_rate.den);
-		//sprintf(temp3, "\nAVStream->start_time %" PRId64, m_pFormatContext->streams[i]->start_time);
-		//sprintf(temp4, "\nAVStream->duration %" PRId64, m_pFormatContext->streams[i]->duration);
+		//sprintf(temp1, "\nAVStream->time_base before open coded %d/%d", m_pFormatAudioContext->streams[i]->time_base.num, m_pFormatAudioContext->streams[i]->time_base.den);
+		//sprintf(temp2, "\nAVStream->r_frame_rate before open coded %d/%d", m_pFormatAudioContext->streams[i]->r_frame_rate.num, m_pFormatAudioContext->streams[i]->r_frame_rate.den);
+		//sprintf(temp3, "\nAVStream->start_time %" PRId64, m_pFormatAudioContext->streams[i]->start_time);
+		//sprintf(temp4, "\nAVStream->duration %" PRId64, m_pFormatAudioContext->streams[i]->duration);
 
 		//PrintInfo(temp1);
 		//PrintInfo(temp2);
@@ -1250,6 +1270,22 @@ CVoid CVideo::UpdateScript()
 		g_currentInstancePrefab = NULL;
 
 		lua_getglobal(m_lua, "Update");
+		if (lua_isfunction(m_lua, -1))
+		{
+			lua_pcall(m_lua, 0, 0, 0);
+		}
+
+		lua_settop(m_lua, 0);
+	}
+}
+
+CVoid CVideo::OnExitScript()
+{
+	if (m_hasScript)
+	{
+		g_currentInstancePrefab = NULL;
+
+		lua_getglobal(m_lua, "OnExit");
 		if (lua_isfunction(m_lua, -1))
 		{
 			lua_pcall(m_lua, 0, 0, 0);

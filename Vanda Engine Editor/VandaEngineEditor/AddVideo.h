@@ -90,6 +90,9 @@ public:
 		Cpy(m_lastName, name);
 	}
 
+	CVoid SetExitWithEscKey(CBool set) { m_exitWithEscKey = set; }
+	CVoid SetPlayAudio(CBool set) { m_playAudio = set; }
+
 	CVoid SetHasScript(CBool hasScript) { m_hasScript = hasScript; }
 	CVoid SetScriptPath(CChar* scriptPath) { m_strScript = scriptPath; }
 	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
@@ -108,6 +111,8 @@ public:
 	CChar* GetScriptPath() { return m_strScript.GetBuffer(m_strScript.GetLength()); }
 	CBool GetUpdateScript() { return m_scriptUpdated; }
 	CBool GetUpdateData() { return m_dataUpdated; }
+	CBool GetExitWithEscKey() { return m_exitWithEscKey; }
+	CBool GetPlayAudio() { return m_playAudio; }
 private:
 	CBool m_scriptUpdated;
 	CBool m_dataUpdated;
@@ -124,4 +129,10 @@ public:
 	afx_msg void OnCbnSelchangeComboVideoPlay();
 	CEdit m_editBoxAudioVolume;
 	afx_msg void OnEnChangeEditAudioVolume();
+private:
+	CButton m_checkExitWithEscKey;
+	CBool m_exitWithEscKey;
+	CBool m_playAudio;
+public:
+	CButton m_checkPlaySound;
 };

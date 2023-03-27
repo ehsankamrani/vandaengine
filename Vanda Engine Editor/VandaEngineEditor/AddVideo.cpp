@@ -23,6 +23,8 @@ CAddVideo::CAddVideo(CWnd* pParent /*=nullptr*/)
 	m_dataUpdated = CFalse;
 	m_scriptUpdated = CFalse;
 	m_hasScript = CFalse;
+	m_exitWithEscKey = CTrue;
+	m_playAudio = CTrue;
 }
 
 CAddVideo::~CAddVideo()
@@ -39,6 +41,8 @@ void CAddVideo::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_VIDEO_NAME, m_editBoxVideoName);
 	DDX_Control(pDX, IDC_COMBO_VIDEO_LOOP, m_comboVideoLoop);
 	DDX_Control(pDX, IDC_EDIT_AUDIO_VOLUME, m_editBoxAudioVolume);
+	DDX_Control(pDX, IDC_CHECK_EXIT_WITH_ESC_KEY, m_checkExitWithEscKey);
+	DDX_Control(pDX, IDC_CHECK_PLAY_SOUND, m_checkPlaySound);
 }
 
 
@@ -78,6 +82,16 @@ BOOL CAddVideo::OnInitDialog()
 			m_editBoxScript.SetWindowTextA(m_strScript);
 		}
 	}
+
+	if (m_exitWithEscKey)
+		m_checkExitWithEscKey.SetCheck(BST_CHECKED);
+	else
+		m_checkExitWithEscKey.SetCheck(BST_UNCHECKED);
+
+	if (m_playAudio)
+		m_checkPlaySound.SetCheck(BST_CHECKED);
+	else
+		m_checkPlaySound.SetCheck(BST_UNCHECKED);
 
 	m_editBoxVideoName.SetWindowTextA(m_strVideoName);
 	m_editBoxVideoData.SetWindowTextA(m_strVideoDataPath);
@@ -248,6 +262,19 @@ void CAddVideo::OnOK()
 			}
 		}
 	}
+
+	CInt checkState;
+	checkState = m_checkExitWithEscKey.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_exitWithEscKey = CTrue;
+	else
+		m_exitWithEscKey = CFalse;
+
+	checkState = m_checkPlaySound.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_playAudio = CTrue;
+	else
+		m_playAudio = CFalse;
 
 	if (m_strVideoName.IsEmpty() || m_strVideoDataPath.IsEmpty() || m_strAudioVolume.IsEmpty())
 	{
