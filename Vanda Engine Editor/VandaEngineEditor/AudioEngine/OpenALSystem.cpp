@@ -78,6 +78,32 @@ CVoid COpenALSystem::PlayALSound(COpenALSoundSource& source)
 	}
 }
 
+CVoid COpenALSystem::PlayALPausedSound(COpenALSoundSource& source)
+{
+	if (m_init == CTrue)
+	{
+		ALenum state;
+
+		alGetSourcei(source.GetSource(), AL_SOURCE_STATE, &state);
+
+		if (state == AL_PAUSED)
+			alSourcePlay(source.GetSource());
+	}
+}
+
+CVoid COpenALSystem::PlayALStoppedSound(COpenALSoundSource& source)
+{
+	if (m_init == CTrue)
+	{
+		ALenum state;
+
+		alGetSourcei(source.GetSource(), AL_SOURCE_STATE, &state);
+
+		if (state == AL_STOPPED)
+			alSourcePlay(source.GetSource());
+	}
+}
+
 CVoid COpenALSystem::PauseALSound( COpenALSoundSource& source )
 {
 	if (m_init == CTrue)
@@ -158,4 +184,17 @@ CVoid COpenALSystem::SetDopplerSpeed( CFloat speed )
 {
 	if(m_init == CTrue)
 		alSpeedOfSound( speed );
+}
+
+ALenum COpenALSystem::GetSourceState(COpenALSoundSource& source)
+{
+	if (m_init == CTrue)
+	{
+		ALenum state;
+
+		alGetSourcei(source.GetSource(), AL_SOURCE_STATE, &state);
+
+		return state;
+	}
+	return AL_INITIAL;
 }

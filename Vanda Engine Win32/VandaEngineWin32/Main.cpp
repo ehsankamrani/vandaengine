@@ -2397,19 +2397,6 @@ CInt PauseResourceSound(lua_State *L)
 	return 0;
 }
 
-CInt StopAllResourceSounds(lua_State *L)
-{
-	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
-	{
-		if (g_resourceFiles[i]->GetSoundSource())
-		{
-			g_soundSystem->StopALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-		}
-	}
-
-	return 0;
-}
-
 CInt ShowGUI(lua_State *L)
 {
 	int argc = lua_gettop(L);
@@ -14502,6 +14489,2369 @@ CInt GetVideoDuration(lua_State* L)
 	//sprintf(temp, "%s%s%s", "\nGetVideoDuration() Error: Couldn't find video '", lua_tostring(L, 1), "'");
 	//PrintInfo(temp, COLOR_RED);
 
+	return 0;
+}
+
+//Stop Sounds
+CInt StopAllSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->StopALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt StopAllAmbientSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt StopAll3DSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt StopAllResourceSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->StopALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+//Play Sounds
+CInt PlayAllSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllAmbientSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAll3DSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllResourceSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedAmbientSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStopped3DSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedResourceSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedAmbientSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPaused3DSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedResourceSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+//Play Sounds Loop
+CInt PlayAllSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+			g_engineAmbientSounds[i]->SetLoop(CTrue);
+
+			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
+			g_engine3DSounds[i]->SetLoop(CTrue);
+
+			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
+			g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
+
+			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engineAmbientSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engine3DSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_PAUSED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
+
+				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engineAmbientSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engine3DSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_STOPPED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
+
+				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllAmbientSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+			g_engineAmbientSounds[i]->SetLoop(CTrue);
+
+			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAll3DSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
+			g_engine3DSounds[i]->SetLoop(CTrue);
+
+			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllResourceSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
+			g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
+
+			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedAmbientSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engineAmbientSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStopped3DSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engine3DSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedResourceSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_STOPPED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
+
+				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedAmbientSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engineAmbientSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPaused3DSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CTrue);
+				g_engine3DSounds[i]->SetLoop(CTrue);
+
+				g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedResourceSoundsLoop(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_PAUSED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CTrue);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
+
+				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+//Play Sounds once
+CInt PlayAllSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+			g_engineAmbientSounds[i]->SetLoop(CFalse);
+
+			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
+			g_engine3DSounds[i]->SetLoop(CFalse);
+
+			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
+			g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
+
+			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engineAmbientSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engine3DSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_PAUSED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
+
+				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engineAmbientSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engine3DSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_STOPPED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
+
+				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllAmbientSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+			g_engineAmbientSounds[i]->SetLoop(CFalse);
+
+			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAll3DSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
+			g_engine3DSounds[i]->SetLoop(CFalse);
+
+			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllResourceSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
+			g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
+
+			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedAmbientSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engineAmbientSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStopped3DSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_STOPPED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engine3DSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllStoppedResourceSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_STOPPED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
+
+				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedAmbientSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engineAmbientSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engineAmbientSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPaused3DSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_engine3DSounds[i]->GetSoundSource())) == AL_PAUSED)
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(CFalse);
+				g_engine3DSounds[i]->SetLoop(CFalse);
+
+				g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PlayAllPausedResourceSoundsOnce(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			if (g_soundSystem->GetSourceState(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource())) == AL_PAUSED)
+			{
+				g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->SetLooping(CFalse);
+				g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
+
+				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+			}
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+//Pause Sounds
+CInt PauseAllSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PauseAllAmbientSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PauseAll3DSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
+	return 0;
+}
+
+CInt PauseAllResourceSounds(lua_State* L)
+{
+	std::vector<std::string> m_soundexception;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_soundexception.push_back(name);
+	}
+
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_soundexception.size(); j++)
+		{
+			//resource sound names are uppercase
+			CChar currentName[MAX_NAME_SIZE];
+			Cpy(currentName, m_soundexception[j].c_str());
+			StringToUpper(currentName);
+
+			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
+			{
+				foundException = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	m_soundexception.clear();
 	return 0;
 }
 

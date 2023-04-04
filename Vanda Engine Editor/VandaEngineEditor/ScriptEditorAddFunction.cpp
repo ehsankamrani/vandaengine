@@ -60,7 +60,6 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(PlayResourceSoundOnce, "PlayResourceSoundOnce(string resourceDirectoryName_resourceFileName.ogg)");
 	Cpy(StopResourceSound, "StopResourceSound(string resourceDirectoryName_resourceFileName.ogg)");
 	Cpy(PauseResourceSound, "PauseResourceSound(string resourceDirectoryName_resourceFileName.ogg)");
-	Cpy(StopAllResourceSounds, "StopAllResourceSounds()");
 	Cpy(ShowCursorIcon, "ShowCursorIcon(string resourceDirectoryName_resourceFileName.dds, float cursorSize)");
 	Cpy(HideCursorIcon, "HideCursorIcon(string resourceDirectoryName_resourceFileName.dds)");
 
@@ -360,6 +359,59 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetVideoVolume, "GetVideoVolume(string videoName)");
 	Cpy(GetVideoDuration, "GetVideoDuration(string videoName)");
 
+	//Stop Sounds
+	Cpy(StopAllSounds, "StopAllSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(StopAllAmbientSounds, "StopAllAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(StopAll3DSounds, "StopAll3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(StopAllResourceSounds, "StopAllResourceSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	//Play Sounds
+	Cpy(PlayAllSounds, "PlayAllSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllAmbientSounds, "PlayAllAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAll3DSounds, "PlayAll3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllResourceSounds, "PlayAllResourceSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedSounds, "PlayAllPausedSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedAmbientSounds, "PlayAllPausedAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPaused3DSounds, "PlayAllPaused3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedResourceSounds, "PlayAllPausedResourceSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedSounds, "PlayAllStoppedSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedAmbientSounds, "PlayAllStoppedAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStopped3DSounds, "PlayAllStopped3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedResourceSounds, "PlayAllStoppedResourceSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	
+	//Play Sounds loop
+	Cpy(PlayAllSoundsLoop, "PlayAllSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllAmbientSoundsLoop, "PlayAllAmbientSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAll3DSoundsLoop, "PlayAll3DSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllResourceSoundsLoop, "PlayAllResourceSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedSoundsLoop, "PlayAllPausedSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedAmbientSoundsLoop, "PlayAllPausedAmbientSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPaused3DSoundsLoop, "PlayAllPaused3DSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedResourceSoundsLoop, "PlayAllPausedResourceSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedSoundsLoop, "PlayAllStoppedSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedAmbientSoundsLoop, "PlayAllStoppedAmbientSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStopped3DSoundsLoop, "PlayAllStopped3DSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedResourceSoundsLoop, "PlayAllStoppedResourceSoundsLoop([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+
+	//Play Sounds once
+	Cpy(PlayAllSoundsOnce, "PlayAllSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllAmbientSoundsOnce, "PlayAllAmbientSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAll3DSoundsOnce, "PlayAll3DSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllResourceSoundsOnce, "PlayAllResourceSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedSoundsOnce, "PlayAllPausedSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedAmbientSoundsOnce, "PlayAllPausedAmbientSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPaused3DSoundsOnce, "PlayAllPaused3DSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllPausedResourceSoundsOnce, "PlayAllPausedResourceSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedSoundsOnce, "PlayAllStoppedSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedAmbientSoundsOnce, "PlayAllStoppedAmbientSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStopped3DSoundsOnce, "PlayAllStopped3DSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PlayAllStoppedResourceSoundsOnce, "PlayAllStoppedResourceSoundsOnce([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+
+	//Pause Sounds
+	Cpy(PauseAllSounds, "PauseAllSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseAllAmbientSounds, "PauseAllAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseAll3DSounds, "PauseAll3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseAllResourceSounds, "PauseAllResourceSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -570,10 +622,6 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "PauseResourceSound"))
 		{
 			m_richFunctionName.SetWindowTextA(PauseResourceSound);
-		}
-		else if (Cmp(szBuffer, "StopAllResourceSounds"))
-		{
-			m_richFunctionName.SetWindowTextA(StopAllResourceSounds);
 		}
 		else if (Cmp(szBuffer, "ShowCursorIcon"))
 		{
@@ -1602,6 +1650,182 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetVideoDuration);
 		}
+		else if (Cmp(szBuffer, "StopAllSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(StopAllSounds);
+		}
+		else if (Cmp(szBuffer, "StopAllAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(StopAllAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "StopAll3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(StopAll3DSounds);
+		}
+		else if (Cmp(szBuffer, "StopAllResourceSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(StopAllResourceSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAll3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAll3DSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllResourceSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllResourceSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllStopped3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStopped3DSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedResourceSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedResourceSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllPaused3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPaused3DSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedResourceSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedResourceSounds);
+		}
+		else if (Cmp(szBuffer, "PlayAllSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllAmbientSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllAmbientSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAll3DSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAll3DSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllResourceSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllResourceSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedAmbientSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedAmbientSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllStopped3DSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStopped3DSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedResourceSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedResourceSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedAmbientSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedAmbientSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllPaused3DSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPaused3DSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedResourceSoundsLoop"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedResourceSoundsLoop);
+		}
+		else if (Cmp(szBuffer, "PlayAllSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllAmbientSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllAmbientSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAll3DSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAll3DSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllResourceSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllResourceSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedAmbientSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedAmbientSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllStopped3DSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStopped3DSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllStoppedResourceSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllStoppedResourceSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedAmbientSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedAmbientSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllPaused3DSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPaused3DSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PlayAllPausedResourceSoundsOnce"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayAllPausedResourceSoundsOnce);
+		}
+		else if (Cmp(szBuffer, "PauseAllSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAllSounds);
+		}
+		else if (Cmp(szBuffer, "PauseAllAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAllAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "PauseAll3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAll3DSounds);
+		}
+		else if (Cmp(szBuffer, "PauseAllResourceSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAllResourceSounds);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1675,7 +1899,6 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("PlayResourceSoundOnce");
 	InsertItem("StopResourceSound");
 	InsertItem("PauseResourceSound");
-	InsertItem("StopAllResourceSounds");
 	InsertItem("ShowCursorIcon");
 	InsertItem("HideCursorIcon");
 
@@ -1974,6 +2197,58 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetVideoLoop");
 	InsertItem("GetVideoVolume");
 	InsertItem("GetVideoDuration");
+
+	//Stop Sounds
+	InsertItem("StopAllSounds");
+	InsertItem("StopAllAmbientSounds");
+	InsertItem("StopAll3DSounds");
+	InsertItem("StopAllResourceSounds");
+
+	//Play Sounds
+	InsertItem("PlayAllSounds");
+	InsertItem("PlayAllAmbientSounds");
+	InsertItem("PlayAll3DSounds");
+	InsertItem("PlayAllResourceSounds");
+	InsertItem("PlayAllPausedSounds");
+	InsertItem("PlayAllPausedAmbientSounds");
+	InsertItem("PlayAllPaused3DSounds");
+	InsertItem("PlayAllPausedResourceSounds");
+	InsertItem("PlayAllStoppedSounds");
+	InsertItem("PlayAllStoppedAmbientSounds");
+	InsertItem("PlayAllStopped3DSounds");
+	InsertItem("PlayAllStoppedResourceSounds");
+	//Play Sounds loop
+	InsertItem("PlayAllSoundsLoop");
+	InsertItem("PlayAllPausedSoundsLoop");
+	InsertItem("PlayAllStoppedSoundsLoop");
+	InsertItem("PlayAllAmbientSoundsLoop");
+	InsertItem("PlayAll3DSoundsLoop");
+	InsertItem("PlayAllResourceSoundsLoop");
+	InsertItem("PlayAllStoppedAmbientSoundsLoop");
+	InsertItem("PlayAllStopped3DSoundsLoop");
+	InsertItem("PlayAllStoppedResourceSoundsLoop");
+	InsertItem("PlayAllPausedAmbientSoundsLoop");
+	InsertItem("PlayAllPaused3DSoundsLoop");
+	InsertItem("PlayAllPausedResourceSoundsLoop");
+	//Play Sounds once
+	InsertItem("PlayAllSoundsOnce");
+	InsertItem("PlayAllPausedSoundsOnce");
+	InsertItem("PlayAllStoppedSoundsOnce");
+	InsertItem("PlayAllAmbientSoundsOnce");
+	InsertItem("PlayAll3DSoundsOnce");
+	InsertItem("PlayAllResourceSoundsOnce");
+	InsertItem("PlayAllStoppedAmbientSoundsOnce");
+	InsertItem("PlayAllStopped3DSoundsOnce");
+	InsertItem("PlayAllStoppedResourceSoundsOnce");
+	InsertItem("PlayAllPausedAmbientSoundsOnce");
+	InsertItem("PlayAllPaused3DSoundsOnce");
+	InsertItem("PlayAllPausedResourceSoundsOnce");
+
+	//Pause Sounds
+	InsertItem("PauseAllSounds");
+	InsertItem("PauseAllAmbientSounds");
+	InsertItem("PauseAll3DSounds");
+	InsertItem("PauseAllResourceSounds");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

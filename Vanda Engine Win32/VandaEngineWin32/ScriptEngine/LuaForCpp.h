@@ -113,7 +113,6 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "PlayResourceSoundOnce", PlayResourceSoundOnce);
 	lua_register(L, "StopResourceSound", StopResourceSound);
 	lua_register(L, "PauseResourceSound", PauseResourceSound);
-	lua_register(L, "StopAllResourceSounds", StopAllResourceSounds);
 	lua_register(L, "ShowCursorIcon", ShowCursorIcon);
 	lua_register(L, "HideCursorIcon", HideCursorIcon);
 	lua_register(L, "PrintConsole", PrintConsole);
@@ -412,4 +411,54 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetVideoVolume", GetVideoVolume);
 	lua_register(L, "GetVideoDuration", GetVideoDuration);
 
+
+	//Stop Sounds
+	lua_register(L, "StopAllSounds", StopAllSounds);
+	lua_register(L, "StopAllAmbientSounds", StopAllAmbientSounds);
+	lua_register(L, "StopAll3DSounds", StopAll3DSounds);
+	lua_register(L, "StopAllResourceSounds", StopAllResourceSounds);
+	//Play Sounds
+	lua_register(L, "PlayAllSounds", PlayAllSounds);
+	lua_register(L, "PlayAllPausedSounds", PlayAllPausedSounds);
+	lua_register(L, "PlayAllStoppedSounds", PlayAllStoppedSounds);
+	lua_register(L, "PlayAllAmbientSounds", PlayAllAmbientSounds);
+	lua_register(L, "PlayAll3DSounds", PlayAll3DSounds);
+	lua_register(L, "PlayAllResourceSounds", PlayAllResourceSounds);
+	lua_register(L, "PlayAllStoppedAmbientSounds", PlayAllStoppedAmbientSounds);
+	lua_register(L, "PlayAllStopped3DSounds", PlayAllStopped3DSounds);
+	lua_register(L, "PlayAllStoppedResourceSounds", PlayAllStoppedResourceSounds);
+	lua_register(L, "PlayAllPausedAmbientSounds", PlayAllPausedAmbientSounds);
+	lua_register(L, "PlayAllPaused3DSounds", PlayAllPaused3DSounds);
+	lua_register(L, "PlayAllPausedResourceSounds", PlayAllPausedResourceSounds);
+	//Play Sounds loop
+	lua_register(L, "PlayAllSoundsLoop", PlayAllSoundsLoop);
+	lua_register(L, "PlayAllPausedSoundsLoop", PlayAllPausedSoundsLoop);
+	lua_register(L, "PlayAllStoppedSoundsLoop", PlayAllStoppedSoundsLoop);
+	lua_register(L, "PlayAllAmbientSoundsLoop", PlayAllAmbientSoundsLoop);
+	lua_register(L, "PlayAll3DSoundsLoop", PlayAll3DSoundsLoop);
+	lua_register(L, "PlayAllResourceSoundsLoop", PlayAllResourceSoundsLoop);
+	lua_register(L, "PlayAllStoppedAmbientSoundsLoop", PlayAllStoppedAmbientSoundsLoop);
+	lua_register(L, "PlayAllStopped3DSoundsLoop", PlayAllStopped3DSoundsLoop);
+	lua_register(L, "PlayAllStoppedResourceSoundsLoop", PlayAllStoppedResourceSoundsLoop);
+	lua_register(L, "PlayAllPausedAmbientSoundsLoop", PlayAllPausedAmbientSoundsLoop);
+	lua_register(L, "PlayAllPaused3DSoundsLoop", PlayAllPaused3DSoundsLoop);
+	lua_register(L, "PlayAllPausedResourceSoundsLoop", PlayAllPausedResourceSoundsLoop);
+	//Play Sounds once
+	lua_register(L, "PlayAllSoundsOnce", PlayAllSoundsOnce);
+	lua_register(L, "PlayAllPausedSoundsOnce", PlayAllPausedSoundsOnce);
+	lua_register(L, "PlayAllStoppedSoundsOnce", PlayAllStoppedSoundsOnce);
+	lua_register(L, "PlayAllAmbientSoundsOnce", PlayAllAmbientSoundsOnce);
+	lua_register(L, "PlayAll3DSoundsOnce", PlayAll3DSoundsOnce);
+	lua_register(L, "PlayAllResourceSoundsOnce", PlayAllResourceSoundsOnce);
+	lua_register(L, "PlayAllStoppedAmbientSoundsOnce", PlayAllStoppedAmbientSoundsOnce);
+	lua_register(L, "PlayAllStopped3DSoundsOnce", PlayAllStopped3DSoundsOnce);
+	lua_register(L, "PlayAllStoppedResourceSoundsOnce", PlayAllStoppedResourceSoundsOnce);
+	lua_register(L, "PlayAllPausedAmbientSoundsOnce", PlayAllPausedAmbientSoundsOnce);
+	lua_register(L, "PlayAllPaused3DSoundsOnce", PlayAllPaused3DSoundsOnce);
+	lua_register(L, "PlayAllPausedResourceSoundsOnce", PlayAllPausedResourceSoundsOnce);
+	//Pause Sounds
+	lua_register(L, "PauseAllSounds", PauseAllSounds);
+	lua_register(L, "PauseAllAmbientSounds", PauseAllAmbientSounds);
+	lua_register(L, "PauseAll3DSounds", PauseAll3DSounds);
+	lua_register(L, "PauseAllResourceSounds", PauseAllResourceSounds);
 }

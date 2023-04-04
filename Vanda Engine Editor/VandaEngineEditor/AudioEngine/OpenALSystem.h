@@ -15,7 +15,10 @@ public:
 public:
 	CBool Init();
 	CVoid CleanUp();
-	CVoid PlayALSound( COpenALSoundSource& source );
+	CVoid PlayALSound(COpenALSoundSource& source);
+	CVoid PlayALStoppedSound(COpenALSoundSource& source);
+	CVoid PlayALPausedSound(COpenALSoundSource& source);
+
 	CVoid StopALSound( COpenALSoundSource& source );
 	CVoid PauseALSound( COpenALSoundSource& source );
 	CVoid RewindALSound( COpenALSoundSource& source );
@@ -26,6 +29,7 @@ public:
 	CVoid SetListenerGain(CFloat gain);
 	CVoid SetDopplerFactor( CFloat factor );
 	CVoid SetDopplerSpeed( CFloat speed );
+	ALenum GetSourceState(COpenALSoundSource& source);
 private:
 	CBool m_init;
 	ALCdevice* m_device;

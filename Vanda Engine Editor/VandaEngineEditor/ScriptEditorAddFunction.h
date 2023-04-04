@@ -71,7 +71,6 @@ private:
 	CChar PlayResourceSoundOnce[MAX_URI_SIZE];
 	CChar StopResourceSound[MAX_URI_SIZE];
 	CChar PauseResourceSound[MAX_URI_SIZE];
-	CChar StopAllResourceSounds[MAX_URI_SIZE];
 	CChar ShowCursorIcon[MAX_URI_SIZE];
 	CChar HideCursorIcon[MAX_URI_SIZE];
 
@@ -372,6 +371,56 @@ private:
 	CChar GetVideoLoop[MAX_URI_SIZE];
 	CChar GetVideoVolume[MAX_URI_SIZE];
 	CChar GetVideoDuration[MAX_URI_SIZE];
+
+	//Stop Sounds
+	CChar StopAllSounds[MAX_URI_SIZE];
+	CChar StopAllAmbientSounds[MAX_URI_SIZE];
+	CChar StopAll3DSounds[MAX_URI_SIZE];
+	CChar StopAllResourceSounds[MAX_URI_SIZE];
+	//Play Sounds
+	CChar PlayAllSounds[MAX_URI_SIZE];
+	CChar PlayAllPausedSounds[MAX_URI_SIZE];
+	CChar PlayAllStoppedSounds[MAX_URI_SIZE];
+	CChar PlayAllAmbientSounds[MAX_URI_SIZE];
+	CChar PlayAll3DSounds[MAX_URI_SIZE];
+	CChar PlayAllResourceSounds[MAX_URI_SIZE];
+	CChar PlayAllStoppedAmbientSounds[MAX_URI_SIZE];
+	CChar PlayAllStopped3DSounds[MAX_URI_SIZE];
+	CChar PlayAllStoppedResourceSounds[MAX_URI_SIZE];
+	CChar PlayAllPausedAmbientSounds[MAX_URI_SIZE];
+	CChar PlayAllPaused3DSounds[MAX_URI_SIZE];
+	CChar PlayAllPausedResourceSounds[MAX_URI_SIZE];
+	//Play Sounds loop
+	CChar PlayAllSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllPausedSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllStoppedSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllAmbientSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAll3DSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllResourceSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllStoppedAmbientSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllStopped3DSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllStoppedResourceSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllPausedAmbientSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllPaused3DSoundsLoop[MAX_URI_SIZE];
+	CChar PlayAllPausedResourceSoundsLoop[MAX_URI_SIZE];
+	//Play Sounds once
+	CChar PlayAllSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllPausedSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllStoppedSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllAmbientSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAll3DSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllResourceSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllStoppedAmbientSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllStopped3DSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllStoppedResourceSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllPausedAmbientSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllPaused3DSoundsOnce[MAX_URI_SIZE];
+	CChar PlayAllPausedResourceSoundsOnce[MAX_URI_SIZE];
+	//Pause Sounds
+	CChar PauseAllSounds[MAX_URI_SIZE];
+	CChar PauseAllAmbientSounds[MAX_URI_SIZE];
+	CChar PauseAll3DSounds[MAX_URI_SIZE];
+	CChar PauseAllResourceSounds[MAX_URI_SIZE];
 
 	CImageList m_image;
 

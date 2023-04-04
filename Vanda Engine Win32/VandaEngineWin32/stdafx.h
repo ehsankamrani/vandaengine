@@ -111,7 +111,6 @@ CInt PlayResourceSoundLoop(lua_State *L);
 CInt PlayResourceSoundOnce(lua_State *L);
 CInt StopResourceSound(lua_State *L);
 CInt PauseResourceSound(lua_State *L);
-CInt StopAllResourceSounds(lua_State *L);
 CInt ShowCursorIcon(lua_State *L);
 CInt HideCursorIcon(lua_State *L);
 CInt PrintConsole(lua_State *L);
@@ -409,6 +408,56 @@ CInt GetVideoPlay(lua_State* L);
 CInt GetVideoLoop(lua_State* L);
 CInt GetVideoVolume(lua_State* L);
 CInt GetVideoDuration(lua_State* L);
+
+//Stop Sounds
+CInt StopAllSounds(lua_State* L);
+CInt StopAllAmbientSounds(lua_State* L);
+CInt StopAll3DSounds(lua_State* L);
+CInt StopAllResourceSounds(lua_State* L);
+//Play Sounds
+CInt PlayAllSounds(lua_State* L);
+CInt PlayAllPausedSounds(lua_State* L);
+CInt PlayAllStoppedSounds(lua_State* L);
+CInt PlayAllAmbientSounds(lua_State* L);
+CInt PlayAll3DSounds(lua_State* L);
+CInt PlayAllResourceSounds(lua_State* L);
+CInt PlayAllStoppedAmbientSounds(lua_State* L);
+CInt PlayAllStopped3DSounds(lua_State* L);
+CInt PlayAllStoppedResourceSounds(lua_State* L);
+CInt PlayAllPausedAmbientSounds(lua_State* L);
+CInt PlayAllPaused3DSounds(lua_State* L);
+CInt PlayAllPausedResourceSounds(lua_State* L);
+//Play Sounds Loop
+CInt PlayAllSoundsLoop(lua_State* L);
+CInt PlayAllPausedSoundsLoop(lua_State* L);
+CInt PlayAllStoppedSoundsLoop(lua_State* L);
+CInt PlayAllAmbientSoundsLoop(lua_State* L);
+CInt PlayAll3DSoundsLoop(lua_State* L);
+CInt PlayAllResourceSoundsLoop(lua_State* L);
+CInt PlayAllStoppedAmbientSoundsLoop(lua_State* L);
+CInt PlayAllStopped3DSoundsLoop(lua_State* L);
+CInt PlayAllStoppedResourceSoundsLoop(lua_State* L);
+CInt PlayAllPausedAmbientSoundsLoop(lua_State* L);
+CInt PlayAllPaused3DSoundsLoop(lua_State* L);
+CInt PlayAllPausedResourceSoundsLoop(lua_State* L);
+//Play Sounds once
+CInt PlayAllSoundsOnce(lua_State* L);
+CInt PlayAllPausedSoundsOnce(lua_State* L);
+CInt PlayAllStoppedSoundsOnce(lua_State* L);
+CInt PlayAllAmbientSoundsOnce(lua_State* L);
+CInt PlayAll3DSoundsOnce(lua_State* L);
+CInt PlayAllResourceSoundsOnce(lua_State* L);
+CInt PlayAllStoppedAmbientSoundsOnce(lua_State* L);
+CInt PlayAllStopped3DSoundsOnce(lua_State* L);
+CInt PlayAllStoppedResourceSoundsOnce(lua_State* L);
+CInt PlayAllPausedAmbientSoundsOnce(lua_State* L);
+CInt PlayAllPaused3DSoundsOnce(lua_State* L);
+CInt PlayAllPausedResourceSoundsOnce(lua_State* L);
+//Pause Sounds
+CInt PauseAllSounds(lua_State* L);
+CInt PauseAllAmbientSounds(lua_State* L);
+CInt PauseAll3DSounds(lua_State* L);
+CInt PauseAllResourceSounds(lua_State* L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
