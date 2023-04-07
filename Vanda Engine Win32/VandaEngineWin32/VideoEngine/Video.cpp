@@ -1050,7 +1050,7 @@ CBool CVideo::Render()
 	glUseProgram(0);
 	glDrawBuffer(GL_BACK);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
 	gluOrtho2D(0, g_width, 0, g_height);
 	glMatrixMode(GL_MODELVIEW); glPushMatrix();	glLoadIdentity();
@@ -1071,7 +1071,9 @@ CBool CVideo::Render()
 	glMatrixMode(GL_PROJECTION); glPopMatrix();
 	glMatrixMode(GL_MODELVIEW); glPopMatrix();
 
+	glActiveTextureARB(GL_TEXTURE0_ARB);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_TEXTURE_2D);
 
 	return CTrue;
 }

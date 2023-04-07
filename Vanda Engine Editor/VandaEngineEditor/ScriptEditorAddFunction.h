@@ -359,11 +359,11 @@ private:
 	CChar SetGlobalSoundVolume[MAX_URI_SIZE];
 	CChar GetGlobalSoundVolume[MAX_URI_SIZE];
 
+	CChar PlayVideo[MAX_URI_SIZE];
 	CChar PlayVideoLoop[MAX_URI_SIZE];
 	CChar PlayVideoOnce[MAX_URI_SIZE];
 	CChar StopVideo[MAX_URI_SIZE];
 
-	CChar SetVideoPlay[MAX_URI_SIZE];
 	CChar SetVideoLoop[MAX_URI_SIZE];
 	CChar SetVideoVolume[MAX_URI_SIZE];
 

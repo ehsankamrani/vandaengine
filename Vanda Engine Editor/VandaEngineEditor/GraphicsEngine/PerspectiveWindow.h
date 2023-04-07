@@ -331,8 +331,6 @@ public:
 	CBool m_characterRotationTransition;
 	CBool m_initError;
 
-	std::vector<std::string> m_tempAllPlayingSoundSources;
-
 	CFloat m_forceSpeed;
 	NxVec3 m_forceDirection;
 	CFloat m_forceDecreaseValue;

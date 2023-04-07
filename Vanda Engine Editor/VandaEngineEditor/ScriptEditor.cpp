@@ -106,6 +106,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 		savePath.Empty();
 		m_richScriptEditor.SetWindowTextA("");
 		m_changed = CFalse;
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_NEWSCRIPT_VSCENE_SCRIPT)
 	{
@@ -113,6 +114,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/VSceneScript.txt");
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_NEWSCRIPT_PREFAB)
 	{
@@ -120,6 +122,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/Prefab.txt");
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_NEWSCRIPT_TRIGGER)
 	{
@@ -127,6 +130,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/Trigger.txt");
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_NEWSCRIPT_VIDEO)
 	{
@@ -134,6 +138,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/Video.txt");
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_NEWSCRIPT_GUI)
 	{
@@ -141,6 +146,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/GUI.txt");
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_NEWSCRIPT_MAINCHARACTER)
 	{
@@ -148,6 +154,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			return CDialog::OnCommand(wParam, lParam);
 		savePath.Empty();
 		LoadFile("Assets/Engine/Scripts/MainCharacter.txt");
+		SetWindowText("Script Editor - Untitled");
 	}
 	else if (wParam == ID_FILE_OPEN_SCRIPT)
 	{
@@ -162,6 +169,11 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			LoadFile(dlgOpen.GetPathName().GetBuffer(dlgOpen.GetPathName().GetLength()));
 			dlgOpen.GetPathName().ReleaseBuffer();
 			savePath = dlgOpen.GetPathName();
+
+			CChar title[MAX_NAME_SIZE];
+			sprintf(title, "Script Editor - %s", dlgOpen.GetFileName().GetBuffer(dlgOpen.GetFileName().GetLength()));
+			SetWindowText(title);
+			dlgOpen.GetFileName().ReleaseBuffer();
 		}
 		m_changed = CFalse;
 	}
@@ -181,6 +193,11 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 				WriteFile(dlgSave.GetPathName().GetBuffer(dlgSave.GetPathName().GetLength()));
 				dlgSave.GetPathName().ReleaseBuffer();
 				savePath = dlgSave.GetPathName();
+
+				CChar title[MAX_NAME_SIZE];
+				sprintf(title, "Script Editor - %s", dlgSave.GetFileName().GetBuffer(dlgSave.GetFileName().GetLength()));
+				SetWindowText(title);
+				dlgSave.GetFileName().ReleaseBuffer();
 			}
 		}
 		m_changed = CFalse;
@@ -195,6 +212,11 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 			dlgSave.GetPathName().ReleaseBuffer();
 			savePath = dlgSave.GetPathName();
 			m_changed = CFalse;
+
+			CChar title[MAX_NAME_SIZE];
+			sprintf(title, "Script Editor - %s", dlgSave.GetFileName().GetBuffer(dlgSave.GetFileName().GetLength()));
+			SetWindowText(title);
+			dlgSave.GetFileName().ReleaseBuffer();
 		}
 	}
 	else if (wParam == ID_FILE_EXIT)

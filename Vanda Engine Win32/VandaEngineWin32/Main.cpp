@@ -1431,110 +1431,13 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 	{
 		g_timer->GetElapsedSeconds(CTrue);
 
-		if (g_main->m_tempAllPlayingSoundSources.size() != 0)
+		for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 		{
-			for (CUInt i = 0; i < g_main->m_tempAllPlayingSoundSources.size(); i++)
-			{
-				//resume matched resource sounds
-				for (CUInt j = 0; j < g_resourceFiles.size(); j++)
-				{
-					if (g_resourceFiles[j]->GetSoundSource())
-					{
-						if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_resourceFiles[j]->GetSoundSource()->GetName()))
-							g_soundSystem->PlayALSound(*(g_resourceFiles[j]->GetSoundSource()->GetSoundSource()));
-					}
-				}
-
-				//resume matched 3D sounds
-				for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
-				{
-					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_engine3DSounds[j]->GetName()))
-						g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
-				}
-
-				//resume matched main character sounds
-				if (g_mainCharacter)
-				{
-					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_walkSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
-
-					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_runSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
-
-					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_jumpSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_mainCharacter->m_jumpSound->GetSoundSource()));
-				}
-
-				//resume matched ambient sound
-				for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
-				{
-					if (Cmp(g_main->m_tempAllPlayingSoundSources[i].c_str(), g_engineAmbientSounds[j]->GetName()))
-						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
-				}
-			}
+			NxActor* currentActor = gPhysXscene->getActors()[i];
+			if (currentActor->isSleeping())
+				currentActor->wakeUp();
 		}
-
-	}
-	else
-	{
-		//resource sounds
-		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
-		{
-			if (g_resourceFiles[i]->GetSoundSource())
-			{
-				ALint state;
-				alGetSourcei(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
-				if (state == AL_PLAYING)
-				{
-					g_main->m_tempAllPlayingSoundSources.push_back(g_resourceFiles[i]->GetSoundSource()->GetName());
-				}
-			}
-		}
-
-		//3D sounds
-		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-		{
-			ALint state;
-			alGetSourcei(g_engine3DSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
-			if (state == AL_PLAYING)
-			{
-				g_main->m_tempAllPlayingSoundSources.push_back(g_engine3DSounds[i]->GetName());
-			}
-		}
-
-		//ambient sound
-		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-		{
-			ALint state;
-			alGetSourcei(g_engineAmbientSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
-			if (state == AL_PLAYING)
-			{
-				g_main->m_tempAllPlayingSoundSources.push_back(g_engineAmbientSounds[i]->GetName());
-			}
-		}
-
-		//main character sounds
-		if (g_mainCharacter)
-		{
-			ALint state1;
-			alGetSourcei(g_mainCharacter->m_jumpSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state1);
-			if (state1 == AL_PLAYING)
-			{
-				g_main->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_jumpSound->GetName());
-			}
-			ALint state2;
-			alGetSourcei(g_mainCharacter->m_walkSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state2);
-			if (state2 == AL_PLAYING)
-			{
-				g_main->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_walkSound->GetName());
-			}
-			ALint state3;
-			alGetSourcei(g_mainCharacter->m_runSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state3);
-			if (state3 == AL_PLAYING)
-			{
-				g_main->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_runSound->GetName());
-			}
-		}
+		g_nx->gControllers->reportSceneChanged();
 	}
 
 	if (g_currentVSceneProperties.m_isMenu)
@@ -14060,6 +13963,50 @@ CInt GetGlobalSoundVolume(lua_State* L)
 	return 1;
 }
 
+CInt PlayVideo(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PlayVideo()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			g_engineVideos[i]->SetPlay(true);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "%s%s%s", "\nPlayVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+
+}
+
 CInt PlayVideoLoop(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -14184,53 +14131,6 @@ CInt StopVideo(lua_State* L)
 	{
 		//CChar temp[MAX_NAME_SIZE];
 		//sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
-		//PrintInfo(temp, COLOR_RED);
-	}
-
-	return 0;
-}
-
-CInt SetVideoPlay(lua_State* L)
-{
-	int argc = lua_gettop(L);
-
-	if (argc < 2)
-	{
-		//PrintInfo("\nPlease specify 2 arguments for SetVideoPlay()", COLOR_RED);
-		return 0;
-	}
-
-	if (lua_tostring(L, 1) == NULL) return 0;
-
-	CChar videoName[MAX_NAME_SIZE];
-	Cpy(videoName, lua_tostring(L, 1));
-	StringToUpper(videoName);
-
-	CInt isPlay = (CFloat)lua_toboolean(L, 2);
-	CBool play = CFalse;
-	if (isPlay)
-		play = CTrue;
-
-	CBool foundTarget = CFalse;
-
-	for (CUInt i = 0; i < g_engineVideos.size(); i++)
-	{
-		CChar currentVideoName[MAX_NAME_SIZE];
-		Cpy(currentVideoName, g_engineVideos[i]->GetName());
-		StringToUpper(currentVideoName);
-
-		if (Cmp(currentVideoName, videoName))
-		{
-			g_engineVideos[i]->SetPlay(play);
-			foundTarget = CTrue;
-			break;
-		}
-	}
-
-	if (!foundTarget)
-	{
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "%s%s%s", "\nSetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
 		//PrintInfo(temp, COLOR_RED);
 	}
 
@@ -17458,30 +17358,27 @@ CBool CMain::Render()
 		return CTrue;
 	g_numVerts = 0; //debug info
 
-	if (!g_currentVSceneProperties.m_isPause)
-	{
-		elapsedTime = g_timer->GetElapsedSeconds();
+	elapsedTime = g_timer->GetElapsedSeconds();
 
-		//if (elapsedTime > (1.0f / 60.0f))
-		//{
-		//	CFloat elapsed;
-		//	CInt steps = 1;
+	//if (elapsedTime > (1.0f / 60.0f))
+	//{
+	//	CFloat elapsed;
+	//	CInt steps = 1;
 
-		//	steps = (CInt)roundf(elapsedTime / (1.0f / 60.0f));
+	//	steps = (CInt)roundf(elapsedTime / (1.0f / 60.0f));
 
-		//	elapsed = (CFloat)steps * (1.0f / 60.0f);
-		//	gPhysXscene->setTiming(1.0f / 60.0f, steps, NX_TIMESTEP_FIXED);
+	//	elapsed = (CFloat)steps * (1.0f / 60.0f);
+	//	gPhysXscene->setTiming(1.0f / 60.0f, steps, NX_TIMESTEP_FIXED);
 
-		//	elapsedTime = elapsed;
-		//}
-		//else
-		//{
-		gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
-		//}
+	//	elapsedTime = elapsed;
+	//}
+	//else
+	//{
+	gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
+	//}
 
-		g_elapsedTime = elapsedTime;
-		m_totalElapsedTime += elapsedTime;
-	}
+	g_elapsedTime = elapsedTime;
+	m_totalElapsedTime += elapsedTime;
 
 	//manage videos here
 	CBool renderVideo = CFalse;
@@ -17506,7 +17403,7 @@ CBool CMain::Render()
 		if (result)
 		{
 			if (!m_loadScene)
-				g_input.Update();
+				ProcessInputs();
 
 			if (!m_loadScene && g_engineVideos[i]->GetExitWithEscKey() && g_input.KeyDown(DIK_ESCAPE))
 			{
@@ -17567,7 +17464,10 @@ CBool CMain::Render()
 			return CFalse;
 	}
 
-	UpdateCharacterTransformations();
+	if (!g_currentVSceneProperties.m_isPause)
+	{
+		UpdateCharacterTransformations();
+	}
 
 	if (GetExitGame()) return CFalse; //exit game 
 
@@ -17839,37 +17739,6 @@ CBool CMain::Render()
 		glEnable( GL_MULTISAMPLE );
 	else
 		glDisable( GL_MULTISAMPLE );
-
-	//Pause Sounds
-	if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
-	{
-		if (g_mainCharacter)
-		{
-			g_soundSystem->PauseALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
-			g_soundSystem->PauseALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
-			g_soundSystem->PauseALSound(*(g_mainCharacter->m_jumpSound->GetSoundSource()));
-		}
-		//resource sounds
-		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
-		{
-			if (g_resourceFiles[i]->GetSoundSource())
-			{
-				g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-			}
-		}
-
-		//3D sounds
-		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-		{
-			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-		}
-
-		//ambient sound
-		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-		{
-			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-		}
-	}
 
 	//render sky
 	if (g_databaseVariables.m_insertAndShowSky)
@@ -23261,7 +23130,7 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 		if (!g_render.GetScene()->m_isTrigger)
 		{
 			CBool update = CTrue;
-			if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
+			if (g_currentVSceneProperties.m_isPause)
 				update = CFalse;
 			if (update)
 			{

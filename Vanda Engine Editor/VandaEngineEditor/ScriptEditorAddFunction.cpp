@@ -35,7 +35,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(LoadVScene, "LoadVScene(string VSceneName)");
 	Cpy(ExitGame, "ExitGame()");
-	Cpy(SetCurrentVSceneAsMenu, "SetCurrentVSceneAsMenu(bool isMenu, bool PauseOrResumeGame, float cursorSize)");
+	Cpy(SetCurrentVSceneAsMenu, "SetCurrentVSceneAsMenu(bool isMenu, bool pauseGame, float cursorSize)");
 
 	Cpy(ActivateThirdPersonCamera, "ActivateThirdPersonCamera()");
 	Cpy(ActivateFirstPersonCamera, "ActivateFirstPersonCamera()");
@@ -346,11 +346,11 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetGlobalSoundVolume, "SetGlobalSoundVolume(float volume)");
 	Cpy(GetGlobalSoundVolume, "GetGlobalSoundVolume()");
 
+	Cpy(PlayVideo, "PlayVideo(string videoName)");
 	Cpy(PlayVideoLoop, "PlayVideoLoop(string videoName)");
 	Cpy(PlayVideoOnce, "PlayVideoOnce(string videoName)");
 	Cpy(StopVideo, "StopVideo(string videoName)");
 
-	Cpy(SetVideoPlay, "SetVideoPlay(string videoName, bool play)");
 	Cpy(SetVideoLoop, "SetVideoLoop(string videoName, bool loop)");
 	Cpy(SetVideoVolume, "SetVideoVolume(string videoName, float volume)");
 
@@ -1610,6 +1610,10 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetGlobalSoundVolume);
 		}
+		else if (Cmp(szBuffer, "PlayVideo"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayVideo);
+		}
 		else if (Cmp(szBuffer, "PlayVideoLoop"))
 		{
 			m_richFunctionName.SetWindowTextA(PlayVideoLoop);
@@ -1621,10 +1625,6 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "StopVideo"))
 		{
 			m_richFunctionName.SetWindowTextA(StopVideo);
-		}
-		else if (Cmp(szBuffer, "SetVideoPlay"))
-		{
-			m_richFunctionName.SetWindowTextA(SetVideoPlay);
 		}
 		else if (Cmp(szBuffer, "SetVideoLoop"))
 		{
@@ -2165,9 +2165,17 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("AttachPrefabInstanceToWater");
 	InsertItem("DetachPrefabInstanceFromWater");
 
+	InsertItem("PlayVideo");
 	InsertItem("PlayVideoLoop");
 	InsertItem("PlayVideoOnce");
 	InsertItem("StopVideo");
+
+	InsertItem("SetVideoLoop");
+	InsertItem("SetVideoVolume");
+	InsertItem("GetVideoPlay");
+	InsertItem("GetVideoLoop");
+	InsertItem("GetVideoVolume");
+	InsertItem("GetVideoDuration");
 
 	InsertItem("SetSoundVolume");
 	InsertItem("SetSoundPitch");
@@ -2190,14 +2198,6 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetGlobalSoundVolume");
 	InsertItem("GetGlobalSoundVolume");
 	
-	InsertItem("SetVideoPlay");
-	InsertItem("SetVideoLoop");
-	InsertItem("SetVideoVolume");
-	InsertItem("GetVideoPlay");
-	InsertItem("GetVideoLoop");
-	InsertItem("GetVideoVolume");
-	InsertItem("GetVideoDuration");
-
 	//Stop Sounds
 	InsertItem("StopAllSounds");
 	InsertItem("StopAllAmbientSounds");

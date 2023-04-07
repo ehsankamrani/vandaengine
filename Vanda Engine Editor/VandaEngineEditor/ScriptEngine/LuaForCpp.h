@@ -414,7 +414,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "PlayVideoOnce", PlayVideoOnce);
 	lua_register(L, "StopVideo", StopVideo);
 
-	lua_register(L, "SetVideoPlay", SetVideoPlay);
+	lua_register(L, "PlayVideo", PlayVideo);
 	lua_register(L, "SetVideoLoop", SetVideoLoop);
 	lua_register(L, "SetVideoVolume", SetVideoVolume);
 

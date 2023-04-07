@@ -156,8 +156,6 @@ public:
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );
 	CVoid SetInstanceCamera(CInstanceCamera * inst, CFloat sWidth, CFloat sHeight, CFloat fov, CFloat zNear, CFloat zFar);
 
-	std::vector<std::string> m_tempAllPlayingSoundSources;
-
 	CFloat m_forceSpeed;
 	NxVec3 m_forceDirection;
 	CFloat m_forceDecreaseValue;

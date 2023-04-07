@@ -2552,110 +2552,13 @@ CInt SetCurrentVSceneAsMenu(lua_State* L)
 	{
 		g_multipleView->timer.GetElapsedSeconds(CTrue);
 
-		if (g_multipleView->m_tempAllPlayingSoundSources.size() != 0)
+		for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 		{
-			for (CUInt i = 0; i < g_multipleView->m_tempAllPlayingSoundSources.size(); i++)
-			{
-				//resume matched resource sounds
-				for (CUInt j = 0; j < g_resourceFiles.size(); j++)
-				{
-					if (g_resourceFiles[j]->GetSoundSource())
-					{
-						if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_resourceFiles[j]->GetSoundSource()->GetName()))
-							g_soundSystem->PlayALSound(*(g_resourceFiles[j]->GetSoundSource()->GetSoundSource()));
-					}
-				}
-
-				//resume matched 3D sounds
-				for (CUInt j = 0; j < g_engine3DSounds.size(); j++)
-				{
-					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_engine3DSounds[j]->GetName()))
-						g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
-				}
-
-				//resume matched main character sounds
-				if (g_mainCharacter)
-				{
-					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_walkSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
-
-					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_runSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
-
-					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_mainCharacter->m_jumpSound->GetName()))
-						g_soundSystem->PlayALSound(*(g_mainCharacter->m_jumpSound->GetSoundSource()));
-				}
-
-				//resume matched ambient sound
-				for (CUInt j = 0; j < g_engineAmbientSounds.size(); j++)
-				{
-					if (Cmp(g_multipleView->m_tempAllPlayingSoundSources[i].c_str(), g_engineAmbientSounds[j]->GetName()))
-						g_soundSystem->PlayALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
-				}
-
-			}
+			NxActor* currentActor = gPhysXscene->getActors()[i];
+			if (currentActor->isSleeping())
+				currentActor->wakeUp();
 		}
-	}
-	else
-	{
-		//resource sounds
-		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
-		{
-			if (g_resourceFiles[i]->GetSoundSource())
-			{
-				ALint state;
-				alGetSourcei(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
-				if (state == AL_PLAYING)
-				{
-					g_multipleView->m_tempAllPlayingSoundSources.push_back(g_resourceFiles[i]->GetSoundSource()->GetName());
-				}
-			}
-		}
-
-		//3D sounds
-		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-		{
-			ALint state;
-			alGetSourcei(g_engine3DSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
-			if (state == AL_PLAYING)
-			{
-				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_engine3DSounds[i]->GetName());
-			}
-		}
-
-		//ambient sound
-		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-		{
-			ALint state;
-			alGetSourcei(g_engineAmbientSounds[i]->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state);
-			if (state == AL_PLAYING)
-			{
-				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_engineAmbientSounds[i]->GetName());
-			}
-		}
-
-		//main character sounds
-		if (g_mainCharacter)
-		{
-			ALint state1;
-			alGetSourcei(g_mainCharacter->m_jumpSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state1);
-			if (state1 == AL_PLAYING)
-			{
-				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_jumpSound->GetName());
-			}
-			ALint state2;
-			alGetSourcei(g_mainCharacter->m_walkSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state2);
-			if (state2 == AL_PLAYING)
-			{
-				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_walkSound->GetName());
-			}
-			ALint state3;
-			alGetSourcei(g_mainCharacter->m_runSound->GetSoundSource()->GetSource(), AL_SOURCE_STATE, &state3);
-			if (state3 == AL_PLAYING)
-			{
-				g_multipleView->m_tempAllPlayingSoundSources.push_back(g_mainCharacter->m_runSound->GetName());
-			}
-		}
+		g_multipleView->m_nx->gControllers->reportSceneChanged();
 	}
 
 	if (g_currentVSceneProperties.m_isMenu)
@@ -22208,6 +22111,85 @@ CInt GetGlobalSoundVolume(lua_State* L)
 	return 1;
 }
 
+CInt PlayVideo(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for PlayVideo()", COLOR_RED);
+		return 0;
+	}
+
+	if (lua_tostring(L, 1) == NULL) return 0;
+
+	CChar videoName[MAX_NAME_SIZE];
+	Cpy(videoName, lua_tostring(L, 1));
+	StringToUpper(videoName);
+
+	CBool foundTarget = CFalse;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				{
+					CChar currentVideoName[MAX_NAME_SIZE];
+					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+					StringToUpper(currentVideoName);
+
+					if (Cmp(currentVideoName, videoName))
+					{
+						CChar temp[MAX_NAME_SIZE];
+						sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideo(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						PrintInfo(temp, COLOR_GREEN);
+						foundTarget = CTrue;
+						break;
+					}
+				}
+
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nPlayVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			PrintInfo(temp, COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		CChar currentVideoName[MAX_NAME_SIZE];
+		Cpy(currentVideoName, g_engineVideos[i]->GetName());
+		StringToUpper(currentVideoName);
+
+		if (Cmp(currentVideoName, videoName))
+		{
+			g_engineVideos[i]->SetPlay(false);
+			g_engineVideos[i]->SetPlay(true);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nPlayVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+
+}
+
 CInt PlayVideoLoop(lua_State* L)
 {
 	if (g_testScript)
@@ -22437,91 +22419,6 @@ CInt StopVideo(lua_State* L)
 	{
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
-		PrintInfo(temp, COLOR_RED);
-	}
-
-	return 0;
-}
-
-CInt SetVideoPlay(lua_State* L)
-{
-	if (g_testScript)
-		return 0;
-	int argc = lua_gettop(L);
-
-	if (argc < 2)
-	{
-		PrintInfo("\nPlease specify 2 arguments for SetVideoPlay()", COLOR_RED);
-		return 0;
-	}
-
-	if (lua_tostring(L, 1) == NULL) return 0;
-
-	CChar videoName[MAX_NAME_SIZE];
-	Cpy(videoName, lua_tostring(L, 1));
-	StringToUpper(videoName);
-
-	CInt isPlay = (CFloat)lua_toboolean(L, 2);
-	CBool play = CFalse;
-	if (isPlay)
-		play = CTrue;
-
-	CBool foundTarget = CFalse;
-
-	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
-	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
-		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
-				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
-					{
-						CChar temp[MAX_NAME_SIZE];
-						if (play)
-							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoPlay(%s, true) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						else
-							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoPlay(%s, false) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
-
-			}
-		}
-		if (!foundTarget)
-		{
-			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
-			PrintInfo(temp, COLOR_RED);
-		}
-		return 0;
-	}
-
-	for (CUInt i = 0; i < g_engineVideos.size(); i++)
-	{
-		CChar currentVideoName[MAX_NAME_SIZE];
-		Cpy(currentVideoName, g_engineVideos[i]->GetName());
-		StringToUpper(currentVideoName);
-
-		if (Cmp(currentVideoName, videoName))
-		{
-			g_engineVideos[i]->SetPlay(play);
-			foundTarget = CTrue;
-			break;
-		}
-	}
-
-	if (!foundTarget)
-	{
-		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "%s%s%s", "\nSetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
 		PrintInfo(temp, COLOR_RED);
 	}
 
@@ -23009,6 +22906,7 @@ CInt StopAllSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23017,6 +22915,7 @@ CInt StopAllSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23027,6 +22926,7 @@ CInt StopAllSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23047,6 +22947,7 @@ CInt StopAllSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23072,6 +22973,7 @@ CInt StopAllSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23084,6 +22986,16 @@ CInt StopAllSounds(lua_State* L)
 		}
 	}
 
+	for(CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nStopAllSounds warning: Couldn't find '%s' sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+	
 	m_soundexception.clear();
 	return 0;
 }
@@ -23100,6 +23012,7 @@ CInt StopAllAmbientSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23108,6 +23021,7 @@ CInt StopAllAmbientSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23118,6 +23032,7 @@ CInt StopAllAmbientSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23127,6 +23042,16 @@ CInt StopAllAmbientSounds(lua_State* L)
 		if (g_engineAmbientSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nStopAllAmbientSounds warning: Couldn't find '%s' ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23146,6 +23071,7 @@ CInt StopAll3DSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23154,6 +23080,7 @@ CInt StopAll3DSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -23164,6 +23091,7 @@ CInt StopAll3DSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23173,6 +23101,16 @@ CInt StopAll3DSounds(lua_State* L)
 		if (g_engine3DSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nStopAll3DSounds warning: Couldn't find '%s' 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23192,6 +23130,7 @@ CInt StopAllResourceSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23200,6 +23139,7 @@ CInt StopAllResourceSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -23215,6 +23155,7 @@ CInt StopAllResourceSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23224,6 +23165,16 @@ CInt StopAllResourceSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->StopALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nStopAllResourceSounds warning: Couldn't find '%s' resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23244,6 +23195,7 @@ CInt PlayAllSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23252,6 +23204,7 @@ CInt PlayAllSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23262,6 +23215,7 @@ CInt PlayAllSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23282,6 +23236,7 @@ CInt PlayAllSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23307,6 +23262,7 @@ CInt PlayAllSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23316,6 +23272,16 @@ CInt PlayAllSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllSounds warning: Couldn't find '%s' sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23335,6 +23301,7 @@ CInt PlayAllPausedSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23343,6 +23310,7 @@ CInt PlayAllPausedSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23353,6 +23321,7 @@ CInt PlayAllPausedSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23373,6 +23342,7 @@ CInt PlayAllPausedSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23398,6 +23368,7 @@ CInt PlayAllPausedSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23407,6 +23378,16 @@ CInt PlayAllPausedSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedSounds warning: Couldn't find '%s' paused sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23426,6 +23407,7 @@ CInt PlayAllStoppedSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23434,6 +23416,7 @@ CInt PlayAllStoppedSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23444,6 +23427,7 @@ CInt PlayAllStoppedSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23464,6 +23448,7 @@ CInt PlayAllStoppedSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23489,6 +23474,7 @@ CInt PlayAllStoppedSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23498,6 +23484,16 @@ CInt PlayAllStoppedSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedSounds warning: Couldn't find '%s' stopped sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23517,6 +23513,7 @@ CInt PlayAllAmbientSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23525,6 +23522,7 @@ CInt PlayAllAmbientSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23535,6 +23533,7 @@ CInt PlayAllAmbientSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23544,6 +23543,16 @@ CInt PlayAllAmbientSounds(lua_State* L)
 		if (g_engineAmbientSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllAmbientSounds warning: Couldn't find '%s' ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23563,6 +23572,7 @@ CInt PlayAll3DSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23571,6 +23581,7 @@ CInt PlayAll3DSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -23581,6 +23592,7 @@ CInt PlayAll3DSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23590,6 +23602,16 @@ CInt PlayAll3DSounds(lua_State* L)
 		if (g_engine3DSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAll3DSounds warning: Couldn't find '%s' 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23609,6 +23631,7 @@ CInt PlayAllResourceSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23617,6 +23640,7 @@ CInt PlayAllResourceSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -23632,6 +23656,7 @@ CInt PlayAllResourceSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23641,6 +23666,16 @@ CInt PlayAllResourceSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllResourceSounds warning: Couldn't find '%s' resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23660,6 +23695,7 @@ CInt PlayAllStoppedAmbientSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23668,6 +23704,7 @@ CInt PlayAllStoppedAmbientSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23678,6 +23715,7 @@ CInt PlayAllStoppedAmbientSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23687,6 +23725,16 @@ CInt PlayAllStoppedAmbientSounds(lua_State* L)
 		if (g_engineAmbientSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedAmbientSounds warning: Couldn't find '%s' stopped ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23706,6 +23754,7 @@ CInt PlayAllStopped3DSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23714,6 +23763,7 @@ CInt PlayAllStopped3DSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -23724,6 +23774,7 @@ CInt PlayAllStopped3DSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23733,6 +23784,16 @@ CInt PlayAllStopped3DSounds(lua_State* L)
 		if (g_engine3DSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStopped3DSounds warning: Couldn't find '%s' stopped 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23752,6 +23813,7 @@ CInt PlayAllStoppedResourceSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23760,6 +23822,7 @@ CInt PlayAllStoppedResourceSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -23775,6 +23838,7 @@ CInt PlayAllStoppedResourceSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23784,6 +23848,16 @@ CInt PlayAllStoppedResourceSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedResourceSounds warning: Couldn't find '%s' stopped resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23803,6 +23877,7 @@ CInt PlayAllPausedAmbientSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23811,6 +23886,7 @@ CInt PlayAllPausedAmbientSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23821,6 +23897,7 @@ CInt PlayAllPausedAmbientSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23830,6 +23907,16 @@ CInt PlayAllPausedAmbientSounds(lua_State* L)
 		if (g_engineAmbientSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedAmbientSounds warning: Couldn't find '%s' paused ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23849,6 +23936,7 @@ CInt PlayAllPaused3DSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23857,6 +23945,7 @@ CInt PlayAllPaused3DSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -23867,6 +23956,7 @@ CInt PlayAllPaused3DSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23876,6 +23966,16 @@ CInt PlayAllPaused3DSounds(lua_State* L)
 		if (g_engine3DSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPaused3DSounds warning: Couldn't find '%s' paused 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23895,6 +23995,7 @@ CInt PlayAllPausedResourceSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23903,6 +24004,7 @@ CInt PlayAllPausedResourceSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -23918,6 +24020,7 @@ CInt PlayAllPausedResourceSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23927,6 +24030,16 @@ CInt PlayAllPausedResourceSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedResourceSounds warning: Couldn't find '%s' paused resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -23947,6 +24060,7 @@ CInt PlayAllSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -23955,6 +24069,7 @@ CInt PlayAllSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -23965,6 +24080,7 @@ CInt PlayAllSoundsLoop(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -23988,6 +24104,7 @@ CInt PlayAllSoundsLoop(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24016,6 +24133,7 @@ CInt PlayAllSoundsLoop(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24028,6 +24146,16 @@ CInt PlayAllSoundsLoop(lua_State* L)
 			g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
 
 			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllSoundsLoop warning: Couldn't find '%s' sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24047,6 +24175,7 @@ CInt PlayAllPausedSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24055,6 +24184,7 @@ CInt PlayAllPausedSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24065,6 +24195,7 @@ CInt PlayAllPausedSoundsLoop(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24091,6 +24222,7 @@ CInt PlayAllPausedSoundsLoop(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24122,6 +24254,7 @@ CInt PlayAllPausedSoundsLoop(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24137,6 +24270,16 @@ CInt PlayAllPausedSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedSoundsLoop warning: Couldn't find '%s' paused sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24156,6 +24299,7 @@ CInt PlayAllStoppedSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24164,6 +24308,7 @@ CInt PlayAllStoppedSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24174,6 +24319,7 @@ CInt PlayAllStoppedSoundsLoop(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24200,6 +24346,7 @@ CInt PlayAllStoppedSoundsLoop(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24231,6 +24378,7 @@ CInt PlayAllStoppedSoundsLoop(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24246,6 +24394,16 @@ CInt PlayAllStoppedSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedSoundsLoop warning: Couldn't find '%s' stopped sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24265,6 +24423,7 @@ CInt PlayAllAmbientSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24273,6 +24432,7 @@ CInt PlayAllAmbientSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24283,6 +24443,7 @@ CInt PlayAllAmbientSoundsLoop(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24295,6 +24456,16 @@ CInt PlayAllAmbientSoundsLoop(lua_State* L)
 			g_engineAmbientSounds[i]->SetLoop(CTrue);
 
 			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllAmbientSoundsLoop warning: Couldn't find '%s' ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24314,6 +24485,7 @@ CInt PlayAll3DSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24322,6 +24494,7 @@ CInt PlayAll3DSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -24332,6 +24505,7 @@ CInt PlayAll3DSoundsLoop(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24344,6 +24518,16 @@ CInt PlayAll3DSoundsLoop(lua_State* L)
 			g_engine3DSounds[i]->SetLoop(CTrue);
 
 			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAll3DSoundsLoop warning: Couldn't find '%s' 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24363,6 +24547,7 @@ CInt PlayAllResourceSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24371,6 +24556,7 @@ CInt PlayAllResourceSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -24386,6 +24572,7 @@ CInt PlayAllResourceSoundsLoop(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24398,6 +24585,16 @@ CInt PlayAllResourceSoundsLoop(lua_State* L)
 			g_resourceFiles[i]->GetSoundSource()->SetLoop(CTrue);
 
 			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllResourceSoundsLoop warning: Couldn't find '%s' resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24417,6 +24614,7 @@ CInt PlayAllStoppedAmbientSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24425,6 +24623,7 @@ CInt PlayAllStoppedAmbientSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24435,6 +24634,7 @@ CInt PlayAllStoppedAmbientSoundsLoop(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24450,6 +24650,16 @@ CInt PlayAllStoppedAmbientSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedAmbientSoundsLoop warning: Couldn't find '%s' stopped ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24469,6 +24679,7 @@ CInt PlayAllStopped3DSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24477,6 +24688,7 @@ CInt PlayAllStopped3DSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -24487,6 +24699,7 @@ CInt PlayAllStopped3DSoundsLoop(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24502,6 +24715,16 @@ CInt PlayAllStopped3DSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStopped3DSoundsLoop warning: Couldn't find '%s' stoppped 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24521,6 +24744,7 @@ CInt PlayAllStoppedResourceSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24529,6 +24753,7 @@ CInt PlayAllStoppedResourceSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -24544,6 +24769,7 @@ CInt PlayAllStoppedResourceSoundsLoop(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24559,6 +24785,16 @@ CInt PlayAllStoppedResourceSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedResourceSoundsLoop warning: Couldn't find '%s' stopped resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24578,6 +24814,7 @@ CInt PlayAllPausedAmbientSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24586,6 +24823,7 @@ CInt PlayAllPausedAmbientSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24596,6 +24834,7 @@ CInt PlayAllPausedAmbientSoundsLoop(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24611,6 +24850,16 @@ CInt PlayAllPausedAmbientSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedAmbientSoundsLoop warning: Couldn't find '%s' paused ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24630,6 +24879,7 @@ CInt PlayAllPaused3DSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24638,6 +24888,7 @@ CInt PlayAllPaused3DSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -24648,6 +24899,7 @@ CInt PlayAllPaused3DSoundsLoop(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24663,6 +24915,16 @@ CInt PlayAllPaused3DSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPaused3DSoundsLoop warning: Couldn't find '%s' paused 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24682,6 +24944,7 @@ CInt PlayAllPausedResourceSoundsLoop(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24690,6 +24953,7 @@ CInt PlayAllPausedResourceSoundsLoop(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -24705,6 +24969,7 @@ CInt PlayAllPausedResourceSoundsLoop(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24720,6 +24985,16 @@ CInt PlayAllPausedResourceSoundsLoop(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedResourceSoundsLoop warning: Couldn't find '%s' paused resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24741,6 +25016,7 @@ CInt PlayAllSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24749,6 +25025,7 @@ CInt PlayAllSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24759,6 +25036,7 @@ CInt PlayAllSoundsOnce(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24782,6 +25060,7 @@ CInt PlayAllSoundsOnce(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24810,6 +25089,7 @@ CInt PlayAllSoundsOnce(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24822,6 +25102,16 @@ CInt PlayAllSoundsOnce(lua_State* L)
 			g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
 
 			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllSoundsOnce warning: Couldn't find '%s' sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24841,6 +25131,7 @@ CInt PlayAllPausedSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24849,6 +25140,7 @@ CInt PlayAllPausedSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24859,6 +25151,7 @@ CInt PlayAllPausedSoundsOnce(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24885,6 +25178,7 @@ CInt PlayAllPausedSoundsOnce(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24916,6 +25210,7 @@ CInt PlayAllPausedSoundsOnce(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24931,6 +25226,16 @@ CInt PlayAllPausedSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedSoundsOnce warning: Couldn't find '%s' paused sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -24950,6 +25255,7 @@ CInt PlayAllStoppedSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -24958,6 +25264,7 @@ CInt PlayAllStoppedSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -24968,6 +25275,7 @@ CInt PlayAllStoppedSoundsOnce(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -24994,6 +25302,7 @@ CInt PlayAllStoppedSoundsOnce(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25025,6 +25334,7 @@ CInt PlayAllStoppedSoundsOnce(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25040,6 +25350,16 @@ CInt PlayAllStoppedSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedSoundsOnce warning: Couldn't find '%s' stopped sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25059,6 +25379,7 @@ CInt PlayAllAmbientSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25067,6 +25388,7 @@ CInt PlayAllAmbientSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -25077,6 +25399,7 @@ CInt PlayAllAmbientSoundsOnce(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25089,6 +25412,16 @@ CInt PlayAllAmbientSoundsOnce(lua_State* L)
 			g_engineAmbientSounds[i]->SetLoop(CFalse);
 
 			g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllAmbientSoundsOnce warning: Couldn't find '%s' ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25108,6 +25441,7 @@ CInt PlayAll3DSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25116,6 +25450,7 @@ CInt PlayAll3DSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -25126,6 +25461,7 @@ CInt PlayAll3DSoundsOnce(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25138,6 +25474,16 @@ CInt PlayAll3DSoundsOnce(lua_State* L)
 			g_engine3DSounds[i]->SetLoop(CFalse);
 
 			g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAll3DSoundsOnce warning: Couldn't find '%s' 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25157,6 +25503,7 @@ CInt PlayAllResourceSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25165,6 +25512,7 @@ CInt PlayAllResourceSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -25180,6 +25528,7 @@ CInt PlayAllResourceSoundsOnce(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25192,6 +25541,16 @@ CInt PlayAllResourceSoundsOnce(lua_State* L)
 			g_resourceFiles[i]->GetSoundSource()->SetLoop(CFalse);
 
 			g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllResourceSoundsOnce warning: Couldn't find '%s' resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25211,6 +25570,7 @@ CInt PlayAllStoppedAmbientSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25219,6 +25579,7 @@ CInt PlayAllStoppedAmbientSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -25229,6 +25590,7 @@ CInt PlayAllStoppedAmbientSoundsOnce(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25244,6 +25606,16 @@ CInt PlayAllStoppedAmbientSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedAmbientSoundsOnce warning: Couldn't find '%s' stopped ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25263,6 +25635,7 @@ CInt PlayAllStopped3DSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25271,6 +25644,7 @@ CInt PlayAllStopped3DSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -25281,6 +25655,7 @@ CInt PlayAllStopped3DSoundsOnce(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25296,6 +25671,16 @@ CInt PlayAllStopped3DSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_engine3DSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStopped3DSoundsOnce warning: Couldn't find '%s' stopped 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25315,6 +25700,7 @@ CInt PlayAllStoppedResourceSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25323,6 +25709,7 @@ CInt PlayAllStoppedResourceSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -25338,6 +25725,7 @@ CInt PlayAllStoppedResourceSoundsOnce(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25353,6 +25741,16 @@ CInt PlayAllStoppedResourceSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALStoppedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllStoppedResourceSoundsOnce warning: Couldn't find '%s' stopped resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25372,6 +25770,7 @@ CInt PlayAllPausedAmbientSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25380,6 +25779,7 @@ CInt PlayAllPausedAmbientSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -25390,6 +25790,7 @@ CInt PlayAllPausedAmbientSoundsOnce(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25405,6 +25806,16 @@ CInt PlayAllPausedAmbientSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedAmbientSoundsOnce warning: Couldn't find '%s' paused ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25424,6 +25835,7 @@ CInt PlayAllPaused3DSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25432,6 +25844,7 @@ CInt PlayAllPaused3DSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -25442,6 +25855,7 @@ CInt PlayAllPaused3DSoundsOnce(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25457,6 +25871,16 @@ CInt PlayAllPaused3DSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPaused3DSoundsOnce warning: Couldn't find '%s' paused 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25476,6 +25900,7 @@ CInt PlayAllPausedResourceSoundsOnce(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25484,6 +25909,7 @@ CInt PlayAllPausedResourceSoundsOnce(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -25499,6 +25925,7 @@ CInt PlayAllPausedResourceSoundsOnce(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25514,6 +25941,16 @@ CInt PlayAllPausedResourceSoundsOnce(lua_State* L)
 
 				g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 			}
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPlayAllPausedResourceSoundsOnce warning: Couldn't find '%s' paused resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25534,6 +25971,7 @@ CInt PauseAllSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25542,6 +25980,7 @@ CInt PauseAllSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -25552,6 +25991,7 @@ CInt PauseAllSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25572,6 +26012,7 @@ CInt PauseAllSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25597,6 +26038,7 @@ CInt PauseAllSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25606,6 +26048,16 @@ CInt PauseAllSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAllSounds warning: Couldn't find '%s' sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25625,6 +26077,7 @@ CInt PauseAllAmbientSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25633,6 +26086,7 @@ CInt PauseAllAmbientSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -25643,6 +26097,7 @@ CInt PauseAllAmbientSounds(lua_State* L)
 			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25652,6 +26107,16 @@ CInt PauseAllAmbientSounds(lua_State* L)
 		if (g_engineAmbientSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAllAmbientSounds warning: Couldn't find '%s' ambient sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25671,6 +26136,7 @@ CInt PauseAll3DSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25679,6 +26145,7 @@ CInt PauseAll3DSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
@@ -25689,6 +26156,7 @@ CInt PauseAll3DSounds(lua_State* L)
 			if (Cmp(g_engine3DSounds[i]->GetName(), m_soundexception[j].c_str()))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25698,6 +26166,16 @@ CInt PauseAll3DSounds(lua_State* L)
 		if (g_engine3DSounds[i]->GetSoundSource())
 		{
 			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAll3DSounds warning: Couldn't find '%s' 3D sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -25717,6 +26195,7 @@ CInt PauseAllResourceSounds(lua_State* L)
 	}
 
 	std::vector<std::string> m_soundexception;
+	std::vector<CBool>m_foundSoundException;
 
 	int argc = lua_gettop(L);
 
@@ -25725,6 +26204,7 @@ CInt PauseAllResourceSounds(lua_State* L)
 		CChar name[MAX_NAME_SIZE];
 		Cpy(name, lua_tostring(L, n));
 		m_soundexception.push_back(name);
+		m_foundSoundException.push_back(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
@@ -25740,6 +26220,7 @@ CInt PauseAllResourceSounds(lua_State* L)
 			if (Cmp(g_resourceFiles[i]->GetName(), currentName))
 			{
 				foundException = CTrue;
+				m_foundSoundException[j] = CTrue;
 				break;
 			}
 		}
@@ -25749,6 +26230,16 @@ CInt PauseAllResourceSounds(lua_State* L)
 		if (g_resourceFiles[i]->GetSoundSource())
 		{
 			g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+
+	for (CUInt i = 0; i < m_foundSoundException.size(); i++)
+	{
+		if (!m_foundSoundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAllResourceSounds warning: Couldn't find '%s' resource sound", m_soundexception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
 
@@ -26350,9 +26841,6 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point)
 	GetCursorPos(&m_point);
 	m_dx = m_prev_dx = m_point.x;
 	m_dy = m_prev_dy = m_point.y;
-
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
-		return;
 
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
@@ -27124,8 +27612,9 @@ CVoid CMultipleWindows::EnableTimer(CBool enable)
 
 CVoid CMultipleWindows::OnRButtonDown(UINT nFlags, CPoint point)
 {
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
-		return;
+	GetCursorPos(&m_point);
+	m_dx = m_prev_dx = m_point.x;
+	m_dy = m_prev_dy = m_point.y;
 
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
@@ -27218,9 +27707,6 @@ CVoid CMultipleWindows::OnRButtonUp(UINT nFlags, CPoint point)
 
 CVoid CMultipleWindows::OnMButtonDown(UINT nFlags, CPoint point)
 {
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
-		return;
-
 	m_mMouseDown = CTrue;
 	if (!m_isPlayingGame)
 		OnLButtonDown(nFlags, point);
@@ -27240,9 +27726,6 @@ CVoid CMultipleWindows::OnMButtonUp(UINT nFlags, CPoint point)
 
 CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_renderVideo)
-		return;
-
 	if (g_editorMode == eMODE_GUI && g_multipleView->IsPlayGameMode())
 	{
 		m_mousePosition = point;
@@ -27603,6 +28086,11 @@ CVoid CMultipleWindows::DrawGUIMode()
 
 	CVec2f pos; pos.x = 0.0f; pos.y = 0.0f;
 
+	//GUI mode does not support multiple viewports, so temprary set viewport to one viewport that covers whole window
+	CBool m_justPerspective = g_menu.m_justPerspective;
+	g_menu.m_justPerspective = CTrue;
+	///////
+
 	for (CUInt k = 0; k < g_guiImages.size(); k++)
 	{
 		g_guiImages[k]->Render(pos);
@@ -27615,6 +28103,7 @@ CVoid CMultipleWindows::DrawGUIMode()
 	{
 		g_guiTexts[k]->Render(pos);
 	}
+	g_menu.m_justPerspective = m_justPerspective;
 
 	glPopAttrib();
 
@@ -28205,33 +28694,30 @@ CVoid CMultipleWindows::DrawPerspective()
 	g_numVerts = 0; //debug info
 
 	//Update timer
-	if (!g_currentVSceneProperties.m_isPause)
-	{
-		if (!m_selectObject)
-			elapsedTime = timer.GetElapsedSeconds();
-		else
-			elapsedTime = timer.GetElapsedSeconds(CTrue); //start from the beginning
+	if (!m_selectObject)
+		elapsedTime = timer.GetElapsedSeconds();
+	else
+		elapsedTime = timer.GetElapsedSeconds(CTrue); //start from the beginning
 
-		//if (elapsedTime > (1.0f / 60.0f))
-		//{
-		//	CFloat elapsed;
-		//	CInt steps = 1;
+	//if (elapsedTime > (1.0f / 60.0f))
+	//{
+	//	CFloat elapsed;
+	//	CInt steps = 1;
 
-		//	steps = (CInt)roundf(elapsedTime / (1.0f / 60.0f));
+	//	steps = (CInt)roundf(elapsedTime / (1.0f / 60.0f));
 
-		//	elapsed = (CFloat)steps * (1.0f / 60.0f);
-		//	gPhysXscene->setTiming(1.0f / 60.0f, steps, NX_TIMESTEP_FIXED);
+	//	elapsed = (CFloat)steps * (1.0f / 60.0f);
+	//	gPhysXscene->setTiming(1.0f / 60.0f, steps, NX_TIMESTEP_FIXED);
 
-		//	elapsedTime = elapsed;
-		//}
-		//else
-		//{
-		gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
-		//}
+	//	elapsedTime = elapsed;
+	//}
+	//else
+	//{
+	gPhysXscene->setTiming(1.0f / 60.0f, 8, NX_TIMESTEP_FIXED);
+	//}
 
-		g_elapsedTime = elapsedTime;
-		m_totalElapsedTime += elapsedTime;
-	}
+	g_elapsedTime = elapsedTime;
+	m_totalElapsedTime += elapsedTime;
 
 	//manage videos here
 	CBool renderVideo = CFalse;
@@ -28252,7 +28738,7 @@ CVoid CMultipleWindows::DrawPerspective()
 			if (result)
 			{
 				if (!m_translationController->Initialized())
-					m_inputSystem->Update();
+					ProcessInputs();
 
 				if (g_engineVideos[i]->GetExitWithEscKey() && m_inputSystem->KeyDown(DIK_ESCAPE))
 				{
@@ -28311,7 +28797,10 @@ CVoid CMultipleWindows::DrawPerspective()
 	if (!m_translationController->Initialized())
 		ProcessInputs();
 
-	UpdateCharacterTransformations();
+	if (!g_currentVSceneProperties.m_isPause)
+	{
+		UpdateCharacterTransformations();
+	}
 
 	if (IsPlayGameMode() && !g_currentVSceneProperties.m_isPause)
 	{
@@ -28637,37 +29126,6 @@ CVoid CMultipleWindows::DrawPerspective()
 		m_isMenu = CTrue;
 	else
 		m_isMenu = CFalse;
-
-
-	//Pause Sounds
-	if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
-	{
-		if (g_mainCharacter)
-		{
-			g_soundSystem->PauseALSound(*(g_mainCharacter->m_walkSound->GetSoundSource()));
-			g_soundSystem->PauseALSound(*(g_mainCharacter->m_runSound->GetSoundSource()));
-			g_soundSystem->PauseALSound(*(g_mainCharacter->m_jumpSound->GetSoundSource()));
-		}
-		//resource sounds
-		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
-		{
-			if (g_resourceFiles[i]->GetSoundSource())
-			{
-				g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
-			}
-		}
-
-		//3D sounds
-		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-		{
-			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-		}
-
-		//ambient sound
-		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-
-	}
 
 	if (m_selectObject)
 	{
@@ -29635,6 +30093,7 @@ CVoid CMultipleWindows::RenderWindow()
 	else
 	{
 		DrawPerspective();
+
 		if (!g_menu.m_justPerspective)
 		{
 			CPolygonMode tempMode = g_polygonMode;
@@ -32463,7 +32922,7 @@ CVoid CMultipleWindows::Render3DAnimatedModelsForWater(CWater* water, CBool scen
 		if (!g_render.GetScene()->m_isTrigger)
 		{
 			CBool update = CTrue;
-			if (g_currentVSceneProperties.m_isMenu && g_currentVSceneProperties.m_isPause)
+			if (g_currentVSceneProperties.m_isPause)
 				update = CFalse;
 			if (update)
 			{

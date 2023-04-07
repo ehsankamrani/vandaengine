@@ -137,6 +137,9 @@ CBool CNovodex::initNx( CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChar
 
 CVoid CNovodex::runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveDirection, CFloat elapsedTime )
 {
+	if (g_currentVSceneProperties.m_isPause)
+		return;
+
 	if( gPhysXscene )
 	{
 		// Update the box character's position according to by testing its

@@ -22,7 +22,7 @@
 
 class COpenALSoundBuffer;
 //Edition.MaxVersion.MinVersion.BugFixes;
-CInt g_version = 220;
+CInt g_version = 221;
 CChar g_edition[MAX_NAME_SIZE];
 CScene* g_currentScene = NULL;
 CInstancePrefab* g_currentInstancePrefab = NULL;
