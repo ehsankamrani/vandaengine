@@ -1399,59 +1399,6 @@ CInt LoadVScene(lua_State *L)
 	return 0;
 }
 
-CInt SetCurrentVSceneAsMenu(lua_State* L)
-{
-	//if (g_testScript)
-	//	return 0;
-
-	int argc = lua_gettop(L);
-	if (argc < 3)
-	{
-		//PrintInfo("\nPlease specify 3 arguments for SetCurrentVSceneAsMenu()", COLOR_RED);
-		return 0;
-	}
-	CInt menuResult;
-	CBool menu = CFalse;
-	menuResult = lua_toboolean(L, 1); //true or false
-	if (menuResult)
-		menu = CTrue;
-	else
-		menu = CFalse;
-	g_currentVSceneProperties.m_isMenu = menu;
-
-	CInt pauseResult;
-	CBool pause;
-	pauseResult = lua_toboolean(L, 2); //true or false
-	if (pauseResult)
-		pause = CTrue;
-	else
-		pause = CFalse;
-	g_currentVSceneProperties.m_isPause = pause;
-	if (!g_currentVSceneProperties.m_isPause)
-	{
-		g_timer->GetElapsedSeconds(CTrue);
-
-		for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
-		{
-			NxActor* currentActor = gPhysXscene->getActors()[i];
-			if (currentActor->isSleeping())
-				currentActor->wakeUp();
-		}
-		g_nx->gControllers->reportSceneChanged();
-	}
-
-	if (g_currentVSceneProperties.m_isMenu)
-	{
-		CInt size;
-		size = lua_tointeger(L, 3);
-		g_currentVSceneProperties.m_cursorSize = size;
-		g_main->m_mousePosition.x = (CFloat)g_width / 2.f;
-		g_main->m_mousePosition.y = (CFloat)g_height / 2.f;
-	}
-
-	return 0;
-}
-
 CInt ExitGame(lua_State *L)
 {
 	g_main->SetExitGame(CTrue);
@@ -3581,10 +3528,10 @@ CInt GetElapsedTime(lua_State* L)
 	return 1;
 }
 
-CInt IsMenuEnabled(lua_State* L)
+CInt IsCharacterControllerLocked(lua_State* L)
 {
-	CBool isMenu = g_currentVSceneProperties.m_isMenu;
-	if (isMenu)
+	CBool isCharacterControlledLocked = g_currentVSceneProperties.m_lockCharacterController;
+	if (isCharacterControlledLocked)
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -16756,6 +16703,156 @@ CInt PauseAllResourceSounds(lua_State* L)
 }
 
 
+//Pause game 
+CInt PauseGame(lua_State* L)
+{
+	g_currentVSceneProperties.m_pauseGame = CTrue;
+	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+	//pause all sounds of current VScene
+	g_main->PauseSounds();
+
+	return 0;
+}
+
+CInt PauseAllAnimationsOfPrefabInstances(lua_State* L)
+{
+	g_main->m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	return 0;
+}
+
+CInt PauseMainCharacterAnimations(lua_State* L)
+{
+	g_main->m_pauseMainCharacterAnimations = CTrue;
+	return 0;
+}
+
+CInt PausePhysics(lua_State* L)
+{
+	g_main->m_pausePhysics = CTrue;
+	return 0;
+}
+
+CInt PauseAllWaters(lua_State* L)
+{
+	g_main->m_pauseAllWaters = CTrue;
+	return 0;
+}
+
+//resume game
+CInt ResumeGame(lua_State* L)
+{
+	g_currentVSceneProperties.m_pauseGame = CFalse;
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	g_timer->GetElapsedSeconds(CTrue);
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+	g_nx->gControllers->reportSceneChanged();
+
+	//resume all sounds of current VScene
+	g_main->ResumeSounds();
+
+	return 0;
+}
+
+CInt ResumeAllAnimationsOfPrefabInstances(lua_State* L)
+{
+	g_main->m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	return 0;
+}
+
+CInt ResumeMainCharacterAnimations(lua_State* L)
+{
+	g_main->m_pauseMainCharacterAnimations = CFalse;
+	return 0;
+}
+
+CInt ResumePhysics(lua_State* L)
+{
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+	g_nx->gControllers->reportSceneChanged();
+
+	g_main->m_pausePhysics = CFalse;
+
+	return 0;
+}
+
+CInt ResumeAllWaters(lua_State* L)
+{
+	g_main->m_pauseAllWaters = CFalse;
+	return 0;
+}
+
+//lock/unlock character
+CInt LockCharacterController(lua_State* L)
+{
+	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+
+	return 0;
+}
+
+CInt UnlockCharacterController(lua_State* L)
+{
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+
+	return 0;
+}
+
+//show/hide menu cursor
+CInt ShowMenuCursor(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc > 0)
+	{
+		CInt size;
+		size = lua_tointeger(L, 1);
+		g_currentVSceneProperties.m_menuCursorSize = size;
+	}
+
+	g_main->m_mousePosition.x = (CFloat)g_width / 2.f;
+	g_main->m_mousePosition.y = (CFloat)g_height / 2.f;
+
+	g_main->m_showMenuCursor = CTrue;
+
+	return 0;
+}
+
+CInt HideMenuCursor(lua_State* L)
+{
+	g_main->m_showMenuCursor = CFalse;
+
+	return 0;
+}
+
+CInt SetMenuCursorSize(lua_State* L)
+{
+	int argc = lua_gettop(L);
+
+	if (argc > 0)
+	{
+		CInt size;
+		size = lua_tointeger(L, 1);
+		g_currentVSceneProperties.m_menuCursorSize = size;
+	}
+	return 0;
+}
+
+CInt GetMenuCursorSize(lua_State* L)
+{
+	lua_pushinteger(L, g_currentVSceneProperties.m_menuCursorSize);
+	return 1;
+}
+
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
 
@@ -16803,6 +16900,12 @@ CMain::CMain()
 	m_dx = m_dy = m_prev_dx = m_prev_dy = 0;
 	m_padding = 0;
 	m_renderVideo = CFalse;
+
+	m_showMenuCursor = CFalse;
+	m_pauseMainCharacterAnimations = CFalse;
+	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	m_pausePhysics = CFalse;
+	m_pauseAllWaters = CFalse;
 }
 
 CMain::~CMain()
@@ -17444,7 +17547,7 @@ CBool CMain::Render()
 		m_lockEscape = CFalse;
 	///////////////////////
 
-	if (!g_currentVSceneProperties.m_isPause)
+	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseAllAnimationsOfPrefabInstances)
 	{
 		UpdatePrefabInstanceTransformations();
 
@@ -17464,14 +17567,14 @@ CBool CMain::Render()
 			return CFalse;
 	}
 
-	if (!g_currentVSceneProperties.m_isPause)
+	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseMainCharacterAnimations)
 	{
 		UpdateCharacterTransformations();
 	}
 
 	if (GetExitGame()) return CFalse; //exit game 
 
-	if (!g_currentVSceneProperties.m_isPause)
+	if (!g_currentVSceneProperties.m_pauseGame && !m_pausePhysics)
 	{
 		UpdateDynamicPhysicsObjects();
 	}
@@ -18670,7 +18773,7 @@ CBool CMain::ProcessInputs()
 	//if (g_input.KeyUp(DIK_ESCAPE))
 	//	bEscapeDown = CFalse;
 
-	if (g_currentVSceneProperties.m_isMenu)
+	if (m_showMenuCursor)
 	{
 		//deprecate
 		//CInt dx, dy;
@@ -18777,9 +18880,12 @@ CBool CMain::ProcessInputs()
 		if (g_main->m_mousePosition.y < 0.0f) g_main->m_mousePosition.y = 0.0f;
 		else if (g_main->m_mousePosition.y > g_height) g_main->m_mousePosition.y = g_height;
 
+	}
+
+	if (g_currentVSceneProperties.m_lockCharacterController)
+	{
 		ApplyForce(IDLE, elapsedTime);
 		EnableIdleAnimations();
-
 		return CTrue;
 	}
 
@@ -20351,7 +20457,14 @@ CBool CMain::Load(CChar* pathName)
 	fread(&g_instancePrefabLODPercent, sizeof(CLODProperties), 1, filePtr);
 	fread(&g_cameraProperties, sizeof(CCameraProperties), 1, filePtr);
 	fread(&g_currentVSceneProperties, sizeof(CCurrentVSceneProperties), 1, filePtr);
-
+	if (engine_version >= 230)
+	{
+		fread(&g_main->m_showMenuCursor, sizeof(CBool), 1, filePtr);
+		fread(&g_main->m_pauseMainCharacterAnimations, sizeof(CBool), 1, filePtr);
+		fread(&g_main->m_pauseAllAnimationsOfPrefabInstances, sizeof(CBool), 1, filePtr);
+		fread(&g_main->m_pausePhysics, sizeof(CBool), 1, filePtr);
+		fread(&g_main->m_pauseAllWaters, sizeof(CBool), 1, filePtr);
+	}
 	//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 	fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 	CBool demo;
@@ -21535,6 +21648,8 @@ CBool CMain::Load(CChar* pathName)
 		CBool videoHasScript;
 		CChar videoScript[MAX_NAME_SIZE];
 		CBool ExitEscKey = CTrue;
+		CBool pauseGameWhenStarting = CTrue;
+		CBool resumeGameWhenFinished = CTrue;
 		CBool PlayAudio = CTrue;
 
 		fread(strVideoName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -21547,6 +21662,11 @@ CBool CMain::Load(CChar* pathName)
 		{
 			fread(&ExitEscKey, sizeof(CBool), 1, filePtr);
 			fread(&PlayAudio, sizeof(CBool), 1, filePtr);
+		}
+		if (engine_version >= 230)
+		{
+			fread(&pauseGameWhenStarting, sizeof(CBool), 1, filePtr);
+			fread(&resumeGameWhenFinished, sizeof(CBool), 1, filePtr);
 		}
 		fread(&videoHasScript, sizeof(CBool), 1, filePtr);
 		fread(&videoScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -21577,6 +21697,8 @@ CBool CMain::Load(CChar* pathName)
 		video->SetLoop(loopVideo);
 		video->SetPlay(playVideo);
 		video->SetExitWithEscKey(ExitEscKey);
+		video->SetPauseGameWhenStarting(pauseGameWhenStarting);
+		video->SetResumeGameWhenFinished(resumeGameWhenFinished);
 		video->SetPlayAudio(PlayAudio);
 		video->SetVideoFileName(strVideoFileName);
 		video->SetHasScript(videoHasScript);
@@ -22163,7 +22285,7 @@ CBool CMain::Load(CChar* pathName)
 
 	fclose( filePtr );
 
-	//if (g_currentVSceneProperties.m_isMenu)
+	//if (m_showMenuCursor)
 	//{
 		//Load Cursor Icon
 		CChar cursorPath[MAX_NAME_SIZE];
@@ -23130,7 +23252,7 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 		if (!g_render.GetScene()->m_isTrigger)
 		{
 			CBool update = CTrue;
-			if (g_currentVSceneProperties.m_isPause)
+			if (g_currentVSceneProperties.m_pauseGame || m_pauseAllAnimationsOfPrefabInstances)
 				update = CFalse;
 			if (update)
 			{
@@ -23719,9 +23841,9 @@ CVoid CMain::DrawGUI()
 		}
 
 		//Draw Cursor
-		if (g_currentVSceneProperties.m_isMenu && !g_main->GetCursorIcon()->GetVisible())
+		if (m_showMenuCursor && !g_main->GetCursorIcon()->GetVisible())
 		{
-			CFloat cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_width) / 100.0f;
+			CFloat cursorSize = ((CFloat)g_currentVSceneProperties.m_menuCursorSize * (CFloat)g_width) / 100.0f;
 			CFloat halfCursorSize = cursorSize / 2.0f;
 			glUseProgram(0);
 			glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
@@ -25046,5 +25168,57 @@ CVoid CMain::GetMouseMovement()
 
 		m_prev_dx = m_point.x;
 		m_prev_dy = m_point.y;
+	}
+}
+
+CVoid CMain::PauseSounds()
+{
+	//pause all sounds as well
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+}
+
+CVoid CMain::ResumeSounds()
+{
+	//pause all sounds as well
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
 	}
 }

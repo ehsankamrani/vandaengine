@@ -28,18 +28,22 @@ void CEditCurrentSceneOptions::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT_BANNER, m_editBoxBanner);
-	DDX_Control(pDX, IDC_CHECKBOX_SETASMENU, m_checkboxSetMenu);
 	DDX_Control(pDX, IDC_EDIT_CURSOR_ICON, m_editBoxCursorIcon);
 	DDX_Control(pDX, IDC_BTN_LOADING_CURSOR_ICON, m_btnCursorIcon);
 	DDX_Control(pDX, IDC_EDIT_CURSOR_PERCENT, m_editBoxCursorSize);
 	DDX_Control(pDX, IDC_EDIT_GLOBAL_SOUND_VOLUME, m_editBoxGlobalSoundVolume);
+	DDX_Control(pDX, IDC_CHECKBOX_SHOW__CURSOR, m_checkShowCursor);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_MAIN_CHARACTER_ANIMATIONS, m_checkPauseMainCharacterAnimations);
+	DDX_Control(pDX, IDC_CHECKBOX_LOCK_CHARACTER_CONTROLLER, m_checkLockCharacterController);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_ALL_PREFAB_INSTANCE_ANIMATIONS, m_checkPauseAllAnimationsOfPrefabInstances);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_PHYSICS, m_checkPausePhysics);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_WATERS, m_checkPauseAllWaters);
 }
 
 
 BEGIN_MESSAGE_MAP(CEditCurrentSceneOptions, CDialog)
 	ON_BN_CLICKED(IDC_BTN_LOADING_BANNER, &CEditCurrentSceneOptions::OnBnClickedBtnLoadingBanner)
 	ON_BN_CLICKED(IDC_BTN_LOADING_CURSOR_ICON, &CEditCurrentSceneOptions::OnBnClickedBtnLoadingCursorIcon)
-	ON_BN_CLICKED(IDC_CHECKBOX_SETASMENU, &CEditCurrentSceneOptions::OnBnClickedCheckboxSetasmenu)
 	ON_EN_CHANGE(IDC_EDIT_CURSOR_PERCENT, &CEditCurrentSceneOptions::OnEnChangeEditCursorPercent)
 	ON_EN_CHANGE(IDC_EDIT_GLOBAL_SOUND_VOLUME, &CEditCurrentSceneOptions::OnEnChangeEditGlobalSoundVolume)
 END_MESSAGE_MAP()
@@ -69,24 +73,62 @@ BOOL CEditCurrentSceneOptions::OnInitDialog()
 	m_editBoxBanner.SetWindowTextA(g_sceneBanner.GetBannerPath());
 	m_editBoxBanner.GetWindowTextA(m_strBanner);
 
-	if (g_currentVSceneProperties.m_isMenu)
+	if (g_currentVSceneProperties.m_lockCharacterController)
 	{
-		m_checkboxSetMenu.SetCheck(BST_CHECKED);
-		//m_editBoxCursorIcon.EnableWindow();
-		//m_btnCursorIcon.EnableWindow();
-		m_editBoxCursorSize.EnableWindow();
+		m_checkLockCharacterController.SetCheck(BST_CHECKED);
 	}
 	else
 	{
-		m_checkboxSetMenu.SetCheck(BST_UNCHECKED);
-		//m_editBoxCursorIcon.EnableWindow(0);
-		//m_btnCursorIcon.EnableWindow(0);
-		//m_editBoxCursorIcon.SetWindowTextA("");
-		m_editBoxCursorSize.EnableWindow(0);
+		m_checkLockCharacterController.SetCheck(BST_UNCHECKED);
 	}
 
-	m_cursorSize = g_currentVSceneProperties.m_cursorSize;
-	m_strCursorSize.Format("%d", m_cursorSize);
+	if (g_multipleView->m_pauseAllAnimationsOfPrefabInstances)
+	{
+		m_checkPauseAllAnimationsOfPrefabInstances.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkPauseAllAnimationsOfPrefabInstances.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_multipleView->m_pauseMainCharacterAnimations)
+	{
+		m_checkPauseMainCharacterAnimations.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkPauseMainCharacterAnimations.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_multipleView->m_pausePhysics)
+	{
+		m_checkPausePhysics.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkPausePhysics.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_multipleView->m_pauseAllWaters)
+	{
+		m_checkPauseAllWaters.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkPauseAllWaters.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_multipleView->m_showMenuCursor)
+	{
+		m_checkShowCursor.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkShowCursor.SetCheck(BST_UNCHECKED);
+	}
+
+	m_menuCursorSize = g_currentVSceneProperties.m_menuCursorSize;
+	m_strCursorSize.Format("%d", m_menuCursorSize);
 	m_editBoxCursorSize.SetWindowTextA(m_strCursorSize);
 
 	m_fGlobalSoundVolume = g_currentVSceneProperties.m_globalSoundVolume;
@@ -116,15 +158,12 @@ void CEditCurrentSceneOptions::OnOK()
 		}
 	}
 
-	CInt checkState;
-	checkState = m_checkboxSetMenu.GetCheck();
-
-	if (checkState == BST_CHECKED && m_strCursorImage.IsEmpty())
+	if (m_strCursorImage.IsEmpty())
 	{
 		MessageBox("Please Choose Cursor Icon", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
-	if (checkState == BST_CHECKED && m_strCursorSize.IsEmpty())
+	if (m_strCursorSize.IsEmpty())
 	{
 		MessageBox("Please Fill In Cursor Size", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
@@ -142,7 +181,7 @@ void CEditCurrentSceneOptions::OnOK()
 		return;
 	}
 
-	if (m_cursorSize < 0.0f)
+	if (m_menuCursorSize < 0.0f)
 	{
 		MessageBox("Cursor size must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
@@ -156,14 +195,67 @@ void CEditCurrentSceneOptions::OnOK()
 
 	g_currentVSceneProperties.m_globalSoundVolume = m_fGlobalSoundVolume;
 
+	g_currentVSceneProperties.m_menuCursorSize = m_menuCursorSize;
+
+	CInt checkState;
+	checkState = m_checkLockCharacterController.GetCheck();
 	if (checkState == BST_CHECKED)
 	{
-		g_currentVSceneProperties.m_isMenu = CTrue;
-		g_currentVSceneProperties.m_cursorSize = m_cursorSize;
+		g_currentVSceneProperties.m_lockCharacterController = CTrue;
 	}
 	else
 	{
-		g_currentVSceneProperties.m_isMenu = CFalse;
+		g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	}
+
+	checkState = m_checkPauseAllAnimationsOfPrefabInstances.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	}
+
+	checkState = m_checkPauseMainCharacterAnimations.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_pauseMainCharacterAnimations = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_pauseMainCharacterAnimations = CFalse;
+	}
+
+	checkState = m_checkPausePhysics.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_pausePhysics = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_pausePhysics = CFalse;
+	}
+
+	checkState = m_checkPauseAllWaters.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_pauseAllWaters = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_pauseAllWaters = CFalse;
+	}
+
+	checkState = m_checkShowCursor.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_showMenuCursor = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_showMenuCursor = CFalse;
 	}
 
 	//Save Cursor Image
@@ -212,32 +304,10 @@ void CEditCurrentSceneOptions::OnBnClickedBtnLoadingCursorIcon()
 	}
 }
 
-
-void CEditCurrentSceneOptions::OnBnClickedCheckboxSetasmenu()
-{
-	CInt checkState;
-	checkState = m_checkboxSetMenu.GetCheck();
-	if (checkState == BST_CHECKED)
-	{
-		g_currentVSceneProperties.m_isMenu = CTrue;
-		//m_editBoxCursorIcon.EnableWindow();
-		//m_btnCursorIcon.EnableWindow();
-		m_editBoxCursorSize.EnableWindow();
-	}
-	else
-	{
-		g_currentVSceneProperties.m_isMenu = CFalse;
-		//m_editBoxCursorIcon.EnableWindow(0);
-		//m_btnCursorIcon.EnableWindow(0);
-		m_editBoxCursorSize.EnableWindow(0);
-	}
-}
-
-
 void CEditCurrentSceneOptions::OnEnChangeEditCursorPercent()
 {
 	m_editBoxCursorSize.GetWindowTextA(m_strCursorSize);
-	m_cursorSize = atoi(m_strCursorSize);
+	m_menuCursorSize = atoi(m_strCursorSize);
 }
 
 

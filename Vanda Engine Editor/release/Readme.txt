@@ -1,4 +1,4 @@
-Vanda Engine 2.2.1
+Vanda Engine 2.3.0
 Copyright (C) 2023 Ehsan Kamrani
 
 www.vanda3d.org

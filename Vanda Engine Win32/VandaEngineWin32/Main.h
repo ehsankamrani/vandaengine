@@ -231,8 +231,18 @@ public:
 	CBool DoesGeometryInstanceIntersectsWater(CInstanceGeometry* geometryInstance, CWater* water);
 	CVoid GetMouseMovement();
 
+	CVoid PauseSounds();
+	CVoid ResumeSounds();
+
 	//mouse movements
 	CInt m_dx, m_dy;
 	CInt m_prev_dx, m_prev_dy;
 	POINT m_point;
+
+	///////////
+	CBool m_showMenuCursor;
+	CBool m_pauseMainCharacterAnimations;
+	CBool m_pauseAllAnimationsOfPrefabInstances;
+	CBool m_pausePhysics;
+	CBool m_pauseAllWaters;
 };

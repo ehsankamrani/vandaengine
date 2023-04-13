@@ -35,7 +35,6 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(LoadVScene, "LoadVScene(string VSceneName)");
 	Cpy(ExitGame, "ExitGame()");
-	Cpy(SetCurrentVSceneAsMenu, "SetCurrentVSceneAsMenu(bool isMenu, bool pauseGame, float cursorSize)");
 
 	Cpy(ActivateThirdPersonCamera, "ActivateThirdPersonCamera()");
 	Cpy(ActivateFirstPersonCamera, "ActivateFirstPersonCamera()");
@@ -80,7 +79,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetScreenHeight, "GetScreenHeight()");
 	Cpy(GetCursorX, "GetCursorX()");
 	Cpy(GetCursorY, "GetCursorY()");
-	Cpy(IsMenuEnabled, "IsMenuEnabled()");
+	Cpy(IsCharacterControllerLocked, "IsCharacterControllerLocked()");
 	Cpy(GetElapsedTime, "GetElapsedTime()");
 	Cpy(GetPrefabInstanceNameFromActor, "GetPrefabInstanceNameFromActor(string physicsActorName)");
 
@@ -412,6 +411,29 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(PauseAll3DSounds, "PauseAll3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseAllResourceSounds, "PauseAllResourceSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
+	//Pause game 
+	Cpy(PauseGame, "PauseGame()");
+	Cpy(PauseAllAnimationsOfPrefabInstances, "PauseAllAnimationsOfPrefabInstances()");
+	Cpy(PauseMainCharacterAnimations, "PauseMainCharacterAnimations()");
+	Cpy(PausePhysics, "PausePhysics()");
+	Cpy(PauseAllWaters, "PauseAllWaters()");
+
+	//resume game
+	Cpy(ResumeGame, "ResumeGame()");
+	Cpy(ResumeAllAnimationsOfPrefabInstances, "ResumeAllAnimationsOfPrefabInstances()");
+	Cpy(ResumeMainCharacterAnimations, "ResumeMainCharacterAnimations()");
+	Cpy(ResumePhysics, "ResumePhysics()");
+	Cpy(ResumeAllWaters, "ResumeAllWaters()");
+
+	//lock/unlock character
+	Cpy(LockCharacterController, "LockCharacterController()");
+	Cpy(UnlockCharacterController, "UnlockCharacterController()");
+	//menu cursor
+	Cpy(ShowMenuCursor, "ShowMenuCursor([optional] int cursorSize)");
+	Cpy(HideMenuCursor, "HideMenuCursor()");
+	Cpy(SetMenuCursorSize, "SetMenuCursorSize(int cursorSize)");
+	Cpy(GetMenuCursorSize, "GetMenuCursorSize()");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -530,10 +552,6 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "ExitGame"))
 		{
 			m_richFunctionName.SetWindowTextA(ExitGame);
-		}
-		else if (Cmp(szBuffer, "SetCurrentVSceneAsMenu"))
-		{
-			m_richFunctionName.SetWindowTextA(SetCurrentVSceneAsMenu);
 		}
 		else if (Cmp(szBuffer, "ActivateThirdPersonCamera"))
 		{
@@ -683,9 +701,9 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetCursorY);
 		}
-		else if (Cmp(szBuffer, "IsMenuEnabled"))
+		else if (Cmp(szBuffer, "IsCharacterControllerLocked"))
 		{
-			m_richFunctionName.SetWindowTextA(IsMenuEnabled);
+			m_richFunctionName.SetWindowTextA(IsCharacterControllerLocked);
 		}
 		else if (Cmp(szBuffer, "GetPrefabInstanceNameFromActor"))
 		{
@@ -1826,6 +1844,71 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(PauseAllResourceSounds);
 		}
+		else if (Cmp(szBuffer, "PauseGame"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseGame);
+		}
+		else if (Cmp(szBuffer, "PauseAllAnimationsOfPrefabInstances"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAllAnimationsOfPrefabInstances);
+		}
+		else if (Cmp(szBuffer, "PauseMainCharacterAnimations"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseMainCharacterAnimations);
+		}
+		else if (Cmp(szBuffer, "PausePhysics"))
+		{
+			m_richFunctionName.SetWindowTextA(PausePhysics);
+		}
+		else if (Cmp(szBuffer, "PauseAllWaters"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAllWaters);
+		}
+		else if (Cmp(szBuffer, "ResumeGame"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeGame);
+		}
+		else if (Cmp(szBuffer, "ResumeAllAnimationsOfPrefabInstances"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeAllAnimationsOfPrefabInstances);
+		}
+		else if (Cmp(szBuffer, "ResumeMainCharacterAnimations"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeMainCharacterAnimations);
+		}
+		else if (Cmp(szBuffer, "ResumePhysics"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumePhysics);
+		}
+		else if (Cmp(szBuffer, "ResumeAllWaters"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeAllWaters);
+		}
+		else if (Cmp(szBuffer, "LockCharacterController"))
+		{
+			m_richFunctionName.SetWindowTextA(LockCharacterController);
+		}
+		else if (Cmp(szBuffer, "UnlockCharacterController"))
+		{
+			m_richFunctionName.SetWindowTextA(UnlockCharacterController);
+		}
+		else if (Cmp(szBuffer, "ShowMenuCursor"))
+		{
+			m_richFunctionName.SetWindowTextA(ShowMenuCursor);
+		}
+		else if (Cmp(szBuffer, "HideMenuCursor"))
+		{
+			m_richFunctionName.SetWindowTextA(HideMenuCursor);
+		}
+		else if (Cmp(szBuffer, "SetMenuCursorSize"))
+		{
+			m_richFunctionName.SetWindowTextA(SetMenuCursorSize);
+		}
+		else if (Cmp(szBuffer, "GetMenuCursorSize"))
+		{
+			m_richFunctionName.SetWindowTextA(GetMenuCursorSize);
+		}
+
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -1874,7 +1957,6 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 
 	InsertItem("LoadVScene");
 	InsertItem("ExitGame");
-	InsertItem("SetCurrentVSceneAsMenu");
 
 	InsertItem("ActivateThirdPersonCamera");
 	InsertItem("ActivateFirstPersonCamera");
@@ -1920,7 +2002,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetScreenHeight");
 	InsertItem("GetCursorX");
 	InsertItem("GetCursorY");
-	InsertItem("IsMenuEnabled");
+	InsertItem("IsCharacterControllerLocked");
 	InsertItem("GetElapsedTime");
 	InsertItem("GetPrefabInstanceNameFromActor");
 
@@ -2249,6 +2331,30 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("PauseAllAmbientSounds");
 	InsertItem("PauseAll3DSounds");
 	InsertItem("PauseAllResourceSounds");
+
+	//Pause game 
+	InsertItem("PauseGame");
+	InsertItem("PauseAllAnimationsOfPrefabInstances");
+	InsertItem("PauseMainCharacterAnimations");
+	InsertItem("PausePhysics");
+	InsertItem("PauseAllWaters");
+
+	//resume game
+	InsertItem("ResumeGame");
+	InsertItem("ResumeAllAnimationsOfPrefabInstances");
+	InsertItem("ResumeMainCharacterAnimations");
+	InsertItem("ResumePhysics");
+	InsertItem("ResumeAllWaters");
+
+	//lock/unlock character
+	InsertItem("LockCharacterController");
+	InsertItem("UnlockCharacterController");
+
+	//menu cursor
+	InsertItem("ShowMenuCursor");
+	InsertItem("HideMenuCursor");
+	InsertItem("SetMenuCursorSize");
+	InsertItem("GetMenuCursorSize");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

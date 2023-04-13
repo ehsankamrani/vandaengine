@@ -2508,71 +2508,6 @@ CInt LoadVScene(lua_State* L)
 	return 0;
 }
 
-//first argument: true or false
-//second argument: pause or resume VScene (true: pause, false: resume)
-//third argument: size of cursor- If first argument if false, this argument is ignored
-
-CInt SetCurrentVSceneAsMenu(lua_State* L)
-{
-	if (g_testScript)
-		return 0;
-
-	int argc = lua_gettop(L);
-	if (argc < 3)
-	{
-		PrintInfo("\nPlease specify 3 arguments for SetCurrentVSceneAsMenu()", COLOR_RED);
-		return 0;
-	}
-	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
-	{
-		PrintInfo("\nSetCurrentVSceneAsMenu() will be executed for current VScene", COLOR_GREEN);
-		return 0;
-
-	}
-
-	CInt menuResult;
-	CBool menu = CFalse;
-	menuResult = lua_toboolean(L, 1); //true or false
-	if (menuResult)
-		menu = CTrue;
-	else
-		menu = CFalse;
-	g_currentVSceneProperties.m_isMenu = menu;
-	g_multipleView->m_isMenu = menu;
-
-	CInt pauseResult;
-	CBool pause;
-	pauseResult = lua_toboolean(L, 2); //true or false
-	if (pauseResult)
-		pause = CTrue;
-	else
-		pause = CFalse;
-	g_currentVSceneProperties.m_isPause = pause;
-	if (!g_currentVSceneProperties.m_isPause)
-	{
-		g_multipleView->timer.GetElapsedSeconds(CTrue);
-
-		for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
-		{
-			NxActor* currentActor = gPhysXscene->getActors()[i];
-			if (currentActor->isSleeping())
-				currentActor->wakeUp();
-		}
-		g_multipleView->m_nx->gControllers->reportSceneChanged();
-	}
-
-	if (g_currentVSceneProperties.m_isMenu)
-	{
-		CInt size;
-		size = lua_tointeger(L, 3);
-		g_currentVSceneProperties.m_cursorSize = size;
-
-		g_multipleView->GenerateMenuCursorTexture(g_vsceneMenuCursor.GetCursorPath());
-	}
-
-	return 0;
-}
-
 CInt ExitGame(lua_State* L)
 {
 	PrintInfo("\nGame Will Exit", COLOR_YELLOW);
@@ -5500,13 +5435,13 @@ CInt GetElapsedTime(lua_State* L)
 	return 1;
 }
 
-CInt IsMenuEnabled(lua_State* L)
+CInt IsCharacterControllerLocked(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
 
-	CBool isMenu = g_currentVSceneProperties.m_isMenu;
-	if (isMenu)
+	CBool isCharacterControlledLocked = g_currentVSceneProperties.m_lockCharacterController;
+	if (isCharacterControlledLocked)
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -26247,6 +26182,309 @@ CInt PauseAllResourceSounds(lua_State* L)
 	return 0;
 }
 
+//Pause game 
+CInt PauseGame(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nPauseGame() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+	
+	g_currentVSceneProperties.m_pauseGame = CTrue;
+	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+	//Pause all sounds of current VScene
+	g_multipleView->PauseSounds();
+
+	return 0;
+}
+
+CInt PauseAllAnimationsOfPrefabInstances(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nPauseAllAnimationsOfPrefabInstances() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	return 0;
+}
+
+CInt PauseMainCharacterAnimations(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nPauseMainCharacterAnimations() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pauseMainCharacterAnimations = CTrue;
+	return 0;
+}
+
+CInt PausePhysics(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nPausePhysics() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pausePhysics = CTrue;
+	return 0;
+}
+
+CInt PauseAllWaters(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nPauseAllWaters() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pauseAllWaters = CTrue;
+	return 0;
+}
+
+//resume game
+CInt ResumeGame(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nResumeGame() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_currentVSceneProperties.m_pauseGame = CFalse;
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	g_multipleView->timer.GetElapsedSeconds(CTrue);
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+
+	//resume all sounds of current VScene
+	g_multipleView->ResumeSounds();
+
+	return 0;
+}
+
+CInt ResumeAllAnimationsOfPrefabInstances(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nResumeAllAnimationsOfPrefabInstances() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	return 0;
+}
+
+CInt ResumeMainCharacterAnimations(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nResumeMainCharacterAnimations() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pauseMainCharacterAnimations = CFalse;
+	return 0;
+}
+
+CInt ResumePhysics(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nResumePhysics() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+	g_multipleView->m_nx->gControllers->reportSceneChanged();
+
+	g_multipleView->m_pausePhysics = CFalse;
+
+	return 0;
+}
+
+CInt ResumeAllWaters(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nResumeAllWaters() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->m_pauseAllWaters = CFalse;
+	return 0;
+}
+
+//lock/unlock character
+CInt LockCharacterController(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nLockCharacterController() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+	g_multipleView->m_lockCharacterController = CTrue;
+
+	return 0;
+}
+
+CInt UnlockCharacterController(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nUnlockCharacterController() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	g_multipleView->m_lockCharacterController = CFalse;
+
+	return 0;
+}
+
+//show/hide menu cursor
+CInt ShowMenuCursor(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+
+	if (argc > 0)
+	{
+		CInt size;
+		size = lua_tointeger(L, 1);
+		g_currentVSceneProperties.m_menuCursorSize = size;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CChar temp[MAX_URI_SIZE];
+		sprintf(temp, "\nShowMenuCursor(%d) will be executed for current VScene", g_currentVSceneProperties.m_menuCursorSize);
+		PrintInfo(temp, COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->GenerateMenuCursorTexture(g_vsceneMenuCursor.GetCursorPath());
+
+	g_multipleView->m_showMenuCursor = CTrue;
+
+	return 0;
+}
+
+CInt HideMenuCursor(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nHideMenuCursor() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	g_multipleView->DeleteMenuCursorTexture();
+
+	g_multipleView->m_showMenuCursor = CFalse;
+
+	return 0;
+}
+
+CInt SetMenuCursorSize(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetMenuCursorSize()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nSetMenuCursorSize() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	CInt size;
+	size = lua_tointeger(L, 1);
+	g_currentVSceneProperties.m_menuCursorSize = size;
+
+	return 0;
+}
+
+CInt GetMenuCursorSize(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetMenuCursorSize() will be executed for current VScene", COLOR_GREEN);
+		return 0;
+	}
+
+	lua_pushinteger(L, g_currentVSceneProperties.m_menuCursorSize);
+	return 1;
+}
+
 
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
@@ -26299,6 +26537,12 @@ CMultipleWindows::CMultipleWindows()
 	m_renderVideo = CFalse;
 	m_updatePhysX = CFalse;
 	m_updateScript = CTrue;
+
+	m_showMenuCursor = CFalse;
+	m_pauseMainCharacterAnimations = CFalse;
+	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	m_pausePhysics = CFalse;
+	m_pauseAllWaters = CFalse;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -26861,7 +27105,7 @@ CVoid CMultipleWindows::OnLButtonDown(UINT nFlags, CPoint point)
 		}
 	}
 
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_showMenuCursor)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
 		for (CUInt i = 0; i < g_guis.size(); i++)
@@ -27634,7 +27878,7 @@ CVoid CMultipleWindows::OnRButtonDown(UINT nFlags, CPoint point)
 			}
 		}
 	}
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_showMenuCursor)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
 		for (CUInt i = 0; i < g_guis.size(); i++)
@@ -27757,7 +28001,7 @@ CVoid CMultipleWindows::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
+	if (g_editorMode == eMODE_VSCENE && g_multipleView->IsPlayGameMode() && m_showMenuCursor)
 	{
 		m_selectedGUIIndex = GetSelectedGUI();
 		for (CUInt i = 0; i < g_guis.size(); i++)
@@ -28779,7 +29023,7 @@ CVoid CMultipleWindows::DrawPerspective()
 		m_translationController->Update((int)m_translateMousePosition.x, (int)m_translateMousePosition.y);
 	}
 
-	if (!g_currentVSceneProperties.m_isPause)
+	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseAllAnimationsOfPrefabInstances)
 	{
 		UpdatePrefabInstanceTransformations();
 
@@ -28797,12 +29041,12 @@ CVoid CMultipleWindows::DrawPerspective()
 	if (!m_translationController->Initialized())
 		ProcessInputs();
 
-	if (!g_currentVSceneProperties.m_isPause)
+	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseMainCharacterAnimations)
 	{
 		UpdateCharacterTransformations();
 	}
 
-	if (IsPlayGameMode() && !g_currentVSceneProperties.m_isPause)
+	if (IsPlayGameMode() && !g_currentVSceneProperties.m_pauseGame && !m_pausePhysics)
 	{
 		UpdateDynamicPhysicsObjects();
 	}
@@ -29122,10 +29366,10 @@ CVoid CMultipleWindows::DrawPerspective()
 		}
 	}
 
-	if (g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu)
-		m_isMenu = CTrue;
+	if (g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_lockCharacterController)
+		m_lockCharacterController = CTrue;
 	else
-		m_isMenu = CFalse;
+		m_lockCharacterController = CFalse;
 
 	if (m_selectObject)
 	{
@@ -30578,7 +30822,7 @@ CVoid CMultipleWindows::ProcessInputs()
 	if (m_notFocus) return;
 	if (m_loadScene) return;
 
-	if ((m_lockInput || m_isMenu) && IsPlayGameMode())
+	if ((m_lockInput || m_lockCharacterController) && IsPlayGameMode())
 	{
 		ApplyForce(IDLE, elapsedTime);
 		EnableIdleAnimations();
@@ -32922,7 +33166,7 @@ CVoid CMultipleWindows::Render3DAnimatedModelsForWater(CWater* water, CBool scen
 		if (!g_render.GetScene()->m_isTrigger)
 		{
 			CBool update = CTrue;
-			if (g_currentVSceneProperties.m_isPause)
+			if (g_currentVSceneProperties.m_pauseGame || m_pauseAllAnimationsOfPrefabInstances)
 				update = CFalse;
 			if (update)
 			{
@@ -33584,13 +33828,13 @@ CVoid CMultipleWindows::DrawGUI()
 		}
 
 		//Draw Cursor
-		if (g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_isMenu && !g_multipleView->GetCursorIcon()->GetVisible() && renderCursor)
+		if (g_multipleView->IsPlayGameMode() && m_showMenuCursor && !g_multipleView->GetCursorIcon()->GetVisible() && renderCursor)
 		{
 			CFloat cursorSize;
 			if (g_editorMode == eMODE_GUI || (g_editorMode == eMODE_VSCENE && g_menu.m_justPerspective))
-				cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * (CFloat)g_multipleView->m_width) / 100.0f;
+				cursorSize = ((CFloat)g_currentVSceneProperties.m_menuCursorSize * (CFloat)g_multipleView->m_width) / 100.0f;
 			else if (g_editorMode == eMODE_VSCENE && !g_menu.m_justPerspective)
-				cursorSize = ((CFloat)g_currentVSceneProperties.m_cursorSize * 0.5f * (CFloat)g_multipleView->m_width) / 100.0f;
+				cursorSize = ((CFloat)g_currentVSceneProperties.m_menuCursorSize * 0.5f * (CFloat)g_multipleView->m_width) / 100.0f;
 
 			CFloat halfCursorSize = cursorSize / 2.0f;
 			glUseProgram(0);
@@ -35365,4 +35609,56 @@ CVoid CMultipleWindows::GetMouseMovement()
 
 	if (resetMouse)
 		m_mouseOldPosition = m_mousePosition = p;
+}
+
+CVoid CMultipleWindows::PauseSounds()
+{
+	//pause all sounds as well
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PauseALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
+}
+
+CVoid CMultipleWindows::ResumeSounds()
+{
+	//pause all sounds as well
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		if (g_engine3DSounds[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_engine3DSounds[i]->GetSoundSource()));
+		}
+	}
+	for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+	{
+		if (g_resourceFiles[i]->GetSoundSource())
+		{
+			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+		}
+	}
 }

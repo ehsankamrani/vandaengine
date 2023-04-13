@@ -24,6 +24,9 @@ CAddVideo::CAddVideo(CWnd* pParent /*=nullptr*/)
 	m_scriptUpdated = CFalse;
 	m_hasScript = CFalse;
 	m_exitWithEscKey = CTrue;
+	m_pauseGameWhenStarting = CTrue;
+	m_resumeGameWhenFinished = CTrue;
+
 	m_playAudio = CTrue;
 }
 
@@ -43,6 +46,8 @@ void CAddVideo::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_AUDIO_VOLUME, m_editBoxAudioVolume);
 	DDX_Control(pDX, IDC_CHECK_EXIT_WITH_ESC_KEY, m_checkExitWithEscKey);
 	DDX_Control(pDX, IDC_CHECK_PLAY_SOUND, m_checkPlaySound);
+	DDX_Control(pDX, IDC_CHECK_PAUSE_GAME_STARTING, m_checkPauseGameWhenStarting);
+	DDX_Control(pDX, IDC_CHECK_RESUME_GAME_FINISHED, m_checkResumeGameWhenFinished);
 }
 
 
@@ -92,6 +97,16 @@ BOOL CAddVideo::OnInitDialog()
 		m_checkPlaySound.SetCheck(BST_CHECKED);
 	else
 		m_checkPlaySound.SetCheck(BST_UNCHECKED);
+
+	if (m_pauseGameWhenStarting)
+		m_checkPauseGameWhenStarting.SetCheck(BST_CHECKED);
+	else
+		m_checkPauseGameWhenStarting.SetCheck(BST_UNCHECKED);
+
+	if (m_resumeGameWhenFinished)
+		m_checkResumeGameWhenFinished.SetCheck(BST_CHECKED);
+	else
+		m_checkResumeGameWhenFinished.SetCheck(BST_UNCHECKED);
 
 	m_editBoxVideoName.SetWindowTextA(m_strVideoName);
 	m_editBoxVideoData.SetWindowTextA(m_strVideoDataPath);
@@ -275,6 +290,18 @@ void CAddVideo::OnOK()
 		m_playAudio = CTrue;
 	else
 		m_playAudio = CFalse;
+
+	checkState = m_checkPauseGameWhenStarting.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_pauseGameWhenStarting = CTrue;
+	else
+		m_pauseGameWhenStarting = CFalse;
+
+	checkState = m_checkResumeGameWhenFinished.GetCheck();
+	if (checkState == BST_CHECKED)
+		m_resumeGameWhenFinished = CTrue;
+	else
+		m_resumeGameWhenFinished = CFalse;
 
 	if (m_strVideoName.IsEmpty() || m_strVideoDataPath.IsEmpty() || m_strAudioVolume.IsEmpty())
 	{

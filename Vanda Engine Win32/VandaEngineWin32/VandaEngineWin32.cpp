@@ -22,7 +22,7 @@
 
 class COpenALSoundBuffer;
 //Edition.MaxVersion.MinVersion.BugFixes;
-CInt g_version = 221;
+CInt g_version = 230;
 CChar g_edition[MAX_NAME_SIZE];
 CScene* g_currentScene = NULL;
 CInstancePrefab* g_currentInstancePrefab = NULL;
@@ -272,7 +272,8 @@ bool Render()
 			{
 				g_main->m_loadScene = CTrue; //lock input
 				g_main->m_prevLoadScene = CTrue;
-				g_main->Load(temp);
+				if (!g_main->Load(temp))
+					return CFalse;
 				DeleteLoadingTexture();
 				g_main->ResetTimer();
 			}
@@ -337,7 +338,8 @@ bool Render()
 
 			CChar RTIPath[MAX_NAME_SIZE];
 			sprintf(RTIPath, "%s%s%s%s%s", "Assets\\VScenes\\", g_currentVSceneNameViaScript, "\\", g_currentVSceneNameViaScript, ".vin");
-			g_main->Load(RTIPath);
+			if (!g_main->Load(RTIPath))
+				return CFalse;
 
 			DeleteLoadingTexture();
 			g_main->ResetTimer();

@@ -339,24 +339,24 @@ struct CCurrentVSceneProperties
 {
 	CChar m_strBanner[MAX_NAME_SIZE]; // I use CVSceneBanner class to save banner
 	CChar m_strCursorImage[MAX_NAME_SIZE];
-	CBool m_isMenu;
-	CInt m_cursorSize;
-	CBool m_isPause;
+	CBool m_lockCharacterController;
+	CInt m_menuCursorSize;
+	CBool m_pauseGame;
 	CFloat m_globalSoundVolume;
 
 	CCurrentVSceneProperties()
 	{
-		m_isMenu = CFalse;
-		m_isPause = CFalse;
-		m_cursorSize = 5;
+		m_lockCharacterController = CFalse;
+		m_pauseGame = CFalse;
+		m_menuCursorSize = 5;
 		m_globalSoundVolume = 1.0f;
 	}
 
 	CVoid Reset()
 	{
-		m_isMenu = CFalse;
-		m_isPause = CFalse;
-		m_cursorSize = 5;
+		m_lockCharacterController = CFalse;
+		m_pauseGame = CFalse;
+		m_menuCursorSize = 5;
 		m_globalSoundVolume = 1.0f;
 	}
 };
@@ -738,6 +738,11 @@ private:
 	std::vector<CInstancePrefab*> m_instancePrefab;
 	std::vector<CPrefab*> m_prefab;
 	CCurrentVSceneProperties m_currentVSceneProperties;
+	CBool m_showMenuCursor;
+	CBool m_pauseMainCharacterAnimations;
+	CBool m_pauseAllAnimationsOfPrefabInstances;
+	CBool m_pausePhysics;
+	CBool m_pauseAllWaters;
 	std::vector<CGUI*> m_guis;
 	CBloomProperties m_bloomProperties;
 	CDOFProperties m_dofProperties;

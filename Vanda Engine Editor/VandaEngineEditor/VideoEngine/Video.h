@@ -105,6 +105,11 @@ public:
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
 
+	CVoid SetPauseGameWhenStarting(CBool set) { m_pauseGameWhenStarting = set; }
+	CVoid SetResumeGameWhenFinished(CBool set) { m_resumeGameWhenFinished = set; }
+	CBool GetPauseGameWhenStarting() { return m_pauseGameWhenStarting; }
+	CBool GetResumeGameWhenFinished() { return m_resumeGameWhenFinished; }
+
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_lastName[MAX_NAME_SIZE];
 	CChar m_path[MAX_NAME_SIZE];
@@ -128,6 +133,8 @@ private:
 	CFloat m_elapsedTime;
 	CFloat m_nextVideoFrameTime;
 	CFloat m_duration;
+	CBool m_pauseGameWhenStarting;
+	CBool m_resumeGameWhenFinished;
 
 	//Video
 	AVCodecContext* m_pVideoCodecContext;

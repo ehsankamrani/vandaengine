@@ -306,7 +306,7 @@ public:
 	CBool m_lockEscape;
 	CBool m_loadScene;
 	CBool m_notFocus;
-	CBool m_isMenu;
+	CBool m_lockCharacterController;
 	CBool m_updatePhysX;
 	CBool m_isPlayingGame;
 	CCameraType m_cameraType;
@@ -349,6 +349,9 @@ public:
 	CBool m_renderArrow;
 
 	CVoid GetMouseMovement();
+
+	CVoid PauseSounds();
+	CVoid ResumeSounds();
 
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
@@ -415,7 +418,11 @@ public:
 
 	CVoid DrawLightIconArrows();
 	///////////
-
+	CBool m_showMenuCursor;
+	CBool m_pauseMainCharacterAnimations;
+	CBool m_pauseAllAnimationsOfPrefabInstances;
+	CBool m_pausePhysics;
+	CBool m_pauseAllWaters;
 };
 
 extern CInt g_numLights;

@@ -46,7 +46,6 @@ private:
 
 	CChar LoadVScene[MAX_URI_SIZE];
 	CChar ExitGame[MAX_URI_SIZE];
-	CChar SetCurrentVSceneAsMenu[MAX_URI_SIZE];
 
 	CChar ActivateThirdPersonCamera[MAX_URI_SIZE];
 	CChar ActivateFirstPersonCamera[MAX_URI_SIZE];
@@ -94,7 +93,7 @@ private:
 	CChar GetCursorX[MAX_URI_SIZE];
 	CChar GetCursorY[MAX_URI_SIZE];
 	CChar GetElapsedTime[MAX_URI_SIZE];
-	CChar IsMenuEnabled[MAX_URI_SIZE];
+	CChar IsCharacterControllerLocked[MAX_URI_SIZE];
 	CChar GetPrefabInstanceNameFromActor[MAX_URI_SIZE];
 
 	CChar TranslatePrefabInstance[MAX_URI_SIZE];
@@ -421,6 +420,30 @@ private:
 	CChar PauseAllAmbientSounds[MAX_URI_SIZE];
 	CChar PauseAll3DSounds[MAX_URI_SIZE];
 	CChar PauseAllResourceSounds[MAX_URI_SIZE];
+
+	//Pause game 
+	CChar PauseGame[MAX_URI_SIZE];
+	CChar PauseAllAnimationsOfPrefabInstances[MAX_URI_SIZE];
+	CChar PauseMainCharacterAnimations[MAX_URI_SIZE];
+	CChar PausePhysics[MAX_URI_SIZE];
+	CChar PauseAllWaters[MAX_URI_SIZE];
+
+	//resume game
+	CChar ResumeGame[MAX_URI_SIZE];
+	CChar ResumeAllAnimationsOfPrefabInstances[MAX_URI_SIZE];
+	CChar ResumeMainCharacterAnimations[MAX_URI_SIZE];
+	CChar ResumePhysics[MAX_URI_SIZE];
+	CChar ResumeAllWaters[MAX_URI_SIZE];
+
+	//lock/unlock character
+	CChar LockCharacterController[MAX_URI_SIZE];
+	CChar UnlockCharacterController[MAX_URI_SIZE];
+
+	//menu cursor
+	CChar ShowMenuCursor[MAX_URI_SIZE];
+	CChar HideMenuCursor[MAX_URI_SIZE];
+	CChar SetMenuCursorSize[MAX_URI_SIZE];
+	CChar GetMenuCursorSize[MAX_URI_SIZE];;
 
 	CImageList m_image;
 

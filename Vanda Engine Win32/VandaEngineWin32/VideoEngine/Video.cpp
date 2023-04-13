@@ -27,6 +27,8 @@ CVideo::CVideo()
 	m_videoStream = NULL;
 	m_resetFrame = CFalse;
 	m_exitWithEscKey = CTrue;
+	m_pauseGameWhenStarting = CTrue;
+	m_resumeGameWhenFinished = CTrue;
 	m_playAudio = CTrue;
 	//
 
@@ -111,6 +113,15 @@ CVoid CVideo::SetPlay(CBool play)
 	if (m_play && m_elapsedTime > 0.0f && !play)
 		OnExitScript();
 	m_play = play;
+
+	if (m_play && m_pauseGameWhenStarting)
+	{
+		g_currentVSceneProperties.m_pauseGame = CTrue;
+		g_currentVSceneProperties.m_lockCharacterController = CTrue;
+		//pause all sounds of current VScene
+		g_main->PauseSounds();
+	}
+
 	if (!m_play)
 		Reset();
 }
@@ -1282,6 +1293,24 @@ CVoid CVideo::UpdateScript()
 
 CVoid CVideo::OnExitScript()
 {
+	if (m_resumeGameWhenFinished)
+	{
+		g_currentVSceneProperties.m_pauseGame = CFalse;
+		g_currentVSceneProperties.m_lockCharacterController = CFalse;
+		g_timer->GetElapsedSeconds(CTrue);
+
+		for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+		{
+			NxActor* currentActor = gPhysXscene->getActors()[i];
+			if (currentActor->isSleeping())
+				currentActor->wakeUp();
+		}
+		g_nx->gControllers->reportSceneChanged();
+
+		//resume all sounds of current VScene
+		g_main->ResumeSounds();
+	}
+
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;

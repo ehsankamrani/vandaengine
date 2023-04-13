@@ -98,6 +98,9 @@ public:
 	CVoid SetUpdateScript(CBool update) { m_scriptUpdated = update; }
 	CVoid SetUpdateData(CBool update) { m_dataUpdated = update; }
 	
+	CVoid SetPauseGameWhenStarting(CBool set) { m_pauseGameWhenStarting = set; }
+	CVoid SetResumeGameWhenFinished(CBool set) { m_resumeGameWhenFinished = set; }
+
 	//Get
 	CChar* GetName() { return (CChar*)m_strVideoName.GetBuffer(m_strVideoName.GetLength()); m_strVideoName.ReleaseBuffer(); }
 	CChar* GetTempName() { return (CChar*)m_strVideoTempName.GetBuffer(m_strVideoTempName.GetLength()); m_strVideoTempName.ReleaseBuffer(); }
@@ -113,6 +116,9 @@ public:
 	CBool GetUpdateData() { return m_dataUpdated; }
 	CBool GetExitWithEscKey() { return m_exitWithEscKey; }
 	CBool GetPlayAudio() { return m_playAudio; }
+
+	CBool GetPauseGameWhenStarting() {return m_pauseGameWhenStarting;}
+	CBool GetResumeGameWhenFinished() {return m_resumeGameWhenFinished;}
 private:
 	CBool m_scriptUpdated;
 	CBool m_dataUpdated;
@@ -121,6 +127,9 @@ private:
 	CChar m_lastName[MAX_NAME_SIZE];
 	CBool m_loop, m_play;
 	CFloat m_volume;
+	CBool m_pauseGameWhenStarting;
+	CBool m_resumeGameWhenFinished;
+
 public:
 	afx_msg void OnEnChangeEditVideoName();
 	CEdit m_editBoxVideoName;
@@ -135,4 +144,7 @@ private:
 	CBool m_playAudio;
 public:
 	CButton m_checkPlaySound;
+private:
+	CButton m_checkPauseGameWhenStarting;
+	CButton m_checkResumeGameWhenFinished;
 };

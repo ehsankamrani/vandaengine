@@ -127,7 +127,6 @@ CInt HidePrefabInstance(lua_State *L);
 
 //VScene
 CInt LoadVScene(lua_State *L);
-CInt SetCurrentVSceneAsMenu(lua_State *L);
 CInt ExitGame(lua_State *L);
 
 //Cameras
@@ -175,7 +174,7 @@ CInt GetScreenHeight(lua_State* L);
 CInt GetCursorX(lua_State* L);
 CInt GetCursorY(lua_State* L);
 CInt GetElapsedTime(lua_State* L);
-CInt IsMenuEnabled(lua_State* L);
+CInt IsCharacterControllerLocked(lua_State* L);
 CInt GetPrefabInstanceNameFromActor(lua_State* L);
 
 //translation, rotation and scaling of prefab instances
@@ -502,3 +501,27 @@ CInt PauseAllSounds(lua_State* L);
 CInt PauseAllAmbientSounds(lua_State* L);
 CInt PauseAll3DSounds(lua_State* L);
 CInt PauseAllResourceSounds(lua_State* L);
+
+//Pause game 
+CInt PauseGame(lua_State* L);
+CInt PauseAllAnimationsOfPrefabInstances(lua_State* L);
+CInt PauseMainCharacterAnimations(lua_State* L);
+CInt PausePhysics(lua_State* L);
+CInt PauseAllWaters(lua_State* L);
+
+//resume game
+CInt ResumeGame(lua_State* L);
+CInt ResumeAllAnimationsOfPrefabInstances(lua_State* L);
+CInt ResumeMainCharacterAnimations(lua_State* L);
+CInt ResumePhysics(lua_State* L);
+CInt ResumeAllWaters(lua_State* L);
+
+//lock/unlock character
+CInt LockCharacterController(lua_State* L);
+CInt UnlockCharacterController(lua_State* L);
+
+//menu cursor
+CInt ShowMenuCursor(lua_State* L);
+CInt HideMenuCursor(lua_State* L);
+CInt SetMenuCursorSize(lua_State* L);
+CInt GetMenuCursorSize(lua_State* L);

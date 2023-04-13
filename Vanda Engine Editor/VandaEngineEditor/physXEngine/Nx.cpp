@@ -133,7 +133,7 @@ CBool CNovodex::initNx(CFloat XCharacterPos, CFloat YCharacterPos, CFloat ZChara
 
 CVoid CNovodex::runPhysics( NxVec3 forceDirection, CFloat forceSpeed, CInt moveDirection, CFloat elapsedTime )
 {
-	if (g_currentVSceneProperties.m_isPause)
+	if (g_currentVSceneProperties.m_pauseGame || g_multipleView->m_pausePhysics)
 		return;
 
 	if( gPhysXscene )

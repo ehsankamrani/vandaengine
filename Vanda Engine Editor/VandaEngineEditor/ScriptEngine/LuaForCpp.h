@@ -98,7 +98,6 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "LoadVScene", LoadVScene);
 	lua_register(L, "ExitGame", ExitGame);
-	lua_register(L, "SetCurrentVSceneAsMenu", SetCurrentVSceneAsMenu);
 
 	lua_register(L, "ActivateThirdPersonCamera", ActivateThirdPersonCamera);
 	lua_register(L, "ActivateFirstPersonCamera", ActivateFirstPersonCamera);
@@ -144,7 +143,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetScreenHeight", GetScreenHeight);
 	lua_register(L, "GetCursorX", GetCursorX);
 	lua_register(L, "GetCursorY", GetCursorY);
-	lua_register(L, "IsMenuEnabled", IsMenuEnabled);
+	lua_register(L, "IsCharacterControllerLocked", IsCharacterControllerLocked);
 	lua_register(L, "GetElapsedTime", GetElapsedTime);
 	lua_register(L, "GetPrefabInstanceNameFromActor", GetPrefabInstanceNameFromActor);
 
@@ -473,4 +472,27 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "PauseAll3DSounds", PauseAll3DSounds);
 	lua_register(L, "PauseAllResourceSounds", PauseAllResourceSounds);
 
+	//Pause game 
+	lua_register(L, "PauseGame", PauseGame);
+	lua_register(L, "PauseAllAnimationsOfPrefabInstances", PauseAllAnimationsOfPrefabInstances);
+	lua_register(L, "PauseMainCharacterAnimations", PauseMainCharacterAnimations);
+	lua_register(L, "PausePhysics", PausePhysics);
+	lua_register(L, "PauseAllWaters", PauseAllWaters);
+
+	//resume game
+	lua_register(L, "ResumeGame", ResumeGame);
+	lua_register(L, "ResumeAllAnimationsOfPrefabInstances", ResumeAllAnimationsOfPrefabInstances);
+	lua_register(L, "ResumeMainCharacterAnimations", ResumeMainCharacterAnimations);
+	lua_register(L, "ResumePhysics", ResumePhysics);
+	lua_register(L, "ResumeAllWaters", ResumeAllWaters);
+
+	//lock/unlock character
+	lua_register(L, "LockCharacterController", LockCharacterController);
+	lua_register(L, "UnlockCharacterController", UnlockCharacterController);
+
+	//menu cursor
+	lua_register(L, "ShowMenuCursor", ShowMenuCursor);
+	lua_register(L, "HideMenuCursor", HideMenuCursor);
+	lua_register(L, "SetMenuCursorSize", SetMenuCursorSize);
+	lua_register(L, "GetMenuCursorSize", GetMenuCursorSize);
 }
