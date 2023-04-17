@@ -53,5 +53,5 @@ private:
 	CButton m_checkPauseAllAnimationsOfPrefabInstances;
 	CButton m_checkPausePhysics;
 public:
-	CButton m_checkPauseAllWaters;
+	CButton m_checkPauseAllWaterAnimations;
 };

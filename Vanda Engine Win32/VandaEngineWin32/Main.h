@@ -204,6 +204,7 @@ private:
 	CBool m_renderVideo;
 public:
 	CBool m_lockInput;
+	CBool m_lockDefaultFreeCamera;
 	CBool m_lockEscape;
 	CBool m_loadScene;
 	CBool m_prevLoadScene;
@@ -234,6 +235,8 @@ public:
 	CVoid PauseSounds();
 	CVoid ResumeSounds();
 
+	CVoid PauseGame();
+	CVoid ResumeGame();
 	//mouse movements
 	CInt m_dx, m_dy;
 	CInt m_prev_dx, m_prev_dy;
@@ -244,5 +247,5 @@ public:
 	CBool m_pauseMainCharacterAnimations;
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
-	CBool m_pauseAllWaters;
+	CBool m_pauseAllWaterAnimations;
 };

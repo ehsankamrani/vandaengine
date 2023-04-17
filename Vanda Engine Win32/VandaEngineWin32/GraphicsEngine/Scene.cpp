@@ -1100,6 +1100,9 @@ CVoid CScene::SetNumClips(CInt clips)
 
 CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 {
+	if (delay < EPSILON)
+		delay = EPSILON;
+
 	if( m_numClips == 0 )
 	{
 		//CChar temp[MAX_NAME_SIZE];
@@ -1148,6 +1151,9 @@ CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 
 CBool CScene::ClearCycle(CInt id, CFloat delay)
 {
+	if (delay < EPSILON)
+		delay = EPSILON;
+
 	if( m_numClips == 0 )
 	{
 		//CChar temp[MAX_NAME_SIZE];
@@ -1166,6 +1172,14 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 
 	if (m_animationClips[id]->GetAnimationStatus() == eANIM_NONE)
 		return CFalse;
+
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_CLEAR_CYCLE)
+	{
+		//update it again
+		m_animationClips[id]->SetTargetDelayOut(delay);
+		m_updateAnimationLists = CTrue;
+		return CTrue;
+	}
 
 	if( m_animationClips[id]->GetAnimationStatus() != eANIM_BLEND_CYCLE || m_animationClips[id]->GetAnimationStatus() == eANIM_EXECUTE_ACTION)
 		return CFalse;

@@ -974,6 +974,16 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 					filePtr = fopen(fileName, "rb");
 					if (filePtr)
 					{
+						CInt engine_version;
+						fread(&engine_version, 1, sizeof(CInt), filePtr);
+						if (engine_version > g_version)
+						{
+							fclose(filePtr);
+							PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+							ReleaseCapture();
+							return;
+						}
+
 						CUInt numberOfGUIButtons;
 						CUInt numberOfGUIImages;
 						CUInt numberOfGUITexts;
@@ -1285,6 +1295,9 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						return;
 					}
 					//save data here
+
+					fwrite(&g_version, 1, sizeof(CInt), filePtr);
+
 					CUInt numberOfGUIButtons = m_guiButtons.size();
 					fwrite(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
 
@@ -1648,10 +1661,20 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 
 						CChar fileName[MAX_NAME_SIZE];
 						sprintf(fileName, "%s%s%s%s", newGUIName, "/", m_strNewPackageAndGUIName, ".gui");
-						FILE *filePtr;
+						FILE *filePtr = NULL;
 						filePtr = fopen(fileName, "rb");
 						if (filePtr)
 						{
+							CInt engine_version;
+							fread(&engine_version, 1, sizeof(CInt), filePtr);
+							if (engine_version > g_version)
+							{
+								fclose(filePtr);
+								PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
+								ReleaseCapture();
+								return;
+							}
+
 							CUInt numberOfGUIButtons;
 							CUInt numberOfGUIImages;
 							CUInt numberOfGUITexts;
@@ -1964,6 +1987,9 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							return;
 						}
 						//save data here
+						
+						fwrite(&g_version, 1, sizeof(CInt), filePtr);
+
 						CUInt numberOfGUIButtons = m_guiButtons.size();
 						fwrite(&numberOfGUIButtons, sizeof(CUInt), 1, filePtr);
 

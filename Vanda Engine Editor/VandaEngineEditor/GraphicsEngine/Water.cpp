@@ -519,7 +519,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// Move the water by our global speed
 	CBool isMoving = CTrue;
-	if (g_currentVSceneProperties.m_pauseGame || g_multipleView->m_pauseAllWaters)
+	if (g_currentVSceneProperties.m_pauseGame || g_multipleView->m_pauseAllWaterAnimations)
 		isMoving = CFalse;
 
 	if (isMoving)

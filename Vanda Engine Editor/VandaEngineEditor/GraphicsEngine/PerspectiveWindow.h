@@ -303,6 +303,7 @@ public:
 	CUInt m_lastSelectedName;
 
 	CBool m_lockInput;
+	CBool m_lockDefaultFreeCamera;
 	CBool m_lockEscape;
 	CBool m_loadScene;
 	CBool m_notFocus;
@@ -352,6 +353,9 @@ public:
 
 	CVoid PauseSounds();
 	CVoid ResumeSounds();
+
+	CVoid PauseGame();
+	CVoid ResumeGame();
 
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
@@ -422,7 +426,7 @@ public:
 	CBool m_pauseMainCharacterAnimations;
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
-	CBool m_pauseAllWaters;
+	CBool m_pauseAllWaterAnimations;
 };
 
 extern CInt g_numLights;

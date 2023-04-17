@@ -426,14 +426,14 @@ private:
 	CChar PauseAllAnimationsOfPrefabInstances[MAX_URI_SIZE];
 	CChar PauseMainCharacterAnimations[MAX_URI_SIZE];
 	CChar PausePhysics[MAX_URI_SIZE];
-	CChar PauseAllWaters[MAX_URI_SIZE];
+	CChar PauseAllWaterAnimations[MAX_URI_SIZE];
 
 	//resume game
 	CChar ResumeGame[MAX_URI_SIZE];
 	CChar ResumeAllAnimationsOfPrefabInstances[MAX_URI_SIZE];
 	CChar ResumeMainCharacterAnimations[MAX_URI_SIZE];
 	CChar ResumePhysics[MAX_URI_SIZE];
-	CChar ResumeAllWaters[MAX_URI_SIZE];
+	CChar ResumeAllWaterAnimations[MAX_URI_SIZE];
 
 	//lock/unlock character
 	CChar LockCharacterController[MAX_URI_SIZE];

@@ -27,8 +27,8 @@ CVideo::CVideo()
 	m_videoStream = NULL;
 	m_resetFrame = CFalse;
 	m_exitWithEscKey = CTrue;
-	m_pauseGameWhenStarting = CTrue;
-	m_resumeGameWhenFinished = CTrue;
+	m_pauseGameSoundsWhenStarting = CTrue;
+	m_resumeGameSoundsWhenFinished = CTrue;
 	m_playAudio = CTrue;
 	//
 
@@ -114,12 +114,16 @@ CVoid CVideo::SetPlay(CBool play)
 		OnExitScript();
 	m_play = play;
 
-	if (m_play && m_pauseGameWhenStarting)
+	if (m_play)
 	{
 		g_currentVSceneProperties.m_pauseGame = CTrue;
 		g_currentVSceneProperties.m_lockCharacterController = CTrue;
-		//pause all sounds of current VScene
-		g_main->PauseSounds();
+
+		if (m_pauseGameSoundsWhenStarting)
+		{
+			//pause all sounds of current VScene
+			g_main->PauseSounds();
+		}
 	}
 
 	if (!m_play)
@@ -1293,20 +1297,12 @@ CVoid CVideo::UpdateScript()
 
 CVoid CVideo::OnExitScript()
 {
-	if (m_resumeGameWhenFinished)
+	g_currentVSceneProperties.m_pauseGame = CFalse;
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	g_timer->GetElapsedSeconds(CTrue);
+
+	if (m_resumeGameSoundsWhenFinished)
 	{
-		g_currentVSceneProperties.m_pauseGame = CFalse;
-		g_currentVSceneProperties.m_lockCharacterController = CFalse;
-		g_timer->GetElapsedSeconds(CTrue);
-
-		for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
-		{
-			NxActor* currentActor = gPhysXscene->getActors()[i];
-			if (currentActor->isSleeping())
-				currentActor->wakeUp();
-		}
-		g_nx->gControllers->reportSceneChanged();
-
 		//resume all sounds of current VScene
 		g_main->ResumeSounds();
 	}
@@ -1323,6 +1319,14 @@ CVoid CVideo::OnExitScript()
 
 		lua_settop(m_lua, 0);
 	}
+
+	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
+	{
+		NxActor* currentActor = gPhysXscene->getActors()[i];
+		if (currentActor->isSleeping())
+			currentActor->wakeUp();
+	}
+	g_nx->gControllers->reportSceneChanged();
 }
 
 CVoid CVideo::SetLastName(CChar* name)

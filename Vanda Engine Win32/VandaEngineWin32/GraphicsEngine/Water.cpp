@@ -494,7 +494,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 	float normalUV = m_fWaterUV * kNormalMapScale;
 
 	CBool isMoving = CTrue;
-	if (g_currentVSceneProperties.m_pauseGame || g_main->m_pauseAllWaters)
+	if (g_currentVSceneProperties.m_pauseGame || g_main->m_pauseAllWaterAnimations)
 		isMoving = CFalse;
 
 	if (isMoving)

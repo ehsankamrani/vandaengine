@@ -742,7 +742,7 @@ private:
 	CBool m_pauseMainCharacterAnimations;
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
-	CBool m_pauseAllWaters;
+	CBool m_pauseAllWaterAnimations;
 	std::vector<CGUI*> m_guis;
 	CBloomProperties m_bloomProperties;
 	CDOFProperties m_dofProperties;
@@ -758,6 +758,7 @@ private:
 	CAddPrefabResource *m_dlgAddPrefabResource;
 	std::vector<CWater*> m_water;
 	CFloat m_globalSoundVolume;
+	CCharacterBlendingProperties m_characterBlendingProperties;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );
@@ -1014,6 +1015,7 @@ public:
 	afx_msg void OnBnClickedBtnConsole();
 //	afx_msg void OnHdnItemclickListScenes(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *pResult);
+	CVoid FindSelectedEngineObjectFromEngineObjectsList();
 
 	void ResetPhysX(CBool releaseActors = CTrue);
 	CListCtrl m_listBoxPhysXElements;

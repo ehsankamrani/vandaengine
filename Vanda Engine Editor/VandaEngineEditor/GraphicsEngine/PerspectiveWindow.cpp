@@ -26194,8 +26194,8 @@ CInt PauseGame(lua_State* L)
 		return 0;
 	}
 	
-	g_currentVSceneProperties.m_pauseGame = CTrue;
-	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+	g_multipleView->PauseGame();
+
 	//Pause all sounds of current VScene
 	g_multipleView->PauseSounds();
 
@@ -26247,18 +26247,18 @@ CInt PausePhysics(lua_State* L)
 	return 0;
 }
 
-CInt PauseAllWaters(lua_State* L)
+CInt PauseAllWaterAnimations(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		PrintInfo("\nPauseAllWaters() will be executed for current VScene", COLOR_GREEN);
+		PrintInfo("\nPauseAllWaterAnimations() will be executed for current VScene", COLOR_GREEN);
 		return 0;
 	}
 
-	g_multipleView->m_pauseAllWaters = CTrue;
+	g_multipleView->m_pauseAllWaterAnimations = CTrue;
 	return 0;
 }
 
@@ -26274,8 +26274,8 @@ CInt ResumeGame(lua_State* L)
 		return 0;
 	}
 
-	g_currentVSceneProperties.m_pauseGame = CFalse;
-	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	g_multipleView->ResumeGame();
+
 	g_multipleView->timer.GetElapsedSeconds(CTrue);
 
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
@@ -26346,18 +26346,18 @@ CInt ResumePhysics(lua_State* L)
 	return 0;
 }
 
-CInt ResumeAllWaters(lua_State* L)
+CInt ResumeAllWaterAnimations(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		PrintInfo("\nResumeAllWaters() will be executed for current VScene", COLOR_GREEN);
+		PrintInfo("\nResumeAllWaterAnimations() will be executed for current VScene", COLOR_GREEN);
 		return 0;
 	}
 
-	g_multipleView->m_pauseAllWaters = CFalse;
+	g_multipleView->m_pauseAllWaterAnimations = CFalse;
 	return 0;
 }
 
@@ -26504,6 +26504,7 @@ CMultipleWindows::CMultipleWindows()
 	, m_dynamicShadowMap(NULL)
 	, m_timerCounter(0)
 	, m_lockInput(CFalse)
+	, m_lockDefaultFreeCamera(CFalse)
 	, m_lockEscape(CFalse)
 	, m_loadScene(CFalse)
 	, m_isPlayingGame(CFalse)
@@ -26542,7 +26543,7 @@ CMultipleWindows::CMultipleWindows()
 	m_pauseMainCharacterAnimations = CFalse;
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
-	m_pauseAllWaters = CFalse;
+	m_pauseAllWaterAnimations = CFalse;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -28981,6 +28982,11 @@ CVoid CMultipleWindows::DrawPerspective()
 			CBool result = g_engineVideos[i]->Render();
 			if (result)
 			{
+				if (g_multipleView->IsPlayGameMode() && g_currentVSceneProperties.m_lockCharacterController)
+					m_lockCharacterController = CTrue;
+				else
+					m_lockCharacterController = CFalse;
+
 				if (!m_translationController->Initialized())
 					ProcessInputs();
 
@@ -29456,50 +29462,54 @@ CVoid CMultipleWindows::DrawPerspective()
 			{
 				if (!g_instancePrefab[i]->GetVisible()) continue;
 				g_instancePrefab[i]->InitScript();
-				g_instancePrefab[i]->UpdateScript();
+				if (!g_currentVSceneProperties.m_pauseGame)
+					g_instancePrefab[i]->UpdateScript();
 			}
 
-			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			if (!g_currentVSceneProperties.m_pauseGame)
 			{
-				if (g_engineWaters[i]->GetHasScript())
-					g_engineWaters[i]->UpdateScript();
+				for (CUInt i = 0; i < g_engineWaters.size(); i++)
+				{
+					if (g_engineWaters[i]->GetHasScript())
+						g_engineWaters[i]->UpdateScript();
+				}
+
+				for (CUInt i = 0; i < g_engineLights.size(); i++)
+				{
+					if (g_engineLights[i]->m_abstractLight->GetHasScript())
+						g_engineLights[i]->m_abstractLight->UpdateScript();
+				}
+
+				for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+				{
+					if (g_engineCameraInstances[i]->GetHasScript())
+						g_engineCameraInstances[i]->UpdateScript();
+				}
+
+				for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+				{
+					if (g_engineAmbientSounds[i]->GetHasScript())
+						g_engineAmbientSounds[i]->UpdateScript();
+				}
+
+				for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+				{
+					if (g_engine3DSounds[i]->GetHasScript())
+						g_engine3DSounds[i]->UpdateScript();
+				}
+
+				if (g_VSceneScript)
+					g_VSceneScript->UpdateScript();
+
+				if (g_skyDome)
+					g_skyDome->UpdateScript();
+
+				if (g_terrain)
+					g_terrain->UpdateScript();
+
+				if (g_mainCharacter)
+					g_mainCharacter->UpdateScript();
 			}
-
-			for (CUInt i = 0; i < g_engineLights.size(); i++)
-			{
-				if (g_engineLights[i]->m_abstractLight->GetHasScript())
-					g_engineLights[i]->m_abstractLight->UpdateScript();
-			}
-
-			for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
-			{
-				if (g_engineCameraInstances[i]->GetHasScript())
-					g_engineCameraInstances[i]->UpdateScript();
-			}
-
-			for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-			{
-				if (g_engineAmbientSounds[i]->GetHasScript())
-					g_engineAmbientSounds[i]->UpdateScript();
-			}
-
-			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-			{
-				if (g_engine3DSounds[i]->GetHasScript())
-					g_engine3DSounds[i]->UpdateScript();
-			}
-
-			if (g_VSceneScript)
-				g_VSceneScript->UpdateScript();
-
-			if (g_skyDome)
-				g_skyDome->UpdateScript();
-
-			if (g_terrain)
-				g_terrain->UpdateScript();
-
-			if (g_mainCharacter)
-				g_mainCharacter->UpdateScript();
 		}
 		else if (g_editorMode == eMODE_PREFAB)
 		{
@@ -31301,7 +31311,7 @@ CVoid CMultipleWindows::ProcessInputs()
 			}
 		}
 	}
-	else if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
+	else if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX && !m_lockDefaultFreeCamera)
 	{
 		//add keyboard input here
 		if (true/*m_lMouseDown*/)
@@ -35661,4 +35671,27 @@ CVoid CMultipleWindows::ResumeSounds()
 			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 		}
 	}
+}
+
+CVoid CMultipleWindows::PauseGame()
+{
+	g_currentVSceneProperties.m_pauseGame = CTrue;
+	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+
+	m_pauseMainCharacterAnimations = CTrue;
+	m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	m_pausePhysics = CTrue;
+	m_pauseAllWaterAnimations = CTrue;
+
+}
+
+CVoid CMultipleWindows::ResumeGame()
+{
+	g_currentVSceneProperties.m_pauseGame = CFalse;
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+
+	m_pauseMainCharacterAnimations = CFalse;
+	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	m_pausePhysics = CFalse;
+	m_pauseAllWaterAnimations = CFalse;
 }

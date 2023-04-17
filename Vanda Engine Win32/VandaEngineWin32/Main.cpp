@@ -16706,8 +16706,8 @@ CInt PauseAllResourceSounds(lua_State* L)
 //Pause game 
 CInt PauseGame(lua_State* L)
 {
-	g_currentVSceneProperties.m_pauseGame = CTrue;
-	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+	g_main->PauseGame();
+
 	//pause all sounds of current VScene
 	g_main->PauseSounds();
 
@@ -16732,17 +16732,17 @@ CInt PausePhysics(lua_State* L)
 	return 0;
 }
 
-CInt PauseAllWaters(lua_State* L)
+CInt PauseAllWaterAnimations(lua_State* L)
 {
-	g_main->m_pauseAllWaters = CTrue;
+	g_main->m_pauseAllWaterAnimations = CTrue;
 	return 0;
 }
 
 //resume game
 CInt ResumeGame(lua_State* L)
 {
-	g_currentVSceneProperties.m_pauseGame = CFalse;
-	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+	g_main->ResumeGame();
+
 	g_timer->GetElapsedSeconds(CTrue);
 
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
@@ -16786,9 +16786,9 @@ CInt ResumePhysics(lua_State* L)
 	return 0;
 }
 
-CInt ResumeAllWaters(lua_State* L)
+CInt ResumeAllWaterAnimations(lua_State* L)
 {
-	g_main->m_pauseAllWaters = CFalse;
+	g_main->m_pauseAllWaterAnimations = CFalse;
 	return 0;
 }
 
@@ -16863,6 +16863,7 @@ CMain::CMain()
 	m_timerCounter = 0;
 	m_totalElapsedTime = 0;
 	m_lockInput = CFalse;
+	m_lockDefaultFreeCamera = CFalse;
 	m_lockEscape = CFalse;
 	m_loadScene = CFalse;
 	m_soundSystem = NULL;
@@ -16905,7 +16906,7 @@ CMain::CMain()
 	m_pauseMainCharacterAnimations = CFalse;
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
-	m_pauseAllWaters = CFalse;
+	m_pauseAllWaterAnimations = CFalse;
 }
 
 CMain::~CMain()
@@ -17511,7 +17512,7 @@ CBool CMain::Render()
 			if (!m_loadScene && g_engineVideos[i]->GetExitWithEscKey() && g_input.KeyDown(DIK_ESCAPE))
 			{
 				m_lockEscape = CTrue;
- 				g_engineVideos[i]->SetPlay(CFalse);
+				g_engineVideos[i]->SetPlay(CFalse);
 			}
 
 			renderVideo = CTrue;
@@ -17579,25 +17580,25 @@ CBool CMain::Render()
 		UpdateDynamicPhysicsObjects();
 	}
 
-	if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
 		g_render.BindFBO(m_mFboID);
-	else if( !g_useOldRenderingStyle && !g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
-		g_render.BindFBO( m_fboID );
+	else if (!g_useOldRenderingStyle && !g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
+		g_render.BindFBO(m_fboID);
 
-	if( !g_useOldRenderingStyle )
+	if (!g_useOldRenderingStyle)
 	{
 		GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT, GL_COLOR_ATTACHMENT3_EXT,
-		GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT};
+		GL_COLOR_ATTACHMENT4_EXT, GL_COLOR_ATTACHMENT5_EXT };
 		glDrawBuffers(eGBUFFER_NUM_TEXTURES, DrawBuffers);
 	}
 	else
-		glDrawBuffer( GL_BACK );
+		glDrawBuffer(GL_BACK);
 	m_cameraTypeOfPreviousFrame = m_cameraType;
 
 
-	if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
+	if (g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX)
 	{
-		CInstanceCamera *instanceCamera = g_render.GetDefaultInstanceCamera();
+		CInstanceCamera* instanceCamera = g_render.GetDefaultInstanceCamera();
 		if (instanceCamera)
 		{
 			m_cameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
@@ -17609,10 +17610,10 @@ CBool CMain::Render()
 			g_currentCameraType = eCAMERA_PHYSX;
 		}
 	}
-	CInstanceCamera *instanceCamera = g_render.GetActiveInstanceCamera();
-	if( g_currentCameraType == eCAMERA_COLLADA )
+	CInstanceCamera* instanceCamera = g_render.GetActiveInstanceCamera();
+	if (g_currentCameraType == eCAMERA_COLLADA)
 	{
-		if( instanceCamera )		
+		if (instanceCamera)
 		{
 			CBool enableColladaCamera = CTrue;
 			if (instanceCamera->IsTimerEnabled())
@@ -17698,7 +17699,7 @@ CBool CMain::Render()
 
 		m_lockInput = CFalse;
 		g_camera->m_cameraManager->SetPerspective(g_camera->m_cameraManager->GetAngle(), g_width, g_height, g_cameraProperties.m_playModePerspectiveNCP, g_cameraProperties.m_playModePerspectiveFCP);
-		if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
+		if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
 		{
 			//shadow
 			glGetFloatv(GL_PROJECTION_MATRIX, cam_proj);
@@ -17706,48 +17707,48 @@ CBool CMain::Render()
 
 		//previous position of character controller
 		g_camera->m_perspectiveCharacterPosOfPreviousFrame = g_camera->m_perspectiveCharacterPos;
-		g_nx->GetCameraAndCharacterPositions( g_camera->m_perspectiveCameraPitch,
+		g_nx->GetCameraAndCharacterPositions(g_camera->m_perspectiveCameraPitch,
 			g_camera->m_perspectiveCameraYaw,
 			g_camera->m_perspectiveCameraPos,
 			g_camera->m_perspectiveCharacterPos,
-			g_camera->m_perspectiveCameraDir );
+			g_camera->m_perspectiveCameraDir);
 
-		g_camera->m_cameraManager->UpdateCameraPosDir( g_camera->m_perspectiveCameraPos,
+		g_camera->m_cameraManager->UpdateCameraPosDir(g_camera->m_perspectiveCameraPos,
 			g_camera->m_perspectiveCharacterPos,
 			g_camera->m_perspectiveCameraDir,
-			g_camera->m_perspectiveCurrentCameraTilt );
+			g_camera->m_perspectiveCurrentCameraTilt);
 	}
 
 	//if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
 	//{
 		//shadow
 		// store the inverse of the resulting modelview matrix for the shadow computation
-		glGetFloatv(GL_MODELVIEW_MATRIX, cam_modelview);
-		g_camera->m_cameraManager->GetInverseMatrix( cam_inverse_modelview );
-		//////////////
-	//}
+	glGetFloatv(GL_MODELVIEW_MATRIX, cam_modelview);
+	g_camera->m_cameraManager->GetInverseMatrix(cam_inverse_modelview);
+	//////////////
+//}
 	g_camera->m_cameraManager->UpdateFrustum();
 	g_octree->ResetOctreeGeoCount();
 	g_octree->Render(CTrue);
 	g_octree->ResetOctreeGeoCount();
 
 	m_calculateDistance = CFalse;
-	if ( m_cameraType != m_cameraTypeOfPreviousFrame )
+	if (m_cameraType != m_cameraTypeOfPreviousFrame)
 	{
 		m_calculateDistance = CTrue;
 	}
 	//calculate distance between geometries and main camera
-	else if( !(g_camera->m_perspectiveCharacterPosOfPreviousFrame.x - g_camera->m_perspectiveCharacterPos.x == 0.0f &&
+	else if (!(g_camera->m_perspectiveCharacterPosOfPreviousFrame.x - g_camera->m_perspectiveCharacterPos.x == 0.0f &&
 		g_camera->m_perspectiveCharacterPosOfPreviousFrame.y - g_camera->m_perspectiveCharacterPos.y == 0.0f &&
-		g_camera->m_perspectiveCharacterPosOfPreviousFrame.z - g_camera->m_perspectiveCharacterPos.z == 0.0f ) )
+		g_camera->m_perspectiveCharacterPosOfPreviousFrame.z - g_camera->m_perspectiveCharacterPos.z == 0.0f))
 	{
 		m_calculateDistance = CTrue;
 	}
-	else if( instanceCamera )
+	else if (instanceCamera)
 	{
-		if( !(g_camera->m_perspectiveCameraPosOfPreviousFrame.x - g_camera->m_perspectiveCameraPos.x == 0.0f &&
+		if (!(g_camera->m_perspectiveCameraPosOfPreviousFrame.x - g_camera->m_perspectiveCameraPos.x == 0.0f &&
 			g_camera->m_perspectiveCameraPosOfPreviousFrame.y - g_camera->m_perspectiveCameraPos.y == 0.0f &&
-			g_camera->m_perspectiveCameraPosOfPreviousFrame.z - g_camera->m_perspectiveCameraPos.z == 0.0f ) )
+			g_camera->m_perspectiveCameraPosOfPreviousFrame.z - g_camera->m_perspectiveCameraPos.z == 0.0f))
 		{
 			m_calculateDistance = CTrue;
 		}
@@ -17789,9 +17790,9 @@ CBool CMain::Render()
 	m_listenerOri[1] = g_camera->m_perspectiveCameraDir.y;
 	m_listenerOri[2] = -g_camera->m_perspectiveCameraDir.z;
 
-	m_soundSystem->SetListenerPosition( m_listenerPos );
+	m_soundSystem->SetListenerPosition(m_listenerPos);
 	//m_soundSystem->SetListenerVelocity( m_listenerVel );
-	m_soundSystem->SetListenerOrientation( m_listenerOri );
+	m_soundSystem->SetListenerOrientation(m_listenerOri);
 
 	//set ambient sound
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -17799,13 +17800,13 @@ CBool CMain::Render()
 
 	g_render.m_useShader = CTrue;
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glPushAttrib(GL_LIGHTING_BIT);
 	//create all the waters textures here
-	if ( g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader )
+	if (g_options.m_enableShader && g_render.UsingShader() && g_render.m_useShader)
 	{
-		for( CUInt i = 0 ; i < g_engineWaters.size(); i++ )
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
 		{
 			if (g_engineWaters[i]->GetOutsideFrustom()) continue;
 
@@ -17825,23 +17826,23 @@ CBool CMain::Render()
 	}
 
 
-	if( !g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
+	if (!g_useOldRenderingStyle && g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
 		g_render.BindFBO(m_mFboID);
-	else if( !g_useOldRenderingStyle && !g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
-		g_render.BindFBO( m_fboID );
+	else if (!g_useOldRenderingStyle && !g_window.m_windowGL.multiSampling && g_options.m_enableFBO)
+		g_render.BindFBO(m_fboID);
 
-	if( g_useOldRenderingStyle || !g_options.m_enableFBO)
-		glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+	if (g_useOldRenderingStyle || !g_options.m_enableFBO)
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	else
-		glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glViewport( 0, 0, g_width , g_height );// resets the viewport to new dimensions.
+	glViewport(0, 0, g_width, g_height);// resets the viewport to new dimensions.
 	if (g_window.m_windowGL.multiSampling &&/* g_options.m_numSamples*/g_window.m_numSamples)
-		glEnable( GL_MULTISAMPLE );
+		glEnable(GL_MULTISAMPLE);
 	else
-		glDisable( GL_MULTISAMPLE );
+		glDisable(GL_MULTISAMPLE);
 
 	//render sky
 	if (g_databaseVariables.m_insertAndShowSky)
@@ -17850,30 +17851,30 @@ CBool CMain::Render()
 	}
 
 	//render waters here
-	CVec3f cameraPos( g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z );
+	CVec3f cameraPos(g_camera->m_perspectiveCameraPos.x, g_camera->m_perspectiveCameraPos.y, g_camera->m_perspectiveCameraPos.z);
 
-	if( g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader )
+	if (g_shadowProperties.m_enable && g_render.UsingShadowShader() && g_render.m_useDynamicShadowMap && g_options.m_enableShader)
 	{
-		glActiveTexture(GL_TEXTURE7 );
+		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D_ARRAY_EXT, m_dynamicShadowMap->depth_tex_ar);
-		if( g_shadowProperties.m_shadowType > 3 || g_shadowProperties.m_shadowType == 0 /* 0 is debug state*/)
-			glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-		else 
-			glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		if (g_shadowProperties.m_shadowType > 3 || g_shadowProperties.m_shadowType == 0 /* 0 is debug state*/)
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		else
+			glTexParameteri(GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 		//glTexParameteri( GL_TEXTURE_2D_ARRAY_EXT, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-		for(int i=m_dynamicShadowMap->cur_num_splits; i<MAX_SPLITS; i++)
+		for (int i = m_dynamicShadowMap->cur_num_splits; i < MAX_SPLITS; i++)
 			far_bound[i] = 0;
 
 		// for every active split
-		for(int i=0; i<m_dynamicShadowMap->cur_num_splits; i++)
+		for (int i = 0; i < m_dynamicShadowMap->cur_num_splits; i++)
 		{
 			float light_m[16];
 
 			// f[i].fard is originally in eye space - tell's us how far we can see.
 			// Here we compute it in camera homogeneous coordinates. Basically, we calculate
 			// cam_proj * (0, 0, f[i].fard, 1)^t and then normalize to [0; 1]
-			far_bound[i] = 0.5f*(-m_dynamicShadowMap->f[i].fard*cam_proj[10]+cam_proj[14])/m_dynamicShadowMap->f[i].fard + 0.5f;
+			far_bound[i] = 0.5f * (-m_dynamicShadowMap->f[i].fard * cam_proj[10] + cam_proj[14]) / m_dynamicShadowMap->f[i].fard + 0.5f;
 
 			// compute a matrix that transforms from camera eye space to light clip space
 			// and pass it to the shader through the OpenGL texture matrices, since we
@@ -17885,7 +17886,7 @@ CBool CMain::Render()
 			// multiply the light's (bias*crop*proj*modelview) by the inverse camera modelview
 			// so that we can transform a pixel as seen from the camera
 			glMultMatrixf(cam_inverse_modelview);
-			
+
 			// compute a normal matrix for the same thing (to transform the normals)
 			// Basically, N = ((L)^-1)^-t
 			glGetFloatv(GL_TEXTURE_MATRIX, light_m);
@@ -17894,65 +17895,69 @@ CBool CMain::Render()
 			nm = inverse(nm);
 			nm = transpose(nm);
 
-			glActiveTexture(GL_TEXTURE0 + (GLenum)(i+4));
+			glActiveTexture(GL_TEXTURE0 + (GLenum)(i + 4));
 			glMatrixMode(GL_TEXTURE);
 			glLoadMatrixf(nm._array);
 		}
-		glMatrixMode( GL_MODELVIEW );
+		glMatrixMode(GL_MODELVIEW);
 	}
 
 	g_numLights = 0;
 	if (!g_render.UsingShader())
-		glEnable( GL_LIGHTING );
+		glEnable(GL_LIGHTING);
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
 		g_instancePrefab[i]->InitScript();
-		g_instancePrefab[i]->UpdateScript();
+		if (!g_currentVSceneProperties.m_pauseGame)
+			g_instancePrefab[i]->UpdateScript();
 	}
 
-	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	if (!g_currentVSceneProperties.m_pauseGame)
 	{
-		if (g_engineWaters[i]->GetHasScript())
-			g_engineWaters[i]->UpdateScript();
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_engineWaters[i]->GetHasScript())
+				g_engineWaters[i]->UpdateScript();
+		}
+
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			if (g_engineLights[i]->m_abstractLight->GetHasScript())
+				g_engineLights[i]->m_abstractLight->UpdateScript();
+		}
+
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			if (g_engineCameraInstances[i]->GetHasScript())
+				g_engineCameraInstances[i]->UpdateScript();
+		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			if (g_engineAmbientSounds[i]->GetHasScript())
+				g_engineAmbientSounds[i]->UpdateScript();
+		}
+
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+		{
+			if (g_engine3DSounds[i]->GetHasScript())
+				g_engine3DSounds[i]->UpdateScript();
+		}
+
+		if (g_VSceneScript)
+			g_VSceneScript->UpdateScript();
+
+		if (g_skyDome)
+			g_skyDome->UpdateScript();
+
+		if (g_terrain)
+			g_terrain->UpdateScript();
+
+		if (g_mainCharacter)
+			g_mainCharacter->UpdateScript();
 	}
-
-	for (CUInt i = 0; i < g_engineLights.size(); i++)
-	{
-		if (g_engineLights[i]->m_abstractLight->GetHasScript())
-			g_engineLights[i]->m_abstractLight->UpdateScript();
-	}
-
-	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
-	{
-		if (g_engineCameraInstances[i]->GetHasScript())
-			g_engineCameraInstances[i]->UpdateScript();
-	}
-
-	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-	{
-		if (g_engineAmbientSounds[i]->GetHasScript())
-			g_engineAmbientSounds[i]->UpdateScript();
-	}
-
-	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-	{
-		if (g_engine3DSounds[i]->GetHasScript())
-			g_engine3DSounds[i]->UpdateScript();
-	}
-
-	if (g_VSceneScript)
-		g_VSceneScript->UpdateScript();
-
-	if (g_skyDome)
-		g_skyDome->UpdateScript();
-
-	if (g_terrain)
-		g_terrain->UpdateScript();
-
-	if (g_mainCharacter)
-		g_mainCharacter->UpdateScript();
 
 	if (g_updateOctree && g_scene.size() > 0)
 	{
@@ -19338,7 +19343,7 @@ CBool CMain::ProcessInputs()
 
 		//}
 	}
-	else if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX )
+	else if( g_currentCameraType == eCAMERA_DEFAULT_FREE_NO_PHYSX && !m_lockDefaultFreeCamera)
 	{
 		ApplyForce(IDLE, elapsedTime);
 
@@ -20463,7 +20468,7 @@ CBool CMain::Load(CChar* pathName)
 		fread(&g_main->m_pauseMainCharacterAnimations, sizeof(CBool), 1, filePtr);
 		fread(&g_main->m_pauseAllAnimationsOfPrefabInstances, sizeof(CBool), 1, filePtr);
 		fread(&g_main->m_pausePhysics, sizeof(CBool), 1, filePtr);
-		fread(&g_main->m_pauseAllWaters, sizeof(CBool), 1, filePtr);
+		fread(&g_main->m_pauseAllWaterAnimations, sizeof(CBool), 1, filePtr);
 	}
 	//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 	fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
@@ -21648,8 +21653,8 @@ CBool CMain::Load(CChar* pathName)
 		CBool videoHasScript;
 		CChar videoScript[MAX_NAME_SIZE];
 		CBool ExitEscKey = CTrue;
-		CBool pauseGameWhenStarting = CTrue;
-		CBool resumeGameWhenFinished = CTrue;
+		CBool pauseGameSoundsWhenStarting = CTrue;
+		CBool resumeGameSoundsWhenFinished = CTrue;
 		CBool PlayAudio = CTrue;
 
 		fread(strVideoName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -21665,8 +21670,8 @@ CBool CMain::Load(CChar* pathName)
 		}
 		if (engine_version >= 230)
 		{
-			fread(&pauseGameWhenStarting, sizeof(CBool), 1, filePtr);
-			fread(&resumeGameWhenFinished, sizeof(CBool), 1, filePtr);
+			fread(&pauseGameSoundsWhenStarting, sizeof(CBool), 1, filePtr);
+			fread(&resumeGameSoundsWhenFinished, sizeof(CBool), 1, filePtr);
 		}
 		fread(&videoHasScript, sizeof(CBool), 1, filePtr);
 		fread(&videoScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -21697,8 +21702,8 @@ CBool CMain::Load(CChar* pathName)
 		video->SetLoop(loopVideo);
 		video->SetPlay(playVideo);
 		video->SetExitWithEscKey(ExitEscKey);
-		video->SetPauseGameWhenStarting(pauseGameWhenStarting);
-		video->SetResumeGameWhenFinished(resumeGameWhenFinished);
+		video->SetPauseGameSoundsWhenStarting(pauseGameSoundsWhenStarting);
+		video->SetResumeGameSoundsWhenFinished(resumeGameSoundsWhenFinished);
 		video->SetPlayAudio(PlayAudio);
 		video->SetVideoFileName(strVideoFileName);
 		video->SetHasScript(videoHasScript);
@@ -25221,4 +25226,27 @@ CVoid CMain::ResumeSounds()
 			g_soundSystem->PlayALPausedSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
 		}
 	}
+}
+
+CVoid CMain::PauseGame()
+{
+	g_currentVSceneProperties.m_pauseGame = CTrue;
+	g_currentVSceneProperties.m_lockCharacterController = CTrue;
+
+	m_pauseMainCharacterAnimations = CTrue;
+	m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	m_pausePhysics = CTrue;
+	m_pauseAllWaterAnimations = CTrue;
+
+}
+
+CVoid CMain::ResumeGame()
+{
+	g_currentVSceneProperties.m_pauseGame = CFalse;
+	g_currentVSceneProperties.m_lockCharacterController = CFalse;
+
+	m_pauseMainCharacterAnimations = CFalse;
+	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	m_pausePhysics = CFalse;
+	m_pauseAllWaterAnimations = CFalse;
 }

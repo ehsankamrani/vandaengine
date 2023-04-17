@@ -37,7 +37,7 @@ void CEditCurrentSceneOptions::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECKBOX_LOCK_CHARACTER_CONTROLLER, m_checkLockCharacterController);
 	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_ALL_PREFAB_INSTANCE_ANIMATIONS, m_checkPauseAllAnimationsOfPrefabInstances);
 	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_PHYSICS, m_checkPausePhysics);
-	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_WATERS, m_checkPauseAllWaters);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_WATERS, m_checkPauseAllWaterAnimations);
 }
 
 
@@ -109,13 +109,13 @@ BOOL CEditCurrentSceneOptions::OnInitDialog()
 		m_checkPausePhysics.SetCheck(BST_UNCHECKED);
 	}
 
-	if (g_multipleView->m_pauseAllWaters)
+	if (g_multipleView->m_pauseAllWaterAnimations)
 	{
-		m_checkPauseAllWaters.SetCheck(BST_CHECKED);
+		m_checkPauseAllWaterAnimations.SetCheck(BST_CHECKED);
 	}
 	else
 	{
-		m_checkPauseAllWaters.SetCheck(BST_UNCHECKED);
+		m_checkPauseAllWaterAnimations.SetCheck(BST_UNCHECKED);
 	}
 
 	if (g_multipleView->m_showMenuCursor)
@@ -238,14 +238,14 @@ void CEditCurrentSceneOptions::OnOK()
 		g_multipleView->m_pausePhysics = CFalse;
 	}
 
-	checkState = m_checkPauseAllWaters.GetCheck();
+	checkState = m_checkPauseAllWaterAnimations.GetCheck();
 	if (checkState == BST_CHECKED)
 	{
-		g_multipleView->m_pauseAllWaters = CTrue;
+		g_multipleView->m_pauseAllWaterAnimations = CTrue;
 	}
 	else
 	{
-		g_multipleView->m_pauseAllWaters = CFalse;
+		g_multipleView->m_pauseAllWaterAnimations = CFalse;
 	}
 
 	checkState = m_checkShowCursor.GetCheck();

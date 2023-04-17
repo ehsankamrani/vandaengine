@@ -1400,13 +1400,20 @@
 #define ID_FILE_EXIT33120               33120
 #define ID_NEW_VIDEO                    33121
 #define ID_NEWSCRIPT_VIDEO              33122
+#define ID_NEWSCRIPT_BUTTON             33123
+#define ID_ICONS_GENERAL                33124
+#define ID_GENERAL_SHOWALLICONS         33125
+#define ID_GENERAL_HIDEALLICONS         33126
+#define ID_ICONS_HIDEALLICONS           33127
+#define ID_SHOWALLICONS                 33128
+#define ID_ICONS_SHOWALLICONS           33129
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        550
-#define _APS_NEXT_COMMAND_VALUE         33123
+#define _APS_NEXT_COMMAND_VALUE         33130
 #define _APS_NEXT_CONTROL_VALUE         1335
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

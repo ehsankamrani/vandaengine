@@ -463,14 +463,14 @@ CInt PauseGame(lua_State* L);
 CInt PauseAllAnimationsOfPrefabInstances(lua_State* L);
 CInt PauseMainCharacterAnimations(lua_State* L);
 CInt PausePhysics(lua_State* L);
-CInt PauseAllWaters(lua_State* L);
+CInt PauseAllWaterAnimations(lua_State* L);
 
 //resume game
 CInt ResumeGame(lua_State* L);
 CInt ResumeAllAnimationsOfPrefabInstances(lua_State* L);
 CInt ResumeMainCharacterAnimations(lua_State* L);
 CInt ResumePhysics(lua_State* L);
-CInt ResumeAllWaters(lua_State* L);
+CInt ResumeAllWaterAnimations(lua_State* L);
 
 //lock/unlock character
 CInt LockCharacterController(lua_State* L);

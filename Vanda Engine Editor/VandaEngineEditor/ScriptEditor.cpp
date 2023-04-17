@@ -140,7 +140,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 		LoadFile("Assets/Engine/Scripts/Video.txt");
 		SetWindowText("Script Editor - Untitled");
 	}
-	else if (wParam == ID_NEWSCRIPT_GUI)
+	else if (wParam == ID_NEWSCRIPT_BUTTON)
 	{
 		if (!SaveChanges())
 			return CDialog::OnCommand(wParam, lParam);

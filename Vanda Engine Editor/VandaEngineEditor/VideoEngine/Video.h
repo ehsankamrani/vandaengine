@@ -55,6 +55,7 @@ public:
 	CVoid SetVolume(CFloat volume) { m_volume = volume; }
 	CVoid SetLoop(CBool loop) { m_loop = loop; }
 	CVoid SetPlay(CBool play);
+	CVoid SetPlay2(CBool play) { m_play = play; }
 	CVoid SetVideoFileName(CChar* soundName) { Cpy(m_videoFileName, soundName); }
 	CVoid SetLastName(CChar* name);
 	CVoid SetUpdateData(CBool update) { m_updateData = update; }
@@ -105,10 +106,10 @@ public:
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
 
-	CVoid SetPauseGameWhenStarting(CBool set) { m_pauseGameWhenStarting = set; }
-	CVoid SetResumeGameWhenFinished(CBool set) { m_resumeGameWhenFinished = set; }
-	CBool GetPauseGameWhenStarting() { return m_pauseGameWhenStarting; }
-	CBool GetResumeGameWhenFinished() { return m_resumeGameWhenFinished; }
+	CVoid SetPauseGameSoundsWhenStarting(CBool set) { m_pauseGameSoundsWhenStarting = set; }
+	CVoid SetResumeGameSoundsWhenFinished(CBool set) { m_resumeGameSoundsWhenFinished = set; }
+	CBool GetPauseGameSoundsWhenStarting() { return m_pauseGameSoundsWhenStarting; }
+	CBool GetResumeGameSoundsWhenFinished() { return m_resumeGameSoundsWhenFinished; }
 
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_lastName[MAX_NAME_SIZE];
@@ -133,8 +134,8 @@ private:
 	CFloat m_elapsedTime;
 	CFloat m_nextVideoFrameTime;
 	CFloat m_duration;
-	CBool m_pauseGameWhenStarting;
-	CBool m_resumeGameWhenFinished;
+	CBool m_pauseGameSoundsWhenStarting;
+	CBool m_resumeGameSoundsWhenFinished;
 
 	//Video
 	AVCodecContext* m_pVideoCodecContext;

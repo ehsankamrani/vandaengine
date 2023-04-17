@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 230;
+CInt g_version = 231;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.3.0"));
+	SetWindowText(_T("Vanda Engine 2.3.1"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.3.0 initialized successfully" );
+		PrintInfo( "\nVersion 2.3.1 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.3.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.3.1 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.3.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.3.1 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -6031,12 +6031,25 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if( g_menu.m_showLightIcons )
 		{
 			GetMenu()->CheckMenuItem( ID_VIEW_LIGHT_POSITIONS, MF_CHECKED );
+			FindSelectedEngineObjectFromEngineObjectsList();
 			PrintInfo( "\nLight icons enabled" );
 		}
 		else
 		{
 			GetMenu()->CheckMenuItem( ID_VIEW_LIGHT_POSITIONS, MF_UNCHECKED );
 			PrintInfo( "\nLight icons disabled" );
+
+			for (CUInt i = 0; i < g_engineLights.size(); i++)
+			{
+				if (g_selectedName == g_engineLights[i]->GetIndex())
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+					g_showArrow = CFalse;
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse, NULL);
+					break;
+				}
+			}
 		}
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
@@ -6047,12 +6060,26 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if( g_menu.m_showSoundIcons )
 		{
 			GetMenu()->CheckMenuItem( ID_VIEW_SOUND_POSITIONS, MF_CHECKED );
+			FindSelectedEngineObjectFromEngineObjectsList();
 			PrintInfo( "\nSound icons enabled" );
 		}
 		else
 		{
 			GetMenu()->CheckMenuItem( ID_VIEW_SOUND_POSITIONS, MF_UNCHECKED );
 			PrintInfo( "\nSound icons disabled" );
+
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+			{
+				if (g_selectedName == g_engine3DSounds[i]->GetIndex())
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+					g_showArrow = CFalse;
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse, NULL);
+					break;
+				}
+			}
+
 		}
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
@@ -6063,12 +6090,25 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if( g_menu.m_showWaterIcons )
 		{
 			GetMenu()->CheckMenuItem( ID_ICONS_WATERICONS, MF_CHECKED );
+			FindSelectedEngineObjectFromEngineObjectsList();
 			PrintInfo( "\nWater icons enabled" );
 		}
 		else
 		{
 			GetMenu()->CheckMenuItem( ID_ICONS_WATERICONS, MF_UNCHECKED );
 			PrintInfo( "\nWater icons disabled" );
+
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				if (g_selectedName == g_engineWaters[i]->GetIndex())
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+					g_showArrow = CFalse;
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse, NULL);
+					break;
+				}
+			}
 		}
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
@@ -6079,12 +6119,21 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if( g_menu.m_showSkyIcon )
 		{
 			GetMenu()->CheckMenuItem( ID_ICONS_SKYICON, MF_CHECKED );
+			FindSelectedEngineObjectFromEngineObjectsList();
 			PrintInfo( "\nSky icon enabled" );
 		}
 		else
 		{
 			GetMenu()->CheckMenuItem( ID_ICONS_SKYICON, MF_UNCHECKED );
 			PrintInfo( "\nSky icon disabled" );
+
+			if (g_skyDome && g_selectedName == g_skyDome->GetIndex())
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+				g_showArrow = CFalse;
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse, NULL);
+			}
 		}
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
@@ -6095,13 +6144,139 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		if( g_menu.m_showCameraIcons )
 		{
 			GetMenu()->CheckMenuItem( ID_ICONS_CAMERAICONS, MF_CHECKED );
-			PrintInfo( "\nCamera icon enabled" );
+			FindSelectedEngineObjectFromEngineObjectsList();
+			PrintInfo( "\nCamera icons enabled" );
 		}
 		else
 		{
 			GetMenu()->CheckMenuItem( ID_ICONS_CAMERAICONS, MF_UNCHECKED );
-			PrintInfo( "\nCamera icon disabled" );
+			PrintInfo( "\nCamera icons disabled" );
+
+			for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+			{
+				if (g_selectedName == g_engineCameraInstances[i]->GetIndex())
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+					g_showArrow = CFalse;
+					g_transformObject = CFalse;
+					SetDialogData3(CFalse, NULL);
+					break;
+				}
+			}
 		}
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+	}
+	else if (wParam == ID_ICONS_SHOWALLICONS)
+	{
+		g_menu.m_showLightIcons = CTrue;
+		GetMenu()->CheckMenuItem(ID_VIEW_LIGHT_POSITIONS, MF_CHECKED);
+		PrintInfo("\nLight icons enabled");
+
+		g_menu.m_showSoundIcons = CTrue;
+		GetMenu()->CheckMenuItem(ID_VIEW_SOUND_POSITIONS, MF_CHECKED);
+		PrintInfo("\nSound icons enabled");
+
+		g_menu.m_showWaterIcons = CTrue;
+		GetMenu()->CheckMenuItem(ID_ICONS_WATERICONS, MF_CHECKED);
+		PrintInfo("\nWater icons enabled");
+
+		g_menu.m_showSkyIcon = CTrue;
+		GetMenu()->CheckMenuItem(ID_ICONS_SKYICON, MF_CHECKED);
+		PrintInfo("\nSky icon enabled");
+
+		g_menu.m_showCameraIcons = CTrue;
+		GetMenu()->CheckMenuItem(ID_ICONS_CAMERAICONS, MF_CHECKED);
+		PrintInfo("\nCamera icons enabled");
+
+		FindSelectedEngineObjectFromEngineObjectsList();
+
+		g_multipleView->SetElapsedTimeFromBeginning();
+		g_multipleView->RenderWindow();
+	}
+	else if (wParam == ID_ICONS_HIDEALLICONS)
+	{
+		//light icons
+		g_menu.m_showLightIcons = CFalse;
+		GetMenu()->CheckMenuItem(ID_VIEW_LIGHT_POSITIONS, MF_UNCHECKED);
+		PrintInfo("\nLight icons disabled");
+
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			if (g_selectedName == g_engineLights[i]->GetIndex())
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+				g_showArrow = CFalse;
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse, NULL);
+				break;
+			}
+		}
+
+		//3D sound icons
+		g_menu.m_showSoundIcons = CFalse;
+		GetMenu()->CheckMenuItem(ID_VIEW_SOUND_POSITIONS, MF_UNCHECKED);
+		PrintInfo("\nSound icons disabled");
+
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+		{
+			if (g_selectedName == g_engine3DSounds[i]->GetIndex())
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+				g_showArrow = CFalse;
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse, NULL);
+				break;
+			}
+		}
+
+		//water icons
+		g_menu.m_showWaterIcons = CFalse;
+		GetMenu()->CheckMenuItem(ID_ICONS_WATERICONS, MF_UNCHECKED);
+		PrintInfo("\nWater icons disabled");
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			if (g_selectedName == g_engineWaters[i]->GetIndex())
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+				g_showArrow = CFalse;
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse, NULL);
+				break;
+			}
+		}
+
+		//sky icon
+		g_menu.m_showSkyIcon = CFalse;
+		GetMenu()->CheckMenuItem(ID_ICONS_SKYICON, MF_UNCHECKED);
+		PrintInfo("\nSky icon disabled");
+
+		if (g_skyDome && g_selectedName == g_skyDome->GetIndex())
+		{
+			g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+			g_showArrow = CFalse;
+			g_transformObject = CFalse;
+			SetDialogData3(CFalse, NULL);
+		}
+
+		//camera icons
+		g_menu.m_showCameraIcons = CFalse;
+		GetMenu()->CheckMenuItem(ID_ICONS_CAMERAICONS, MF_UNCHECKED);
+		PrintInfo("\nCamera icons disabled");
+
+		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+		{
+			if (g_selectedName == g_engineCameraInstances[i]->GetIndex())
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+				g_showArrow = CFalse;
+				g_transformObject = CFalse;
+				SetDialogData3(CFalse, NULL);
+				break;
+			}
+		}
+
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
@@ -7625,7 +7800,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.3.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.3.1 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7691,7 +7866,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	g_multipleView->m_pauseMainCharacterAnimations = CFalse;
 	g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	g_multipleView->m_pausePhysics = CFalse;
-	g_multipleView->m_pauseAllWaters = CFalse;
+	g_multipleView->m_pauseAllWaterAnimations = CFalse;
 
 	if(!g_vandaDemo)
 		g_shadowProperties.m_enable = CTrue;
@@ -8064,7 +8239,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8073,7 +8248,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.3.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.3.1 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -8236,6 +8411,7 @@ CVoid CVandaEngineDlg::OnMenuClickedImportColladaMultipleAnimations(CChar* fileN
 			tempScene->m_isSelectable = g_prefabProperties.m_isSelectable;
 			tempScene->SetClipIndexForStartup(g_prefabProperties.m_clipIndex);
 			tempScene->SetClipIndex(g_prefabProperties.m_clipIndex);
+			tempScene->SetAnimationStatus(eANIM_PAUSE);
 		}
 
 		if (g_scene.size() > 1)
@@ -8516,6 +8692,7 @@ CVoid CVandaEngineDlg::OnMenuClickedImportCollada()
 				tempScene->m_isSelectable = g_prefabProperties.m_isSelectable;
 				tempScene->SetClipIndexForStartup(g_prefabProperties.m_clipIndex);
 				tempScene->SetCurrentClipIndex(g_prefabProperties.m_clipIndex);
+				tempScene->SetAnimationStatus(eANIM_PAUSE);
 			}
 
 			if (g_scene.size() > 1)
@@ -9824,7 +10001,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10666,7 +10843,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -13372,7 +13549,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&g_multipleView->m_pauseMainCharacterAnimations, sizeof(CBool), 1, filePtr);
 			fwrite(&g_multipleView->m_pauseAllAnimationsOfPrefabInstances, sizeof(CBool), 1, filePtr);
 			fwrite(&g_multipleView->m_pausePhysics, sizeof(CBool), 1, filePtr);
-			fwrite(&g_multipleView->m_pauseAllWaters, sizeof(CBool), 1, filePtr);
+			fwrite(&g_multipleView->m_pauseAllWaterAnimations, sizeof(CBool), 1, filePtr);
 		}
 		//fwrite(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fwrite(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
@@ -13764,8 +13941,8 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 			}
 			if (g_version >= 230)
 			{
-				CBool pauseGameWhenStarting = g_engineVideos[i]->GetPauseGameWhenStarting();
-				CBool resumeGameWhenFinished = g_engineVideos[i]->GetResumeGameWhenFinished();
+				CBool pauseGameWhenStarting = g_engineVideos[i]->GetPauseGameSoundsWhenStarting();
+				CBool resumeGameWhenFinished = g_engineVideos[i]->GetResumeGameSoundsWhenFinished();
 
 				fwrite(&pauseGameWhenStarting, sizeof(CBool), 1, filePtr);
 				fwrite(&resumeGameWhenFinished, sizeof(CBool), 1, filePtr);
@@ -13985,7 +14162,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15168,7 +15345,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -16934,7 +17111,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17155,7 +17332,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&g_multipleView->m_pauseMainCharacterAnimations, sizeof(CBool), 1, filePtr);
 				fread(&g_multipleView->m_pauseAllAnimationsOfPrefabInstances, sizeof(CBool), 1, filePtr);
 				fread(&g_multipleView->m_pausePhysics, sizeof(CBool), 1, filePtr);
-				fread(&g_multipleView->m_pauseAllWaters, sizeof(CBool), 1, filePtr);
+				fread(&g_multipleView->m_pauseAllWaterAnimations, sizeof(CBool), 1, filePtr);
 			}
 			//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 			fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
@@ -18498,8 +18675,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				CBool videoHasScript;
 				CChar videoScript[MAX_NAME_SIZE];
 				CBool ExitEscKey = CTrue;
-				CBool pauseGameWhenStarting = CTrue;
-				CBool resumeGameWhenFinished = CTrue;
+				CBool pauseGameSoundsWhenStarting = CTrue;
+				CBool resumeGameSoundsWhenFinished = CTrue;
 				CBool PlayAudio = CTrue;
 
 				fread(strVideoName, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -18515,8 +18692,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				}
 				if (engine_version >= 230)
 				{
-					fread(&pauseGameWhenStarting, sizeof(CBool), 1, filePtr);
-					fread(&resumeGameWhenFinished, sizeof(CBool), 1, filePtr);
+					fread(&pauseGameSoundsWhenStarting, sizeof(CBool), 1, filePtr);
+					fread(&resumeGameSoundsWhenFinished, sizeof(CBool), 1, filePtr);
 				}
 				fread(&videoHasScript, sizeof(CBool), 1, filePtr);
 				fread(&videoScript, sizeof(CChar), MAX_NAME_SIZE, filePtr);
@@ -18534,10 +18711,10 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				video->SetPath(VideoPath);
 				video->SetVolume(volume);
 				video->SetLoop(loopVideo);
-				video->SetPlay(playVideo);
+				video->SetPlay2(playVideo);
 				video->SetExitWithEscKey(ExitEscKey);
-				video->SetPauseGameWhenStarting(pauseGameWhenStarting);
-				video->SetResumeGameWhenFinished(resumeGameWhenFinished);
+				video->SetPauseGameSoundsWhenStarting(pauseGameSoundsWhenStarting);
+				video->SetResumeGameSoundsWhenFinished(resumeGameSoundsWhenFinished);
 				video->SetPlayAudio(PlayAudio);
 				video->SetVideoFileName(strVideoFileName);
 				video->SetLastName(strVideoName);
@@ -18955,7 +19132,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -21309,8 +21486,8 @@ CVoid CVandaEngineDlg::ChangeVideoProperties(CVideo* video)
 	m_dlgAddVideo->SetExitWithEscKey(video->GetExitWithEscKey());
 	m_dlgAddVideo->SetPlayAudio(video->GetPlayAudio());
 	m_dlgAddVideo->SetVideoFileName(video->GetVideoFileName());
-	m_dlgAddVideo->SetPauseGameWhenStarting(video->GetPauseGameWhenStarting());
-	m_dlgAddVideo->SetResumeGameWhenFinished(video->GetResumeGameWhenFinished());
+	m_dlgAddVideo->SetPauseGameSoundsWhenStarting(video->GetPauseGameSoundsWhenStarting());
+	m_dlgAddVideo->SetResumeGameSoundsWhenFinished(video->GetResumeGameSoundsWhenFinished());
 	m_dlgAddVideo->SetUpdateScript(video->GetUpdateScript());
 	m_dlgAddVideo->SetHasScript(video->GetHasScript());
 	m_dlgAddVideo->SetScriptPath(video->GetScript());
@@ -21343,13 +21520,13 @@ CVoid CVandaEngineDlg::ChangeVideoProperties(CVideo* video)
 		video->SetPath(m_dlgAddVideo->GetPath());
 		video->SetUpdateData(m_dlgAddVideo->GetUpdateData());
 		video->SetVolume(m_dlgAddVideo->GetVolume());
-		video->SetPlay(m_dlgAddVideo->GetPlay());
+		video->SetPlay2(m_dlgAddVideo->GetPlay());
 		video->SetLoop(m_dlgAddVideo->GetLoop());
 		video->SetExitWithEscKey(m_dlgAddVideo->GetExitWithEscKey());
 		video->SetPlayAudio(m_dlgAddVideo->GetPlayAudio());
 		video->SetVideoFileName(m_dlgAddVideo->GetVideoFileName());
-		video->SetPauseGameWhenStarting(m_dlgAddVideo->GetPauseGameWhenStarting());
-		video->SetResumeGameWhenFinished(m_dlgAddVideo->GetResumeGameWhenFinished());
+		video->SetPauseGameSoundsWhenStarting(m_dlgAddVideo->GetPauseGameSoundsWhenStarting());
+		video->SetResumeGameSoundsWhenFinished(m_dlgAddVideo->GetResumeGameSoundsWhenFinished());
 		video->SetUpdateScript(m_dlgAddVideo->GetUpdateScript());
 		video->SetHasScript(m_dlgAddVideo->GetHasScript());
 		video->SetScript(m_dlgAddVideo->GetScriptPath());
@@ -22966,6 +23143,15 @@ void CVandaEngineDlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResult
 						if (Cmp(g_instancePrefab[i]->GetName(), charPtr))
 						{
 							g_instancePrefab[i]->SetVisible( CFalse );
+
+							if (g_selectedName == g_instancePrefab[i]->GetNameIndex())
+							{
+								g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = -1;
+								g_showArrow = CFalse;
+								g_transformObject = CFalse;
+								SetDialogData3(CFalse, NULL);
+							}
+
 							foundTarget = CTrue;
 							break;
 						}
@@ -22989,6 +23175,37 @@ void CVandaEngineDlg::OnLvnItemchangedListScenes(NMHDR *pNMHDR, LRESULT *pResult
 						if (Cmp(g_instancePrefab[i]->GetName(), charPtr))
 						{
 							g_instancePrefab[i]->SetVisible(CTrue);
+
+							int nSelected = -1;
+							POSITION p = m_listBoxScenes.GetFirstSelectedItemPosition();
+							while (p)
+							{
+								nSelected = m_listBoxScenes.GetNextSelectedItem(p);
+							}
+							if (nSelected >= 0)
+							{
+								m_btnRemoveScene.EnableWindow(TRUE);
+								TCHAR szBuffer[1024];
+								DWORD cchBuf(1024);
+								LVITEM lvi;
+								lvi.iItem = nSelected;
+								lvi.iSubItem = 0;
+								lvi.mask = LVIF_TEXT;
+								lvi.pszText = szBuffer;
+								lvi.cchTextMax = cchBuf;
+								m_listBoxScenes.GetItem(&lvi);
+
+								if (Cmp(g_instancePrefab[i]->GetName(), szBuffer))
+								{
+									g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_instancePrefab[i]->GetNameIndex();
+									g_showArrow = CTrue;
+									g_render.SetSelectedInstancePrefab(g_instancePrefab[i]);
+									g_transformObject = CFalse;
+									g_instancePrefab[i]->UpdateArrow();
+									SetDialogData3(CTrue, g_instancePrefab[i]);
+								}
+							}
+
 							foundTarget = CTrue;
 							break;
 						}
@@ -23235,8 +23452,15 @@ void CVandaEngineDlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *
 			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), szBuffer))
 			{
 				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineLights[i]->GetIndex();
-				SetDialogData4(g_engineLights[i]->m_abstractLight->GetName(), g_engineLights[i]->m_abstractLight->GetPosition()[0], g_engineLights[i]->m_abstractLight->GetPosition()[1], g_engineLights[i]->m_abstractLight->GetPosition()[2], XYZInfo);
-				foundTarget = CTrue;
+				if (g_menu.m_showLightIcons)
+				{
+					SetDialogData4(g_engineLights[i]->m_abstractLight->GetName(), g_engineLights[i]->m_abstractLight->GetPosition()[0], g_engineLights[i]->m_abstractLight->GetPosition()[1], g_engineLights[i]->m_abstractLight->GetPosition()[2], XYZInfo);
+					foundTarget = CTrue;
+				}
+				else
+				{
+					foundTarget = CFalse;
+				}
 				break;
 			}
 		}
@@ -23245,8 +23469,15 @@ void CVandaEngineDlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *
 			if (g_skyDome && Cmp(g_skyDome->GetName(), szBuffer))
 			{
 				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_skyDome->GetIndex();
-				SetDialogData4(g_skyDome->GetName(), g_skyDome->GetPosition()[0], g_skyDome->GetPosition()[1], g_skyDome->GetPosition()[2], XYZInfo);
-				foundTarget = CTrue;
+				if (g_menu.m_showSkyIcon)
+				{
+					SetDialogData4(g_skyDome->GetName(), g_skyDome->GetPosition()[0], g_skyDome->GetPosition()[1], g_skyDome->GetPosition()[2], XYZInfo);
+					foundTarget = CTrue;
+				}
+				else
+				{
+					foundTarget = CFalse;
+				}
 			}
 		}
 		if (!foundTarget)
@@ -23277,14 +23508,21 @@ void CVandaEngineDlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *
 				{
 					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineWaters[i]->GetIndex();
 
-					if (g_currentTransformType == eCTranslate)
-						SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetPos()[0], g_engineWaters[i]->GetPos()[1], g_engineWaters[i]->GetPos()[2], CTrue);
-					else if (g_currentTransformType == eCRotate)
-						SetDialogData4(g_engineWaters[i]->GetName(), 0.0, g_engineWaters[i]->GetRotateY(), 0.0, CTrue);
-					else if (g_currentTransformType == eCScale)
-						SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetScaleX(), 0.0, g_engineWaters[i]->GetScaleZ(), CTrue);
-
-					foundTarget = CTrue;
+					if (g_menu.m_showWaterIcons)
+					{
+						if (g_currentTransformType == eCTranslate)
+							SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetPos()[0], g_engineWaters[i]->GetPos()[1], g_engineWaters[i]->GetPos()[2], CTrue);
+						else if (g_currentTransformType == eCRotate)
+							SetDialogData4(g_engineWaters[i]->GetName(), 0.0, g_engineWaters[i]->GetRotateY(), 0.0, CTrue);
+						else if (g_currentTransformType == eCScale)
+							SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetScaleX(), 0.0, g_engineWaters[i]->GetScaleZ(), CTrue);
+					
+						foundTarget = CTrue;
+					}
+					else
+					{
+						foundTarget = CFalse;
+					}
 					break;
 				}
 			}
@@ -23296,8 +23534,15 @@ void CVandaEngineDlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *
 				if (Cmp(g_engine3DSounds[i]->GetName(), szBuffer))
 				{
 					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engine3DSounds[i]->GetIndex();
-					SetDialogData4(g_engine3DSounds[i]->GetName(), g_engine3DSounds[i]->GetPosition()[0], g_engine3DSounds[i]->GetPosition()[1], g_engine3DSounds[i]->GetPosition()[2], XYZInfo);
-					foundTarget = CTrue;
+					if (g_menu.m_showSoundIcons)
+					{
+						SetDialogData4(g_engine3DSounds[i]->GetName(), g_engine3DSounds[i]->GetPosition()[0], g_engine3DSounds[i]->GetPosition()[1], g_engine3DSounds[i]->GetPosition()[2], XYZInfo);
+						foundTarget = CTrue;
+					}
+					else
+					{
+						foundTarget = CFalse;
+					}
 					break;
 				}
 			}
@@ -23326,8 +23571,15 @@ void CVandaEngineDlg::OnLvnItemchangedListEngineObjects(NMHDR *pNMHDR, LRESULT *
 				if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), szBuffer))
 				{
 					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineCameraInstances[i]->GetIndex();
-					SetDialogData4(g_engineCameraInstances[i]->m_abstractCamera->GetName(), g_engineCameraInstances[i]->GetPos().x, g_engineCameraInstances[i]->GetPos().y, g_engineCameraInstances[i]->GetPos().z, XYZInfo);
-					foundTarget = CTrue;
+					if (g_menu.m_showCameraIcons)
+					{
+						SetDialogData4(g_engineCameraInstances[i]->m_abstractCamera->GetName(), g_engineCameraInstances[i]->GetPos().x, g_engineCameraInstances[i]->GetPos().y, g_engineCameraInstances[i]->GetPos().z, XYZInfo);
+						foundTarget = CTrue;
+					}
+					else
+					{
+						foundTarget = CFalse;
+					}
 					break;
 				}
 			}
@@ -24854,6 +25106,28 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 {
 	ClearObjectNames();
 
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_VSCENE)
+	{
+		//exit from videos
+		for (CUInt i = 0; i < g_engineVideos.size(); i++)
+		{
+			if (g_engineVideos[i]->GetPlay())
+			{
+				g_engineVideos[i]->Reset();
+				g_engineVideos[i]->SetMaintenanceMode(CTrue); //prevent from updating and rendering
+			}
+		}
+		g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX;
+		g_multipleView->m_lockDefaultFreeCamera = CTrue;
+		g_multipleView->m_lockInput = CTrue;
+		g_multipleView->ResumeGame();
+
+		g_multipleView->SetSwapBuffers(CFalse);
+		g_multipleView->RenderWindow();
+		g_multipleView->SetSwapBuffers(CTrue);
+
+	}
+
 	g_multipleView->SetUpdateScript(CFalse);
 
 	if (g_editorMode == eMODE_GUI)
@@ -24922,7 +25196,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		g_engineCameraInstances[c]->SetActive(CFalse);
 	}
 
-	g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngineDlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+	ex_pVandaEngineDlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 	m_mainBtnDeactivatePlayMode.ShowWindow(SW_HIDE);
 	m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
 	m_mainBtnDeactivatePlayMode.UpdateWindow();
@@ -24936,7 +25210,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		//Load global sound volume
 		g_currentVSceneProperties.m_globalSoundVolume = m_globalSoundVolume;
 		g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
-		
+
 		//Load 3D sound parameters
 		for (CUInt i = 0; i < m_engine3DSounds.size(); i++)
 		{
@@ -24960,7 +25234,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 					g_engine3DSounds[j]->GetSoundSource()->SetMaxDistance(m_engine3DSounds[i]->GetMaxDistance());
 					g_engine3DSounds[j]->SetReferenceDistance(m_engine3DSounds[i]->GetReferenceDistance());
 					g_engine3DSounds[j]->GetSoundSource()->SetReferenceDistance(m_engine3DSounds[i]->GetReferenceDistance());
-					
+
 					//if (g_engine3DSounds[j]->GetPlay())
 					//{
 					//	g_soundSystem->PlayALSound(*(g_engine3DSounds[j]->GetSoundSource()));
@@ -24969,7 +25243,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 					//}
 					//else
 					//{
-						g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
+					g_soundSystem->StopALSound(*(g_engine3DSounds[j]->GetSoundSource()));
 					//}
 					CDelete(m_engine3DSounds[i]);
 					break;
@@ -25003,7 +25277,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 					//}
 					//else
 					//{
-						g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
+					g_soundSystem->StopALSound(*(g_engineAmbientSounds[j]->GetSoundSource()));
 					//}
 					CDelete(m_engineAmbientSounds[i]);
 					break;
@@ -25024,9 +25298,9 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 				{
 					g_engineVideos[j]->SetName(m_engineVideos[i]->GetName());
 					g_engineVideos[j]->SetLoop(m_engineVideos[i]->GetLoop());
-					g_engineVideos[j]->SetPlay(m_engineVideos[i]->GetPlay());
+					g_engineVideos[j]->SetPlay2(m_engineVideos[i]->GetPlay());
 					g_engineVideos[j]->SetVolume(m_engineVideos[i]->GetVolume());
-					if(g_engineVideos[j]->GetPlay())
+					if (g_engineVideos[j]->GetPlay())
 						g_engineVideos[j]->Reset();
 					g_engineVideos[j]->SetMaintenanceMode(CTrue); //prevent from updating and rendering
 					CDelete(m_engineVideos[i]);
@@ -25461,16 +25735,6 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		}
 		m_water.clear();
 
-		//Load Current VScene info
-		g_currentVSceneProperties.m_lockCharacterController = m_currentVSceneProperties.m_lockCharacterController;
-		g_currentVSceneProperties.m_menuCursorSize = m_currentVSceneProperties.m_menuCursorSize;
-		g_currentVSceneProperties.m_pauseGame = m_currentVSceneProperties.m_pauseGame;
-		g_multipleView->m_showMenuCursor = m_showMenuCursor;
-		g_multipleView->m_pauseMainCharacterAnimations = m_pauseMainCharacterAnimations;
-		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = m_pauseAllAnimationsOfPrefabInstances;
-		g_multipleView->m_pausePhysics = m_pausePhysics;
-		g_multipleView->m_pauseAllWaters = m_pauseAllWaters;
-
 		//Load GUI info
 		for (CUInt i = 0; i < m_guis.size(); i++)
 		{
@@ -25625,8 +25889,9 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 	}
 
 	g_multipleView->SetPlayGameMode(CFalse);
-
+	g_multipleView->SetSwapBuffers(CFalse);
 	g_multipleView->RenderWindow();
+	g_multipleView->SetSwapBuffers(CTrue);
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
@@ -25639,8 +25904,23 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 	g_multipleView->SetSwapBuffers(CFalse);
 	for (CUInt i = 0; i < 10; i++)
+	{
 		g_multipleView->RenderWindow();
+	}
 	g_multipleView->SetSwapBuffers(CTrue);
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		//Load Current VScene info
+		g_currentVSceneProperties.m_lockCharacterController = m_currentVSceneProperties.m_lockCharacterController;
+		g_currentVSceneProperties.m_menuCursorSize = m_currentVSceneProperties.m_menuCursorSize;
+		g_currentVSceneProperties.m_pauseGame = m_currentVSceneProperties.m_pauseGame;
+		g_multipleView->m_showMenuCursor = m_showMenuCursor;
+		g_multipleView->m_pauseMainCharacterAnimations = m_pauseMainCharacterAnimations;
+		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = m_pauseAllAnimationsOfPrefabInstances;
+		g_multipleView->m_pausePhysics = m_pausePhysics;
+		g_multipleView->m_pauseAllWaterAnimations = m_pauseAllWaterAnimations;
+	}
 
 	if (g_editorMode == eMODE_PREFAB)
 	{
@@ -25823,8 +26103,14 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 	dlgWaiting->ShowWindow(SW_HIDE);
 	CDelete(dlgWaiting);
 
+	g_multipleView->SetSwapBuffers(CFalse);
 	g_multipleView->RenderWindow();
 	g_multipleView->RenderWindow();
+	g_multipleView->SetSwapBuffers(CTrue);
+
+	g_multipleView->m_lockDefaultFreeCamera = CFalse;
+	g_multipleView->m_lockInput = CFalse;
+
 }
 
 //This function activates play mode
@@ -26336,7 +26622,7 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 			video->SetName(g_engineVideos[i]->GetName());
 			video->SetLoop(g_engineVideos[i]->GetLoop());
-			video->SetPlay(g_engineVideos[i]->GetPlay());
+			video->SetPlay2(g_engineVideos[i]->GetPlay());
 			video->SetVolume(g_engineVideos[i]->GetVolume());
 			m_engineVideos.push_back(video);
 			alGetError(); //clear errors
@@ -26453,7 +26739,7 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		m_pauseMainCharacterAnimations = g_multipleView->m_pauseMainCharacterAnimations;
 		m_pauseAllAnimationsOfPrefabInstances = g_multipleView->m_pauseAllAnimationsOfPrefabInstances;
 		m_pausePhysics = g_multipleView->m_pausePhysics;
-		m_pauseAllWaters = g_multipleView->m_pauseAllWaters;
+		m_pauseAllWaterAnimations = g_multipleView->m_pauseAllWaterAnimations;
 		//Save GUIs
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -26635,6 +26921,12 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 				}
 			}
 
+		}
+
+		for (CUInt i = 0; i < g_engineVideos.size(); i++)
+		{
+			if (g_engineVideos[i]->GetPlay())
+				g_engineVideos[i]->SetPlay(CTrue); //initialize video and pause game elements
 		}
 
 		if (m_showMenuCursor)
@@ -28949,13 +29241,13 @@ CVoid CVandaEngineDlg::OnMenuClickedInsertVideo()
 		video->SetPath(m_dlgAddVideo->GetPath());
 		video->SetVideoFileName(m_dlgAddVideo->GetVideoFileName());
 		video->SetUpdateData(m_dlgAddVideo->GetUpdateData());
-		video->SetPlay(m_dlgAddVideo->GetPlay());
+		video->SetPlay2(m_dlgAddVideo->GetPlay());
 		video->SetLoop(m_dlgAddVideo->GetLoop());
 		video->SetVolume(m_dlgAddVideo->GetVolume());
 		video->SetExitWithEscKey(m_dlgAddVideo->GetExitWithEscKey());
 		video->SetPlayAudio(m_dlgAddVideo->GetPlayAudio());
-		video->SetPauseGameWhenStarting(m_dlgAddVideo->GetPauseGameWhenStarting());
-		video->SetResumeGameWhenFinished(m_dlgAddVideo->GetResumeGameWhenFinished());
+		video->SetPauseGameSoundsWhenStarting(m_dlgAddVideo->GetPauseGameSoundsWhenStarting());
+		video->SetResumeGameSoundsWhenFinished(m_dlgAddVideo->GetResumeGameSoundsWhenFinished());
 		video->SetUpdateScript(m_dlgAddVideo->GetUpdateScript());
 		video->SetHasScript(m_dlgAddVideo->GetHasScript());
 		video->SetScript(m_dlgAddVideo->GetScriptPath());
@@ -29959,3 +30251,134 @@ void CVandaEngineDlg::OnBnClickedBtnRemovePhysx()
 
 }
 
+CVoid CVandaEngineDlg::FindSelectedEngineObjectFromEngineObjectsList()
+{
+	CInt nSelected = -1;
+
+	POSITION p = m_listBoxEngineObjects.GetFirstSelectedItemPosition();
+	while (p)
+	{
+		nSelected = m_listBoxEngineObjects.GetNextSelectedItem(p);
+	}
+	if (nSelected >= 0)
+	{
+		TCHAR szBuffer[1024];
+		DWORD cchBuf(1024);
+		LVITEM lvi;
+		lvi.iItem = nSelected;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = szBuffer;
+		lvi.cchTextMax = cchBuf;
+		m_listBoxEngineObjects.GetItem(&lvi);
+
+		CBool foundTarget = CFalse;
+		CBool XYZInfo;
+		if (g_currentTransformType == eCTranslate)
+			XYZInfo = CTrue;
+		else
+			XYZInfo = CFalse;
+		for (CUInt i = 0; i < g_engineLights.size(); i++)
+		{
+			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), szBuffer))
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineLights[i]->GetIndex();
+				SetDialogData4(g_engineLights[i]->m_abstractLight->GetName(), g_engineLights[i]->m_abstractLight->GetPosition()[0], g_engineLights[i]->m_abstractLight->GetPosition()[1], g_engineLights[i]->m_abstractLight->GetPosition()[2], XYZInfo);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+		if (!foundTarget)
+		{
+			if (g_skyDome && Cmp(g_skyDome->GetName(), szBuffer))
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_skyDome->GetIndex();
+				SetDialogData4(g_skyDome->GetName(), g_skyDome->GetPosition()[0], g_skyDome->GetPosition()[1], g_skyDome->GetPosition()[2], XYZInfo);
+				foundTarget = CTrue;
+			}
+		}
+		if (!foundTarget)
+		{
+			if (g_mainCharacter && Cmp(g_mainCharacter->GetName(), szBuffer))
+			{
+				g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_mainCharacter->GetInstancePrefab()->GetNameIndex();
+
+				g_transformObject = CFalse;
+				g_mainCharacter->GetInstancePrefab()->UpdateArrow();
+				g_mainCharacter->SetPosition(g_arrowPosition);
+
+				if (g_currentTransformType == eCTranslate)
+					SetDialogData4(g_mainCharacter->GetName(), g_mainCharacter->GetInstancePrefab()->GetTranslate().x, g_mainCharacter->GetInstancePrefab()->GetTranslate().y, g_mainCharacter->GetInstancePrefab()->GetTranslate().z, CTrue);
+				if (g_currentTransformType == eCRotate)
+					SetDialogData4(g_mainCharacter->GetName(), g_mainCharacter->GetInstancePrefab()->GetRotate().x, g_mainCharacter->GetInstancePrefab()->GetRotate().y, g_mainCharacter->GetInstancePrefab()->GetRotate().z, CTrue);
+				if (g_currentTransformType == eCScale)
+					SetDialogData4(g_mainCharacter->GetName(), g_mainCharacter->GetInstancePrefab()->GetScale().x, g_mainCharacter->GetInstancePrefab()->GetScale().y, g_mainCharacter->GetInstancePrefab()->GetScale().z, CTrue);
+				foundTarget = CTrue;
+			}
+		}
+
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_engineWaters.size(); i++)
+			{
+				if (Cmp(g_engineWaters[i]->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineWaters[i]->GetIndex();
+
+					if (g_currentTransformType == eCTranslate)
+						SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetPos()[0], g_engineWaters[i]->GetPos()[1], g_engineWaters[i]->GetPos()[2], CTrue);
+					else if (g_currentTransformType == eCRotate)
+						SetDialogData4(g_engineWaters[i]->GetName(), 0.0, g_engineWaters[i]->GetRotateY(), 0.0, CTrue);
+					else if (g_currentTransformType == eCScale)
+						SetDialogData4(g_engineWaters[i]->GetName(), g_engineWaters[i]->GetScaleX(), 0.0, g_engineWaters[i]->GetScaleZ(), CTrue);
+
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+			{
+				if (Cmp(g_engine3DSounds[i]->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engine3DSounds[i]->GetIndex();
+					SetDialogData4(g_engine3DSounds[i]->GetName(), g_engine3DSounds[i]->GetPosition()[0], g_engine3DSounds[i]->GetPosition()[1], g_engine3DSounds[i]->GetPosition()[2], XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_triggers.size(); i++)
+			{
+				if (Cmp(g_triggers[i]->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_triggers[i]->GetInstancePrefab()->GetNameIndex();
+
+					g_transformObject = CFalse;
+					g_triggers[i]->GetInstancePrefab()->UpdateArrow();
+
+					SetDialogData4(g_triggers[i]->GetName(), g_triggers[i]->GetInstancePrefab()->GetTranslate().x, g_triggers[i]->GetInstancePrefab()->GetTranslate().y, g_triggers[i]->GetInstancePrefab()->GetTranslate().z, XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+			{
+				if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), szBuffer))
+				{
+					g_selectedName = g_lastEngineObjectSelectedName = g_tempLastEngineObjectSelectedName = g_multipleView->m_lastSelectedName = g_multipleView->m_tempSelectedName = g_engineCameraInstances[i]->GetIndex();
+					SetDialogData4(g_engineCameraInstances[i]->m_abstractCamera->GetName(), g_engineCameraInstances[i]->GetPos().x, g_engineCameraInstances[i]->GetPos().y, g_engineCameraInstances[i]->GetPos().z, XYZInfo);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+	}
+}

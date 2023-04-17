@@ -144,7 +144,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 2.3.0");
+		zipClose(zipOpen, "Vanda Engine 2.3.1");
 		free(buf);
 		return -1;
 	}
@@ -157,7 +157,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 2.3.0");
+			//zipClose(zf, "Vanda Engine 2.3.1");
 			//free(buf);
 			//return -1;
    //     }
@@ -173,7 +173,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 2.3.0");
+				zipClose(zf, "Vanda Engine 2.3.1");
 				free(buf);
 				return -1;
 			}
@@ -188,7 +188,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 2.3.0");
+				zipClose(zf, "Vanda Engine 2.3.1");
 				free(buf);
 				return -1;
             }
@@ -198,7 +198,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 2.3.0");
+	zipClose(zf,"Vanda Engine 2.3.1");
     free(buf);
 	return 1;
 }
@@ -1399,6 +1399,9 @@ CVoid CScene::SetNumClips(CInt clips)
 
 CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 {
+	if (delay < EPSILON)
+		delay = EPSILON;
+
 	if (m_numClips == 0)
 	{
 		CChar temp[MAX_NAME_SIZE];
@@ -1447,6 +1450,9 @@ CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 
 CBool CScene::ClearCycle(CInt id, CFloat delay)
 {
+	if (delay < EPSILON)
+		delay = EPSILON;
+
 	if( m_numClips == 0 )
 	{
 		CChar temp[MAX_NAME_SIZE];
@@ -1465,6 +1471,14 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 
 	if (m_animationClips[id]->GetAnimationStatus() == eANIM_NONE)
 		return CFalse;
+
+	if (m_animationClips[id]->GetAnimationStatus() == eANIM_CLEAR_CYCLE)
+	{
+		//update it again
+		m_animationClips[id]->SetTargetDelayOut(delay);
+		m_updateAnimationLists = CTrue;
+		return CTrue;
+	}
 
 	if( m_animationClips[id]->GetAnimationStatus() != eANIM_BLEND_CYCLE || m_animationClips[id]->GetAnimationStatus() == eANIM_EXECUTE_ACTION)
 		return CFalse;
@@ -1487,7 +1501,6 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 	m_animationClips[id]->SetStartWeight( m_animationClips[id]->GetCurrentWeight() );
 	m_animationClips[id]->SetAnimationStatus( eANIM_CLEAR_CYCLE );
 	m_updateAnimationLists = CTrue;
-
 	return CTrue;
 }
 

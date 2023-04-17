@@ -604,7 +604,15 @@ struct CCharacterBlendingProperties
 		m_runDelayIn = 0.5f;
 		m_jumpDelayIn = 0.5f;
 		m_jumpDelayOut = 0.5f;
+	}
 
+	CVoid SetZero()
+	{
+		m_idleDelayIn = 0.0f;
+		m_walkDelayIn = 0.0f;
+		m_runDelayIn = 0.0f;
+		m_jumpDelayIn = 0.0f;
+		m_jumpDelayOut = 0.0f;
 	}
 };
 
