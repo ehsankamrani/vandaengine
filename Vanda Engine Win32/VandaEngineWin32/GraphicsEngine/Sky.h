@@ -71,6 +71,9 @@ public:
 	CVoid ResetLua();
 	CBool LoadLuaFile();
 
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
+
 	CChar m_name[MAX_NAME_SIZE];
 	CChar m_path[MAX_NAME_SIZE];
 	CInt m_numSlices;
@@ -103,6 +106,7 @@ private:
 	CChar m_tempScriptPath[MAX_URI_SIZE];
 	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
 	CChar m_lastScriptPath[MAX_URI_SIZE];
+	CBool m_updateEvent;
 
 };
 

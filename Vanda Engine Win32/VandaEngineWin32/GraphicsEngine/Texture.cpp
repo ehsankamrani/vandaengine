@@ -176,7 +176,7 @@ CBool CTexture::CreateTexture( CImage * texObj )
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE ); 
+	//glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE ); 
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST );
 
 	GLfloat m_anisotropy;
@@ -223,6 +223,7 @@ CBool CTexture::CreateTexture( CImage * texObj )
 		//	GL_BGRA_EXT, GL_UNSIGNED_BYTE, texObj->GetImageData() );
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,texObj->GetWidth(), texObj->GetHeight(), 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, texObj->GetImageData() ); 
 	}
+	glGenerateMipmapEXT(GL_TEXTURE_2D);
 
 	//PrintInfo( _T( "Texture Created Successfully\n"), COLOR_WHITE ); 
 	texObj->SetId( tId ); 
@@ -245,7 +246,7 @@ CBool CTexture::CreateDDSTexture( CImage * texObj, CDDS * ddsImg )
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-	glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE ); 
+	//glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE ); 
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST );
 
 	//read the anisotropic data from the file
@@ -285,6 +286,7 @@ CBool CTexture::CreateDDSTexture( CImage * texObj, CDDS * ddsImg )
 	CDelete( ddsImg );
 
 	//PrintInfo( _T( "Texture Created Successfully\n"), COLOR_WHITE ); 
+	glGenerateMipmapEXT(GL_TEXTURE_2D);
 
 	texObj->SetId( tId ); 
 	glBindTexture( GL_TEXTURE_2D, 0 );

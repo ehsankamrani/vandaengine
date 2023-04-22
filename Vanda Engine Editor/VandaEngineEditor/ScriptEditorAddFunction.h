@@ -445,6 +445,32 @@ private:
 	CChar SetMenuCursorSize[MAX_URI_SIZE];
 	CChar GetMenuCursorSize[MAX_URI_SIZE];;
 
+	//Pause script Update event of scripts
+	CChar PauseAllUpdateEvents[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAllPrefabInstances[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfVSceneScript[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfSky[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAllWaters[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAllLights[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAll3DSounds[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAllAmbientSounds[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfMainCharacter[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfTerrain[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAllEngineCameras[MAX_URI_SIZE];
+
+	//Resume script Update event of scripts
+	CChar ResumeAllUpdateEvents[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAllPrefabInstances[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfVSceneScript[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfSky[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAllWaters[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAllLights[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAll3DSounds[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAllAmbientSounds[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfMainCharacter[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfTerrain[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAllEngineCameras[MAX_URI_SIZE];
+
 	CImageList m_image;
 
 public:

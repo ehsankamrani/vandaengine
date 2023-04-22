@@ -491,6 +491,8 @@ CInt CVideo::DecodeVideoPacket()
 			//SaveGrayscaleFrame("c://temp/gray-%s-%d.pgm");
 			//SaveRGBFrame("c://temp/RGB-%s-%d.ppm");
 			glActiveTexture(GL_TEXTURE0);
+			glMatrixMode(GL_TEXTURE);
+			glLoadIdentity();
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, m_texureID);
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width,
@@ -705,11 +707,12 @@ CBool CVideo::InitVideoStream()
 	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(1, &m_texureID);
 	glBindTexture(GL_TEXTURE_2D, m_texureID);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height,
 		0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
@@ -1075,6 +1078,7 @@ CBool CVideo::Render()
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, m_texureID);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	glBegin(GL_QUADS);
 	glTexCoord2d(0, 1);	glVertex2d(0, 0);

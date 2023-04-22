@@ -185,6 +185,9 @@ public:
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
 
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
+
 private:
 	CFloat	m_pan;
 	CFloat	m_tilt;
@@ -209,7 +212,7 @@ private:
 	CChar m_tempScriptPath[MAX_URI_SIZE];
 	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
 	CChar m_lastScriptPath[MAX_URI_SIZE];
-
+	CBool m_updateEvent;
 public:
 	CVoid RenderIcon(CBool selectionMode = CFalse);
 	CVoid SetTransform();

@@ -41,6 +41,8 @@ CWater::CWater()
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
+
+	m_updateEvent = CTrue;
 }
 
 CWater::~CWater()
@@ -108,7 +110,6 @@ void CWater::CreateRenderTexture( CInt size, CInt channels, CInt type, CInt text
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	if ( g_render.UsingFBOs() && g_options.m_enableFBO )
 	{
-		glGenerateMipmapEXT( GL_TEXTURE_2D );
 		glTexImage2D(GL_TEXTURE_2D, 0, channels, size, size, 0, type, GL_UNSIGNED_BYTE, NULL );
 		m_fboID[textureID] = g_render.GenerateFBO();
 		g_render.BindFBO( m_fboID[textureID] );
@@ -133,7 +134,7 @@ void CWater::CreateRenderTexture( CInt size, CInt channels, CInt type, CInt text
 	}
 	else
 	{
-		glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+		//glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
 		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST );
 		CUInt *pTexture = NULL;											
 		pTexture = CNewData( CUInt, size * size * channels );
@@ -141,6 +142,7 @@ void CWater::CreateRenderTexture( CInt size, CInt channels, CInt type, CInt text
 		glTexImage2D(GL_TEXTURE_2D, 0, channels, size, size, 0, type, GL_UNSIGNED_BYTE, pTexture);
 		CDeleteData( pTexture );																					
 	}
+	glGenerateMipmapEXT(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 }

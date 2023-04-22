@@ -18,6 +18,7 @@ CSkyDome::CSkyDome()
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
+	m_updateEvent = CTrue;
 }
 
 CSkyDome::~CSkyDome()

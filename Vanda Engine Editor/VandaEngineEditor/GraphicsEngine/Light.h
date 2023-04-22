@@ -47,6 +47,10 @@ public:
 	CVec3f GetPosition();
 	CVoid SetRunTimeVisible(CBool set) { m_runTimeVisible = set; }
 	CBool GetRunTimeVisible() { return m_runTimeVisible; }
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
+private:
+	CBool m_updateEvent;
 
 };
 

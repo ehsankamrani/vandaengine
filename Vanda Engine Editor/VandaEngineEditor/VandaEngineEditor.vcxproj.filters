@@ -33,9 +33,6 @@
     <ClCompile Include="GraphicsEngine\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsEngine\AviPlayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsEngine\Base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -465,9 +462,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsEngine\Animation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsEngine\Aviplayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsEngine\Base.h">

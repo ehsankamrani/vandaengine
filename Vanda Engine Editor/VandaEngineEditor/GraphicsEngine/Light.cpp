@@ -13,6 +13,7 @@ CInstanceLight::CInstanceLight()
 		glGenQueries(1, &m_queryIndex);
 	}
 	m_runTimeVisible = CTrue;
+	m_updateEvent = CTrue;
 }
 
 CInstanceLight::~CInstanceLight()

@@ -16853,6 +16853,287 @@ CInt GetMenuCursorSize(lua_State* L)
 	return 1;
 }
 
+CInt PauseAllUpdateEvents(lua_State* L)
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateEvent(CFalse);
+	}
+
+	if (g_VSceneScript)
+		g_VSceneScript->SetUpdateEvent(CFalse);
+
+	if (g_skyDome)
+		g_skyDome->SetUpdateEvent(CFalse);
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateEvent(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->SetUpdateEvent(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		g_engine3DSounds[i]->SetUpdateEvent(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		g_engineAmbientSounds[i]->SetUpdateEvent(CFalse);
+	}
+
+	if (g_mainCharacter)
+		g_mainCharacter->SetUpdateEvent(CFalse);
+
+	if (g_terrain)
+		g_terrain->SetUpdateEvent(CFalse);
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAllPrefabInstances(lua_State* L)
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfVSceneScript(lua_State* L)
+{
+	if (g_VSceneScript)
+		g_VSceneScript->SetUpdateEvent(CFalse);
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfSky(lua_State* L)
+{
+	if (g_skyDome)
+		g_skyDome->SetUpdateEvent(CFalse);
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAllWaters(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAllLights(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAll3DSounds(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		g_engine3DSounds[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAllAmbientSounds(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		g_engineAmbientSounds[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfMainCharacter(lua_State* L)
+{
+	if (g_mainCharacter)
+		g_mainCharacter->SetUpdateEvent(CFalse);
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfTerrain(lua_State* L)
+{
+	if (g_terrain)
+		g_terrain->SetUpdateEvent(CFalse);
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAllEngineCameras(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->SetUpdateEvent(CFalse);
+	}
+
+	return 0;
+}
+
+//Resume script Update event of scripts
+CInt ResumeAllUpdateEvents(lua_State* L)
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateEvent(CTrue);
+	}
+
+	if (g_VSceneScript)
+		g_VSceneScript->SetUpdateEvent(CTrue);
+
+	if (g_skyDome)
+		g_skyDome->SetUpdateEvent(CTrue);
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateEvent(CTrue);
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->SetUpdateEvent(CTrue);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		g_engine3DSounds[i]->SetUpdateEvent(CTrue);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		g_engineAmbientSounds[i]->SetUpdateEvent(CTrue);
+	}
+
+	if (g_mainCharacter)
+		g_mainCharacter->SetUpdateEvent(CTrue);
+
+	if (g_terrain)
+		g_terrain->SetUpdateEvent(CTrue);
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAllPrefabInstances(lua_State* L)
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfVSceneScript(lua_State* L)
+{
+	if (g_VSceneScript)
+		g_VSceneScript->SetUpdateEvent(CTrue);
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfSky(lua_State* L)
+{
+	if (g_skyDome)
+		g_skyDome->SetUpdateEvent(CTrue);
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAllWaters(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAllLights(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAll3DSounds(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		g_engine3DSounds[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAllAmbientSounds(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		g_engineAmbientSounds[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfMainCharacter(lua_State* L)
+{
+	if (g_mainCharacter)
+		g_mainCharacter->SetUpdateEvent(CTrue);
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfTerrain(lua_State* L)
+{
+	if (g_terrain)
+		g_terrain->SetUpdateEvent(CTrue);
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAllEngineCameras(lua_State* L)
+{
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
+	}
+
+	return 0;
+}
+
+
+
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
 
@@ -16907,6 +17188,7 @@ CMain::CMain()
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
 	m_pauseAllWaterAnimations = CFalse;
+	m_renderVideoEnabled = CTrue;
 }
 
 CMain::~CMain()
@@ -17485,67 +17767,61 @@ CBool CMain::Render()
 	m_totalElapsedTime += elapsedTime;
 
 	//manage videos here
-	CBool renderVideo = CFalse;
-
-	if (g_engineVideos.size() == 0)
-		m_renderVideo = CFalse;
-
-	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	if (m_renderVideoEnabled)
 	{
-		if (g_engineVideos[i]->Render() && g_engineVideos[i]->GetHasScript())
-			g_engineVideos[i]->UpdateScript();
+		CBool renderVideo = CFalse;
 
-		//force exit
-		if (!m_loadScene && g_input.KeyDown(DIK_F5) && g_input.KeyDown(DIK_LCONTROL))
-			m_exitGame = CTrue;
+		if (g_engineVideos.size() == 0)
+			m_renderVideo = CFalse;
 
-		if (GetExitGame()) return CFalse; //exit game 
-
-		g_engineVideos[i]->Update();
-
-		CBool result = g_engineVideos[i]->Render();
-		if (result)
+		for (CUInt i = 0; i < g_engineVideos.size(); i++)
 		{
-			if (!m_loadScene)
-				ProcessInputs();
+			if (g_engineVideos[i]->Render() && g_engineVideos[i]->GetHasScript())
+				g_engineVideos[i]->UpdateScript();
 
-			if (!m_loadScene && g_engineVideos[i]->GetExitWithEscKey() && g_input.KeyDown(DIK_ESCAPE))
+			//force exit
+			if (!m_loadScene && g_input.KeyDown(DIK_F5) && g_input.KeyDown(DIK_LCONTROL))
+				m_exitGame = CTrue;
+
+			if (GetExitGame()) return CFalse; //exit game 
+
+			g_engineVideos[i]->Update();
+
+			CBool result = g_engineVideos[i]->Render();
+			if (result)
 			{
-				m_lockEscape = CTrue;
-				g_engineVideos[i]->SetPlay(CFalse);
-			}
+				m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
 
-			renderVideo = CTrue;
+				if (!m_loadScene)
+					ProcessInputs();
+
+				if (!m_loadScene && g_engineVideos[i]->GetExitWithEscKey() && g_input.KeyDown(DIK_ESCAPE))
+				{
+					m_lockEscape = CTrue;
+					g_engineVideos[i]->SetPlay(CFalse);
+				}
+
+				renderVideo = CTrue;
+			}
 		}
-	}
-	if (renderVideo)
-	{
-		if (m_publishDebug)
+		if (renderVideo)
 		{
-			static CBool f1KeyDown = CFalse;
-			if (!m_loadScene && g_input.KeyDown(DIK_F1) && !f1KeyDown)
-			{
-				f1KeyDown = CTrue;
-				m_showHelpInfo = !m_showHelpInfo;
-			}
-			if (g_input.KeyUp(DIK_F1))
-				f1KeyDown = CFalse;
+			m_renderVideo = CTrue;
+			glViewport(0, m_padding, g_width, g_height);
+
+			DrawGUI();
+
+			glFlush();
+			return CTrue;
 		}
-		m_renderVideo = CTrue;
-		glViewport(0, m_padding, g_width, g_height);
+		else
+		{
+			m_renderVideo = CFalse;
+		}
 
-		DrawGUI();
-
-		glFlush();
-		return CTrue;
+		if (!m_loadScene && g_input.KeyUp(DIK_ESCAPE))
+			m_lockEscape = CFalse;
 	}
-	else
-	{
-		m_renderVideo = CFalse;
-	}
-
-	if (!m_loadScene && g_input.KeyUp(DIK_ESCAPE))
-		m_lockEscape = CFalse;
 	///////////////////////
 
 	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseAllAnimationsOfPrefabInstances)
@@ -17793,6 +18069,7 @@ CBool CMain::Render()
 	m_soundSystem->SetListenerPosition(m_listenerPos);
 	//m_soundSystem->SetListenerVelocity( m_listenerVel );
 	m_soundSystem->SetListenerOrientation(m_listenerOri);
+	m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
 
 	//set ambient sound
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -17910,54 +18187,51 @@ CBool CMain::Render()
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
 		g_instancePrefab[i]->InitScript();
-		if (!g_currentVSceneProperties.m_pauseGame)
+		if (g_instancePrefab[i]->GetUpdateEvent())
 			g_instancePrefab[i]->UpdateScript();
 	}
 
-	if (!g_currentVSceneProperties.m_pauseGame)
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
 	{
-		for (CUInt i = 0; i < g_engineWaters.size(); i++)
-		{
-			if (g_engineWaters[i]->GetHasScript())
-				g_engineWaters[i]->UpdateScript();
-		}
-
-		for (CUInt i = 0; i < g_engineLights.size(); i++)
-		{
-			if (g_engineLights[i]->m_abstractLight->GetHasScript())
-				g_engineLights[i]->m_abstractLight->UpdateScript();
-		}
-
-		for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
-		{
-			if (g_engineCameraInstances[i]->GetHasScript())
-				g_engineCameraInstances[i]->UpdateScript();
-		}
-
-		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-		{
-			if (g_engineAmbientSounds[i]->GetHasScript())
-				g_engineAmbientSounds[i]->UpdateScript();
-		}
-
-		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-		{
-			if (g_engine3DSounds[i]->GetHasScript())
-				g_engine3DSounds[i]->UpdateScript();
-		}
-
-		if (g_VSceneScript)
-			g_VSceneScript->UpdateScript();
-
-		if (g_skyDome)
-			g_skyDome->UpdateScript();
-
-		if (g_terrain)
-			g_terrain->UpdateScript();
-
-		if (g_mainCharacter)
-			g_mainCharacter->UpdateScript();
+		if (g_engineWaters[i]->GetHasScript() && g_engineWaters[i]->GetUpdateEvent())
+			g_engineWaters[i]->UpdateScript();
 	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		if (g_engineLights[i]->m_abstractLight->GetHasScript() && g_engineLights[i]->GetUpdateEvent())
+			g_engineLights[i]->m_abstractLight->UpdateScript();
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		if (g_engineCameraInstances[i]->GetHasScript() && g_engineCameraInstances[i]->GetUpdateEvent())
+			g_engineCameraInstances[i]->UpdateScript();
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		if (g_engineAmbientSounds[i]->GetHasScript() && g_engineAmbientSounds[i]->GetUpdateEvent())
+			g_engineAmbientSounds[i]->UpdateScript();
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		if (g_engine3DSounds[i]->GetHasScript() && g_engine3DSounds[i]->GetUpdateEvent())
+			g_engine3DSounds[i]->UpdateScript();
+	}
+
+	if (g_VSceneScript && g_VSceneScript->GetUpdateEvent())
+		g_VSceneScript->UpdateScript();
+
+	if (g_skyDome && g_skyDome->GetUpdateEvent())
+		g_skyDome->UpdateScript();
+
+	if (g_terrain && g_terrain->GetUpdateEvent())
+		g_terrain->UpdateScript();
+
+	if (g_mainCharacter && g_mainCharacter->GetUpdateEvent())
+		g_mainCharacter->UpdateScript();
 
 	if (g_updateOctree && g_scene.size() > 0)
 	{
@@ -21700,7 +21974,7 @@ CBool CMain::Load(CChar* pathName)
 		video->SetPath(VideoPath);
 		video->SetVolume(volume);
 		video->SetLoop(loopVideo);
-		video->SetPlay(playVideo);
+		video->SetPlay2(playVideo);
 		video->SetExitWithEscKey(ExitEscKey);
 		video->SetPauseGameSoundsWhenStarting(pauseGameSoundsWhenStarting);
 		video->SetResumeGameSoundsWhenFinished(resumeGameSoundsWhenFinished);
@@ -22199,7 +22473,6 @@ CBool CMain::Load(CChar* pathName)
 				scene->m_update = CFalse;
 			}
 		}
-		g_instancePrefab[i]->InitScript();
 	}
 
 	if (g_physXProperties.m_bGroundPlane)
@@ -22215,7 +22488,7 @@ CBool CMain::Load(CChar* pathName)
 		g_nx->SetActorCollisionGroup(g_nx->m_groundBox, GROUP_GROUND);
 	}
 	
-	m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
+	m_soundSystem->SetListenerGain(0); //mute listener for now
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
@@ -22227,6 +22500,17 @@ CBool CMain::Load(CChar* pathName)
 	{
 		if (g_engineAmbientSounds[i]->GetPlay())
 			m_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+	}
+
+	for (CUInt i = 0; i < g_engineVideos.size(); i++)
+	{
+		if (g_engineVideos[i]->GetPlay())
+			g_engineVideos[i]->SetPlay(CTrue); //initialize video
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->InitScript();
 	}
 
 	if (g_VSceneScript)
@@ -25238,6 +25522,7 @@ CVoid CMain::PauseGame()
 	m_pausePhysics = CTrue;
 	m_pauseAllWaterAnimations = CTrue;
 
+	PauseAllScriptUpdateEvents();
 }
 
 CVoid CMain::ResumeGame()
@@ -25249,4 +25534,97 @@ CVoid CMain::ResumeGame()
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
 	m_pauseAllWaterAnimations = CFalse;
+
+	ResumeAllScriptUpdateEvents();
+}
+
+CVoid CMain::PauseAllScriptUpdateEvents()
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateEvent(CFalse);
+	}
+
+	if (g_VSceneScript)
+		g_VSceneScript->SetUpdateEvent(CFalse);
+
+	if (g_skyDome)
+		g_skyDome->SetUpdateEvent(CFalse);
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateEvent(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->SetUpdateEvent(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		g_engine3DSounds[i]->SetUpdateEvent(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		g_engineAmbientSounds[i]->SetUpdateEvent(CFalse);
+	}
+
+	if (g_mainCharacter)
+		g_mainCharacter->SetUpdateEvent(CFalse);
+
+	if (g_terrain)
+		g_terrain->SetUpdateEvent(CFalse);
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->SetUpdateEvent(CFalse);
+	}
+}
+
+CVoid CMain::ResumeAllScriptUpdateEvents()
+{
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateEvent(CTrue);
+	}
+
+	if (g_VSceneScript)
+		g_VSceneScript->SetUpdateEvent(CTrue);
+
+	if (g_skyDome)
+		g_skyDome->SetUpdateEvent(CTrue);
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateEvent(CTrue);
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		g_engineLights[i]->SetUpdateEvent(CTrue);
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		g_engine3DSounds[i]->SetUpdateEvent(CTrue);
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		g_engineAmbientSounds[i]->SetUpdateEvent(CTrue);
+	}
+
+	if (g_mainCharacter)
+		g_mainCharacter->SetUpdateEvent(CTrue);
+
+	if (g_terrain)
+		g_terrain->SetUpdateEvent(CTrue);
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
+	}
+
 }

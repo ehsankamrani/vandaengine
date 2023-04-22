@@ -237,6 +237,10 @@ public:
 
 	CVoid PauseGame();
 	CVoid ResumeGame();
+
+	CVoid PauseAllScriptUpdateEvents();
+	CVoid ResumeAllScriptUpdateEvents();
+
 	//mouse movements
 	CInt m_dx, m_dy;
 	CInt m_prev_dx, m_prev_dy;
@@ -248,4 +252,7 @@ public:
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
 	CBool m_pauseAllWaterAnimations;
+	CBool m_renderVideoEnabled;
+	CBool m_tempPauseGame;
+	CBool m_tempPausePhysics;
 };

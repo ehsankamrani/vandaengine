@@ -31,6 +31,7 @@ private:
 	CFloat m_distanceFromCamera;
 	CBool m_queryVisible;
 	CBool m_isOutsideFrustom;
+	CBool m_updateEvent;
 public:
 	CWater();
 	~CWater();
@@ -66,6 +67,9 @@ public:
 	CVoid SetScriptBoolVariable(CChar* variableName, CBool value);
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
+
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
 
 	CFloat m_fWaterCPos[3];
 	CFloat m_fWaterLPos[3];

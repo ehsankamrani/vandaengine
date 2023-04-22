@@ -485,4 +485,29 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetMenuCursorSize", SetMenuCursorSize);
 	lua_register(L, "GetMenuCursorSize", GetMenuCursorSize);
 
+	//Pause script Update event of scripts
+	lua_register(L, "PauseAllUpdateEvents", PauseAllUpdateEvents);
+	lua_register(L, "PauseUpdateEventOfAllPrefabInstances", PauseUpdateEventOfAllPrefabInstances);
+	lua_register(L, "PauseUpdateEventOfVSceneScript", PauseUpdateEventOfVSceneScript);
+	lua_register(L, "PauseUpdateEventOfSky", PauseUpdateEventOfSky);
+	lua_register(L, "PauseUpdateEventOfAllWaters", PauseUpdateEventOfAllWaters);
+	lua_register(L, "PauseUpdateEventOfAllLights", PauseUpdateEventOfAllLights);
+	lua_register(L, "PauseUpdateEventOfAll3DSounds", PauseUpdateEventOfAll3DSounds);
+	lua_register(L, "PauseUpdateEventOfAllAmbientSounds", PauseUpdateEventOfAllAmbientSounds);
+	lua_register(L, "PauseUpdateEventOfMainCharacter", PauseUpdateEventOfMainCharacter);
+	lua_register(L, "PauseUpdateEventOfTerrain", PauseUpdateEventOfTerrain);
+	lua_register(L, "PauseUpdateEventOfAllEngineCameras", PauseUpdateEventOfAllEngineCameras);
+
+	//Resume script Update event of scripts
+	lua_register(L, "ResumeAllUpdateEvents", ResumeAllUpdateEvents);
+	lua_register(L, "ResumeUpdateEventOfAllPrefabInstances", ResumeUpdateEventOfAllPrefabInstances);
+	lua_register(L, "ResumeUpdateEventOfVSceneScript", ResumeUpdateEventOfVSceneScript);
+	lua_register(L, "ResumeUpdateEventOfSky", ResumeUpdateEventOfSky);
+	lua_register(L, "ResumeUpdateEventOfAllWaters", ResumeUpdateEventOfAllWaters);
+	lua_register(L, "ResumeUpdateEventOfAllLights", ResumeUpdateEventOfAllLights);
+	lua_register(L, "ResumeUpdateEventOfAll3DSounds", ResumeUpdateEventOfAll3DSounds);
+	lua_register(L, "ResumeUpdateEventOfAllAmbientSounds", ResumeUpdateEventOfAllAmbientSounds);
+	lua_register(L, "ResumeUpdateEventOfMainCharacter", ResumeUpdateEventOfMainCharacter);
+	lua_register(L, "ResumeUpdateEventOfTerrain", ResumeUpdateEventOfTerrain);
+	lua_register(L, "ResumeUpdateEventOfAllEngineCameras", ResumeUpdateEventOfAllEngineCameras);
 }

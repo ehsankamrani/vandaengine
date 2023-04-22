@@ -525,3 +525,29 @@ CInt ShowMenuCursor(lua_State* L);
 CInt HideMenuCursor(lua_State* L);
 CInt SetMenuCursorSize(lua_State* L);
 CInt GetMenuCursorSize(lua_State* L);
+
+//Pause script Update event of scripts
+CInt PauseAllUpdateEvents(lua_State* L);
+CInt PauseUpdateEventOfAllPrefabInstances(lua_State* L);
+CInt PauseUpdateEventOfVSceneScript(lua_State* L);
+CInt PauseUpdateEventOfSky(lua_State* L);
+CInt PauseUpdateEventOfAllWaters(lua_State* L);
+CInt PauseUpdateEventOfAllLights(lua_State* L);
+CInt PauseUpdateEventOfAll3DSounds(lua_State* L);
+CInt PauseUpdateEventOfAllAmbientSounds(lua_State* L);
+CInt PauseUpdateEventOfMainCharacter(lua_State* L);
+CInt PauseUpdateEventOfTerrain(lua_State* L);
+CInt PauseUpdateEventOfAllEngineCameras(lua_State* L);
+
+//Resume script Update event of scripts
+CInt ResumeAllUpdateEvents(lua_State* L);
+CInt ResumeUpdateEventOfAllPrefabInstances(lua_State* L);
+CInt ResumeUpdateEventOfVSceneScript(lua_State* L);
+CInt ResumeUpdateEventOfSky(lua_State* L);
+CInt ResumeUpdateEventOfAllWaters(lua_State* L);
+CInt ResumeUpdateEventOfAllLights(lua_State* L);
+CInt ResumeUpdateEventOfAll3DSounds(lua_State* L);
+CInt ResumeUpdateEventOfAllAmbientSounds(lua_State* L);
+CInt ResumeUpdateEventOfMainCharacter(lua_State* L);
+CInt ResumeUpdateEventOfTerrain(lua_State* L);
+CInt ResumeUpdateEventOfAllEngineCameras(lua_State* L);

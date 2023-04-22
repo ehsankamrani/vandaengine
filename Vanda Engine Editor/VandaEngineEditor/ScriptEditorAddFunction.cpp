@@ -435,6 +435,32 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetMenuCursorSize, "SetMenuCursorSize(int cursorSize)");
 	Cpy(GetMenuCursorSize, "GetMenuCursorSize()");
 
+	//Pause script Update event of scripts
+	Cpy(PauseAllUpdateEvents, "PauseAllUpdateEvents()");
+	Cpy(PauseUpdateEventOfAllPrefabInstances, "PauseUpdateEventOfAllPrefabInstances()");
+	Cpy(PauseUpdateEventOfVSceneScript, "PauseUpdateEventOfVSceneScript()");
+	Cpy(PauseUpdateEventOfSky, "PauseUpdateEventOfSky()");
+	Cpy(PauseUpdateEventOfAllWaters, "PauseUpdateEventOfAllWaters()");
+	Cpy(PauseUpdateEventOfAllLights, "PauseUpdateEventOfAllLights()");
+	Cpy(PauseUpdateEventOfAll3DSounds, "PauseUpdateEventOfAll3DSounds()");
+	Cpy(PauseUpdateEventOfAllAmbientSounds, "PauseUpdateEventOfAllAmbientSounds()");
+	Cpy(PauseUpdateEventOfMainCharacter, "PauseUpdateEventOfMainCharacter()");
+	Cpy(PauseUpdateEventOfTerrain, "PauseUpdateEventOfTerrain()");
+	Cpy(PauseUpdateEventOfAllEngineCameras, "PauseUpdateEventOfAllEngineCameras()");
+
+	//Resume script Update event of scripts
+	Cpy(ResumeAllUpdateEvents, "ResumeAllUpdateEvents()");
+	Cpy(ResumeUpdateEventOfAllPrefabInstances, "ResumeUpdateEventOfAllPrefabInstances()");
+	Cpy(ResumeUpdateEventOfVSceneScript, "ResumeUpdateEventOfVSceneScript()");
+	Cpy(ResumeUpdateEventOfSky, "ResumeUpdateEventOfSky()");
+	Cpy(ResumeUpdateEventOfAllWaters, "ResumeUpdateEventOfAllWaters()");
+	Cpy(ResumeUpdateEventOfAllLights, "ResumeUpdateEventOfAllLights()");
+	Cpy(ResumeUpdateEventOfAll3DSounds, "ResumeUpdateEventOfAll3DSounds()");
+	Cpy(ResumeUpdateEventOfAllAmbientSounds, "ResumeUpdateEventOfAllAmbientSounds()");
+	Cpy(ResumeUpdateEventOfMainCharacter, "ResumeUpdateEventOfMainCharacter()");
+	Cpy(ResumeUpdateEventOfTerrain, "ResumeUpdateEventOfTerrain()");
+	Cpy(ResumeUpdateEventOfAllEngineCameras, "ResumeUpdateEventOfAllEngineCameras()");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1909,7 +1935,94 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetMenuCursorSize);
 		}
-
+		else if (Cmp(szBuffer, "PauseAllUpdateEvents"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseAllUpdateEvents);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAllPrefabInstances"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAllPrefabInstances);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfVSceneScript"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfVSceneScript);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfSky"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfSky);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAllWaters"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAllWaters);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAllLights"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAllLights);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAll3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAll3DSounds);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAllAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAllAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfMainCharacter"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfMainCharacter);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfTerrain"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfTerrain);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAllEngineCameras"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAllEngineCameras);
+		}
+		else if (Cmp(szBuffer, "ResumeAllUpdateEvents"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeAllUpdateEvents);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAllPrefabInstances"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAllPrefabInstances);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfVSceneScript"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfVSceneScript);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfSky"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfSky);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAllWaters"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAllWaters);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAllLights"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAllLights);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAll3DSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAll3DSounds);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAllAmbientSounds"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAllAmbientSounds);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfMainCharacter"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfMainCharacter);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfTerrain"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfTerrain);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAllEngineCameras"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAllEngineCameras);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2356,6 +2469,33 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("HideMenuCursor");
 	InsertItem("SetMenuCursorSize");
 	InsertItem("GetMenuCursorSize");
+
+	//Pause script Update event of scripts
+	InsertItem("PauseAllUpdateEvents");
+	InsertItem("PauseUpdateEventOfAllPrefabInstances");
+	InsertItem("PauseUpdateEventOfVSceneScript");
+	InsertItem("PauseUpdateEventOfSky");
+	InsertItem("PauseUpdateEventOfAllWaters");
+	InsertItem("PauseUpdateEventOfAllLights");
+	InsertItem("PauseUpdateEventOfAll3DSounds");
+	InsertItem("PauseUpdateEventOfAllAmbientSounds");
+	InsertItem("PauseUpdateEventOfMainCharacter");
+	InsertItem("PauseUpdateEventOfTerrain");
+	InsertItem("PauseUpdateEventOfAllEngineCameras");
+
+	//Resume script Update event of scripts
+	InsertItem("ResumeAllUpdateEvents");
+	InsertItem("ResumeUpdateEventOfAllPrefabInstances");
+	InsertItem("ResumeUpdateEventOfVSceneScript");
+	InsertItem("ResumeUpdateEventOfSky");
+	InsertItem("ResumeUpdateEventOfAllWaters");
+	InsertItem("ResumeUpdateEventOfAllLights");
+	InsertItem("ResumeUpdateEventOfAll3DSounds");
+	InsertItem("ResumeUpdateEventOfAllAmbientSounds");
+	InsertItem("ResumeUpdateEventOfMainCharacter");
+	InsertItem("ResumeUpdateEventOfTerrain");
+	InsertItem("ResumeUpdateEventOfAllEngineCameras");
+	
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

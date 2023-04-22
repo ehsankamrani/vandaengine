@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 231;
+CInt g_version = 240;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.3.1"));
+	SetWindowText(_T("Vanda Engine 2.4.0"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.3.1 initialized successfully" );
+		PrintInfo( "\nVersion 2.4.0 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.3.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.0 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.3.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.0 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7800,7 +7800,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.3.1 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.0 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8239,7 +8239,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8248,7 +8248,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.3.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.0 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -10001,7 +10001,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10843,7 +10843,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -14162,7 +14162,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15345,7 +15345,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.0 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -17111,7 +17111,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.3.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.0 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -19132,7 +19132,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.3.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -19148,7 +19148,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 
 		if (g_editorMode == eMODE_VSCENE)
 		{
-			g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
+			g_multipleView->m_soundSystem->SetListenerGain(0.0f);
 
 			//for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 			//{
@@ -25209,7 +25209,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 	{
 		//Load global sound volume
 		g_currentVSceneProperties.m_globalSoundVolume = m_globalSoundVolume;
-		g_multipleView->m_soundSystem->SetListenerGain(g_currentVSceneProperties.m_globalSoundVolume);
+		g_multipleView->m_soundSystem->SetListenerGain(0.0f);
 
 		//Load 3D sound parameters
 		for (CUInt i = 0; i < m_engine3DSounds.size(); i++)
@@ -26575,18 +26575,6 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 			m_3DSound->SetSoundSource(m_3DSoundSource);
 			m_3DSound->SetSoundBuffer(NULL);
 			m_engine3DSounds.push_back(m_3DSound);
-
-			if (g_engine3DSounds[i]->GetPlay())
-			{
-				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-			}
-			else
-			{
-				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
-			}
-
 		}
 
 		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
@@ -26601,18 +26589,6 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 			m_ambientSound->SetSoundSource(m_ambientSoundSource);
 			m_ambientSound->SetSoundBuffer(NULL);
 			m_engineAmbientSounds.push_back(m_ambientSound);
-
-			if (g_engineAmbientSounds[i]->GetPlay())
-			{
-				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-			}
-			else
-			{
-				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
-			}
-
 		}
 
 		//save videos
@@ -26923,6 +26899,34 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 		}
 
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+		{
+			if (g_engine3DSounds[i]->GetPlay())
+			{
+				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+			else
+			{
+				g_soundSystem->StopALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+			}
+		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			if (g_engineAmbientSounds[i]->GetPlay())
+			{
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+			else
+			{
+				g_soundSystem->StopALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+			}
+		}
+
 		for (CUInt i = 0; i < g_engineVideos.size(); i++)
 		{
 			if (g_engineVideos[i]->GetPlay())
@@ -26932,11 +26936,6 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		if (m_showMenuCursor)
 		{
 			g_multipleView->GenerateMenuCursorTexture(g_vsceneMenuCursor.GetCursorPath());
-		}
-
-		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
-		{
-			g_instancePrefab[i]->InitScript(CTrue); //reset
 		}
 	}
 	else if (g_editorMode == eMODE_PREFAB)
@@ -27041,6 +27040,11 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->InitScript(CTrue); //reset
+		}
+
 		//Load VScene Script object
 		if (g_menu.m_insertVSceneScript)
 			g_VSceneScript->InitScript();

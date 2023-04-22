@@ -302,6 +302,7 @@ CInstancePrefab::CInstancePrefab()
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
 	m_scriptInitialized = CFalse;
+	m_updateEvent = CTrue;
 }
 
 CInstancePrefab::~CInstancePrefab()

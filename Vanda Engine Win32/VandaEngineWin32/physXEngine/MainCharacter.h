@@ -129,6 +129,8 @@ public:
 			AddVSceneToList(vSceneName, content);
 		return CTrue;
 	}
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
 
 private:
 	CChar m_name[MAX_NAME_SIZE];
@@ -156,4 +158,5 @@ private:
 	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
 	CChar m_lastScriptPath[MAX_URI_SIZE];
 	lua_State* m_lua;
+	CBool m_updateEvent;
 };

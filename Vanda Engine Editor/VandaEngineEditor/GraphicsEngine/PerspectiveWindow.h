@@ -357,6 +357,9 @@ public:
 	CVoid PauseGame();
 	CVoid ResumeGame();
 
+	CVoid PauseAllScriptUpdateEvents();
+	CVoid ResumeAllScriptUpdateEvents();
+
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_playGameMode;

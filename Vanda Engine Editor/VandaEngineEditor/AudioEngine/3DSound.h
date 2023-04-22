@@ -48,6 +48,9 @@ public:
 	CVoid SetSoundBuffer( COpenALSoundBuffer* buffer ) { m_buffer = buffer; }
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CVoid SetIndex(CInt index) { m_nameIndex = index; }
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
+
 public:
 	CChar* GetName() { return m_name; }
 	CChar* GetPath() { return m_path; }
@@ -153,5 +156,5 @@ private:
 	CChar m_tempScriptPath[MAX_URI_SIZE];
 	CChar m_tempCurrentScriptPath[MAX_URI_SIZE];
 	CChar m_lastScriptPath[MAX_URI_SIZE];
-
+	CBool m_updateEvent;
 };

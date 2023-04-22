@@ -36,6 +36,8 @@ public:
 	CVoid SetScriptBoolVariable(CChar* variableName, CBool value);
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
 
 private:
 	CChar m_name[MAX_NAME_SIZE];
@@ -44,5 +46,6 @@ private:
 	CChar m_tempCurrentScriptPath[MAX_NAME_SIZE];
 	CBool m_updateScript;
 	lua_State* m_lua;
+	CBool m_updateEvent;
 };
 

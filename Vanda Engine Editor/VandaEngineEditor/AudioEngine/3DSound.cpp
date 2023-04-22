@@ -21,6 +21,7 @@ C3DSound::C3DSound()
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
+	m_updateEvent = CTrue;
 }
 
 C3DSound::~C3DSound()

@@ -226,11 +226,12 @@ GLvoid COpenGLUtility::Billboarding( CFloat p1, CFloat p2, CFloat p3, GLuint tex
 
 	glColor3f(r, g, b);
 	glActiveTexture( GL_TEXTURE0 );
-	glMatrixMode( GL_TEXTURE );
+	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glEnable( GL_TEXTURE_2D );
+	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	CVector temp;
-	glBindTexture( GL_TEXTURE_2D, texID );
 	glMatrixMode( GL_MODELVIEW );
 	glBegin( GL_QUADS );
 	glTexCoord2f( 0.0f, 0.0f );
@@ -266,10 +267,14 @@ GLvoid COpenGLUtility::BillboardingWithUserVectors( CFloat centerX, CFloat cente
 	CVector rightVec( right.m_i, right.m_j, right.m_k );
 	CVector upVec( up.m_i, up.m_j, up.m_k );
 	CVector p( centerX, centerY, centerZ );
-
-	glEnable( GL_TEXTURE_2D );
 	CVector temp;
+
+	glActiveTexture(GL_TEXTURE0);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glEnable( GL_TEXTURE_2D );
 	glBindTexture( GL_TEXTURE_2D, texID );
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glBegin( GL_QUADS );
 	glTexCoord2f( 0.0f, 0.0f );
 	CVector tempRight = rightVec * sizeX;

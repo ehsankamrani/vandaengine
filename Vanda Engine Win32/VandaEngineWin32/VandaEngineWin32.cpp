@@ -22,7 +22,7 @@
 
 class COpenALSoundBuffer;
 //Edition.MaxVersion.MinVersion.BugFixes;
-CInt g_version = 231;
+CInt g_version = 240;
 CChar g_edition[MAX_NAME_SIZE];
 CScene* g_currentScene = NULL;
 CInstancePrefab* g_currentInstancePrefab = NULL;
@@ -276,16 +276,22 @@ bool Render()
 					return CFalse;
 				DeleteLoadingTexture();
 				g_main->ResetTimer();
+
+				g_main->m_tempPauseGame = g_currentVSceneProperties.m_pauseGame;
+				g_main->m_tempPausePhysics = g_main->m_pausePhysics;
+
+				g_currentVSceneProperties.m_pauseGame = CFalse;
+				g_main->m_pausePhysics = CFalse;
 			}
 			if (loop < 5)
 			{
+				g_main->m_renderVideoEnabled = CFalse;
 				g_main->Render();
 				gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
 				g_nx->gControllers->reportSceneChanged();
 				g_main->ApplyForce(IDLE, 1.f / 60.f);
 
 				g_main->ResetPhysXCounts();
-				SwapBuffers(g_window.m_windowGL.hDC);
 				loop++;
 				return CTrue;
 			}
@@ -296,7 +302,15 @@ bool Render()
 				g_nx->gControllers->reportSceneChanged();
 
 				g_main->m_loadScene = CFalse; //unlock input
+				g_main->m_renderVideoEnabled = CTrue;
+
+				g_currentVSceneProperties.m_pauseGame = g_main->m_tempPauseGame;
+				g_main->m_pausePhysics = g_main->m_tempPausePhysics;
+
+				g_main->ResetPhysXCounts();
+
 				loop = 0;
+				return CTrue;
 			}
 		}
 		load_fix++;
@@ -344,16 +358,22 @@ bool Render()
 			DeleteLoadingTexture();
 			g_main->ResetTimer();
 			gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
+
+			g_main->m_tempPauseGame = g_currentVSceneProperties.m_pauseGame;
+			g_main->m_tempPausePhysics = g_main->m_pausePhysics;
+
+			g_currentVSceneProperties.m_pauseGame = CFalse;
+			g_main->m_pausePhysics = CFalse;
 		}
 		if (loop < 5)
 		{
+			g_main->m_renderVideoEnabled = CFalse;
 			g_main->Render();
 			gPhysXscene->setGravity(NxVec3(0.0, 0.0, 0.0));
 			g_nx->gControllers->reportSceneChanged();
 			g_main->ApplyForce(IDLE, 1.f / 60.f);
 
 			g_main->ResetPhysXCounts();
-			SwapBuffers(g_window.m_windowGL.hDC);
 			loop++;
 			return CTrue;
 		}
@@ -364,7 +384,14 @@ bool Render()
 			g_nx->gControllers->reportSceneChanged();
 
 			g_main->m_loadScene = CFalse;
+			g_main->m_renderVideoEnabled = CTrue;
+
+			g_currentVSceneProperties.m_pauseGame = g_main->m_tempPauseGame;
+			g_main->m_pausePhysics = g_main->m_tempPausePhysics;
+
+			g_main->ResetPhysXCounts();
 			loop = 0;
+			return CTrue;
 		}
 	}
 	else

@@ -197,7 +197,6 @@
     <ClCompile Include="EditVSceneName.cpp" />
     <ClCompile Include="ExitEditorDlg.cpp" />
     <ClCompile Include="GraphicsEngine\Animation.cpp" />
-    <ClCompile Include="GraphicsEngine\AviPlayer.cpp" />
     <ClCompile Include="GraphicsEngine\Base.cpp" />
     <ClCompile Include="GraphicsEngine\Bloom.cpp" />
     <ClCompile Include="GraphicsEngine\Camera.cpp" />
@@ -346,7 +345,6 @@
     <ClInclude Include="EditVSceneName.h" />
     <ClInclude Include="ExitEditorDlg.h" />
     <ClInclude Include="GraphicsEngine\Animation.h" />
-    <ClInclude Include="GraphicsEngine\Aviplayer.h" />
     <ClInclude Include="GraphicsEngine\Base.h" />
     <ClInclude Include="GraphicsEngine\Bloom.h" />
     <ClInclude Include="GraphicsEngine\Camera.h" />

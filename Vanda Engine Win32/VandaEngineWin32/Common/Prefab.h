@@ -99,7 +99,7 @@ private:
 	CBool m_enableMaterial;
 	CBool m_scriptInitialized;
 	CInstanceLight* m_activeLights[8];
-
+	CBool m_updateEvent;
 public:
 	CVoid SetName(CChar* name);
 	CVoid SetNameIndex();
@@ -232,7 +232,8 @@ public:
 	CVoid SetShininess(CFloat shininess) { m_fShininess = shininess; }
 	CVoid SetTransparency(CFloat transparency) { m_fTransparency = transparency; }
 	//////////////////
-
+	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
+	CBool GetUpdateEvent() { return m_updateEvent; }
 };
 
 class CPrefab
