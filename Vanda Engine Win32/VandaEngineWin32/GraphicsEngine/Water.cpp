@@ -320,6 +320,7 @@ void CWater::CreateReflectionTexture(int textureSize)
 	}
 	else
 	{
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture( GL_TEXTURE_2D, m_waterTexture[WATER_REFLECTION_ID] );
 		glFlush();
 	    glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, textureSize, textureSize);
@@ -327,6 +328,7 @@ void CWater::CreateReflectionTexture(int textureSize)
 	}
 	if ( g_render.UsingFBOs() && g_options.m_enableFBO )
 	{
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_waterTexture[WATER_REFLECTION_ID]);
 		glGenerateMipmapEXT(GL_TEXTURE_2D);
 		glBindTexture( GL_TEXTURE_2D, 0 );

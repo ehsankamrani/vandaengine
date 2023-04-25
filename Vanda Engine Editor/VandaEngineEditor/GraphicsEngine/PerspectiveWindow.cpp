@@ -26497,47 +26497,201 @@ CInt PauseAllUpdateEvents(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_instancePrefab[i]->SetUpdateEvent(CFalse);
 	}
 
 	if (g_VSceneScript)
-		g_VSceneScript->SetUpdateEvent(CFalse);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_VSceneScript->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_VSceneScript->SetUpdateEvent(CFalse);
+	}
 
 	if (g_skyDome)
-		g_skyDome->SetUpdateEvent(CFalse);
-
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_skyDome->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_skyDome->SetUpdateEvent(CFalse);
+	}
 	for (CUInt i = 0; i < g_engineWaters.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineWaters[i]->SetUpdateEvent(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineLights[i]->SetUpdateEvent(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engine3DSounds[i]->SetUpdateEvent(CFalse);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineAmbientSounds[i]->SetUpdateEvent(CFalse);
 	}
 
 	if (g_mainCharacter)
-		g_mainCharacter->SetUpdateEvent(CFalse);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_mainCharacter->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_mainCharacter->SetUpdateEvent(CFalse);
+	}
 
 	if (g_terrain)
-		g_terrain->SetUpdateEvent(CFalse);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_terrain->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_terrain->SetUpdateEvent(CFalse);
+	}
 
 	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineCameraInstances[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAllUpdateEvents warning: Couldn't find '%s' object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26553,10 +26707,48 @@ CInt PauseUpdateEventOfAllPrefabInstances(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_instancePrefab[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseUpdateEventOfAllPrefabInstances warning: Couldn't find '%s' prefab instance object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26606,10 +26798,48 @@ CInt PauseUpdateEventOfAllWaters(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineWaters.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineWaters[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseUpdateEventOfAllWaters warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26625,10 +26855,48 @@ CInt PauseUpdateEventOfAllLights(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineLights[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseUpdateEventOfAllLights warning: Couldn't find '%s' light object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26644,10 +26912,48 @@ CInt PauseUpdateEventOfAll3DSounds(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engine3DSounds[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseUpdateEventOfAll3DSounds warning: Couldn't find '%s' 3D sound object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26663,10 +26969,48 @@ CInt PauseUpdateEventOfAllAmbientSounds(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineAmbientSounds[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseUpdateEventOfAllAmbientSounds warning: Couldn't find '%s' ambient sound object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26716,10 +27060,48 @@ CInt PauseUpdateEventOfAllEngineCameras(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineCameraInstances[i]->SetUpdateEvent(CFalse);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseUpdateEventOfAllEngineCameras warning: Couldn't find '%s' camera object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26736,47 +27118,202 @@ CInt ResumeAllUpdateEvents(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_instancePrefab[i]->SetUpdateEvent(CTrue);
 	}
 
 	if (g_VSceneScript)
-		g_VSceneScript->SetUpdateEvent(CTrue);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_VSceneScript->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_VSceneScript->SetUpdateEvent(CTrue);
+	}
 
 	if (g_skyDome)
-		g_skyDome->SetUpdateEvent(CTrue);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_skyDome->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_skyDome->SetUpdateEvent(CTrue);
+	}
 
 	for (CUInt i = 0; i < g_engineWaters.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineWaters[i]->SetUpdateEvent(CTrue);
 	}
 
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineLights[i]->SetUpdateEvent(CTrue);
 	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engine3DSounds[i]->SetUpdateEvent(CTrue);
 	}
 
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineAmbientSounds[i]->SetUpdateEvent(CTrue);
 	}
 
 	if (g_mainCharacter)
-		g_mainCharacter->SetUpdateEvent(CTrue);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_mainCharacter->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_mainCharacter->SetUpdateEvent(CTrue);
+	}
 
 	if (g_terrain)
-		g_terrain->SetUpdateEvent(CTrue);
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_terrain->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (!foundException)
+			g_terrain->SetUpdateEvent(CTrue);
+	}
 
 	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeAllUpdateEvents warning: Couldn't find '%s' game object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26792,10 +27329,48 @@ CInt ResumeUpdateEventOfAllPrefabInstances(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_instancePrefab[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeUpdateEventOfAllPrefabInstances warning: Couldn't find '%s' prefab instance object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26845,10 +27420,48 @@ CInt ResumeUpdateEventOfAllWaters(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineWaters.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineWaters[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeUpdateEventOfAllWaters warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26864,10 +27477,48 @@ CInt ResumeUpdateEventOfAllLights(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineLights[i]->m_abstractLight->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineLights[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeUpdateEventOfAllLights warning: Couldn't find '%s' light object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26883,10 +27534,48 @@ CInt ResumeUpdateEventOfAll3DSounds(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engine3DSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engine3DSounds[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeUpdateEventOfAll3DSounds warning: Couldn't find '%s' 3D sound object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26902,10 +27591,48 @@ CInt ResumeUpdateEventOfAllAmbientSounds(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineAmbientSounds[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineAmbientSounds[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeUpdateEventOfAllAmbientSounds warning: Couldn't find '%s' ambient sound object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }
@@ -26955,10 +27682,48 @@ CInt ResumeUpdateEventOfAllEngineCameras(lua_State* L)
 		return 0;
 	}
 
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
 	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
 	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineCameraInstances[i]->m_abstractCamera->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
 		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
 	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeUpdateEventOfAllEngineCameras warning: Couldn't find '%s' camera object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
 
 	return 0;
 }

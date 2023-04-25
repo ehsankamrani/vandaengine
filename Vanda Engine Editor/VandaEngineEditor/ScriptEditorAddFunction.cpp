@@ -436,30 +436,30 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetMenuCursorSize, "GetMenuCursorSize()");
 
 	//Pause script Update event of scripts
-	Cpy(PauseAllUpdateEvents, "PauseAllUpdateEvents()");
-	Cpy(PauseUpdateEventOfAllPrefabInstances, "PauseUpdateEventOfAllPrefabInstances()");
+	Cpy(PauseAllUpdateEvents, "PauseAllUpdateEvents([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseUpdateEventOfAllPrefabInstances, "PauseUpdateEventOfAllPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseUpdateEventOfVSceneScript, "PauseUpdateEventOfVSceneScript()");
 	Cpy(PauseUpdateEventOfSky, "PauseUpdateEventOfSky()");
-	Cpy(PauseUpdateEventOfAllWaters, "PauseUpdateEventOfAllWaters()");
-	Cpy(PauseUpdateEventOfAllLights, "PauseUpdateEventOfAllLights()");
-	Cpy(PauseUpdateEventOfAll3DSounds, "PauseUpdateEventOfAll3DSounds()");
-	Cpy(PauseUpdateEventOfAllAmbientSounds, "PauseUpdateEventOfAllAmbientSounds()");
+	Cpy(PauseUpdateEventOfAllWaters, "PauseUpdateEventOfAllWaters([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseUpdateEventOfAllLights, "PauseUpdateEventOfAllLights([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseUpdateEventOfAll3DSounds, "PauseUpdateEventOfAll3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseUpdateEventOfAllAmbientSounds, "PauseUpdateEventOfAllAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseUpdateEventOfMainCharacter, "PauseUpdateEventOfMainCharacter()");
 	Cpy(PauseUpdateEventOfTerrain, "PauseUpdateEventOfTerrain()");
-	Cpy(PauseUpdateEventOfAllEngineCameras, "PauseUpdateEventOfAllEngineCameras()");
+	Cpy(PauseUpdateEventOfAllEngineCameras, "PauseUpdateEventOfAllEngineCameras([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
 	//Resume script Update event of scripts
-	Cpy(ResumeAllUpdateEvents, "ResumeAllUpdateEvents()");
-	Cpy(ResumeUpdateEventOfAllPrefabInstances, "ResumeUpdateEventOfAllPrefabInstances()");
+	Cpy(ResumeAllUpdateEvents, "ResumeAllUpdateEvents([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(ResumeUpdateEventOfAllPrefabInstances, "ResumeUpdateEventOfAllPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(ResumeUpdateEventOfVSceneScript, "ResumeUpdateEventOfVSceneScript()");
 	Cpy(ResumeUpdateEventOfSky, "ResumeUpdateEventOfSky()");
-	Cpy(ResumeUpdateEventOfAllWaters, "ResumeUpdateEventOfAllWaters()");
-	Cpy(ResumeUpdateEventOfAllLights, "ResumeUpdateEventOfAllLights()");
-	Cpy(ResumeUpdateEventOfAll3DSounds, "ResumeUpdateEventOfAll3DSounds()");
-	Cpy(ResumeUpdateEventOfAllAmbientSounds, "ResumeUpdateEventOfAllAmbientSounds()");
+	Cpy(ResumeUpdateEventOfAllWaters, "ResumeUpdateEventOfAllWaters([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(ResumeUpdateEventOfAllLights, "ResumeUpdateEventOfAllLights([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(ResumeUpdateEventOfAll3DSounds, "ResumeUpdateEventOfAll3DSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(ResumeUpdateEventOfAllAmbientSounds, "ResumeUpdateEventOfAllAmbientSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(ResumeUpdateEventOfMainCharacter, "ResumeUpdateEventOfMainCharacter()");
 	Cpy(ResumeUpdateEventOfTerrain, "ResumeUpdateEventOfTerrain()");
-	Cpy(ResumeUpdateEventOfAllEngineCameras, "ResumeUpdateEventOfAllEngineCameras()");
+	Cpy(ResumeUpdateEventOfAllEngineCameras, "ResumeUpdateEventOfAllEngineCameras([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
 }
 
