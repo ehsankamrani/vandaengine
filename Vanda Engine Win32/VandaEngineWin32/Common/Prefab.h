@@ -100,6 +100,7 @@ private:
 	CBool m_scriptInitialized;
 	CInstanceLight* m_activeLights[8];
 	CBool m_updateEvent;
+	CBool m_updateAnimation;
 public:
 	CVoid SetName(CChar* name);
 	CVoid SetNameIndex();
@@ -234,6 +235,9 @@ public:
 	//////////////////
 	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
 	CBool GetUpdateEvent() { return m_updateEvent; }
+
+	CVoid SetUpdateAnimation(CBool set) { m_updateAnimation = set; }
+	CBool GetUpdateAnimation() { return m_updateAnimation; }
 };
 
 class CPrefab

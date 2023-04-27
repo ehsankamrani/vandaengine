@@ -733,9 +733,11 @@
     <Image Include="Assets\Icon\Terrain\terrain_down.bmp" />
     <Image Include="Assets\Icon\Terrain\terrain_focus.bmp" />
     <Image Include="Assets\Icon\Terrain\terrain_up.bmp" />
+    <Image Include="Assets\Icon\Test\Active\test_active_disable.bmp" />
     <Image Include="Assets\Icon\Test\Active\test_active_down.bmp" />
     <Image Include="Assets\Icon\Test\Active\test_active_focus.bmp" />
     <Image Include="Assets\Icon\Test\Active\test_active_up.bmp" />
+    <Image Include="Assets\Icon\Test\Deactive\test_deactive_disable.bmp" />
     <Image Include="Assets\Icon\Test\Deactive\test_deactive_down.bmp" />
     <Image Include="Assets\Icon\Test\Deactive\test_deactive_focus.bmp" />
     <Image Include="Assets\Icon\Test\Deactive\test_deactive_up.bmp" />

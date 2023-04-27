@@ -1809,6 +1809,12 @@
     <Image Include="Assets\Icon\Default\Script Utility\video.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Assets\Icon\Test\Active\test_active_disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Icon\Test\Deactive\test_deactive_disable.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VandaEngineEditor.rc">

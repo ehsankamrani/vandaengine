@@ -413,17 +413,17 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	//Pause game 
 	Cpy(PauseGame, "PauseGame()");
-	Cpy(PauseAllAnimationsOfPrefabInstances, "PauseAllAnimationsOfPrefabInstances()");
+	Cpy(PauseAllAnimationsOfPrefabInstances, "PauseAllAnimationsOfPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseMainCharacterAnimations, "PauseMainCharacterAnimations()");
 	Cpy(PausePhysics, "PausePhysics()");
-	Cpy(PauseAllWaterAnimations, "PauseAllWaterAnimations()");
+	Cpy(PauseAllWaterAnimations, "PauseAllWaterAnimations([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
 	//resume game
 	Cpy(ResumeGame, "ResumeGame()");
-	Cpy(ResumeAllAnimationsOfPrefabInstances, "ResumeAllAnimationsOfPrefabInstances()");
+	Cpy(ResumeAllAnimationsOfPrefabInstances, "ResumeAllAnimationsOfPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(ResumeMainCharacterAnimations, "ResumeMainCharacterAnimations()");
 	Cpy(ResumePhysics, "ResumePhysics()");
-	Cpy(ResumeAllWaterAnimations, "ResumeAllWaterAnimations()");
+	Cpy(ResumeAllWaterAnimations, "ResumeAllWaterAnimations([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
 	//lock/unlock character
 	Cpy(LockCharacterController, "LockCharacterController()");
@@ -435,7 +435,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetMenuCursorSize, "SetMenuCursorSize(int cursorSize)");
 	Cpy(GetMenuCursorSize, "GetMenuCursorSize()");
 
-	//Pause script Update event of scripts
+	//Pause script Update event of game objects
 	Cpy(PauseAllUpdateEvents, "PauseAllUpdateEvents([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseUpdateEventOfAllPrefabInstances, "PauseUpdateEventOfAllPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseUpdateEventOfVSceneScript, "PauseUpdateEventOfVSceneScript()");
@@ -448,7 +448,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(PauseUpdateEventOfTerrain, "PauseUpdateEventOfTerrain()");
 	Cpy(PauseUpdateEventOfAllEngineCameras, "PauseUpdateEventOfAllEngineCameras([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
-	//Resume script Update event of scripts
+	//Resume script Update event of game objects
 	Cpy(ResumeAllUpdateEvents, "ResumeAllUpdateEvents([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(ResumeUpdateEventOfAllPrefabInstances, "ResumeUpdateEventOfAllPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(ResumeUpdateEventOfVSceneScript, "ResumeUpdateEventOfVSceneScript()");
@@ -2470,7 +2470,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetMenuCursorSize");
 	InsertItem("GetMenuCursorSize");
 
-	//Pause script Update event of scripts
+	//Pause script Update event of game objects
 	InsertItem("PauseAllUpdateEvents");
 	InsertItem("PauseUpdateEventOfAllPrefabInstances");
 	InsertItem("PauseUpdateEventOfVSceneScript");
@@ -2483,7 +2483,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("PauseUpdateEventOfTerrain");
 	InsertItem("PauseUpdateEventOfAllEngineCameras");
 
-	//Resume script Update event of scripts
+	//Resume script Update event of game objects
 	InsertItem("ResumeAllUpdateEvents");
 	InsertItem("ResumeUpdateEventOfAllPrefabInstances");
 	InsertItem("ResumeUpdateEventOfVSceneScript");

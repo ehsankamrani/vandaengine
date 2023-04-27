@@ -16716,7 +16716,49 @@ CInt PauseGame(lua_State* L)
 
 CInt PauseAllAnimationsOfPrefabInstances(lua_State* L)
 {
-	g_main->m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			//CChar message[MAX_URI_SIZE];
+			//sprintf(message, "\nPauseAllAnimationsOfPrefabInstances warning: Couldn't find '%s' prefab instance object", m_exception[i].c_str());
+			//PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -16734,7 +16776,49 @@ CInt PausePhysics(lua_State* L)
 
 CInt PauseAllWaterAnimations(lua_State* L)
 {
-	g_main->m_pauseAllWaterAnimations = CTrue;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_engineWaters[i]->SetUpdateAnimation(CFalse);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			//CChar message[MAX_URI_SIZE];
+			//sprintf(message, "\nPauseAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			//PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -16761,7 +16845,49 @@ CInt ResumeGame(lua_State* L)
 
 CInt ResumeAllAnimationsOfPrefabInstances(lua_State* L)
 {
-	g_main->m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			//CChar message[MAX_URI_SIZE];
+			//sprintf(message, "\nResumeAllAnimationsOfPrefabInstances warning: Couldn't find '%s' prefab instance object", m_exception[i].c_str());
+			//PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -16788,7 +16914,49 @@ CInt ResumePhysics(lua_State* L)
 
 CInt ResumeAllWaterAnimations(lua_State* L)
 {
-	g_main->m_pauseAllWaterAnimations = CFalse;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_engineWaters[i]->SetUpdateAnimation(CTrue);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			//CChar message[MAX_URI_SIZE];
+			//sprintf(message, "\nResumeAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			//PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -16854,7 +17022,7 @@ CInt GetMenuCursorSize(lua_State* L)
 }
 
 
-//Pause script Update event of scripts
+//Pause script Update event of game objects
 CInt PauseAllUpdateEvents(lua_State* L)
 {
 	std::vector<std::string> m_exception;
@@ -17376,7 +17544,7 @@ CInt PauseUpdateEventOfAllEngineCameras(lua_State* L)
 	return 0;
 }
 
-//Resume script Update event of scripts
+//Resume script Update event of game objects
 CInt ResumeAllUpdateEvents(lua_State* L)
 {
 	std::vector<std::string> m_exception;
@@ -17955,6 +18123,7 @@ CMain::CMain()
 	m_pausePhysics = CFalse;
 	m_pauseAllWaterAnimations = CFalse;
 	m_renderVideoEnabled = CTrue;
+	m_fixedTiming = CFalse;
 }
 
 CMain::~CMain()
@@ -18510,7 +18679,10 @@ CBool CMain::Render()
 		return CTrue;
 	g_numVerts = 0; //debug info
 
-	elapsedTime = g_timer->GetElapsedSeconds();
+	if (m_fixedTiming)
+		elapsedTime = 1.0f / 60.0f;
+	else
+		elapsedTime = g_timer->GetElapsedSeconds();
 
 	//if (elapsedTime > (1.0f / 60.0f))
 	//{
@@ -18590,7 +18762,7 @@ CBool CMain::Render()
 	}
 	///////////////////////
 
-	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseAllAnimationsOfPrefabInstances)
+	if (!g_currentVSceneProperties.m_pauseGame)
 	{
 		UpdatePrefabInstanceTransformations();
 
@@ -21718,6 +21890,12 @@ CBool CMain::Load(CChar* pathName)
 			new_instance_prefab->SetNameIndex(); //for selection only
 			new_instance_prefab->GenQueryIndex();
 			new_instance_prefab->SetWater(NULL);
+
+			if (g_main->m_pauseAllAnimationsOfPrefabInstances)
+				new_instance_prefab->SetUpdateAnimation(CFalse);
+			else
+				new_instance_prefab->SetUpdateAnimation(CTrue);
+
 			g_instancePrefab.push_back(new_instance_prefab);
 			Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 			InsertPrefab(new_prefab);
@@ -22384,6 +22562,12 @@ CBool CMain::Load(CChar* pathName)
 		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID);
 		water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID);
 		water->SetSideVertexPositions();
+
+		if (m_pauseAllWaterAnimations)
+			water->SetUpdateAnimation(CFalse);
+		else
+			water->SetUpdateAnimation(CTrue);
+
 		water->LoadLuaFile();
 		g_engineWaters.push_back(water);
 
@@ -23730,6 +23914,8 @@ CVoid CMain::UpdateAnimations(CBool init)
 	{
 		if (!g_instancePrefab[i]->GetVisible()) continue;
 		if (!g_instancePrefab[i]->GetIsAnimated() && !g_instancePrefab[i]->GetIsControlledByPhysX()) continue;
+		if (!g_instancePrefab[i]->GetUpdateAnimation()) continue;
+
 		g_currentInstancePrefab = g_instancePrefab[i];
 
 		if (Cmp(g_currentInstancePrefab->GetName(), "VANDA_MAIN_CHARACTER")) continue;
@@ -24307,7 +24493,7 @@ CVoid CMain::Render3DAnimatedModelsForWater(CWater* water, CBool sceneManager)
 		if (!g_render.GetScene()->m_isTrigger)
 		{
 			CBool update = CTrue;
-			if (g_currentVSceneProperties.m_pauseGame || m_pauseAllAnimationsOfPrefabInstances)
+			if (g_currentVSceneProperties.m_pauseGame || !g_currentInstancePrefab->GetUpdateAnimation())
 				update = CFalse;
 			if (update)
 			{
@@ -26092,6 +26278,8 @@ CVoid CMain::UpdatePrefabInstanceTransformations()
 
 		if (Cmp(currentInstance->GetName(), "VANDA_MAIN_CHARACTER")) continue;
 
+		if (!currentInstance->GetUpdateAnimation()) continue;
+
 		CVec4f trans(currentInstance->GetTranslate().x, currentInstance->GetTranslate().y, currentInstance->GetTranslate().z, 1.0f);
 		CVec4f scale(currentInstance->GetScale().x, currentInstance->GetScale().y, currentInstance->GetScale().z, 1.0f);
 		CVec4f rotx(1.0f, 0.0f, 0.0f, currentInstance->GetRotate().x);
@@ -26280,26 +26468,42 @@ CVoid CMain::ResumeSounds()
 
 CVoid CMain::PauseGame()
 {
-	g_currentVSceneProperties.m_pauseGame = CTrue;
 	g_currentVSceneProperties.m_lockCharacterController = CTrue;
 
 	m_pauseMainCharacterAnimations = CTrue;
-	m_pauseAllAnimationsOfPrefabInstances = CTrue;
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+	}
+
 	m_pausePhysics = CTrue;
-	m_pauseAllWaterAnimations = CTrue;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateAnimation(CFalse);
+	}
 
 	PauseAllScriptUpdateEvents();
 }
 
 CVoid CMain::ResumeGame()
 {
-	g_currentVSceneProperties.m_pauseGame = CFalse;
 	g_currentVSceneProperties.m_lockCharacterController = CFalse;
 
 	m_pauseMainCharacterAnimations = CFalse;
-	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+	}
+
 	m_pausePhysics = CFalse;
-	m_pauseAllWaterAnimations = CFalse;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateAnimation(CTrue);
+	}
 
 	ResumeAllScriptUpdateEvents();
 }

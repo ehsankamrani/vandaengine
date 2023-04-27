@@ -485,7 +485,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetMenuCursorSize", SetMenuCursorSize);
 	lua_register(L, "GetMenuCursorSize", GetMenuCursorSize);
 
-	//Pause script Update event of scripts
+	//Pause script Update event of game objects
 	lua_register(L, "PauseAllUpdateEvents", PauseAllUpdateEvents);
 	lua_register(L, "PauseUpdateEventOfAllPrefabInstances", PauseUpdateEventOfAllPrefabInstances);
 	lua_register(L, "PauseUpdateEventOfVSceneScript", PauseUpdateEventOfVSceneScript);
@@ -498,7 +498,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "PauseUpdateEventOfTerrain", PauseUpdateEventOfTerrain);
 	lua_register(L, "PauseUpdateEventOfAllEngineCameras", PauseUpdateEventOfAllEngineCameras);
 
-	//Resume script Update event of scripts
+	//Resume script Update event of game objects
 	lua_register(L, "ResumeAllUpdateEvents", ResumeAllUpdateEvents);
 	lua_register(L, "ResumeUpdateEventOfAllPrefabInstances", ResumeUpdateEventOfAllPrefabInstances);
 	lua_register(L, "ResumeUpdateEventOfVSceneScript", ResumeUpdateEventOfVSceneScript);

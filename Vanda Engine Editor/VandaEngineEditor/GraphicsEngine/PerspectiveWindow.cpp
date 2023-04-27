@@ -26213,7 +26213,49 @@ CInt PauseAllAnimationsOfPrefabInstances(lua_State* L)
 		return 0;
 	}
 
-	g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CTrue;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAllAnimationsOfPrefabInstances warning: Couldn't find '%s' prefab instance object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -26258,7 +26300,49 @@ CInt PauseAllWaterAnimations(lua_State* L)
 		return 0;
 	}
 
-	g_multipleView->m_pauseAllWaterAnimations = CTrue;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_engineWaters[i]->SetUpdateAnimation(CFalse);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nPauseAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -26303,7 +26387,49 @@ CInt ResumeAllAnimationsOfPrefabInstances(lua_State* L)
 		return 0;
 	}
 
-	g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_instancePrefab[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeAllAnimationsOfPrefabInstances warning: Couldn't find '%s' prefab instance object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -26357,7 +26483,49 @@ CInt ResumeAllWaterAnimations(lua_State* L)
 		return 0;
 	}
 
-	g_multipleView->m_pauseAllWaterAnimations = CFalse;
+	std::vector<std::string> m_exception;
+	std::vector<CBool>m_foundException;
+
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, lua_tostring(L, n));
+		m_exception.push_back(name);
+		m_foundException.push_back(CFalse);
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CBool foundException = CFalse;
+		for (CUInt j = 0; j < m_exception.size(); j++)
+		{
+			if (Cmp(g_engineWaters[i]->GetName(), m_exception[j].c_str()))
+			{
+				foundException = CTrue;
+				m_foundException[j] = CTrue;
+				break;
+			}
+		}
+		if (foundException)
+			continue;
+
+		g_engineWaters[i]->SetUpdateAnimation(CTrue);
+	}
+
+	for (CUInt i = 0; i < m_foundException.size(); i++)
+	{
+		if (!m_foundException[i])
+		{
+			CChar message[MAX_URI_SIZE];
+			sprintf(message, "\nResumeAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			PrintInfo(message, COLOR_YELLOW);
+		}
+	}
+
+	m_exception.clear();
+
 	return 0;
 }
 
@@ -26485,7 +26653,7 @@ CInt GetMenuCursorSize(lua_State* L)
 	return 1;
 }
 
-//Pause script Update event of scripts
+//Pause script Update event of game objects
 CInt PauseAllUpdateEvents(lua_State* L)
 {
 	if (g_testScript)
@@ -27106,7 +27274,7 @@ CInt PauseUpdateEventOfAllEngineCameras(lua_State* L)
 	return 0;
 }
 
-//Resume script Update event of scripts
+//Resume script Update event of game objects
 CInt ResumeAllUpdateEvents(lua_State* L)
 {
 	if (g_testScript)
@@ -27787,6 +27955,7 @@ CMultipleWindows::CMultipleWindows()
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
 	m_pauseAllWaterAnimations = CFalse;
+	m_fixedTiming = CFalse;
 }
 
 CMultipleWindows::~CMultipleWindows()
@@ -30182,8 +30351,10 @@ CVoid CMultipleWindows::DrawPerspective()
 	g_numVerts = 0; //debug info
 
 	//Update timer
-	if (!m_selectObject)
-		elapsedTime = timer.GetElapsedSeconds();
+	if (m_fixedTiming)
+		elapsedTime = 1.0f / 60.0f;
+	else if (!m_selectObject)
+			elapsedTime = timer.GetElapsedSeconds();
 	else
 		elapsedTime = timer.GetElapsedSeconds(CTrue); //start from the beginning
 
@@ -30274,7 +30445,7 @@ CVoid CMultipleWindows::DrawPerspective()
 		m_translationController->Update((int)m_translateMousePosition.x, (int)m_translateMousePosition.y);
 	}
 
-	if (!g_currentVSceneProperties.m_pauseGame && !m_pauseAllAnimationsOfPrefabInstances)
+	if (!g_currentVSceneProperties.m_pauseGame)
 	{
 		UpdatePrefabInstanceTransformations();
 
@@ -31625,6 +31796,8 @@ CVoid CMultipleWindows::RenderWindow()
 	}
 	if (m_swapBuffers)
 		SwapBuffers(m_pDC->m_hDC);
+	else
+		glFinish();
 }
 
 CVoid CMultipleWindows::ResetPhysXCounts()
@@ -33639,6 +33812,7 @@ CVoid CMultipleWindows::UpdateAnimations(CBool init)
 		{
 			if (!g_instancePrefab[i]->GetVisible()) continue;
 			if (!g_instancePrefab[i]->GetIsAnimated() && !g_instancePrefab[i]->GetIsControlledByPhysX()) continue;
+			if (!g_instancePrefab[i]->GetUpdateAnimation()) continue;
 
 			g_currentInstancePrefab = g_instancePrefab[i];
 
@@ -34422,8 +34596,9 @@ CVoid CMultipleWindows::Render3DAnimatedModelsForWater(CWater* water, CBool scen
 		if (!g_render.GetScene()->m_isTrigger)
 		{
 			CBool update = CTrue;
-			if (g_currentVSceneProperties.m_pauseGame || m_pauseAllAnimationsOfPrefabInstances)
+			if (g_currentVSceneProperties.m_pauseGame || !g_currentInstancePrefab->GetUpdateAnimation())
 				update = CFalse;
+
 			if (update)
 			{
 				if (g_render.GetScene()->m_hasAnimation && g_render.GetScene()->m_updateAnimation)
@@ -36616,6 +36791,8 @@ CVoid CMultipleWindows::UpdatePrefabInstanceTransformations()
 
 		if (Cmp(currentInstance->GetName(), "VANDA_MAIN_CHARACTER")) continue;
 
+		if (!currentInstance->GetUpdateAnimation()) continue;
+
 		CVec4f trans(currentInstance->GetTranslate().x, currentInstance->GetTranslate().y, currentInstance->GetTranslate().z, 1.0f);
 		CVec4f scale(currentInstance->GetScale().x, currentInstance->GetScale().y, currentInstance->GetScale().z, 1.0f);
 		CVec4f rotx(1.0f, 0.0f, 0.0f, currentInstance->GetRotate().x);
@@ -36921,26 +37098,42 @@ CVoid CMultipleWindows::ResumeSounds()
 
 CVoid CMultipleWindows::PauseGame()
 {
-	g_currentVSceneProperties.m_pauseGame = CTrue;
 	g_currentVSceneProperties.m_lockCharacterController = CTrue;
 
 	m_pauseMainCharacterAnimations = CTrue;
-	m_pauseAllAnimationsOfPrefabInstances = CTrue;
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+	}
+
 	m_pausePhysics = CTrue;
-	m_pauseAllWaterAnimations = CTrue;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateAnimation(CFalse);
+	}
 
 	PauseAllScriptUpdateEvents();
 }
 
 CVoid CMultipleWindows::ResumeGame()
 {
-	g_currentVSceneProperties.m_pauseGame = CFalse;
 	g_currentVSceneProperties.m_lockCharacterController = CFalse;
 
 	m_pauseMainCharacterAnimations = CFalse;
-	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+	}
+
 	m_pausePhysics = CFalse;
-	m_pauseAllWaterAnimations = CFalse;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		g_engineWaters[i]->SetUpdateAnimation(CTrue);
+	}
 
 	ResumeAllScriptUpdateEvents();
 }

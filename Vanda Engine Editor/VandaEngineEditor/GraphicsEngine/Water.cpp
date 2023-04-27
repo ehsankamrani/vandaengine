@@ -32,6 +32,7 @@ CWater::CWater()
 	LuaOpenLibs(m_lua);
 	LuaRegisterFunctions(m_lua);
 	m_updateEvent = CTrue;
+	m_updateAnimation = CTrue;
 }
 
 CWater::~CWater()
@@ -520,7 +521,7 @@ void CWater::RenderWater(CVec3f cameraPos, CFloat elapsedTime )
 
 	// Move the water by our global speed
 	CBool isMoving = CTrue;
-	if (g_currentVSceneProperties.m_pauseGame || g_multipleView->m_pauseAllWaterAnimations)
+	if (g_currentVSceneProperties.m_pauseGame || !m_updateAnimation)
 		isMoving = CFalse;
 
 	if (isMoving)

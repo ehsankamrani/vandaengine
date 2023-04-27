@@ -482,7 +482,7 @@ CInt HideMenuCursor(lua_State* L);
 CInt SetMenuCursorSize(lua_State* L);
 CInt GetMenuCursorSize(lua_State* L);
 
-//Pause script Update event of scripts
+//Pause script Update event of game objects
 CInt PauseAllUpdateEvents(lua_State* L);
 CInt PauseUpdateEventOfAllPrefabInstances(lua_State* L);
 CInt PauseUpdateEventOfVSceneScript(lua_State* L);
@@ -495,7 +495,7 @@ CInt PauseUpdateEventOfMainCharacter(lua_State* L);
 CInt PauseUpdateEventOfTerrain(lua_State* L);
 CInt PauseUpdateEventOfAllEngineCameras(lua_State* L);
 
-//Resume script Update event of scripts
+//Resume script Update event of game objects
 CInt ResumeAllUpdateEvents(lua_State* L);
 CInt ResumeUpdateEventOfAllPrefabInstances(lua_State* L);
 CInt ResumeUpdateEventOfVSceneScript(lua_State* L);

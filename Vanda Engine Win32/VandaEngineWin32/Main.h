@@ -121,6 +121,8 @@ public:
 
 	CVoid SetExitGame(CBool set) { m_exitGame = set; }
 	CBool GetExitGame() { return m_exitGame; }
+
+	CVoid SetFixedTiming(CBool set) { m_fixedTiming = set; }
 public:
 	CVoid	ApplyForce( /*NxVec3 forceDirection, */CInt moveDirection, CFloat elapsedTime);
 
@@ -202,6 +204,7 @@ private:
 
 	CInt m_padding;
 	CBool m_renderVideo;
+	CBool m_fixedTiming;
 public:
 	CBool m_lockInput;
 	CBool m_lockDefaultFreeCamera;

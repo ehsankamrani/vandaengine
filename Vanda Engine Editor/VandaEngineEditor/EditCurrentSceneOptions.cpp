@@ -212,10 +212,21 @@ void CEditCurrentSceneOptions::OnOK()
 	if (checkState == BST_CHECKED)
 	{
 		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CTrue;
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+		}
 	}
 	else
 	{
 		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CFalse;
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+		}
+
 	}
 
 	checkState = m_checkPauseMainCharacterAnimations.GetCheck();
@@ -242,10 +253,20 @@ void CEditCurrentSceneOptions::OnOK()
 	if (checkState == BST_CHECKED)
 	{
 		g_multipleView->m_pauseAllWaterAnimations = CTrue;
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			g_engineWaters[i]->SetUpdateAnimation(CFalse);
+		}
 	}
 	else
 	{
 		g_multipleView->m_pauseAllWaterAnimations = CFalse;
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			g_engineWaters[i]->SetUpdateAnimation(CTrue);
+		}
 	}
 
 	checkState = m_checkShowCursor.GetCheck();

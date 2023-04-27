@@ -445,7 +445,7 @@ private:
 	CChar SetMenuCursorSize[MAX_URI_SIZE];
 	CChar GetMenuCursorSize[MAX_URI_SIZE];;
 
-	//Pause script Update event of scripts
+	//Pause script Update event of game objects
 	CChar PauseAllUpdateEvents[MAX_URI_SIZE];
 	CChar PauseUpdateEventOfAllPrefabInstances[MAX_URI_SIZE];
 	CChar PauseUpdateEventOfVSceneScript[MAX_URI_SIZE];
@@ -458,7 +458,7 @@ private:
 	CChar PauseUpdateEventOfTerrain[MAX_URI_SIZE];
 	CChar PauseUpdateEventOfAllEngineCameras[MAX_URI_SIZE];
 
-	//Resume script Update event of scripts
+	//Resume script Update event of game objects
 	CChar ResumeAllUpdateEvents[MAX_URI_SIZE];
 	CChar ResumeUpdateEventOfAllPrefabInstances[MAX_URI_SIZE];
 	CChar ResumeUpdateEventOfVSceneScript[MAX_URI_SIZE];

@@ -360,6 +360,7 @@ public:
 	CVoid PauseAllScriptUpdateEvents();
 	CVoid ResumeAllScriptUpdateEvents();
 
+	CVoid SetFixedTiming(CBool set) { m_fixedTiming = set; }
 private:
 	CChar m_previousCharacterAnimationType[MAX_NAME_SIZE];
 	CBool m_playGameMode;
@@ -378,6 +379,7 @@ private:
 	CGUI* m_selectedGUI;
 	CBool m_renderVideo;
 	CBool m_updateScript;
+	CBool m_fixedTiming;
 public:
 	CVoid ProcessInputs();
 	CVoid InitDynamicShadowMap(CVec3f lightPos, CVec3f atPos );

@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 241;
+CInt g_version = 242;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.4.1"));
+	SetWindowText(_T("Vanda Engine 2.4.2"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -1667,13 +1667,13 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	rcRect.right = rcRect.left + fivePercent;
 
 	m_mainBtnDeactivatePlayMode.MoveWindow(rcRect);
-	m_mainBtnDeactivatePlayMode.LoadBitmaps(IDB_BITMAP_TEST_ACTIVE_UP, IDB_BITMAP_TEST_ACTIVE_DOWN, IDB_BITMAP_TEST_ACTIVE_FOCUS);
+	m_mainBtnDeactivatePlayMode.LoadBitmaps(IDB_BITMAP_TEST_ACTIVE_UP, IDB_BITMAP_TEST_ACTIVE_DOWN, IDB_BITMAP_TEST_ACTIVE_FOCUS, IDB_BITMAP_TEST_ACTIVE_DISABLE);
 	m_mainBtnDeactivatePlayMode.ShowWindow(SW_HIDE);
 	m_mainBtnDeactivatePlayMode.UpdateWindow();
 	m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
 
 	m_mainBtnActivatePlayMode.MoveWindow(rcRect);
-	m_mainBtnActivatePlayMode.LoadBitmaps(IDB_BITMAP_TEST_DEACTIVE_UP, IDB_BITMAP_TEST_DEACTIVE_DOWN, IDB_BITMAP_TEST_DEACTIVE_FOCUS);
+	m_mainBtnActivatePlayMode.LoadBitmaps(IDB_BITMAP_TEST_DEACTIVE_UP, IDB_BITMAP_TEST_DEACTIVE_DOWN, IDB_BITMAP_TEST_DEACTIVE_FOCUS, IDB_BITMAP_TEST_DEACTIVE_DISABLE);
 	m_mainBtnActivatePlayMode.ShowWindow(SW_SHOW);
 	m_mainBtnActivatePlayMode.UpdateWindow();
 	m_mainBtnActivatePlayMode.EnableWindow(TRUE);
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.4.1 initialized successfully" );
+		PrintInfo( "\nVersion 2.4.2 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.4.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.2 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.4.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.2 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7800,7 +7800,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.4.1 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.2 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8239,7 +8239,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8248,7 +8248,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.4.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.2 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -10001,7 +10001,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10843,7 +10843,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -14162,7 +14162,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15345,7 +15345,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.1 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -17111,7 +17111,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17554,6 +17554,12 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					new_instance_prefab->SetNameIndex(); //for selection only
 					new_instance_prefab->GenQueryIndex();
 					new_instance_prefab->SetWater(NULL);
+
+					if (g_multipleView->m_pauseAllAnimationsOfPrefabInstances)
+						new_instance_prefab->SetUpdateAnimation(CFalse);
+					else
+						new_instance_prefab->SetUpdateAnimation(CTrue);
+
 					g_instancePrefab.push_back(new_instance_prefab);
 					Cpy(g_currentInstancePrefabName, new_instance_prefab->GetName());
 					g_editorMode = eMODE_PREFAB; //to load textures from prefab locations
@@ -18283,6 +18289,11 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
 				water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID );
 				water->SetSideVertexPositions();
+
+				if (g_multipleView->m_pauseAllWaterAnimations)
+					water->SetUpdateAnimation(CFalse);
+				else
+					water->SetUpdateAnimation(CTrue);
 
 				//save functions/////////////////////////////////
 				for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
@@ -19132,7 +19143,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -25108,6 +25119,7 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_VSCENE)
 	{
+		g_multipleView->SetFixedTiming(CTrue);
 		//exit from videos
 		for (CUInt i = 0; i < g_engineVideos.size(); i++)
 		{
@@ -25132,6 +25144,13 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 	if (g_editorMode == eMODE_GUI)
 	{
+		m_mainBtnDeactivatePlayMode.ShowWindow(SW_HIDE);
+		m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
+		m_mainBtnDeactivatePlayMode.UpdateWindow();
+		m_mainBtnActivatePlayMode.ShowWindow(SW_SHOW);
+		m_mainBtnActivatePlayMode.EnableWindow(FALSE);
+		m_mainBtnActivatePlayMode.UpdateWindow();
+
 		//Load GUI info
 		for (CUInt k = 0; k < m_guiButtons.size(); k++)
 		{
@@ -25160,18 +25179,23 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		}
 		m_guiTexts.clear();
 
-		m_mainBtnDeactivatePlayMode.ShowWindow(SW_HIDE);
-		m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
-		m_mainBtnDeactivatePlayMode.UpdateWindow();
-		m_mainBtnActivatePlayMode.ShowWindow(SW_SHOW);
-		m_mainBtnActivatePlayMode.EnableWindow(TRUE);
-		m_mainBtnActivatePlayMode.UpdateWindow();
 		g_currentCameraType = eCAMERA_DEFAULT_FREE_NO_PHYSX; ex_pVandaEngineDlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
 		g_multipleView->SetPlayGameMode(CFalse);
 		PrintInfo("\nPlay mode disabled");
 
+		m_mainBtnActivatePlayMode.EnableWindow(TRUE);
+		m_mainBtnActivatePlayMode.UpdateWindow();
+
 		return;
 	}
+
+	ex_pVandaEngineDlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
+	m_mainBtnDeactivatePlayMode.ShowWindow(SW_HIDE);
+	m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
+	m_mainBtnDeactivatePlayMode.UpdateWindow();
+	m_mainBtnActivatePlayMode.ShowWindow(SW_SHOW);
+	m_mainBtnActivatePlayMode.EnableWindow(FALSE);
+	m_mainBtnActivatePlayMode.UpdateWindow();
 
 	SetCapture();
 	SetCursor(m_progressCursor);
@@ -25195,14 +25219,6 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 	{
 		g_engineCameraInstances[c]->SetActive(CFalse);
 	}
-
-	ex_pVandaEngineDlg->m_mainBtnFreeCamera.EnableWindow(FALSE);
-	m_mainBtnDeactivatePlayMode.ShowWindow(SW_HIDE);
-	m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
-	m_mainBtnDeactivatePlayMode.UpdateWindow();
-	m_mainBtnActivatePlayMode.ShowWindow(SW_SHOW);
-	m_mainBtnActivatePlayMode.EnableWindow(TRUE);
-	m_mainBtnActivatePlayMode.UpdateWindow();
 
 	g_render.SetActiveInstanceCamera(g_render.GetDefaultInstanceCamera());
 	if (g_editorMode == eMODE_VSCENE)
@@ -25920,6 +25936,31 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = m_pauseAllAnimationsOfPrefabInstances;
 		g_multipleView->m_pausePhysics = m_pausePhysics;
 		g_multipleView->m_pauseAllWaterAnimations = m_pauseAllWaterAnimations;
+
+		//Update prefab instance animation?
+		CBool updatePrefabInstanceAnimation;
+		if (g_multipleView->m_pauseAllAnimationsOfPrefabInstances)
+			updatePrefabInstanceAnimation = CFalse;
+		else
+			updatePrefabInstanceAnimation = CTrue;
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			g_instancePrefab[i]->SetUpdateAnimation(updatePrefabInstanceAnimation);
+		}
+
+		//Update water animation?
+		CBool updateWaterAnimation;
+		if (g_multipleView->m_pauseAllWaterAnimations)
+			updateWaterAnimation = CFalse;
+		else
+			updateWaterAnimation = CTrue;
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			g_engineWaters[i]->SetUpdateAnimation(updateWaterAnimation);
+		}
+
 	}
 
 	if (g_editorMode == eMODE_PREFAB)
@@ -26110,7 +26151,10 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 	g_multipleView->m_lockDefaultFreeCamera = CFalse;
 	g_multipleView->m_lockInput = CFalse;
+	g_multipleView->SetFixedTiming(CFalse);
 
+	m_mainBtnActivatePlayMode.EnableWindow(TRUE);
+	m_mainBtnActivatePlayMode.UpdateWindow();
 }
 
 //This function activates play mode
@@ -26131,12 +26175,12 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 	if (g_editorMode == eMODE_GUI)
 	{
-		m_mainBtnDeactivatePlayMode.ShowWindow(SW_SHOW);
-		m_mainBtnDeactivatePlayMode.EnableWindow(TRUE);
-		m_mainBtnDeactivatePlayMode.UpdateWindow();
 		m_mainBtnActivatePlayMode.ShowWindow(SW_HIDE);
 		m_mainBtnActivatePlayMode.EnableWindow(FALSE);
 		m_mainBtnActivatePlayMode.UpdateWindow();
+		m_mainBtnDeactivatePlayMode.ShowWindow(SW_SHOW);
+		m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
+		m_mainBtnDeactivatePlayMode.UpdateWindow();
 
 		//Disable items in play mode
 		g_multipleView->m_selectedGUIIndex = -1;
@@ -26187,8 +26231,19 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 		PrintInfo("\nPlay mode enabled");
 
+		m_mainBtnDeactivatePlayMode.EnableWindow(TRUE);
+		m_mainBtnDeactivatePlayMode.UpdateWindow();
 		return;
 	}
+
+	g_multipleView->SetFixedTiming(CTrue);
+
+	m_mainBtnActivatePlayMode.ShowWindow(SW_HIDE);
+	m_mainBtnActivatePlayMode.EnableWindow(FALSE);
+	m_mainBtnActivatePlayMode.UpdateWindow();
+	m_mainBtnDeactivatePlayMode.ShowWindow(SW_SHOW);
+	m_mainBtnDeactivatePlayMode.EnableWindow(FALSE);
+	m_mainBtnDeactivatePlayMode.UpdateWindow();
 
 	SetCapture();
 	SetCursor(m_progressCursor);
@@ -26373,12 +26428,6 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		g_render.SetActiveInstanceCamera(NULL);
 		g_currentCameraType = eCAMERA_PHYSX;
 	}
-	m_mainBtnDeactivatePlayMode.ShowWindow(SW_SHOW);
-	m_mainBtnDeactivatePlayMode.EnableWindow(TRUE);
-	m_mainBtnDeactivatePlayMode.UpdateWindow();
-	m_mainBtnActivatePlayMode.ShowWindow(SW_HIDE);
-	m_mainBtnActivatePlayMode.EnableWindow(FALSE);
-	m_mainBtnActivatePlayMode.UpdateWindow();
 
 	if (g_editorMode == eMODE_VSCENE)
 		m_currentCharacterPos = g_multipleView->m_nx->gControllers->getPosition();
@@ -27105,6 +27154,12 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 	CDelete(dlgWaiting);
 
 	gPhysXscene->setGravity(NxVec3(g_multipleView->m_nx->m_defaultGravity.x, g_multipleView->m_nx->m_defaultGravity.y, g_multipleView->m_nx->m_defaultGravity.z));
+	
+	g_multipleView->SetFixedTiming(CFalse);
+
+	m_mainBtnDeactivatePlayMode.EnableWindow(TRUE);
+	m_mainBtnDeactivatePlayMode.UpdateWindow();
+
 }
 
 

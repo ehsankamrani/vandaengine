@@ -30,6 +30,8 @@ private:
 	CFloat m_fWaterColor[3];
 	CFloat m_fWaterFogDensity;
 	CBool m_updateEvent;
+	CBool m_updateAnimation;
+
 public:
 	CWater();
 	~CWater();
@@ -68,6 +70,9 @@ public:
 
 	CVoid SetUpdateEvent(CBool set) { m_updateEvent = set; }
 	CBool GetUpdateEvent() { return m_updateEvent; }
+
+	CVoid SetUpdateAnimation(CBool set) { m_updateAnimation = set; }
+	CBool GetUpdateAnimation() { return m_updateAnimation; }
 
 	CFloat m_fWaterCPos[3];
 	CFloat m_fWaterLPos[3];
