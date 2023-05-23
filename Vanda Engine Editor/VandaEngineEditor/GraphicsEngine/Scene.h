@@ -166,8 +166,8 @@ public:
 	CVoid RenderAABBWithQuads();
 	CVoid RenderSelectionMode();
 	CVoid Update( CFloat elapsedTime = 0.0f, CBool updateOrient = CTrue, CBool resetTime = CTrue );
-	CVoid UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer);
-	CVoid UpdateExecuteActionList(CFloat elapsedTime, CBool &updateExecuteActionList);
+	CVoid UpdateExecuteCyclicAnimationList(CFloat elapsedTime, CBool resetTimer);
+	CVoid UpdateExecuteNonCyclicAnimationList(CFloat elapsedTime, CBool &updateExecuteNonCyclicAnimationList);
 	CVoid CreateTrigger( CNovodex* nx );
 	CVoid SetupDiffuseTexture();
 	CVoid SetupNormalTexture();
@@ -187,14 +187,14 @@ public:
 	CBool m_loopAnimationAtStartup, m_playAnimation, m_alwaysVisible, m_castShadow, m_isTransformable, m_isSelectable;
 	CBool m_updateBoundingBox;
 	//new way
-	std::vector<std::string>m_executeActionList;
-	std::vector<std::string>m_blendCycleList;
+	std::vector<std::string>m_executeNonCyclicAnimationList;
+	std::vector<std::string>m_executeCyclicAnimationList;
 	//new way
-	CBool BlendCycle(CInt id, CFloat weight, CFloat delay);
-	CBool ClearCycle(CInt id, CFloat delay);
-	CBool ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat weightTarget, CBool autoLock);
-	CBool ReverseExecuteAction(CInt id );
-	CBool RemoveAction(CInt id);
+	CBool ExecuteCyclicAnimation(CInt id, CFloat weight, CFloat delay);
+	CBool RemoveCyclicAnimation(CInt id, CFloat delay);
+	CBool ExecuteNonCyclicAnimation(CInt id, CFloat delayIn, CFloat delayOut, CFloat weightTarget, CBool autoLock);
+	CBool ReverseExecuteNonCyclicAnimation(CInt id );
+	CBool RemoveNonCyclicAnimation(CInt id);
 	CBool UpdateAnimationLists() { return m_updateAnimationLists; }
 	CBool m_hasAnimation; //Has this scene any animations?
 	CBool m_updateAnimation;

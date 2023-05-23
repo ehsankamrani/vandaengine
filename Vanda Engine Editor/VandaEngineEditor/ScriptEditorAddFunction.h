@@ -36,13 +36,14 @@ private:
 	CChar PauseSound[MAX_URI_SIZE];
 	CChar StopSound[MAX_URI_SIZE];
 
-	CChar BlendCycle[MAX_URI_SIZE];
-	CChar ClearCycle[MAX_URI_SIZE];
-	CChar ExecuteAction[MAX_URI_SIZE];
-	CChar ReverseExecuteAction[MAX_URI_SIZE];
-	CChar RemoveAction[MAX_URI_SIZE];
-	CChar GetAnimationClipDuration[MAX_URI_SIZE];
-	CChar PauseAnimations[MAX_URI_SIZE];
+	CChar ExecuteCyclicAnimation[MAX_URI_SIZE];
+	CChar RemoveCyclicAnimation[MAX_URI_SIZE];
+	CChar ExecuteNonCyclicAnimation[MAX_URI_SIZE];
+	CChar ReverseExecuteNonCyclicAnimation[MAX_URI_SIZE];
+	CChar RemoveNonCyclicAnimation[MAX_URI_SIZE];
+	CChar GetAnimationClipDurationOfPrefabInstance[MAX_URI_SIZE];
+	CChar PausePrefabInstanceAnimations[MAX_URI_SIZE];
+	CChar ResumePrefabInstanceAnimations[MAX_URI_SIZE];
 
 	CChar LoadVScene[MAX_URI_SIZE];
 	CChar ExitGame[MAX_URI_SIZE];

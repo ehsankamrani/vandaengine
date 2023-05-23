@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 242;
+CInt g_version = 243;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1475,7 +1475,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.4.2"));
+	SetWindowText(_T("Vanda Engine 2.4.3"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3057,7 +3057,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3118,7 +3118,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.4.2 initialized successfully" );
+		PrintInfo( "\nVersion 2.4.3 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3307,7 +3307,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3393,7 +3393,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.4.2 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.3 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3467,7 +3467,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.4.2 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.3 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7800,7 +7800,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.4.2 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.3 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8239,7 +8239,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.3 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8248,7 +8248,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.4.2 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.3 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -8432,9 +8432,9 @@ CVoid CVandaEngineDlg::OnMenuClickedImportColladaMultipleAnimations(CChar* fileN
 		//	if (tempScene->GetNumClips())
 		//	{
 		//		if (tempScene->m_loopAnimationAtStartup)
-		//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+		//			tempScene->ExecuteCyclicAnimation(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 		//		else
-		//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+		//			tempScene->ExecuteNonCyclicAnimation(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
 		//	}
 		//}
 		//else
@@ -8713,9 +8713,9 @@ CVoid CVandaEngineDlg::OnMenuClickedImportCollada()
 			//	if (tempScene->GetNumClips())
 			//	{
 			//		if (tempScene->m_loopAnimationAtStartup)
-			//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+			//			tempScene->ExecuteCyclicAnimation(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 			//		else
-			//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+			//			tempScene->ExecuteNonCyclicAnimation(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
 			//	}
 			//}
 			//else
@@ -10001,7 +10001,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.3 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10843,7 +10843,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.3 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -14162,7 +14162,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15345,7 +15345,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.3 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -15827,9 +15827,9 @@ CBool CVandaEngineDlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* package
 				//	if (tempScene->GetNumClips())
 				//	{
 				//		if (tempScene->m_loopAnimationAtStartup)
-				//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+				//			tempScene->ExecuteCyclicAnimation(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 				//		else
-				//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+				//			tempScene->ExecuteNonCyclicAnimation(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
 				//	}
 				//}
 				//else
@@ -16681,9 +16681,9 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 				//	if (tempScene->GetNumClips())
 				//	{
 				//		if (tempScene->m_loopAnimationAtStartup)
-				//			tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+				//			tempScene->ExecuteCyclicAnimation(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 				//		else
-				//			tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+				//			tempScene->ExecuteNonCyclicAnimation(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
 				//	}
 				//}
 				//else
@@ -17111,7 +17111,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.2 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.3 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -19143,7 +19143,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.3 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -22562,7 +22562,7 @@ void CVandaEngineDlg::OnBnClickedBtnAnimPlay()
 		g_render.GetSelectedScene()->SetClipIndex(0);
 	}
 	PrintInfo( "\nAnimation '" + (CString) g_render.GetSelectedScene()->m_animationClips[g_render.GetSelectedScene()->GetCurrentClipIndex()]->GetName() + "'activated" );
-	g_render.GetSelectedScene()->BlendCycle(g_render.GetSelectedScene()->GetCurrentClipIndex(), 1.0f, 0.0f);
+	g_render.GetSelectedScene()->ExecuteCyclicAnimation(g_render.GetSelectedScene()->GetCurrentClipIndex(), 1.0f, 0.0f);
 	ex_pBtnPlayAnim->EnableWindow( FALSE );
 	ex_pBtnPlayAnim->ShowWindow( SW_HIDE );
 	ex_pBtnPauseAnim->EnableWindow( TRUE );
@@ -25542,8 +25542,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 							scene->SetAnimationStatus(eANIM_PLAY);
 							for (CInt l = 0; l < scene->GetNumClips(); l++)
 							{
-								scene->ClearCycle(l, 0.0f);
-								scene->RemoveAction(l);
+								scene->RemoveCyclicAnimation(l, 0.0f);
+								scene->RemoveNonCyclicAnimation(l);
 							}
 						}
 					}
@@ -25553,8 +25553,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 						scene->SetAnimationStatus(eANIM_PLAY);
 						for (CInt l = 0; l < scene->GetNumClips(); l++)
 						{
-							scene->ClearCycle(l, 0.0f);
-							scene->RemoveAction(l);
+							scene->RemoveCyclicAnimation(l, 0.0f);
+							scene->RemoveNonCyclicAnimation(l);
 						}
 					}
 
@@ -25576,11 +25576,11 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 							//	{
 							//		if (animationClipStatus == eANIM_BLEND_CYCLE)
 							//		{
-							//			g_instancePrefab[j]->GetScene(k)->BlendCycle(l, 1.0f, 0.0f);
+							//			g_instancePrefab[j]->GetScene(k)->ExecuteCyclicAnimation(l, 1.0f, 0.0f);
 							//		}
 							//		else if (animationClipStatus == eANIM_EXECUTE_ACTION)
 							//		{
-							//			g_instancePrefab[j]->GetScene(k)->ExecuteAction(l, 0.0f, 0.0f, 1.0f, CFalse);
+							//			g_instancePrefab[j]->GetScene(k)->ExecuteNonCyclicAnimation(l, 0.0f, 0.0f, 1.0f, CFalse);
 							//		}
 							//	}
 							//	g_instancePrefab[j]->GetScene(k)->m_animationClips[l]->SetAnimationStatus(animationClipStatus);
@@ -25619,8 +25619,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 							for (CInt l = 0; l < scene->GetNumClips(); l++)
 							{
-								scene->ClearCycle(l, 0.0f);
-								scene->RemoveAction(l);
+								scene->RemoveCyclicAnimation(l, 0.0f);
+								scene->RemoveNonCyclicAnimation(l);
 							}
 
 						}
@@ -25897,8 +25897,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 
 			for (CInt l = 0; l < g_scene[i]->GetNumClips(); l++)
 			{
-				g_scene[i]->ClearCycle(l, 0.0f);
-				g_scene[i]->RemoveAction(l);
+				g_scene[i]->RemoveCyclicAnimation(l, 0.0f);
+				g_scene[i]->RemoveNonCyclicAnimation(l);
 			}
 
 		}
@@ -26843,9 +26843,9 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 						if (scene->GetNumClips() > 0)
 						{
 							if (scene->m_loopAnimationAtStartup)
-								scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+								scene->ExecuteCyclicAnimation(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
 							else
-								scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
+								scene->ExecuteNonCyclicAnimation(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
 						}
 					}
 					//else
@@ -26869,9 +26869,9 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 					if (scene->GetNumClips() > 0)
 					{
 						if (scene->m_loopAnimationAtStartup)
-							scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+							scene->ExecuteCyclicAnimation(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
 						else
-							scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
+							scene->ExecuteNonCyclicAnimation(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
 					}
 				}
 				for (CInt k = 0; k < scene->GetNumClips(); k++)
@@ -26999,8 +26999,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 			scene->SetAnimationStatus(eANIM_PLAY);
 			for (CInt l = 0; l < scene->GetNumClips(); l++)
 			{
-				scene->ClearCycle(l, 0.0f);
-				scene->RemoveAction(l);
+				scene->RemoveCyclicAnimation(l, 0.0f);
+				scene->RemoveNonCyclicAnimation(l);
 			}
 			g_multipleView->SetSwapBuffers(CFalse);
 			for (CUInt k = 0; k < 10; k++)
@@ -27023,9 +27023,9 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 				scene->SetAnimationStatus(eANIM_PLAY);
 
 				if (scene->m_loopAnimationAtStartup)
-					scene->BlendCycle(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
+					scene->ExecuteCyclicAnimation(scene->GetClipIndexForStartup(), 1.0f, 0.0f);
 				else
-					scene->ExecuteAction(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
+					scene->ExecuteNonCyclicAnimation(scene->GetClipIndexForStartup(), 0.0f, 0.0f, 1.0f, CFalse);
 			}
 		}
 

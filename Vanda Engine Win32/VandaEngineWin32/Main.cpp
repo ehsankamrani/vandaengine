@@ -198,7 +198,7 @@ CInt StopSound(lua_State *L)
 	return 0; // number of return values
 }
 
-CInt BlendCycle(lua_State *L)
+CInt ExecuteCyclicAnimation(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -206,7 +206,7 @@ CInt BlendCycle(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 4)
 	{
-		//PrintInfo("\nPlease specify 4 arguments for BlendCycle()", COLOR_RED);
+		//PrintInfo("\nPlease specify 4 arguments for ExecuteCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -264,7 +264,7 @@ CInt BlendCycle(lua_State *L)
 						//PrintInfo(temp, COLOR_RED);
 						return 0;
 					}
-					scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+					scene->ExecuteCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
 				}
 			}
 			if (!scene)
@@ -334,7 +334,7 @@ CInt BlendCycle(lua_State *L)
 						//PrintInfo(temp, COLOR_RED);
 						return 0;
 					}
-					scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+					scene->ExecuteCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
 				}
 			}
 		}
@@ -358,7 +358,7 @@ CInt BlendCycle(lua_State *L)
 	return 0;
 }
 
-CInt ClearCycle(lua_State *L)
+CInt RemoveCyclicAnimation(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -366,7 +366,7 @@ CInt ClearCycle(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 3)
 	{
-		//PrintInfo("\nPlease specify 3 arguments for ClearCycle()", COLOR_RED);
+		//PrintInfo("\nPlease specify 3 arguments for RemoveCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -425,7 +425,7 @@ CInt ClearCycle(lua_State *L)
 						return 0;
 					}
 
-					scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+					scene->RemoveCyclicAnimation(index, (CFloat)lua_tonumber(L, 3));
 				}
 			}
 			if (!scene)
@@ -497,7 +497,7 @@ CInt ClearCycle(lua_State *L)
 						return 0;
 					}
 
-					scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+					scene->RemoveCyclicAnimation(index, (CFloat)lua_tonumber(L, 3));
 				}
 			}
 		}
@@ -521,7 +521,7 @@ CInt ClearCycle(lua_State *L)
 	return 0;
 }
 
-CInt ExecuteAction(lua_State *L)
+CInt ExecuteNonCyclicAnimation(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -529,7 +529,7 @@ CInt ExecuteAction(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 4)
 	{
-		//PrintInfo("\nPlease specify 4 arguments for ExecuteAction()", COLOR_RED);
+		//PrintInfo("\nPlease specify 4 arguments for ExecuteNonCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -599,7 +599,7 @@ CInt ExecuteAction(lua_State *L)
 						lock = CTrue;
 					else
 						lock = CFalse;
-					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+					scene->ExecuteNonCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 				}
 			}
 			if (!scene)
@@ -681,7 +681,7 @@ CInt ExecuteAction(lua_State *L)
 						lock = CTrue;
 					else
 						lock = CFalse;
-					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+					scene->ExecuteNonCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 				}
 			}
 		}
@@ -705,7 +705,7 @@ CInt ExecuteAction(lua_State *L)
 	return 0;
 }
 
-CInt ReverseExecuteAction(lua_State *L)
+CInt ReverseExecuteNonCyclicAnimation(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -713,7 +713,7 @@ CInt ReverseExecuteAction(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		//PrintInfo("\nPlease specify 2 arguments for ReverseExecuteAction()", COLOR_RED);
+		//PrintInfo("\nPlease specify 2 arguments for ReverseExecuteNonCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -772,7 +772,7 @@ CInt ReverseExecuteAction(lua_State *L)
 						return 0;
 					}
 
-					scene->ReverseExecuteAction(index);
+					scene->ReverseExecuteNonCyclicAnimation(index);
 				}
 			}
 			if (!scene)
@@ -843,7 +843,7 @@ CInt ReverseExecuteAction(lua_State *L)
 						return 0;
 					}
 
-					scene->ReverseExecuteAction(index);
+					scene->ReverseExecuteNonCyclicAnimation(index);
 				}
 			}
 		}
@@ -869,7 +869,7 @@ CInt ReverseExecuteAction(lua_State *L)
 
 //First argument: prefab instance name
 //Second argument: animation clip name
-CInt RemoveAction(lua_State *L)
+CInt RemoveNonCyclicAnimation(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -877,7 +877,7 @@ CInt RemoveAction(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		//PrintInfo("\nPlease specify 2 arguments for RemoveAction()", COLOR_RED);
+		//PrintInfo("\nPlease specify 2 arguments for RemoveNonCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -937,7 +937,7 @@ CInt RemoveAction(lua_State *L)
 						return 0;
 					}
 
-					scene->RemoveAction(index);
+					scene->RemoveNonCyclicAnimation(index);
 				}
 			}
 			if (!scene)
@@ -1008,7 +1008,7 @@ CInt RemoveAction(lua_State *L)
 						return 0;
 					}
 
-					scene->RemoveAction(index);
+					scene->RemoveNonCyclicAnimation(index);
 				}
 			}
 		}
@@ -1034,7 +1034,7 @@ CInt RemoveAction(lua_State *L)
 
 //First Argument: Prefab Instance Name
 //Second Argument: Animation Clip Name
-CInt GetAnimationClipDuration(lua_State *L)
+CInt GetAnimationClipDurationOfPrefabInstance(lua_State *L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -1042,7 +1042,7 @@ CInt GetAnimationClipDuration(lua_State *L)
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		//PrintInfo("\nPlease specify 2 arguments for GetAnimationClipDuration()", COLOR_RED);
+		//PrintInfo("\nPlease specify 2 arguments for GetAnimationClipDurationOfPrefabInstance()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1277,15 +1277,12 @@ CInt HidePrefabInstance(lua_State *L)
 	return 0;
 }
 
-CInt PauseAnimations(lua_State *L)
+CInt PausePrefabInstanceAnimations(lua_State* L)
 {
-	//if (g_testScript)
-	//	return 0;
-
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 arguments for PauseAnimations()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 arguments for PausePrefabInstanceAnimations()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1316,7 +1313,6 @@ CInt PauseAnimations(lua_State *L)
 				if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 				{
 					scene = g_currentInstancePrefab->GetScene(j);
-					scene->SetAnimationStatus(eANIM_PAUSE);
 				}
 			}
 			if (!scene)
@@ -1326,10 +1322,13 @@ CInt PauseAnimations(lua_State *L)
 				//PrintInfo(temp, COLOR_RED);
 				return 0;
 			}
+
+			g_currentInstancePrefab->SetUpdateAnimation(CFalse);
+
 		}
 		else
 		{
-			//PrintInfo("\nCouldn't find current instance prefab", COLOR_RED);
+			//PrintInfo("\nPausePrefabInstanceAnimations() Error: Couldn't find current prefab instance", COLOR_RED);
 		}
 		return 0;
 	}
@@ -1359,11 +1358,22 @@ CInt PauseAnimations(lua_State *L)
 				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
-					scene->SetAnimationStatus(eANIM_PAUSE);
 				}
 			}
+
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+
+			g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+
 		}
 	}
+
 	if (!foundPrefabInstance)
 	{
 		//CChar temp[MAX_NAME_SIZE];
@@ -1372,15 +1382,117 @@ CInt PauseAnimations(lua_State *L)
 		return 0;
 	}
 
-	if (!scene)
+	return 0;
+}
+
+CInt ResumePrefabInstanceAnimations(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 arguments for ResumePrefabInstanceAnimations()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+			for (CUInt j = 0; j < 4; j++)
+			{
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_currentInstancePrefab->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+				{
+					scene = g_currentInstancePrefab->GetScene(j);
+				}
+			}
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+
+			g_currentInstancePrefab->SetUpdateAnimation(CTrue);
+
+		}
+		else
+		{
+			//PrintInfo("\nResumePrefabInstanceAnimations() Error: Couldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 4; j++)
+			{
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+				}
+			}
+
+			if (!scene)
+			{
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+				//PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+
+			g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+
+		}
+	}
+
+	if (!foundPrefabInstance)
 	{
 		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 		//PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
+
 	return 0;
 }
+
 
 CInt LoadVScene(lua_State *L)
 {
@@ -19663,14 +19775,14 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_idleDelayIn);
+			scene->ExecuteCyclicAnimation(index, 1.0f, g_characterBlendingProperties.m_idleDelayIn);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_idleDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_idleDelayIn);
 				}
 			}
 		}
@@ -19694,14 +19806,14 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_walkDelayIn);
+			scene->ExecuteCyclicAnimation(index, 1.0f, g_characterBlendingProperties.m_walkDelayIn);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_walkDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_walkDelayIn);
 				}
 			}
 		}
@@ -19725,14 +19837,14 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_runDelayIn);
+			scene->ExecuteCyclicAnimation(index, 1.0f, g_characterBlendingProperties.m_runDelayIn);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_runDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_runDelayIn);
 				}
 			}
 		}
@@ -19757,14 +19869,14 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut, 1.0, CFalse);
+			scene->ExecuteNonCyclicAnimation(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut, 1.0, CFalse);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_jumpDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_jumpDelayIn);
 				}
 			}
 		}
@@ -19776,7 +19888,7 @@ CBool CMain::ManageCharacterBlends(CChar* animationType, CChar* IdleAnimationNam
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
 			//make sure we clear animations
-			scene->ClearCycle(i, 0.0f);
+			scene->RemoveCyclicAnimation(i, 0.0f);
 			scene->m_animationClips[i]->SetCurrentTime(0.0f);
 		}
 	}
@@ -19818,9 +19930,9 @@ CBool CMain::IsJumping(CBool &isInList)
 	CBool foundTarget = CFalse;
 	for (CUInt j = 0; j < jumpName.size(); j++)
 	{
-		for (CUInt i = 0; i < scene->m_executeActionList.size(); i++)
+		for (CUInt i = 0; i < scene->m_executeNonCyclicAnimationList.size(); i++)
 		{
-			if (Cmp(scene->m_executeActionList[i].c_str(), jumpName[j].c_str()))
+			if (Cmp(scene->m_executeNonCyclicAnimationList[i].c_str(), jumpName[j].c_str()))
 			{
 				foundTarget = CTrue;
 				break;
@@ -21239,9 +21351,9 @@ CBool CMain::InsertPrefab(CPrefab* prefab)
 					tempScene->SetAnimationStatus(eANIM_PLAY);
 					tempScene->SetClipIndex(clipIndex, loopAnimation);
 					if (tempScene->m_loopAnimationAtStartup)
-						tempScene->BlendCycle(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
+						tempScene->ExecuteCyclicAnimation(tempScene->GetCurrentClipIndex(), 1.0f, 0.0f);
 					else
-						tempScene->ExecuteAction(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
+						tempScene->ExecuteNonCyclicAnimation(tempScene->GetCurrentClipIndex(), 0.0f, 0.0f, 1.0f, CFalse);
 				}
 				else
 				{

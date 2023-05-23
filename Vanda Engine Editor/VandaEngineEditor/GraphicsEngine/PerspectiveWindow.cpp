@@ -503,7 +503,7 @@ CInt StopSound(lua_State* L)
 	return 0; // number of return values
 }
 
-CInt BlendCycle(lua_State* L)
+CInt ExecuteCyclicAnimation(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -511,7 +511,7 @@ CInt BlendCycle(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 4)
 	{
-		PrintInfo("\nPlease specify 4 arguments for BlendCycle()", COLOR_RED);
+		PrintInfo("\nPlease specify 4 arguments for ExecuteCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -571,7 +571,7 @@ CInt BlendCycle(lua_State* L)
 							PrintInfo(temp, COLOR_RED);
 							return 0;
 						}
-						scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+						scene->ExecuteCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
 					}
 				}
 				if (!scene)
@@ -584,7 +584,7 @@ CInt BlendCycle(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nBlendCycle() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nExecuteCyclicAnimation() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -620,7 +620,7 @@ CInt BlendCycle(lua_State* L)
 					PrintInfo(temp, COLOR_RED);
 					return 0;
 				}
-				scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+				scene->ExecuteCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
 			}
 			return 0;
 		}
@@ -659,7 +659,7 @@ CInt BlendCycle(lua_State* L)
 								foundAnimation = CTrue;
 
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nBlendCycle() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								sprintf(message, "\nExecuteCyclicAnimation() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -668,7 +668,7 @@ CInt BlendCycle(lua_State* L)
 						if (!foundAnimation)
 						{
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nBlendCycle() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							sprintf(message, "\nExecuteCyclicAnimation() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
 							PrintInfo(message, COLOR_RED);
 						}
 						break;
@@ -679,7 +679,7 @@ CInt BlendCycle(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "BlendCycle() Error : Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "ExecuteCyclicAnimation() Error : Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -738,7 +738,7 @@ CInt BlendCycle(lua_State* L)
 						PrintInfo(temp, COLOR_RED);
 						return 0;
 					}
-					scene->BlendCycle(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
+					scene->ExecuteCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4));
 				}
 			}
 		}
@@ -762,7 +762,7 @@ CInt BlendCycle(lua_State* L)
 	return 0;
 }
 
-CInt ClearCycle(lua_State* L)
+CInt RemoveCyclicAnimation(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -770,7 +770,7 @@ CInt ClearCycle(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 3)
 	{
-		PrintInfo("\nPlease specify 3 arguments for ClearCycle()", COLOR_RED);
+		PrintInfo("\nPlease specify 3 arguments for RemoveCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -831,7 +831,7 @@ CInt ClearCycle(lua_State* L)
 							return 0;
 						}
 
-						scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+						scene->RemoveCyclicAnimation(index, (CFloat)lua_tonumber(L, 3));
 					}
 				}
 				if (!scene)
@@ -844,7 +844,7 @@ CInt ClearCycle(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nClearCycle() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nRemoveCyclicAnimation() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -881,7 +881,7 @@ CInt ClearCycle(lua_State* L)
 					return 0;
 				}
 
-				scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+				scene->RemoveCyclicAnimation(index, (CFloat)lua_tonumber(L, 3));
 			}
 			return 0;
 		}
@@ -920,7 +920,7 @@ CInt ClearCycle(lua_State* L)
 								foundAnimation = CTrue;
 
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nClearCycle() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								sprintf(message, "\nRemoveCyclicAnimation() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -929,7 +929,7 @@ CInt ClearCycle(lua_State* L)
 						if (!foundAnimation)
 						{
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nClearCycle() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							sprintf(message, "\nRemoveCyclicAnimation() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
 							PrintInfo(message, COLOR_RED);
 						}
 						break;
@@ -940,7 +940,7 @@ CInt ClearCycle(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "ClearCycle() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "RemoveCyclicAnimation() Error: Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -1000,7 +1000,7 @@ CInt ClearCycle(lua_State* L)
 						return 0;
 					}
 
-					scene->ClearCycle(index, (CFloat)lua_tonumber(L, 3));
+					scene->RemoveCyclicAnimation(index, (CFloat)lua_tonumber(L, 3));
 				}
 			}
 		}
@@ -1024,7 +1024,7 @@ CInt ClearCycle(lua_State* L)
 	return 0;
 }
 
-CInt ExecuteAction(lua_State* L)
+CInt ExecuteNonCyclicAnimation(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1032,7 +1032,7 @@ CInt ExecuteAction(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 4)
 	{
-		PrintInfo("\nPlease specify 4 arguments for ExecuteAction()", COLOR_RED);
+		PrintInfo("\nPlease specify 4 arguments for ExecuteNonCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1106,7 +1106,7 @@ CInt ExecuteAction(lua_State* L)
 						else
 							lock = CFalse;
 
-						scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+						scene->ExecuteNonCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 					}
 				}
 				if (!scene)
@@ -1119,7 +1119,7 @@ CInt ExecuteAction(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nExecuteAction() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nExecuteNonCyclicAnimation() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1169,7 +1169,7 @@ CInt ExecuteAction(lua_State* L)
 				else
 					lock = CFalse;
 
-				scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+				scene->ExecuteNonCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 			}
 			return 0;
 		}
@@ -1208,7 +1208,7 @@ CInt ExecuteAction(lua_State* L)
 								foundAnimation = CTrue;
 
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nExecuteAction() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								sprintf(message, "\nExecuteNonCyclicAnimation() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -1217,7 +1217,7 @@ CInt ExecuteAction(lua_State* L)
 						if (!foundAnimation)
 						{
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nExecuteAction() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							sprintf(message, "\nExecuteNonCyclicAnimation() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
 							PrintInfo(message, COLOR_RED);
 						}
 						break;
@@ -1228,7 +1228,7 @@ CInt ExecuteAction(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "ExecuteAction() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "ExecuteNonCyclicAnimation() Error: Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -1299,7 +1299,7 @@ CInt ExecuteAction(lua_State* L)
 						lock = CTrue;
 					else
 						lock = CFalse;
-					scene->ExecuteAction(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
+					scene->ExecuteNonCyclicAnimation(index, (CFloat)lua_tonumber(L, 3), (CFloat)lua_tonumber(L, 4), weight, lock);
 				}
 			}
 		}
@@ -1323,7 +1323,7 @@ CInt ExecuteAction(lua_State* L)
 	return 0;
 }
 
-CInt ReverseExecuteAction(lua_State* L)
+CInt ReverseExecuteNonCyclicAnimation(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1331,7 +1331,7 @@ CInt ReverseExecuteAction(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		PrintInfo("\nPlease specify 2 arguments for ReverseExecuteAction()", COLOR_RED);
+		PrintInfo("\nPlease specify 2 arguments for ReverseExecuteNonCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1392,7 +1392,7 @@ CInt ReverseExecuteAction(lua_State* L)
 							return 0;
 						}
 
-						scene->ReverseExecuteAction(index);
+						scene->ReverseExecuteNonCyclicAnimation(index);
 					}
 				}
 				if (!scene)
@@ -1405,7 +1405,7 @@ CInt ReverseExecuteAction(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nReverseExecuteAction() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nReverseExecuteNonCyclicAnimation() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1442,7 +1442,7 @@ CInt ReverseExecuteAction(lua_State* L)
 					return 0;
 				}
 
-				scene->ReverseExecuteAction(index);
+				scene->ReverseExecuteNonCyclicAnimation(index);
 			}
 			return 0;
 		}
@@ -1481,7 +1481,7 @@ CInt ReverseExecuteAction(lua_State* L)
 								foundAnimation = CTrue;
 
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nReverseExecuteAction() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								sprintf(message, "\nReverseExecuteNonCyclicAnimation() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -1490,7 +1490,7 @@ CInt ReverseExecuteAction(lua_State* L)
 						if (!foundAnimation)
 						{
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nReverseExecuteAction() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							sprintf(message, "\nReverseExecuteNonCyclicAnimation() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
 							PrintInfo(message, COLOR_RED);
 						}
 						break;
@@ -1501,7 +1501,7 @@ CInt ReverseExecuteAction(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "ReverseExecuteAction() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "ReverseExecuteNonCyclicAnimation() Error: Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -1561,7 +1561,7 @@ CInt ReverseExecuteAction(lua_State* L)
 						return 0;
 					}
 
-					scene->ReverseExecuteAction(index);
+					scene->ReverseExecuteNonCyclicAnimation(index);
 				}
 			}
 		}
@@ -1587,7 +1587,7 @@ CInt ReverseExecuteAction(lua_State* L)
 
 //First argument: prefab instance name
 //Second argument: animation clip name
-CInt RemoveAction(lua_State* L)
+CInt RemoveNonCyclicAnimation(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1595,7 +1595,7 @@ CInt RemoveAction(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		PrintInfo("\nPlease specify 2 arguments for RemoveAction()", COLOR_RED);
+		PrintInfo("\nPlease specify 2 arguments for RemoveNonCyclicAnimation()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1657,7 +1657,7 @@ CInt RemoveAction(lua_State* L)
 							return 0;
 						}
 
-						scene->RemoveAction(index);
+						scene->RemoveNonCyclicAnimation(index);
 					}
 				}
 				if (!scene)
@@ -1670,7 +1670,7 @@ CInt RemoveAction(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nRemoveAction() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nRemoveNonCyclicAnimation() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -1707,7 +1707,7 @@ CInt RemoveAction(lua_State* L)
 					return 0;
 				}
 
-				scene->RemoveAction(index);
+				scene->RemoveNonCyclicAnimation(index);
 			}
 			return 0;
 		}
@@ -1746,7 +1746,7 @@ CInt RemoveAction(lua_State* L)
 								foundAnimation = CTrue;
 
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nRemoveAction() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								sprintf(message, "\nRemoveNonCyclicAnimation() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -1755,7 +1755,7 @@ CInt RemoveAction(lua_State* L)
 						if (!foundAnimation)
 						{
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nRemoveAction() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							sprintf(message, "\nRemoveNonCyclicAnimation() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
 							PrintInfo(message, COLOR_RED);
 						}
 						break;
@@ -1766,7 +1766,7 @@ CInt RemoveAction(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "RemoveAction() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "RemoveNonCyclicAnimation() Error: Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -1826,7 +1826,7 @@ CInt RemoveAction(lua_State* L)
 						return 0;
 					}
 
-					scene->RemoveAction(index);
+					scene->RemoveNonCyclicAnimation(index);
 				}
 			}
 		}
@@ -1852,7 +1852,7 @@ CInt RemoveAction(lua_State* L)
 
 //First Argument: Prefab Instance Name
 //Second Argument: Animation Clip Name
-CInt GetAnimationClipDuration(lua_State* L)
+CInt GetAnimationClipDurationOfPrefabInstance(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -1860,7 +1860,7 @@ CInt GetAnimationClipDuration(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 2)
 	{
-		PrintInfo("\nPlease specify 2 arguments for GetAnimationClipDuration()", COLOR_RED);
+		PrintInfo("\nPlease specify 2 arguments for GetAnimationClipDurationOfPrefabInstance()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -1929,7 +1929,7 @@ CInt GetAnimationClipDuration(lua_State* L)
 			}
 			else
 			{
-				PrintInfo("\nGetAnimationClipDuration() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nGetAnimationClipDurationOfPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -2003,7 +2003,7 @@ CInt GetAnimationClipDuration(lua_State* L)
 								foundAnimation = CTrue;
 
 								CChar message[MAX_NAME_SIZE];
-								sprintf(message, "\nGetAnimationClipDuration() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
+								sprintf(message, "\nGetAnimationClipDurationOfPrefabInstance() will execute for project '%s', VScene '%s', prefab Instance '%s', animation '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_animationNames[k].c_str());
 								PrintInfo(message, COLOR_GREEN);
 								break;
 							}
@@ -2012,7 +2012,7 @@ CInt GetAnimationClipDuration(lua_State* L)
 						if (!foundAnimation)
 						{
 							CChar message[MAX_NAME_SIZE];
-							sprintf(message, "\nGetAnimationClipDuration() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
+							sprintf(message, "\nGetAnimationClipDurationOfPrefabInstance() Error: project '%s', VScene '%s', prefab Instance '%s' has no animation called '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name, lua_tostring(L, 2));
 							PrintInfo(message, COLOR_RED);
 						}
 						break;
@@ -2023,7 +2023,7 @@ CInt GetAnimationClipDuration(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "GetAnimationClipDuration() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "GetAnimationClipDurationOfPrefabInstance() Error: Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -2276,7 +2276,7 @@ CInt HidePrefabInstance(lua_State* L)
 	return 0;
 }
 
-CInt PauseAnimations(lua_State* L)
+CInt PausePrefabInstanceAnimations(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -2284,7 +2284,7 @@ CInt PauseAnimations(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		PrintInfo("\nPlease specify 1 arguments for PauseAnimations()", COLOR_RED);
+		PrintInfo("\nPlease specify 1 arguments for PausePrefabInstanceAnimations()", COLOR_RED);
 		return 0;
 	}
 	CScene* scene = NULL;
@@ -2317,7 +2317,6 @@ CInt PauseAnimations(lua_State* L)
 					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
 					{
 						scene = g_currentInstancePrefab->GetScene(j);
-						scene->SetAnimationStatus(eANIM_PAUSE);
 					}
 				}
 				if (!scene)
@@ -2327,10 +2326,13 @@ CInt PauseAnimations(lua_State* L)
 					PrintInfo(temp, COLOR_RED);
 					return 0;
 				}
+
+				g_currentInstancePrefab->SetUpdateAnimation(CFalse);
+			
 			}
 			else
 			{
-				PrintInfo("\nPauseAnimations() Error: Couldn't find current prefab instance", COLOR_RED);
+				PrintInfo("\nPausePrefabInstanceAnimations() Error: Couldn't find current prefab instance", COLOR_RED);
 			}
 			return 0;
 		}
@@ -2341,6 +2343,7 @@ CInt PauseAnimations(lua_State* L)
 				scene = g_scene[i];
 				scene->SetAnimationStatus(eANIM_PAUSE);
 			}
+
 			return 0;
 		}
 	}
@@ -2361,7 +2364,7 @@ CInt PauseAnimations(lua_State* L)
 					{
 						foundPrefabInstance = CTrue;
 						CChar message[MAX_NAME_SIZE];
-						sprintf(message, "\nPauseAnimations() will execute for Project '%s', VScene '%s', Prefab Instance '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						sprintf(message, "\nPausePrefabInstanceAnimations() will execute for Project '%s', VScene '%s', Prefab Instance '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
 						PrintInfo(message, COLOR_GREEN);
 						break;
 					}
@@ -2371,7 +2374,7 @@ CInt PauseAnimations(lua_State* L)
 		if (!foundPrefabInstance)
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "\n%s%s%s", "PauseAnimations() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			sprintf(temp, "\n%s%s%s", "PausePrefabInstanceAnimations() Error: Couldn't find '", luaToString, "' Prefab Instance");
 			PrintInfo(temp, COLOR_RED);
 		}
 
@@ -2403,11 +2406,22 @@ CInt PauseAnimations(lua_State* L)
 				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
 				{
 					scene = g_instancePrefab[i]->GetScene(j);
-					scene->SetAnimationStatus(eANIM_PAUSE);
 				}
 			}
+
+			if (!scene)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+				PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+
+			g_instancePrefab[i]->SetUpdateAnimation(CFalse);
+
 		}
 	}
+
 	if (!foundPrefabInstance)
 	{
 		CChar temp[MAX_NAME_SIZE];
@@ -2416,13 +2430,163 @@ CInt PauseAnimations(lua_State* L)
 		return 0;
 	}
 
-	if (!scene)
+	return 0;
+}
+
+CInt ResumePrefabInstanceAnimations(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 arguments for ResumePrefabInstanceAnimations()", COLOR_RED);
+		return 0;
+	}
+	CScene* scene = NULL;
+	CBool foundPrefabInstance = CFalse;
+	//find the scene
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				CPrefab* prefab = g_currentInstancePrefab->GetPrefab();
+				for (CUInt j = 0; j < 4; j++)
+				{
+					CBool condition = CFalse;
+					if (j < 3)
+					{
+						if (prefab && prefab->GetHasLod(j))
+							condition = CTrue;
+					}
+					else
+					{
+						if (prefab && g_currentInstancePrefab->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition /*&& g_currentInstancePrefab->GetSceneVisible(j)*/)
+					{
+						scene = g_currentInstancePrefab->GetScene(j);
+					}
+				}
+				if (!scene)
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "\n%s%s%s", "Prefab Instance '", g_currentInstancePrefab->GetName(), "' Is Invisible");
+					PrintInfo(temp, COLOR_RED);
+					return 0;
+				}
+
+				g_currentInstancePrefab->SetUpdateAnimation(CTrue);
+
+			}
+			else
+			{
+				PrintInfo("\nResumePrefabInstanceAnimations() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			for (CUInt i = 0; i < g_scene.size(); i++)
+			{
+				scene = g_scene[i];
+				scene->SetAnimationStatus(eANIM_PLAY);
+			}
+
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nResumePrefabInstanceAnimations() will execute for Project '%s', VScene '%s', Prefab Instance '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\n%s%s%s", "ResumePrefabInstanceAnimations() Error: Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			CPrefab* prefab = g_instancePrefab[i]->GetPrefab();
+			for (CUInt j = 0; j < 4; j++)
+			{
+				CBool condition = CFalse;
+				if (j < 3)
+				{
+					if (prefab && prefab->GetHasLod(j))
+						condition = CTrue;
+				}
+				else
+				{
+					if (prefab && g_instancePrefab[i]->GetHasCollider())
+						condition = CTrue;
+				}
+				if (condition /*&& g_instancePrefab[i]->GetSceneVisible(j)*/)
+				{
+					scene = g_instancePrefab[i]->GetScene(j);
+				}
+			}
+
+			if (!scene)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+				PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
+
+			g_instancePrefab[i]->SetUpdateAnimation(CTrue);
+
+		}
+	}
+
+	if (!foundPrefabInstance)
 	{
 		CChar temp[MAX_NAME_SIZE];
-		sprintf(temp, "\n%s%s%s", "Prefab Instance '", luaToString, "' Is Invisible");
+		sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
+
 	return 0;
 }
 
@@ -31931,14 +32095,14 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_idleDelayIn);
+			scene->ExecuteCyclicAnimation(index, 1.0f, g_characterBlendingProperties.m_idleDelayIn);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_idleDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_idleDelayIn);
 				}
 			}
 		}
@@ -31965,14 +32129,14 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_walkDelayIn);
+			scene->ExecuteCyclicAnimation(index, 1.0f, g_characterBlendingProperties.m_walkDelayIn);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_walkDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_walkDelayIn);
 				}
 			}
 		}
@@ -32000,14 +32164,14 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->BlendCycle(index, 1.0f, g_characterBlendingProperties.m_runDelayIn);
+			scene->ExecuteCyclicAnimation(index, 1.0f, g_characterBlendingProperties.m_runDelayIn);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_runDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_runDelayIn);
 				}
 			}
 		}
@@ -32035,14 +32199,14 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 		if (index != -1)
 		{
 			scene->SetClipIndex(index);
-			scene->ExecuteAction(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut, 1.0f, CFalse);
+			scene->ExecuteNonCyclicAnimation(index, g_characterBlendingProperties.m_jumpDelayIn, g_characterBlendingProperties.m_jumpDelayOut, 1.0f, CFalse);
 
 			for (CInt i = 0; i < scene->GetNumClips(); i++)
 			{
 				if (i != index)
 				{
 					//make sure we clear animations
-					scene->ClearCycle(i, g_characterBlendingProperties.m_jumpDelayIn);
+					scene->RemoveCyclicAnimation(i, g_characterBlendingProperties.m_jumpDelayIn);
 				}
 			}
 		}
@@ -32054,7 +32218,7 @@ CBool CMultipleWindows::ManageCharacterBlends(CChar* animationType, CChar* IdleA
 		for (CInt i = 0; i < scene->GetNumClips(); i++)
 		{
 			//make sure we clear animations
-			scene->ClearCycle(i, 0.0f);
+			scene->RemoveCyclicAnimation(i, 0.0f);
 			scene->m_animationClips[i]->SetCurrentTime(0.0f);
 		}
 	}
@@ -32096,9 +32260,9 @@ CBool CMultipleWindows::IsJumping(CBool& isInList)
 	CBool foundTarget = CFalse;
 	for (CUInt j = 0; j < jumpName.size(); j++)
 	{
-		for (CUInt i = 0; i < scene->m_executeActionList.size(); i++)
+		for (CUInt i = 0; i < scene->m_executeNonCyclicAnimationList.size(); i++)
 		{
-			if (Cmp(scene->m_executeActionList[i].c_str(), jumpName[j].c_str()))
+			if (Cmp(scene->m_executeNonCyclicAnimationList[i].c_str(), jumpName[j].c_str()))
 			{
 				foundTarget = CTrue;
 				break;

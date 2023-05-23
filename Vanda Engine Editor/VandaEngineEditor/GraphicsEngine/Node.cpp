@@ -360,15 +360,15 @@ CVoid CNode::BuildLWMatrix( CFloat time )
 
 		std::vector<std::string>animationList;
 		CUInt blendListCount = 0;
-		for( CUInt i = 0; i < g_render.GetScene()->m_blendCycleList.size(); i++ )
+		for( CUInt i = 0; i < g_render.GetScene()->m_executeCyclicAnimationList.size(); i++ )
 		{
-			animationList.push_back( g_render.GetScene()->m_blendCycleList[i] );
+			animationList.push_back( g_render.GetScene()->m_executeCyclicAnimationList[i] );
 		}
-		blendListCount = (CUInt)g_render.GetScene()->m_blendCycleList.size();
+		blendListCount = (CUInt)g_render.GetScene()->m_executeCyclicAnimationList.size();
 
-		for( CUInt i = 0; i < g_render.GetScene()->m_executeActionList.size(); i++ )
+		for( CUInt i = 0; i < g_render.GetScene()->m_executeNonCyclicAnimationList.size(); i++ )
 		{
-			animationList.push_back(  g_render.GetScene()->m_executeActionList[i] );
+			animationList.push_back(  g_render.GetScene()->m_executeNonCyclicAnimationList[i] );
 		}
 
 		for( CUInt j= 0; j < animationList.size(); j++ )
@@ -464,7 +464,7 @@ CVoid CNode::BuildLWMatrix( CFloat time )
 
 			} //for all of the transforms
 
-		} //for all of the blendcycle elements
+		} //for all of the executeCyclicAnimation elements
 	} 
 	else //this node has no animation. set the sum to the default values. weight of default value will be 1
 	{

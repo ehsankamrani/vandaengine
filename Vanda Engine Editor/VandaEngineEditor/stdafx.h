@@ -112,14 +112,15 @@ CInt PlaySoundOnce(lua_State *L);
 CInt StopSound(lua_State *L);
 CInt PauseSound(lua_State *L);
 
-//Animations
-CInt BlendCycle(lua_State *L);
-CInt ClearCycle(lua_State *L);
-CInt ExecuteAction(lua_State *L);
-CInt ReverseExecuteAction(lua_State *L);
-CInt RemoveAction(lua_State *L);
-CInt PauseAnimations(lua_State *L);
-CInt GetAnimationClipDuration(lua_State *L);
+//Prefab Animations
+CInt ExecuteCyclicAnimation(lua_State *L);
+CInt RemoveCyclicAnimation(lua_State *L);
+CInt ExecuteNonCyclicAnimation(lua_State *L);
+CInt ReverseExecuteNonCyclicAnimation(lua_State *L);
+CInt RemoveNonCyclicAnimation(lua_State *L);
+CInt PausePrefabInstanceAnimations(lua_State* L);
+CInt ResumePrefabInstanceAnimations(lua_State* L);
+CInt GetAnimationClipDurationOfPrefabInstance(lua_State *L);
 
 //Prefabs
 CInt ShowPrefabInstance(lua_State *L);

@@ -144,7 +144,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 		CChar temp[MAX_NAME_SIZE];
         sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "in zipfile");
 		zipCloseFileInZip(zf);
-		zipClose(zipOpen, "Vanda Engine 2.4.2");
+		zipClose(zipOpen, "Vanda Engine 2.4.3");
 		free(buf);
 		return -1;
 	}
@@ -157,7 +157,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 			//sprintf(temp, "\n%s %s %s", "Error in opening",fileInZipPath, "for reading");
 			//PrintInfo( temp, COLOR_RED );
 			//zipCloseFileInZip(zf);
-			//zipClose(zf, "Vanda Engine 2.4.2");
+			//zipClose(zf, "Vanda Engine 2.4.3");
 			//free(buf);
 			//return -1;
    //     }
@@ -173,7 +173,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 				CChar temp[MAX_NAME_SIZE];
 				sprintf(temp, "\n%s%s", "Error in reading ",fileInZipPath);
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 2.4.2");
+				zipClose(zf, "Vanda Engine 2.4.3");
 				free(buf);
 				return -1;
 			}
@@ -188,7 +188,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
 
                 sprintf( temp, "\n%s%s%s", "Error in writing ", fileInZipPath, " in the zipfile");
 				zipCloseFileInZip(zf);
-				zipClose(zf, "Vanda Engine 2.4.2");
+				zipClose(zf, "Vanda Engine 2.4.3");
 				free(buf);
 				return -1;
             }
@@ -198,7 +198,7 @@ CInt CScene::WriteZipFile(CChar* zipFileName, CChar* fileInZipName, CChar* fileI
     if (fin)
         fclose(fin);
 	zipCloseFileInZip(zf);
-	zipClose(zf,"Vanda Engine 2.4.2");
+	zipClose(zf,"Vanda Engine 2.4.3");
     free(buf);
 	return 1;
 }
@@ -850,27 +850,27 @@ CVoid CScene::Update( CFloat elapsedTime, CBool updateOrient, CBool resetTimer )
 {
 	g_render.SetScene(this);
 	m_sceneRoot->Update( elapsedTime, updateOrient ); 
-	UpdateBlendCycleList(elapsedTime, resetTimer );
+	UpdateExecuteCyclicAnimationList(elapsedTime, resetTimer );
 
-	CBool updateExecuteActionList = CFalse;
-	UpdateExecuteActionList(elapsedTime, updateExecuteActionList);
+	CBool updateExecuteNonCyclicAnimationList = CFalse;
+	UpdateExecuteNonCyclicAnimationList(elapsedTime, updateExecuteNonCyclicAnimationList);
 
-	if( m_blendCycleList.size() == 0 && !updateExecuteActionList )
+	if( m_executeCyclicAnimationList.size() == 0 && !updateExecuteNonCyclicAnimationList )
 		m_updateAnimationLists = CFalse;
 }
 
-CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
+CVoid CScene::UpdateExecuteCyclicAnimationList(CFloat elapsedTime, CBool resetTimer)
 {
 	//Blend Cycle List
-	for (CUInt i = 0; i < m_blendCycleList.size(); i++)
+	for (CUInt i = 0; i < m_executeCyclicAnimationList.size(); i++)
 	{
-		CChar blendCycleName[MAX_NAME_SIZE];
-		Cpy(blendCycleName, m_blendCycleList[i].c_str());
+		CChar executeCyclicAnimationName[MAX_NAME_SIZE];
+		Cpy(executeCyclicAnimationName, m_executeCyclicAnimationList[i].c_str());
 		CInt clipIndex = 0;
 		//Find the animation clip 
 		for (CInt ac = 0; ac < GetNumClips(); ac++)
 		{
-			if (Cmp(m_animationClips[ac]->GetName(), blendCycleName))
+			if (Cmp(m_animationClips[ac]->GetName(), executeCyclicAnimationName))
 			{
 				clipIndex = ac;
 				break;
@@ -879,7 +879,7 @@ CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_CLEAR_CYCLE && m_animationClips[clipIndex]->GetCurrentWeight() <= EPSILON)
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
-			m_blendCycleList.erase(m_blendCycleList.begin() + i);
+			m_executeCyclicAnimationList.erase(m_executeCyclicAnimationList.begin() + i);
 			continue;
 		}
 
@@ -937,24 +937,24 @@ CVoid CScene::UpdateBlendCycleList(CFloat elapsedTime, CBool resetTimer)
 	}
 }
 
-CVoid CScene::UpdateExecuteActionList(CFloat elapsedTime, CBool &updateExecuteActionList)
+CVoid CScene::UpdateExecuteNonCyclicAnimationList(CFloat elapsedTime, CBool &updateExecuteNonCyclicAnimationList)
 {
 	//Execute Action List
-	if (m_executeActionList.size() == 0)
+	if (m_executeNonCyclicAnimationList.size() == 0)
 	{
-		updateExecuteActionList = CFalse;
+		updateExecuteNonCyclicAnimationList = CFalse;
 		return;
 	}
 
-	for (CUInt i = 0; i < m_executeActionList.size(); i++)
+	for (CUInt i = 0; i < m_executeNonCyclicAnimationList.size(); i++)
 	{
-		CChar executeActionName[MAX_NAME_SIZE];
-		Cpy(executeActionName, m_executeActionList[i].c_str());
+		CChar executeNonCyclicAnimationName[MAX_NAME_SIZE];
+		Cpy(executeNonCyclicAnimationName, m_executeNonCyclicAnimationList[i].c_str());
 		CInt clipIndex = 0;
 		//Find the animation clip 
 		for (CInt ac = 0; ac < GetNumClips(); ac++)
 		{
-			if (Cmp(m_animationClips[ac]->GetName(), executeActionName))
+			if (Cmp(m_animationClips[ac]->GetName(), executeNonCyclicAnimationName))
 			{
 				clipIndex = ac;
 				break;
@@ -969,25 +969,25 @@ CVoid CScene::UpdateExecuteActionList(CFloat elapsedTime, CBool &updateExecuteAc
 		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd() && !m_animationClips[clipIndex]->GetLock())
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
-			m_executeActionList.erase(m_executeActionList.begin() + i);
+			m_executeNonCyclicAnimationList.erase(m_executeNonCyclicAnimationList.begin() + i);
 			continue;
 		}
 		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_EXECUTE_ACTION && m_animationClips[clipIndex]->GetStart() >= m_animationClips[clipIndex]->GetCurrentAnimationTime() && m_animationClips[clipIndex]->GetReverse())
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
-			m_executeActionList.erase(m_executeActionList.begin() + i);
+			m_executeNonCyclicAnimationList.erase(m_executeNonCyclicAnimationList.begin() + i);
 			continue;
 		}
 
 		if (m_animationClips[clipIndex]->GetAnimationStatus() == eANIM_REMOVE_ACTION)
 		{
 			m_animationClips[clipIndex]->SetAnimationStatus(eANIM_NONE);
-			m_executeActionList.erase(m_executeActionList.begin() + i);
+			m_executeNonCyclicAnimationList.erase(m_executeNonCyclicAnimationList.begin() + i);
 			continue;
 		}
 
 		if (!(m_animationClips[clipIndex]->GetCurrentAnimationTime() >= m_animationClips[clipIndex]->GetEnd() && m_animationClips[clipIndex]->GetLock() && !m_animationClips[clipIndex]->GetReverse()))
-			updateExecuteActionList = CTrue;
+			updateExecuteNonCyclicAnimationList = CTrue;
 
 		if (m_animationClips[clipIndex]->GetReverse())
 			elapsedTime = -elapsedTime;
@@ -1326,11 +1326,11 @@ CVoid CScene::SetNextAnimation()
 	{
 		if( m_currentClipIndex != index ) 
 		{
-			ClearCycle( index, 1.0f ); //0.5 second
+			RemoveCyclicAnimation( index, 1.0f ); //0.5 second
 		}
 		else
 		{
-			BlendCycle( index, 1.0f, 1.0f );
+			ExecuteCyclicAnimation( index, 1.0f, 1.0f );
 		}
 	}
 
@@ -1354,11 +1354,11 @@ CVoid CScene::SetPrevAnimation()
 		{
 			if (m_currentClipIndex != index)
 			{
-				ClearCycle(index, 1.0f); //0.5 second
+				RemoveCyclicAnimation(index, 1.0f); //0.5 second
 			}
 			else
 			{
-				BlendCycle(index, 1.0f, 1.0f);
+				ExecuteCyclicAnimation(index, 1.0f, 1.0f);
 			}
 		}
 
@@ -1397,7 +1397,7 @@ CVoid CScene::SetNumClips(CInt clips)
 	m_numClips = clips;
 }
 
-CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
+CBool CScene::ExecuteCyclicAnimation(CInt id, CFloat weight, CFloat delay)
 {
 	if (delay < EPSILON)
 		delay = EPSILON;
@@ -1426,7 +1426,7 @@ CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 
 	if (m_animationClips[id]->GetAnimationStatus() != eANIM_BLEND_CYCLE && m_animationClips[id]->GetAnimationStatus() != eANIM_CLEAR_CYCLE)
 	{
-		m_blendCycleList.push_back(m_animationClips[id]->GetName());
+		m_executeCyclicAnimationList.push_back(m_animationClips[id]->GetName());
 		m_animationClips[id]->SetCurrentDelayInTime(0.0f);
 		m_animationClips[id]->SetCurrentDelayOutTime(0.0f);
 	}
@@ -1448,7 +1448,7 @@ CBool CScene::BlendCycle(CInt id, CFloat weight, CFloat delay)
 	return CTrue;
 }
 
-CBool CScene::ClearCycle(CInt id, CFloat delay)
+CBool CScene::RemoveCyclicAnimation(CInt id, CFloat delay)
 {
 	if (delay < EPSILON)
 		delay = EPSILON;
@@ -1485,7 +1485,7 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 
 	if (m_animationClips[id]->GetAnimationStatus() != eANIM_BLEND_CYCLE && m_animationClips[id]->GetAnimationStatus() != eANIM_CLEAR_CYCLE)
 	{
-		m_blendCycleList.push_back(m_animationClips[id]->GetName());
+		m_executeCyclicAnimationList.push_back(m_animationClips[id]->GetName());
 		m_animationClips[id]->SetCurrentDelayInTime(0.0f);
 		m_animationClips[id]->SetCurrentDelayOutTime(0.0f);
 	}
@@ -1504,7 +1504,7 @@ CBool CScene::ClearCycle(CInt id, CFloat delay)
 	return CTrue;
 }
 
-CBool CScene::ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat weight, CBool LockToLastFrame)
+CBool CScene::ExecuteNonCyclicAnimation(CInt id, CFloat delayIn, CFloat delayOut, CFloat weight, CBool LockToLastFrame)
 {
 	if( m_numClips == 0 )
 	{
@@ -1543,7 +1543,7 @@ CBool CScene::ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat wei
 
 	if (m_animationClips[id]->GetAnimationStatus() != eANIM_EXECUTE_ACTION)
 	{
-		m_executeActionList.push_back(m_animationClips[id]->GetName());
+		m_executeNonCyclicAnimationList.push_back(m_animationClips[id]->GetName());
 		m_animationClips[id]->SetCurrentDelayInTime(0.0f);
 		m_animationClips[id]->SetCurrentDelayOutTime(0.0f);
 		m_animationClips[id]->SetCurrentTime(m_animationClips[id]->GetStart());
@@ -1560,7 +1560,7 @@ CBool CScene::ExecuteAction(CInt id, CFloat delayIn, CFloat delayOut, CFloat wei
 	return CTrue;
 }
 
-CBool CScene::ReverseExecuteAction(CInt id )
+CBool CScene::ReverseExecuteNonCyclicAnimation(CInt id )
 {
 	if( m_numClips == 0 )
 	{
@@ -1592,7 +1592,7 @@ CBool CScene::ReverseExecuteAction(CInt id )
 	return CTrue;
 }
 
-CBool CScene::RemoveAction(CInt id)
+CBool CScene::RemoveNonCyclicAnimation(CInt id)
 {
 	if (m_numClips == 0)
 	{

@@ -25,13 +25,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(PauseSound, "PauseSound(string gameObjectSoundName)");
 	Cpy(StopSound, "StopSound(string gameObjectSoundName)");
 
-	Cpy(BlendCycle, "BlendCycle(string prefabInstanceName, string animationClipName, float weightTarget, float delayIn)");
-	Cpy(ClearCycle, "ClearCycle(string prefabInstanceName, string animationClipName, float delayOut)");
-	Cpy(ExecuteAction, "ExecuteAction(string prefabInstanceName, string animationClipName, float delayIn, float delayOut, float weightTarget, bool lock)");
-	Cpy(ReverseExecuteAction, "ReverseExecuteAction(string prefabInstanceName, string animationClipName)");
-	Cpy(RemoveAction, "RemoveAction(string prefabInstanceName, string animationClipName)");
-	Cpy(GetAnimationClipDuration, "GetAnimationClipDuration(string prefabInstanceName, string animationClipName)");
-	Cpy(PauseAnimations, "PauseAnimations(string prefabInstanceName)");
+	Cpy(ExecuteCyclicAnimation, "ExecuteCyclicAnimation(string prefabInstanceName, string animationClipName, float weightTarget, float delayIn)");
+	Cpy(RemoveCyclicAnimation, "RemoveCyclicAnimation(string prefabInstanceName, string animationClipName, float delayOut)");
+	Cpy(ExecuteNonCyclicAnimation, "ExecuteNonCyclicAnimation(string prefabInstanceName, string animationClipName, float delayIn, float delayOut, float weightTarget, bool lock)");
+	Cpy(ReverseExecuteNonCyclicAnimation, "ReverseExecuteNonCyclicAnimation(string prefabInstanceName, string animationClipName)");
+	Cpy(RemoveNonCyclicAnimation, "RemoveNonCyclicAnimation(string prefabInstanceName, string animationClipName)");
+	Cpy(GetAnimationClipDurationOfPrefabInstance, "GetAnimationClipDurationOfPrefabInstance(string prefabInstanceName, string animationClipName)");
+	Cpy(PausePrefabInstanceAnimations, "PausePrefabInstanceAnimations(string prefabInstanceName)");
+	Cpy(ResumePrefabInstanceAnimations, "ResumePrefabInstanceAnimations(string prefabInstanceName)");
 
 	Cpy(LoadVScene, "LoadVScene(string VSceneName)");
 	Cpy(ExitGame, "ExitGame()");
@@ -544,33 +545,37 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(StopSound);
 		}
-		else if (Cmp(szBuffer, "BlendCycle"))
+		else if (Cmp(szBuffer, "ExecuteCyclicAnimation"))
 		{
-			m_richFunctionName.SetWindowTextA(BlendCycle);
+			m_richFunctionName.SetWindowTextA(ExecuteCyclicAnimation);
 		}
-		else if (Cmp(szBuffer, "ClearCycle"))
+		else if (Cmp(szBuffer, "RemoveCyclicAnimation"))
 		{
-			m_richFunctionName.SetWindowTextA(ClearCycle);
+			m_richFunctionName.SetWindowTextA(RemoveCyclicAnimation);
 		}
-		else if (Cmp(szBuffer, "ExecuteAction"))
+		else if (Cmp(szBuffer, "ExecuteNonCyclicAnimation"))
 		{
-			m_richFunctionName.SetWindowTextA(ExecuteAction);
+			m_richFunctionName.SetWindowTextA(ExecuteNonCyclicAnimation);
 		}
-		else if (Cmp(szBuffer, "ReverseExecuteAction"))
+		else if (Cmp(szBuffer, "ReverseExecuteNonCyclicAnimation"))
 		{
-			m_richFunctionName.SetWindowTextA(ReverseExecuteAction);
+			m_richFunctionName.SetWindowTextA(ReverseExecuteNonCyclicAnimation);
 		}
-		else if (Cmp(szBuffer, "RemoveAction"))
+		else if (Cmp(szBuffer, "RemoveNonCyclicAnimation"))
 		{
-			m_richFunctionName.SetWindowTextA(RemoveAction);
+			m_richFunctionName.SetWindowTextA(RemoveNonCyclicAnimation);
 		}
-		else if (Cmp(szBuffer, "GetAnimationClipDuration"))
+		else if (Cmp(szBuffer, "GetAnimationClipDurationOfPrefabInstance"))
 		{
-			m_richFunctionName.SetWindowTextA(GetAnimationClipDuration);
+			m_richFunctionName.SetWindowTextA(GetAnimationClipDurationOfPrefabInstance);
 		}
-		else if (Cmp(szBuffer, "PauseAnimations"))
+		else if (Cmp(szBuffer, "PausePrefabInstanceAnimations"))
 		{
-			m_richFunctionName.SetWindowTextA(PauseAnimations);
+			m_richFunctionName.SetWindowTextA(PausePrefabInstanceAnimations);
+		}
+		else if (Cmp(szBuffer, "ResumePrefabInstanceAnimations"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumePrefabInstanceAnimations);
 		}
 		else if (Cmp(szBuffer, "LoadVScene"))
 		{
@@ -2061,13 +2066,14 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("PauseSound");
 	InsertItem("StopSound");
 
-	InsertItem("BlendCycle");
-	InsertItem("ClearCycle");
-	InsertItem("ExecuteAction");
-	InsertItem("ReverseExecuteAction");
-	InsertItem("RemoveAction");
-	InsertItem("GetAnimationClipDuration");
-	InsertItem("PauseAnimations");
+	InsertItem("ExecuteCyclicAnimation");
+	InsertItem("RemoveCyclicAnimation");
+	InsertItem("ExecuteNonCyclicAnimation");
+	InsertItem("ReverseExecuteNonCyclicAnimation");
+	InsertItem("RemoveNonCyclicAnimation");
+	InsertItem("GetAnimationClipDurationOfPrefabInstance");
+	InsertItem("PausePrefabInstanceAnimations");
+	InsertItem("ResumePrefabInstanceAnimations");
 
 	InsertItem("LoadVScene");
 	InsertItem("ExitGame");

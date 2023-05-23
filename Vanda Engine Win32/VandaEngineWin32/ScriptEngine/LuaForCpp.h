@@ -78,13 +78,14 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "PauseSound", PauseSound);
 	lua_register(L, "StopSound", StopSound);
 
-	lua_register(L, "BlendCycle", BlendCycle);
-	lua_register(L, "ClearCycle", ClearCycle);
-	lua_register(L, "ExecuteAction", ExecuteAction);
-	lua_register(L, "ReverseExecuteAction", ReverseExecuteAction);
-	lua_register(L, "RemoveAction", RemoveAction);
-	lua_register(L, "GetAnimationClipDuration", GetAnimationClipDuration);
-	lua_register(L, "PauseAnimations", PauseAnimations);
+	lua_register(L, "ExecuteCyclicAnimation", ExecuteCyclicAnimation);
+	lua_register(L, "RemoveCyclicAnimation", RemoveCyclicAnimation);
+	lua_register(L, "ExecuteNonCyclicAnimation", ExecuteNonCyclicAnimation);
+	lua_register(L, "ReverseExecuteNonCyclicAnimation", ReverseExecuteNonCyclicAnimation);
+	lua_register(L, "RemoveNonCyclicAnimation", RemoveNonCyclicAnimation);
+	lua_register(L, "GetAnimationClipDurationOfPrefabInstance", GetAnimationClipDurationOfPrefabInstance);
+	lua_register(L, "PausePrefabInstanceAnimations", PausePrefabInstanceAnimations);
+	lua_register(L, "ResumePrefabInstanceAnimations", ResumePrefabInstanceAnimations);
 
 	lua_register(L, "LoadVScene", LoadVScene);
 	lua_register(L, "ExitGame", ExitGame);
