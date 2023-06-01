@@ -165,7 +165,7 @@ void CSetCurrentProject::OnOK()
 		}
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.3 (", szBuffer, " - ", m_currentVSceneNameWithoutDot, ")");
+		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.4 (", szBuffer, " - ", m_currentVSceneNameWithoutDot, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 		//save the changes to projects.dat
 		FILE *ProjectsFilePtr;

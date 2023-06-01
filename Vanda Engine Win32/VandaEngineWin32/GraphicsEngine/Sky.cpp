@@ -252,6 +252,7 @@ CVoid CSkyDome::InitScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -268,6 +269,7 @@ CVoid CSkyDome::UpdateScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))

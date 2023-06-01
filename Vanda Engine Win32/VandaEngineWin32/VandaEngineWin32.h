@@ -54,8 +54,17 @@ class CGUIText;
 //For example: RTI.1.0.0
 extern CInt g_version;
 extern CChar g_edition[MAX_NAME_SIZE];
+
 extern CScene* g_currentScene; //current scene that we are working on it.
 extern CInstancePrefab* g_currentInstancePrefab;
+extern CWater* g_currentWater;
+extern CInstanceLight* g_currentLight;
+extern C3DSound* g_current3DSound;
+extern CAmbientSound* g_currentAmbientSound;
+extern CTrigger* g_currentTrigger;
+extern CInstanceCamera* g_currentEngineCamera;
+extern CVideo* g_currentVideo;
+
 extern CMainCharacter* g_mainCharacter;
 extern CChar g_currentVSceneName[MAX_NAME_SIZE]; //save functions
 extern CChar g_currentPrefabPackagePath[MAX_NAME_SIZE];

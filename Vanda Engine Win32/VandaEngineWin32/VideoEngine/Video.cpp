@@ -1272,6 +1272,7 @@ CVoid CVideo::InitScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -1288,6 +1289,7 @@ CVoid CVideo::UpdateScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))
@@ -1314,6 +1316,7 @@ CVoid CVideo::OnExitScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "OnExit");
 		if (lua_isfunction(m_lua, -1))

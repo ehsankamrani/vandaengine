@@ -1143,8 +1143,17 @@ extern CTFormType g_currentTransformType;
 extern CBool g_shareGeometriesBetweenScenes;
 extern CBool g_openNewPrefabFromList;
 extern CBool g_openNewGUIFromList;
+
 extern CScene* g_currentScene; //current scene that we are working on it.
 extern CInstancePrefab* g_currentInstancePrefab;
+extern CWater* g_currentWater;
+extern CInstanceLight* g_currentLight;
+extern C3DSound* g_current3DSound;
+extern CAmbientSound* g_currentAmbientSound;
+extern CTrigger* g_currentTrigger;
+extern CInstanceCamera* g_currentEngineCamera;
+extern CVideo* g_currentVideo;
+
 extern CMainCharacter* g_mainCharacter;
 extern CChar g_currentPassword[MAX_NAME_SIZE];
 extern CBool g_vandaDemo;

@@ -287,6 +287,7 @@ CVoid CGUIButton::OnSelectMouseLButtonDownScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "OnSelectMouseLButtonDown");
 		if (lua_isfunction(m_lua, -1))
@@ -303,6 +304,7 @@ CVoid CGUIButton::OnSelectMouseRButtonDownScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "OnSelectMouseRButtonDown");
 		if (lua_isfunction(m_lua, -1))
@@ -319,6 +321,7 @@ CVoid CGUIButton::OnSelectMouseEnterScript()
 	if (m_hasScript)
 	{
 		g_currentInstancePrefab = NULL;
+		g_currentWater = NULL;
 
 		lua_getglobal(m_lua, "OnSelectMouseEnter");
 		if (lua_isfunction(m_lua, -1))

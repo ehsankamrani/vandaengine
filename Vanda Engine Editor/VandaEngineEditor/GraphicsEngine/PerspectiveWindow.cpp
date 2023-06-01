@@ -20267,6 +20267,34 @@ CInt AttachPrefabInstanceToWater(lua_State* L)
 				}
 			}
 		}
+		else if (Cmp(waterName, "THIS"))
+		{
+			foundWater = CTrue;
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+					{
+						CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+						Cpy(currentPrefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						StringToUpper(currentPrefabInstanceName);
+
+						if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+						{
+							foundPrefabInstance = CTrue;
+
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : prefab instance '%s' will be attached to current water", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+							PrintInfo(temp, COLOR_GREEN);
+
+							break;
+						}
+					}
+				}
+			}
+		}
 		else
 		{
 			for (CUInt pr = 0; pr < g_projects.size(); pr++)
@@ -20354,6 +20382,43 @@ CInt AttachPrefabInstanceToWater(lua_State* L)
 						g_engineWaters[i]->AddPrefabInstance(g_currentInstancePrefab);
 						g_currentInstancePrefab->SetWater(g_engineWaters[i]);
 						g_currentInstancePrefab->UpdateBoundingBoxForWater(g_engineWaters[i]->GetHeight());
+					}
+
+					break;
+				}
+			}
+		}
+	}
+	else if (Cmp(waterName, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			foundWater = CTrue;
+
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+				Cpy(currentPrefabInstanceName, g_instancePrefab[i]->GetName());
+				StringToUpper(currentPrefabInstanceName);
+
+				if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+				{
+					foundPrefabInstance = CTrue;
+
+					CBool isCurrentPrefabInstanceAttached = CFalse;
+					for (CUInt j = 0; j < g_currentWater->GetNumPrefabInstances(); j++)
+					{
+						if (Cmp(g_currentWater->GetPrefabInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+						{
+							isCurrentPrefabInstanceAttached = CTrue;
+							break;
+						}
+					}
+					if (!isCurrentPrefabInstanceAttached)
+					{
+						g_currentWater->AddPrefabInstance(g_instancePrefab[i]);
+						g_instancePrefab[i]->SetWater(g_currentWater);
+						g_instancePrefab[i]->UpdateBoundingBoxForWater(g_currentWater->GetHeight());
 					}
 
 					break;
@@ -20480,6 +20545,34 @@ CInt DetachPrefabInstanceFromWater(lua_State* L)
 				}
 			}
 		}
+		else if (Cmp(waterName, "THIS"))
+		{
+			foundWater = CTrue;
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+					{
+						CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+						Cpy(currentPrefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						StringToUpper(currentPrefabInstanceName);
+
+						if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+						{
+							foundPrefabInstance = CTrue;
+
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : prefab instance '%s' will be detached from current water", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+							PrintInfo(temp, COLOR_GREEN);
+
+							break;
+						}
+					}
+				}
+			}
+		}
 		else
 		{
 			for (CUInt pr = 0; pr < g_projects.size(); pr++)
@@ -20575,6 +20668,44 @@ CInt DetachPrefabInstanceFromWater(lua_State* L)
 			}
 		}
 	}
+	else if (Cmp(waterName, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			foundWater = CTrue;
+
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				CChar currentPrefabInstance[MAX_NAME_SIZE];
+				Cpy(currentPrefabInstance, g_instancePrefab[i]->GetName());
+				StringToUpper(currentPrefabInstance);
+
+				if (Cmp(prefabInstanceName, currentPrefabInstance))
+				{
+					foundPrefabInstance = CTrue;
+
+					CBool isCurrentPrefabInstanceAttached = CFalse;
+					CInt index = -1;
+					for (CUInt j = 0; j < g_currentWater->GetNumPrefabInstances(); j++)
+					{
+						if (Cmp(g_currentWater->GetPrefabInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+						{
+							isCurrentPrefabInstanceAttached = CTrue;
+							index = j;
+							break;
+						}
+					}
+					if (isCurrentPrefabInstanceAttached)
+					{
+						g_currentWater->RemovePrefabInstance(index);
+						g_instancePrefab[i]->SetWater(NULL);
+					}
+
+					break;
+				}
+			}
+		}
+	}
 	else
 	{
 		for (CUInt i = 0; i < g_engineWaters.size(); i++)
@@ -20633,6 +20764,204 @@ CInt DetachPrefabInstanceFromWater(lua_State* L)
 		CChar temp[MAX_NAME_SIZE];
 		sprintf(temp, "\n%s%s%s", "DetachPrefabInstanceFromWater() warning : Couldn't find '", lua_tostring(L, 2), "' water");
 		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt PauseWaterAnimation(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for PauseWaterAnimation()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetUpdateAnimation(CFalse);
+			}
+			else
+			{
+				PrintInfo("\nPauseWaterAnimation() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nPauseWaterAnimation() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nPauseWaterAnimation() Error: Couldn't find water '", waterName, "' ");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetUpdateAnimation(CFalse);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "PauseWaterAnimation() Error: Couldn't find '", waterName, "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeWaterAnimation(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for ResumeWaterAnimation()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetUpdateAnimation(CTrue);
+			}
+			else
+			{
+				PrintInfo("\nResumeWaterAnimation() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nResumeWaterAnimation() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nResumeWaterAnimation() Error: Couldn't find water '", waterName, "' ");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetUpdateAnimation(CTrue);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "ResumeWaterAnimation() Error: Couldn't find '", waterName, "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
 	}
 
 	return 0;
@@ -26453,14 +26782,14 @@ CInt PausePhysics(lua_State* L)
 	return 0;
 }
 
-CInt PauseAllWaterAnimations(lua_State* L)
+CInt PauseAnimationOfAllWaters(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		PrintInfo("\nPauseAllWaterAnimations() will be executed for current VScene", COLOR_GREEN);
+		PrintInfo("\nPauseAnimationOfAllWaters() will be executed for current VScene", COLOR_GREEN);
 		return 0;
 	}
 
@@ -26500,7 +26829,7 @@ CInt PauseAllWaterAnimations(lua_State* L)
 		if (!m_foundException[i])
 		{
 			CChar message[MAX_URI_SIZE];
-			sprintf(message, "\nPauseAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			sprintf(message, "\nPauseAnimationOfAllWaters warning: Couldn't find '%s' water object", m_exception[i].c_str());
 			PrintInfo(message, COLOR_YELLOW);
 		}
 	}
@@ -26636,14 +26965,14 @@ CInt ResumePhysics(lua_State* L)
 	return 0;
 }
 
-CInt ResumeAllWaterAnimations(lua_State* L)
+CInt ResumeAnimationOfAllWaters(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		PrintInfo("\nResumeAllWaterAnimations() will be executed for current VScene", COLOR_GREEN);
+		PrintInfo("\nResumeAnimationOfAllWaters() will be executed for current VScene", COLOR_GREEN);
 		return 0;
 	}
 
@@ -26683,7 +27012,7 @@ CInt ResumeAllWaterAnimations(lua_State* L)
 		if (!m_foundException[i])
 		{
 			CChar message[MAX_URI_SIZE];
-			sprintf(message, "\nResumeAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			sprintf(message, "\nResumeAnimationOfAllWaters warning: Couldn't find '%s' water object", m_exception[i].c_str());
 			PrintInfo(message, COLOR_YELLOW);
 		}
 	}

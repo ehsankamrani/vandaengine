@@ -12940,6 +12940,43 @@ CInt AttachPrefabInstanceToWater(lua_State* L)
 			}
 		}
 	}
+	else if (Cmp(waterName, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			foundWater = CTrue;
+
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+				Cpy(currentPrefabInstanceName, g_instancePrefab[i]->GetName());
+				StringToUpper(currentPrefabInstanceName);
+
+				if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+				{
+					foundPrefabInstance = CTrue;
+
+					CBool isCurrentPrefabInstanceAttached = CFalse;
+					for (CUInt j = 0; j < g_currentWater->GetNumPrefabInstances(); j++)
+					{
+						if (Cmp(g_currentWater->GetPrefabInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+						{
+							isCurrentPrefabInstanceAttached = CTrue;
+							break;
+						}
+					}
+					if (!isCurrentPrefabInstanceAttached)
+					{
+						g_currentWater->AddPrefabInstance(g_instancePrefab[i]);
+						g_instancePrefab[i]->SetWater(g_currentWater);
+						g_instancePrefab[i]->UpdateBoundingBoxForWater(g_currentWater->GetHeight());
+					}
+
+					break;
+				}
+			}
+		}
+	}
 	else
 	{
 		for (CUInt i = 0; i < g_engineWaters.size(); i++)
@@ -13064,6 +13101,44 @@ CInt DetachPrefabInstanceFromWater(lua_State* L)
 			}
 		}
 	}
+	else if (Cmp(waterName, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			foundWater = CTrue;
+
+			for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+			{
+				CChar currentPrefabInstance[MAX_NAME_SIZE];
+				Cpy(currentPrefabInstance, g_instancePrefab[i]->GetName());
+				StringToUpper(currentPrefabInstance);
+
+				if (Cmp(prefabInstanceName, currentPrefabInstance))
+				{
+					foundPrefabInstance = CTrue;
+
+					CBool isCurrentPrefabInstanceAttached = CFalse;
+					CInt index = -1;
+					for (CUInt j = 0; j < g_currentWater->GetNumPrefabInstances(); j++)
+					{
+						if (Cmp(g_currentWater->GetPrefabInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+						{
+							isCurrentPrefabInstanceAttached = CTrue;
+							index = j;
+							break;
+						}
+					}
+					if (isCurrentPrefabInstanceAttached)
+					{
+						g_currentWater->RemovePrefabInstance(index);
+						g_instancePrefab[i]->SetWater(NULL);
+					}
+
+					break;
+				}
+			}
+		}
+	}
 	else
 	{
 		for (CUInt i = 0; i < g_engineWaters.size(); i++)
@@ -13126,6 +13201,115 @@ CInt DetachPrefabInstanceFromWater(lua_State* L)
 
 	return 0;
 }
+
+CInt PauseWaterAnimation(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseWaterAnimation()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			foundWater = CTrue;
+			g_currentWater->SetUpdateAnimation(CFalse);
+		}
+		else
+		{
+			//PrintInfo("\nPauseWaterAnimation() Error: Couldn't find current water object", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetUpdateAnimation(CFalse);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseWaterAnimation() Error: Couldn't find '", waterName, "' water object");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeWaterAnimation(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeWaterAnimation()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			foundWater = CTrue;
+			g_currentWater->SetUpdateAnimation(CTrue);
+		}
+		else
+		{
+			//PrintInfo("\nResumeWaterAnimation() Error: Couldn't find current water object", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetUpdateAnimation(CTrue);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeWaterAnimation() Error: Couldn't find '", waterName, "' water object");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 
 CInt SetSoundVolume(lua_State* L)
 {
@@ -16886,7 +17070,7 @@ CInt PausePhysics(lua_State* L)
 	return 0;
 }
 
-CInt PauseAllWaterAnimations(lua_State* L)
+CInt PauseAnimationOfAllWaters(lua_State* L)
 {
 	std::vector<std::string> m_exception;
 	std::vector<CBool>m_foundException;
@@ -16924,7 +17108,7 @@ CInt PauseAllWaterAnimations(lua_State* L)
 		if (!m_foundException[i])
 		{
 			//CChar message[MAX_URI_SIZE];
-			//sprintf(message, "\nPauseAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			//sprintf(message, "\nPauseAnimationOfAllWaters warning: Couldn't find '%s' water object", m_exception[i].c_str());
 			//PrintInfo(message, COLOR_YELLOW);
 		}
 	}
@@ -17024,7 +17208,7 @@ CInt ResumePhysics(lua_State* L)
 	return 0;
 }
 
-CInt ResumeAllWaterAnimations(lua_State* L)
+CInt ResumeAnimationOfAllWaters(lua_State* L)
 {
 	std::vector<std::string> m_exception;
 	std::vector<CBool>m_foundException;
@@ -17062,7 +17246,7 @@ CInt ResumeAllWaterAnimations(lua_State* L)
 		if (!m_foundException[i])
 		{
 			//CChar message[MAX_URI_SIZE];
-			//sprintf(message, "\nResumeAllWaterAnimations warning: Couldn't find '%s' water object", m_exception[i].c_str());
+			//sprintf(message, "\nResumeAnimationOfAllWaters warning: Couldn't find '%s' water object", m_exception[i].c_str());
 			//PrintInfo(message, COLOR_YELLOW);
 		}
 	}
@@ -21106,6 +21290,14 @@ CBool CMain::Reset()
 	Cpy(g_currentInstancePrefabName, "\n");
 
 	g_currentInstancePrefab = NULL;
+	g_currentWater = NULL;
+	g_currentLight = NULL;
+	g_current3DSound = NULL;
+	g_currentAmbientSound = NULL;
+	g_currentTrigger = NULL;
+	g_currentEngineCamera = NULL;
+	g_currentVideo = NULL;
+
 	g_maxInstancePrefabRadius = -1.0f;
 	g_clickedNew = CFalse;
 

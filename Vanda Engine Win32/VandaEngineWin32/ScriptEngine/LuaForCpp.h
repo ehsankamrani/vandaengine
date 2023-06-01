@@ -376,6 +376,8 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "AttachPrefabInstanceToWater", AttachPrefabInstanceToWater);
 	lua_register(L, "DetachPrefabInstanceFromWater", DetachPrefabInstanceFromWater);
+	lua_register(L, "PauseWaterAnimation", PauseWaterAnimation);
+	lua_register(L, "ResumeWaterAnimation", ResumeWaterAnimation);
 
 	lua_register(L, "SetSoundVolume", SetSoundVolume);
 	lua_register(L, "SetSoundPitch", SetSoundPitch);
@@ -467,14 +469,14 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "PauseAllAnimationsOfPrefabInstances", PauseAllAnimationsOfPrefabInstances);
 	lua_register(L, "PauseMainCharacterAnimations", PauseMainCharacterAnimations);
 	lua_register(L, "PausePhysics", PausePhysics);
-	lua_register(L, "PauseAllWaterAnimations", PauseAllWaterAnimations);
+	lua_register(L, "PauseAnimationOfAllWaters", PauseAnimationOfAllWaters);
 
 	//resume game
 	lua_register(L, "ResumeGame", ResumeGame);
 	lua_register(L, "ResumeAllAnimationsOfPrefabInstances", ResumeAllAnimationsOfPrefabInstances);
 	lua_register(L, "ResumeMainCharacterAnimations", ResumeMainCharacterAnimations);
 	lua_register(L, "ResumePhysics", ResumePhysics);
-	lua_register(L, "ResumeAllWaterAnimations", ResumeAllWaterAnimations);
+	lua_register(L, "ResumeAnimationOfAllWaters", ResumeAnimationOfAllWaters);
 
 	//lock/unlock character
 	lua_register(L, "LockCharacterController", LockCharacterController);

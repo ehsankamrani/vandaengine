@@ -337,6 +337,8 @@ private:
 
 	CChar AttachPrefabInstanceToWater[MAX_URI_SIZE];
 	CChar DetachPrefabInstanceFromWater[MAX_URI_SIZE];
+	CChar PauseWaterAnimation[MAX_URI_SIZE];
+	CChar ResumeWaterAnimation[MAX_URI_SIZE];
 
 	CChar SetSoundVolume[MAX_URI_SIZE];
 	CChar SetSoundPitch[MAX_URI_SIZE];
@@ -427,14 +429,14 @@ private:
 	CChar PauseAllAnimationsOfPrefabInstances[MAX_URI_SIZE];
 	CChar PauseMainCharacterAnimations[MAX_URI_SIZE];
 	CChar PausePhysics[MAX_URI_SIZE];
-	CChar PauseAllWaterAnimations[MAX_URI_SIZE];
+	CChar PauseAnimationOfAllWaters[MAX_URI_SIZE];
 
 	//resume game
 	CChar ResumeGame[MAX_URI_SIZE];
 	CChar ResumeAllAnimationsOfPrefabInstances[MAX_URI_SIZE];
 	CChar ResumeMainCharacterAnimations[MAX_URI_SIZE];
 	CChar ResumePhysics[MAX_URI_SIZE];
-	CChar ResumeAllWaterAnimations[MAX_URI_SIZE];
+	CChar ResumeAnimationOfAllWaters[MAX_URI_SIZE];
 
 	//lock/unlock character
 	CChar LockCharacterController[MAX_URI_SIZE];

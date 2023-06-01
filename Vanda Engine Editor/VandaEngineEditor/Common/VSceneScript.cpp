@@ -38,6 +38,7 @@ CBool CVSceneScript::LoadLuaFile()
 CVoid CVSceneScript::InitScript()
 {
 	g_currentInstancePrefab = NULL;
+	g_currentWater = NULL;
 
 	lua_getglobal(m_lua, "Init");
 	if (lua_isfunction(m_lua, -1))
@@ -51,6 +52,7 @@ CVoid CVSceneScript::InitScript()
 CVoid CVSceneScript::UpdateScript()
 {
 	g_currentInstancePrefab = NULL;
+	g_currentWater = NULL;
 
 	lua_getglobal(m_lua, "Update");
 	if (lua_isfunction(m_lua, -1))

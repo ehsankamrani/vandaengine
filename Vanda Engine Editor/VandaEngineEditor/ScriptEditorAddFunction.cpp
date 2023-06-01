@@ -324,6 +324,8 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(AttachPrefabInstanceToWater, "AttachPrefabInstanceToWater(string prefabInstanceName, string waterObjectName)");
 	Cpy(DetachPrefabInstanceFromWater, "DetachPrefabInstanceFromWater(string prefabInstanceName, string waterObjectName)");
+	Cpy(PauseWaterAnimation, "PauseWaterAnimation(string waterObjectName)");
+	Cpy(ResumeWaterAnimation, "ResumeWaterAnimation(string waterObjectName)");
 
 	Cpy(SetSoundVolume, "SetSoundVolume(string soundName, float volume)");
 	Cpy(SetSoundPitch, "SetSoundPitch(string soundName, float pitch)");
@@ -417,14 +419,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(PauseAllAnimationsOfPrefabInstances, "PauseAllAnimationsOfPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(PauseMainCharacterAnimations, "PauseMainCharacterAnimations()");
 	Cpy(PausePhysics, "PausePhysics()");
-	Cpy(PauseAllWaterAnimations, "PauseAllWaterAnimations([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(PauseAnimationOfAllWaters, "PauseAnimationOfAllWaters([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
 	//resume game
 	Cpy(ResumeGame, "ResumeGame()");
 	Cpy(ResumeAllAnimationsOfPrefabInstances, "ResumeAllAnimationsOfPrefabInstances([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 	Cpy(ResumeMainCharacterAnimations, "ResumeMainCharacterAnimations()");
 	Cpy(ResumePhysics, "ResumePhysics()");
-	Cpy(ResumeAllWaterAnimations, "ResumeAllWaterAnimations([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
+	Cpy(ResumeAnimationOfAllWaters, "ResumeAnimationOfAllWaters([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
 	//lock/unlock character
 	Cpy(LockCharacterController, "LockCharacterController()");
@@ -1587,6 +1589,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DetachPrefabInstanceFromWater);
 		}
+		else if (Cmp(szBuffer, "PauseWaterAnimation"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseWaterAnimation);
+		}
+		else if (Cmp(szBuffer, "ResumeWaterAnimation"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeWaterAnimation);
+		}
 
 		if (Cmp(szBuffer, "SetSoundVolume"))
 		{
@@ -1892,9 +1902,9 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(PausePhysics);
 		}
-		else if (Cmp(szBuffer, "PauseAllWaterAnimations"))
+		else if (Cmp(szBuffer, "PauseAnimationOfAllWaters"))
 		{
-			m_richFunctionName.SetWindowTextA(PauseAllWaterAnimations);
+			m_richFunctionName.SetWindowTextA(PauseAnimationOfAllWaters);
 		}
 		else if (Cmp(szBuffer, "ResumeGame"))
 		{
@@ -1912,9 +1922,9 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(ResumePhysics);
 		}
-		else if (Cmp(szBuffer, "ResumeAllWaterAnimations"))
+		else if (Cmp(szBuffer, "ResumeAnimationOfAllWaters"))
 		{
-			m_richFunctionName.SetWindowTextA(ResumeAllWaterAnimations);
+			m_richFunctionName.SetWindowTextA(ResumeAnimationOfAllWaters);
 		}
 		else if (Cmp(szBuffer, "LockCharacterController"))
 		{
@@ -2366,6 +2376,8 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 
 	InsertItem("AttachPrefabInstanceToWater");
 	InsertItem("DetachPrefabInstanceFromWater");
+	InsertItem("PauseWaterAnimation");
+	InsertItem("ResumeWaterAnimation");
 
 	InsertItem("PlayVideo");
 	InsertItem("PlayVideoLoop");
@@ -2457,14 +2469,14 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("PauseAllAnimationsOfPrefabInstances");
 	InsertItem("PauseMainCharacterAnimations");
 	InsertItem("PausePhysics");
-	InsertItem("PauseAllWaterAnimations");
+	InsertItem("PauseAnimationOfAllWaters");
 
 	//resume game
 	InsertItem("ResumeGame");
 	InsertItem("ResumeAllAnimationsOfPrefabInstances");
 	InsertItem("ResumeMainCharacterAnimations");
 	InsertItem("ResumePhysics");
-	InsertItem("ResumeAllWaterAnimations");
+	InsertItem("ResumeAnimationOfAllWaters");
 
 	//lock/unlock character
 	InsertItem("LockCharacterController");

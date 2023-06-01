@@ -303,6 +303,16 @@ void CAddWater::OnOK()
 		MessageBox("Water scale must be greater than 0.01", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
+	
+	CChar name[MAX_NAME_SIZE];
+	Cpy(name, (LPCSTR)m_strWaterName);
+	StringToUpper(name);
+
+	if (Cmp(name, "THIS"))
+	{
+		MessageBox("'this' is a reserved name. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 
 	CDialog::OnOK();
 }
