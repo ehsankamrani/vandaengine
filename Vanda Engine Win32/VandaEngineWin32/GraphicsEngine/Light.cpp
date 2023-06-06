@@ -467,6 +467,7 @@ CVoid CLight::InitScript()
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = this;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -484,6 +485,7 @@ CVoid CLight::UpdateScript()
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = this;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))

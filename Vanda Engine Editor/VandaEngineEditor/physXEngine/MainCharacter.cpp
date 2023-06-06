@@ -400,6 +400,7 @@ CVoid CMainCharacter::InitScript()
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -417,6 +418,7 @@ CVoid CMainCharacter::UpdateScript()
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))
@@ -434,6 +436,7 @@ CVoid CMainCharacter::OnTriggerEnterScript(CChar *otherActorName)
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerEnter");
 		if (lua_isfunction(m_lua, -1))
@@ -452,6 +455,7 @@ CVoid CMainCharacter::OnTriggerStayScript(CChar *otherActorName)
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerStay");
 		if (lua_isfunction(m_lua, -1))
@@ -470,6 +474,7 @@ CVoid CMainCharacter::OnTriggerExitScript(CChar *otherActorName)
 	{
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerExit");
 		if (lua_isfunction(m_lua, -1))

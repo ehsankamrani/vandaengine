@@ -22,12 +22,12 @@
 
 class COpenALSoundBuffer;
 //Edition.MaxVersion.MinVersion.BugFixes;
-CInt g_version = 244;
+CInt g_version = 245;
 CChar g_edition[MAX_NAME_SIZE];
 CScene* g_currentScene = NULL;
 CInstancePrefab* g_currentInstancePrefab = NULL;
 CWater* g_currentWater = NULL;
-CInstanceLight* g_currentLight = NULL;
+CLight* g_currentLight = NULL;
 C3DSound* g_current3DSound = NULL;
 CAmbientSound* g_currentAmbientSound = NULL;
 CTrigger* g_currentTrigger = NULL;

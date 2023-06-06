@@ -558,7 +558,20 @@ void CAddLight::OnOK()
 			}
 		}
 	}
-	// TODO: Add your specialized code here and/or call the base class
+
+	if (!m_strLightName.IsEmpty())
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, (LPCSTR)m_strLightName);
+		StringToUpper(name);
+
+		if (Cmp(name, "THIS"))
+		{
+			MessageBox("'this' is a reserved name. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	switch ( m_lightType )
 	{
 	case eLIGHTTYPE_POINT:

@@ -7219,6 +7219,20 @@ CInt SetLightAmbient(lua_State* L)
 		return 0;
 	}
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetAmbient(Color);
+		}
+		else
+		{
+			PrintInfo("\nSetLightAmbient Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -7309,6 +7323,20 @@ CInt SetLightDiffuse(lua_State* L)
 			sprintf(temp, "%s%s%s", "\nSetLightDiffuse() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
 			PrintInfo(temp, COLOR_RED);
 		}
+		return 0;
+	}
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetDiffuse(Color);
+		}
+		else
+		{
+			PrintInfo("\nSetLightDiffuse Error: Couldn't find current light", COLOR_RED);
+		}
+
 		return 0;
 	}
 
@@ -7405,6 +7433,20 @@ CInt SetLightSpecular(lua_State* L)
 		return 0;
 	}
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetSpecular(Color);
+		}
+		else
+		{
+			PrintInfo("\nSetLightSpecular Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -7470,6 +7512,20 @@ CInt SetLightShininess(lua_State* L)
 			sprintf(temp, "%s%s%s", "\nSetLightShininess() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
 			PrintInfo(temp, COLOR_RED);
 		}
+		return 0;
+	}
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetShininess(shininess);
+		}
+		else
+		{
+			PrintInfo("\nSetLightShininess Error: Couldn't find current light", COLOR_RED);
+		}
+
 		return 0;
 	}
 

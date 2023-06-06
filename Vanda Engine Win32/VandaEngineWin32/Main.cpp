@@ -4831,6 +4831,20 @@ CInt SetLightAmbient(lua_State* L)
 
 	CFloat Color[4] = { R, G, B, 1.0f };
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetAmbient(Color);
+		}
+		else
+		{
+			//PrintInfo("\nSetLightAmbient Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -4889,6 +4903,20 @@ CInt SetLightDiffuse(lua_State* L)
 		return 0;
 
 	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetDiffuse(Color);
+		}
+		else
+		{
+			//PrintInfo("\nSetLightDiffuse Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
 
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
@@ -4949,6 +4977,20 @@ CInt SetLightSpecular(lua_State* L)
 
 	CFloat Color[4] = { R, G, B, 1.0f };
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetSpecular(Color);
+		}
+		else
+		{
+			//PrintInfo("\nSetLightSpecular Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -4982,6 +5024,20 @@ CInt SetLightShininess(lua_State* L)
 	StringToUpper(luaToString);
 
 	CFloat shininess = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->SetShininess(shininess);
+		}
+		else
+		{
+			//PrintInfo("\nSetLightShininess Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
 
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{

@@ -108,6 +108,7 @@ CVoid CInstancePrefab::InitScript(CBool reset)
 	{
 		g_currentInstancePrefab = this;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -126,6 +127,7 @@ CVoid CInstancePrefab::UpdateScript()
 	{
 		g_currentInstancePrefab = this;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))
@@ -143,6 +145,7 @@ CVoid CInstancePrefab::OnTriggerEnterScript(CChar *otherActorName)
 	{
 		g_currentInstancePrefab = this;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerEnter");
 		if (lua_isfunction(m_lua, -1))
@@ -162,6 +165,7 @@ CVoid CInstancePrefab::OnTriggerStayScript(CChar *otherActorName)
 	{
 		g_currentInstancePrefab = this;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerStay");
 		if (lua_isfunction(m_lua, -1))
@@ -180,6 +184,7 @@ CVoid CInstancePrefab::OnTriggerExitScript(CChar *otherActorName)
 	{
 		g_currentInstancePrefab = this;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerExit");
 		if (lua_isfunction(m_lua, -1))
@@ -198,6 +203,7 @@ CVoid CInstancePrefab::OnSelectScript()
 	{
 		g_currentInstancePrefab = this;
 		g_currentWater = NULL;
+		g_currentLight = NULL;
 
 		lua_getglobal(m_lua, "OnSelect");
 		if (lua_isfunction(m_lua, -1))

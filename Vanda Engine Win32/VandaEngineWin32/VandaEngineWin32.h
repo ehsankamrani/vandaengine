@@ -35,6 +35,7 @@
 #include <vector>
 
 class CInstanceLight;
+class CLight;
 class CWater;
 class C3DSound;
 class CScene;
@@ -58,7 +59,7 @@ extern CChar g_edition[MAX_NAME_SIZE];
 extern CScene* g_currentScene; //current scene that we are working on it.
 extern CInstancePrefab* g_currentInstancePrefab;
 extern CWater* g_currentWater;
-extern CInstanceLight* g_currentLight;
+extern CLight* g_currentLight;
 extern C3DSound* g_current3DSound;
 extern CAmbientSound* g_currentAmbientSound;
 extern CTrigger* g_currentTrigger;
