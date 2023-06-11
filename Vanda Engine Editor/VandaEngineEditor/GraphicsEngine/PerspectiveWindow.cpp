@@ -3169,37 +3169,56 @@ CInt ActivateEngineCamera(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(luaToString, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar camera[MAX_NAME_SIZE];
-					Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames[j].c_str());
-					StringToUpper(camera);
-
-					if (Cmp(camera, luaToString))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames.size(); j++)
 					{
-						foundTarget = CTrue;
+						CChar camera[MAX_NAME_SIZE];
+						Cpy(camera, g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames[j].c_str());
+						StringToUpper(camera);
 
-						CChar message[MAX_NAME_SIZE];
-						sprintf(message, "\nActivateEngineCamera() will execute for Project '%s', VScene '%s', Engine Camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames[j].c_str());
-						PrintInfo(message, COLOR_GREEN);
+						if (Cmp(camera, luaToString))
+						{
+							foundTarget = CTrue;
 
-						break;
+							CChar message[MAX_NAME_SIZE];
+							sprintf(message, "\nActivateEngineCamera() will execute for Project '%s', VScene '%s', Engine Camera '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineCameraNames[j].c_str());
+							PrintInfo(message, COLOR_GREEN);
+
+							break;
+						}
 					}
 				}
 			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nActivateEngineCamera() Error: Couldn't find camera '", luaToString, "' to be activated.");
+				PrintInfo(temp, COLOR_RED);
+				return 0;
+			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			Cpy(luaToString, g_currentEngineCamera->m_abstractCamera->GetName());
+			StringToUpper(luaToString);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nActivateEngineCamera() Error: Couldn't find camera '", luaToString, "' to be activated.");
+			sprintf(temp, "%s", "\nActivateEngineCamera() Error: Couldn't find current camera");
 			PrintInfo(temp, COLOR_RED);
 			return 0;
 		}
-		return 0;
 	}
 
 	CInt index = -1;
@@ -7187,34 +7206,37 @@ CInt SetLightAmbient(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(luaToString, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
-				{
-					CChar lightName[MAX_NAME_SIZE];
-					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
-					StringToUpper(lightName);
+			CBool foundTarget = CFalse;
 
-					if (Cmp(lightName, luaToString))
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightAmbient(%s, %.2f, %.2f, %.2f) will change ambient light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
+						CChar lightName[MAX_NAME_SIZE];
+						Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						StringToUpper(lightName);
+
+						if (Cmp(lightName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetLightAmbient(%s, %.2f, %.2f, %.2f) will change ambient light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
 					}
 				}
 			}
-		}
-		if (!foundTarget)
-		{
-			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetLightAmbient() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
-			PrintInfo(temp, COLOR_RED);
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetLightAmbient() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+				PrintInfo(temp, COLOR_RED);
+			}
 		}
 		return 0;
 	}
@@ -7294,34 +7316,37 @@ CInt SetLightDiffuse(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(luaToString, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
-				{
-					CChar lightName[MAX_NAME_SIZE];
-					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
-					StringToUpper(lightName);
+			CBool foundTarget = CFalse;
 
-					if (Cmp(lightName, luaToString))
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightDiffuse(%s, %.2f, %.2f, %.2f) will change diffuse light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
+						CChar lightName[MAX_NAME_SIZE];
+						Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						StringToUpper(lightName);
+
+						if (Cmp(lightName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetLightDiffuse(%s, %.2f, %.2f, %.2f) will change diffuse light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
 					}
 				}
 			}
-		}
-		if (!foundTarget)
-		{
-			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetLightDiffuse() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
-			PrintInfo(temp, COLOR_RED);
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetLightDiffuse() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+				PrintInfo(temp, COLOR_RED);
+			}
 		}
 		return 0;
 	}
@@ -7401,34 +7426,37 @@ CInt SetLightSpecular(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(luaToString, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
-				{
-					CChar lightName[MAX_NAME_SIZE];
-					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
-					StringToUpper(lightName);
+			CBool foundTarget = CFalse;
 
-					if (Cmp(lightName, luaToString))
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightSpecular(%s, %.2f, %.2f, %.2f) will change specular light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
+						CChar lightName[MAX_NAME_SIZE];
+						Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						StringToUpper(lightName);
+
+						if (Cmp(lightName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetLightSpecular(%s, %.2f, %.2f, %.2f) will change specular light", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), R, G, B);
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
 					}
 				}
 			}
-		}
-		if (!foundTarget)
-		{
-			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetLightSpecular() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
-			PrintInfo(temp, COLOR_RED);
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetLightSpecular() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+				PrintInfo(temp, COLOR_RED);
+			}
 		}
 		return 0;
 	}
@@ -7483,34 +7511,37 @@ CInt SetLightShininess(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		CBool foundTarget = CFalse;
-
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(luaToString, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
-				{
-					CChar lightName[MAX_NAME_SIZE];
-					Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
-					StringToUpper(lightName);
+			CBool foundTarget = CFalse;
 
-					if (Cmp(lightName, luaToString))
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : SetLightShininess(%s, %.2f) will change shininess", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), shininess);
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
+						CChar lightName[MAX_NAME_SIZE];
+						Cpy(lightName, g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str());
+						StringToUpper(lightName);
+
+						if (Cmp(lightName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetLightShininess(%s, %.2f) will change shininess", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineLightNames[j].c_str(), shininess);
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
 					}
 				}
 			}
-		}
-		if (!foundTarget)
-		{
-			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetLightShininess() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
-			PrintInfo(temp, COLOR_RED);
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetLightShininess() Error: Couldn't find light '", lua_tostring(L, 1), "' in all projects.");
+				PrintInfo(temp, COLOR_RED);
+			}
 		}
 		return 0;
 	}
@@ -20325,31 +20356,31 @@ CInt AttachPrefabInstanceToWater(lua_State* L)
 		}
 		else if (Cmp(waterName, "THIS"))
 		{
-			foundWater = CTrue;
+		//	foundWater = CTrue;
 
-			for (CUInt pr = 0; pr < g_projects.size(); pr++)
-			{
-				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-				{
-					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
-					{
-						CChar currentPrefabInstanceName[MAX_NAME_SIZE];
-						Cpy(currentPrefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
-						StringToUpper(currentPrefabInstanceName);
+		//	for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		//	{
+		//		for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+		//		{
+		//			for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+		//			{
+		//				CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+		//				Cpy(currentPrefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+		//				StringToUpper(currentPrefabInstanceName);
 
-						if (Cmp(prefabInstanceName, currentPrefabInstanceName))
-						{
-							foundPrefabInstance = CTrue;
+		//				if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+		//				{
+		//					foundPrefabInstance = CTrue;
 
-							CChar temp[MAX_NAME_SIZE];
-							sprintf(temp, "\nProject '%s', VScene '%s' : prefab instance '%s' will be attached to current water", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
-							PrintInfo(temp, COLOR_GREEN);
+		//					CChar temp[MAX_NAME_SIZE];
+		//					sprintf(temp, "\nProject '%s', VScene '%s' : prefab instance '%s' will be attached to current water", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+		//					PrintInfo(temp, COLOR_GREEN);
 
-							break;
-						}
-					}
-				}
-			}
+		//					break;
+		//				}
+		//			}
+		//		}
+		//	}
 		}
 		else
 		{
@@ -20603,31 +20634,31 @@ CInt DetachPrefabInstanceFromWater(lua_State* L)
 		}
 		else if (Cmp(waterName, "THIS"))
 		{
-			foundWater = CTrue;
+		//	foundWater = CTrue;
 
-			for (CUInt pr = 0; pr < g_projects.size(); pr++)
-			{
-				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
-				{
-					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
-					{
-						CChar currentPrefabInstanceName[MAX_NAME_SIZE];
-						Cpy(currentPrefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
-						StringToUpper(currentPrefabInstanceName);
+		//	for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		//	{
+		//		for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+		//		{
+		//			for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+		//			{
+		//				CChar currentPrefabInstanceName[MAX_NAME_SIZE];
+		//				Cpy(currentPrefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+		//				StringToUpper(currentPrefabInstanceName);
 
-						if (Cmp(prefabInstanceName, currentPrefabInstanceName))
-						{
-							foundPrefabInstance = CTrue;
+		//				if (Cmp(prefabInstanceName, currentPrefabInstanceName))
+		//				{
+		//					foundPrefabInstance = CTrue;
 
-							CChar temp[MAX_NAME_SIZE];
-							sprintf(temp, "\nProject '%s', VScene '%s' : prefab instance '%s' will be detached from current water", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
-							PrintInfo(temp, COLOR_GREEN);
+		//					CChar temp[MAX_NAME_SIZE];
+		//					sprintf(temp, "\nProject '%s', VScene '%s' : prefab instance '%s' will be detached from current water", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+		//					PrintInfo(temp, COLOR_GREEN);
 
-							break;
-						}
-					}
-				}
-			}
+		//					break;
+		//				}
+		//			}
+		//		}
+		//	}
 		}
 		else
 		{
@@ -22617,35 +22648,54 @@ CInt PlayVideo(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideo(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideo(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nPlayVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nPlayVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nPlayVideo() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -22696,35 +22746,54 @@ CInt PlayVideoLoop(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideoLoop(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideoLoop(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nPlayVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nPlayVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nPlayVideoLoop() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -22775,35 +22844,54 @@ CInt PlayVideoOnce(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideoOnce(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : PlayVideoOnce(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nPlayVideoOnce() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nPlayVideoOnce() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nPlayVideoOnce() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -22854,35 +22942,54 @@ CInt StopVideo(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : StopVideo(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : StopVideo(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nStopVideo() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nStopVideo() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -22936,38 +23043,57 @@ CInt SetVideoLoop(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						if (loop)
-							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoLoop(%s, true) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						else
-							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoLoop(%s, false) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							if (loop)
+								sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoLoop(%s, true) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							else
+								sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoLoop(%s, false) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nSetVideoLoop() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -23024,35 +23150,54 @@ CInt SetVideoVolume(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoVolume(%s, %.2f) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str(), volume);
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetVideoVolume(%s, %.2f) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str(), volume);
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nSetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nSetVideoVolume() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -23101,35 +23246,54 @@ CInt GetVideoPlay(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoPlay(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoPlay(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nGetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nGetVideoPlay() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nGetVideoPlay() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -23177,35 +23341,54 @@ CInt GetVideoLoop(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoLoop(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoLoop(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nGetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nGetVideoLoop() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nGetVideoLoop() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -23253,35 +23436,54 @@ CInt GetVideoVolume(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoVolume(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoVolume(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nGetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nGetVideoVolume() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nGetVideoVolume() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
@@ -23326,35 +23528,54 @@ CInt GetVideoDuration(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
-		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		if (!Cmp(videoName, "THIS"))
 		{
-			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
 			{
-				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
 				{
-					CChar currentVideoName[MAX_NAME_SIZE];
-					Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-					StringToUpper(currentVideoName);
-
-					if (Cmp(currentVideoName, videoName))
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames.size(); j++)
 					{
-						CChar temp[MAX_NAME_SIZE];
-						sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoDuration(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
-						PrintInfo(temp, COLOR_GREEN);
-						foundTarget = CTrue;
-						break;
-					}
-				}
+						CChar currentVideoName[MAX_NAME_SIZE];
+						Cpy(currentVideoName, g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+						StringToUpper(currentVideoName);
 
+						if (Cmp(currentVideoName, videoName))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : GetVideoDuration(%s) wil execute for video", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineVideoNames[j].c_str());
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nGetVideoDuration() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+				PrintInfo(temp, COLOR_RED);
 			}
 		}
-		if (!foundTarget)
+		return 0;
+	}
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
 		{
 			CChar temp[MAX_NAME_SIZE];
-			sprintf(temp, "%s%s%s", "\nGetVideoDuration() Error: Couldn't find video '", lua_tostring(L, 1), "'");
+			sprintf(temp, "%s", "\nGetVideoDuration() Error: Couldn't find current video");
 			PrintInfo(temp, COLOR_RED);
+			return 0;
 		}
-		return 0;
 	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)

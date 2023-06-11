@@ -116,6 +116,19 @@ void CAddEngineCamera::OnBnClickedOk()
 		}
 	}
 
+	if (!m_strName.IsEmpty())
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, (LPCSTR)m_strName);
+		StringToUpper(name);
+
+		if (Cmp(name, "THIS"))
+		{
+			MessageBox("'this' is a reserved name. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	CDialog::OnOK();
 }
 

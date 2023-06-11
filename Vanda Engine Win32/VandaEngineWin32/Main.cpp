@@ -1828,6 +1828,22 @@ CInt ActivateEngineCamera(lua_State* L)
 	Cpy(luaToString, lua_tostring(L, 1));
 	StringToUpper(luaToString);
 
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			Cpy(luaToString, g_currentEngineCamera->m_abstractCamera->GetName());
+			StringToUpper(luaToString);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nActivateEngineCamera() Error: Couldn't find current camera");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	CBool foundTarget = CFalse;
 	CInt index = -1;
 	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
@@ -14280,6 +14296,22 @@ CInt PlayVideo(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nPlayVideo() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
 		CChar currentVideoName[MAX_NAME_SIZE];
@@ -14323,6 +14355,22 @@ CInt PlayVideoLoop(lua_State* L)
 	StringToUpper(videoName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nPlayVideoLoop() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
@@ -14368,6 +14416,22 @@ CInt PlayVideoOnce(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nPlayVideoOnce() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
 		CChar currentVideoName[MAX_NAME_SIZE];
@@ -14411,6 +14475,22 @@ CInt StopVideo(lua_State* L)
 	StringToUpper(videoName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nStopVideo() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
@@ -14458,6 +14538,22 @@ CInt SetVideoLoop(lua_State* L)
 		loop = CTrue;
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nSetVideoLoop() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
@@ -14509,6 +14605,22 @@ CInt SetVideoVolume(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nSetVideoVolume() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
 		CChar currentVideoName[MAX_NAME_SIZE];
@@ -14551,6 +14663,22 @@ CInt GetVideoPlay(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nGetVideoPlay() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
 		CChar currentVideoName[MAX_NAME_SIZE];
@@ -14591,6 +14719,22 @@ CInt GetVideoLoop(lua_State* L)
 	StringToUpper(videoName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nGetVideoLoop() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
@@ -14633,6 +14777,22 @@ CInt GetVideoVolume(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nGetVideoVolume() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{
 		CChar currentVideoName[MAX_NAME_SIZE];
@@ -14670,6 +14830,22 @@ CInt GetVideoDuration(lua_State* L)
 	StringToUpper(videoName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(videoName, "THIS"))
+	{
+		if (g_currentVideo)
+		{
+			Cpy(videoName, g_currentVideo->GetName());
+			StringToUpper(videoName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s", "\nGetVideoDuration() Error: Couldn't find current video");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engineVideos.size(); i++)
 	{

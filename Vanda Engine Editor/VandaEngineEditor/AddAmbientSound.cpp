@@ -124,6 +124,20 @@ void CAddAmbientSound::OnOK()
 		MessageBox("Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
+
+	if (!m_strAmbientSoundName.IsEmpty())
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, (LPCSTR)m_strAmbientSoundName);
+		StringToUpper(name);
+
+		if (Cmp(name, "THIS"))
+		{
+			MessageBox("'this' is a reserved name. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	if (m_volume > 1.0f || m_volume < 0.0f)
 	{
 		MessageBox("Volume must be in [0,1] range", "Vanda Engine Error", MB_OK | MB_ICONERROR);

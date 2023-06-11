@@ -278,6 +278,20 @@ void CAdd3DSound::OnOK()
 		MessageBox( "Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR );
 		return;
 	}
+
+	if (!m_str3DSoundName.IsEmpty())
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, (LPCSTR)m_str3DSoundName);
+		StringToUpper(name);
+
+		if (Cmp(name, "THIS"))
+		{
+			MessageBox("'this' is a reserved name. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	if (m_f3DSoundVolume > 1.0f || m_f3DSoundVolume < 0.0f)
 	{
 		MessageBox("Volume must be in [0,1] range", "Vanda Engine Error", MB_OK | MB_ICONERROR);

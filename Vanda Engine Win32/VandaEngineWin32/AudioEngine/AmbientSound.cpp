@@ -132,6 +132,10 @@ CVoid CAmbientSound::InitScript()
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
 		g_currentLight = NULL;
+		g_currentEngineCamera = NULL;
+		g_currentVideo = NULL;
+		g_current3DSound = NULL;
+		g_currentAmbientSound = this;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -150,6 +154,10 @@ CVoid CAmbientSound::UpdateScript()
 		g_currentInstancePrefab = NULL;
 		g_currentWater = NULL;
 		g_currentLight = NULL;
+		g_currentEngineCamera = NULL;
+		g_currentVideo = NULL;
+		g_current3DSound = NULL;
+		g_currentAmbientSound = this;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))

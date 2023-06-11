@@ -278,6 +278,19 @@ void CAddVideo::OnOK()
 		}
 	}
 
+	if (!m_strVideoName.IsEmpty())
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, (LPCSTR)m_strVideoName);
+		StringToUpper(name);
+
+		if (Cmp(name, "THIS"))
+		{
+			MessageBox("'this' is a reserved name. Please select another name!", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+	}
+
 	CInt checkState;
 	checkState = m_checkExitWithEscKey.GetCheck();
 	if (checkState == BST_CHECKED)
