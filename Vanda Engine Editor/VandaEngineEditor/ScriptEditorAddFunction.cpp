@@ -20,10 +20,11 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 		g_multipleView->EnableTimer(CFalse);
 
 	m_index = -1;
-	Cpy( PlaySoundLoop, "PlaySoundLoop(string gameObjectSoundName)");
-	Cpy(PlaySoundOnce, "PlaySoundOnce(string gameObjectSoundName)");
-	Cpy(PauseSound, "PauseSound(string gameObjectSoundName)");
-	Cpy(StopSound, "StopSound(string gameObjectSoundName)");
+	Cpy(PlaySoundLoop, "PlaySoundLoop(string soundObjectName1, string soundObjectName2, ..., string soundObjectNameN)");
+	Cpy(PlaySoundOnce, "PlaySoundOnce(string soundObjectName1, string soundObjectName2, ..., string soundObjectNameN)");
+	Cpy(PlaySound, "PlaySound(string soundObjectName1, string soundObjectName2, ..., string soundObjectNameN)");
+	Cpy(PauseSound, "PauseSound(string soundObjectName1, string soundObjectName2, ..., string soundObjectNameN)");
+	Cpy(StopSound, "StopSound(string soundObjectName1, string soundObjectName2, ..., string soundObjectNameN)");
 
 	Cpy(ExecuteCyclicAnimation, "ExecuteCyclicAnimation(string prefabInstanceName, string animationClipName, float weightTarget, float delayIn)");
 	Cpy(RemoveCyclicAnimation, "RemoveCyclicAnimation(string prefabInstanceName, string animationClipName, float delayOut)");
@@ -327,23 +328,22 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(PauseWaterAnimation, "PauseWaterAnimation(string waterObjectName)");
 	Cpy(ResumeWaterAnimation, "ResumeWaterAnimation(string waterObjectName)");
 
-	Cpy(SetSoundVolume, "SetSoundVolume(string soundName, float volume)");
-	Cpy(SetSoundPitch, "SetSoundPitch(string soundName, float pitch)");
-	Cpy(SetSoundPlay, "SetSoundPlay(string soundName, bool play)");
-	Cpy(SetSoundLoop, "SetSoundLoop(string soundName, bool loop)");
-	Cpy(SetSoundPosition, "SetSoundPosition(string soundName, float x, float y, float z)");
-	Cpy(SetSoundRollOff, "SetSoundRollOff(string soundName, float rollOff)");
-	Cpy(SetSoundReferenceDistance, "SetSoundReferenceDistance(string soundName, float distance)");
-	Cpy(SetSoundMaxDistance, "SetSoundMaxDistance(string soundName, float maxDistance)");
+	Cpy(SetSoundVolume, "SetSoundVolume(string soundObjectName, float volume)");
+	Cpy(SetSoundPitch, "SetSoundPitch(string soundObjectName, float pitch)");
+	Cpy(SetSoundLoop, "SetSoundLoop(string soundObjectName, bool loop)");
+	Cpy(SetSoundPosition, "SetSoundPosition(string 3DSoundObjectName, float x, float y, float z)");
+	Cpy(SetSoundRollOff, "SetSoundRollOff(string 3DSoundObjectName, float rollOff)");
+	Cpy(SetSoundReferenceDistance, "SetSoundReferenceDistance(string 3DSoundObjectName, float distance)");
+	Cpy(SetSoundMaxDistance, "SetSoundMaxDistance(string 3DSoundObjectName, float maxDistance)");
 
-	Cpy(GetSoundVolume, "GetSoundVolume(string soundName)");
-	Cpy(GetSoundPitch, "GetSoundPitch(string soundName)");
-	Cpy(GetSoundPlay, "GetSoundPlay(string soundName)");
-	Cpy(GetSoundLoop, "GetSoundLoop(string soundName)");
-	Cpy(GetSoundPosition, "GetSoundPosition(string soundName)");
-	Cpy(GetSoundRollOff, "GetSoundRollOff(string soundName)");
-	Cpy(GetSoundReferenceDistance, "GetSoundReferenceDistance(string soundName)");
-	Cpy(GetSoundMaxDistance, "GetSoundMaxDistance(string soundName)");
+	Cpy(GetSoundVolume, "GetSoundVolume(string soundObjectName)");
+	Cpy(GetSoundPitch, "GetSoundPitch(string soundObjectName)");
+	Cpy(GetSoundPlay, "GetSoundPlay(string soundObjectName)");
+	Cpy(GetSoundLoop, "GetSoundLoop(string soundObjectName)");
+	Cpy(GetSoundPosition, "GetSoundPosition(string 3DSoundObjectName)");
+	Cpy(GetSoundRollOff, "GetSoundRollOff(string 3DSoundObjectName)");
+	Cpy(GetSoundReferenceDistance, "GetSoundReferenceDistance(string 3DSoundObjectName)");
+	Cpy(GetSoundMaxDistance, "GetSoundMaxDistance(string 3DSoundObjectName)");
 
 	Cpy(SetGlobalSoundVolume, "SetGlobalSoundVolume(float volume)");
 	Cpy(GetGlobalSoundVolume, "GetGlobalSoundVolume()");
@@ -1606,9 +1606,9 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetSoundPitch);
 		}
-		else if (Cmp(szBuffer, "SetSoundPlay"))
+		else if (Cmp(szBuffer, "PlaySound"))
 		{
-			m_richFunctionName.SetWindowTextA(SetSoundPlay);
+			m_richFunctionName.SetWindowTextA(PlaySound);
 		}
 		else if (Cmp(szBuffer, "SetSoundLoop"))
 		{
@@ -2393,7 +2393,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 
 	InsertItem("SetSoundVolume");
 	InsertItem("SetSoundPitch");
-	InsertItem("SetSoundPlay");
+	InsertItem("PlaySound");
 	InsertItem("SetSoundLoop");
 	InsertItem("SetSoundPosition");
 	InsertItem("SetSoundRollOff");

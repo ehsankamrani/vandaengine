@@ -379,7 +379,7 @@ CInt ResumeWaterAnimation(lua_State* L);
 
 CInt SetSoundVolume(lua_State* L);
 CInt SetSoundPitch(lua_State* L);
-CInt SetSoundPlay(lua_State* L);
+CInt PlaySound(lua_State* L);
 CInt SetSoundLoop(lua_State* L);
 CInt SetSoundPosition(lua_State* L);
 CInt SetSoundRollOff(lua_State* L);

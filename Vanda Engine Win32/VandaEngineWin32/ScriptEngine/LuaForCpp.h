@@ -381,7 +381,7 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "SetSoundVolume", SetSoundVolume);
 	lua_register(L, "SetSoundPitch", SetSoundPitch);
-	lua_register(L, "SetSoundPlay", SetSoundPlay);
+	lua_register(L, "PlaySound", PlaySound);
 	lua_register(L, "SetSoundLoop", SetSoundLoop);
 	lua_register(L, "SetSoundPosition", SetSoundPosition);
 	lua_register(L, "SetSoundRollOff", SetSoundRollOff);

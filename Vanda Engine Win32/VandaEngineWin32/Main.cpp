@@ -23,6 +23,89 @@ CGeometry* GetGeometryFromScenes(const CChar * name, const CChar * DocURI)
 	return NULL;
 }
 
+CInt PlaySound(lua_State* L)
+{
+	//if (g_testScript)
+	//	return 0;
+	int argc = lua_gettop(L);
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString);
+
+		if (Cmp(luaToString, "THIS"))
+		{
+			if (g_current3DSound)
+			{
+				Cpy(luaToString, g_current3DSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else if (g_currentAmbientSound)
+			{
+				Cpy(luaToString, g_currentAmbientSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else
+			{
+				//PrintInfo("\nPlaySound Error: Couldn't find current sound object", COLOR_RED);
+				continue;
+			}
+		}
+
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engine3DSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engine3DSounds[i]->GetSoundSource()->SetLooping(g_engine3DSounds[i]->GetLoop());
+				g_engine3DSounds[i]->SetLoop(g_engine3DSounds[i]->GetLoop());
+				g_engine3DSounds[i]->SetPlay(CTrue);
+				g_soundSystem->PlayALSound(*(g_engine3DSounds[i]->GetSoundSource()));
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engine3DSounds[i]->GetName(), "' is playing continiously.");
+				//PrintInfo(temp, COLOR_GREEN);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+
+		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+		{
+			CChar soundName[MAX_NAME_SIZE];
+			Cpy(soundName, g_engineAmbientSounds[i]->GetName());
+			StringToUpper(soundName);
+
+			if (Cmp(soundName, luaToString))
+			{
+				g_engineAmbientSounds[i]->GetSoundSource()->SetLooping(g_engineAmbientSounds[i]->GetLoop());
+				g_engineAmbientSounds[i]->SetLoop(g_engineAmbientSounds[i]->GetLoop());
+				g_engineAmbientSounds[i]->SetPlay(CTrue);
+				g_soundSystem->PlayALSound(*(g_engineAmbientSounds[i]->GetSoundSource()));
+				//CChar temp[MAX_NAME_SIZE];
+				//sprintf(temp, "%s%s%s", "\nSound '", g_engineAmbientSounds[i]->GetName(), "' is playing continiously.");
+				//PrintInfo(temp, COLOR_GREEN);
+				foundTarget = CTrue;
+				break;
+			}
+		}
+
+		if (!foundTarget)
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nPlaySound() Error: Couldn't find Sound '", lua_tostring(L, n), "' to be played.");
+			//PrintInfo(temp, COLOR_RED);
+		}
+	}
+
+	return 0; // number of return values
+}
+
 CInt PlaySoundLoop(lua_State *L)
 {
 	int argc = lua_gettop(L);
@@ -33,6 +116,26 @@ CInt PlaySoundLoop(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
+
+		if (Cmp(luaToString, "THIS"))
+		{
+			if (g_current3DSound)
+			{
+				Cpy(luaToString, g_current3DSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else if (g_currentAmbientSound)
+			{
+				Cpy(luaToString, g_currentAmbientSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else
+			{
+				//PrintInfo("\nPlaySoundLoop Error: Couldn't find current sound object", COLOR_RED);
+				continue;
+			}
+		}
+
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -79,6 +182,26 @@ CInt PlaySoundOnce(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
+
+		if (Cmp(luaToString, "THIS"))
+		{
+			if (g_current3DSound)
+			{
+				Cpy(luaToString, g_current3DSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else if (g_currentAmbientSound)
+			{
+				Cpy(luaToString, g_currentAmbientSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else
+			{
+				//PrintInfo("\nPlaySoundOnce Error: Couldn't find current sound object", COLOR_RED);
+				continue;
+			}
+		}
+
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -125,6 +248,26 @@ CInt PauseSound(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
+
+		if (Cmp(luaToString, "THIS"))
+		{
+			if (g_current3DSound)
+			{
+				Cpy(luaToString, g_current3DSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else if (g_currentAmbientSound)
+			{
+				Cpy(luaToString, g_currentAmbientSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else
+			{
+				//PrintInfo("\nPauseSound Error: Couldn't find current sound object", COLOR_RED);
+				continue;
+			}
+		}
+
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -166,6 +309,26 @@ CInt StopSound(lua_State *L)
 		CChar luaToString[MAX_NAME_SIZE];
 		Cpy(luaToString, lua_tostring(L, n));
 		StringToUpper(luaToString);
+
+		if (Cmp(luaToString, "THIS"))
+		{
+			if (g_current3DSound)
+			{
+				Cpy(luaToString, g_current3DSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else if (g_currentAmbientSound)
+			{
+				Cpy(luaToString, g_currentAmbientSound->GetName());
+				StringToUpper(luaToString);
+			}
+			else
+			{
+				//PrintInfo("\nStopSound Error: Couldn't find current sound object", COLOR_RED);
+				continue;
+			}
+		}
+
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			CChar soundName[MAX_NAME_SIZE];
@@ -13411,6 +13574,25 @@ CInt SetSoundVolume(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundVolume Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -13477,6 +13659,25 @@ CInt SetSoundPitch(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundPitch Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -13521,72 +13722,6 @@ CInt SetSoundPitch(lua_State* L)
 }
 
 
-CInt SetSoundPlay(lua_State* L)
-{
-	//if (g_testScript)
-	//	return 0;
-	int argc = lua_gettop(L);
-
-	if (argc < 2)
-	{
-		//PrintInfo("\nPlease specify 2 arguments for SetSoundPlay()", COLOR_RED);
-		return 0;
-	}
-
-	if (lua_tostring(L, 1) == NULL) return 0;
-
-	CChar soundName[MAX_NAME_SIZE];
-	Cpy(soundName, lua_tostring(L, 1));
-	StringToUpper(soundName);
-
-	CInt isPlay = (CFloat)lua_toboolean(L, 2);
-	CBool play = CFalse;
-	if (isPlay)
-		play = CTrue;
-
-	CBool foundTarget = CFalse;
-
-	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
-	{
-		CChar currentSoundName[MAX_NAME_SIZE];
-		Cpy(currentSoundName, g_engine3DSounds[i]->GetName());
-		StringToUpper(currentSoundName);
-
-		if (Cmp(currentSoundName, soundName))
-		{
-			g_engine3DSounds[i]->SetPlay(play);
-			foundTarget = CTrue;
-			break;
-		}
-	}
-
-	if (!foundTarget)
-	{
-		for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
-		{
-			CChar currentSoundName[MAX_NAME_SIZE];
-			Cpy(currentSoundName, g_engineAmbientSounds[i]->GetName());
-			StringToUpper(currentSoundName);
-
-			if (Cmp(currentSoundName, soundName))
-			{
-				g_engineAmbientSounds[i]->SetPlay(play);
-				foundTarget = CTrue;
-				break;
-			}
-		}
-	}
-
-	if (!foundTarget)
-	{
-		//CChar temp[MAX_NAME_SIZE];
-		//sprintf(temp, "%s%s%s", "\nSetSoundPlay() Error: Couldn't find Sound '", lua_tostring(L, 1), "'");
-		//PrintInfo(temp, COLOR_RED);
-	}
-
-	return 0;
-}
-
 CInt SetSoundLoop(lua_State* L)
 {
 	//if (g_testScript)
@@ -13611,6 +13746,25 @@ CInt SetSoundLoop(lua_State* L)
 		loop = CTrue;
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundLoop Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
@@ -13681,6 +13835,20 @@ CInt SetSoundPosition(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundPosition Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -13730,6 +13898,20 @@ CInt SetSoundRollOff(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundRollOff Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -13778,6 +13960,20 @@ CInt SetSoundReferenceDistance(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundReferenceDistance Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -13825,6 +14021,20 @@ CInt SetSoundMaxDistance(lua_State* L)
 	CFloat MaxDistance = (CFloat)lua_tonumber(L, 2);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nSetSoundMaxDistance Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
@@ -13897,6 +14107,25 @@ CInt GetSoundVolume(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundVolume Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -13950,6 +14179,25 @@ CInt GetSoundPitch(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundPitch Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -14002,6 +14250,25 @@ CInt GetSoundPlay(lua_State* L)
 	StringToUpper(soundName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundPlay Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
@@ -14062,6 +14329,25 @@ CInt GetSoundLoop(lua_State* L)
 	StringToUpper(soundName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else if (g_currentAmbientSound)
+		{
+			Cpy(soundName, g_currentAmbientSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundLoop Error: Couldn't find current sound object", COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
@@ -14124,6 +14410,20 @@ CInt GetSoundPosition(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundPosition Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -14170,6 +14470,20 @@ CInt GetSoundRollOff(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundRollOff Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -14211,6 +14525,20 @@ CInt GetSoundReferenceDistance(lua_State* L)
 
 	CBool foundTarget = CFalse;
 
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundReferenceDistance Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{
 		CChar currentSoundName[MAX_NAME_SIZE];
@@ -14251,6 +14579,20 @@ CInt GetSoundMaxDistance(lua_State* L)
 	StringToUpper(soundName);
 
 	CBool foundTarget = CFalse;
+
+	if (Cmp(soundName, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			Cpy(soundName, g_current3DSound->GetName());
+			StringToUpper(soundName);
+		}
+		else
+		{
+			//PrintInfo("\nGetSoundMaxDistance Error: Couldn't find current 3D sound object", COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 	{

@@ -342,7 +342,7 @@ private:
 
 	CChar SetSoundVolume[MAX_URI_SIZE];
 	CChar SetSoundPitch[MAX_URI_SIZE];
-	CChar SetSoundPlay[MAX_URI_SIZE];
+	CChar PlaySound[MAX_URI_SIZE];
 	CChar SetSoundLoop[MAX_URI_SIZE];
 	CChar SetSoundPosition[MAX_URI_SIZE];
 	CChar SetSoundRollOff[MAX_URI_SIZE];
