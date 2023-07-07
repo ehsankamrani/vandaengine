@@ -534,13 +534,13 @@ BEGIN
     LTEXT           "Name",IDC_STATIC,16,18,19,8
 END
 
-IDD_DIALOG_CURRENT_SCENE_OPTIONS DIALOGEX 0, 0, 404, 320
+IDD_DIALOG_CURRENT_SCENE_OPTIONS DIALOGEX 0, 0, 404, 347
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Current VScene Properties"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,291,299,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,349,299,48,14
+    DEFPUSHBUTTON   "OK",IDOK,291,326,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,349,326,48,14
     PUSHBUTTON      "Choose",IDC_BTN_LOADING_BANNER,337,27,51,15
     EDITTEXT        IDC_EDIT_BANNER,14,27,310,15,ES_AUTOHSCROLL | ES_READONLY
     GROUPBOX        "Banner",IDC_STATIC,7,9,390,45
@@ -551,11 +551,11 @@ BEGIN
     EDITTEXT        IDC_EDIT_CURSOR_PERCENT,60,114,34,13,ES_AUTOHSCROLL
     LTEXT           "Percents of Window Width",IDC_STATIC,102,116,86,8
     LTEXT           "Cursor Image",IDC_STATIC,15,87,44,8
-    LTEXT           "Global Sound Volume",IDC_STATIC,16,260,69,8
-    EDITTEXT        IDC_EDIT_GLOBAL_SOUND_VOLUME,92,257,34,15,ES_AUTOHSCROLL
-    GROUPBOX        "Sound Properties",IDC_STATIC,7,239,390,46
+    LTEXT           "Global Sound Volume",IDC_STATIC,16,286,69,8
+    EDITTEXT        IDC_EDIT_GLOBAL_SOUND_VOLUME,92,283,34,15,ES_AUTOHSCROLL
+    GROUPBOX        "Sound Properties",IDC_STATIC,7,265,390,46
     CONTROL         "Show Cursor",IDC_CHECKBOX_SHOW__CURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,116,61,10
-    GROUPBOX        "Pause these elements at startup",IDC_STATIC,7,157,390,69
+    GROUPBOX        "Pause these elements at startup",IDC_STATIC,7,157,390,95
     CONTROL         "Pause Main Character Animations",IDC_CHECKBOX_PAUSE_MAIN_CHARACTER_ANIMATIONS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,176,119,10
     CONTROL         "Pause All Animations Of Prefab Instances",IDC_CHECKBOX_PAUSE_ALL_PREFAB_INSTANCE_ANIMATIONS,
@@ -565,6 +565,9 @@ BEGIN
     CONTROL         "Pause Physics",IDC_CHECKBOX_PAUSE_PHYSICS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,176,70,10
     CONTROL         "Pause All Water Animations",IDC_CHECKBOX_PAUSE_WATERS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,289,176,103,10
+    CONTROL         "Pause All Sounds",IDC_CHECKBOX_PAUSE_SOUNDS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,230,70,10
+    CONTROL         "Pause All Update Events",IDC_CHECKBOX_PAUSE_UPDATE_EVENTS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,230,96,10
 END
 
 IDD_DIALOG_PROJECT_VSCENES DIALOGEX 0, 0, 483, 219
@@ -1580,6 +1583,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 397
         VERTGUIDE, 14
+        VERTGUIDE, 176
         VERTGUIDE, 200
         VERTGUIDE, 225
         VERTGUIDE, 240
@@ -1587,7 +1591,7 @@ BEGIN
         VERTGUIDE, 324
         VERTGUIDE, 388
         TOPMARGIN, 7
-        BOTTOMMARGIN, 313
+        BOTTOMMARGIN, 340
         HORZGUIDE, 27
         HORZGUIDE, 85
         HORZGUIDE, 116
@@ -1596,6 +1600,7 @@ BEGIN
         HORZGUIDE, 194
         HORZGUIDE, 202
         HORZGUIDE, 220
+        HORZGUIDE, 230
     END
 
     IDD_DIALOG_PROJECT_VSCENES, DIALOG
@@ -2877,7 +2882,7 @@ BEGIN
     LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
     CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 2.4.7",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 2.4.8",IDC_STATIC,7,33,60,8
     LTEXT           "© 2023 Ehsan Kamrani",IDC_STATIC,7,50,126,9
     CONTROL         "Tutorials",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
     LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
@@ -3037,7 +3042,7 @@ CAPTION "About Vanda Engine"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 2.4.7",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 2.4.8",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -3609,12 +3614,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "2.4.7"
+            VALUE "FileVersion", "2.4.8"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "2.4.7"
+            VALUE "ProductVersion", "2.4.8"
         END
     END
     BLOCK "VarFileInfo"

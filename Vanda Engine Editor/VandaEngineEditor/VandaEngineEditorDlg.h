@@ -743,6 +743,8 @@ private:
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
 	CBool m_pauseAllWaterAnimations;
+	CBool m_pauseAllUpdateEvents;
+	CBool m_pauseAllSounds;
 	std::vector<CGUI*> m_guis;
 	CBloomProperties m_bloomProperties;
 	CDOFProperties m_dofProperties;

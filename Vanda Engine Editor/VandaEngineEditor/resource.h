@@ -741,11 +741,14 @@
 #define IDC_EDIT_FOCAL_RANGE            1085
 #define IDC_BTN_TIMER_PAUSE             1085
 #define IDC_CHECK_DYNAMIC_STATIC        1085
+#define IDC_CHECKBOX_PAUSE_SOUNDS       1085
 #define IDC_COMBO_SHADOW_RESOLUTION     1086
 #define IDC_DOF_ENABLECHECK             1086
 #define IDC_BTN_PLAY_ACTIVE             1086
 #define IDC_CHECK_DYNAMIC_GROUND        1086
 #define IDC_BTN_DEACTIVATE_PLAY         1086
+#define IDC_CHECKBOX_PAUSE_SOUNDS2      1086
+#define IDC_CHECKBOX_PAUSE_UPDATE_EVENTS 1086
 #define De                              1087
 #define IDC_EDIT_FOG_COLOR              1087
 #define IDC_COMBO_SHADOW_RESOLUTION2    1087

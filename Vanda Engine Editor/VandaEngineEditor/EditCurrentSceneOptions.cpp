@@ -38,6 +38,8 @@ void CEditCurrentSceneOptions::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_ALL_PREFAB_INSTANCE_ANIMATIONS, m_checkPauseAllAnimationsOfPrefabInstances);
 	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_PHYSICS, m_checkPausePhysics);
 	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_WATERS, m_checkPauseAnimationOfAllWaters);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_SOUNDS, m_checkPauseAllSounds);
+	DDX_Control(pDX, IDC_CHECKBOX_PAUSE_UPDATE_EVENTS, m_checkPauseAllUpdateEvents);
 }
 
 
@@ -116,6 +118,24 @@ BOOL CEditCurrentSceneOptions::OnInitDialog()
 	else
 	{
 		m_checkPauseAnimationOfAllWaters.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_multipleView->m_pauseAllUpdateEvents)
+	{
+		m_checkPauseAllUpdateEvents.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkPauseAllUpdateEvents.SetCheck(BST_UNCHECKED);
+	}
+
+	if (g_multipleView->m_pauseAllSounds)
+	{
+		m_checkPauseAllSounds.SetCheck(BST_CHECKED);
+	}
+	else
+	{
+		m_checkPauseAllSounds.SetCheck(BST_UNCHECKED);
 	}
 
 	if (g_multipleView->m_showMenuCursor)
@@ -267,6 +287,26 @@ void CEditCurrentSceneOptions::OnOK()
 		{
 			g_engineWaters[i]->SetUpdateAnimation(CTrue);
 		}
+	}
+
+	checkState = m_checkPauseAllUpdateEvents.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_pauseAllUpdateEvents = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_pauseAllUpdateEvents = CFalse;
+	}
+
+	checkState = m_checkPauseAllSounds.GetCheck();
+	if (checkState == BST_CHECKED)
+	{
+		g_multipleView->m_pauseAllSounds = CTrue;
+	}
+	else
+	{
+		g_multipleView->m_pauseAllSounds = CFalse;
 	}
 
 	checkState = m_checkShowCursor.GetCheck();

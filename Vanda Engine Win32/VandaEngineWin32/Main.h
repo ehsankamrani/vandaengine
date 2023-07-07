@@ -255,6 +255,8 @@ public:
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
 	CBool m_pauseAllWaterAnimations;
+	CBool m_pauseAllUpdateEvents;
+	CBool m_pauseAllSounds;
 	CBool m_renderVideoEnabled;
 	CBool m_tempPauseGame;
 	CBool m_tempPausePhysics;

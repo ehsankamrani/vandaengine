@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 247;
+CInt g_version = 248;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1484,7 +1484,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.4.7"));
+	SetWindowText(_T("Vanda Engine 2.4.8"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3066,7 +3066,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3127,7 +3127,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.4.7 initialized successfully" );
+		PrintInfo( "\nVersion 2.4.8 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3316,7 +3316,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3402,7 +3402,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.4.7 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.8 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3476,7 +3476,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.4.7 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.4.8 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7809,7 +7809,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.4.7 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.8 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -7876,6 +7876,8 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	g_multipleView->m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	g_multipleView->m_pausePhysics = CFalse;
 	g_multipleView->m_pauseAllWaterAnimations = CFalse;
+	g_multipleView->m_pauseAllUpdateEvents = CFalse;
+	g_multipleView->m_pauseAllSounds = CFalse;
 
 	if(!g_vandaDemo)
 		g_shadowProperties.m_enable = CTrue;
@@ -8255,7 +8257,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.7 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.8 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8264,7 +8266,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.4.7 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.4.8 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -10017,7 +10019,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.7 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.8 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10859,7 +10861,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.7 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.8 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -13567,6 +13569,12 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 			fwrite(&g_multipleView->m_pausePhysics, sizeof(CBool), 1, filePtr);
 			fwrite(&g_multipleView->m_pauseAllWaterAnimations, sizeof(CBool), 1, filePtr);
 		}
+		if (g_version >= 248)
+		{
+			fwrite(&g_multipleView->m_pauseAllUpdateEvents, sizeof(CBool), 1, filePtr);
+			fwrite(&g_multipleView->m_pauseAllSounds, sizeof(CBool), 1, filePtr);
+		}
+
 		//fwrite(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 		fwrite(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 		fwrite( &g_vandaDemo, sizeof(CBool), 1, filePtr);
@@ -14178,7 +14186,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -14641,6 +14649,8 @@ CBool CVandaEngineDlg::OnMenuClickedInsertGUI()
 		if (engine_version > g_version)
 		{
 			fclose(filePtr);
+			MessageBox("GUI file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+			ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 			PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 			ReleaseCapture();
 			return CFalse;
@@ -15076,6 +15086,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		if (engine_version > g_version)
 		{
 			fclose(filePtr);
+			MessageBox("GUI file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+			ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 			PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 			ReleaseCapture();
 			return CFalse;
@@ -15361,7 +15373,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.7 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.8 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -15625,6 +15637,8 @@ CBool CVandaEngineDlg::OnMenuClickedInsertPrefab(CPrefab* prefab, CChar* package
 		if (engine_version > g_version)
 		{
 			fclose(filePtr);
+			MessageBox("Prefab file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+			ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 			PrintInfo("\nPrefab file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 			dlgWaiting->ShowWindow(SW_HIDE);
 			CDelete(dlgWaiting);
@@ -16449,6 +16463,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		if (engine_version > g_version)
 		{
 			fclose(filePtr);
+			MessageBox("Prefab file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+			ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 			PrintInfo("\nPrefab file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 			dlgWaiting->ShowWindow(SW_HIDE);
 			CDelete(dlgWaiting);
@@ -17127,7 +17143,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.7 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.4.8 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -17286,6 +17302,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 			if (engine_version > g_version)
 			{
 				fclose(filePtr);
+				MessageBox("VIN file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+				ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 				PrintInfo("\nVIN file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 				dlgWaiting->ShowWindow(SW_HIDE);
 				CDelete(dlgWaiting);
@@ -17350,6 +17368,12 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				fread(&g_multipleView->m_pausePhysics, sizeof(CBool), 1, filePtr);
 				fread(&g_multipleView->m_pauseAllWaterAnimations, sizeof(CBool), 1, filePtr);
 			}
+			if (engine_version >= 248)
+			{
+				fread(&g_multipleView->m_pauseAllUpdateEvents, sizeof(CBool), 1, filePtr);
+				fread(&g_multipleView->m_pauseAllSounds, sizeof(CBool), 1, filePtr);
+			}
+
 			//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 			fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 			fread(&g_vandaDemo, sizeof(CBool), 1, filePtr);
@@ -17718,6 +17742,8 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					if (engine_version > g_version)
 					{
 						fclose(filePtr);
+						MessageBox("GUI file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+						ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 						PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 						dlgWaiting->ShowWindow(SW_HIDE);
 						CDelete(dlgWaiting);
@@ -19159,7 +19185,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.7 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.4.8 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -25150,10 +25176,17 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		g_multipleView->m_lockInput = CTrue;
 		g_multipleView->ResumeGame();
 
+		g_multipleView->SetUpdateScript(CFalse);
+
+		CFloat gain = g_currentVSceneProperties.m_globalSoundVolume;
+		g_currentVSceneProperties.m_globalSoundVolume = 0.0f;
+
 		g_multipleView->SetSwapBuffers(CFalse);
 		g_multipleView->RenderWindow();
 		g_multipleView->SetSwapBuffers(CTrue);
 
+		//re-enable listener gain
+		g_currentVSceneProperties.m_globalSoundVolume = gain;
 	}
 
 	g_multipleView->SetUpdateScript(CFalse);
@@ -25952,6 +25985,8 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 		g_multipleView->m_pauseAllAnimationsOfPrefabInstances = m_pauseAllAnimationsOfPrefabInstances;
 		g_multipleView->m_pausePhysics = m_pausePhysics;
 		g_multipleView->m_pauseAllWaterAnimations = m_pauseAllWaterAnimations;
+		g_multipleView->m_pauseAllSounds = m_pauseAllSounds;
+		g_multipleView->m_pauseAllUpdateEvents = m_pauseAllUpdateEvents;
 
 		//Update prefab instance animation?
 		CBool updatePrefabInstanceAnimation;
@@ -26186,8 +26221,6 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 	}
 
 	LoadObjectNames();
-
-	g_multipleView->SetUpdateScript(CTrue);
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -26781,6 +26814,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		m_pauseAllAnimationsOfPrefabInstances = g_multipleView->m_pauseAllAnimationsOfPrefabInstances;
 		m_pausePhysics = g_multipleView->m_pausePhysics;
 		m_pauseAllWaterAnimations = g_multipleView->m_pauseAllWaterAnimations;
+		m_pauseAllSounds = g_multipleView->m_pauseAllSounds;
+		m_pauseAllUpdateEvents = g_multipleView->m_pauseAllUpdateEvents;
 		//Save GUIs
 		for (CUInt i = 0; i < g_guis.size(); i++)
 		{
@@ -26964,6 +26999,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 		}
 
+		g_multipleView->m_soundSystem->SetListenerGain(0.0f);
+
 		for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
 		{
 			if (g_engine3DSounds[i]->GetPlay())
@@ -27095,13 +27132,33 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 
 	g_multipleView->SetPlayGameMode(CTrue);
 
+	//make sure to disable listener gain as well
+	CFloat gain = g_currentVSceneProperties.m_globalSoundVolume;
+	g_currentVSceneProperties.m_globalSoundVolume = 0.0f;
+
 	g_multipleView->SetSwapBuffers(CFalse);
 	g_multipleView->RenderWindow();
 	g_multipleView->SetSwapBuffers(CTrue);
 
+	//re-enable listener gain
+	g_currentVSceneProperties.m_globalSoundVolume = gain; 
+
 	g_multipleView->m_loadScene = CFalse;
 
 	g_multipleView->m_lockEscape = CFalse;
+
+	if (g_editorMode == eMODE_VSCENE)
+	{
+		if (g_multipleView->m_pauseAllSounds)
+		{
+			g_multipleView->PauseSounds();
+		}
+
+		if (g_multipleView->m_pauseAllUpdateEvents)
+		{
+			g_multipleView->PauseAllScriptUpdateEvents();
+		}
+	}
 
 	if (g_editorMode == eMODE_VSCENE)
 	{
@@ -27161,6 +27218,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		}
 
 	}
+
+	g_multipleView->SetUpdateScript(CTrue);
 
 	PrintInfo("\nPlay mode enabled");
 
@@ -29742,6 +29801,8 @@ CVoid CVandaEngineDlg::LoadObjectNames()
 			if (engine_version > g_version)
 			{
 				fclose(ObjectNamefilePtr);
+				MessageBox("ONM file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+				ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 				PrintInfo("\nONM file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 				return;
 			}

@@ -29122,13 +29122,15 @@ CMultipleWindows::CMultipleWindows()
 	m_selectedGUI = NULL;
 	m_renderVideo = CFalse;
 	m_updatePhysX = CFalse;
-	m_updateScript = CTrue;
+	m_updateScript = CFalse;
 
 	m_showMenuCursor = CFalse;
 	m_pauseMainCharacterAnimations = CFalse;
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
 	m_pauseAllWaterAnimations = CFalse;
+	m_pauseAllUpdateEvents = CFalse;
+	m_pauseAllSounds = CFalse;
 	m_fixedTiming = CFalse;
 }
 

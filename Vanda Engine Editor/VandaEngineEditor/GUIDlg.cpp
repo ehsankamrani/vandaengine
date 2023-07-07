@@ -979,6 +979,8 @@ CVoid CGUIDlg::OnBnClickedRenamePackage()
 						if (engine_version > g_version)
 						{
 							fclose(filePtr);
+							MessageBox("GUI file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+							ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 							PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 							ReleaseCapture();
 							return;
@@ -1670,6 +1672,8 @@ CVoid CGUIDlg::OnBnClickedRenameGUI()
 							if (engine_version > g_version)
 							{
 								fclose(filePtr);
+								MessageBox("GUI file has been saved with newer version of Vanda Engine. Please Update.\nPress OK button to open https://vanda3d.org and download the latest version.");
+								ShellExecute(NULL, "open", "https://vanda3d.org", NULL, NULL, SW_SHOWNORMAL);
 								PrintInfo("\nGUI file has been saved with newer version of Vanda Engine. Please Update!", COLOR_RED);
 								ReleaseCapture();
 								return;

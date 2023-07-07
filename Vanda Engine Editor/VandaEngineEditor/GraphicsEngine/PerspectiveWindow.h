@@ -432,6 +432,8 @@ public:
 	CBool m_pauseAllAnimationsOfPrefabInstances;
 	CBool m_pausePhysics;
 	CBool m_pauseAllWaterAnimations;
+	CBool m_pauseAllUpdateEvents;
+	CBool m_pauseAllSounds;
 };
 
 extern CInt g_numLights;

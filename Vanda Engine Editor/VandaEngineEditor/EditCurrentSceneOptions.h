@@ -52,6 +52,9 @@ private:
 	CButton m_checkLockCharacterController;
 	CButton m_checkPauseAllAnimationsOfPrefabInstances;
 	CButton m_checkPausePhysics;
-public:
+private:
 	CButton m_checkPauseAnimationOfAllWaters;
+	CButton m_checkPauseAllSounds;
+private:
+	CButton m_checkPauseAllUpdateEvents;
 };

@@ -18992,6 +18992,8 @@ CMain::CMain()
 	m_pauseAllAnimationsOfPrefabInstances = CFalse;
 	m_pausePhysics = CFalse;
 	m_pauseAllWaterAnimations = CFalse;
+    m_pauseAllUpdateEvents = CFalse;
+	m_pauseAllSounds = CFalse;
 	m_renderVideoEnabled = CTrue;
 	m_fixedTiming = CFalse;
 }
@@ -21872,8 +21874,17 @@ CBool CMain::Reset()
 	g_currentEngineCamera = NULL;
 	g_currentVideo = NULL;
 
+	m_showMenuCursor = CFalse;
+	m_pauseMainCharacterAnimations = CFalse;
+	m_pauseAllAnimationsOfPrefabInstances = CFalse;
+	m_pausePhysics = CFalse;
+	m_pauseAllWaterAnimations = CFalse;
+	m_pauseAllUpdateEvents = CFalse;
+	m_pauseAllSounds = CFalse;
+
 	g_maxInstancePrefabRadius = -1.0f;
 	g_clickedNew = CFalse;
+
 
 	return CTrue;
 }
@@ -22560,6 +22571,12 @@ CBool CMain::Load(CChar* pathName)
 		fread(&g_main->m_pausePhysics, sizeof(CBool), 1, filePtr);
 		fread(&g_main->m_pauseAllWaterAnimations, sizeof(CBool), 1, filePtr);
 	}
+	if (engine_version >= 248)
+	{
+		fread(&g_main->m_pauseAllUpdateEvents, sizeof(CBool), 1, filePtr);
+		fread(&g_main->m_pauseAllSounds, sizeof(CBool), 1, filePtr);
+	}
+
 	//fread(&g_characterBlendingProperties, sizeof(CCharacterBlendingProperties), 1, filePtr);
 	fread(&g_pathProperties, sizeof(CPathProperties), 1, filePtr);
 	CBool demo;
@@ -24334,6 +24351,16 @@ CBool CMain::Load(CChar* pathName)
 	{
 		if (g_engineVideos[i]->GetPlay())
 			g_engineVideos[i]->SetPlay(CTrue); //initialize video
+	}
+
+	if (m_pauseAllSounds)
+	{
+		PauseSounds();
+	}
+
+	if (m_pauseAllUpdateEvents)
+	{
+		PauseAllScriptUpdateEvents();
 	}
 
 	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
