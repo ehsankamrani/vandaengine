@@ -277,6 +277,7 @@ CVec3f CInstanceLight::GetPosition()
 
 CLight::CLight()
 {
+	m_instanceLight = NULL;
 	m_color = CColor4f( 0.5f, 0.5f, 0.5f, 1.0f ); //default color
 	m_spotCutoff = 180.0f;
 	m_spotExponent = 0.0f;

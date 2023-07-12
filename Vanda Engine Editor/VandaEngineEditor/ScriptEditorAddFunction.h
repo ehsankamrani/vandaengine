@@ -474,6 +474,22 @@ private:
 	CChar ResumeUpdateEventOfTerrain[MAX_URI_SIZE];
 	CChar ResumeUpdateEventOfAllEngineCameras[MAX_URI_SIZE];
 
+	//Pause script Update event of individual game objects
+	CChar PauseUpdateEventOfPrefabInstance[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfWater[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfLight[MAX_URI_SIZE];
+	CChar PauseUpdateEventOf3DSound[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfAmbientSound[MAX_URI_SIZE];
+	CChar PauseUpdateEventOfEngineCamera[MAX_URI_SIZE];
+
+	//Resume script Update event of individual game objects
+	CChar ResumeUpdateEventOfPrefabInstance[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfWater[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfLight[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOf3DSound[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfAmbientSound[MAX_URI_SIZE];
+	CChar ResumeUpdateEventOfEngineCamera[MAX_URI_SIZE];
+
 	CImageList m_image;
 
 public:

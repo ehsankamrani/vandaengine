@@ -464,6 +464,21 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ResumeUpdateEventOfTerrain, "ResumeUpdateEventOfTerrain()");
 	Cpy(ResumeUpdateEventOfAllEngineCameras, "ResumeUpdateEventOfAllEngineCameras([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
 
+	//Pause script Update event of individual game objects
+	Cpy(PauseUpdateEventOfPrefabInstance, "PauseUpdateEventOfPrefabInstance(string prefabInstanceName)");
+	Cpy(PauseUpdateEventOfWater, "PauseUpdateEventOfWater(string waterName)");
+	Cpy(PauseUpdateEventOfLight, "PauseUpdateEventOfLight(string lightName)");
+	Cpy(PauseUpdateEventOf3DSound, "PauseUpdateEventOf3DSound(string 3DSoundName)");
+	Cpy(PauseUpdateEventOfAmbientSound, "PauseUpdateEventOfAmbientSound(string ambientSoundName)");
+	Cpy(PauseUpdateEventOfEngineCamera, "PauseUpdateEventOfEngineCamera(string engineCameraName)");
+
+	//Resume script Update event of individual game objects
+	Cpy(ResumeUpdateEventOfPrefabInstance, "ResumeUpdateEventOfPrefabInstance(string prefabInstanceName)");
+	Cpy(ResumeUpdateEventOfWater, "ResumeUpdateEventOfWater(string waterName)");
+	Cpy(ResumeUpdateEventOfLight, "ResumeUpdateEventOfLight(string lightName)");
+	Cpy(ResumeUpdateEventOf3DSound, "ResumeUpdateEventOf3DSound(string 3DSoundName)");
+	Cpy(ResumeUpdateEventOfAmbientSound, "ResumeUpdateEventOfAmbientSound(string ambientSoundName)");
+	Cpy(ResumeUpdateEventOfEngineCamera, "ResumeUpdateEventOfEngineCamera(string engineCameraName)");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -2038,6 +2053,55 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAllEngineCameras);
 		}
+		if (Cmp(szBuffer, "PauseUpdateEventOfPrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfPrefabInstance);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfWater"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfWater);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfLight"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfLight);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOf3DSound"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOf3DSound);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfAmbientSound"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfAmbientSound);
+		}
+		else if (Cmp(szBuffer, "PauseUpdateEventOfEngineCamera"))
+		{
+			m_richFunctionName.SetWindowTextA(PauseUpdateEventOfEngineCamera);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfPrefabInstance"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfPrefabInstance);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfWater"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfWater);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfLight"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfLight);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOf3DSound"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOf3DSound);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfAmbientSound"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfAmbientSound);
+		}
+		else if (Cmp(szBuffer, "ResumeUpdateEventOfEngineCamera"))
+		{
+			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfEngineCamera);
+		}
+
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2514,6 +2578,21 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("ResumeUpdateEventOfTerrain");
 	InsertItem("ResumeUpdateEventOfAllEngineCameras");
 	
+	//Pause script Update event of individual game objects
+	InsertItem("PauseUpdateEventOfPrefabInstance");
+	InsertItem("PauseUpdateEventOfWater");
+	InsertItem("PauseUpdateEventOfLight");
+	InsertItem("PauseUpdateEventOf3DSound");
+	InsertItem("PauseUpdateEventOfAmbientSound");
+	InsertItem("PauseUpdateEventOfEngineCamera");
+
+	//Resume script Update event of individual game objects
+	InsertItem("ResumeUpdateEventOfPrefabInstance");
+	InsertItem("ResumeUpdateEventOfWater");
+	InsertItem("ResumeUpdateEventOfLight");
+	InsertItem("ResumeUpdateEventOf3DSound");
+	InsertItem("ResumeUpdateEventOfAmbientSound");
+	InsertItem("ResumeUpdateEventOfEngineCamera");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

@@ -18938,6 +18938,642 @@ CInt ResumeUpdateEventOfAllEngineCameras(lua_State* L)
 }
 
 
+//Pause script Update event of individual game objects
+CInt PauseUpdateEventOfPrefabInstance(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseUpdateEventOfPrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			g_currentInstancePrefab->SetUpdateEvent(CFalse);
+
+		}
+		else
+		{
+			//PrintInfo("\nPauseUpdateEventOfPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+
+			g_instancePrefab[i]->SetUpdateEvent(CFalse);
+		}
+	}
+
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseUpdateEventOfPrefabInstance() Error: Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfWater(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseUpdateEventOfWater()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			g_currentWater->SetUpdateEvent(CFalse);
+
+		}
+		else
+		{
+			//PrintInfo("\nPauseUpdateEventOfWater() Error: Couldn't find current water", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+
+			g_engineWaters[i]->SetUpdateEvent(CFalse);
+		}
+	}
+
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseUpdateEventOfWater() Error: Couldn't find '", luaToString, "' Water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfLight(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseUpdateEventOfLight()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->m_instanceLight->SetUpdateEvent(CFalse);
+		}
+		else
+		{
+			//PrintInfo("\nPauseUpdateEventOfLight() Error: Couldn't find current light", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+
+			g_engineLights[i]->SetUpdateEvent(CFalse);
+		}
+	}
+
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseUpdateEventOfLight() Error: Couldn't find '", luaToString, "' Light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOf3DSound(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseUpdateEventOf3DSound()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3DSound Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			g_current3DSound->SetUpdateEvent(CFalse);
+
+		}
+		else
+		{
+			//PrintInfo("\nPauseUpdateEventOf3DSound() Error: Couldn't find current 3D sound", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar threeDSoundName[MAX_NAME_SIZE];
+		Cpy(threeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(threeDSoundName);
+		if (Cmp(threeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+
+			g_engine3DSounds[i]->SetUpdateEvent(CFalse);
+		}
+	}
+
+	if (!found3DSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseUpdateEventOf3DSound() Error: Couldn't find '", luaToString, "' 3D Sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfAmbientSound(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseUpdateEventOfAmbientSound()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Ambient Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentAmbientSound)
+		{
+			g_currentAmbientSound->SetUpdateEvent(CFalse);
+
+		}
+		else
+		{
+			//PrintInfo("\nPauseUpdateEventOfAmbientSound() Error: Couldn't find current ambient sound", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+
+			g_engineAmbientSounds[i]->SetUpdateEvent(CFalse);
+		}
+	}
+
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseUpdateEventOfAmbientSound() Error: Couldn't find '", luaToString, "' Ambient Sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt PauseUpdateEventOfEngineCamera(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for PauseUpdateEventOfEngineCamera()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundEngineCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Engine Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetUpdateEvent(CFalse);
+
+		}
+		else
+		{
+			//PrintInfo("\nPauseUpdateEventOfEngineCamera() Error: Couldn't find current engine camera", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar engineCameraName[MAX_NAME_SIZE];
+		Cpy(engineCameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(engineCameraName);
+		if (Cmp(engineCameraName, luaToString))
+		{
+			foundEngineCamera = CTrue;
+
+			g_engineCameraInstances[i]->SetUpdateEvent(CFalse);
+		}
+	}
+
+	if (!foundEngineCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "PauseUpdateEventOfEngineCamera() Error: Couldn't find '", luaToString, "' Engine Camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+//Resume script Update event of individual game objects
+CInt ResumeUpdateEventOfPrefabInstance(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeUpdateEventOfPrefabInstance()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundPrefabInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentInstancePrefab)
+		{
+			g_currentInstancePrefab->SetUpdateEvent(CTrue);
+
+		}
+		else
+		{
+			//PrintInfo("\nResumeUpdateEventOfPrefabInstance() Error: Couldn't find current prefab instance", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+
+			g_instancePrefab[i]->SetUpdateEvent(CTrue);
+		}
+	}
+
+	if (!foundPrefabInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeUpdateEventOfPrefabInstance() Error: Couldn't find '", luaToString, "' Prefab Instance");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfWater(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeUpdateEventOfWater()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Water Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			g_currentWater->SetUpdateEvent(CTrue);
+
+		}
+		else
+		{
+			//PrintInfo("\nResumeUpdateEventOfWater() Error: Couldn't find current water", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+		if (Cmp(waterName, luaToString))
+		{
+			foundWater = CTrue;
+
+			g_engineWaters[i]->SetUpdateEvent(CTrue);
+		}
+	}
+
+	if (!foundWater)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeUpdateEventOfWater() Error: Couldn't find '", luaToString, "' Water");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfLight(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeUpdateEventOfLight()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundLight = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Light Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			g_currentLight->m_instanceLight->SetUpdateEvent(CTrue);
+		}
+		else
+		{
+			//PrintInfo("\nResumeUpdateEventOfLight() Error: Couldn't find current light", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+		if (Cmp(lightName, luaToString))
+		{
+			foundLight = CTrue;
+
+			g_engineLights[i]->SetUpdateEvent(CTrue);
+		}
+	}
+
+	if (!foundLight)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeUpdateEventOfLight() Error: Couldn't find '", luaToString, "' Light");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOf3DSound(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeUpdateEventOf3DSound()", COLOR_RED);
+		return 0;
+	}
+
+	CBool found3DSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //3DSound Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_current3DSound)
+		{
+			g_current3DSound->SetUpdateEvent(CTrue);
+
+		}
+		else
+		{
+			//PrintInfo("\nResumeUpdateEventOf3DSound() Error: Couldn't find current 3D sound", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engine3DSounds.size(); i++)
+	{
+		CChar threeDSoundName[MAX_NAME_SIZE];
+		Cpy(threeDSoundName, g_engine3DSounds[i]->GetName());
+		StringToUpper(threeDSoundName);
+		if (Cmp(threeDSoundName, luaToString))
+		{
+			found3DSound = CTrue;
+
+			g_engine3DSounds[i]->SetUpdateEvent(CTrue);
+		}
+	}
+
+	if (!found3DSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeUpdateEventOf3DSound() Error: Couldn't find '", luaToString, "' 3D Sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfAmbientSound(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeUpdateEventOfAmbientSound()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundAmbientSound = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Ambient Sound Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentAmbientSound)
+		{
+			g_currentAmbientSound->SetUpdateEvent(CTrue);
+
+		}
+		else
+		{
+			//PrintInfo("\nResumeUpdateEventOfAmbientSound() Error: Couldn't find current ambient sound", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineAmbientSounds.size(); i++)
+	{
+		CChar ambientSoundName[MAX_NAME_SIZE];
+		Cpy(ambientSoundName, g_engineAmbientSounds[i]->GetName());
+		StringToUpper(ambientSoundName);
+		if (Cmp(ambientSoundName, luaToString))
+		{
+			foundAmbientSound = CTrue;
+
+			g_engineAmbientSounds[i]->SetUpdateEvent(CTrue);
+		}
+	}
+
+	if (!foundAmbientSound)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeUpdateEventOfAmbientSound() Error: Couldn't find '", luaToString, "' Ambient Sound");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt ResumeUpdateEventOfEngineCamera(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for ResumeUpdateEventOfEngineCamera()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundEngineCamera = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Engine Camera Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetUpdateEvent(CTrue);
+
+		}
+		else
+		{
+			//PrintInfo("\nResumeUpdateEventOfEngineCamera() Error: Couldn't find current engine camera", COLOR_RED);
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar engineCameraName[MAX_NAME_SIZE];
+		Cpy(engineCameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(engineCameraName);
+		if (Cmp(engineCameraName, luaToString))
+		{
+			foundEngineCamera = CTrue;
+
+			g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
+		}
+	}
+
+	if (!foundEngineCamera)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "ResumeUpdateEventOfEngineCamera() Error: Couldn't find '", luaToString, "' Engine Camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
 
@@ -23509,6 +24145,7 @@ CBool CMain::Load(CChar* pathName)
 
 		instance_light->m_parent = NULL; //Not using COLLADA parent
 		instance_light->m_abstractLight = abstract_light;
+		abstract_light->m_instanceLight = instance_light;
 		abstract_light->SetName(lightName);
 		abstract_light->SetType(m_lightType);
 		switch (m_lightType)

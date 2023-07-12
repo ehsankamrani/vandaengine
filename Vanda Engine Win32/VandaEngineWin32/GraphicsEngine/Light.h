@@ -72,13 +72,12 @@ private:
 	CInt m_lightNumber;
 	CFloat m_shininess;
 	CChar m_lastName[MAX_NAME_SIZE];
-
 public:
 	CLightType GetType();
 	CVoid SetType(CLightType type);
 	CColor4f	GetColor();
 	CFloat GetShininess();
-
+	CInstanceLight* m_instanceLight;
 public:
 	CVoid Update( CInt light );
 

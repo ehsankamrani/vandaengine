@@ -80,6 +80,7 @@ public:
 	CLightType GetType();
 	CVoid SetType(CLightType type);
 	CColor4f	GetColor();
+	CInstanceLight* m_instanceLight;
 public:
 	CVoid Update( CInt light );
 

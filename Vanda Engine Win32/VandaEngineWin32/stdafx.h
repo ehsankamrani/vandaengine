@@ -511,6 +511,21 @@ CInt ResumeUpdateEventOfMainCharacter(lua_State* L);
 CInt ResumeUpdateEventOfTerrain(lua_State* L);
 CInt ResumeUpdateEventOfAllEngineCameras(lua_State* L);
 
+//Pause script Update event of individual game objects
+CInt PauseUpdateEventOfPrefabInstance(lua_State* L);
+CInt PauseUpdateEventOfWater(lua_State* L);
+CInt PauseUpdateEventOfLight(lua_State* L);
+CInt PauseUpdateEventOf3DSound(lua_State* L);
+CInt PauseUpdateEventOfAmbientSound(lua_State* L);
+CInt PauseUpdateEventOfEngineCamera(lua_State* L);
+
+//Resume script Update event of individual game objects
+CInt ResumeUpdateEventOfPrefabInstance(lua_State* L);
+CInt ResumeUpdateEventOfWater(lua_State* L);
+CInt ResumeUpdateEventOfLight(lua_State* L);
+CInt ResumeUpdateEventOf3DSound(lua_State* L);
+CInt ResumeUpdateEventOfAmbientSound(lua_State* L);
+CInt ResumeUpdateEventOfEngineCamera(lua_State* L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();

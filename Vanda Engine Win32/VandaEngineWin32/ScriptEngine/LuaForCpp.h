@@ -513,4 +513,20 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "ResumeUpdateEventOfMainCharacter", ResumeUpdateEventOfMainCharacter);
 	lua_register(L, "ResumeUpdateEventOfTerrain", ResumeUpdateEventOfTerrain);
 	lua_register(L, "ResumeUpdateEventOfAllEngineCameras", ResumeUpdateEventOfAllEngineCameras);
+
+	//Pause script Update event of individual game objects
+	lua_register(L, "PauseUpdateEventOfPrefabInstance", PauseUpdateEventOfPrefabInstance);
+	lua_register(L, "PauseUpdateEventOfWater", PauseUpdateEventOfWater);
+	lua_register(L, "PauseUpdateEventOfLight", PauseUpdateEventOfLight);
+	lua_register(L, "PauseUpdateEventOf3DSound", PauseUpdateEventOf3DSound);
+	lua_register(L, "PauseUpdateEventOfAmbientSound", PauseUpdateEventOfAmbientSound);
+	lua_register(L, "PauseUpdateEventOfEngineCamera", PauseUpdateEventOfEngineCamera);
+
+	//Resume script Update event of individual game objects
+	lua_register(L, "ResumeUpdateEventOfPrefabInstance", ResumeUpdateEventOfPrefabInstance);
+	lua_register(L, "ResumeUpdateEventOfWater", ResumeUpdateEventOfWater);
+	lua_register(L, "ResumeUpdateEventOfLight", ResumeUpdateEventOfLight);
+	lua_register(L, "ResumeUpdateEventOf3DSound", ResumeUpdateEventOf3DSound);
+	lua_register(L, "ResumeUpdateEventOfAmbientSound", ResumeUpdateEventOfAmbientSound);
+	lua_register(L, "ResumeUpdateEventOfEngineCamera", ResumeUpdateEventOfEngineCamera);
 }
