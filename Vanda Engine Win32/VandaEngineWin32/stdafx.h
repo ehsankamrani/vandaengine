@@ -527,6 +527,11 @@ CInt ResumeUpdateEventOf3DSound(lua_State* L);
 CInt ResumeUpdateEventOfAmbientSound(lua_State* L);
 CInt ResumeUpdateEventOfEngineCamera(lua_State* L);
 
+CInt SetTerrainAmbient(lua_State* L);
+CInt SetTerrainDiffuse(lua_State* L);
+CInt SetTerrainSpecular(lua_State* L);
+CInt SetTerrainShininess(lua_State* L);
+
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
 CVoid ShowLoadingScene(CChar* message = NULL);

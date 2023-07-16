@@ -761,6 +761,10 @@ private:
 	std::vector<CWater*> m_water;
 	CFloat m_globalSoundVolume;
 	CCharacterBlendingProperties m_characterBlendingProperties;
+	CFloat m_terrainAmbient[4];
+	CFloat m_terrainDiffuse[4];
+	CFloat m_terrainSpecular[4];
+	CFloat m_terrainShininess;
 public:
 	CRichEditCtrl m_rich;
 	CBool OnMenuClickedNew( CBool askQuestion );

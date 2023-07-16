@@ -19574,6 +19574,155 @@ CInt ResumeUpdateEventOfEngineCamera(lua_State* L)
 	return 0;
 }
 
+CInt SetTerrainAmbient(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetTerrainAmbient()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 1);
+	if (R < 0.0f || R > 1.0f)
+	{
+		//PrintInfo("\nFirst argument of SetTerrainAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 2);
+	if (G < 0.0f || G > 1.0f)
+	{
+		//PrintInfo("\nSecond argument of SetTerrainAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 3);
+	if (B < 0.0f || B > 1.0f)
+	{
+		//PrintInfo("\nThird argument of SetTerrainAmbient() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (g_terrain)
+		g_terrain->SetAmbientColor(Color);
+
+	return 0;
+}
+
+CInt SetTerrainDiffuse(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetTerrainDiffuse()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 1);
+	if (R < 0.0f || R > 1.0f)
+	{
+		//PrintInfo("\nFirst argument of SetTerrainDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 2);
+	if (G < 0.0f || G > 1.0f)
+	{
+		//PrintInfo("\nSecond argument of SetTerrainDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 3);
+	if (B < 0.0f || B > 1.0f)
+	{
+		//PrintInfo("\nThird argument of SetTerrainDiffuse() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (g_terrain)
+		g_terrain->SetDiffuseColor(Color);
+
+	return 0;
+}
+
+CInt SetTerrainSpecular(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		//PrintInfo("\nPlease specify 3 arguments for SetTerrainSpecular()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 1);
+	if (R < 0.0f || R > 1.0f)
+	{
+		//PrintInfo("\nFirst argument of SetTerrainSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 2);
+	if (G < 0.0f || G > 1.0f)
+	{
+		//PrintInfo("\nSecond argument of SetTerrainSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 3);
+	if (B < 0.0f || B > 1.0f)
+	{
+		//PrintInfo("\nThird argument of SetTerrainSpecular() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[4] = { R, G, B, 1.0f };
+
+	if (g_terrain)
+		g_terrain->SetSpecularColor(Color);
+
+	return 0;
+}
+
+CInt SetTerrainShininess(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for SetTerrainShininess()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat shininess = (CFloat)lua_tonumber(L, 1);
+	if (shininess < 0.0f)
+	{
+		//PrintInfo("\nSetTerrainShininess Error: shininess must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
+	if (g_terrain)
+		g_terrain->SetShininess(shininess);
+
+	return 0;
+}
+
+
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
 

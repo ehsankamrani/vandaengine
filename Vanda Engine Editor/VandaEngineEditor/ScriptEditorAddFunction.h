@@ -490,6 +490,11 @@ private:
 	CChar ResumeUpdateEventOfAmbientSound[MAX_URI_SIZE];
 	CChar ResumeUpdateEventOfEngineCamera[MAX_URI_SIZE];
 
+	CChar SetTerrainAmbient[MAX_URI_SIZE];
+	CChar SetTerrainDiffuse[MAX_URI_SIZE];
+	CChar SetTerrainSpecular[MAX_URI_SIZE];
+	CChar SetTerrainShininess[MAX_URI_SIZE];
+
 	CImageList m_image;
 
 public:

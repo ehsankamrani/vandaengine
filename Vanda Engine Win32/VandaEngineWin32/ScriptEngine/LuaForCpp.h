@@ -529,4 +529,9 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "ResumeUpdateEventOf3DSound", ResumeUpdateEventOf3DSound);
 	lua_register(L, "ResumeUpdateEventOfAmbientSound", ResumeUpdateEventOfAmbientSound);
 	lua_register(L, "ResumeUpdateEventOfEngineCamera", ResumeUpdateEventOfEngineCamera);
+
+	lua_register(L, "SetTerrainAmbient", SetTerrainAmbient);
+	lua_register(L, "SetTerrainDiffuse", SetTerrainDiffuse);
+	lua_register(L, "SetTerrainSpecular", SetTerrainSpecular);
+	lua_register(L, "SetTerrainShininess", SetTerrainShininess);
 }

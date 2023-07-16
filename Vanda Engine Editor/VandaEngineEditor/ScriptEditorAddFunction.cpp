@@ -479,6 +479,13 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ResumeUpdateEventOf3DSound, "ResumeUpdateEventOf3DSound(string 3DSoundName)");
 	Cpy(ResumeUpdateEventOfAmbientSound, "ResumeUpdateEventOfAmbientSound(string ambientSoundName)");
 	Cpy(ResumeUpdateEventOfEngineCamera, "ResumeUpdateEventOfEngineCamera(string engineCameraName)");
+
+	//Terrain
+	Cpy(SetTerrainAmbient, "SetTerrainAmbient(float red, float green, float blue)");
+	Cpy(SetTerrainDiffuse, "SetTerrainDiffuse(float red, float green, float blue)");
+	Cpy(SetTerrainSpecular, "SetTerrainSpecular(float red, float green, float blue)");
+	Cpy(SetTerrainShininess, "SetTerrainShininess(float shininess)");
+
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -2101,7 +2108,22 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(ResumeUpdateEventOfEngineCamera);
 		}
-
+		else if (Cmp(szBuffer, "SetTerrainAmbient"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTerrainAmbient);
+		}
+		else if (Cmp(szBuffer, "SetTerrainDiffuse"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTerrainDiffuse);
+		}
+		else if (Cmp(szBuffer, "SetTerrainSpecular"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTerrainSpecular);
+		}
+		else if (Cmp(szBuffer, "SetTerrainShininess"))
+		{
+			m_richFunctionName.SetWindowTextA(SetTerrainShininess);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2593,6 +2615,12 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("ResumeUpdateEventOf3DSound");
 	InsertItem("ResumeUpdateEventOfAmbientSound");
 	InsertItem("ResumeUpdateEventOfEngineCamera");
+
+	//terrain
+	InsertItem("SetTerrainAmbient");
+	InsertItem("SetTerrainDiffuse");
+	InsertItem("SetTerrainSpecular");
+	InsertItem("SetTerrainShininess");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);
