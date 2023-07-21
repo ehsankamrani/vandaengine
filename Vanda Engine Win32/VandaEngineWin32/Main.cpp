@@ -5234,6 +5234,242 @@ CInt SetLightShininess(lua_State* L)
 	return 0;
 }
 
+CInt GetLightAmbient(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetLightAmbient()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			CFloat x = g_currentLight->GetAmbient()[0];
+			CFloat y = g_currentLight->GetAmbient()[1];
+			CFloat z = g_currentLight->GetAmbient()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nGetLightAmbient Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			CFloat x = g_engineLights[i]->m_abstractLight->GetAmbient()[0];
+			CFloat y = g_engineLights[i]->m_abstractLight->GetAmbient()[1];
+			CFloat z = g_engineLights[i]->m_abstractLight->GetAmbient()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+
+	//CChar message[MAX_URI_SIZE];
+	//sprintf(message, "\nGetLightAmbient Error: Couldn't find light '%s'", lua_tostring(L, 1));
+	//PrintInfo(message, COLOR_RED);
+
+	return 0;
+}
+
+CInt GetLightDiffuse(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetLightDiffuse()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			CFloat x = g_currentLight->GetDiffuse()[0];
+			CFloat y = g_currentLight->GetDiffuse()[1];
+			CFloat z = g_currentLight->GetDiffuse()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nGetLightDiffuse Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			CFloat x = g_engineLights[i]->m_abstractLight->GetDiffuse()[0];
+			CFloat y = g_engineLights[i]->m_abstractLight->GetDiffuse()[1];
+			CFloat z = g_engineLights[i]->m_abstractLight->GetDiffuse()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+
+	//CChar message[MAX_URI_SIZE];
+	//sprintf(message, "\nGetLightDiffuse Error: Couldn't find light '%s'", lua_tostring(L, 1));
+	//PrintInfo(message, COLOR_RED);
+
+	return 0;
+}
+
+CInt GetLightSpecular(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetLightSpecular()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			CFloat x = g_currentLight->GetSpecular()[0];
+			CFloat y = g_currentLight->GetSpecular()[1];
+			CFloat z = g_currentLight->GetSpecular()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nGetLightSpecular Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			CFloat x = g_engineLights[i]->m_abstractLight->GetSpecular()[0];
+			CFloat y = g_engineLights[i]->m_abstractLight->GetSpecular()[1];
+			CFloat z = g_engineLights[i]->m_abstractLight->GetSpecular()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+
+	//CChar message[MAX_URI_SIZE];
+	//sprintf(message, "\nGetLightSpecular Error: Couldn't find light '%s'", lua_tostring(L, 1));
+	//PrintInfo(message, COLOR_RED);
+
+	return 0;
+}
+
+CInt GetLightShininess(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetLightShininess()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentLight)
+		{
+			CFloat val = g_currentLight->GetShininess();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nGetLightShininess Error: Couldn't find current light", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineLights.size(); i++)
+	{
+		CChar lightName[MAX_NAME_SIZE];
+		Cpy(lightName, g_engineLights[i]->m_abstractLight->GetName());
+		StringToUpper(lightName);
+
+		if (Cmp(luaToString, lightName))
+		{
+			CFloat val = g_engineLights[i]->m_abstractLight->GetShininess();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+	}
+
+	//CChar message[MAX_URI_SIZE];
+	//sprintf(message, "\nGetLightShininess Error: Couldn't find light '%s'", lua_tostring(L, 1));
+	//PrintInfo(message, COLOR_RED);
+
+	return 0;
+}
+
 CInt SetPrefabInstanceAmbient(lua_State* L)
 {
 	//if (g_testScript)
@@ -19574,6 +19810,7 @@ CInt ResumeUpdateEventOfEngineCamera(lua_State* L)
 	return 0;
 }
 
+//Terrain
 CInt SetTerrainAmbient(lua_State* L)
 {
 	int argc = lua_gettop(L);
@@ -19718,6 +19955,690 @@ CInt SetTerrainShininess(lua_State* L)
 
 	if (g_terrain)
 		g_terrain->SetShininess(shininess);
+
+	return 0;
+}
+
+CInt GetTerrainAmbient(lua_State* L)
+{
+	if (!g_terrain)
+	{
+		//PrintInfo("\nGetTerrainAmbient() Error: Couldn't find terrain object", COLOR_RED);
+		return 0;
+	}
+
+	CFloat x = g_terrain->GetAmbientColor()[0];
+	CFloat y = g_terrain->GetAmbientColor()[1];
+	CFloat z = g_terrain->GetAmbientColor()[2];
+
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	lua_pushnumber(L, z);
+
+	return 3;
+}
+
+CInt GetTerrainDiffuse(lua_State* L)
+{
+	if (!g_terrain)
+	{
+		//PrintInfo("\nGetTerrainDiffuse() Error: Couldn't find terrain object", COLOR_RED);
+		return 0;
+	}
+
+	CFloat x = g_terrain->GetDiffuseColor()[0];
+	CFloat y = g_terrain->GetDiffuseColor()[1];
+	CFloat z = g_terrain->GetDiffuseColor()[2];
+
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	lua_pushnumber(L, z);
+
+	return 3;
+}
+
+CInt GetTerrainSpecular(lua_State* L)
+{
+	if (!g_terrain)
+	{
+		//PrintInfo("\nGetTerrainSpecular() Error: Couldn't find terrain object", COLOR_RED);
+		return 0;
+	}
+
+	CFloat x = g_terrain->GetSpecularColor()[0];
+	CFloat y = g_terrain->GetSpecularColor()[1];
+	CFloat z = g_terrain->GetSpecularColor()[2];
+
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	lua_pushnumber(L, z);
+
+	return 3;
+}
+
+CInt GetTerrainShininess(lua_State* L)
+{
+	if (!g_terrain)
+	{
+		//PrintInfo("\nGetTerrainShininess() Error: Couldn't find terrain object", COLOR_RED);
+		return 0;
+	}
+
+	CFloat shininess = g_terrain->GetShininess();
+
+	lua_pushnumber(L, shininess);
+
+	return 1;
+}
+
+//Engine Camera
+CInt SetEngineCameraPosition(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		//PrintInfo("\nPlease specify 4 arguments for SetEngineCameraPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat x = (CFloat)lua_tonumber(L, 2);
+	CFloat y = (CFloat)lua_tonumber(L, 3);
+	CFloat z = (CFloat)lua_tonumber(L, 4);
+
+	CVec3f position;
+	position.x = x; position.y = y; position.z = z;
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetPos(position);
+			g_currentEngineCamera->MoveTransform2(position.x, position.y, position.z);
+		}
+		else
+		{
+			//PrintInfo("\nSetEngineCameraPosition Error: Couldn't find current engine camera", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+
+		if (Cmp(luaToString, cameraName))
+		{
+			g_engineCameraInstances[i]->SetPos(position);
+			g_engineCameraInstances[i]->MoveTransform2(position.x, position.y, position.z);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetEngineCameraPan(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for SetEngineCameraPan()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat pan = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetPan(pan);
+			g_currentEngineCamera->SetPanAndTilt2(pan, g_currentEngineCamera->GetTilt());
+		}
+		else
+		{
+			//PrintInfo("\nSetEngineCameraPan Error: Couldn't find current engine camera", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+
+		if (Cmp(luaToString, cameraName))
+		{
+			g_engineCameraInstances[i]->SetPan(pan);
+			g_engineCameraInstances[i]->SetPanAndTilt2(pan, g_engineCameraInstances[i]->GetTilt());
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetEngineCameraTilt(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for SetEngineCameraTilt()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat tilt = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetTilt(tilt);
+			g_currentEngineCamera->SetPanAndTilt2(g_currentEngineCamera->GetPan(), tilt);
+		}
+		else
+		{
+			//PrintInfo("\nSetEngineCameraTilt Error: Couldn't find current engine camera", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+
+		if (Cmp(luaToString, cameraName))
+		{
+			g_engineCameraInstances[i]->SetTilt(tilt);
+			g_engineCameraInstances[i]->SetPanAndTilt2(g_engineCameraInstances[i]->GetPan(), tilt);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetEngineCameraNearClipPlane(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for SetEngineCameraNearClipPlane()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat ncp = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetNCP(ncp);
+		}
+		else
+		{
+			//PrintInfo("\nSetEngineCameraNearClipPlane Error: Couldn't find current engine camera", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+
+		if (Cmp(luaToString, cameraName))
+		{
+			g_engineCameraInstances[i]->SetNCP(ncp);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetEngineCameraFarClipPlane(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for SetEngineCameraFarClipPlane()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat fcp = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->SetFCP(fcp);
+		}
+		else
+		{
+			//PrintInfo("\nSetEngineCameraFarClipPlane Error: Couldn't find current engine camera", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+
+		if (Cmp(luaToString, cameraName))
+		{
+			g_engineCameraInstances[i]->SetFCP(fcp);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt SetEngineCameraAngle(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for SetEngineCameraAngle()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CFloat angle = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentEngineCamera)
+		{
+			g_currentEngineCamera->m_abstractCamera->SetAngle(angle);
+		}
+		else
+		{
+			//PrintInfo("\nSetEngineCameraAngle Error: Couldn't find current engine camera", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+
+		if (Cmp(luaToString, cameraName))
+		{
+			g_engineCameraInstances[i]->m_abstractCamera->SetAngle(angle);
+			break;
+		}
+	}
+
+	return 0;
+}
+
+CInt GetEngineCameraPosition(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetEngineCameraPosition()", COLOR_RED);
+		return 0;
+	}
+	CBool foundCameraInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentEngineCamera)
+		{
+			CFloat x = g_currentEngineCamera->GetPos().x;
+			CFloat y = g_currentEngineCamera->GetPos().y;
+			CFloat z = g_currentEngineCamera->GetPos().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else
+		{
+			//PrintInfo("\nGetEngineCameraPosition() Error: Couldn't find current engine camera", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCameraInstance = CTrue;
+			CFloat x = g_engineCameraInstances[i]->GetPos().x;
+			CFloat y = g_engineCameraInstances[i]->GetPos().y;
+			CFloat z = g_engineCameraInstances[i]->GetPos().z;
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+	if (!foundCameraInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' engine camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetEngineCameraPan(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetEngineCameraPan()", COLOR_RED);
+		return 0;
+	}
+	CBool foundCameraInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentEngineCamera)
+		{
+			CFloat val = g_currentEngineCamera->GetPan();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nGetEngineCameraPan() Error: Couldn't find current engine camera", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCameraInstance = CTrue;
+			CFloat val = g_engineCameraInstances[i]->GetPan();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+	}
+	if (!foundCameraInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' engine camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetEngineCameraTilt(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetEngineCameraTilt()", COLOR_RED);
+		return 0;
+	}
+	CBool foundCameraInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentEngineCamera)
+		{
+			CFloat val = g_currentEngineCamera->GetTilt();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nGetEngineCameraTilt() Error: Couldn't find current engine camera", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCameraInstance = CTrue;
+			CFloat val = g_engineCameraInstances[i]->GetTilt();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+	}
+	if (!foundCameraInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' engine camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetEngineCameraNearClipPlane(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetEngineCameraNearClipPlane()", COLOR_RED);
+		return 0;
+	}
+	CBool foundCameraInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentEngineCamera)
+		{
+			CFloat val = g_currentEngineCamera->GetNCP();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nGetEngineCameraNearClipPlane() Error: Couldn't find current engine camera", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCameraInstance = CTrue;
+			CFloat val = g_engineCameraInstances[i]->GetNCP();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+	}
+	if (!foundCameraInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' engine camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetEngineCameraFarClipPlane(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetEngineCameraFarClipPlane()", COLOR_RED);
+		return 0;
+	}
+	CBool foundCameraInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentEngineCamera)
+		{
+			CFloat val = g_currentEngineCamera->GetFCP();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nGetEngineCameraFarClipPlane() Error: Couldn't find current engine camera", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCameraInstance = CTrue;
+			CFloat val = g_engineCameraInstances[i]->GetFCP();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+	}
+	if (!foundCameraInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' engine camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetEngineCameraAngle(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for GetEngineCameraAngle()", COLOR_RED);
+		return 0;
+	}
+	CBool foundCameraInstance = CFalse;
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1)); //Camera Instance Name- First Argument
+	StringToUpper(luaToString);
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_currentEngineCamera)
+		{
+			CFloat val = g_currentEngineCamera->m_abstractCamera->GetAngle();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+		else
+		{
+			//PrintInfo("\nGetEngineCameraAngle() Error: Couldn't find current engine camera", COLOR_RED);
+			return 0;
+		}
+	}
+
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CChar cameraName[MAX_NAME_SIZE];
+		Cpy(cameraName, g_engineCameraInstances[i]->m_abstractCamera->GetName());
+		StringToUpper(cameraName);
+		if (Cmp(cameraName, luaToString))
+		{
+			foundCameraInstance = CTrue;
+			CFloat val = g_engineCameraInstances[i]->m_abstractCamera->GetAngle();
+			lua_pushnumber(L, val);
+			return 1;
+		}
+	}
+	if (!foundCameraInstance)
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s%s", "Couldn't find '", luaToString, "' engine camera");
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
 
 	return 0;
 }

@@ -176,6 +176,11 @@ CInt SetLightDiffuse(lua_State* L);
 CInt SetLightSpecular(lua_State* L);
 CInt SetLightShininess(lua_State* L);
 
+CInt GetLightAmbient(lua_State* L);
+CInt GetLightDiffuse(lua_State* L);
+CInt GetLightSpecular(lua_State* L);
+CInt GetLightShininess(lua_State* L);
+
 CInt SetPrefabInstanceAmbient(lua_State* L);
 CInt SetPrefabInstanceDiffuse(lua_State* L);
 CInt SetPrefabInstanceSpecular(lua_State* L);
@@ -527,10 +532,31 @@ CInt ResumeUpdateEventOf3DSound(lua_State* L);
 CInt ResumeUpdateEventOfAmbientSound(lua_State* L);
 CInt ResumeUpdateEventOfEngineCamera(lua_State* L);
 
+//Terrain
 CInt SetTerrainAmbient(lua_State* L);
 CInt SetTerrainDiffuse(lua_State* L);
 CInt SetTerrainSpecular(lua_State* L);
 CInt SetTerrainShininess(lua_State* L);
+
+CInt GetTerrainAmbient(lua_State* L);
+CInt GetTerrainDiffuse(lua_State* L);
+CInt GetTerrainSpecular(lua_State* L);
+CInt GetTerrainShininess(lua_State* L);
+
+//Engine Camera
+CInt SetEngineCameraPosition(lua_State* L);
+CInt SetEngineCameraPan(lua_State* L);
+CInt SetEngineCameraTilt(lua_State* L);
+CInt SetEngineCameraNearClipPlane(lua_State* L);
+CInt SetEngineCameraFarClipPlane(lua_State* L);
+CInt SetEngineCameraAngle(lua_State* L);
+
+CInt GetEngineCameraPosition(lua_State* L);
+CInt GetEngineCameraPan(lua_State* L);
+CInt GetEngineCameraTilt(lua_State* L);
+CInt GetEngineCameraNearClipPlane(lua_State* L);
+CInt GetEngineCameraFarClipPlane(lua_State* L);
+CInt GetEngineCameraAngle(lua_State* L);
 
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();

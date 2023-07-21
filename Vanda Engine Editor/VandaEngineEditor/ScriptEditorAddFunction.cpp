@@ -42,7 +42,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ActivateFirstPersonCamera, "ActivateFirstPersonCamera()");
 	Cpy(ActivateImportedCamera, "ActivateImportedCamera(string importedCameraFullName, float endTime[optional])");
 	Cpy(ActivateImportedCameraOfPrefabInstance, "ActivateImportedCameraOfPrefabInstance(string prefabInstanceName, string prefabCameraName, float endTime[optional])");
-	Cpy(ActivateEngineCamera, "ActivateEngineCamera(string gameObjectCameraName, float endTime[optional])");
+	Cpy(ActivateEngineCamera, "ActivateEngineCamera(string engineCameraName, float endTime[optional])");
 	Cpy(SetPhysicsCameraAngle, "SetPhysicsCameraAngle(float angleDegree)");
 	Cpy(GetPhysicsCameraAngle, "GetPhysicsCameraAngle()");
 	Cpy(SetPhysicsCameraTilt, "SetPhysicsCameraTilt(float tiltDegree)");
@@ -126,6 +126,11 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetLightDiffuse, "SetLightDiffuse(string lightObjectName, float red, float green, float blue)");
 	Cpy(SetLightSpecular, "SetLightSpecular(string lightObjectName, float red, float green, float blue)");
 	Cpy(SetLightShininess, "SetLightShininess(string lightObjectName, float shininess)");
+
+	Cpy(GetLightAmbient, "GetLightAmbient(string lightObjectName)");
+	Cpy(GetLightDiffuse, "GetLightDiffuse(string lightObjectName)");
+	Cpy(GetLightSpecular, "GetLightSpecular(string lightObjectName)");
+	Cpy(GetLightShininess, "GetLightShininess(string lightObjectName)");
 
 	Cpy(SetPrefabInstanceAmbient, "SetPrefabInstanceAmbient(string prefabInstanceName, float red, float green, float blue)");
 	Cpy(SetPrefabInstanceDiffuse, "SetPrefabInstanceDiffuse(string prefabInstanceName, float red, float green, float blue)");
@@ -486,6 +491,25 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetTerrainSpecular, "SetTerrainSpecular(float red, float green, float blue)");
 	Cpy(SetTerrainShininess, "SetTerrainShininess(float shininess)");
 
+	Cpy(GetTerrainAmbient, "GetTerrainAmbient()");
+	Cpy(GetTerrainDiffuse, "GetTerrainDiffuse()");
+	Cpy(GetTerrainSpecular, "GetTerrainSpecular()");
+	Cpy(GetTerrainShininess, "GetTerrainShininess()");
+
+	//Engine Camera
+	Cpy(SetEngineCameraPosition, "SetEngineCameraPosition(string engineCameraName, float x, float y, float z)");
+	Cpy(SetEngineCameraPan, "SetEngineCameraPan(string engineCameraName, float pan)");
+	Cpy(SetEngineCameraTilt, "SetEngineCameraTilt(string engineCameraName, float tilt)");
+	Cpy(SetEngineCameraNearClipPlane, "SetEngineCameraNearClipPlane(string engineCameraName, float nearClipPlane)");
+	Cpy(SetEngineCameraFarClipPlane, "SetEngineCameraFarClipPlane(string engineCameraName, float farClipPlane)");
+	Cpy(SetEngineCameraAngle, "SetEngineCameraAngle(string engineCameraName, float angle)");
+
+	Cpy(GetEngineCameraPosition, "GetEngineCameraPosition(string engineCameraName)");
+	Cpy(GetEngineCameraPan, "GetEngineCameraPan(string engineCameraName)");
+	Cpy(GetEngineCameraTilt, "GetEngineCameraTilt(string engineCameraName)");
+	Cpy(GetEngineCameraNearClipPlane, "GetEngineCameraNearClipPlane(string engineCameraName)");
+	Cpy(GetEngineCameraFarClipPlane, "GetEngineCameraFarClipPlane(string engineCameraName)");
+	Cpy(GetEngineCameraAngle, "GetEngineCameraAngle(string engineCameraName)");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -906,7 +930,23 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetLightShininess);
 		}
-		else if (Cmp(szBuffer, "SetPrefabInstanceAmbient"))
+		else if (Cmp(szBuffer, "GetLightAmbient"))
+		{
+			m_richFunctionName.SetWindowTextA(GetLightAmbient);
+		}
+		else if (Cmp(szBuffer, "GetLightDiffuse"))
+		{
+			m_richFunctionName.SetWindowTextA(GetLightDiffuse);
+		}
+		else if (Cmp(szBuffer, "GetLightSpecular"))
+		{
+			m_richFunctionName.SetWindowTextA(GetLightSpecular);
+		}
+		else if (Cmp(szBuffer, "GetLightShininess"))
+		{
+			m_richFunctionName.SetWindowTextA(GetLightShininess);
+		}
+		if (Cmp(szBuffer, "SetPrefabInstanceAmbient"))
 		{
 			m_richFunctionName.SetWindowTextA(SetPrefabInstanceAmbient);
 		}
@@ -1034,7 +1074,7 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DisablePhysicsDebugMode);
 		}
-		if (Cmp(szBuffer, "SetCharacterControllerPosition"))
+		else if (Cmp(szBuffer, "SetCharacterControllerPosition"))
 		{
 			m_richFunctionName.SetWindowTextA(SetCharacterControllerPosition);
 		}
@@ -2124,6 +2164,70 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetTerrainShininess);
 		}
+		else if (Cmp(szBuffer, "GetTerrainAmbient"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTerrainAmbient);
+		}
+		else if (Cmp(szBuffer, "GetTerrainDiffuse"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTerrainDiffuse);
+		}
+		else if (Cmp(szBuffer, "GetTerrainSpecular"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTerrainSpecular);
+		}
+		else if (Cmp(szBuffer, "GetTerrainShininess"))
+		{
+			m_richFunctionName.SetWindowTextA(GetTerrainShininess);
+		}
+		else if (Cmp(szBuffer, "SetEngineCameraPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetEngineCameraPosition);
+		}
+		else if (Cmp(szBuffer, "SetEngineCameraPan"))
+		{
+			m_richFunctionName.SetWindowTextA(SetEngineCameraPan);
+		}
+		else if (Cmp(szBuffer, "SetEngineCameraTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(SetEngineCameraTilt);
+		}
+		else if (Cmp(szBuffer, "SetEngineCameraNearClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(SetEngineCameraNearClipPlane);
+		}
+		else if (Cmp(szBuffer, "SetEngineCameraFarClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(SetEngineCameraFarClipPlane);
+		}
+		else if (Cmp(szBuffer, "SetEngineCameraAngle"))
+		{
+			m_richFunctionName.SetWindowTextA(SetEngineCameraAngle);
+		}
+		else if (Cmp(szBuffer, "GetEngineCameraPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetEngineCameraPosition);
+		}
+		else if (Cmp(szBuffer, "GetEngineCameraPan"))
+		{
+			m_richFunctionName.SetWindowTextA(GetEngineCameraPan);
+		}
+		else if (Cmp(szBuffer, "GetEngineCameraTilt"))
+		{
+			m_richFunctionName.SetWindowTextA(GetEngineCameraTilt);
+		}
+		else if (Cmp(szBuffer, "GetEngineCameraNearClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(GetEngineCameraNearClipPlane);
+		}
+		else if (Cmp(szBuffer, "GetEngineCameraFarClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(GetEngineCameraFarClipPlane);
+		}
+		else if (Cmp(szBuffer, "GetEngineCameraAngle"))
+		{
+			m_richFunctionName.SetWindowTextA(GetEngineCameraAngle);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2263,6 +2367,11 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetLightDiffuse");
 	InsertItem("SetLightSpecular");
 	InsertItem("SetLightShininess");
+
+	InsertItem("GetLightAmbient");
+	InsertItem("GetLightDiffuse");
+	InsertItem("GetLightSpecular");
+	InsertItem("GetLightShininess");
 
 	InsertItem("SetPrefabInstanceAmbient");
 	InsertItem("SetPrefabInstanceDiffuse");
@@ -2621,6 +2730,24 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetTerrainDiffuse");
 	InsertItem("SetTerrainSpecular");
 	InsertItem("SetTerrainShininess");
+	InsertItem("GetTerrainAmbient");
+	InsertItem("GetTerrainDiffuse");
+	InsertItem("GetTerrainSpecular");
+	InsertItem("GetTerrainShininess");
+
+	//Engine Camera
+	InsertItem("SetEngineCameraPosition");
+	InsertItem("SetEngineCameraPan");
+	InsertItem("SetEngineCameraTilt");
+	InsertItem("SetEngineCameraNearClipPlane");
+	InsertItem("SetEngineCameraFarClipPlane");
+	InsertItem("SetEngineCameraAngle");
+	InsertItem("GetEngineCameraPosition");
+	InsertItem("GetEngineCameraPan");
+	InsertItem("GetEngineCameraTilt");
+	InsertItem("GetEngineCameraNearClipPlane");
+	InsertItem("GetEngineCameraFarClipPlane");
+	InsertItem("GetEngineCameraAngle");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 260;
+CInt g_version = 270;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1484,7 +1484,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.6.0"));
+	SetWindowText(_T("Vanda Engine 2.7.0"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3066,7 +3066,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.6.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3127,7 +3127,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.6.0 initialized successfully" );
+		PrintInfo( "\nVersion 2.7.0 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3316,7 +3316,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.6.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3402,7 +3402,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.6.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.7.0 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3476,7 +3476,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.6.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.7.0 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7809,7 +7809,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.6.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.7.0 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8257,7 +8257,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.6.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8266,7 +8266,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.6.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.7.0 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -10020,7 +10020,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.6.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10862,7 +10862,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.6.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -14187,7 +14187,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.6.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15374,7 +15374,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.6.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -17144,7 +17144,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.6.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -19187,7 +19187,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.6.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -26145,6 +26145,26 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 	m_engineLights.clear();
 	//End of loading light properties
 
+	//Load Engine Camera Properties
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		g_engineCameraInstances[i]->m_abstractCamera->SetAngle(m_engineCameraInstances[i]->m_abstractCamera->GetAngle());
+
+		CVec3f pos(m_engineCameraInstances[i]->GetPos().x, m_engineCameraInstances[i]->GetPos().y, m_engineCameraInstances[i]->GetPos().z);
+		g_engineCameraInstances[i]->SetPos(pos);
+		g_engineCameraInstances[i]->SetNCP(m_engineCameraInstances[i]->GetNCP());
+		g_engineCameraInstances[i]->SetFCP(m_engineCameraInstances[i]->GetFCP());
+		g_engineCameraInstances[i]->SetPan(m_engineCameraInstances[i]->GetPan());
+		g_engineCameraInstances[i]->SetTilt(m_engineCameraInstances[i]->GetTilt());
+	}
+	for (std::vector<CInstanceCamera*>::iterator it = m_engineCameraInstances.begin(); it != m_engineCameraInstances.end(); it++)
+	{
+		CDelete((*it)->m_abstractCamera);
+		CDelete(*it);
+	}
+	m_engineCameraInstances.clear();
+	//End of loading engine camera properties
+
 	if (g_dynamicShadowMap)
 	{
 		switch (g_shadowProperties.m_shadowResolution)
@@ -26573,6 +26593,26 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		abstract_light->SetShininess(g_engineLights[i]->m_abstractLight->GetShininess());
 
 		m_engineLights.push_back(instance_light);
+	}
+
+	//Save Engine Camera Properties
+	for (CUInt i = 0; i < g_engineCameraInstances.size(); i++)
+	{
+		CInstanceCamera* instance_camera = new CInstanceCamera();
+		CCamera* abstract_camera = new CCamera();
+
+		instance_camera->m_parent = NULL;
+		instance_camera->m_abstractCamera = abstract_camera;
+		instance_camera->m_abstractCamera->SetAngle(g_engineCameraInstances[i]->m_abstractCamera->GetAngle());
+
+		CVec3f pos(g_engineCameraInstances[i]->GetPos().x, g_engineCameraInstances[i]->GetPos().y, g_engineCameraInstances[i]->GetPos().z);
+		instance_camera->SetPos(pos);
+		instance_camera->SetNCP(g_engineCameraInstances[i]->GetNCP());
+		instance_camera->SetFCP(g_engineCameraInstances[i]->GetFCP());
+		instance_camera->SetPan(g_engineCameraInstances[i]->GetPan());
+		instance_camera->SetTilt(g_engineCameraInstances[i]->GetTilt());
+
+		m_engineCameraInstances.push_back(instance_camera);
 	}
 
 	if (g_editorMode == eMODE_VSCENE || g_editorMode == eMODE_PREFAB)

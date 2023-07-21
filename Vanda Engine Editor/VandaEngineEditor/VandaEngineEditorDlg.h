@@ -737,6 +737,7 @@ private:
 	std::vector<CVideo*>m_engineVideos;
 	std::vector<CInstancePrefab*> m_instancePrefab;
 	std::vector<CPrefab*> m_prefab;
+	std::vector<CInstanceCamera*>m_engineCameraInstances;
 	CCurrentVSceneProperties m_currentVSceneProperties;
 	CBool m_showMenuCursor;
 	CBool m_pauseMainCharacterAnimations;

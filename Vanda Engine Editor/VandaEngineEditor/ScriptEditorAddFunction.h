@@ -139,6 +139,11 @@ private:
 	CChar SetLightSpecular[MAX_URI_SIZE];
 	CChar SetLightShininess[MAX_URI_SIZE];
 
+	CChar GetLightAmbient[MAX_URI_SIZE];
+	CChar GetLightDiffuse[MAX_URI_SIZE];
+	CChar GetLightSpecular[MAX_URI_SIZE];
+	CChar GetLightShininess[MAX_URI_SIZE];
+
 	CChar SetPrefabInstanceAmbient[MAX_URI_SIZE];
 	CChar SetPrefabInstanceDiffuse[MAX_URI_SIZE];
 	CChar SetPrefabInstanceSpecular[MAX_URI_SIZE];
@@ -494,6 +499,26 @@ private:
 	CChar SetTerrainDiffuse[MAX_URI_SIZE];
 	CChar SetTerrainSpecular[MAX_URI_SIZE];
 	CChar SetTerrainShininess[MAX_URI_SIZE];
+
+	CChar GetTerrainAmbient[MAX_URI_SIZE];
+	CChar GetTerrainDiffuse[MAX_URI_SIZE];
+	CChar GetTerrainSpecular[MAX_URI_SIZE];
+	CChar GetTerrainShininess[MAX_URI_SIZE];
+
+	//Engine Camera
+	CChar SetEngineCameraPosition[MAX_URI_SIZE];
+	CChar SetEngineCameraPan[MAX_URI_SIZE];
+	CChar SetEngineCameraTilt[MAX_URI_SIZE];
+	CChar SetEngineCameraNearClipPlane[MAX_URI_SIZE];
+	CChar SetEngineCameraFarClipPlane[MAX_URI_SIZE];
+	CChar SetEngineCameraAngle[MAX_URI_SIZE];
+
+	CChar GetEngineCameraPosition[MAX_URI_SIZE];
+	CChar GetEngineCameraPan[MAX_URI_SIZE];
+	CChar GetEngineCameraTilt[MAX_URI_SIZE];
+	CChar GetEngineCameraNearClipPlane[MAX_URI_SIZE];
+	CChar GetEngineCameraFarClipPlane[MAX_URI_SIZE];
+	CChar GetEngineCameraAngle[MAX_URI_SIZE];
 
 	CImageList m_image;
 

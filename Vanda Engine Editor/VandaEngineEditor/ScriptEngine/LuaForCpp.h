@@ -189,6 +189,11 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetLightSpecular", SetLightSpecular);
 	lua_register(L, "SetLightShininess", SetLightShininess);
 
+	lua_register(L, "GetLightAmbient", GetLightAmbient);
+	lua_register(L, "GetLightDiffuse", GetLightDiffuse);
+	lua_register(L, "GetLightSpecular", GetLightSpecular);
+	lua_register(L, "GetLightShininess", GetLightShininess);
+
 	lua_register(L, "SetPrefabInstanceAmbient", SetPrefabInstanceAmbient);
 	lua_register(L, "SetPrefabInstanceDiffuse", SetPrefabInstanceDiffuse);
 	lua_register(L, "SetPrefabInstanceSpecular", SetPrefabInstanceSpecular);
@@ -541,8 +546,29 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "ResumeUpdateEventOfAmbientSound", ResumeUpdateEventOfAmbientSound);
 	lua_register(L, "ResumeUpdateEventOfEngineCamera", ResumeUpdateEventOfEngineCamera);
 
+	//Terrain
 	lua_register(L, "SetTerrainAmbient", SetTerrainAmbient);
 	lua_register(L, "SetTerrainDiffuse", SetTerrainDiffuse);
 	lua_register(L, "SetTerrainSpecular", SetTerrainSpecular);
 	lua_register(L, "SetTerrainShininess", SetTerrainShininess);
+
+	lua_register(L, "GetTerrainAmbient", GetTerrainAmbient);
+	lua_register(L, "GetTerrainDiffuse", GetTerrainDiffuse);
+	lua_register(L, "GetTerrainSpecular", GetTerrainSpecular);
+	lua_register(L, "GetTerrainShininess", GetTerrainShininess);
+
+	//Engine Camera
+	lua_register(L, "SetEngineCameraPosition", SetEngineCameraPosition);
+	lua_register(L, "SetEngineCameraPan", SetEngineCameraPan);
+	lua_register(L, "SetEngineCameraTilt", SetEngineCameraTilt);
+	lua_register(L, "SetEngineCameraNearClipPlane", SetEngineCameraNearClipPlane);
+	lua_register(L, "SetEngineCameraFarClipPlane", SetEngineCameraFarClipPlane);
+	lua_register(L, "SetEngineCameraAngle", SetEngineCameraAngle);
+
+	lua_register(L, "GetEngineCameraPosition", GetEngineCameraPosition);
+	lua_register(L, "GetEngineCameraPan", GetEngineCameraPan);
+	lua_register(L, "GetEngineCameraTilt", GetEngineCameraTilt);
+	lua_register(L, "GetEngineCameraNearClipPlane", GetEngineCameraNearClipPlane);
+	lua_register(L, "GetEngineCameraFarClipPlane", GetEngineCameraFarClipPlane);
+	lua_register(L, "GetEngineCameraAngle", GetEngineCameraAngle);
 }
