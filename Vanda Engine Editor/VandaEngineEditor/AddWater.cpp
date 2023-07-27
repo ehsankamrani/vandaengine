@@ -304,6 +304,18 @@ void CAddWater::OnOK()
 		return;
 	}
 	
+	if (m_fWaterFogDensity < 0.0f)
+	{
+		MessageBox("Fog density must be equal or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_fWaterTransparency < 0.0f || m_fWaterTransparency > 1.0f)
+	{
+		MessageBox("Transparency must be in [0.0,1.0] range", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CChar name[MAX_NAME_SIZE];
 	Cpy(name, (LPCSTR)m_strWaterName);
 	StringToUpper(name);

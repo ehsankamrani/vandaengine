@@ -184,14 +184,14 @@ private:
 	CChar SetMaxAnisotropicFiltering[MAX_URI_SIZE];
 	CChar EnableVSync[MAX_URI_SIZE];
 	CChar DisableVSync[MAX_URI_SIZE];
-	CChar EnableWaterReflection[MAX_URI_SIZE];
-	CChar DisableWaterReflection[MAX_URI_SIZE];
+	CChar EnableGeneralWaterReflection[MAX_URI_SIZE];
+	CChar DisableGeneralWaterReflection[MAX_URI_SIZE];
 	CChar SetScreenResolution[MAX_URI_SIZE];
 	CChar SaveGeneralProperties[MAX_URI_SIZE];
 	CChar GetMaxMultisampling[MAX_URI_SIZE];
 	CChar GetMaxAnisotropicFiltering[MAX_URI_SIZE];
 	CChar IsVSyncEnabled[MAX_URI_SIZE];
-	CChar IsWaterReflectionEnabled[MAX_URI_SIZE];
+	CChar IsGeneralWaterReflectionEnabled[MAX_URI_SIZE];
 	CChar GetScreenResolution[MAX_URI_SIZE];
 
 	CChar GetVSceneScriptStringVariable[MAX_URI_SIZE];
@@ -519,6 +519,44 @@ private:
 	CChar GetEngineCameraNearClipPlane[MAX_URI_SIZE];
 	CChar GetEngineCameraFarClipPlane[MAX_URI_SIZE];
 	CChar GetEngineCameraAngle[MAX_URI_SIZE];
+
+	//Water
+	CChar SetWaterPosition[MAX_URI_SIZE];
+	CChar SetWaterRotation[MAX_URI_SIZE];
+	CChar SetWaterScale[MAX_URI_SIZE];
+	CChar SetWaterLightPosition[MAX_URI_SIZE];
+	CChar SetWaterUnderwaterColor[MAX_URI_SIZE];
+	CChar SetWaterUnderwaterFogDensity[MAX_URI_SIZE];
+	CChar SetWaterTransparency[MAX_URI_SIZE];
+	CChar SetWaterFlowSpeed[MAX_URI_SIZE];
+	CChar SetWaterUV[MAX_URI_SIZE];
+	CChar SetWaterVisible[MAX_URI_SIZE];
+	CChar SetWaterInvisible[MAX_URI_SIZE];
+	CChar EnableWaterShadow[MAX_URI_SIZE];
+	CChar DisableWaterShadow[MAX_URI_SIZE];
+	CChar EnableWaterSunReflection[MAX_URI_SIZE];
+	CChar DisableWaterSunReflection[MAX_URI_SIZE];
+
+	CChar GetWaterPosition[MAX_URI_SIZE];
+	CChar GetWaterRotation[MAX_URI_SIZE];
+	CChar GetWaterScale[MAX_URI_SIZE];
+	CChar GetWaterLightPosition[MAX_URI_SIZE];
+	CChar GetWaterUnderwaterColor[MAX_URI_SIZE];
+	CChar GetWaterUnderwaterFogDensity[MAX_URI_SIZE];
+	CChar GetWaterTransparency[MAX_URI_SIZE];
+	CChar GetWaterFlowSpeed[MAX_URI_SIZE];
+	CChar GetWaterUV[MAX_URI_SIZE];
+	CChar IsWaterVisible[MAX_URI_SIZE];
+	CChar IsWaterShadowEnabled[MAX_URI_SIZE];
+	CChar IsWaterSunReflectionEnabled[MAX_URI_SIZE];
+
+	//Sky
+	CChar SetSkyPosition[MAX_URI_SIZE];
+	CChar EnableSkyFog[MAX_URI_SIZE];
+	CChar DisableSkyFog[MAX_URI_SIZE];
+
+	CChar GetSkyPosition[MAX_URI_SIZE];
+	CChar IsSkyFogEnabled[MAX_URI_SIZE];
 
 	CImageList m_image;
 

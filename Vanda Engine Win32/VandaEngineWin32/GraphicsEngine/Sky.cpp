@@ -8,6 +8,11 @@
 
 CSkyDome::CSkyDome()
 {
+	m_vertexBuffer = NULL;
+	//m_colorBuffer = NULL;
+	m_indexBuffer = NULL;
+	m_texCoordBuffer = NULL;
+
 	Cpy (m_strImage, "\n");
 	m_hasImage = CFalse;
 	m_image = CNew( CImage );

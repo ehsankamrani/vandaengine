@@ -234,14 +234,14 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetMaxAnisotropicFiltering", SetMaxAnisotropicFiltering);
 	lua_register(L, "EnableVSync", EnableVSync);
 	lua_register(L, "DisableVSync", DisableVSync);
-	lua_register(L, "EnableWaterReflection", EnableWaterReflection);
-	lua_register(L, "DisableWaterReflection", DisableWaterReflection);
+	lua_register(L, "EnableGeneralWaterReflection", EnableGeneralWaterReflection);
+	lua_register(L, "DisableGeneralWaterReflection", DisableGeneralWaterReflection);
 	lua_register(L, "SetScreenResolution", SetScreenResolution);
 	lua_register(L, "SaveGeneralProperties", SaveGeneralProperties);
 	lua_register(L, "GetMaxMultisampling", GetMaxMultisampling);
 	lua_register(L, "GetMaxAnisotropicFiltering", GetMaxAnisotropicFiltering);
 	lua_register(L, "IsVSyncEnabled", IsVSyncEnabled);
-	lua_register(L, "IsWaterReflectionEnabled", IsWaterReflectionEnabled);
+	lua_register(L, "IsGeneralWaterReflectionEnabled", IsGeneralWaterReflectionEnabled);
 	lua_register(L, "GetScreenResolution", GetScreenResolution);
 
 	lua_register(L, "GetVSceneScriptStringVariable", GetVSceneScriptStringVariable);
@@ -571,4 +571,42 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetEngineCameraNearClipPlane", GetEngineCameraNearClipPlane);
 	lua_register(L, "GetEngineCameraFarClipPlane", GetEngineCameraFarClipPlane);
 	lua_register(L, "GetEngineCameraAngle", GetEngineCameraAngle);
+
+	//Water
+	lua_register(L, "SetWaterPosition", SetWaterPosition);
+	lua_register(L, "SetWaterRotation", SetWaterRotation);
+	lua_register(L, "SetWaterScale", SetWaterScale);
+	lua_register(L, "SetWaterLightPosition", SetWaterLightPosition);
+	lua_register(L, "SetWaterUnderwaterColor", SetWaterUnderwaterColor);
+	lua_register(L, "SetWaterUnderwaterFogDensity", SetWaterUnderwaterFogDensity);
+	lua_register(L, "SetWaterTransparency", SetWaterTransparency);
+	lua_register(L, "SetWaterFlowSpeed", SetWaterFlowSpeed);
+	lua_register(L, "SetWaterUV", SetWaterUV);
+	lua_register(L, "SetWaterVisible", SetWaterVisible);
+	lua_register(L, "SetWaterInvisible", SetWaterInvisible);
+	lua_register(L, "EnableWaterShadow", EnableWaterShadow);
+	lua_register(L, "DisableWaterShadow", DisableWaterShadow);
+	lua_register(L, "EnableWaterSunReflection", EnableWaterSunReflection);
+	lua_register(L, "DisableWaterSunReflection", DisableWaterSunReflection);
+
+	lua_register(L, "GetWaterPosition", GetWaterPosition);
+	lua_register(L, "GetWaterRotation", GetWaterRotation);
+	lua_register(L, "GetWaterScale", GetWaterScale);
+	lua_register(L, "GetWaterLightPosition", GetWaterLightPosition);
+	lua_register(L, "GetWaterUnderwaterColor", GetWaterUnderwaterColor);
+	lua_register(L, "GetWaterUnderwaterFogDensity", GetWaterUnderwaterFogDensity);
+	lua_register(L, "GetWaterTransparency", GetWaterTransparency);
+	lua_register(L, "GetWaterFlowSpeed", GetWaterFlowSpeed);
+	lua_register(L, "GetWaterUV", GetWaterUV);
+	lua_register(L, "IsWaterVisible", IsWaterVisible);
+	lua_register(L, "IsWaterShadowEnabled", IsWaterShadowEnabled);
+	lua_register(L, "IsWaterSunReflectionEnabled", IsWaterSunReflectionEnabled);
+
+	//Sky
+	lua_register(L, "SetSkyPosition", SetSkyPosition);
+	lua_register(L, "EnableSkyFog", EnableSkyFog);
+	lua_register(L, "DisableSkyFog", DisableSkyFog);
+
+	lua_register(L, "GetSkyPosition", GetSkyPosition);
+	lua_register(L, "IsSkyFogEnabled", IsSkyFogEnabled);
 }

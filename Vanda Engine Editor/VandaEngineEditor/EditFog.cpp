@@ -91,11 +91,21 @@ BOOL CEditFog::OnInitDialog()
 
 void CEditFog::OnOK()
 {
-	if(	m_strFogDensity.IsEmpty() )
-			MessageBox( "Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR );
+	if (m_strFogDensity.IsEmpty())
+	{
+		MessageBox("Please Fill In All Of The Required Fields", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	else
 	{
 		GetInformation();
+
+		if (m_fogDensity < 0.0f)
+		{
+			MessageBox("Fog density must be equal or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
 		g_fogProperties.m_fogDensity = m_fogDensity;
 
 		CInt checkState = m_checkBoxEnableFog.GetCheck();
@@ -106,7 +116,9 @@ void CEditFog::OnOK()
 			g_fogProperties.m_enable = CTrue;
 		}
 		else
+		{
 			g_fogProperties.m_enable = CFalse;
+		}
 
 		for( CInt i = 0; i < 4; i++ )
 			g_fogProperties.m_fogColor[i] = m_fColor[i];
@@ -118,6 +130,7 @@ void CEditFog::OnOK()
 		CDialog::OnOK();
 	}
 
+	return;
 }
 
 void CEditFog::OnEnChangeEditFogDensity()

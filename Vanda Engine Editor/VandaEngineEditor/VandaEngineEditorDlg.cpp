@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 270;
+CInt g_version = 280;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1484,7 +1484,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.7.0"));
+	SetWindowText(_T("Vanda Engine 2.8.0"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3066,7 +3066,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3127,7 +3127,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.7.0 initialized successfully" );
+		PrintInfo( "\nVersion 2.8.0 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3316,7 +3316,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3402,7 +3402,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.7.0 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.8.0 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3476,7 +3476,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.7.0 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.8.0 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -7809,7 +7809,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.7.0 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.8.0 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8257,7 +8257,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.8.0 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8266,7 +8266,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.7.0 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.8.0 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -10020,7 +10020,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.8.0 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10862,7 +10862,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.8.0 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -14187,7 +14187,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15374,7 +15374,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.8.0 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -17144,7 +17144,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.7.0 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.8.0 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -19187,7 +19187,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.7.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.8.0 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -21184,54 +21184,54 @@ CVoid CVandaEngineDlg::ChangeWaterProperties(CWater* water)
 		OnBnClickedBtnRemoveEngineObject();
 		m_askRemoveEngineObject = CTrue;
 
-		CWater* water = new CWater;
-		water->SetName(m_dlgAddWater->GetName());
-		water->SetLastName(m_dlgAddWater->GetLastName());
-		water->SetDuDvMap( m_dlgAddWater->GetDuDvMap(), CTrue );
-		water->SetNormalMap( m_dlgAddWater->GetNormalMap(), CTrue );
-		water->SetPos( m_dlgAddWater->GetPos() );
-		water->SetLightPos( m_dlgAddWater->GetLightPos() );
-		water->SetHeight( m_dlgAddWater->GetHeight() );
-		water->SetScaleX(m_dlgAddWater->GetScaleX());
-		water->SetScaleZ(m_dlgAddWater->GetScaleZ());
-		water->SetRotateY(m_dlgAddWater->GetRotateY());
-		water->SetUpdateScript(m_dlgAddWater->GetUpdateScript());
-		water->SetHasScript(m_dlgAddWater->GetHasScript());
-		water->SetScript(m_dlgAddWater->GetScriptPath());
-		water->SetTransparency(m_dlgAddWater->GetTransparency());
-		water->SetFogDensity(m_dlgAddWater->GetFogDensity());
-		water->SetColor(m_dlgAddWater->GetColor());
-		water->SetUV( m_dlgAddWater->GetUV() );
-		water->SetSpeed( m_dlgAddWater->GetSpeed() );
-		water->SetVisible(m_dlgAddWater->GetVisible());
-		water->SetShadow(m_dlgAddWater->GetShadow());
-		water->SetSunReflection(m_dlgAddWater->GetSunReflection());
+		CWater* new_water = new CWater;
+		new_water->SetName(m_dlgAddWater->GetName());
+		new_water->SetLastName(m_dlgAddWater->GetLastName());
+		new_water->SetDuDvMap( m_dlgAddWater->GetDuDvMap(), CTrue );
+		new_water->SetNormalMap( m_dlgAddWater->GetNormalMap(), CTrue );
+		new_water->SetPos( m_dlgAddWater->GetPos() );
+		new_water->SetLightPos( m_dlgAddWater->GetLightPos() );
+		new_water->SetHeight( m_dlgAddWater->GetHeight() );
+		new_water->SetScaleX(m_dlgAddWater->GetScaleX());
+		new_water->SetScaleZ(m_dlgAddWater->GetScaleZ());
+		new_water->SetRotateY(m_dlgAddWater->GetRotateY());
+		new_water->SetUpdateScript(m_dlgAddWater->GetUpdateScript());
+		new_water->SetHasScript(m_dlgAddWater->GetHasScript());
+		new_water->SetScript(m_dlgAddWater->GetScriptPath());
+		new_water->SetTransparency(m_dlgAddWater->GetTransparency());
+		new_water->SetFogDensity(m_dlgAddWater->GetFogDensity());
+		new_water->SetColor(m_dlgAddWater->GetColor());
+		new_water->SetUV( m_dlgAddWater->GetUV() );
+		new_water->SetSpeed( m_dlgAddWater->GetSpeed() );
+		new_water->SetVisible(m_dlgAddWater->GetVisible());
+		new_water->SetShadow(m_dlgAddWater->GetShadow());
+		new_water->SetSunReflection(m_dlgAddWater->GetSunReflection());
 
-		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
-		water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
-		water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID );
-		water->SetSideVertexPositions();
+		new_water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFLECTION_ID );
+		new_water->CreateRenderTexture(g_waterTextureSize, 3, GL_RGB, WATER_REFRACTION_ID );
+		new_water->CreateRenderTexture(g_waterTextureSize, 1, GL_DEPTH_COMPONENT, WATER_DEPTH_ID );
+		new_water->SetSideVertexPositions();
 
 		for (CUInt i = 0; i < instancePrefab.size(); i++)
 		{
-			water->AddPrefabInstance(instancePrefab[i]);
+			new_water->AddPrefabInstance(instancePrefab[i]);
 		}
 
 		//save functions/////////////////////////////////
 		for( CUInt index = 0; index < g_VSceneNamesOfCurrentProject.size(); index++ )
 		{
-			water->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
+			new_water->AddVSceneToList( g_VSceneNamesOfCurrentProject[index], CTrue ); //Write to zip file and copy the textures
 		}
 		//save functions/////////////////////////////////
-		g_engineWaters.push_back( water );
-		InsertItemToEngineObjectList( water->GetName() , eENGINEOBJECTLIST_WATER);
+		g_engineWaters.push_back(new_water);
+		InsertItemToEngineObjectList(new_water->GetName() , eENGINEOBJECTLIST_WATER);
 
 		g_engineObjectNames.push_back(m_dlgAddWater->GetName());
 
 		g_transformObject = CFalse;
-		g_selectedName = g_lastEngineObjectSelectedName = water->GetIndex();
+		g_selectedName = g_lastEngineObjectSelectedName = new_water->GetIndex();
 		CChar name[MAX_NAME_SIZE];
-		Cpy(name, water->GetName());
+		Cpy(name, new_water->GetName());
 
 		for (int k = 0; k < ex_pVandaEngineDlg->m_listBoxEngineObjects.GetItemCount(); k++)
 		{
@@ -25692,6 +25692,31 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 			{
 				if (Cmp(g_engineWaters[i]->GetName(), m_water[j]->GetName()))
 				{
+					g_engineWaters[i]->SetPos(m_water[j]->GetPos());
+					g_engineWaters[i]->SetRotateY(m_water[j]->GetRotateY());
+					g_engineWaters[i]->SetScaleX(m_water[j]->GetScaleX());
+					g_engineWaters[i]->SetScaleZ(m_water[j]->GetScaleZ());
+					g_engineWaters[i]->SetLightPos(m_water[j]->GetLightPos());
+					g_engineWaters[i]->SetColor(m_water[j]->GetColor());
+					g_engineWaters[i]->SetFogDensity(m_water[j]->GetFogDensity());
+					g_engineWaters[i]->SetTransparency(m_water[j]->GetTransparency());
+					g_engineWaters[i]->SetSpeed(m_water[j]->GetSpeed());
+					g_engineWaters[i]->SetUV(m_water[j]->GetUV());
+					g_engineWaters[i]->SetVisible(m_water[j]->GetVisible());
+					g_engineWaters[i]->SetShadow(m_water[j]->GetShadow());
+					g_engineWaters[i]->SetSunReflection(m_water[j]->GetSunReflection());
+					g_engineWaters[i]->SetHeight(m_water[j]->GetHeight());
+					g_engineWaters[i]->SetSideVertexPositions();
+				}
+			}
+		}
+
+		for (CUInt i = 0; i < g_engineWaters.size(); i++)
+		{
+			for (CUInt j = 0; j < m_water.size(); j++)
+			{
+				if (Cmp(g_engineWaters[i]->GetName(), m_water[j]->GetName()))
+				{
 					for (CUInt k = 0; k < g_engineWaters[i]->GetNumPrefabInstances(); k++)
 					{
 						CBool foundPrefabInstance = CFalse;
@@ -26165,6 +26190,14 @@ void CVandaEngineDlg::OnBnClickedBtnDeactivatePlayMode()
 	m_engineCameraInstances.clear();
 	//End of loading engine camera properties
 
+	//Load sky properties
+	if (g_skyDome)
+	{
+		g_skyDome->SetPosition(m_skyDome->GetPosition());
+		g_skyDome->SetFog(m_skyDome->GetFog());
+		CDelete(m_skyDome);
+	}
+
 	if (g_dynamicShadowMap)
 	{
 		switch (g_shadowProperties.m_shadowResolution)
@@ -26615,6 +26648,15 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		m_engineCameraInstances.push_back(instance_camera);
 	}
 
+	//Save Sky Properties
+	if (g_skyDome)
+	{
+		m_skyDome = CNew(CSkyDome);
+
+		m_skyDome->SetPosition(g_skyDome->GetPosition());
+		m_skyDome->SetFog(g_skyDome->GetFog());
+	}
+
 	if (g_editorMode == eMODE_VSCENE || g_editorMode == eMODE_PREFAB)
 	{
 		//collision flags
@@ -26765,6 +26807,23 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 			{
 				new_water->AddPrefabInstanceName(g_engineWaters[i]->GetPrefabInstance(j)->GetName());
 			}
+
+			new_water->SetPos(g_engineWaters[i]->GetPos());
+			new_water->SetRotateY(g_engineWaters[i]->GetRotateY());
+			new_water->SetScaleX(g_engineWaters[i]->GetScaleX());
+			new_water->SetScaleZ(g_engineWaters[i]->GetScaleZ());
+			new_water->SetLightPos(g_engineWaters[i]->GetLightPos());
+			new_water->SetColor(g_engineWaters[i]->GetColor());
+			new_water->SetFogDensity(g_engineWaters[i]->GetFogDensity());
+			new_water->SetTransparency(g_engineWaters[i]->GetTransparency());
+			new_water->SetSpeed(g_engineWaters[i]->GetSpeed());
+			new_water->SetUV(g_engineWaters[i]->GetUV());
+			new_water->SetVisible(g_engineWaters[i]->GetVisible());
+			new_water->SetShadow(g_engineWaters[i]->GetShadow());
+			new_water->SetSunReflection(g_engineWaters[i]->GetSunReflection());
+			new_water->SetHeight(g_engineWaters[i]->GetHeight());
+			new_water->SetSideVertexPositions();
+
 			m_water.push_back(new_water);
 		}
 

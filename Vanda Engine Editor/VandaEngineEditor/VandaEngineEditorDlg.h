@@ -760,6 +760,7 @@ private:
 	COptions m_options;
 	CAddPrefabResource *m_dlgAddPrefabResource;
 	std::vector<CWater*> m_water;
+	CSkyDome* m_skyDome;
 	CFloat m_globalSoundVolume;
 	CCharacterBlendingProperties m_characterBlendingProperties;
 	CFloat m_terrainAmbient[4];

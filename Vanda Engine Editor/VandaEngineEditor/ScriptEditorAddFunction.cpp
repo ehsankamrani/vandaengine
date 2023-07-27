@@ -172,14 +172,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetMaxAnisotropicFiltering, "SetMaxAnisotropicFiltering(int max)");
 	Cpy(EnableVSync, "EnableVSync()");
 	Cpy(DisableVSync, "DisableVSync()");
-	Cpy(EnableWaterReflection, "EnableWaterReflection()");
-	Cpy(DisableWaterReflection, "DisableWaterReflection()");
+	Cpy(EnableGeneralWaterReflection, "EnableGeneralWaterReflection()");
+	Cpy(DisableGeneralWaterReflection, "DisableGeneralWaterReflection()");
 	Cpy(SetScreenResolution, "SetScreenResolution(int screenWidth)");
 	Cpy(SaveGeneralProperties, "SaveGeneralProperties()");
 	Cpy(GetMaxMultisampling, "GetMaxMultisampling()");
 	Cpy(GetMaxAnisotropicFiltering, "GetMaxAnisotropicFiltering()");
 	Cpy(IsVSyncEnabled, "IsVSyncEnabled()");
-	Cpy(IsWaterReflectionEnabled, "IsWaterReflectionEnabled()");
+	Cpy(IsGeneralWaterReflectionEnabled, "IsGeneralWaterReflectionEnabled()");
 	Cpy(GetScreenResolution, "GetScreenResolution()");
 
 	Cpy(GetVSceneScriptStringVariable, "GetVSceneScriptStringVariable(string variable)");
@@ -510,6 +510,44 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetEngineCameraNearClipPlane, "GetEngineCameraNearClipPlane(string engineCameraName)");
 	Cpy(GetEngineCameraFarClipPlane, "GetEngineCameraFarClipPlane(string engineCameraName)");
 	Cpy(GetEngineCameraAngle, "GetEngineCameraAngle(string engineCameraName)");
+
+	//Water
+	Cpy(SetWaterPosition, "SetWaterPosition(string waterName, float x, float y, float z)");
+	Cpy(SetWaterRotation, "SetWaterRotation(string waterName, float rotationY)");
+	Cpy(SetWaterScale, "SetWaterScale(string waterName, float scaleX, float scaleZ)");
+	Cpy(SetWaterLightPosition, "SetWaterLightPosition(string waterName, float lx, float ly, float lz)");
+	Cpy(SetWaterUnderwaterColor, "SetWaterUnderwaterColor(string waterName, float red, float green, float blue)");
+	Cpy(SetWaterUnderwaterFogDensity, "SetWaterUnderwaterFogDensity(string waterName, float density)");
+	Cpy(SetWaterTransparency, "SetWaterTransparency(string waterName, float transparency)");
+	Cpy(SetWaterFlowSpeed, "SetWaterFlowSpeed(string waterName, float speed)");
+	Cpy(SetWaterUV, "SetWaterUV(string waterName, float UV)");
+	Cpy(SetWaterVisible, "SetWaterVisible(string waterName)");
+	Cpy(SetWaterInvisible, "SetWaterInvisible(string waterName)");
+	Cpy(EnableWaterShadow, "EnableWaterShadow(string waterName)");
+	Cpy(DisableWaterShadow, "DisableWaterShadow(string waterName)");
+	Cpy(EnableWaterSunReflection, "EnableWaterSunReflection(string waterName)");
+	Cpy(DisableWaterSunReflection, "DisableWaterSunReflection(string waterName)");
+
+	Cpy(GetWaterPosition, "GetWaterPosition(string waterName)");
+	Cpy(GetWaterRotation, "GetWaterRotation(string waterName)");
+	Cpy(GetWaterScale, "GetWaterScale(string waterName)");
+	Cpy(GetWaterLightPosition, "GetWaterLightPosition(string waterName)");
+	Cpy(GetWaterUnderwaterColor, "GetWaterUnderwaterColor(string waterName)");
+	Cpy(GetWaterUnderwaterFogDensity, "GetWaterUnderwaterFogDensity(string waterName)");
+	Cpy(GetWaterTransparency, "GetWaterTransparency(string waterName)");
+	Cpy(GetWaterFlowSpeed, "GetWaterFlowSpeed(string waterName)");
+	Cpy(GetWaterUV, "GetWaterUV(string waterName)");
+	Cpy(IsWaterVisible, "IsWaterVisible(string waterName)");
+	Cpy(IsWaterShadowEnabled, "IsWaterShadowEnabled(string waterName)");
+	Cpy(IsWaterSunReflectionEnabled, "IsWaterSunReflectionEnabled(string waterName)");
+
+	//Sky
+	Cpy(SetSkyPosition, "SetSkyPosition(float x, float y, float z)");
+	Cpy(EnableSkyFog, "EnableSkyFog()");
+	Cpy(DisableSkyFog, "DisableSkyFog()");
+
+	Cpy(GetSkyPosition, "GetSkyPosition()");
+	Cpy(IsSkyFogEnabled, "IsSkyFogEnabled()");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -1098,13 +1136,13 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DisableVSync);
 		}
-		else if (Cmp(szBuffer, "EnableWaterReflection"))
+		else if (Cmp(szBuffer, "EnableGeneralWaterReflection"))
 		{
-			m_richFunctionName.SetWindowTextA(EnableWaterReflection);
+			m_richFunctionName.SetWindowTextA(EnableGeneralWaterReflection);
 		}
-		else if (Cmp(szBuffer, "DisableWaterReflection"))
+		else if (Cmp(szBuffer, "DisableGeneralWaterReflection"))
 		{
-			m_richFunctionName.SetWindowTextA(DisableWaterReflection);
+			m_richFunctionName.SetWindowTextA(DisableGeneralWaterReflection);
 		}
 		else if (Cmp(szBuffer, "SetScreenResolution"))
 		{
@@ -1126,9 +1164,9 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(IsVSyncEnabled);
 		}
-		else if (Cmp(szBuffer, "IsWaterReflectionEnabled"))
+		else if (Cmp(szBuffer, "IsGeneralWaterReflectionEnabled"))
 		{
-			m_richFunctionName.SetWindowTextA(IsWaterReflectionEnabled);
+			m_richFunctionName.SetWindowTextA(IsGeneralWaterReflectionEnabled);
 		}
 		else if (Cmp(szBuffer, "GetScreenResolution"))
 		{
@@ -2228,6 +2266,134 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetEngineCameraAngle);
 		}
+		else if (Cmp(szBuffer, "SetWaterPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterPosition);
+		}
+		else if (Cmp(szBuffer, "SetWaterRotation"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterRotation);
+		}
+		else if (Cmp(szBuffer, "SetWaterScale"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterScale);
+		}
+		else if (Cmp(szBuffer, "SetWaterLightPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterLightPosition);
+		}
+		else if (Cmp(szBuffer, "SetWaterUnderwaterColor"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterUnderwaterColor);
+		}
+		else if (Cmp(szBuffer, "SetWaterUnderwaterFogDensity"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterUnderwaterFogDensity);
+		}
+		else if (Cmp(szBuffer, "SetWaterTransparency"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterTransparency);
+		}
+		else if (Cmp(szBuffer, "SetWaterFlowSpeed"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterFlowSpeed);
+		}
+		else if (Cmp(szBuffer, "SetWaterUV"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterUV);
+		}
+		else if (Cmp(szBuffer, "SetWaterVisible"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterVisible);
+		}
+		else if (Cmp(szBuffer, "SetWaterInvisible"))
+		{
+			m_richFunctionName.SetWindowTextA(SetWaterInvisible);
+		}
+		else if (Cmp(szBuffer, "EnableWaterShadow"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableWaterShadow);
+		}
+		else if (Cmp(szBuffer, "DisableWaterShadow"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableWaterShadow);
+		}
+		else if (Cmp(szBuffer, "EnableWaterSunReflection"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableWaterSunReflection);
+		}
+		else if (Cmp(szBuffer, "DisableWaterSunReflection"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableWaterSunReflection);
+		}
+		else if (Cmp(szBuffer, "GetWaterPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterPosition);
+		}
+		else if (Cmp(szBuffer, "GetWaterRotation"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterRotation);
+		}
+		else if (Cmp(szBuffer, "GetWaterScale"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterScale);
+		}
+		else if (Cmp(szBuffer, "GetWaterLightPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterLightPosition);
+		}
+		else if (Cmp(szBuffer, "GetWaterUnderwaterColor"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterUnderwaterColor);
+		}
+		else if (Cmp(szBuffer, "GetWaterUnderwaterFogDensity"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterUnderwaterFogDensity);
+		}
+		else if (Cmp(szBuffer, "GetWaterTransparency"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterTransparency);
+		}
+		else if (Cmp(szBuffer, "GetWaterFlowSpeed"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterFlowSpeed);
+		}
+		else if (Cmp(szBuffer, "GetWaterUV"))
+		{
+			m_richFunctionName.SetWindowTextA(GetWaterUV);
+		}
+		else if (Cmp(szBuffer, "IsWaterVisible"))
+		{
+			m_richFunctionName.SetWindowTextA(IsWaterVisible);
+		}
+		else if (Cmp(szBuffer, "IsWaterShadowEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsWaterShadowEnabled);
+		}
+		else if (Cmp(szBuffer, "IsWaterSunReflectionEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsWaterSunReflectionEnabled);
+		}
+		else if (Cmp(szBuffer, "SetSkyPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(SetSkyPosition);
+		}
+		else if (Cmp(szBuffer, "EnableSkyFog"))
+		{
+			m_richFunctionName.SetWindowTextA(EnableSkyFog);
+		}
+		else if (Cmp(szBuffer, "DisableSkyFog"))
+		{
+			m_richFunctionName.SetWindowTextA(DisableSkyFog);
+		}
+		else if (Cmp(szBuffer, "GetSkyPosition"))
+		{
+			m_richFunctionName.SetWindowTextA(GetSkyPosition);
+		}
+		else if (Cmp(szBuffer, "IsSkyFogEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsSkyFogEnabled);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2413,14 +2579,14 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetMaxAnisotropicFiltering");
 	InsertItem("EnableVSync");
 	InsertItem("DisableVSync");
-	InsertItem("EnableWaterReflection");
-	InsertItem("DisableWaterReflection");
+	InsertItem("EnableGeneralWaterReflection");
+	InsertItem("DisableGeneralWaterReflection");
 	InsertItem("SetScreenResolution");
 	InsertItem("SaveGeneralProperties");
 	InsertItem("GetMaxMultisampling");
 	InsertItem("GetMaxAnisotropicFiltering");
 	InsertItem("IsVSyncEnabled");
-	InsertItem("IsWaterReflectionEnabled");
+	InsertItem("IsGeneralWaterReflectionEnabled");
 	InsertItem("GetScreenResolution");
 
 	InsertItem("GetVSceneScriptStringVariable");
@@ -2748,6 +2914,42 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetEngineCameraNearClipPlane");
 	InsertItem("GetEngineCameraFarClipPlane");
 	InsertItem("GetEngineCameraAngle");
+
+	//Water
+	InsertItem("SetWaterPosition");
+	InsertItem("SetWaterRotation");
+	InsertItem("SetWaterScale");
+	InsertItem("SetWaterLightPosition");
+	InsertItem("SetWaterUnderwaterColor");
+	InsertItem("SetWaterUnderwaterFogDensity");
+	InsertItem("SetWaterTransparency");
+	InsertItem("SetWaterFlowSpeed");
+	InsertItem("SetWaterUV");
+	InsertItem("SetWaterVisible");
+	InsertItem("SetWaterInvisible");
+	InsertItem("EnableWaterShadow");
+	InsertItem("DisableWaterShadow");
+	InsertItem("EnableWaterSunReflection");
+	InsertItem("DisableWaterSunReflection");
+	InsertItem("GetWaterPosition");
+	InsertItem("GetWaterRotation");
+	InsertItem("GetWaterScale");
+	InsertItem("GetWaterLightPosition");
+	InsertItem("GetWaterUnderwaterColor");
+	InsertItem("GetWaterUnderwaterFogDensity");
+	InsertItem("GetWaterTransparency");
+	InsertItem("GetWaterFlowSpeed");
+	InsertItem("GetWaterUV");
+	InsertItem("IsWaterVisible");
+	InsertItem("IsWaterShadowEnabled");
+	InsertItem("IsWaterSunReflectionEnabled");
+
+	//Sky
+	InsertItem("SetSkyPosition");
+	InsertItem("EnableSkyFog");
+	InsertItem("DisableSkyFog");
+	InsertItem("GetSkyPosition");
+	InsertItem("IsSkyFogEnabled");
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

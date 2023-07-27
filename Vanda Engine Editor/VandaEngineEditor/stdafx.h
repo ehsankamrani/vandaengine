@@ -265,14 +265,14 @@ CInt SetMaxMultisampling(lua_State* L);
 CInt SetMaxAnisotropicFiltering(lua_State* L);
 CInt EnableVSync(lua_State* L);
 CInt DisableVSync(lua_State* L);
-CInt EnableWaterReflection(lua_State* L);
-CInt DisableWaterReflection(lua_State* L);
+CInt EnableGeneralWaterReflection(lua_State* L);
+CInt DisableGeneralWaterReflection(lua_State* L);
 CInt SetScreenResolution(lua_State* L);
 CInt SaveGeneralProperties(lua_State* L);
 CInt GetMaxMultisampling(lua_State* L);
 CInt GetMaxAnisotropicFiltering(lua_State* L);
 CInt IsVSyncEnabled(lua_State* L);
-CInt IsWaterReflectionEnabled(lua_State* L);
+CInt IsGeneralWaterReflectionEnabled(lua_State* L);
 CInt GetScreenResolution(lua_State* L);
 
 CInt GetVSceneScriptStringVariable(lua_State* L);
@@ -602,3 +602,40 @@ CInt GetEngineCameraNearClipPlane(lua_State* L);
 CInt GetEngineCameraFarClipPlane(lua_State* L);
 CInt GetEngineCameraAngle(lua_State* L);
 
+//Water
+CInt SetWaterPosition(lua_State* L);
+CInt SetWaterRotation(lua_State* L);
+CInt SetWaterScale(lua_State* L);
+CInt SetWaterLightPosition(lua_State* L);
+CInt SetWaterUnderwaterColor(lua_State* L);
+CInt SetWaterUnderwaterFogDensity(lua_State* L);
+CInt SetWaterTransparency(lua_State* L);
+CInt SetWaterFlowSpeed(lua_State* L);
+CInt SetWaterUV(lua_State* L);
+CInt SetWaterVisible(lua_State* L);
+CInt SetWaterInvisible(lua_State* L);
+CInt EnableWaterShadow(lua_State* L);
+CInt DisableWaterShadow(lua_State* L);
+CInt EnableWaterSunReflection(lua_State* L);
+CInt DisableWaterSunReflection(lua_State* L);
+
+CInt GetWaterPosition(lua_State* L);
+CInt GetWaterRotation(lua_State* L);
+CInt GetWaterScale(lua_State* L);
+CInt GetWaterLightPosition(lua_State* L);
+CInt GetWaterUnderwaterColor(lua_State* L);
+CInt GetWaterUnderwaterFogDensity(lua_State* L);
+CInt GetWaterTransparency(lua_State* L);
+CInt GetWaterFlowSpeed(lua_State* L);
+CInt GetWaterUV(lua_State* L);
+CInt IsWaterVisible(lua_State* L);
+CInt IsWaterShadowEnabled(lua_State* L);
+CInt IsWaterSunReflectionEnabled(lua_State* L);
+
+//Sky
+CInt SetSkyPosition(lua_State* L);
+CInt EnableSkyFog(lua_State* L);
+CInt DisableSkyFog(lua_State* L);
+
+CInt GetSkyPosition(lua_State* L);
+CInt IsSkyFogEnabled(lua_State* L);

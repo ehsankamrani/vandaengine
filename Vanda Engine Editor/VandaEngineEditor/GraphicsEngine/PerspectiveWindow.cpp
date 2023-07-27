@@ -7490,6 +7490,8 @@ CInt SetLightAmbient(lua_State* L)
 		return 0;
 	}
 
+	CBool foundTarget = CFalse;
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -7499,8 +7501,16 @@ CInt SetLightAmbient(lua_State* L)
 		if (Cmp(luaToString, lightName))
 		{
 			g_engineLights[i]->m_abstractLight->SetAmbient(Color);
+			foundTarget = CTrue;
 			break;
 		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetLightAmbient() Error: Couldn't find light '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
 	}
 
 	return 0;
@@ -7600,6 +7610,8 @@ CInt SetLightDiffuse(lua_State* L)
 		return 0;
 	}
 
+	CBool foundTarget = CFalse;
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -7609,8 +7621,16 @@ CInt SetLightDiffuse(lua_State* L)
 		if (Cmp(luaToString, lightName))
 		{
 			g_engineLights[i]->m_abstractLight->SetDiffuse(Color);
+			foundTarget = CTrue;
 			break;
 		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetLightDiffuse() Error: Couldn't find light '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
 	}
 
 	return 0;
@@ -7710,6 +7730,8 @@ CInt SetLightSpecular(lua_State* L)
 		return 0;
 	}
 
+	CBool foundTarget = CFalse;
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -7719,8 +7741,16 @@ CInt SetLightSpecular(lua_State* L)
 		if (Cmp(luaToString, lightName))
 		{
 			g_engineLights[i]->m_abstractLight->SetSpecular(Color);
+			foundTarget = CTrue;
 			break;
 		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetLightSpecular() Error: Couldn't find light '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
 	}
 
 	return 0;
@@ -7795,6 +7825,8 @@ CInt SetLightShininess(lua_State* L)
 		return 0;
 	}
 
+	CBool foundTarget = CFalse;
+
 	for (CUInt i = 0; i < g_engineLights.size(); i++)
 	{
 		CChar lightName[MAX_NAME_SIZE];
@@ -7804,8 +7836,16 @@ CInt SetLightShininess(lua_State* L)
 		if (Cmp(luaToString, lightName))
 		{
 			g_engineLights[i]->m_abstractLight->SetShininess(shininess);
+			foundTarget = CTrue;
 			break;
 		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetLightShininess() Error: Couldn't find light '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
 	}
 
 	return 0;
@@ -10191,7 +10231,7 @@ CInt DisableVSync(lua_State* L)
 	return 0;
 }
 
-CInt EnableWaterReflection(lua_State* L)
+CInt EnableGeneralWaterReflection(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -10204,7 +10244,7 @@ CInt EnableWaterReflection(lua_State* L)
 	return 0;
 }
 
-CInt DisableWaterReflection(lua_State* L)
+CInt DisableGeneralWaterReflection(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -10344,7 +10384,7 @@ CInt IsVSyncEnabled(lua_State* L)
 	return 1;
 }
 
-CInt IsWaterReflectionEnabled(lua_State* L)
+CInt IsGeneralWaterReflectionEnabled(lua_State* L)
 {
 	if (g_testScript)
 		return 0;
@@ -31989,6 +32029,3035 @@ CInt GetEngineCameraAngle(lua_State* L)
 }
 
 
+//Water
+CInt SetWaterPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetWaterPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat x = (CFloat)lua_tonumber(L, 2);
+	CFloat y = (CFloat)lua_tonumber(L, 3);
+	CFloat z = (CFloat)lua_tonumber(L, 4);
+
+	CFloat position[3];
+	position[0] = x;
+	position[1] = y;
+	position[2] = z;
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetPos(position);
+				g_currentWater->SetSideVertexPositions();
+			}
+			else
+			{
+				PrintInfo("\nSetWaterPosition() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterPosition(%.2f, %.2f, %.2f) will execute for Project '%s', VScene '%s', Water '%s'", x, y, z, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterPosition() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetPos(position);
+			g_engineWaters[i]->SetSideVertexPositions();
+
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterPosition() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterRotation(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetWaterRotation()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat rotateY = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetRotateY(rotateY);
+				g_currentWater->SetSideVertexPositions();
+			}
+			else
+			{
+				PrintInfo("\nSetWaterRotation() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterRotation(%.2f) will execute for Project '%s', VScene '%s', Water '%s'", rotateY, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterRotation() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetRotateY(rotateY);
+			g_engineWaters[i]->SetSideVertexPositions();
+
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterRotation() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterScale(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetWaterScale()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat scaleX = (CFloat)lua_tonumber(L, 2);
+	CFloat scaleZ = (CFloat)lua_tonumber(L, 3);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetScaleX(scaleX);
+				g_currentWater->SetScaleZ(scaleZ);
+				g_currentWater->SetSideVertexPositions();
+			}
+			else
+			{
+				PrintInfo("\nSetWaterScale() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterScale(%.2f, %.2f) will execute for Project '%s', VScene '%s', Water '%s'", scaleX, scaleZ, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterScale() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetScaleX(scaleX);
+			g_engineWaters[i]->SetScaleZ(scaleZ);
+			g_engineWaters[i]->SetSideVertexPositions();
+
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterScale() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterLightPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetWaterLightPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat x = (CFloat)lua_tonumber(L, 2);
+	CFloat y = (CFloat)lua_tonumber(L, 3);
+	CFloat z = (CFloat)lua_tonumber(L, 4);
+
+	CFloat position[3];
+	position[0] = x;
+	position[1] = y;
+	position[2] = z;
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetLightPos(position);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterLightPosition() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterLightPosition(%.2f, %.2f, %.2f) will execute for Project '%s', VScene '%s', Water '%s'", x, y, z, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterLightPosition() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetLightPos(position);
+
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterLightPosition() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterUnderwaterColor(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 4)
+	{
+		PrintInfo("\nPlease specify 4 arguments for SetWaterUnderwaterColor()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundColorError = CFalse;
+	CFloat R = (CFloat)lua_tonumber(L, 2);
+	if (R < 0.0f || R > 1.0f)
+	{
+		PrintInfo("\nSecond argument of SetWaterUnderwaterColor() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat G = (CFloat)lua_tonumber(L, 3);
+	if (G < 0.0f || G > 1.0f)
+	{
+		PrintInfo("\nThird argument of SetWaterUnderwaterColor() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	CFloat B = (CFloat)lua_tonumber(L, 4);
+	if (B < 0.0f || B > 1.0f)
+	{
+		PrintInfo("\nFourth argument of SetWaterUnderwaterColor() must be between 0.0 and 1.0", COLOR_RED);
+		foundColorError = CTrue;
+	}
+
+	if (foundColorError)
+		return 0;
+
+	CFloat Color[3] = { R, G, B };
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		if (!Cmp(luaToString, "THIS"))
+		{
+			CBool foundTarget = CFalse;
+
+			for (CUInt pr = 0; pr < g_projects.size(); pr++)
+			{
+				for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+				{
+					for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+					{
+						CChar waterName[MAX_NAME_SIZE];
+						Cpy(waterName, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						StringToUpper(waterName);
+
+						if (Cmp(waterName, luaToString))
+						{
+							CChar temp[MAX_NAME_SIZE];
+							sprintf(temp, "\nProject '%s', VScene '%s' : SetWaterUnderwaterColor(%s, %.2f, %.2f, %.2f) will change underwater color", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str(), R, G, B);
+							PrintInfo(temp, COLOR_GREEN);
+							foundTarget = CTrue;
+							break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar temp[MAX_NAME_SIZE];
+				sprintf(temp, "%s%s%s", "\nSetWaterUnderwaterColor() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects.");
+				PrintInfo(temp, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
+	if (Cmp(luaToString, "THIS"))
+	{
+		if (g_currentWater)
+		{
+			g_currentWater->SetColor(Color);
+		}
+		else
+		{
+			PrintInfo("\nSetWaterUnderwaterColor Error: Couldn't find current water", COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	CBool foundTarget = CFalse;
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar waterName[MAX_NAME_SIZE];
+		Cpy(waterName, g_engineWaters[i]->GetName());
+		StringToUpper(waterName);
+
+		if (Cmp(luaToString, waterName))
+		{
+			g_engineWaters[i]->SetColor(Color);
+			foundTarget = CTrue;
+			break;
+		}
+	}
+
+	if (!foundTarget)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "%s%s%s", "\nSetWaterUnderwaterColor() Error: Couldn't find water '", lua_tostring(L, 1), "'");
+		PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt SetWaterUnderwaterFogDensity(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetWaterUnderwaterFogDensity()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat fogDensity = (CFloat)lua_tonumber(L, 2);
+
+	if (fogDensity < 0.0)
+	{
+		PrintInfo("\nSetWaterUnderwaterFogDensity Error: fog density must be equal or greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetFogDensity(fogDensity);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterUnderwaterFogDensity() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterUnderwaterFogDensity(%.2f) will execute for Project '%s', VScene '%s', Water '%s'", fogDensity, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterUnderwaterFogDensity() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetFogDensity(fogDensity);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterUnderwaterFogDensity() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterTransparency(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetWaterTransparency()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat transparency = (CFloat)lua_tonumber(L, 2);
+
+	if (transparency < 0.0f || transparency > 1.0f)
+	{
+		PrintInfo("\nSetWaterTransparency Error: transparency must be in [0.0, 1.0] range", COLOR_RED);
+		return 0;
+	}
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetTransparency(transparency);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterTransparency() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterTransparency(%.2f) will execute for Project '%s', VScene '%s', Water '%s'", transparency, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterTransparency() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetTransparency(transparency);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterTransparency() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterFlowSpeed(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetWaterFlowSpeed()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat flowSpeed = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetSpeed(flowSpeed);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterFlowSpeed() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterFlowSpeed(%.2f) will execute for Project '%s', VScene '%s', Water '%s'", flowSpeed, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterFlowSpeed() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetSpeed(flowSpeed);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterFlowSpeed() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterUV(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		PrintInfo("\nPlease specify 2 arguments for SetWaterUV()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	CFloat UV = (CFloat)lua_tonumber(L, 2);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetUV(UV);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterUV() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterUV(%.2f) will execute for Project '%s', VScene '%s', Water '%s'", UV, g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterUV() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetUV(UV);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterUV() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterVisible(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetWaterVisible()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetVisible(CTrue);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterVisible() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterVisible() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterVisible() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetVisible(CTrue);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterVisible() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt SetWaterInvisible(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetWaterInvisible()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetVisible(CFalse);
+			}
+			else
+			{
+				PrintInfo("\nSetWaterInvisible() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nSetWaterInvisible() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nSetWaterInvisible() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetVisible(CFalse);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "SetWaterInvisible() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt EnableWaterShadow(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for EnableWaterShadow()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetShadow(CTrue);
+			}
+			else
+			{
+				PrintInfo("\nEnableWaterShadow() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nEnableWaterShadow() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nEnableWaterShadow() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetShadow(CTrue);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "EnableWaterShadow() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt DisableWaterShadow(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for DisableWaterShadow()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetShadow(CFalse);
+			}
+			else
+			{
+				PrintInfo("\nDisableWaterShadow() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nDisableWaterShadow() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nDisableWaterShadow() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetShadow(CFalse);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "DisableWaterShadow() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt EnableWaterSunReflection(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for EnableWaterSunReflection()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetSunReflection(CTrue);
+			}
+			else
+			{
+				PrintInfo("\nEnableWaterSunReflection() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nEnableWaterSunReflection() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nEnableWaterSunReflection() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetSunReflection(CTrue);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "EnableWaterSunReflection() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt DisableWaterSunReflection(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for DisableWaterSunReflection()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+				g_currentWater->SetSunReflection(CFalse);
+			}
+			else
+			{
+				PrintInfo("\nDisableWaterSunReflection() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nDisableWaterSunReflection() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nDisableWaterSunReflection() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			g_engineWaters[i]->SetSunReflection(CFalse);
+			break;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "DisableWaterSunReflection() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat x = g_currentWater->GetPos()[0];
+				CFloat y = g_currentWater->GetPos()[1];
+				CFloat z = g_currentWater->GetPos()[2];
+
+				lua_pushnumber(L, x);
+				lua_pushnumber(L, y);
+				lua_pushnumber(L, z);
+
+				return 3;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterPosition() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterPosition() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterPosition() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat x = g_engineWaters[i]->GetPos()[0];
+			CFloat y = g_engineWaters[i]->GetPos()[1];
+			CFloat z = g_engineWaters[i]->GetPos()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterPosition() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterRotation(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterRotation()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat rotationY = g_currentWater->GetRotateY();
+
+				lua_pushnumber(L, rotationY);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterRotation() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterRotation() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterRotation() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat rotationY = g_engineWaters[i]->GetRotateY();
+
+			lua_pushnumber(L, rotationY);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterRotation() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterScale(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterScale()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat scaleX = g_currentWater->GetScaleX();
+				CFloat scaleZ = g_currentWater->GetScaleZ();
+
+				lua_pushnumber(L, scaleX);
+				lua_pushnumber(L, scaleZ);
+
+				return 2;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterScale() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterScale() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterScale() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+
+			CFloat scaleX = g_engineWaters[i]->GetScaleX();
+			CFloat scaleZ = g_engineWaters[i]->GetScaleZ();
+
+			lua_pushnumber(L, scaleX);
+			lua_pushnumber(L, scaleZ);
+
+			return 2;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterScale() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterLightPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterLightPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat x = g_currentWater->GetLightPos()[0];
+				CFloat y = g_currentWater->GetLightPos()[1];
+				CFloat z = g_currentWater->GetLightPos()[2];
+
+				lua_pushnumber(L, x);
+				lua_pushnumber(L, y);
+				lua_pushnumber(L, z);
+
+				return 3;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterLightPosition() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterLightPosition() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterLightPosition() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat x = g_engineWaters[i]->GetLightPos()[0];
+			CFloat y = g_engineWaters[i]->GetLightPos()[1];
+			CFloat z = g_engineWaters[i]->GetLightPos()[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterLightPosition() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterUnderwaterColor(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterUnderwaterColor()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat r = g_currentWater->GetColor()[0];
+				CFloat g = g_currentWater->GetColor()[1];
+				CFloat b = g_currentWater->GetColor()[2];
+
+				lua_pushnumber(L, r);
+				lua_pushnumber(L, g);
+				lua_pushnumber(L, b);
+
+				return 3;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterUnderwaterColor() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterUnderwaterColor() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterUnderwaterColor() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat r = g_engineWaters[i]->GetColor()[0];
+			CFloat g = g_engineWaters[i]->GetColor()[1];
+			CFloat b = g_engineWaters[i]->GetColor()[2];
+
+			lua_pushnumber(L, r);
+			lua_pushnumber(L, g);
+			lua_pushnumber(L, b);
+
+			return 3;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterUnderwaterColor() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterUnderwaterFogDensity(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterUnderwaterFogDensity()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat fogDensity = g_currentWater->GetFogDensity();
+
+				lua_pushnumber(L, fogDensity);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterUnderwaterFogDensity() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterUnderwaterFogDensity() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterUnderwaterFogDensity() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat fogDensity = g_engineWaters[i]->GetFogDensity();
+
+			lua_pushnumber(L, fogDensity);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterUnderwaterFogDensity() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterTransparency(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterTransparency()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat transparency = g_currentWater->GetTransparency();
+
+				lua_pushnumber(L, transparency);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterTransparency() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterTransparency() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterTransparency() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat transparency = g_engineWaters[i]->GetTransparency();
+
+			lua_pushnumber(L, transparency);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterTransparency() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterFlowSpeed(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterFlowSpeed()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat flowSpeed = g_currentWater->GetSpeed();
+
+				lua_pushnumber(L, flowSpeed);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterFlowSpeed() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterFlowSpeed() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterFlowSpeed() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat flowSpeed = g_engineWaters[i]->GetSpeed();
+
+			lua_pushnumber(L, flowSpeed);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterFlowSpeed() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetWaterUV(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for GetWaterUV()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				CFloat UV = g_currentWater->GetUV();
+
+				lua_pushnumber(L, UV);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nGetWaterUV() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nGetWaterUV() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nGetWaterUV() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			foundWater = CTrue;
+			CFloat UV = g_engineWaters[i]->GetUV();
+
+			lua_pushnumber(L, UV);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "GetWaterUV() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt IsWaterVisible(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for IsWaterVisible()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				if (g_currentWater->GetVisible())
+					lua_pushboolean(L, 1);
+				else
+					lua_pushboolean(L, 0);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nIsWaterVisible() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nIsWaterVisible() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nIsWaterVisible() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			if (g_engineWaters[i]->GetVisible())
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "IsWaterVisible() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt IsWaterShadowEnabled(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for IsWaterShadowEnabled()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				if (g_currentWater->GetShadow())
+					lua_pushboolean(L, 1);
+				else
+					lua_pushboolean(L, 0);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nIsWaterShadowEnabled() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nIsWaterShadowEnabled() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nIsWaterShadowEnabled() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			if (g_engineWaters[i]->GetShadow())
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "IsWaterShadowEnabled() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt IsWaterSunReflectionEnabled(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for IsWaterSunReflectionEnabled()", COLOR_RED);
+		return 0;
+	}
+
+	CBool foundWater = CFalse;
+
+	CChar waterName[MAX_NAME_SIZE];
+	Cpy(waterName, lua_tostring(L, 1)); //Water name- First Argument
+	StringToUpper(waterName);
+
+	if (Cmp(waterName, "THIS"))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentWater)
+			{
+				foundWater = CTrue;
+
+				if (g_currentWater->GetSunReflection())
+					lua_pushboolean(L, 1);
+				else
+					lua_pushboolean(L, 0);
+
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nIsWaterSunReflectionEnabled() Error: Couldn't find current water object", COLOR_RED);
+			}
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			//
+		}
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames.size(); j++)
+				{
+					CChar water[MAX_NAME_SIZE];
+					Cpy(water, g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+					StringToUpper(water);
+
+					if (Cmp(waterName, water))
+					{
+						foundWater = CTrue;
+
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nIsWaterSunReflectionEnabled() will execute for Project '%s', VScene '%s', Water '%s'", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_engineWaterNames[j].c_str());
+						PrintInfo(message, COLOR_GREEN);
+
+						break;
+					}
+				}
+			}
+		}
+		if (!foundWater)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nIsWaterSunReflectionEnabled() Error: Couldn't find water '", lua_tostring(L, 1), "' in all projects");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_engineWaters.size(); i++)
+	{
+		CChar currentWaterName[MAX_NAME_SIZE];
+		Cpy(currentWaterName, g_engineWaters[i]->GetName());
+		StringToUpper(currentWaterName);
+
+		if (Cmp(waterName, currentWaterName))
+		{
+			if (g_engineWaters[i]->GetSunReflection())
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+
+			return 1;
+		}
+	}
+
+	if (!foundWater)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\n%s%s%s", "IsWaterSunReflectionEnabled() Error: Couldn't find '", lua_tostring(L, 1), "' water object");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+//Sky
+CInt SetSkyPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 3)
+	{
+		PrintInfo("\nPlease specify 3 arguments for SetSkyPosition()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat x = (CFloat)lua_tonumber(L, 1);
+	CFloat y = (CFloat)lua_tonumber(L, 2);
+	CFloat z = (CFloat)lua_tonumber(L, 3);
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		CChar message[MAX_URI_SIZE];
+		sprintf(message, "\nSetSkyPosition(%.2f, %.2f, %.2f) will be executed", x, y, z);
+		PrintInfo(message, COLOR_GREEN);
+		return 0;
+	}
+
+	if (g_skyDome)
+	{
+		CFloat position[3];
+		position[0] = x; position[1] = y; position[2] = z;
+
+		g_skyDome->SetPosition(position);
+	}
+	else
+	{
+		PrintInfo("\nSetSkyPosition Error: Couldn't find sky object", COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt EnableSkyFog(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nEnableSkyFog will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	if (g_skyDome)
+	{
+		g_skyDome->SetFog(CTrue);
+	}
+	else
+	{
+		PrintInfo("\nEnableSkyFog Error: Couldn't find sky object", COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt DisableSkyFog(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nDisableSkyFog will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	if (g_skyDome)
+	{
+		g_skyDome->SetFog(CFalse);
+	}
+	else
+	{
+		PrintInfo("\nDisableSkyFog Error: Couldn't find sky object", COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt GetSkyPosition(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetSkyPosition will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	if (g_skyDome)
+	{
+		CFloat x = g_skyDome->GetPosition()[0];
+		CFloat y = g_skyDome->GetPosition()[1];
+		CFloat z = g_skyDome->GetPosition()[2];
+
+		lua_pushnumber(L, x);
+		lua_pushnumber(L, y);
+		lua_pushnumber(L, z);
+
+		return 3;
+	}
+	else
+	{
+		PrintInfo("\nGetSkyPosition Error: Couldn't find sky object", COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt IsSkyFogEnabled(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nIsSkyFogEnabled will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	if (g_skyDome)
+	{
+		if(g_skyDome->GetFog())
+			lua_pushboolean(L, 1); //true
+		else
+			lua_pushboolean(L, 0); //false
+
+		return 1;
+	}
+	else
+	{
+		PrintInfo("\nIsSkyFogEnabled Error: Couldn't find sky object", COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+
 CBool CMultipleWindows::firstIdle = CTrue;
 CChar CMultipleWindows::currentIdleName[MAX_NAME_SIZE];
 
@@ -39492,17 +42561,22 @@ CVoid CMultipleWindows::DrawGUI()
 			else
 				y_offset += 28.0f;
 		}
-		for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+
+		if (g_currentCameraType == eCAMERA_ENGINE)
 		{
-			if (g_engineCameraInstances[c]->IsActive())
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
 			{
-				if (y_offset <= 0.0f)
-					y_offset += 40.0f;
-				else
-					y_offset += 28.0f;
-				break;
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					if (y_offset <= 0.0f)
+						y_offset += 40.0f;
+					else
+						y_offset += 28.0f;
+					break;
+				}
 			}
 		}
+
 		if (!g_menu.m_geometryBasedSelection && g_editorMode == eMODE_PREFAB)
 		{
 			if (y_offset <= 0.0f)
@@ -39579,15 +42653,18 @@ CVoid CMultipleWindows::DrawGUI()
 			m_simpleFont.Print("PhysX Debug Mode: ON", 660.0f, y, 0.0f, 0.75f, 0.75f, 0.3f);
 			y += 35.0f;
 		}
-		for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+		if (g_currentCameraType == eCAMERA_ENGINE)
 		{
-			if (g_engineCameraInstances[c]->IsActive())
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
 			{
-				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "\nCamera ' %s ' : ON", g_engineCameraInstances[c]->m_abstractCamera->GetName());
-				m_simpleFont.Print(temp, 660.0f, y, 0.0f, 0.75f, 0.75f, 0.3f);
-				y += 35.0f;
-				break;
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "Camera ' %s ' : ON", g_engineCameraInstances[c]->m_abstractCamera->GetName());
+					m_simpleFont.Print(temp, 660.0f, y, 0.0f, 0.75f, 0.75f, 0.3f);
+					y += 35.0f;
+					break;
+				}
 			}
 		}
 		if (!g_menu.m_geometryBasedSelection && g_editorMode == eMODE_PREFAB)
@@ -39754,15 +42831,18 @@ CVoid CMultipleWindows::DrawGUI()
 			m_simpleFont2.Print("PhysX Debug Mode: ON", 575.0f, y, 0.0f, 0.75f, 0.75f, 0.3f);
 			y += 50.0f;
 		}
-		for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
+		if (g_currentCameraType == eCAMERA_ENGINE)
 		{
-			if (g_engineCameraInstances[c]->IsActive())
+			for (CUInt c = 0; c < g_engineCameraInstances.size(); c++)
 			{
-				CChar temp[MAX_NAME_SIZE];
-				sprintf(temp, "\nCamera ' %s ' : ON", g_engineCameraInstances[c]->m_abstractCamera->GetName());
-				m_simpleFont2.Print(temp, 575.0f, y, 0.0f, 0.75f, 0.75f, 0.3f);
-				y += 50.0f;
-				break;
+				if (g_engineCameraInstances[c]->IsActive())
+				{
+					CChar temp[MAX_NAME_SIZE];
+					sprintf(temp, "Camera ' %s ' : ON", g_engineCameraInstances[c]->m_abstractCamera->GetName());
+					m_simpleFont2.Print(temp, 575.0f, y, 0.0f, 0.75f, 0.75f, 0.3f);
+					y += 50.0f;
+					break;
+				}
 			}
 		}
 		if (!g_menu.m_geometryBasedSelection && g_editorMode == eMODE_PREFAB)
