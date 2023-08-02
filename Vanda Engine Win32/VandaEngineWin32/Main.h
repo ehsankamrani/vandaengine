@@ -260,4 +260,6 @@ public:
 	CBool m_renderVideoEnabled;
 	CBool m_tempPauseGame;
 	CBool m_tempPausePhysics;
+
+	FILE* m_luaFile;
 };

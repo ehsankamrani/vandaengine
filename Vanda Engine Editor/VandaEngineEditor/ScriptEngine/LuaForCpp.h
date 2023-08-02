@@ -609,4 +609,20 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "GetSkyPosition", GetSkyPosition);
 	lua_register(L, "IsSkyFogEnabled", IsSkyFogEnabled);
+
+	//Save/Load
+	lua_register(L, "CreateFolder", CreateFolder);
+	lua_register(L, "RemoveFolder", RemoveFolder);
+	lua_register(L, "RemoveFile", RemoveFile);
+	lua_register(L, "OpenFileForReading", OpenFileForReading);
+	lua_register(L, "OpenFileForWriting", OpenFileForWriting);
+	lua_register(L, "CloseFile", CloseFile);
+	lua_register(L, "ReadBoolVariableFromFile", ReadBoolVariableFromFile);
+	lua_register(L, "WriteBoolVariableToFile", WriteBoolVariableToFile);
+	lua_register(L, "ReadFloatVariableFromFile", ReadFloatVariableFromFile);
+	lua_register(L, "WriteFloatVariableToFile", WriteFloatVariableToFile);
+	lua_register(L, "ReadIntVariableFromFile", ReadIntVariableFromFile);
+	lua_register(L, "WriteIntVariableToFile", WriteIntVariableToFile);
+	lua_register(L, "ReadStringVariableFromFile", ReadStringVariableFromFile);
+	lua_register(L, "WriteStringVariableToFile", WriteStringVariableToFile);
 }

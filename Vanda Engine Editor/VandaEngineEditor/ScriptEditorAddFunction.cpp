@@ -548,6 +548,22 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(GetSkyPosition, "GetSkyPosition()");
 	Cpy(IsSkyFogEnabled, "IsSkyFogEnabled()");
+
+	//Save/Load
+	Cpy(CreateFolder, "CreateFolder(string folderPath)");
+	Cpy(RemoveFolder, "RemoveFolder(string folderPath)");
+	Cpy(RemoveFile, "RemoveFile(string filePath)");
+	Cpy(OpenFileForReading, "OpenFileForReading(string filePath)");
+	Cpy(OpenFileForWriting, "OpenFileForWriting(string filePath)");
+	Cpy(CloseFile, "CloseFile(string filePath)");
+	Cpy(ReadBoolVariableFromFile, "ReadBoolVariableFromFile()");
+	Cpy(WriteBoolVariableToFile, "WriteBoolVariableToFile(bool value)");
+	Cpy(ReadFloatVariableFromFile, "ReadFloatVariableFromFile()");
+	Cpy(WriteFloatVariableToFile, "WriteFloatVariableToFile(float value)");
+	Cpy(ReadIntVariableFromFile, "ReadIntVariableFromFile()");
+	Cpy(WriteIntVariableToFile, "WriteIntVariableToFile(int value)");
+	Cpy(ReadStringVariableFromFile, "ReadStringVariableFromFile()");
+	Cpy(WriteStringVariableToFile, "WriteStringVariableToFile(string value)");
 }
 
 CScriptEditorAddFunction::~CScriptEditorAddFunction()
@@ -2394,6 +2410,63 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(IsSkyFogEnabled);
 		}
+		else if (Cmp(szBuffer, "CreateFolder"))
+		{
+			m_richFunctionName.SetWindowTextA(CreateFolder);
+		}
+		else if (Cmp(szBuffer, "RemoveFolder"))
+		{
+			m_richFunctionName.SetWindowTextA(RemoveFolder);
+		}
+		else if (Cmp(szBuffer, "RemoveFile"))
+		{
+			m_richFunctionName.SetWindowTextA(RemoveFile);
+		}
+		else if (Cmp(szBuffer, "OpenFileForReading"))
+		{
+			m_richFunctionName.SetWindowTextA(OpenFileForReading);
+		}
+		else if (Cmp(szBuffer, "OpenFileForWriting"))
+		{
+			m_richFunctionName.SetWindowTextA(OpenFileForWriting);
+		}
+		else if (Cmp(szBuffer, "CloseFile"))
+		{
+			m_richFunctionName.SetWindowTextA(CloseFile);
+		}
+		else if (Cmp(szBuffer, "ReadBoolVariableFromFile"))
+		{
+			m_richFunctionName.SetWindowTextA(ReadBoolVariableFromFile);
+		}
+		else if (Cmp(szBuffer, "WriteBoolVariableToFile"))
+		{
+			m_richFunctionName.SetWindowTextA(WriteBoolVariableToFile);
+		}
+		else if (Cmp(szBuffer, "ReadFloatVariableFromFile"))
+		{
+			m_richFunctionName.SetWindowTextA(ReadFloatVariableFromFile);
+		}
+		else if (Cmp(szBuffer, "WriteFloatVariableToFile"))
+		{
+			m_richFunctionName.SetWindowTextA(WriteFloatVariableToFile);
+		}
+		else if (Cmp(szBuffer, "ReadIntVariableFromFile"))
+		{
+			m_richFunctionName.SetWindowTextA(ReadIntVariableFromFile);
+		}
+		else if (Cmp(szBuffer, "WriteIntVariableToFile"))
+		{
+			m_richFunctionName.SetWindowTextA(WriteIntVariableToFile);
+		}
+		else if (Cmp(szBuffer, "ReadStringVariableFromFile"))
+		{
+			m_richFunctionName.SetWindowTextA(ReadStringVariableFromFile);
+		}
+		else if (Cmp(szBuffer, "WriteStringVariableToFile"))
+		{
+			m_richFunctionName.SetWindowTextA(WriteStringVariableToFile);
+		}
+
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2950,6 +3023,23 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("DisableSkyFog");
 	InsertItem("GetSkyPosition");
 	InsertItem("IsSkyFogEnabled");
+
+	//Save/Load
+	InsertItem("CreateFolder");
+	InsertItem("RemoveFolder");
+	InsertItem("RemoveFile");
+	InsertItem("OpenFileForReading");
+	InsertItem("OpenFileForWriting");
+	InsertItem("CloseFile");
+	InsertItem("ReadBoolVariableFromFile");
+	InsertItem("WriteBoolVariableToFile");
+	InsertItem("ReadFloatVariableFromFile");
+	InsertItem("WriteFloatVariableToFile");
+	InsertItem("ReadIntVariableFromFile");
+	InsertItem("WriteIntVariableToFile");
+	InsertItem("ReadStringVariableFromFile");
+	InsertItem("WriteStringVariableToFile");
+
 
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);

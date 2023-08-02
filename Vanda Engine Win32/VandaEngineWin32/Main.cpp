@@ -22456,6 +22456,333 @@ CInt IsSkyFogEnabled(lua_State* L)
 }
 
 
+//manage files/folders/Save/Load
+
+CInt CreateFolder(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for CreateFolder()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_URI_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar path[MAX_URI_SIZE];
+	Cpy(path, "Assets/Data/");
+	Append(path, luaToString);
+
+	CreateWindowsDirectory(path);
+
+	return 0;
+}
+
+CInt RemoveFolder(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for RemoveFolder()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_URI_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar path[MAX_URI_SIZE];
+	Cpy(path, "Assets/Data/");
+	Append(path, luaToString);
+
+	if (!RemoveAllFilesAndFoldersInDirectory(path))
+	{
+		//CChar temp[MAX_URI_SIZE];
+		//sprintf(temp, "\nRemoveFolder() Error: An error occured while removing the folder '%s'", path);
+		//PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt RemoveFile(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for RemoveFile()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_URI_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar path[MAX_URI_SIZE];
+	Cpy(path, "Assets/Data/");
+	Append(path, luaToString);
+
+	if (!DeleteFileA(path))
+	{
+		//CChar temp[MAX_NAME_SIZE];
+		//sprintf(temp, "\n%s%s", "RemoveFile() Error: Couldn't remove the file ", path);
+		//PrintInfo(temp, COLOR_RED);
+	}
+
+	return 0;
+}
+
+CInt OpenFileForReading(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for OpenFileForReading()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile)
+	{
+		//PrintInfo("\nOpenFileForReading() Error: a file is already open", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_URI_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar path[MAX_URI_SIZE];
+	Cpy(path, "Assets/Data/");
+	Append(path, luaToString);
+
+	g_main->m_luaFile = fopen(path, "rb");
+
+	if (!g_main->m_luaFile)
+	{
+		//CChar temp[MAX_URI_SIZE];
+		//sprintf(temp, "\nOpenFileForReading() Error: Couldn't open '%s' file", path);
+		//PrintInfo(temp, COLOR_RED);
+
+		return 0;
+	}
+
+	return 0;
+}
+
+CInt OpenFileForWriting(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for OpenFileForWriting()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile)
+	{
+		//PrintInfo("\nOpenFileForWriting() Error: a file is already open", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_URI_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar path[MAX_URI_SIZE];
+	Cpy(path, "Assets/Data/");
+	Append(path, luaToString);
+
+	g_main->m_luaFile = fopen(path, "wb");
+
+	return 0;
+}
+
+CInt CloseFile(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for CloseFile()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nCloseFile() Error: file is already closed", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_URI_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+
+	CChar path[MAX_URI_SIZE];
+	Cpy(path, "Assets/Data/");
+	Append(path, luaToString);
+
+	fclose(g_main->m_luaFile);
+	g_main->m_luaFile = NULL;
+
+	return 0;
+}
+
+CInt ReadBoolVariableFromFile(lua_State* L)
+{
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nReadBoolVariableFromFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CBool result;
+	fread(&result, sizeof(CBool), 1, g_main->m_luaFile);
+
+	if (result)
+		lua_pushboolean(L, 1); //true
+	else
+		lua_pushboolean(L, 0); //false
+
+	return 1;
+}
+
+CInt WriteBoolVariableToFile(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for WriteBoolVariableToFile()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nWriteBoolVariableToFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CInt iResult = lua_toboolean(L, 1);
+	CBool bResult = CFalse;
+
+	if (iResult)
+		bResult = CTrue;
+	else
+		bResult = CFalse;
+
+	fwrite(&bResult, sizeof(CBool), 1, g_main->m_luaFile);
+
+	return 0;
+}
+
+CInt ReadFloatVariableFromFile(lua_State* L)
+{
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nReadFloatVariableFromFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CFloat result;
+	fread(&result, sizeof(CFloat), 1, g_main->m_luaFile);
+
+	lua_pushnumber(L, result);
+
+	return 1;
+}
+
+CInt WriteFloatVariableToFile(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for WriteFloatVariableToFile()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nWriteFloatVariableToFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CFloat result = (CFloat)lua_tonumber(L, 1);
+	fwrite(&result, sizeof(CFloat), 1, g_main->m_luaFile);
+
+	return 0;
+}
+
+CInt ReadIntVariableFromFile(lua_State* L)
+{
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nReadIntVariableFromFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CInt result;
+	fread(&result, sizeof(CInt), 1, g_main->m_luaFile);
+
+	lua_pushinteger(L, result);
+
+	return 1;
+}
+
+CInt WriteIntVariableToFile(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for WriteIntVariableToFile()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nWriteIntVariableToFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CInt result = (CFloat)lua_tointeger(L, 1);
+	fwrite(&result, sizeof(CInt), 1, g_main->m_luaFile);
+
+	return 0;
+}
+
+CInt ReadStringVariableFromFile(lua_State* L)
+{
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nReadStringVariableFromFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CChar string[MAX_URI_SIZE];
+	fread(string, sizeof(CChar), MAX_URI_SIZE, g_main->m_luaFile);
+
+	lua_pushstring(L, string);
+
+	return 1;
+}
+
+CInt WriteStringVariableToFile(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		//PrintInfo("\nPlease specify 1 argument for WriteStringVariableToFile()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_main->m_luaFile == NULL)
+	{
+		//PrintInfo("\nWriteStringVariableToFile() Error: Please open a file first!", COLOR_RED);
+		return 0;
+	}
+
+	CChar string[MAX_URI_SIZE];
+	Cpy(string, lua_tostring(L, 1));
+	fwrite(string, sizeof(CChar), MAX_URI_SIZE, g_main->m_luaFile);
+
+	return 0;
+}
+
+
 CBool CMain::firstIdle = CTrue;
 CChar CMain::currentIdleName[MAX_NAME_SIZE];
 
@@ -22514,6 +22841,8 @@ CMain::CMain()
 	m_pauseAllSounds = CFalse;
 	m_renderVideoEnabled = CTrue;
 	m_fixedTiming = CFalse;
+
+	m_luaFile = NULL;
 }
 
 CMain::~CMain()

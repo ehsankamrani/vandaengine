@@ -9,6 +9,7 @@
 #include <boost/serialization/string.hpp>
 #include <iostream>
 #include <sstream>
+#include <io.h>
 #include "Defines.h"
 
 #define EPSILON 2.5e-8 
@@ -189,6 +190,82 @@ inline const CChar*	GetValueString( const CChar** data )
 inline CFloat GetFloatString( const CChar**	data )
 {
 	return (CFloat)atof(GetValueString(data));
+}
+
+inline CVoid CreateWindowsDirectory(CChar* directory)
+{
+	if (!CreateDirectoryA(directory, NULL))
+	{
+		if (GetLastError() != 183)
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "\n%s%d%s%s", "Error (", GetLastError(), ") occured while creating the directory ", directory);
+			//PrintInfo(temp, COLOR_RED);
+		}
+	}
+}
+
+inline BOOL IsDots(const CChar* str) {
+	if (Cmp(str, ".") && Cmp(str, "..")) return FALSE;
+	return TRUE;
+}
+
+inline BOOL RemoveAllFilesAndFoldersInDirectory(const CChar* sPath) {
+	HANDLE hFind;  // file handle
+	WIN32_FIND_DATAA FindFileData;
+
+	CChar DirPath[MAX_PATH];
+	CChar FileName[MAX_PATH];
+
+	Cpy(DirPath, sPath);
+	strcat(DirPath, "\\*");    // searching all files
+	Cpy(FileName, sPath);
+	strcat(FileName, "\\");
+
+	hFind = FindFirstFileA(DirPath, &FindFileData); // find the first file
+	if (hFind == INVALID_HANDLE_VALUE) return FALSE;
+	Cpy(DirPath, FileName);
+
+	bool bSearch = true;
+	while (bSearch) { // until we finds an entry
+		if (FindNextFileA(hFind, &FindFileData)) {
+			if (IsDots(FindFileData.cFileName)) continue;
+			strcat(FileName, FindFileData.cFileName);
+			if ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+
+				// we have found a directory, recurse
+				if (!RemoveAllFilesAndFoldersInDirectory(FileName)) {
+					FindClose(hFind);
+					return FALSE; // directory couldn't be deleted
+				}
+				RemoveDirectoryA(FileName); // remove the empty directory
+				Cpy(FileName, DirPath);
+			}
+			else {
+				if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+					_chmod(FileName, _S_IWRITE); // change read-only file mode
+				if (!DeleteFileA(FileName)) {  // delete the file
+					FindClose(hFind);
+					return FALSE;
+				}
+				Cpy(FileName, DirPath);
+			}
+		}
+		else {
+			if (GetLastError() == ERROR_NO_MORE_FILES) // no more files there
+				bSearch = false;
+			else {
+				// some error occured, close the handle and return FALSE
+				FindClose(hFind);
+				return FALSE;
+			}
+
+		}
+
+	}
+	FindClose(hFind);  // closing file handle
+
+	return RemoveDirectoryA(sPath); // remove the empty directory
 }
 
 struct CColor3f

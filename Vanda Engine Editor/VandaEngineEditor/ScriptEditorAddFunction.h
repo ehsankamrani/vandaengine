@@ -558,6 +558,22 @@ private:
 	CChar GetSkyPosition[MAX_URI_SIZE];
 	CChar IsSkyFogEnabled[MAX_URI_SIZE];
 
+	//Save/Load
+	CChar CreateFolder[MAX_URI_SIZE];
+	CChar RemoveFolder[MAX_URI_SIZE];
+	CChar RemoveFile[MAX_URI_SIZE];
+	CChar OpenFileForReading[MAX_URI_SIZE];
+	CChar OpenFileForWriting[MAX_URI_SIZE];
+	CChar CloseFile[MAX_URI_SIZE];
+	CChar ReadBoolVariableFromFile[MAX_URI_SIZE];
+	CChar WriteBoolVariableToFile[MAX_URI_SIZE];
+	CChar ReadFloatVariableFromFile[MAX_URI_SIZE];
+	CChar WriteFloatVariableToFile[MAX_URI_SIZE];
+	CChar ReadIntVariableFromFile[MAX_URI_SIZE];
+	CChar WriteIntVariableToFile[MAX_URI_SIZE];
+	CChar ReadStringVariableFromFile[MAX_URI_SIZE];
+	CChar WriteStringVariableToFile[MAX_URI_SIZE];
+
 	CImageList m_image;
 
 public:

@@ -596,6 +596,22 @@ CInt DisableSkyFog(lua_State* L);
 CInt GetSkyPosition(lua_State* L);
 CInt IsSkyFogEnabled(lua_State* L);
 
+//Save/Load
+CInt CreateFolder(lua_State* L);
+CInt RemoveFolder(lua_State* L);
+CInt RemoveFile(lua_State* L);
+CInt OpenFileForReading(lua_State* L);
+CInt OpenFileForWriting(lua_State* L);
+CInt CloseFile(lua_State* L);
+CInt ReadBoolVariableFromFile(lua_State* L);
+CInt WriteBoolVariableToFile(lua_State* L);
+CInt ReadFloatVariableFromFile(lua_State* L);
+CInt WriteFloatVariableToFile(lua_State* L);
+CInt ReadIntVariableFromFile(lua_State* L);
+CInt WriteIntVariableToFile(lua_State* L);
+CInt ReadStringVariableFromFile(lua_State* L);
+CInt WriteStringVariableToFile(lua_State* L);
+
 void GenerateLoadingTexture( char* fileName );
 void DeleteLoadingTexture();
 CVoid ShowLoadingScene(CChar* message = NULL);

@@ -434,6 +434,7 @@ public:
 	CBool m_pauseAllWaterAnimations;
 	CBool m_pauseAllUpdateEvents;
 	CBool m_pauseAllSounds;
+	FILE* m_luaFile;
 };
 
 extern CInt g_numLights;
