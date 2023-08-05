@@ -149,7 +149,7 @@ void CEditProjectProperties::OnOK()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.0 (", newProjectName, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", newProjectName, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			//save changes to projects.dat
@@ -230,7 +230,7 @@ void CEditProjectProperties::OnOK()
 		}
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.0 (", newProject->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", newProject->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		//create new directory

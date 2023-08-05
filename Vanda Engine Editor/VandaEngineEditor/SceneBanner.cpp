@@ -6,7 +6,7 @@
 
 CVSceneBanner::CVSceneBanner(void)
 {
-	Cpy( m_path, "Assets/Engine/Textures/Loading.dds" );
+	Cpy( m_path, "Assets/Engine/Textures/Loading.tga" );
 }
 
 CVSceneBanner::~CVSceneBanner(void)

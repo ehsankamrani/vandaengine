@@ -57,8 +57,8 @@ END_MESSAGE_MAP()
 void CEditCurrentSceneOptions::OnBnClickedBtnLoadingBanner()
 {
 	// TODO: Add your control notification handler code here
-	CFileDialog dlgOpen(TRUE, _T("*.dds"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
-		_T("DDS File (*.dds)|*.dds||"), NULL, NULL);
+	CFileDialog dlgOpen(TRUE, _T("*.tga"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR,
+		_T("TGA File (*.tga)|*.tga||"), NULL, NULL);
 	if (IDOK == dlgOpen.DoModal())
 	{
 		setBanner = CTrue;

@@ -22,7 +22,7 @@
 
 class COpenALSoundBuffer;
 //Edition.MaxVersion.MinVersion.BugFixes;
-CInt g_version = 290;
+CInt g_version = 291;
 CChar g_edition[MAX_NAME_SIZE];
 CScene* g_currentScene = NULL;
 CInstancePrefab* g_currentInstancePrefab = NULL;
@@ -142,7 +142,7 @@ void GenerateLoadingTexture(char* fileName)
 
 	Cpy(m_strLoadingImg, fileName);
 
-	if (!CTexture::LoadDDSTexture(m_loadingImg, m_strLoadingImg, NULL))
+	if (!CTexture::LoadTexture(m_loadingImg, m_strLoadingImg, NULL, CTrue))
 		MessageBox(NULL, _T("GenerateLoadingTexture>Couldn't load the texture"), _T("VandaEngine Error"), MB_OK);
 
 	m_loadingImg->SetFileName(GetAfterPath(m_strLoadingImg));

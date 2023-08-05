@@ -297,7 +297,6 @@ CBool CTexture::CreateTexture( CImage * texObj )
 	PrintInfo( _T( "\nTexture Created Successfully"), COLOR_WHITE ); 
 	texObj->SetId( tId ); 
 
-	texObj->Destroy(); //we no longer need the data in client memory
 	glBindTexture( GL_TEXTURE_2D, 0 );
 	return CTrue; 
 }

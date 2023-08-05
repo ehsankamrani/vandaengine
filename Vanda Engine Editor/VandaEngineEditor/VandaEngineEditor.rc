@@ -534,40 +534,41 @@ BEGIN
     LTEXT           "Name",IDC_STATIC,16,18,19,8
 END
 
-IDD_DIALOG_CURRENT_SCENE_OPTIONS DIALOGEX 0, 0, 404, 347
+IDD_DIALOG_CURRENT_SCENE_OPTIONS DIALOGEX 0, 0, 404, 366
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Current VScene Properties"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,291,326,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,349,326,48,14
-    PUSHBUTTON      "Choose",IDC_BTN_LOADING_BANNER,337,27,51,15
-    EDITTEXT        IDC_EDIT_BANNER,14,27,310,15,ES_AUTOHSCROLL | ES_READONLY
-    GROUPBOX        "Banner",IDC_STATIC,7,9,390,45
-    PUSHBUTTON      "Choose",IDC_BTN_LOADING_CURSOR_ICON,337,85,51,15
-    EDITTEXT        IDC_EDIT_CURSOR_ICON,69,85,255,15,ES_AUTOHSCROLL | ES_READONLY
-    GROUPBOX        "Cursor Properties",IDC_STATIC,7,65,390,80
-    LTEXT           "Cursor Size:",IDC_STATIC,15,116,39,8
-    EDITTEXT        IDC_EDIT_CURSOR_PERCENT,60,114,34,13,ES_AUTOHSCROLL
-    LTEXT           "Percents of Window Width",IDC_STATIC,102,116,86,8
-    LTEXT           "Cursor Image",IDC_STATIC,15,87,44,8
-    LTEXT           "Global Sound Volume",IDC_STATIC,16,286,69,8
-    EDITTEXT        IDC_EDIT_GLOBAL_SOUND_VOLUME,92,283,34,15,ES_AUTOHSCROLL
-    GROUPBOX        "Sound Properties",IDC_STATIC,7,265,390,46
-    CONTROL         "Show Cursor",IDC_CHECKBOX_SHOW__CURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,116,61,10
-    GROUPBOX        "Pause these elements at startup",IDC_STATIC,7,157,390,95
+    DEFPUSHBUTTON   "OK",IDOK,291,345,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,349,345,48,14
+    PUSHBUTTON      "Choose",IDC_BTN_LOADING_BANNER,337,26,51,15
+    EDITTEXT        IDC_EDIT_BANNER,14,26,310,15,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Banner",IDC_STATIC,7,9,390,64
+    PUSHBUTTON      "Choose",IDC_BTN_LOADING_CURSOR_ICON,337,106,51,15
+    EDITTEXT        IDC_EDIT_CURSOR_ICON,69,106,255,15,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Cursor Properties",IDC_STATIC,7,86,390,80
+    LTEXT           "Cursor Size:",IDC_STATIC,15,137,39,8
+    EDITTEXT        IDC_EDIT_CURSOR_PERCENT,60,135,34,13,ES_AUTOHSCROLL
+    LTEXT           "Percents of Window Width",IDC_STATIC,102,137,86,8
+    LTEXT           "Cursor Image",IDC_STATIC,15,108,44,8
+    LTEXT           "Global Sound Volume",IDC_STATIC,16,307,69,8
+    EDITTEXT        IDC_EDIT_GLOBAL_SOUND_VOLUME,92,304,34,15,ES_AUTOHSCROLL
+    GROUPBOX        "Sound Properties",IDC_STATIC,7,286,390,46
+    CONTROL         "Show Cursor",IDC_CHECKBOX_SHOW__CURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,137,61,10
+    GROUPBOX        "Pause these elements at startup",IDC_STATIC,7,178,390,95
     CONTROL         "Pause Main Character Animations",IDC_CHECKBOX_PAUSE_MAIN_CHARACTER_ANIMATIONS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,176,119,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,197,119,10
     CONTROL         "Pause All Animations Of Prefab Instances",IDC_CHECKBOX_PAUSE_ALL_PREFAB_INSTANCE_ANIMATIONS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,203,143,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,224,143,10
     CONTROL         "Lock Character Controller",IDC_CHECKBOX_LOCK_CHARACTER_CONTROLLER,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,202,91,10
-    CONTROL         "Pause Physics",IDC_CHECKBOX_PAUSE_PHYSICS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,176,70,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,223,91,10
+    CONTROL         "Pause Physics",IDC_CHECKBOX_PAUSE_PHYSICS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,197,70,10
     CONTROL         "Pause All Water Animations",IDC_CHECKBOX_PAUSE_WATERS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,289,176,103,10
-    CONTROL         "Pause All Sounds",IDC_CHECKBOX_PAUSE_SOUNDS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,230,70,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,289,197,103,10
+    CONTROL         "Pause All Sounds",IDC_CHECKBOX_PAUSE_SOUNDS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,251,70,10
     CONTROL         "Pause All Update Events",IDC_CHECKBOX_PAUSE_UPDATE_EVENTS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,230,96,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,251,96,10
+    LTEXT           "Note: For best result, use 16:9 aspect ratio such as 2560×1440 or 1920×1080 ",IDC_STATIC,14,54,310,8
 END
 
 IDD_DIALOG_PROJECT_VSCENES DIALOGEX 0, 0, 483, 219
@@ -1583,15 +1584,14 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 397
         VERTGUIDE, 14
-        VERTGUIDE, 176
-        VERTGUIDE, 200
+        VERTGUIDE, 221
         VERTGUIDE, 225
         VERTGUIDE, 240
         VERTGUIDE, 291
         VERTGUIDE, 324
         VERTGUIDE, 388
         TOPMARGIN, 7
-        BOTTOMMARGIN, 340
+        BOTTOMMARGIN, 359
         HORZGUIDE, 27
         HORZGUIDE, 85
         HORZGUIDE, 116
@@ -2530,8 +2530,8 @@ BEGIN
     EDITTEXT        IDC_EDIT_LINEAR_ATTENUATION,470,48,28,15,ES_AUTOHSCROLL
     LTEXT           "Quadratic Attenuation",IDC_STATIC,276,79,73,10
     EDITTEXT        IDC_EDIT_QUAD_ATTENUATION,352,74,27,15,ES_AUTOHSCROLL
-    LTEXT           "Shininess",IDC_STATIC,397,78,41,10
-    EDITTEXT        IDC_EDIT_SHININESS,471,74,27,15,ES_AUTOHSCROLL
+    LTEXT           "Shininess",IDC_STATIC,397,78,41,10,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_SHININESS,471,74,27,15,ES_AUTOHSCROLL | NOT WS_VISIBLE
     LTEXT           "Spot CutOff",IDC_STATIC,276,136,41,10
     EDITTEXT        IDC_EDIT_SPOT_CUTOFF,352,132,27,15,ES_AUTOHSCROLL
     LTEXT           "Spot Exponent",IDC_STATIC,397,135,52,10
@@ -2882,7 +2882,7 @@ BEGIN
     LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
     CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 2.9.0",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 2.9.1",IDC_STATIC,7,33,60,8
     LTEXT           "© 2023 Ehsan Kamrani",IDC_STATIC,7,50,126,9
     CONTROL         "Tutorials",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
     LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
@@ -3042,7 +3042,7 @@ CAPTION "About Vanda Engine"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 2.9.0",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 2.9.1",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -3614,12 +3614,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "2.9.0"
+            VALUE "FileVersion", "2.9.1"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "2.9.0"
+            VALUE "ProductVersion", "2.9.1"
         END
     END
     BLOCK "VarFileInfo"
