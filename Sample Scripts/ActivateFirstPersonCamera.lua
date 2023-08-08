@@ -1,7 +1,7 @@
 --Explanations: https://vanda3d.org/activatefirstpersoncamera/
 
 function Init()
-		ActivateFirstPersonCamera()
+	ActivateFirstPersonCamera()
 end
 
 function Update()
