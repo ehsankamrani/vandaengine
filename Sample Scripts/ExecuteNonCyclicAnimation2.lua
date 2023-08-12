@@ -1,9 +1,9 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/executecyclicanimation/
+--Explanations: https://vanda3d.org/Executenoncyclicanimation/
 
---name of script is executecyclicanimation2.lua
+--name of script is executenoncyclicanimation2.lua
 
 animation = true
 
@@ -13,9 +13,11 @@ end
 
 function Update()
 	if animation == true then 
-		ExecuteCyclicAnimation("this", "run", 0.3, 1.0) 
+		ExecuteNonCyclicAnimation("this", "defaultClip", 0.5, 0.6, 0.4, true)
 		animation = false
 	end
 end
+
+
 
 
