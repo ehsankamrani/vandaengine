@@ -7,7 +7,7 @@
 return_value = 0
 
 function Init()
-	return_value = GetCameraScriptIntVariable("sound1", "a")
+	return_value = GetCameraScriptIntVariable("camera1", "a")
 end
 
 function Update()
