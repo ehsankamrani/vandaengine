@@ -1,7 +1,7 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/GetEngineCameraFarClipPlane/
+--Explanations: https://vanda3d.org/getenginecamerafarclipplane/
 
 --Name of script is GetEngineCameraFarClipPlane2.lua
 fcp = 0.0
