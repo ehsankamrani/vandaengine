@@ -3,15 +3,15 @@
 
 --Explanations: https://vanda3d.org/getelapsedtime/
 
-elaspedTime = 0.0
+elapsedSeconds = 0.0
 
 function Init()
 
 end
 
 function Update()
-	elaspedTime = GetElapsedTime()
+	elapsedSeconds = elapsedSeconds + GetElapsedTime()
 
-	message = string.format("\nElasped time is > %.2f" , elaspedTime )
+	message = string.format("\nElapsed seconds is > %.2f" , elapsedSeconds )
 	PrintConsole(message)
 end
