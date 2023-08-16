@@ -10,7 +10,7 @@ pan = 0.0
 function Init()
 	pan = GetEngineCameraPan("this")
 
-	message = string.format("\nAngle is > %.2f" , pan )
+	message = string.format("\nPan is > %.2f" , pan )
 	PrintConsole(message)
 end
 
