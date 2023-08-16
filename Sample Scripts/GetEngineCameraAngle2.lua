@@ -12,7 +12,6 @@ function Init()
 
 	message = string.format("\nAngle is > %.2f" , angle )
 	PrintConsole(message)
-
 end
 
 function Update()
