@@ -1,14 +1,14 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/getguiimageposition/
+--Explanations: https://vanda3d.org/getguitextposition/
 
 x = 0
 y = 0
 function OnSelectMouseLButtonDown()
-		x,y = GetGUIImagePosition("gui_test_test", "image1")
+		x,y = GetGUITextPosition("gui_test_test", "text1")
 
-		message = string.format("\nGUI image position is > %d, %d" , x,y)
+		message = string.format("\nGUI text position is > %d, %d" , x,y)
 		PrintConsole(message)
 end
 
