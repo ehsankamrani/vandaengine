@@ -3,7 +3,7 @@
 
 --Explanations: https://vanda3d.org/getsoundreferencedistance/
 
-ref_distance = 0
+ref_distance = 0.0
 
 function Init()
 	ref_distance = GetSoundReferenceDistance("sound1")

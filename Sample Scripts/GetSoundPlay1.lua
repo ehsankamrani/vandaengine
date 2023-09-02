@@ -3,7 +3,7 @@
 
 --Explanations: https://vanda3d.org/getsoundplay/
 
-sound_play = 0
+sound_play = false
 message = ""
 
 function Init()

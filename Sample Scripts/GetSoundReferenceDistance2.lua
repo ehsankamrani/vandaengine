@@ -5,7 +5,7 @@
 
 --Name of script is GetSoundReferenceDistance2.lua
 
-ref_distance = 0
+ref_distance = 0.0
 
 function Init()
 	ref_distance = GetSoundReferenceDistance("this")

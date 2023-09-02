@@ -3,12 +3,12 @@
 
 --Explanations: https://vanda3d.org/getsoundmaxdistance/
 
-distance = 0
+max_distance = 0.0
 
 function Init()
-	distance = GetSoundMaxDistance("sound1")
+	max_distance = GetSoundMaxDistance("sound1")
 
-	message = string.format("\nSound max distance is > %.2f", distance)
+	message = string.format("\nSound max distance is > %.2f", max_distance)
 	PrintConsole(message)
 end
 

@@ -3,7 +3,7 @@
 
 --Explanations: https://vanda3d.org/getsoundpitch/
 
-pitch = 0
+pitch = 0.0
 
 function Init()
 	pitch = GetSoundPitch("sound1")

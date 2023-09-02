@@ -5,12 +5,12 @@
 
 --Name of script is GetSoundMaxDistance2.lua
 
-distance = 0
+max_distance = 0.0
 
 function Init()
-	distance = GetSoundMaxDistance("this")
+	max_distance = GetSoundMaxDistance("this")
 
-	message = string.format("\nSound max distance is > %.2f", distance)
+	message = string.format("\nSound max distance is > %.2f", max_distance)
 	PrintConsole(message)
 end
 

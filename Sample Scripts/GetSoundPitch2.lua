@@ -5,7 +5,7 @@
 
 --Name of script is GetSoundPitch2.lua
 
-pitch = 0
+pitch = 0.0
 
 function Init()
 	pitch = GetSoundPitch("this")

@@ -3,7 +3,7 @@
 
 --Explanations: https://vanda3d.org/getsoundloop/
 
-sound_loop = 0
+sound_loop = false
 message = ""
 
 function Init()

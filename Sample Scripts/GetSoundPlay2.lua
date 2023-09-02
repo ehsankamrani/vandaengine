@@ -5,7 +5,7 @@
 
 --Name of script is GetSoundPlay2.lua
 
-sound_play = 0
+sound_play = false
 message = ""
 
 function Init()
