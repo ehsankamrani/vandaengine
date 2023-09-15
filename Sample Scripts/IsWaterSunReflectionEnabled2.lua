@@ -3,7 +3,7 @@
 
 --Explanations: https://vanda3d.org/iswatersunreflectionenabled/
 
---Name of script is iswatersunreflectionenabled2.lua
+--Name of script is IsWaterSunReflectionEnabled2.lua
 
 waterSunReflection = false
 message = ""
