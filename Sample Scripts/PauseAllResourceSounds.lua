@@ -25,5 +25,4 @@ function OnTriggerExit(otherActorName)
 	if otherActorName == nil then
 		PauseAllResourceSounds("Sounds_ambient.ogg")
 	end
-
 end
