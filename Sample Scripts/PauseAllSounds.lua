@@ -1,7 +1,7 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/pauseallanimationsofprefabinstances/
+--Explanations: https://vanda3d.org/pauseallsounds/
 
 function OnTriggerEnter(otherActorName)
 	--nil means main character controller
