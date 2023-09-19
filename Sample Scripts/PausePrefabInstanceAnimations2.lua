@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/pauseprefabinstanceanimations/
 
+--Name of script is PausePrefabInstanceAnimations2.lua
+
 function Init()
 	PausePrefabInstanceAnimations("this")
 end
