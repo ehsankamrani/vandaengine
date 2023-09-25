@@ -1,7 +1,7 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/playallpausedsounds/
+--Explanations: https://vanda3d.org/playallpausedsoundsonce/
 
 function OnTriggerEnter(otherActorName)
 	--nil means main character controller
@@ -22,6 +22,6 @@ end
 
 function OnTriggerExit(otherActorName)
 	if otherActorName == nil then
-		PlayAllPausedSounds("ambient2", "river_3D2", "Sounds_fire.ogg", "Sounds_river.ogg")
+		PlayAllPausedSoundsOnce("ambient2", "river_3D2", "Sounds_fire.ogg", "Sounds_river.ogg")
 	end
 end
