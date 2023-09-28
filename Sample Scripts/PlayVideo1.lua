@@ -3,7 +3,7 @@
 
 --Explanations: https://vanda3d.org/playvideo/
 
---Script Name is playvideo1.lua
+--Name of script is PlayVideo1.lua
 
 function Init()
 	PlayVideo("this")
