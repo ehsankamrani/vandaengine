@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/playvideoonce/
 
+--Name of script is PlayVideoOnce1.lua
+
 function Init()
 	PlayVideoOnce("this")
 end

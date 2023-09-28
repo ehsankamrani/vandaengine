@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/playvideoloop/
 
+--Name of script is playvideoloop1.lua
+
 function Init()
 	PlayVideoLoop("this")
 end
