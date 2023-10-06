@@ -15,5 +15,8 @@ function OnTriggerStay(otherActorName)
 end
 
 function OnTriggerExit(otherActorName)
-	ResumeUpdateEventOfAll3DSounds("river2", "river3")
+	--nil means main character controller
+	if otherActorName == nil then
+		ResumeUpdateEventOfAll3DSounds("river2", "river3")
+	end
 end
