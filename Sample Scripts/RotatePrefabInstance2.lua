@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/rotateprefabinstance/
 
+--Name of script is RotatePrefabInstance2.lua
+
 rotateX = 0.0
 rotateY = 0.0
 rotateZ = 0.0
