@@ -4,7 +4,7 @@
 --Explanations: https://vanda3d.org/reverseexecutenoncyclicanimation/
 
 function OnTriggerEnter(otherActorName)
-	ExecuteNonCyclicAnimation("1_animation_test_boy", "defaultClip", 0.5, 0.7, 1.0, false)
+	ExecuteNonCyclicAnimation("1_animation_test_boy", "defaultClip", 0.5, 0.7, 1.0, true)
 end
 
 function OnTriggerStay(otherActorName)
