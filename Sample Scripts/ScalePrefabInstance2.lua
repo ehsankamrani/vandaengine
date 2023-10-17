@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/scaleprefabinstance/
 
+--Name of script is ScalePrefabInstance2.lua
+
 scaleX = 1.0
 scaleY = 1.0
 scaleZ = 1.0
