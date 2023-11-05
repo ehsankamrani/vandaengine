@@ -6,7 +6,7 @@
 --script name is SetGUIButtonScriptBoolVariable.lua attached a to game object such as water
 
 function Init()
-	SetGUIButtonScriptBoolVariable("gui_pack1_button", "PlayGame", true)
+	SetGUIButtonScriptBoolVariable("gui_pack1_button", "PlayGame", "a", true)
 end
 
 function Update()

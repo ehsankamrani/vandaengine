@@ -7,7 +7,7 @@
 return_value = ""
 
 function Init()
-	return_value = GetGUIButtonScriptStringVariable("gui_pack1_button", "PlayGame")
+	return_value = GetGUIButtonScriptStringVariable("gui_pack1_button", "PlayGame", "a")
 end
 
 function Update()
