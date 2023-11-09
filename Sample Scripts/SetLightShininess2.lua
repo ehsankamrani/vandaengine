@@ -3,8 +3,10 @@
 
 --Explanations: https://vanda3d.org/setlightshininess/
 
+--Name of script is SetLightShininess2.lua
+
 function Init()
-	shininess = SetLightShininess("this", 100.0)
+	SetLightShininess("this", 100.0)
 end
 
 function Update()
