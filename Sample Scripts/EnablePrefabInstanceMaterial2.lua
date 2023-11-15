@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/enableprefabinstancematerial/
 
+--Script name is EnablePrefabInstanceMaterial2.lua
+
 function Init()
 	EnablePrefabInstanceMaterial("this")
 end
