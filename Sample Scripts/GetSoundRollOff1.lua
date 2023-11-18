@@ -1,7 +1,7 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/GetSoundRollOff/
+--Explanations: https://vanda3d.org/getsoundrolloff/
 
 rolloff = 0.0
 
