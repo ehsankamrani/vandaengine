@@ -5,7 +5,6 @@
 
 --You can attach this script to a video object named "video1"
 
-
 timer = 0.0
 stop = false
 
