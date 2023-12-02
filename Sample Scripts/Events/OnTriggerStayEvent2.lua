@@ -5,7 +5,7 @@
 
 function OnTriggerStay(otherActorName)
 	if otherActorName == nil then
-		PrintConsole("\nMain character is placed in the trigger and OnTriggerStay() Event was called")
+		PrintConsole("\nMain character is being placed inside the trigger and OnTriggerStay() Event was called")
 	else
 		prefab_instance_name = GetPrefabInstanceNameFromActor(otherActorName)
 
