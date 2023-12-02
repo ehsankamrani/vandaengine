@@ -1,7 +1,7 @@
 --Copyright (C) 2023 Ehsan Kamrani 
 --This file is licensed and distributed under MIT license
 
---Explanations: https://vanda3d.org/ontriggerenterevent/
+--Explanations: https://vanda3d.org/ontriggerenter-event/
 
 function OnTriggerEnter(otherActorName)
 	if otherActorName == nil then
