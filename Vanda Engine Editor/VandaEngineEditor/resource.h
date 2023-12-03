@@ -1193,7 +1193,7 @@
 #define ID_SHADOW_TYPE_PCF8TAP          32892
 #define ID_SHADOW_TYPE_PCF_4TAP         32893
 #define ID_SHADOW_TYPE_PCF_8TAP         32894
-#define ID_INSERT_PLAYER                32895
+#define ID_INSERT_MAIN_CHARACTER        32895
 #define ID_PHYSICS_APPLYGRAVITY         32896
 #define ID_TOOLS_GEOMETRYBASEDSELECTION 32897
 #define ID_FOG_ENABLE                   32898
@@ -1282,7 +1282,6 @@
 #define ID_PREFAB_PREFABEDITOR          32986
 #define ID_TOOLS_CURRENTSCENEOPTIONS    32988
 #define ID_PROJECT_EDITVSCENESOFCURRENTPROJECT 32989
-#define ID_INSERT_PLAYER32990           32990
 #define ID_INSERT_TRIGGER               32991
 #define ID_TRIGGER_BOX                  32992
 #define ID_TRIGGER_SPHERE               32993
@@ -1413,13 +1412,14 @@
 #define ID_ICONS_HIDEALLICONS           33127
 #define ID_SHOWALLICONS                 33128
 #define ID_ICONS_SHOWALLICONS           33129
+#define ID_REFERENCEMANUAL_SCRIPTING    33130
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        552
-#define _APS_NEXT_COMMAND_VALUE         33130
+#define _APS_NEXT_COMMAND_VALUE         33131
 #define _APS_NEXT_CONTROL_VALUE         1335
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

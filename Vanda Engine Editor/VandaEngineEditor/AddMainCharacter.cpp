@@ -727,7 +727,7 @@ void CAddMainCharacter::OnBnClickedOk()
 		g_multipleView->RenderQueries(CTrue);
 	g_menu.m_insertCharacter = CTrue;
 	ex_pVandaEngineDlg->m_mainBtnPlayer.EnableWindow(FALSE);
-	ex_pVandaEngineDlg->GetMenu()->EnableMenuItem(ID_INSERT_PLAYER, MF_DISABLED | MF_GRAYED);
+	ex_pVandaEngineDlg->GetMenu()->EnableMenuItem(ID_INSERT_MAIN_CHARACTER, MF_DISABLED | MF_GRAYED);
 	g_multipleView->SetElapsedTimeFromBeginning();
 
 

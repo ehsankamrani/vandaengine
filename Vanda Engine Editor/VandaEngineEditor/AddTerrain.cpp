@@ -501,6 +501,12 @@ void CAddTerrain::OnBnClickedOk()
 		return;
 	}
 
+	if (m_fShininess < 0.0f)
+	{
+		MessageBox("shininess must be greater than or equal to 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CImage* m_bottomImg = CNew(CImage);
 	CImage*m_bottomNormalImg = CNew(CImage);
 	CImage*m_slopeImg = CNew(CImage);

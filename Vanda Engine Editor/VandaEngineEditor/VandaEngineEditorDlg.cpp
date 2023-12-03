@@ -27,7 +27,7 @@
 #endif
 
 //Version = Max.Min.BugFixes;
-CInt g_version = 291;
+CInt g_version = 292;
 CChar g_edition[MAX_NAME_SIZE];
 
 CBool g_useOriginalPathOfDAETextures = CFalse;
@@ -1484,7 +1484,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SetWindowText(_T("Vanda Engine 2.9.1"));
+	SetWindowText(_T("Vanda Engine 2.9.2"));
 
 	// TODO: Add extra initialization here
 	ShowWindow( SW_SHOWMAXIMIZED );
@@ -3066,7 +3066,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			break;
@@ -3127,7 +3127,7 @@ BOOL CVandaEngineDlg::OnInitDialog()
 		PrintInfo("\nFatal Error(s) Occured. Go To View > Report", COLOR_RED);
 	}
 	else
-		PrintInfo( "\nVersion 2.9.1 initialized successfully" );
+		PrintInfo( "\nVersion 2.9.2 initialized successfully" );
 	//CAboutDlg dlgAbout;
 	//dlgAbout.DoModal();
 	ReleaseCapture();
@@ -3316,7 +3316,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 					break;
 				}
@@ -3402,7 +3402,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			g_shareGeometriesBetweenScenes = CFalse;
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.9.1 : Prefab Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.9.2 : Prefab Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -3476,7 +3476,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			SortButtons();
 
 			CChar temp[256];
-			sprintf(temp, "%s", "Vanda Engine 2.9.1 : GUI Mode (Untitled)");
+			sprintf(temp, "%s", "Vanda Engine 2.9.2 : GUI Mode (Untitled)");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			if (g_multipleView->IsPlayGameMode())
@@ -4638,7 +4638,7 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->SetElapsedTimeFromBeginning();
 		g_multipleView->RenderWindow();
 	}
-	else if (wParam == ID_INSERT_PLAYER)
+	else if (wParam == ID_INSERT_MAIN_CHARACTER)
 	{
 		if (g_multipleView->IsPlayGameMode())
 		{
@@ -6915,12 +6915,9 @@ BOOL CVandaEngineDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 		g_multipleView->RenderWindow();
 
 	}
-	else if( wParam == ID_HELP_ONLINEHELP )
+	else if( wParam == ID_REFERENCEMANUAL_SCRIPTING)
 	{
-		//ShellExecute(NULL, "open", "data\\help\\vanda.chm", NULL, NULL, SW_SHOWNORMAL);
-		//ShellExecute(NULL, "open", "https://vanda3d.org/vandaengine/Doc/Reference/", NULL, NULL, SW_SHOWNORMAL);
-		MessageBox("Updated version of online help will be available soon.", "Report", MB_OK | MB_ICONINFORMATION);
-
+		ShellExecute(NULL, "open", "Assets\\Docs\\VandaEngineScriptingReferenceManual.chm", NULL, NULL, SW_SHOWNORMAL);
 		g_multipleView->SetElapsedTimeFromBeginning();
 	}
 	else if( wParam == ID_HELP_ABOUT )
@@ -7221,7 +7218,7 @@ CVoid CVandaEngineDlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_EDIT_SCALE, MF_DISABLED | MF_GRAYED);
 		m_mainBtnScale.ShowWindow(SW_HIDE);
 
-		ex_pMenu->EnableMenuItem(ID_INSERT_PLAYER, MF_DISABLED | MF_GRAYED);
+		ex_pMenu->EnableMenuItem(ID_INSERT_MAIN_CHARACTER, MF_DISABLED | MF_GRAYED);
 		m_mainBtnPlayer.ShowWindow(SW_HIDE);
 
 		ex_pMenu->EnableMenuItem(ID_PUBLISH_PROJECT, MF_DISABLED | MF_GRAYED);
@@ -7424,7 +7421,7 @@ CVoid CVandaEngineDlg::SortButtons()
 		ex_pMenu->EnableMenuItem(ID_INSERT_LIGHT, MF_ENABLED);
 		m_mainBtnLight.ShowWindow(SW_SHOW);
 
-		ex_pMenu->EnableMenuItem(ID_INSERT_PLAYER, MF_ENABLED);
+		ex_pMenu->EnableMenuItem(ID_INSERT_MAIN_CHARACTER, MF_ENABLED);
 		m_mainBtnPlayer.ShowWindow(SW_SHOW);
 
 		ex_pMenu->EnableMenuItem(ID_INSERT_TRIGGER, MF_ENABLED);
@@ -7809,7 +7806,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 		PrintInfo("\nScene cleared successfully");
 
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.9.1 : GUI Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.9.2 : GUI Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		return CTrue;
@@ -8257,7 +8254,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 			if (g_projects[i]->m_isActive)
 			{
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", g_projects[i]->m_name, " - ", "Untitled", ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.2 (", g_projects[i]->m_name, " - ", "Untitled", ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 				break;
 			}
@@ -8266,7 +8263,7 @@ CBool CVandaEngineDlg::OnMenuClickedNew( CBool askQuestion )
 	else if (g_editorMode == eMODE_PREFAB)
 	{
 		CChar temp[256];
-		sprintf(temp, "%s", "Vanda Engine 2.9.1 : Prefab Mode (Untitled)");
+		sprintf(temp, "%s", "Vanda Engine 2.9.2 : Prefab Mode (Untitled)");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 	}
 
@@ -10020,7 +10017,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveGUIAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.1 : GUI Mode (", g_currentPackageAndGUIName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.2 : GUI Mode (", g_currentPackageAndGUIName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSaveGUIs)
@@ -10862,7 +10859,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSavePrefabAs(CBool askQuestion)
 		g_multipleView->RenderWindow(); //to save screenshot
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.1 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.2 : Prefab Mode (", g_currentPackageAndPrefabName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		if (m_dlgSavePrefabs)
@@ -14187,7 +14184,7 @@ CVoid CVandaEngineDlg::OnMenuClickedSaveAs(CBool askQuestion)
 				}
 
 				CChar temp[256];
-				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+				sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 				ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 				break;
@@ -15374,7 +15371,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenGUI()
 		ReleaseCapture();
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.1 : GUI Mode (", guiAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.2 : GUI Mode (", guiAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 	}
@@ -17144,7 +17141,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenPrefab()
 		}
 		g_updateOctree = CTrue;
 		CChar temp[256];
-		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.1 : Prefab Mode (", prefabAndPackageName, ")");
+		sprintf(temp, "%s%s%s", "Vanda Engine 2.9.2 : Prefab Mode (", prefabAndPackageName, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		fclose(filePtr);
@@ -19098,7 +19095,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 				g_multipleView->ManageCharacterBlends("idle");
 
 				ex_pVandaEngineDlg->m_mainBtnPlayer.EnableWindow(FALSE);
-				ex_pVandaEngineDlg->GetMenu()->EnableMenuItem(ID_INSERT_PLAYER, MF_DISABLED | MF_GRAYED);
+				ex_pVandaEngineDlg->GetMenu()->EnableMenuItem(ID_INSERT_MAIN_CHARACTER, MF_DISABLED | MF_GRAYED);
 
 			}
 			GLdouble angle;
@@ -19187,7 +19184,7 @@ CBool CVandaEngineDlg::OnMenuClickedOpenVScene(CBool askQuestion)
 					}
 
 					CChar temp[256];
-					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.1 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+					sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.2 (", g_projects[i]->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 					ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 					break;
@@ -20123,7 +20120,7 @@ CVoid CVandaEngineDlg::RemoveEngineObject()
 				SortEngineObjectList(nSelected);
 				g_menu.m_insertCharacter = CFalse;
 				m_mainBtnPlayer.EnableWindow(TRUE);
-				GetMenu()->EnableMenuItem(ID_INSERT_PLAYER, MF_ENABLED);
+				GetMenu()->EnableMenuItem(ID_INSERT_MAIN_CHARACTER, MF_ENABLED);
 
 				g_selectedName = g_multipleView->m_lastSelectedName = g_tempLastEngineObjectSelectedName = g_lastEngineObjectSelectedName = g_multipleView->m_tempSelectedName = -1; 		//no object has been selected
 				g_transformObject = CFalse;
@@ -26355,6 +26352,8 @@ void CVandaEngineDlg::OnBnClickedBtnActivatePlayMode()
 		}
 
 		g_multipleView->SetPlayGameMode(CTrue);
+
+		g_multipleView->SetUpdateScript(CTrue);
 
 		PrintInfo("\nPlay mode enabled");
 

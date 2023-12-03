@@ -144,6 +144,12 @@ void CAddAmbientSound::OnOK()
 		return;
 	}
 
+	if (m_pitch <= 0.0)
+	{
+		MessageBox("Pitch must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CDialog::OnOK();
 }
 

@@ -1350,6 +1350,7 @@ CVoid CInstancePrefab::AddPhysicsForce(CFloat forceX, CFloat forceY, CFloat forc
 				NxActor* currentActor = gPhysXscene->getActors()[i];
 
 				NxVec3 forceDir(forceX, forceY, forceZ);
+				forceDir.normalize();
 
 				g_multipleView->m_nx->ApplyForceToActor(currentActor, forceDir, forcePower);
 			}
@@ -1399,7 +1400,7 @@ CVoid CInstancePrefab::AddPhysicsTorque(CFloat torqueX, CFloat torqueY, CFloat t
 			}
 		}
 	}
-
+	
 	for (CUInt i = 0; i < gPhysXscene->getNbActors(); i++)
 	{
 		for (CUInt j = 0; j < physics_actor.size(); j++)
@@ -1409,6 +1410,7 @@ CVoid CInstancePrefab::AddPhysicsTorque(CFloat torqueX, CFloat torqueY, CFloat t
 				NxActor* currentActor = gPhysXscene->getActors()[i];
 
 				NxVec3 torqueDir(torqueX, torqueY, torqueZ);
+				torqueDir.normalize();
 
 				g_multipleView->m_nx->ApplyTorqueToActor(currentActor, torqueDir, torquePower);
 			}

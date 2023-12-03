@@ -180,16 +180,16 @@ private:
 	CChar SetCharacterControllerPosition[MAX_URI_SIZE];
 	CChar GetCharacterControllerPosition[MAX_URI_SIZE];
 
-	CChar SetMaxMultisampling[MAX_URI_SIZE];
-	CChar SetMaxAnisotropicFiltering[MAX_URI_SIZE];
+	CChar SetMultisamplingValue[MAX_URI_SIZE];
+	CChar SetAnisotropicFilteringValue[MAX_URI_SIZE];
 	CChar EnableVSync[MAX_URI_SIZE];
 	CChar DisableVSync[MAX_URI_SIZE];
 	CChar EnableGeneralWaterReflection[MAX_URI_SIZE];
 	CChar DisableGeneralWaterReflection[MAX_URI_SIZE];
 	CChar SetScreenResolution[MAX_URI_SIZE];
 	CChar SaveGeneralProperties[MAX_URI_SIZE];
-	CChar GetMaxMultisampling[MAX_URI_SIZE];
-	CChar GetMaxAnisotropicFiltering[MAX_URI_SIZE];
+	CChar GetMultisamplingValue[MAX_URI_SIZE];
+	CChar GetAnisotropicFilteringValue[MAX_URI_SIZE];
 	CChar IsVSyncEnabled[MAX_URI_SIZE];
 	CChar IsGeneralWaterReflectionEnabled[MAX_URI_SIZE];
 	CChar GetScreenResolution[MAX_URI_SIZE];

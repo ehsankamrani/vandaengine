@@ -72,6 +72,31 @@ void CEditShadow::OnOK()
 	else
 	{
 		GetInformation();
+
+		if (m_splitWeight < 0.0f || m_splitWeight > 1.0f)
+		{
+			MessageBox("Weight of splits must be between 0.0 and 1.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
+		if (m_farClipPlane <= 0.0f)
+		{
+			MessageBox("Far clip plane must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
+		if (m_nearClipPlane <= 0.0f)
+		{
+			MessageBox("Near clip plane must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
+		if (m_intensity < 0.0f || m_intensity > 1.0f)
+		{
+			MessageBox("Intensity must be between 0.0 and 1.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
 		g_shadowProperties.m_shadowSplitWeight = m_splitWeight;
 		g_shadowProperties.m_shadowFarClipPlane = m_farClipPlane;
 		g_shadowProperties.m_shadowNearClipPlane = m_nearClipPlane;

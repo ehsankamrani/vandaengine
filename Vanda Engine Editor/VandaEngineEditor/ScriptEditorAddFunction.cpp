@@ -168,16 +168,16 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetCharacterControllerPosition, "SetCharacterControllerPosition(float x, float y, float z)");
 	Cpy(GetCharacterControllerPosition, "GetCharacterControllerPosition()");
 
-	Cpy(SetMaxMultisampling, "SetMaxMultisampling(int numSamples)");
-	Cpy(SetMaxAnisotropicFiltering, "SetMaxAnisotropicFiltering(int max)");
+	Cpy(SetMultisamplingValue, "SetMultisamplingValue(int numSamples)");
+	Cpy(SetAnisotropicFilteringValue, "SetAnisotropicFilteringValue(int value)");
 	Cpy(EnableVSync, "EnableVSync()");
 	Cpy(DisableVSync, "DisableVSync()");
 	Cpy(EnableGeneralWaterReflection, "EnableGeneralWaterReflection()");
 	Cpy(DisableGeneralWaterReflection, "DisableGeneralWaterReflection()");
 	Cpy(SetScreenResolution, "SetScreenResolution(int screenWidth)");
 	Cpy(SaveGeneralProperties, "SaveGeneralProperties()");
-	Cpy(GetMaxMultisampling, "GetMaxMultisampling()");
-	Cpy(GetMaxAnisotropicFiltering, "GetMaxAnisotropicFiltering()");
+	Cpy(GetMultisamplingValue, "GetMultisamplingValue()");
+	Cpy(GetAnisotropicFilteringValue, "GetAnisotropicFilteringValue()");
 	Cpy(IsVSyncEnabled, "IsVSyncEnabled()");
 	Cpy(IsGeneralWaterReflectionEnabled, "IsGeneralWaterReflectionEnabled()");
 	Cpy(GetScreenResolution, "GetScreenResolution()");
@@ -186,7 +186,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetVSceneScriptBoolVariable, "GetVSceneScriptBoolVariable(string variable)");
 	Cpy(GetVSceneScriptIntVariable, "GetVSceneScriptIntVariable(string variable)");
 	Cpy(GetVSceneScriptDoubleVariable, "GetVSceneScriptDoubleVariable(string variable)");
-	Cpy(SetVSceneScriptStringVariable, "SetVSceneScriptStringVariable(string variable, string value )");
+	Cpy(SetVSceneScriptStringVariable, "SetVSceneScriptStringVariable(string variable, string value)");
 	Cpy(SetVSceneScriptBoolVariable, "SetVSceneScriptBoolVariable(string variable, bool value)");
 	Cpy(SetVSceneScriptIntVariable, "SetVSceneScriptIntVariable(string variable, int value)");
 	Cpy(SetVSceneScriptDoubleVariable, "SetVSceneScriptDoubleVariable(string variable, double value)");
@@ -195,7 +195,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetSkyScriptBoolVariable, "GetSkyScriptBoolVariable(string variable)");
 	Cpy(GetSkyScriptIntVariable, "GetSkyScriptIntVariable(string variable)");
 	Cpy(GetSkyScriptDoubleVariable, "GetSkyScriptDoubleVariable(string variable)");
-	Cpy(SetSkyScriptStringVariable, "SetSkyScriptStringVariable(string variable, string value )");
+	Cpy(SetSkyScriptStringVariable, "SetSkyScriptStringVariable(string variable, string value)");
 	Cpy(SetSkyScriptBoolVariable, "SetSkyScriptBoolVariable(string variable, bool value)");
 	Cpy(SetSkyScriptIntVariable, "SetSkyScriptIntVariable(string variable, int value)");
 	Cpy(SetSkyScriptDoubleVariable, "SetSkyScriptDoubleVariable(string variable, double value)");
@@ -204,7 +204,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetTerrainScriptBoolVariable, "GetTerrainScriptBoolVariable(string variable)");
 	Cpy(GetTerrainScriptIntVariable, "GetTerrainScriptIntVariable(string variable)");
 	Cpy(GetTerrainScriptDoubleVariable, "GetTerrainScriptDoubleVariable(string variable)");
-	Cpy(SetTerrainScriptStringVariable, "SetTerrainScriptStringVariable(string variable, string value )");
+	Cpy(SetTerrainScriptStringVariable, "SetTerrainScriptStringVariable(string variable, string value)");
 	Cpy(SetTerrainScriptBoolVariable, "SetTerrainScriptBoolVariable(string variable, bool value)");
 	Cpy(SetTerrainScriptIntVariable, "SetTerrainScriptIntVariable(string variable, int value)");
 	Cpy(SetTerrainScriptDoubleVariable, "SetTerrainScriptDoubleVariable(string variable, double value)");
@@ -214,9 +214,9 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetPrefabInstanceScriptIntVariable, "GetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable)");
 	Cpy(GetPrefabInstanceScriptDoubleVariable, "GetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable)");
 	Cpy(SetPrefabInstanceScriptStringVariable, "SetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable, string value)");
-	Cpy(SetPrefabInstanceScriptBoolVariable, "SetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable, bool variable)");
-	Cpy(SetPrefabInstanceScriptIntVariable, "SetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable, int variable)");
-	Cpy(SetPrefabInstanceScriptDoubleVariable, "SetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable, double variable)");
+	Cpy(SetPrefabInstanceScriptBoolVariable, "SetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable, bool value)");
+	Cpy(SetPrefabInstanceScriptIntVariable, "SetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable, int value)");
+	Cpy(SetPrefabInstanceScriptDoubleVariable, "SetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable, double value)");
 
 	Cpy(GetGUIButtonScriptStringVariable, "GetGUIButtonScriptStringVariable(string GUIName, string buttonName, string variable)");
 	Cpy(GetGUIButtonScriptBoolVariable, "GetGUIButtonScriptBoolVariable(string GUIName, string buttonName, string variable)");
@@ -294,7 +294,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetMainCharacterScriptBoolVariable, "GetMainCharacterScriptBoolVariable(string variable)");
 	Cpy(GetMainCharacterScriptIntVariable, "GetMainCharacterScriptIntVariable(string variable)");
 	Cpy(GetMainCharacterScriptDoubleVariable, "GetMainCharacterScriptDoubleVariable(string variable)");
-	Cpy(SetMainCharacterScriptStringVariable, "SetMainCharacterScriptStringVariable(string variable, string value )");
+	Cpy(SetMainCharacterScriptStringVariable, "SetMainCharacterScriptStringVariable(string variable, string value)");
 	Cpy(SetMainCharacterScriptBoolVariable, "SetMainCharacterScriptBoolVariable(string variable, bool value)");
 	Cpy(SetMainCharacterScriptIntVariable, "SetMainCharacterScriptIntVariable(string variable, int value)");
 	Cpy(SetMainCharacterScriptDoubleVariable, "SetMainCharacterScriptDoubleVariable(string variable, double value)");
@@ -1136,13 +1136,13 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetCharacterControllerPosition);
 		}
-		else if (Cmp(szBuffer, "SetMaxMultisampling"))
+		else if (Cmp(szBuffer, "SetMultisamplingValue"))
 		{
-			m_richFunctionName.SetWindowTextA(SetMaxMultisampling);
+			m_richFunctionName.SetWindowTextA(SetMultisamplingValue);
 		}
-		else if (Cmp(szBuffer, "SetMaxAnisotropicFiltering"))
+		else if (Cmp(szBuffer, "SetAnisotropicFilteringValue"))
 		{
-			m_richFunctionName.SetWindowTextA(SetMaxAnisotropicFiltering);
+			m_richFunctionName.SetWindowTextA(SetAnisotropicFilteringValue);
 		}
 		else if (Cmp(szBuffer, "EnableVSync"))
 		{
@@ -1168,13 +1168,13 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SaveGeneralProperties);
 		}
-		else if (Cmp(szBuffer, "GetMaxMultisampling"))
+		else if (Cmp(szBuffer, "GetMultisamplingValue"))
 		{
-			m_richFunctionName.SetWindowTextA(GetMaxMultisampling);
+			m_richFunctionName.SetWindowTextA(GetMultisamplingValue);
 		}
-		else if (Cmp(szBuffer, "GetMaxAnisotropicFiltering"))
+		else if (Cmp(szBuffer, "GetAnisotropicFilteringValue"))
 		{
-			m_richFunctionName.SetWindowTextA(GetMaxAnisotropicFiltering);
+			m_richFunctionName.SetWindowTextA(GetAnisotropicFilteringValue);
 		}
 		else if (Cmp(szBuffer, "IsVSyncEnabled"))
 		{
@@ -2648,16 +2648,16 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetCharacterControllerPosition");
 	InsertItem("GetCharacterControllerPosition");
 
-	InsertItem("SetMaxMultisampling");
-	InsertItem("SetMaxAnisotropicFiltering");
+	InsertItem("SetMultisamplingValue");
+	InsertItem("SetAnisotropicFilteringValue");
 	InsertItem("EnableVSync");
 	InsertItem("DisableVSync");
 	InsertItem("EnableGeneralWaterReflection");
 	InsertItem("DisableGeneralWaterReflection");
 	InsertItem("SetScreenResolution");
 	InsertItem("SaveGeneralProperties");
-	InsertItem("GetMaxMultisampling");
-	InsertItem("GetMaxAnisotropicFiltering");
+	InsertItem("GetMultisamplingValue");
+	InsertItem("GetAnisotropicFilteringValue");
 	InsertItem("IsVSyncEnabled");
 	InsertItem("IsGeneralWaterReflectionEnabled");
 	InsertItem("GetScreenResolution");
@@ -3039,8 +3039,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("WriteIntVariableToFile");
 	InsertItem("ReadStringVariableFromFile");
 	InsertItem("WriteStringVariableToFile");
-
-
+	
 	m_listFunctions.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED | LVIS_FOCUSED);
 	m_listFunctions.SetSelectionMark(0);
 

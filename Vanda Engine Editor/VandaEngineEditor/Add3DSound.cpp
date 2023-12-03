@@ -298,6 +298,30 @@ void CAdd3DSound::OnOK()
 		return;
 	}
 
+	if (m_f3DSoundReferenceDistance < 0.0)
+	{
+		MessageBox("Reference distance must be greater than or equal to 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_f3DSoundMaxDistance < 0.0)
+	{
+		MessageBox("Max distance must be greater than or equal to 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_f3DSoundRolloff < 0.0)
+	{
+		MessageBox("Rolloff must be greater than or equal to 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_f3DSoundPitch <= 0.0)
+	{
+		MessageBox("Pitch must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CDialog::OnOK();
 }
 

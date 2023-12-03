@@ -755,7 +755,7 @@ CInt ExecuteNonCyclicAnimation(lua_State *L)
 					CInt lockResult;
 					CBool lock = CFalse;
 					if (argc > 4)
-						weight = lua_tonumber(L, 5);
+						weight = (CFloat)lua_tonumber(L, 5);
 					if (argc > 5)
 						lockResult = lua_toboolean(L, 6);
 					if (lockResult)
@@ -837,7 +837,7 @@ CInt ExecuteNonCyclicAnimation(lua_State *L)
 					CInt lockResult;
 					CBool lock = CFalse;
 					if (argc > 4)
-						weight = lua_tonumber(L, 5);
+						weight = (CFloat)lua_tonumber(L, 5);
 					if (argc > 5)
 						lockResult = lua_toboolean(L, 6);
 					if (lockResult)
@@ -3744,7 +3744,7 @@ CInt IsKeyDown(lua_State *L)
 
 
 	lua_pushboolean(L, 0); //false
-	return 0;
+	return 1;
 }
 
 CInt SetSelectionDistance(lua_State *L)
@@ -3914,9 +3914,9 @@ CInt TranslatePrefabInstance(lua_State* L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	CFloat xPos = lua_tonumber(L, 2);
-	CFloat yPos = lua_tonumber(L, 3);
-	CFloat zPos = lua_tonumber(L, 4);
+	CFloat xPos = (CFloat)lua_tonumber(L, 2);
+	CFloat yPos = (CFloat)lua_tonumber(L, 3);
+	CFloat zPos = (CFloat)lua_tonumber(L, 4);
 	CVec3f pos(xPos, yPos, zPos);
 
 	if (Cmp("THIS", luaToString))
@@ -3978,9 +3978,9 @@ CInt RotatePrefabInstance(lua_State* L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	CFloat xRot = lua_tonumber(L, 2);
-	CFloat yRot = lua_tonumber(L, 3);
-	CFloat zRot = lua_tonumber(L, 4);
+	CFloat xRot = (CFloat)lua_tonumber(L, 2);
+	CFloat yRot = (CFloat)lua_tonumber(L, 3);
+	CFloat zRot = (CFloat)lua_tonumber(L, 4);
 
 	if (Cmp("THIS", luaToString))
 	{
@@ -4045,9 +4045,9 @@ CInt ScalePrefabInstance(lua_State* L)
 	Cpy(luaToString, lua_tostring(L, 1)); //Prefab Instance Name- First Argument
 	StringToUpper(luaToString);
 
-	CFloat xScale = lua_tonumber(L, 2);
-	CFloat yScale = lua_tonumber(L, 3);
-	CFloat zScale = lua_tonumber(L, 4);
+	CFloat xScale = (CFloat)lua_tonumber(L, 2);
+	CFloat yScale = (CFloat)lua_tonumber(L, 3);
+	CFloat zScale = (CFloat)lua_tonumber(L, 4);
 	CVec3f scale(xScale, yScale, zScale);
 
 	if (Cmp("THIS", luaToString))
@@ -4553,9 +4553,9 @@ CInt SetFogDensity(lua_State* L)
 
 	density = (CFloat)lua_tonumber(L, 1);
 
-	if (density < 0.0f || density > 1.0f)
+	if (density < 0.0f)
 	{
-		//PrintInfo("\nError: argument of SetFogDensity() must be between 0.0 and 1.0", COLOR_RED);
+		//PrintInfo("\nError: argument of SetFogDensity() must be greater than 0.0", COLOR_RED);
 		return 0;
 	}
 	g_fogProperties.m_fogDensity = density;
@@ -4732,7 +4732,7 @@ CInt SetDirectionalShadowNumberOfSplits(lua_State* L)
 		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowNumberOfSplits()", COLOR_RED);
 		return 0;
 	}
-	int splits = lua_tonumber(L, 1);
+	int splits = (CInt)lua_tonumber(L, 1);
 
 	if (splits == 1)
 	{
@@ -4793,6 +4793,12 @@ CInt SetDirectionalShadowWeightOfSplits(lua_State* L)
 	}
 
 	CFloat weight = (CFloat)lua_tonumber(L, 1);
+
+	if (weight < 0.0f || weight > 1.0f)
+	{
+		//PrintInfo("\nError: argument of SetDirectionalShadowWeightOfSplits() must be between 0.0 and 1.0", COLOR_RED);
+		return 0;
+	}
 
 	g_shadowProperties.m_shadowSplitWeight = weight;
 
@@ -4865,7 +4871,7 @@ CInt SetDirectionalShadowResolution(lua_State* L)
 		//PrintInfo("\nPlease specify 1 argument for SetDirectionalShadowResolution()", COLOR_RED);
 		return 0;
 	}
-	int resolution = lua_tonumber(L, 1);
+	int resolution = (CInt)lua_tonumber(L, 1);
 
 	if (resolution == 1024)
 	{
@@ -5907,9 +5913,9 @@ CInt SetPrefabInstanceTransparency(lua_State* L)
 	StringToUpper(luaToString);
 
 	CFloat transparency = (CFloat)lua_tonumber(L, 2);
-	if (transparency < 0.0f)
+	if (transparency < 0.0f || transparency > 1.0f)
 	{
-		//PrintInfo("\nSecond argument of SetPrefabInstanceTransparency() must be 0.0 or higher", COLOR_RED);
+		//PrintInfo("\nSecond argument of SetPrefabInstanceTransparency() must be in the range [0.0,1.0]", COLOR_RED);
 		return 0;
 	}
 
@@ -6153,7 +6159,10 @@ CInt SetPhysicsDefaultSkinWidth(lua_State* L)
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
 	if (value < 0.0f)
-		value = 0.0f;
+	{
+		//PrintInfo("\nSetPhysicsDefaultSkinWidth() Error: Skin width must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
 
 	g_physXProperties.m_fDefaultSkinWidth = value;
 	gPhysicsSDK->setParameter(NX_SKIN_WIDTH, g_physXProperties.m_fDefaultSkinWidth);
@@ -6955,7 +6964,7 @@ CInt GetCharacterControllerPosition(lua_State* L)
 	return 3;
 }
 
-CInt SetMaxMultisampling(lua_State* L)
+CInt SetMultisamplingValue(lua_State* L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -6963,7 +6972,7 @@ CInt SetMaxMultisampling(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for SetMaxMultisampling()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for SetMultisamplingValue()", COLOR_RED);
 		return 0;
 	}
 
@@ -6975,13 +6984,13 @@ CInt SetMaxMultisampling(lua_State* L)
 	}
 	else
 	{
-		//PrintInfo("\nSetMaxMultisampling() Error: Accepted values are 0, 2, 4, 8 or 16", COLOR_RED);
+		//PrintInfo("\nSetMultisamplingValue() Error: Accepted values are 0, 2, 4, 8 or 16", COLOR_RED);
 	}
 
 	return 0;
 }
 
-CInt SetMaxAnisotropicFiltering(lua_State* L)
+CInt SetAnisotropicFilteringValue(lua_State* L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -6989,7 +6998,7 @@ CInt SetMaxAnisotropicFiltering(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for SetMaxAnisotropicFiltering()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for SetAnisotropicFilteringValue()", COLOR_RED);
 		return 0;
 	}
 
@@ -7008,7 +7017,7 @@ CInt SetMaxAnisotropicFiltering(lua_State* L)
 	}
 	else
 	{
-		//PrintInfo("\nSetMaxAnisotropicFiltering() Error: Accepted values are 0, 2, 4, 8 or 16", COLOR_RED);
+		//PrintInfo("\nSetAnisotropicFilteringValue() Error: Accepted values are 0, 2, 4, 8 or 16", COLOR_RED);
 	}
 
 	return 0;
@@ -7161,7 +7170,7 @@ CInt SaveGeneralProperties(lua_State* L)
 	return 0;
 }
 
-CInt GetMaxMultisampling(lua_State* L)
+CInt GetMultisamplingValue(lua_State* L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -7171,7 +7180,7 @@ CInt GetMaxMultisampling(lua_State* L)
 	return 1;
 }
 
-CInt GetMaxAnisotropicFiltering(lua_State* L)
+CInt GetAnisotropicFilteringValue(lua_State* L)
 {
 	//if (g_testScript)
 	//	return 0;
@@ -12143,7 +12152,7 @@ CInt ScaleGUIButton(lua_State* L)
 	StringToUpper(buttonName);
 
 	CFloat scale;
-	scale = lua_tonumber(L, 3);
+	scale = (CFloat)lua_tonumber(L, 3);
 	if (scale < 1.0)
 	{
 		//PrintInfo("\nScaleGUIButton() Error: scale variable must be equal or greater than 1.0", COLOR_RED);
@@ -12218,7 +12227,7 @@ CInt ScaleGUIImage(lua_State* L)
 	StringToUpper(imageName);
 
 	CFloat scale;
-	scale = lua_tonumber(L, 3);
+	scale = (CFloat)lua_tonumber(L, 3);
 	if (scale < 1.0)
 	{
 		//PrintInfo("\nScaleGUIImage() Error: scale variable must be equal or greater than 1.0", COLOR_RED);
@@ -12297,8 +12306,8 @@ CInt SetGUIButtonPosition(lua_State* L)
 	StringToUpper(buttonName);
 
 	CFloat x, y;
-	x = lua_tonumber(L, 3);
-	y = lua_tonumber(L, 4);
+	x = (CFloat)lua_tonumber(L, 3);
+	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
@@ -12372,8 +12381,8 @@ CInt SetGUIImagePosition(lua_State* L)
 	StringToUpper(imageName);
 
 	CFloat x, y;
-	x = lua_tonumber(L, 3);
-	y = lua_tonumber(L, 4);
+	x = (CFloat)lua_tonumber(L, 3);
+	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
@@ -12447,8 +12456,8 @@ CInt SetGUITextPosition(lua_State* L)
 	StringToUpper(textName);
 
 	CFloat x, y;
-	x = lua_tonumber(L, 3);
-	y = lua_tonumber(L, 4);
+	x = (CFloat)lua_tonumber(L, 3);
+	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
@@ -13107,19 +13116,19 @@ CInt GeneratePrefabInstance(lua_State* L)
 	Cpy(name, lua_tostring(L, 1));
 	StringToUpper(name);
 
-	CFloat xPos = lua_tonumber(L, 2);
-	CFloat yPos = lua_tonumber(L, 3);
-	CFloat zPos = lua_tonumber(L, 4);
+	CFloat xPos = (CFloat)lua_tonumber(L, 2);
+	CFloat yPos = (CFloat)lua_tonumber(L, 3);
+	CFloat zPos = (CFloat)lua_tonumber(L, 4);
 	CVec3f pos(xPos, yPos, zPos);
 
-	CFloat xRot = lua_tonumber(L, 5);
-	CFloat yRot = lua_tonumber(L, 6);
-	CFloat zRot = lua_tonumber(L, 7);
+	CFloat xRot = (CFloat)lua_tonumber(L, 5);
+	CFloat yRot = (CFloat)lua_tonumber(L, 6);
+	CFloat zRot = (CFloat)lua_tonumber(L, 7);
 	CVec4f rot(xRot, yRot, zRot, 0.0f);
 
-	CFloat xScale = lua_tonumber(L, 8);
-	CFloat yScale = lua_tonumber(L, 9);
-	CFloat zScale = lua_tonumber(L, 10);
+	CFloat xScale = (CFloat)lua_tonumber(L, 8);
+	CFloat yScale = (CFloat)lua_tonumber(L, 9);
+	CFloat zScale = (CFloat)lua_tonumber(L, 10);
 	CVec3f scale(xScale, yScale, zScale);
 
 	CBool foundPrefab = CFalse;
@@ -13933,6 +13942,12 @@ CInt SetSoundPitch(lua_State* L)
 
 	CFloat pitch = (CFloat)lua_tonumber(L, 2);
 
+	if (pitch <= 0.0)
+	{
+		//PrintInfo("\nSetSoundPitch() Error: Pitch must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
 	CBool foundTarget = CFalse;
 
 	if (Cmp(soundName, "THIS"))
@@ -14172,6 +14187,12 @@ CInt SetSoundRollOff(lua_State* L)
 
 	CFloat RollOff = (CFloat)lua_tonumber(L, 2);
 
+	if (RollOff < 0.0)
+	{
+		//PrintInfo("\nSetSoundRollOff() Error: RollOff must be greater than or equal to 0.0", COLOR_RED);
+		return 0;
+	}
+
 	CBool foundTarget = CFalse;
 
 	if (Cmp(soundName, "THIS"))
@@ -14234,6 +14255,12 @@ CInt SetSoundReferenceDistance(lua_State* L)
 
 	CFloat ReferenceDistance = (CFloat)lua_tonumber(L, 2);
 
+	if (ReferenceDistance < 0.0)
+	{
+		//PrintInfo("\nSetSoundReferenceDistance() Error: reference distance must be greater than or equal to 0.0", COLOR_RED);
+		return 0;
+	}
+
 	CBool foundTarget = CFalse;
 
 	if (Cmp(soundName, "THIS"))
@@ -14295,6 +14322,12 @@ CInt SetSoundMaxDistance(lua_State* L)
 	StringToUpper(soundName);
 
 	CFloat MaxDistance = (CFloat)lua_tonumber(L, 2);
+
+	if (MaxDistance < 0.0)
+	{
+		//PrintInfo("\nSetSoundMaxDistance() Error: max distance must be greater than or equal to 0.0", COLOR_RED);
+		return 0;
+	}
 
 	CBool foundTarget = CFalse;
 
@@ -18156,6 +18189,13 @@ CInt SetMenuCursorSize(lua_State* L)
 	{
 		CInt size;
 		size = lua_tointeger(L, 1);
+
+		if (size < 0)
+		{
+			//PrintInfo("\nSetMenuCursorSize() Error: cursor size must be greater than 0", COLOR_RED);
+			return 0;
+		}
+
 		g_currentVSceneProperties.m_menuCursorSize = size;
 	}
 	return 0;
@@ -19989,7 +20029,7 @@ CInt SetTerrainShininess(lua_State* L)
 	CFloat shininess = (CFloat)lua_tonumber(L, 1);
 	if (shininess < 0.0f)
 	{
-		//PrintInfo("\nSetTerrainShininess Error: shininess must be greater than 0.0", COLOR_RED);
+		//PrintInfo("\nSetTerrainShininess Error: shininess must be greater than or equal to 0.0", COLOR_RED);
 		return 0;
 	}
 
@@ -20827,6 +20867,12 @@ CInt SetWaterScale(lua_State* L)
 
 	CFloat scaleX = (CFloat)lua_tonumber(L, 2);
 	CFloat scaleZ = (CFloat)lua_tonumber(L, 3);
+
+	if (scaleX < 0.01 || scaleZ < 0.01)
+	{
+		//PrintInfo("\nSetWaterScale() Error: scaleX and scaleZ must be equal to or greater than 0.01", COLOR_RED);
+		return 0;
+	}
 
 	if (Cmp(waterName, "THIS"))
 	{

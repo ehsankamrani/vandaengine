@@ -228,6 +228,16 @@ void CEditGeneralPhysXProperties::OnOK()
 			MessageBox("skin width must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
+		if (m_fCapsuleRadius <= 0.0f)
+		{
+			MessageBox("capsule radius must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCapsuleHeight <= 0.0f)
+		{
+			MessageBox("capsule height must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
 
 		g_physXProperties.m_fDefaultRestitution = atof( m_strDefaultRestitution );
 		g_physXProperties.m_fDefaultStaticFriction = atof( m_strDefaultStaticFriction );

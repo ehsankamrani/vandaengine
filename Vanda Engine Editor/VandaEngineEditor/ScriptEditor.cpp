@@ -284,7 +284,7 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == ID_HELP_SCRIPT_REFERENCE_MANUAL)
 	{
-		MessageBox("Reference Manual will be available soon.\nNote that Vanda Engine uses Lua scripting language.\nFor more information about Lua, please visit http://www.lua.org/", "Report", MB_OK | MB_ICONINFORMATION);
+		ShellExecute(NULL, "open", "Assets\\Docs\\VandaEngineScriptingReferenceManual.chm", NULL, NULL, SW_SHOWNORMAL);
 	}
 
 	return CDialog::OnCommand(wParam, lParam);
