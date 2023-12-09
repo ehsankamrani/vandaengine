@@ -67,6 +67,7 @@ private:
 	CChar LoadResource[MAX_URI_SIZE];
 	CChar DeleteResource[MAX_URI_SIZE];
 	CChar DeleteAllResources[MAX_URI_SIZE];
+	CChar PlayResourceSound[MAX_URI_SIZE];
 	CChar PlayResourceSoundLoop[MAX_URI_SIZE];
 	CChar PlayResourceSoundOnce[MAX_URI_SIZE];
 	CChar StopResourceSound[MAX_URI_SIZE];
@@ -113,15 +114,24 @@ private:
 	CChar SetDepthOfFieldFocalDistance[MAX_URI_SIZE];
 	CChar SetDepthOfFieldFocalRange[MAX_URI_SIZE];
 
+	CChar GetDepthOfFieldFocalDistance[MAX_URI_SIZE];
+	CChar GetDepthOfFieldFocalRange[MAX_URI_SIZE];
+
 	CChar EnableFog[MAX_URI_SIZE];
 	CChar DisableFog[MAX_URI_SIZE];
 	CChar SetFogColor[MAX_URI_SIZE];
 	CChar SetFogDensity[MAX_URI_SIZE];
 
+	CChar GetFogColor[MAX_URI_SIZE];
+	CChar GetFogDensity[MAX_URI_SIZE];
+
 	CChar EnableBloom[MAX_URI_SIZE];
 	CChar DisableBloom[MAX_URI_SIZE];
 	CChar SetBloomColor[MAX_URI_SIZE];
 	CChar SetBloomIntensity[MAX_URI_SIZE];
+
+	CChar GetBloomColor[MAX_URI_SIZE];
+	CChar GetBloomIntensity[MAX_URI_SIZE];
 
 	CChar EnableDirectionalShadow[MAX_URI_SIZE];
 	CChar DisableDirectionalShadow[MAX_URI_SIZE];
@@ -179,6 +189,8 @@ private:
 	CChar DisablePhysicsDebugMode[MAX_URI_SIZE];
 	CChar SetCharacterControllerPosition[MAX_URI_SIZE];
 	CChar GetCharacterControllerPosition[MAX_URI_SIZE];
+
+	CChar GetDistanceBetweenPhysicsCameraAndCharacterController[MAX_URI_SIZE];
 
 	CChar SetMultisamplingValue[MAX_URI_SIZE];
 	CChar SetAnisotropicFilteringValue[MAX_URI_SIZE];

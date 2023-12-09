@@ -1227,6 +1227,9 @@ CBool CScene::ExecuteNonCyclicAnimation(CInt id, CFloat delayIn, CFloat delayOut
 	if( weight < EPSILON ) return CFalse;
 	if( weight > 1.0f ) weight = 1.0f;
 
+	if (delayIn < 0.0) delayIn = 0.0;
+	if (delayOut < 0.0) delayOut = 0.0;
+
 	if( delayIn + delayOut  > m_animationClips[id]->GetDuration() )
 	{
 		//CChar temp[MAX_NAME_SIZE];

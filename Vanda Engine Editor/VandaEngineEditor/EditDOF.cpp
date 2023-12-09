@@ -90,6 +90,17 @@ void CEditDOF::OnOK()
 	else
 	{
 		GetInformation();
+		if (m_focalDistance < 0.0)
+		{
+			MessageBox("Focal distance must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_focalRange < 0.0)
+		{
+			MessageBox("Focal range must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
 		g_dofProperties.m_dofFocalDistance = m_focalDistance;
 		g_dofProperties.m_dofFocalRange = m_focalRange;
 

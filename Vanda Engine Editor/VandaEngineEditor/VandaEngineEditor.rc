@@ -2146,7 +2146,9 @@ BEGIN
     END
     POPUP "HELP"
     BEGIN
-        MENUITEM "Script Reference Manual",     ID_HELP_SCRIPT_REFERENCE_MANUAL
+        MENUITEM "Script Reference Manual (CHM)", ID_HELP_SCRIPT_REFERENCE_MANUAL_CHM
+        MENUITEM "Script Reference Manual (PDF)", ID_HELP_SCRIPT_REFERENCE_MANUAL_PDF
+        MENUITEM "Online Help",                 ID_HELP_ONLINEHELP
     END
 END
 
@@ -2892,7 +2894,7 @@ BEGIN
     LTEXT           "Do not show this dialog at startup",IDC_STATIC,20,151,155,10
     CONTROL         "Tick",IDC_WELCOME_BUTTON_UNCHECK,"Button",BS_OWNERDRAW | WS_TABSTOP,5,149,12,12
     CONTROL         IDB_BITMAP7,IDC_STATIC,"Static",SS_BITMAP,2,3,77,19
-    LTEXT           "Version 2.9.2",IDC_STATIC,7,33,60,8
+    LTEXT           "Version 2.9.3",IDC_STATIC,7,33,60,8
     LTEXT           "© 2023 Ehsan Kamrani",IDC_STATIC,7,50,126,9
     CONTROL         "Tutorials",IDDONATE,"Button",BS_OWNERDRAW | WS_TABSTOP,15,91,52,16
     LTEXT           "To see the demo, please go to File | Open menu.",IDC_STATIC,9,69,167,9
@@ -3052,7 +3054,7 @@ CAPTION "About Vanda Engine"
 FONT 9, "Century Gothic", 400, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,241,114,50,16,WS_GROUP
-    LTEXT           "VandaEngine Version 2.9.2",IDC_STATIC,103,7,123,8,SS_NOPREFIX
+    LTEXT           "VandaEngine Version 2.9.3",IDC_STATIC,103,7,123,8,SS_NOPREFIX
     CONTROL         IDB_BITMAP_SCENE_LIST,IDC_STATIC,"Static",SS_BITMAP,21,79,59,17
     CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,83,79,67,17
     CONTROL         IDB_BITMAP_OPENAL_LOGO,IDC_STATIC,"Static",SS_BITMAP,153,73,59,27
@@ -3504,7 +3506,9 @@ BEGIN
     BEGIN
         POPUP "Reference Manual"
         BEGIN
-            MENUITEM "Scripting",                   ID_REFERENCEMANUAL_SCRIPTING
+            MENUITEM "Scripting (CHM)",             ID_REFERENCEMANUAL_SCRIPTING_CHM
+            MENUITEM "Scripting (PDF)",             ID_REFERENCEMANUAL_SCRIPTING_PDF
+            MENUITEM "Online",                      ID_REFERENCEMANUAL_ONLINE
         END
         MENUITEM "About ",                      ID_HELP_ABOUT
     END
@@ -3627,12 +3631,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ehsan Kamrani "
             VALUE "FileDescription", "Vanda Engine"
-            VALUE "FileVersion", "2.9.2"
+            VALUE "FileVersion", "2.9.3"
             VALUE "internalName", "VandaEngine.exe"
             VALUE "LegalCopyright", "(c) 2015 Ehsan Kamrani .  All rights reserved."
             VALUE "OriginalFilename", "VandaEngine.exe"
             VALUE "ProductName", " Vanda Engine"
-            VALUE "ProductVersion", "2.9.2"
+            VALUE "ProductVersion", "2.9.3"
         END
     END
     BLOCK "VarFileInfo"

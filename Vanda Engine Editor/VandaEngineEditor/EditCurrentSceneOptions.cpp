@@ -201,7 +201,7 @@ void CEditCurrentSceneOptions::OnOK()
 		return;
 	}
 
-	if (m_menuCursorSize < 0.0f)
+	if (m_menuCursorSize < 0)
 	{
 		MessageBox("Cursor size must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;

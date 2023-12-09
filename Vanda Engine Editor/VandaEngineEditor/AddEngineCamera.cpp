@@ -75,6 +75,18 @@ void CAddEngineCamera::OnBnClickedOk()
 		return;
 	}
 
+	if (m_ncp <= 0.0)
+	{
+		MessageBox("Near clip plane must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	if (m_fcp <= 0.0)
+	{
+		MessageBox("Far clip plane must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	CBool compare = CFalse;
 	if (!m_strName.IsEmpty())
 	{

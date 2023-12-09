@@ -210,32 +210,42 @@ void CEditGeneralPhysXProperties::OnOK()
 	{
 		if (m_fDefaultRestitution < 0.0f || m_fDefaultRestitution > 1.0f)
 		{
-			MessageBox("restitution must be between 0 and 1", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			MessageBox("restitution must be in the range [0.0,1.0]", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 		if (m_fDefaultStaticFriction < 0.0)
 		{
-			MessageBox("static friction must be between 0 or higher", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			MessageBox("static friction must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 		if (m_fDefaultDynamicFriction < 0.0)
 		{
-			MessageBox("dynamic friction must be between 0 or higher", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			MessageBox("dynamic friction must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 		if (m_fDefaultSkinWidth <= 0.0f)
 		{
-			MessageBox("skin width must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			MessageBox("skin width must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCharacterSkinWidth <= 0.0f)
+		{
+			MessageBox("character skin width must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 		if (m_fCapsuleRadius <= 0.0f)
 		{
-			MessageBox("capsule radius must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			MessageBox("capsule radius must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 		if (m_fCapsuleHeight <= 0.0f)
 		{
-			MessageBox("capsule height must be greater than 0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			MessageBox("capsule height must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCharacterStepOffset < 0.0)
+		{
+			MessageBox("step offset must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 

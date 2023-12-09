@@ -31,7 +31,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ExecuteNonCyclicAnimation, "ExecuteNonCyclicAnimation(string prefabInstanceName, string animationClipName, float delayIn, float delayOut, float weightTarget, bool lock)");
 	Cpy(ReverseExecuteNonCyclicAnimation, "ReverseExecuteNonCyclicAnimation(string prefabInstanceName, string animationClipName)");
 	Cpy(RemoveNonCyclicAnimation, "RemoveNonCyclicAnimation(string prefabInstanceName, string animationClipName)");
-	Cpy(GetAnimationClipDurationOfPrefabInstance, "GetAnimationClipDurationOfPrefabInstance(string prefabInstanceName, string animationClipName)");
+	Cpy(GetAnimationClipDurationOfPrefabInstance, "double GetAnimationClipDurationOfPrefabInstance(string prefabInstanceName, string animationClipName)");
 	Cpy(PausePrefabInstanceAnimations, "PausePrefabInstanceAnimations(string prefabInstanceName)");
 	Cpy(ResumePrefabInstanceAnimations, "ResumePrefabInstanceAnimations(string prefabInstanceName)");
 
@@ -44,19 +44,20 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ActivateImportedCameraOfPrefabInstance, "ActivateImportedCameraOfPrefabInstance(string prefabInstanceName, string prefabCameraName, float endTime[optional])");
 	Cpy(ActivateEngineCamera, "ActivateEngineCamera(string engineCameraName, float endTime[optional])");
 	Cpy(SetPhysicsCameraAngle, "SetPhysicsCameraAngle(float angleDegree)");
-	Cpy(GetPhysicsCameraAngle, "GetPhysicsCameraAngle()");
+	Cpy(GetPhysicsCameraAngle, "double GetPhysicsCameraAngle()");
 	Cpy(SetPhysicsCameraTilt, "SetPhysicsCameraTilt(float tiltDegree)");
 	Cpy(SetPhysicsCameraMaxTilt, "SetPhysicsCameraMaxTilt(float maxTiltDegree)");
 	Cpy(SetPhysicsCameraMinTilt, "SetPhysicsCameraMinTilt(float minTiltDegree)");
-	Cpy(GetPhysicsCameraTilt, "GetPhysicsCameraTilt()");
-	Cpy(GetPhysicsCameraMaxTilt, "GetPhysicsCameraMaxTilt()");
-	Cpy(GetPhysicsCameraMinTilt, "GetPhysicsCameraMinTilt()");
+	Cpy(GetPhysicsCameraTilt, "double GetPhysicsCameraTilt()");
+	Cpy(GetPhysicsCameraMaxTilt, "double GetPhysicsCameraMaxTilt()");
+	Cpy(GetPhysicsCameraMinTilt, "double GetPhysicsCameraMinTilt()");
 	Cpy(SetPhysicsCameraYaw, "SetPhysicsCameraYaw(float yawDegree)");
-	Cpy(GetPhysicsCameraYaw, "GetPhysicsCameraYaw()");
+	Cpy(GetPhysicsCameraYaw, "double GetPhysicsCameraYaw()");
 
 	Cpy(LoadResource, "LoadResource(string resourceDirectoryName, string resourceFileName)");
 	Cpy(DeleteResource, "DeleteResource(string resourceDirectoryName, string resourceFileName)");
 	Cpy(DeleteAllResources, "DeleteAllResources()");
+	Cpy(PlayResourceSound, "PlayResourceSound(string resourceDirectoryName_resourceFileName.ogg)");
 	Cpy(PlayResourceSoundLoop, "PlayResourceSoundLoop(string resourceDirectoryName_resourceFileName.ogg)");
 	Cpy(PlayResourceSoundOnce, "PlayResourceSoundOnce(string resourceDirectoryName_resourceFileName.ogg)");
 	Cpy(StopResourceSound, "StopResourceSound(string resourceDirectoryName_resourceFileName.ogg)");
@@ -69,47 +70,56 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ShowGUI, "ShowGUI(string guiName)");
 	Cpy(HideGUI, "HideGUI(string guiName)");
 
-	Cpy(IsKeyDown, "IsKeyDown(string DirectInputKeyCode)");
+	Cpy(IsKeyDown, "bool IsKeyDown(string DirectInputKeyCode)");
 
 	Cpy(ShowPrefabInstance, "ShowPrefabInstance(string prefabInstanceName)");
 	Cpy(HidePrefabInstance, "HidePrefabInstance(string prefabInstanceName)");
 
 	Cpy(SetSelectionDistance, "SetSelectionDistance(float selectionDistance)");
-	Cpy(GetSelectionDistance, "GetSelectionDistance()");
+	Cpy(GetSelectionDistance, "double GetSelectionDistance()");
 	Cpy(SelectPrefabInstances , "SelectPrefabInstances(double mousePositionX, double mousePositionY, double selectionWidthSize, double selectionHeightSize)");
-	Cpy(GetScreenWidth, "GetScreenWidth()");
-	Cpy(GetScreenHeight, "GetScreenHeight()");
-	Cpy(GetCursorX, "GetCursorX()");
-	Cpy(GetCursorY, "GetCursorY()");
-	Cpy(IsCharacterControllerLocked, "IsCharacterControllerLocked()");
-	Cpy(GetElapsedTime, "GetElapsedTime()");
-	Cpy(GetPrefabInstanceNameFromActor, "GetPrefabInstanceNameFromActor(string physicsActorName)");
+	Cpy(GetScreenWidth, "int GetScreenWidth()");
+	Cpy(GetScreenHeight, "int GetScreenHeight()");
+	Cpy(GetCursorX, "double GetCursorX()");
+	Cpy(GetCursorY, "double GetCursorY()");
+	Cpy(IsCharacterControllerLocked, "bool IsCharacterControllerLocked()");
+	Cpy(GetElapsedTime, "double GetElapsedTime()");
+	Cpy(GetPrefabInstanceNameFromActor, "string GetPrefabInstanceNameFromActor(string physicsActorName)");
 
 	Cpy(TranslatePrefabInstance, "TranslatePrefabInstance(string prefabInstanceName, float XPosition, float YPosition, float ZPosition)");
 	Cpy(RotatePrefabInstance, "RotatePrefabInstance(string prefabInstanceName, float XRotationAngle, float YRotationAngle, float ZRotationAngle)");
 	Cpy(ScalePrefabInstance, "ScalePrefabInstance(string prefabInstanceName, float XScale, float YScale, float ZScale)");
 
-	Cpy(GetPrefabInstanceTranslate, "GetPrefabInstanceTranslate(string prefabInstanceName)");
-	Cpy(GetPrefabInstanceRotate, "GetPrefabInstanceRotate(string prefabInstanceName)");
-	Cpy(GetPrefabInstanceScale, "GetPrefabInstanceScale(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceTranslate, "double,double,double GetPrefabInstanceTranslate(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceRotate, "double,double,double GetPrefabInstanceRotate(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceScale, "double,double,double GetPrefabInstanceScale(string prefabInstanceName)");
 
-	Cpy(GetPrefabInstanceRadius, "GetPrefabInstanceRadius(string prefabInstanceName)");
-	Cpy(GetDistanceOfPrefabInstanceFromPhysicsCamera, "GetDistanceOfPrefabInstanceFromPhysicsCamera(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceRadius, "double GetPrefabInstanceRadius(string prefabInstanceName)");
+	Cpy(GetDistanceOfPrefabInstanceFromPhysicsCamera, "double GetDistanceOfPrefabInstanceFromPhysicsCamera(string prefabInstanceName)");
 
 	Cpy(EnableDepthOfField, "EnableDepthOfField()");
 	Cpy(DisableDepthOfField, "DisableDepthOfField()");
 	Cpy(SetDepthOfFieldFocalDistance, "SetDepthOfFieldFocalDistance(float focalDistance)");
 	Cpy(SetDepthOfFieldFocalRange, "SetDepthOfFieldFocalRange(float focalRange)");
 
+	Cpy(GetDepthOfFieldFocalDistance, "double GetDepthOfFieldFocalDistance()");
+	Cpy(GetDepthOfFieldFocalRange, "double GetDepthOfFieldFocalRange()");
+
 	Cpy(EnableFog, "EnableFog()");
 	Cpy(DisableFog, "DisableFog()");
 	Cpy(SetFogColor, "SetFogColor(float red, float green, float blue)");
 	Cpy(SetFogDensity, "SetFogDensity(float density)");
 
+	Cpy(GetFogColor, "double, double, double GetFogColor()");
+	Cpy(GetFogDensity, "double GetFogDensity()");
+
 	Cpy(EnableBloom, "EnableBloom()");
 	Cpy(DisableBloom, "DisableBloom()");
 	Cpy(SetBloomColor, "SetBloomColor(float red, float green, float blue)");
 	Cpy(SetBloomIntensity, "SetBloomIntensity(float intensity)");
+
+	Cpy(GetBloomColor, "double, double, double GetBloomColor()");
+	Cpy(GetBloomIntensity, "double GetBloomIntensity()");
 
 	Cpy(EnableDirectionalShadow, "EnableDirectionalShadow()");
 	Cpy(DisableDirectionalShadow, "DisableDirectionalShadow()");
@@ -127,10 +137,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetLightSpecular, "SetLightSpecular(string lightObjectName, float red, float green, float blue)");
 	Cpy(SetLightShininess, "SetLightShininess(string lightObjectName, float shininess)");
 
-	Cpy(GetLightAmbient, "GetLightAmbient(string lightObjectName)");
-	Cpy(GetLightDiffuse, "GetLightDiffuse(string lightObjectName)");
-	Cpy(GetLightSpecular, "GetLightSpecular(string lightObjectName)");
-	Cpy(GetLightShininess, "GetLightShininess(string lightObjectName)");
+	Cpy(GetLightAmbient, "double,double,double GetLightAmbient(string lightObjectName)");
+	Cpy(GetLightDiffuse, "double,double,double GetLightDiffuse(string lightObjectName)");
+	Cpy(GetLightSpecular, "double,double,double GetLightSpecular(string lightObjectName)");
+	Cpy(GetLightShininess, "double GetLightShininess(string lightObjectName)");
 
 	Cpy(SetPrefabInstanceAmbient, "SetPrefabInstanceAmbient(string prefabInstanceName, float red, float green, float blue)");
 	Cpy(SetPrefabInstanceDiffuse, "SetPrefabInstanceDiffuse(string prefabInstanceName, float red, float green, float blue)");
@@ -166,7 +176,9 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(EnablePhysicsDebugMode, "EnablePhysicsDebugMode()");
 	Cpy(DisablePhysicsDebugMode, "DisablePhysicsDebugMode()");
 	Cpy(SetCharacterControllerPosition, "SetCharacterControllerPosition(float x, float y, float z)");
-	Cpy(GetCharacterControllerPosition, "GetCharacterControllerPosition()");
+	Cpy(GetCharacterControllerPosition, "double,double,double GetCharacterControllerPosition()");
+
+	Cpy(GetDistanceBetweenPhysicsCameraAndCharacterController, "double GetDistanceBetweenPhysicsCameraAndCharacterController()");
 
 	Cpy(SetMultisamplingValue, "SetMultisamplingValue(int numSamples)");
 	Cpy(SetAnisotropicFilteringValue, "SetAnisotropicFilteringValue(int value)");
@@ -176,124 +188,124 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(DisableGeneralWaterReflection, "DisableGeneralWaterReflection()");
 	Cpy(SetScreenResolution, "SetScreenResolution(int screenWidth)");
 	Cpy(SaveGeneralProperties, "SaveGeneralProperties()");
-	Cpy(GetMultisamplingValue, "GetMultisamplingValue()");
-	Cpy(GetAnisotropicFilteringValue, "GetAnisotropicFilteringValue()");
-	Cpy(IsVSyncEnabled, "IsVSyncEnabled()");
-	Cpy(IsGeneralWaterReflectionEnabled, "IsGeneralWaterReflectionEnabled()");
-	Cpy(GetScreenResolution, "GetScreenResolution()");
+	Cpy(GetMultisamplingValue, "int GetMultisamplingValue()");
+	Cpy(GetAnisotropicFilteringValue, "int GetAnisotropicFilteringValue()");
+	Cpy(IsVSyncEnabled, "bool IsVSyncEnabled()");
+	Cpy(IsGeneralWaterReflectionEnabled, "bool IsGeneralWaterReflectionEnabled()");
+	Cpy(GetScreenResolution, "int GetScreenResolution()");
 
-	Cpy(GetVSceneScriptStringVariable, "GetVSceneScriptStringVariable(string variable)");
-	Cpy(GetVSceneScriptBoolVariable, "GetVSceneScriptBoolVariable(string variable)");
-	Cpy(GetVSceneScriptIntVariable, "GetVSceneScriptIntVariable(string variable)");
-	Cpy(GetVSceneScriptDoubleVariable, "GetVSceneScriptDoubleVariable(string variable)");
+	Cpy(GetVSceneScriptStringVariable, "string GetVSceneScriptStringVariable(string variable)");
+	Cpy(GetVSceneScriptBoolVariable, "bool GetVSceneScriptBoolVariable(string variable)");
+	Cpy(GetVSceneScriptIntVariable, "int GetVSceneScriptIntVariable(string variable)");
+	Cpy(GetVSceneScriptDoubleVariable, "double GetVSceneScriptDoubleVariable(string variable)");
 	Cpy(SetVSceneScriptStringVariable, "SetVSceneScriptStringVariable(string variable, string value)");
 	Cpy(SetVSceneScriptBoolVariable, "SetVSceneScriptBoolVariable(string variable, bool value)");
 	Cpy(SetVSceneScriptIntVariable, "SetVSceneScriptIntVariable(string variable, int value)");
 	Cpy(SetVSceneScriptDoubleVariable, "SetVSceneScriptDoubleVariable(string variable, double value)");
 
-	Cpy(GetSkyScriptStringVariable, "GetSkyScriptStringVariable(string variable)");
-	Cpy(GetSkyScriptBoolVariable, "GetSkyScriptBoolVariable(string variable)");
-	Cpy(GetSkyScriptIntVariable, "GetSkyScriptIntVariable(string variable)");
-	Cpy(GetSkyScriptDoubleVariable, "GetSkyScriptDoubleVariable(string variable)");
+	Cpy(GetSkyScriptStringVariable, "string GetSkyScriptStringVariable(string variable)");
+	Cpy(GetSkyScriptBoolVariable, "bool GetSkyScriptBoolVariable(string variable)");
+	Cpy(GetSkyScriptIntVariable, "int GetSkyScriptIntVariable(string variable)");
+	Cpy(GetSkyScriptDoubleVariable, "double GetSkyScriptDoubleVariable(string variable)");
 	Cpy(SetSkyScriptStringVariable, "SetSkyScriptStringVariable(string variable, string value)");
 	Cpy(SetSkyScriptBoolVariable, "SetSkyScriptBoolVariable(string variable, bool value)");
 	Cpy(SetSkyScriptIntVariable, "SetSkyScriptIntVariable(string variable, int value)");
 	Cpy(SetSkyScriptDoubleVariable, "SetSkyScriptDoubleVariable(string variable, double value)");
 
-	Cpy(GetTerrainScriptStringVariable, "GetTerrainScriptStringVariable(string variable)");
-	Cpy(GetTerrainScriptBoolVariable, "GetTerrainScriptBoolVariable(string variable)");
-	Cpy(GetTerrainScriptIntVariable, "GetTerrainScriptIntVariable(string variable)");
-	Cpy(GetTerrainScriptDoubleVariable, "GetTerrainScriptDoubleVariable(string variable)");
+	Cpy(GetTerrainScriptStringVariable, "string GetTerrainScriptStringVariable(string variable)");
+	Cpy(GetTerrainScriptBoolVariable, "bool GetTerrainScriptBoolVariable(string variable)");
+	Cpy(GetTerrainScriptIntVariable, "int GetTerrainScriptIntVariable(string variable)");
+	Cpy(GetTerrainScriptDoubleVariable, "double GetTerrainScriptDoubleVariable(string variable)");
 	Cpy(SetTerrainScriptStringVariable, "SetTerrainScriptStringVariable(string variable, string value)");
 	Cpy(SetTerrainScriptBoolVariable, "SetTerrainScriptBoolVariable(string variable, bool value)");
 	Cpy(SetTerrainScriptIntVariable, "SetTerrainScriptIntVariable(string variable, int value)");
 	Cpy(SetTerrainScriptDoubleVariable, "SetTerrainScriptDoubleVariable(string variable, double value)");
 
-	Cpy(GetPrefabInstanceScriptStringVariable, "GetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable)");
-	Cpy(GetPrefabInstanceScriptBoolVariable, "GetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable)");
-	Cpy(GetPrefabInstanceScriptIntVariable, "GetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable)");
-	Cpy(GetPrefabInstanceScriptDoubleVariable, "GetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptStringVariable, "string GetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptBoolVariable, "bool GetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptIntVariable, "int GetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable)");
+	Cpy(GetPrefabInstanceScriptDoubleVariable, "double GetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable)");
 	Cpy(SetPrefabInstanceScriptStringVariable, "SetPrefabInstanceScriptStringVariable(string prefabInstanceName, string variable, string value)");
 	Cpy(SetPrefabInstanceScriptBoolVariable, "SetPrefabInstanceScriptBoolVariable(string prefabInstanceName, string variable, bool value)");
 	Cpy(SetPrefabInstanceScriptIntVariable, "SetPrefabInstanceScriptIntVariable(string prefabInstanceName, string variable, int value)");
 	Cpy(SetPrefabInstanceScriptDoubleVariable, "SetPrefabInstanceScriptDoubleVariable(string prefabInstanceName, string variable, double value)");
 
-	Cpy(GetGUIButtonScriptStringVariable, "GetGUIButtonScriptStringVariable(string GUIName, string buttonName, string variable)");
-	Cpy(GetGUIButtonScriptBoolVariable, "GetGUIButtonScriptBoolVariable(string GUIName, string buttonName, string variable)");
-	Cpy(GetGUIButtonScriptIntVariable, "GetGUIButtonScriptIntVariable(string GUIName, string buttonName, string variable)");
-	Cpy(GetGUIButtonScriptDoubleVariable, "GetGUIButtonScriptDoubleVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptStringVariable, "string GetGUIButtonScriptStringVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptBoolVariable, "bool GetGUIButtonScriptBoolVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptIntVariable, "int GetGUIButtonScriptIntVariable(string GUIName, string buttonName, string variable)");
+	Cpy(GetGUIButtonScriptDoubleVariable, "double GetGUIButtonScriptDoubleVariable(string GUIName, string buttonName, string variable)");
 	Cpy(SetGUIButtonScriptStringVariable, "SetGUIButtonScriptStringVariable(string GUIName, string buttonName, string variable, string value)");
 	Cpy(SetGUIButtonScriptBoolVariable, "SetGUIButtonScriptBoolVariable(string GUIName, string buttonName, string variable, bool value)");
 	Cpy(SetGUIButtonScriptIntVariable, "SetGUIButtonScriptIntVariable(string GUIName, string buttonName, vstring variable, int value)");
 	Cpy(SetGUIButtonScriptDoubleVariable, "SetGUIButtonScriptDoubleVariable(string GUIName, string buttonName, string variable, double value)");
 
-	Cpy(GetTriggerScriptStringVariable, "GetTriggerScriptStringVariable(string triggerName, string variable)");
-	Cpy(GetTriggerScriptBoolVariable, "GetTriggerScriptBoolVariable(string triggerName, string variable)");
-	Cpy(GetTriggerScriptIntVariable, "GetTriggerScriptIntVariable(string triggerName, string variable)");
-	Cpy(GetTriggerScriptDoubleVariable, "GetTriggerScriptDoubleVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptStringVariable, "string GetTriggerScriptStringVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptBoolVariable, "bool GetTriggerScriptBoolVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptIntVariable, "int GetTriggerScriptIntVariable(string triggerName, string variable)");
+	Cpy(GetTriggerScriptDoubleVariable, "double GetTriggerScriptDoubleVariable(string triggerName, string variable)");
 	Cpy(SetTriggerScriptStringVariable, "SetTriggerScriptStringVariable(string triggerName, string variable, string value)");
 	Cpy(SetTriggerScriptBoolVariable, "SetTriggerScriptBoolVariable(string triggerName, string variable, bool value)");
 	Cpy(SetTriggerScriptIntVariable, "SetTriggerScriptIntVariable(string triggerName, string variable, int value)");
 	Cpy(SetTriggerScriptDoubleVariable, "SetTriggerScriptDoubleVariable(string triggerName, string variable, double value)");
 
-	Cpy(GetWaterScriptStringVariable, "GetWaterScriptStringVariable(string waterName, string variable)");
-	Cpy(GetWaterScriptBoolVariable, "GetWaterScriptBoolVariable(string waterName, string variable)");
-	Cpy(GetWaterScriptIntVariable, "GetWaterScriptIntVariable(string waterName, string variable)");
-	Cpy(GetWaterScriptDoubleVariable, "GetWaterScriptDoubleVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptStringVariable, "string GetWaterScriptStringVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptBoolVariable, "bool GetWaterScriptBoolVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptIntVariable, "int GetWaterScriptIntVariable(string waterName, string variable)");
+	Cpy(GetWaterScriptDoubleVariable, "double GetWaterScriptDoubleVariable(string waterName, string variable)");
 	Cpy(SetWaterScriptStringVariable, "SetWaterScriptStringVariable(string waterName, string variable, string value)");
 	Cpy(SetWaterScriptBoolVariable, "SetWaterScriptBoolVariable(string waterName, string variable, bool value)");
 	Cpy(SetWaterScriptIntVariable, "SetWaterScriptIntVariable(string waterName, string variable, int value)");
 	Cpy(SetWaterScriptDoubleVariable, "SetWaterScriptDoubleVariable(string waterName, string variable, double value)");
 
-	Cpy(GetVideoScriptStringVariable, "GetVideoScriptStringVariable(string videoName, string variable)");
-	Cpy(GetVideoScriptBoolVariable, "GetVideoScriptBoolVariable(string videoName, string variable)");
-	Cpy(GetVideoScriptIntVariable, "GetVideoScriptIntVariable(string videoName, string variable)");
-	Cpy(GetVideoScriptDoubleVariable, "GetVideoScriptDoubleVariable(string videoName, string variable)");
+	Cpy(GetVideoScriptStringVariable, "string GetVideoScriptStringVariable(string videoName, string variable)");
+	Cpy(GetVideoScriptBoolVariable, "bool GetVideoScriptBoolVariable(string videoName, string variable)");
+	Cpy(GetVideoScriptIntVariable, "int GetVideoScriptIntVariable(string videoName, string variable)");
+	Cpy(GetVideoScriptDoubleVariable, "double GetVideoScriptDoubleVariable(string videoName, string variable)");
 	Cpy(SetVideoScriptStringVariable, "SetVideoScriptStringVariable(string videoName, string variable, string value)");
 	Cpy(SetVideoScriptBoolVariable, "SetVideoScriptBoolVariable(string videoName, string variable, bool value)");
 	Cpy(SetVideoScriptIntVariable, "SetVideoScriptIntVariable(string videoName, string variable, int value)");
 	Cpy(SetVideoScriptDoubleVariable, "SetVideoScriptDoubleVariable(string videoName, string variable, double value)");
 
-	Cpy(GetAmbientSoundScriptStringVariable, "GetAmbientSoundScriptStringVariable(string ambientSoundName, string variable)");
-	Cpy(GetAmbientSoundScriptBoolVariable, "GetAmbientSoundScriptBoolVariable(string ambientSoundName, string variable)");
-	Cpy(GetAmbientSoundScriptIntVariable, "GetAmbientSoundScriptIntVariable(string ambientSoundName, string variable)");
-	Cpy(GetAmbientSoundScriptDoubleVariable, "GetAmbientSoundScriptDoubleVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptStringVariable, "string GetAmbientSoundScriptStringVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptBoolVariable, "bool GetAmbientSoundScriptBoolVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptIntVariable, "int GetAmbientSoundScriptIntVariable(string ambientSoundName, string variable)");
+	Cpy(GetAmbientSoundScriptDoubleVariable, "double GetAmbientSoundScriptDoubleVariable(string ambientSoundName, string variable)");
 	Cpy(SetAmbientSoundScriptStringVariable, "SetAmbientSoundScriptStringVariable(string ambientSoundName, string variable, string value)");
 	Cpy(SetAmbientSoundScriptBoolVariable, "SetAmbientSoundScriptBoolVariable(string ambientSoundName, string variable, bool value)");
 	Cpy(SetAmbientSoundScriptIntVariable, "SetAmbientSoundScriptIntVariable(string ambientSoundName, string variable, int value)");
 	Cpy(SetAmbientSoundScriptDoubleVariable, "SetAmbientSoundScriptDoubleVariable(string ambientSoundName, string variable, double value)");
 
-	Cpy(Get3DSoundScriptStringVariable, "Get3DSoundScriptStringVariable(string 3DSoundName, string variable)");
-	Cpy(Get3DSoundScriptBoolVariable, "Get3DSoundScriptBoolVariable(string 3DSoundName, string variable)");
-	Cpy(Get3DSoundScriptIntVariable, "Get3DSoundScriptIntVariable(string 3DSoundName, string variable)");
-	Cpy(Get3DSoundScriptDoubleVariable, "Get3DSoundScriptDoubleVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptStringVariable, "string Get3DSoundScriptStringVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptBoolVariable, "bool Get3DSoundScriptBoolVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptIntVariable, "int Get3DSoundScriptIntVariable(string 3DSoundName, string variable)");
+	Cpy(Get3DSoundScriptDoubleVariable, "double Get3DSoundScriptDoubleVariable(string 3DSoundName, string variable)");
 	Cpy(Set3DSoundScriptStringVariable, "Set3DSoundScriptStringVariable(string 3DSoundName, string variable, string value)");
 	Cpy(Set3DSoundScriptBoolVariable, "Set3DSoundScriptBoolVariable(string 3DSoundName, string variable, bool value)");
 	Cpy(Set3DSoundScriptIntVariable, "Set3DSoundScriptIntVariable(string 3DSoundName, string variable, int value)");
 	Cpy(Set3DSoundScriptDoubleVariable, "Set3DSoundScriptDoubleVariable(string 3DSoundName, string variable, double value)");
 
-	Cpy(GetLightScriptStringVariable, "GetLightScriptStringVariable(string lightName, string variable)");
-	Cpy(GetLightScriptBoolVariable, "GetLightScriptBoolVariable(string lightName, string variable)");
-	Cpy(GetLightScriptIntVariable, "GetLightScriptIntVariable(string lightName, string variable)");
-	Cpy(GetLightScriptDoubleVariable, "GetLightScriptDoubleVariable(string lightName, string variable)");
+	Cpy(GetLightScriptStringVariable, "string GetLightScriptStringVariable(string lightName, string variable)");
+	Cpy(GetLightScriptBoolVariable, "bool GetLightScriptBoolVariable(string lightName, string variable)");
+	Cpy(GetLightScriptIntVariable, "int GetLightScriptIntVariable(string lightName, string variable)");
+	Cpy(GetLightScriptDoubleVariable, "double GetLightScriptDoubleVariable(string lightName, string variable)");
 	Cpy(SetLightScriptStringVariable, "SetLightScriptStringVariable(string lightName, string variable, string value)");
 	Cpy(SetLightScriptBoolVariable, "SetLightScriptBoolVariable(string lightName, string variable, bool value)");
 	Cpy(SetLightScriptIntVariable, "SetLightScriptIntVariable(string lightName, string variable, int value)");
 	Cpy(SetLightScriptDoubleVariable, "SetLightScriptDoubleVariable(string lightName, string variable, double value)");
 
-	Cpy(GetCameraScriptStringVariable, "GetCameraScriptStringVariable(string cameraName, string variable)");
-	Cpy(GetCameraScriptBoolVariable, "GetCameraScriptBoolVariable(string cameraName, string variable)");
-	Cpy(GetCameraScriptIntVariable, "GetCameraScriptIntVariable(string cameraName, string variable)");
-	Cpy(GetCameraScriptDoubleVariable, "GetCameraScriptDoubleVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptStringVariable, "string GetCameraScriptStringVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptBoolVariable, "bool GetCameraScriptBoolVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptIntVariable, "int GetCameraScriptIntVariable(string cameraName, string variable)");
+	Cpy(GetCameraScriptDoubleVariable, "double GetCameraScriptDoubleVariable(string cameraName, string variable)");
 	Cpy(SetCameraScriptStringVariable, "SetCameraScriptStringVariable(string cameraName, string variable, string value)");
 	Cpy(SetCameraScriptBoolVariable, "SetCameraScriptBoolVariable(string cameraName, string variable, bool value)");
 	Cpy(SetCameraScriptIntVariable, "SetCameraScriptIntVariable(string cameraName, string variable, int value)");
 	Cpy(SetCameraScriptDoubleVariable, "SetCameraScriptDoubleVariable(string cameraName, string variable, double value)");
 
-	Cpy(GetMainCharacterScriptStringVariable, "GetMainCharacterScriptStringVariable(string variable)");
-	Cpy(GetMainCharacterScriptBoolVariable, "GetMainCharacterScriptBoolVariable(string variable)");
-	Cpy(GetMainCharacterScriptIntVariable, "GetMainCharacterScriptIntVariable(string variable)");
-	Cpy(GetMainCharacterScriptDoubleVariable, "GetMainCharacterScriptDoubleVariable(string variable)");
+	Cpy(GetMainCharacterScriptStringVariable, "string GetMainCharacterScriptStringVariable(string variable)");
+	Cpy(GetMainCharacterScriptBoolVariable, "bool GetMainCharacterScriptBoolVariable(string variable)");
+	Cpy(GetMainCharacterScriptIntVariable, "int GetMainCharacterScriptIntVariable(string variable)");
+	Cpy(GetMainCharacterScriptDoubleVariable, "double GetMainCharacterScriptDoubleVariable(string variable)");
 	Cpy(SetMainCharacterScriptStringVariable, "SetMainCharacterScriptStringVariable(string variable, string value)");
 	Cpy(SetMainCharacterScriptBoolVariable, "SetMainCharacterScriptBoolVariable(string variable, bool value)");
 	Cpy(SetMainCharacterScriptIntVariable, "SetMainCharacterScriptIntVariable(string variable, int value)");
@@ -311,18 +323,18 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetGUIButtonPosition, "SetGUIButtonPosition(string GUIName, string buttonName, int x, int y)");
 	Cpy(SetGUIImagePosition, "SetGUIImagePosition(string GUIName, string imageName, int x, int y)");
 	Cpy(SetGUITextPosition, "SetGUITextPosition(string GUIName, string textName, int x, int y)");
-	Cpy(GetGUIButtonPosition, "GetGUIButtonPosition(string GUIName, string buttonName)");
-	Cpy(GetGUIImagePosition, "GetGUIImagePosition(string GUIName, string imageName)");
-	Cpy(GetGUITextPosition, "GetGUITextPosition(string GUIName, string textName)");
+	Cpy(GetGUIButtonPosition, "int,int GetGUIButtonPosition(string GUIName, string buttonName)");
+	Cpy(GetGUIImagePosition, "int,int GetGUIImagePosition(string GUIName, string imageName)");
+	Cpy(GetGUITextPosition, "int,int GetGUITextPosition(string GUIName, string textName)");
 
 	Cpy(SetGUIPosition, "SetGUIPosition(string GUIName, int x, int y)");
-	Cpy(GetGUIPosition, "GetGUIPosition(string GUIName)");
+	Cpy(GetGUIPosition, "int,int GetGUIPosition(string GUIName)");
 
 	Cpy(AddForceToCharacterController, "AddForceToCharacterController(float forceX, float forceY, float forceZ, float forceSpeed, float forceDecreaseValue)");
 	Cpy(AddForceToPrefabInstance, "AddForceToPrefabInstance(string prefabInstanceName, float forceX, float forceY, float forceZ, float forcePower)");
 	Cpy(AddTorqueToPrefabInstance, "AddTorqueToPrefabInstance(string prefabInstanceName, float torqueX, float torqueY, float torqueZ, float torquePower)");
 
-	Cpy(GetPhysicsActorGroup, "GetPhysicsActorGroup(string physicsActorName)");
+	Cpy(GetPhysicsActorGroup, "string GetPhysicsActorGroup(string physicsActorName)");
 	Cpy(SetPhysicsCollisionFlags, "SetPhysicsCollisionFlags(string group1, string group2, bool flag)");
 
 	Cpy(GeneratePrefabInstance, "GeneratePrefabInstance(string prefabName, float XPos, float YPos, float ZPos, float XRot, float YRot, float ZRot, float XScale, float YScale, float ZScale)");
@@ -341,17 +353,17 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetSoundReferenceDistance, "SetSoundReferenceDistance(string 3DSoundObjectName, float distance)");
 	Cpy(SetSoundMaxDistance, "SetSoundMaxDistance(string 3DSoundObjectName, float maxDistance)");
 
-	Cpy(GetSoundVolume, "GetSoundVolume(string soundObjectName)");
-	Cpy(GetSoundPitch, "GetSoundPitch(string soundObjectName)");
-	Cpy(GetSoundPlay, "GetSoundPlay(string soundObjectName)");
-	Cpy(GetSoundLoop, "GetSoundLoop(string soundObjectName)");
-	Cpy(GetSoundPosition, "GetSoundPosition(string 3DSoundObjectName)");
-	Cpy(GetSoundRollOff, "GetSoundRollOff(string 3DSoundObjectName)");
-	Cpy(GetSoundReferenceDistance, "GetSoundReferenceDistance(string 3DSoundObjectName)");
-	Cpy(GetSoundMaxDistance, "GetSoundMaxDistance(string 3DSoundObjectName)");
+	Cpy(GetSoundVolume, "double GetSoundVolume(string soundObjectName)");
+	Cpy(GetSoundPitch, "double GetSoundPitch(string soundObjectName)");
+	Cpy(GetSoundPlay, "bool GetSoundPlay(string soundObjectName)");
+	Cpy(GetSoundLoop, "bool GetSoundLoop(string soundObjectName)");
+	Cpy(GetSoundPosition, "double,double,double GetSoundPosition(string 3DSoundObjectName)");
+	Cpy(GetSoundRollOff, "double GetSoundRollOff(string 3DSoundObjectName)");
+	Cpy(GetSoundReferenceDistance, "double GetSoundReferenceDistance(string 3DSoundObjectName)");
+	Cpy(GetSoundMaxDistance, "double GetSoundMaxDistance(string 3DSoundObjectName)");
 
 	Cpy(SetGlobalSoundVolume, "SetGlobalSoundVolume(float volume)");
-	Cpy(GetGlobalSoundVolume, "GetGlobalSoundVolume()");
+	Cpy(GetGlobalSoundVolume, "double GetGlobalSoundVolume()");
 
 	Cpy(PlayVideo, "PlayVideo(string videoName)");
 	Cpy(PlayVideoLoop, "PlayVideoLoop(string videoName)");
@@ -361,10 +373,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetVideoLoop, "SetVideoLoop(string videoName, bool loop)");
 	Cpy(SetVideoVolume, "SetVideoVolume(string videoName, float volume)");
 
-	Cpy(GetVideoPlay, "GetVideoPlay(string videoName)");
-	Cpy(GetVideoLoop, "GetVideoLoop(string videoName)");
-	Cpy(GetVideoVolume, "GetVideoVolume(string videoName)");
-	Cpy(GetVideoDuration, "GetVideoDuration(string videoName)");
+	Cpy(GetVideoPlay, "bool GetVideoPlay(string videoName)");
+	Cpy(GetVideoLoop, "bool GetVideoLoop(string videoName)");
+	Cpy(GetVideoVolume, "double GetVideoVolume(string videoName)");
+	Cpy(GetVideoDuration, "double GetVideoDuration(string videoName)");
 
 	//Stop Sounds
 	Cpy(StopAllSounds, "StopAllSounds([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
@@ -441,7 +453,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(ShowMenuCursor, "ShowMenuCursor([optional] int cursorSize)");
 	Cpy(HideMenuCursor, "HideMenuCursor()");
 	Cpy(SetMenuCursorSize, "SetMenuCursorSize(int cursorSize)");
-	Cpy(GetMenuCursorSize, "GetMenuCursorSize()");
+	Cpy(GetMenuCursorSize, "int GetMenuCursorSize()");
 
 	//Pause script Update event of game objects
 	Cpy(PauseAllUpdateEvents, "PauseAllUpdateEvents([optional] string exception_1, [optional] string exception_2,..., [optional] string exception_n)");
@@ -491,10 +503,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetTerrainSpecular, "SetTerrainSpecular(float red, float green, float blue)");
 	Cpy(SetTerrainShininess, "SetTerrainShininess(float shininess)");
 
-	Cpy(GetTerrainAmbient, "GetTerrainAmbient()");
-	Cpy(GetTerrainDiffuse, "GetTerrainDiffuse()");
-	Cpy(GetTerrainSpecular, "GetTerrainSpecular()");
-	Cpy(GetTerrainShininess, "GetTerrainShininess()");
+	Cpy(GetTerrainAmbient, "double,double,double GetTerrainAmbient()");
+	Cpy(GetTerrainDiffuse, "double,double,double GetTerrainDiffuse()");
+	Cpy(GetTerrainSpecular, "double,double,double GetTerrainSpecular()");
+	Cpy(GetTerrainShininess, "double GetTerrainShininess()");
 
 	//Engine Camera
 	Cpy(SetEngineCameraPosition, "SetEngineCameraPosition(string engineCameraName, float x, float y, float z)");
@@ -504,12 +516,12 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetEngineCameraFarClipPlane, "SetEngineCameraFarClipPlane(string engineCameraName, float farClipPlane)");
 	Cpy(SetEngineCameraAngle, "SetEngineCameraAngle(string engineCameraName, float angle)");
 
-	Cpy(GetEngineCameraPosition, "GetEngineCameraPosition(string engineCameraName)");
-	Cpy(GetEngineCameraPan, "GetEngineCameraPan(string engineCameraName)");
-	Cpy(GetEngineCameraTilt, "GetEngineCameraTilt(string engineCameraName)");
-	Cpy(GetEngineCameraNearClipPlane, "GetEngineCameraNearClipPlane(string engineCameraName)");
-	Cpy(GetEngineCameraFarClipPlane, "GetEngineCameraFarClipPlane(string engineCameraName)");
-	Cpy(GetEngineCameraAngle, "GetEngineCameraAngle(string engineCameraName)");
+	Cpy(GetEngineCameraPosition, "double,double,double GetEngineCameraPosition(string engineCameraName)");
+	Cpy(GetEngineCameraPan, "double GetEngineCameraPan(string engineCameraName)");
+	Cpy(GetEngineCameraTilt, "double GetEngineCameraTilt(string engineCameraName)");
+	Cpy(GetEngineCameraNearClipPlane, "double GetEngineCameraNearClipPlane(string engineCameraName)");
+	Cpy(GetEngineCameraFarClipPlane, "double GetEngineCameraFarClipPlane(string engineCameraName)");
+	Cpy(GetEngineCameraAngle, "double GetEngineCameraAngle(string engineCameraName)");
 
 	//Water
 	Cpy(SetWaterPosition, "SetWaterPosition(string waterName, float x, float y, float z)");
@@ -528,26 +540,26 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(EnableWaterSunReflection, "EnableWaterSunReflection(string waterName)");
 	Cpy(DisableWaterSunReflection, "DisableWaterSunReflection(string waterName)");
 
-	Cpy(GetWaterPosition, "GetWaterPosition(string waterName)");
-	Cpy(GetWaterRotation, "GetWaterRotation(string waterName)");
-	Cpy(GetWaterScale, "GetWaterScale(string waterName)");
-	Cpy(GetWaterLightPosition, "GetWaterLightPosition(string waterName)");
-	Cpy(GetWaterUnderwaterColor, "GetWaterUnderwaterColor(string waterName)");
-	Cpy(GetWaterUnderwaterFogDensity, "GetWaterUnderwaterFogDensity(string waterName)");
-	Cpy(GetWaterTransparency, "GetWaterTransparency(string waterName)");
-	Cpy(GetWaterFlowSpeed, "GetWaterFlowSpeed(string waterName)");
-	Cpy(GetWaterUV, "GetWaterUV(string waterName)");
-	Cpy(IsWaterVisible, "IsWaterVisible(string waterName)");
-	Cpy(IsWaterShadowEnabled, "IsWaterShadowEnabled(string waterName)");
-	Cpy(IsWaterSunReflectionEnabled, "IsWaterSunReflectionEnabled(string waterName)");
+	Cpy(GetWaterPosition, "double,double,double GetWaterPosition(string waterName)");
+	Cpy(GetWaterRotation, "double GetWaterRotation(string waterName)");
+	Cpy(GetWaterScale, "double,double GetWaterScale(string waterName)");
+	Cpy(GetWaterLightPosition, "double,double,double GetWaterLightPosition(string waterName)");
+	Cpy(GetWaterUnderwaterColor, "double,double,double GetWaterUnderwaterColor(string waterName)");
+	Cpy(GetWaterUnderwaterFogDensity, "double GetWaterUnderwaterFogDensity(string waterName)");
+	Cpy(GetWaterTransparency, "double GetWaterTransparency(string waterName)");
+	Cpy(GetWaterFlowSpeed, "double GetWaterFlowSpeed(string waterName)");
+	Cpy(GetWaterUV, "double GetWaterUV(string waterName)");
+	Cpy(IsWaterVisible, "bool IsWaterVisible(string waterName)");
+	Cpy(IsWaterShadowEnabled, "bool IsWaterShadowEnabled(string waterName)");
+	Cpy(IsWaterSunReflectionEnabled, "bool IsWaterSunReflectionEnabled(string waterName)");
 
 	//Sky
 	Cpy(SetSkyPosition, "SetSkyPosition(float x, float y, float z)");
 	Cpy(EnableSkyFog, "EnableSkyFog()");
 	Cpy(DisableSkyFog, "DisableSkyFog()");
 
-	Cpy(GetSkyPosition, "GetSkyPosition()");
-	Cpy(IsSkyFogEnabled, "IsSkyFogEnabled()");
+	Cpy(GetSkyPosition, "double,double,double GetSkyPosition()");
+	Cpy(IsSkyFogEnabled, "bool IsSkyFogEnabled()");
 
 	//Save/Load
 	Cpy(CreateFolder, "CreateFolder(string folderPath)");
@@ -556,13 +568,13 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(OpenFileForReading, "OpenFileForReading(string filePath)");
 	Cpy(OpenFileForWriting, "OpenFileForWriting(string filePath)");
 	Cpy(CloseFile, "CloseFile(string filePath)");
-	Cpy(ReadBoolVariableFromFile, "ReadBoolVariableFromFile()");
+	Cpy(ReadBoolVariableFromFile, "bool ReadBoolVariableFromFile()");
 	Cpy(WriteBoolVariableToFile, "WriteBoolVariableToFile(bool value)");
-	Cpy(ReadFloatVariableFromFile, "ReadFloatVariableFromFile()");
+	Cpy(ReadFloatVariableFromFile, "float ReadFloatVariableFromFile()");
 	Cpy(WriteFloatVariableToFile, "WriteFloatVariableToFile(float value)");
-	Cpy(ReadIntVariableFromFile, "ReadIntVariableFromFile()");
+	Cpy(ReadIntVariableFromFile, "int ReadIntVariableFromFile()");
 	Cpy(WriteIntVariableToFile, "WriteIntVariableToFile(int value)");
-	Cpy(ReadStringVariableFromFile, "ReadStringVariableFromFile()");
+	Cpy(ReadStringVariableFromFile, "string ReadStringVariableFromFile()");
 	Cpy(WriteStringVariableToFile, "WriteStringVariableToFile(string value)");
 }
 
@@ -759,6 +771,10 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DeleteAllResources);
 		}
+		else if (Cmp(szBuffer, "PlayResourceSound"))
+		{
+			m_richFunctionName.SetWindowTextA(PlayResourceSound);
+		}
 		else if (Cmp(szBuffer, "PlayResourceSoundLoop"))
 		{
 			m_richFunctionName.SetWindowTextA(PlayResourceSoundLoop);
@@ -896,6 +912,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetDepthOfFieldFocalRange);
 		}
+		else if (Cmp(szBuffer, "GetDepthOfFieldFocalDistance"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDepthOfFieldFocalDistance);
+		}
+		else if (Cmp(szBuffer, "GetDepthOfFieldFocalRange"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDepthOfFieldFocalRange);
+		}
 		else if (Cmp(szBuffer, "EnableFog"))
 		{
 			m_richFunctionName.SetWindowTextA(EnableFog);
@@ -912,6 +936,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(SetFogDensity);
 		}
+		else if (Cmp(szBuffer, "GetFogColor"))
+		{
+			m_richFunctionName.SetWindowTextA(GetFogColor);
+		}
+		else if (Cmp(szBuffer, "GetFogDensity"))
+		{
+			m_richFunctionName.SetWindowTextA(GetFogDensity);
+		}
 		else if (Cmp(szBuffer, "EnableBloom"))
 		{
 			m_richFunctionName.SetWindowTextA(EnableBloom);
@@ -927,6 +959,14 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "SetBloomIntensity"))
 		{
 			m_richFunctionName.SetWindowTextA(SetBloomIntensity);
+		}
+		else if (Cmp(szBuffer, "GetBloomColor"))
+		{
+			m_richFunctionName.SetWindowTextA(GetBloomColor);
+		}
+		else if (Cmp(szBuffer, "GetBloomIntensity"))
+		{
+			m_richFunctionName.SetWindowTextA(GetBloomIntensity);
 		}
 		else if (Cmp(szBuffer, "EnableDirectionalShadow"))
 		{
@@ -1075,6 +1115,10 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "SetDistanceBetweenPhysicsCameraAndCharacterController"))
 		{
 			m_richFunctionName.SetWindowTextA(SetDistanceBetweenPhysicsCameraAndCharacterController);
+		}
+		else if (Cmp(szBuffer, "GetDistanceBetweenPhysicsCameraAndCharacterController"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDistanceBetweenPhysicsCameraAndCharacterController);
 		}
 		else if (Cmp(szBuffer, "SetCharacterControllerCapsuleRadius"))
 		{
@@ -2536,6 +2580,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("LoadResource");
 	InsertItem("DeleteResource");
 	InsertItem("DeleteAllResources");
+	InsertItem("PlayResourceSound");
 	InsertItem("PlayResourceSoundLoop");
 	InsertItem("PlayResourceSoundOnce");
 	InsertItem("StopResourceSound");
@@ -2581,15 +2626,24 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetDepthOfFieldFocalDistance");
 	InsertItem("SetDepthOfFieldFocalRange");
 
+	InsertItem("GetDepthOfFieldFocalDistance");
+	InsertItem("GetDepthOfFieldFocalRange");
+
 	InsertItem("EnableFog");
 	InsertItem("DisableFog");
 	InsertItem("SetFogColor");
 	InsertItem("SetFogDensity");
 
+	InsertItem("GetFogColor");
+	InsertItem("GetFogDensity");
+
 	InsertItem("EnableBloom");
 	InsertItem("DisableBloom");
 	InsertItem("SetBloomColor");
 	InsertItem("SetBloomIntensity");
+
+	InsertItem("GetBloomColor");
+	InsertItem("GetBloomIntensity");
 
 	InsertItem("EnableDirectionalShadow");
 	InsertItem("DisableDirectionalShadow");
@@ -2647,6 +2701,8 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("DisablePhysicsDebugMode");
 	InsertItem("SetCharacterControllerPosition");
 	InsertItem("GetCharacterControllerPosition");
+
+	InsertItem("GetDistanceBetweenPhysicsCameraAndCharacterController");
 
 	InsertItem("SetMultisamplingValue");
 	InsertItem("SetAnisotropicFilteringValue");

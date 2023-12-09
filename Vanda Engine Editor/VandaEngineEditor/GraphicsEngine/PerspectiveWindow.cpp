@@ -3911,6 +3911,111 @@ CInt DeleteAllResources(lua_State* L)
 	return 0;
 }
 
+CInt PlayResourceSound(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify at least 1 argument for PlayResourceSound()", COLOR_RED);
+		return 0;
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (int n = 1; n <= argc; ++n)
+		{
+			CBool foundTarget = CFalse;
+
+			CChar luaToString[MAX_NAME_SIZE];
+			Cpy(luaToString, lua_tostring(L, n));
+			StringToUpper(luaToString); //package name
+
+			CChar extension[MAX_NAME_SIZE];
+			if (GetFileExtension(luaToString))
+			{
+				Cpy(extension, GetFileExtension(luaToString));
+				if (Cmp(extension, ".OGG"))
+				{
+					for (CUInt pr = 0; pr < g_projects.size(); pr++)
+					{
+						CBool foundTargetInCurrentProject = CFalse;
+						for (CUInt i = 0; i < g_projects[pr]->m_resourceNames.size(); i++)
+						{
+							for (CUInt j = 0; j < g_projects[pr]->m_resourceNames[i].size(); j++)
+							{
+								if (j == 0)
+									continue; //it's folder name
+
+								CChar resourceFile[MAX_NAME_SIZE];
+								sprintf(resourceFile, "%s_%s", g_projects[pr]->m_resourceNames[i].front().c_str(), g_projects[pr]->m_resourceNames[i][j].c_str());
+								StringToUpper(resourceFile);
+
+								if (Cmp(luaToString, resourceFile))
+								{
+									foundTarget = CTrue;
+									foundTargetInCurrentProject = CTrue;
+									CChar message[MAX_NAME_SIZE];
+									sprintf(message, "\nProject '%s' - PlayResourceSound() will play sound resource '%s'", g_projects[pr]->m_name, lua_tostring(L, n));
+									PrintInfo(message, COLOR_GREEN);
+									break;
+								}
+							}
+							if (foundTargetInCurrentProject)
+								break;
+						}
+					}
+				}
+			}
+			if (!foundTarget)
+			{
+				CChar errorMessage[MAX_NAME_SIZE];
+				sprintf(errorMessage, "\nPlayResourceSound() Error: Couldn't find '%s' sound resource in all projects", lua_tostring(L, n));
+				PrintInfo(errorMessage, COLOR_RED);
+			}
+		}
+		return 0;
+	}
+
+	for (int n = 1; n <= argc; ++n)
+	{
+		CChar luaToString[MAX_NAME_SIZE];
+		Cpy(luaToString, lua_tostring(L, n));
+		StringToUpper(luaToString); //package name
+
+		CBool foundTarget = CFalse;
+		for (CUInt i = 0; i < g_resourceFiles.size(); i++)
+		{
+			if (g_resourceFiles[i]->GetSoundSource())
+			{
+				CChar string[MAX_NAME_SIZE];
+				Cpy(string, g_resourceFiles[i]->GetSoundSource()->GetName());
+				StringToUpper(string); //package name
+
+				if (Cmp(string, luaToString))
+				{
+					g_soundSystem->PlayALSound(*(g_resourceFiles[i]->GetSoundSource()->GetSoundSource()));
+					//CChar temp[MAX_NAME_SIZE];
+					//sprintf(temp, "%s%s%s", "\nSound '", g_resourceFiles[i]->GetSoundSource()->GetName(), "' was played.");
+					//PrintInfo(temp, COLOR_GREEN);
+					foundTarget = CTrue;
+					break;
+				}
+			}
+		}
+		if (!foundTarget)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s%s%s", "\nPlayResourceSound() Error: Couldn't find the sound '", lua_tostring(L, n), "' to be played.");
+			PrintInfo(temp, COLOR_RED);
+		}
+	}
+
+	return 0;
+}
+
 CInt PlayResourceSoundLoop(lua_State* L)
 {
 	if (g_testScript)
@@ -4502,6 +4607,13 @@ CInt ShowCursorIcon(lua_State* L)
 	if (argc < 2)
 	{
 		PrintInfo("\nPlease specify 2 arguments for ShowCursorIcon()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat size = (CFloat)lua_tonumber(L, 2);
+	if (size <= 0.0)
+	{
+		PrintInfo("\nShowCursorIcon() Error: cursor size must be greater than 0.0", COLOR_RED);
 		return 0;
 	}
 
@@ -5766,6 +5878,14 @@ CInt SetSelectionDistance(lua_State* L)
 		PrintInfo("\nPlease specify 1 argument for SetSelectionDistance()", COLOR_RED);
 		return 0;
 	}
+
+	CFloat distance = CFloat(lua_tonumber(L, 1));
+	if (distance <= 0.0)
+	{
+		PrintInfo("\nSetSelectionDistance() Error: distance must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
 	g_multipleView->SetSelectionDistance(CFloat(lua_tonumber(L, 1)));
 	return 0;
 }
@@ -6847,9 +6967,9 @@ CInt SetDepthOfFieldFocalDistance(lua_State* L)
 	}
 
 	CFloat value = (CFloat)lua_tonumber(L, 1);
-	if (value <= 0.0f)
+	if (value < 0.0f)
 	{
-		PrintInfo("\nPlease specify a positive value for SetDepthOfFieldFocalDistance()", COLOR_RED);
+		PrintInfo("\nSetDepthOfFieldFocalDistance() Error: distance must be equal to or greater than 0.0", COLOR_RED);
 		return 0;
 	}
 
@@ -6871,15 +6991,51 @@ CInt SetDepthOfFieldFocalRange(lua_State* L)
 	}
 
 	CFloat value = (CFloat)lua_tonumber(L, 1);
-	if (value <= 0.0f)
+	if (value < 0.0f)
 	{
-		PrintInfo("\nPlease specify a positive value for SetDepthOfFieldFocalRange()", COLOR_RED);
+		PrintInfo("\nSetDepthOfFieldFocalRange() Error: range must be equal to or greater than 0.0", COLOR_RED);
 		return 0;
 	}
 
 	g_multipleView->m_dof.m_focalRange = g_dofProperties.m_dofFocalRange = value;
 
 	return 0;
+}
+
+CInt GetDepthOfFieldFocalDistance(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetDepthOfFieldFocalDistance() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat focalDistance = g_dofProperties.m_dofFocalDistance;
+
+	lua_pushnumber(L, focalDistance);
+
+	return 1;
+}
+
+CInt GetDepthOfFieldFocalRange(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetDepthOfFieldFocalRange() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat focalRange = g_dofProperties.m_dofFocalRange;
+
+	lua_pushnumber(L, focalRange);
+
+	return 1;
 }
 
 //fog
@@ -6962,6 +7118,46 @@ CInt SetFogDensity(lua_State* L)
 	return 0;
 }
 
+CInt GetFogColor(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetFogColor() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat r = g_fogProperties.m_fogColor[0];
+	CFloat g = g_fogProperties.m_fogColor[1];
+	CFloat b = g_fogProperties.m_fogColor[2];
+
+	lua_pushnumber(L, r);
+	lua_pushnumber(L, g);
+	lua_pushnumber(L, b);
+
+	return 3;
+}
+
+CInt GetFogDensity(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetFogDensity() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat density = g_fogProperties.m_fogDensity;
+
+	lua_pushnumber(L, density);
+
+	return 1;
+}
+
 //bloom
 CInt EnableBloom(lua_State* L)
 {
@@ -7032,6 +7228,46 @@ CInt SetBloomIntensity(lua_State* L)
 	g_bloomProperties.m_bloomIntensity = intensity;
 
 	return 0;
+}
+
+CInt GetBloomColor(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetBloomColor() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat r = g_bloomProperties.m_bloomColor[0];
+	CFloat g = g_bloomProperties.m_bloomColor[1];
+	CFloat b = g_bloomProperties.m_bloomColor[2];
+
+	lua_pushnumber(L, r);
+	lua_pushnumber(L, g);
+	lua_pushnumber(L, b);
+
+	return 3;
+}
+
+CInt GetBloomIntensity(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetBloomIntensity() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat intensity = g_bloomProperties.m_bloomIntensity;
+
+	lua_pushnumber(L, intensity);
+
+	return 1;
 }
 
 //shadow
@@ -7779,6 +8015,12 @@ CInt SetLightShininess(lua_State* L)
 	StringToUpper(luaToString);
 
 	CFloat shininess = (CFloat)lua_tonumber(L, 2);
+
+	if (shininess < 0.0)
+	{
+		PrintInfo("\nSetLightShininess() Error: shininess must be equal to or greater than 0.0", COLOR_RED);
+		return 0;
+	}
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
@@ -9806,7 +10048,7 @@ CInt SetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L)
 
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
-	if (value < 0.0f)
+	if (value <= 0.0f)
 	{
 		PrintInfo("\nSetDistanceBetweenPhysicsCameraAndCharacterController() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
@@ -9837,7 +10079,7 @@ CInt SetCharacterControllerCapsuleRadius(lua_State* L)
 
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
-	if (value < 0.0f)
+	if (value <= 0.0f)
 	{
 		PrintInfo("\nSetCharacterControllerCapsuleRadius() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
@@ -9868,7 +10110,7 @@ CInt SetCharacterControllerCapsuleHeight(lua_State* L)
 
 	CFloat value = (CFloat)lua_tonumber(L, 1);
 
-	if (value < 0.0f)
+	if (value <= 0.0f)
 	{
 		PrintInfo("\nSetCharacterControllerCapsuleHeight() Error: argument must be greater than 0", COLOR_RED);
 		return 0;
@@ -9998,7 +10240,7 @@ CInt SetCharacterControllerStepOffset(lua_State* L)
 
 	if (value < 0.0f)
 	{
-		PrintInfo("\nSetCharacterControllerStepOffset() Error: argument must be greater than 0", COLOR_RED);
+		PrintInfo("\nSetCharacterControllerStepOffset() Error: argument must be equal to or greater than 0.0", COLOR_RED);
 		return 0;
 	}
 
@@ -10130,6 +10372,24 @@ CInt SetCharacterControllerPosition(lua_State* L)
 	g_multipleView->m_nx->SetCharacterPos(nxPos);
 
 	return 0;
+}
+
+CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetDistanceBetweenPhysicsCameraAndCharacterController() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat distance = g_physXProperties.m_fCameraCharacterDistance;
+
+	lua_pushnumber(L, distance);
+
+	return 1;
 }
 
 CInt GetCharacterControllerPosition(lua_State* L)
@@ -28219,6 +28479,13 @@ CInt ShowMenuCursor(lua_State* L)
 	{
 		CInt size;
 		size = lua_tointeger(L, 1);
+
+		if (size <= 0)
+		{
+			PrintInfo("\nShowMenuCursor() Error: cursor size must be greater than 0", COLOR_RED);
+			return 0;
+		}
+
 		g_currentVSceneProperties.m_menuCursorSize = size;
 	}
 
@@ -31285,6 +31552,12 @@ CInt SetEngineCameraNearClipPlane(lua_State* L)
 
 	CFloat ncp = (CFloat)lua_tonumber(L, 2);
 
+	if (ncp <= 0.0)
+	{
+		PrintInfo("\nSetEngineCameraNearClipPlane() Error: near clip plane must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
 		if (!Cmp(luaToString, "THIS"))
@@ -31369,6 +31642,12 @@ CInt SetEngineCameraFarClipPlane(lua_State* L)
 	StringToUpper(luaToString);
 
 	CFloat fcp = (CFloat)lua_tonumber(L, 2);
+
+	if (fcp <= 0.0)
+	{
+		PrintInfo("\nSetEngineCameraFarClipPlane() Error: far clip plane must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{

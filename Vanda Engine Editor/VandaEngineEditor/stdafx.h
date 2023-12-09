@@ -151,6 +151,7 @@ CInt GetPhysicsCameraYaw(lua_State *L);
 CInt LoadResource(lua_State *L);
 CInt DeleteResource(lua_State *L);
 CInt DeleteAllResources(lua_State *L);
+CInt PlayResourceSound(lua_State* L);
 CInt PlayResourceSoundLoop(lua_State *L);
 CInt PlayResourceSoundOnce(lua_State *L);
 CInt StopResourceSound(lua_State *L);
@@ -194,15 +195,24 @@ CInt DisableDepthOfField(lua_State* L);
 CInt SetDepthOfFieldFocalDistance(lua_State* L);
 CInt SetDepthOfFieldFocalRange(lua_State* L);
 
+CInt GetDepthOfFieldFocalDistance(lua_State* L);
+CInt GetDepthOfFieldFocalRange(lua_State* L);
+
 CInt EnableFog(lua_State* L);
 CInt DisableFog(lua_State* L);
 CInt SetFogColor(lua_State* L);
 CInt SetFogDensity(lua_State* L);
 
+CInt GetFogColor(lua_State* L);
+CInt GetFogDensity(lua_State* L);
+
 CInt EnableBloom(lua_State* L);
 CInt DisableBloom(lua_State* L);
 CInt SetBloomColor(lua_State* L);
 CInt SetBloomIntensity(lua_State* L);
+
+CInt GetBloomColor(lua_State* L);
+CInt GetBloomIntensity(lua_State* L);
 
 CInt EnableDirectionalShadow(lua_State* L);
 CInt DisableDirectionalShadow(lua_State* L);
@@ -260,6 +270,8 @@ CInt EnablePhysicsDebugMode(lua_State* L);
 CInt DisablePhysicsDebugMode(lua_State* L);
 CInt SetCharacterControllerPosition(lua_State* L); 
 CInt GetCharacterControllerPosition(lua_State* L);
+
+CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L);
 
 CInt SetMultisamplingValue(lua_State* L);
 CInt SetAnisotropicFilteringValue(lua_State* L);

@@ -282,11 +282,19 @@ BOOL CScriptEditor::OnCommand(WPARAM wParam, LPARAM lParam)
 		CDelete(dlg);
 
 	}
-	else if (wParam == ID_HELP_SCRIPT_REFERENCE_MANUAL)
+	else if (wParam == ID_HELP_SCRIPT_REFERENCE_MANUAL_CHM)
 	{
 		ShellExecute(NULL, "open", "Assets\\Docs\\VandaEngineScriptingReferenceManual.chm", NULL, NULL, SW_SHOWNORMAL);
 	}
-
+	else if (wParam == ID_HELP_SCRIPT_REFERENCE_MANUAL_PDF)
+	{
+		ShellExecute(NULL, "open", "Assets\\Docs\\VandaEngineScriptingReferenceManual.pdf", NULL, NULL, SW_SHOWNORMAL);
+	}
+	else if (wParam == ID_HELP_ONLINEHELP)
+	{
+		ShellExecute(NULL, "open", "https://vanda3d.org/scripting-reference-manual/", NULL, NULL, SW_SHOWNORMAL);
+	}
+	
 	return CDialog::OnCommand(wParam, lParam);
 }
 

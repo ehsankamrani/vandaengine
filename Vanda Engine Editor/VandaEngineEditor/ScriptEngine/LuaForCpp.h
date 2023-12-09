@@ -118,6 +118,7 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "LoadResource", LoadResource);
 	lua_register(L, "DeleteResource", DeleteResource);
+	lua_register(L, "PlayResourceSound", PlayResourceSound);
 	lua_register(L, "DeleteAllResources", DeleteAllResources);
 	lua_register(L, "PlayResourceSoundLoop", PlayResourceSoundLoop);
 	lua_register(L, "PlayResourceSoundOnce", PlayResourceSoundOnce);
@@ -163,15 +164,24 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetDepthOfFieldFocalDistance", SetDepthOfFieldFocalDistance);
 	lua_register(L, "SetDepthOfFieldFocalRange", SetDepthOfFieldFocalRange);
 
+	lua_register(L, "GetDepthOfFieldFocalDistance", GetDepthOfFieldFocalDistance);
+	lua_register(L, "GetDepthOfFieldFocalRange", GetDepthOfFieldFocalRange);
+
 	lua_register(L, "EnableFog", EnableFog);
 	lua_register(L, "DisableFog", DisableFog);
 	lua_register(L, "SetFogColor", SetFogColor);
 	lua_register(L, "SetFogDensity", SetFogDensity);
 
+	lua_register(L, "GetFogColor", GetFogColor);
+	lua_register(L, "GetFogDensity", GetFogDensity);
+
 	lua_register(L, "EnableBloom", EnableBloom);
 	lua_register(L, "DisableBloom", DisableBloom);
 	lua_register(L, "SetBloomColor", SetBloomColor);
 	lua_register(L, "SetBloomIntensity", SetBloomIntensity);
+
+	lua_register(L, "GetBloomColor", GetBloomColor);
+	lua_register(L, "GetBloomIntensity", GetBloomIntensity);
 
 	lua_register(L, "EnableDirectionalShadow", EnableDirectionalShadow);
 	lua_register(L, "DisableDirectionalShadow", DisableDirectionalShadow);
@@ -229,6 +239,8 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "DisablePhysicsDebugMode", DisablePhysicsDebugMode);
 	lua_register(L, "SetCharacterControllerPosition", SetCharacterControllerPosition);
 	lua_register(L, "GetCharacterControllerPosition", GetCharacterControllerPosition);
+
+	lua_register(L, "GetDistanceBetweenPhysicsCameraAndCharacterController", GetDistanceBetweenPhysicsCameraAndCharacterController);
 
 	lua_register(L, "SetMultisamplingValue", SetMultisamplingValue);
 	lua_register(L, "SetAnisotropicFilteringValue", SetAnisotropicFilteringValue);

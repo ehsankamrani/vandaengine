@@ -256,6 +256,33 @@ void CMainCharacterProperties::OnBnClickedOk()
 	}
 	else
 	{
+		if (m_fCameraCharacterDistance <= 0.0)
+		{
+			MessageBox("Camera distance must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCharacterSkinWidth <= 0.0f)
+		{
+			MessageBox("skin width must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCapsuleRadius <= 0.0f)
+		{
+			MessageBox("capsule radius must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCapsuleHeight <= 0.0f)
+		{
+			MessageBox("capsule height must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fCharacterStepOffset < 0.0)
+		{
+			MessageBox("step offset must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+
+
 		m_physXProperties.m_fCameraCharacterDistance = atof(m_strCameraCharacterDistance);
 		m_physXProperties.m_fCapsuleRadius = atof(m_strCapsuleRadius);
 		m_physXProperties.m_fCapsuleHeight = atof(m_strCapsuleHeight);
