@@ -222,7 +222,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetPhysicsGravity", SetPhysicsGravity);
 	lua_register(L, "EnablePhysicsGroundPlane", EnablePhysicsGroundPlane);
 	lua_register(L, "DisablePhysicsGroundPlane", DisablePhysicsGroundPlane);
-	lua_register(L, "SetPhysicGroundHeight", SetPhysicGroundHeight);
+	lua_register(L, "SetPhysicsGroundHeight", SetPhysicsGroundHeight);
 	lua_register(L, "SetDistanceBetweenPhysicsCameraAndCharacterController", SetDistanceBetweenPhysicsCameraAndCharacterController);
 	lua_register(L, "SetCharacterControllerCapsuleRadius", SetCharacterControllerCapsuleRadius);
 	lua_register(L, "SetCharacterControllerCapsuleHeight", SetCharacterControllerCapsuleHeight);
@@ -241,6 +241,14 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetCharacterControllerPosition", GetCharacterControllerPosition);
 
 	lua_register(L, "GetDistanceBetweenPhysicsCameraAndCharacterController", GetDistanceBetweenPhysicsCameraAndCharacterController);
+
+	lua_register(L, "GetPhysicsDefaultRestitution", GetPhysicsDefaultRestitution);
+	lua_register(L, "GetPhysicsDefaultSkinWidth", GetPhysicsDefaultSkinWidth);
+	lua_register(L, "GetPhysicsDefaultStaticFriction", GetPhysicsDefaultStaticFriction);
+	lua_register(L, "GetPhysicsDefaultDynamicFriction", GetPhysicsDefaultDynamicFriction);
+	lua_register(L, "GetPhysicsGravity", GetPhysicsGravity);
+	lua_register(L, "GetPhysicsGroundHeight", GetPhysicsGroundHeight);
+	lua_register(L, "GetPhysicsCollisionFlags", GetPhysicsCollisionFlags);
 
 	lua_register(L, "SetMultisamplingValue", SetMultisamplingValue);
 	lua_register(L, "SetAnisotropicFilteringValue", SetAnisotropicFilteringValue);

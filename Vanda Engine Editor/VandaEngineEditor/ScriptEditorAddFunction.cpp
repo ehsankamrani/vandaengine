@@ -160,7 +160,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetPhysicsGravity, "SetPhysicsGravity(float x, float y, float z)");
 	Cpy(EnablePhysicsGroundPlane, "EnablePhysicsGroundPlane()");
 	Cpy(DisablePhysicsGroundPlane, "DisablePhysicsGroundPlane()");
-	Cpy(SetPhysicGroundHeight, "SetPhysicGroundHeight(float height)");
+	Cpy(SetPhysicsGroundHeight, "SetPhysicsGroundHeight(float height)");
 	Cpy(SetDistanceBetweenPhysicsCameraAndCharacterController, "SetDistanceBetweenPhysicsCameraAndCharacterController(float distance)");
 	Cpy(SetCharacterControllerCapsuleRadius, "SetCharacterControllerCapsuleRadius(float radius)");
 	Cpy(SetCharacterControllerCapsuleHeight, "SetCharacterControllerCapsuleHeight(float height)");
@@ -179,6 +179,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetCharacterControllerPosition, "double,double,double GetCharacterControllerPosition()");
 
 	Cpy(GetDistanceBetweenPhysicsCameraAndCharacterController, "double GetDistanceBetweenPhysicsCameraAndCharacterController()");
+
+	Cpy(GetPhysicsDefaultRestitution, "double GetPhysicsDefaultRestitution()");
+	Cpy(GetPhysicsDefaultSkinWidth, "double GetPhysicsDefaultSkinWidth()");
+	Cpy(GetPhysicsDefaultStaticFriction, "double GetPhysicsDefaultStaticFriction()");
+	Cpy(GetPhysicsDefaultDynamicFriction, "double GetPhysicsDefaultDynamicFriction()");
+	Cpy(GetPhysicsGravity, "double, double, double GetPhysicsGravity()");
+	Cpy(GetPhysicsGroundHeight, "double GetPhysicsGroundHeight()");
+	Cpy(GetPhysicsCollisionFlags, "bool GetPhysicsCollisionFlags(string group1, string group2)");
 
 	Cpy(SetMultisamplingValue, "SetMultisamplingValue(int numSamples)");
 	Cpy(SetAnisotropicFilteringValue, "SetAnisotropicFilteringValue(int value)");
@@ -1108,9 +1116,9 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DisablePhysicsGroundPlane);
 		}
-		else if (Cmp(szBuffer, "SetPhysicGroundHeight"))
+		else if (Cmp(szBuffer, "SetPhysicsGroundHeight"))
 		{
-			m_richFunctionName.SetWindowTextA(SetPhysicGroundHeight);
+			m_richFunctionName.SetWindowTextA(SetPhysicsGroundHeight);
 		}
 		else if (Cmp(szBuffer, "SetDistanceBetweenPhysicsCameraAndCharacterController"))
 		{
@@ -1119,6 +1127,34 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		else if (Cmp(szBuffer, "GetDistanceBetweenPhysicsCameraAndCharacterController"))
 		{
 			m_richFunctionName.SetWindowTextA(GetDistanceBetweenPhysicsCameraAndCharacterController);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsDefaultRestitution"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsDefaultRestitution);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsDefaultSkinWidth"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsDefaultSkinWidth);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsDefaultStaticFriction"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsDefaultStaticFriction);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsDefaultDynamicFriction"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsDefaultDynamicFriction);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsGravity"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsGravity);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsGroundHeight"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsGroundHeight);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCollisionFlags"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCollisionFlags);
 		}
 		else if (Cmp(szBuffer, "SetCharacterControllerCapsuleRadius"))
 		{
@@ -2684,7 +2720,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetPhysicsGravity");
 	InsertItem("EnablePhysicsGroundPlane");
 	InsertItem("DisablePhysicsGroundPlane");
-	InsertItem("SetPhysicGroundHeight");
+	InsertItem("SetPhysicsGroundHeight");
 	InsertItem("SetDistanceBetweenPhysicsCameraAndCharacterController");
 	InsertItem("SetCharacterControllerCapsuleRadius");
 	InsertItem("SetCharacterControllerCapsuleHeight");
@@ -2703,6 +2739,14 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetCharacterControllerPosition");
 
 	InsertItem("GetDistanceBetweenPhysicsCameraAndCharacterController");
+
+	InsertItem("GetPhysicsDefaultRestitution");
+	InsertItem("GetPhysicsDefaultSkinWidth");
+	InsertItem("GetPhysicsDefaultStaticFriction");
+	InsertItem("GetPhysicsDefaultDynamicFriction");
+	InsertItem("GetPhysicsGravity");
+	InsertItem("GetPhysicsGroundHeight");
+	InsertItem("GetPhysicsCollisionFlags");
 
 	InsertItem("SetMultisamplingValue");
 	InsertItem("SetAnisotropicFilteringValue");

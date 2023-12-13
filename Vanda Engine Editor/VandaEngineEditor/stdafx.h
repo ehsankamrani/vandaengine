@@ -253,7 +253,7 @@ CInt DisablePhysicsGravity(lua_State* L);
 CInt SetPhysicsGravity(lua_State* L);
 CInt EnablePhysicsGroundPlane(lua_State* L);
 CInt DisablePhysicsGroundPlane(lua_State* L);
-CInt SetPhysicGroundHeight(lua_State* L);
+CInt SetPhysicsGroundHeight(lua_State* L);
 CInt SetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L);
 CInt SetCharacterControllerCapsuleRadius(lua_State* L);
 CInt SetCharacterControllerCapsuleHeight(lua_State* L);
@@ -272,6 +272,14 @@ CInt SetCharacterControllerPosition(lua_State* L);
 CInt GetCharacterControllerPosition(lua_State* L);
 
 CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L);
+
+CInt GetPhysicsDefaultRestitution(lua_State* L);
+CInt GetPhysicsDefaultSkinWidth(lua_State* L);
+CInt GetPhysicsDefaultStaticFriction(lua_State* L);
+CInt GetPhysicsDefaultDynamicFriction(lua_State* L);
+CInt GetPhysicsGravity(lua_State* L);
+CInt GetPhysicsGroundHeight(lua_State* L);
+CInt GetPhysicsCollisionFlags(lua_State* L);
 
 CInt SetMultisamplingValue(lua_State* L);
 CInt SetAnisotropicFilteringValue(lua_State* L);

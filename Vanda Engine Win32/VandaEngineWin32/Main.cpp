@@ -6684,7 +6684,7 @@ CInt DisablePhysicsGroundPlane(lua_State* L)
 	return 0;
 }
 
-CInt SetPhysicGroundHeight(lua_State* L)
+CInt SetPhysicsGroundHeight(lua_State* L)
 {
 	if (!gPhysXscene)
 	{
@@ -6697,7 +6697,7 @@ CInt SetPhysicGroundHeight(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 argument for SetPhysicGroundHeight()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for SetPhysicsGroundHeight()", COLOR_RED);
 		return 0;
 	}
 
@@ -7102,6 +7102,150 @@ CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L)
 
 	return 1;
 }
+
+CInt GetPhysicsDefaultRestitution(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fDefaultRestitution;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetPhysicsDefaultSkinWidth(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fDefaultSkinWidth;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetPhysicsDefaultStaticFriction(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fDefaultStaticFriction;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetPhysicsDefaultDynamicFriction(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fDefaultDynamicFriction;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetPhysicsGravity(lua_State* L)
+{
+	CFloat x = g_physXProperties.m_fGravityX;
+	CFloat y = g_physXProperties.m_fGravityY;
+	CFloat z = g_physXProperties.m_fGravityZ;
+
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	lua_pushnumber(L, z);
+
+	return 3;
+}
+
+CInt GetPhysicsGroundHeight(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fGroundHeight;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetPhysicsCollisionFlags(lua_State* L)
+{
+	int argc = lua_gettop(L);
+	if (argc < 2)
+	{
+		//PrintInfo("\nPlease specify 2 arguments for GetPhysicsCollisionFlags()", COLOR_RED);
+		return 0;
+	}
+
+	if (!gPhysXscene)
+		return 0;
+
+	CChar name1[MAX_NAME_SIZE];
+	Cpy(name1, lua_tostring(L, 1));
+	StringToUpper(name1);
+
+	CChar name2[MAX_NAME_SIZE];
+	Cpy(name2, lua_tostring(L, 2));
+	StringToUpper(name2);
+
+	std::vector <CInt> group1;
+	std::vector <CInt> group2;
+
+	if (Cmp(name1, "KINEMATIC"))
+	{
+		group1.push_back(GROUP_COLLIDABLE_NON_PUSHABLE);
+		group1.push_back(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT);
+	}
+	else if (Cmp(name1, "DYNAMIC"))
+	{
+		group1.push_back(GROUP_COLLIDABLE_PUSHABLE);
+	}
+	else if (Cmp(name1, "TRIGGER"))
+	{
+		group1.push_back(GROUP_TRIGGER);
+	}
+	else if (Cmp(name1, "STATIC"))
+	{
+		group1.push_back(GROUP_STATIC);
+	}
+	else if (Cmp(name1, "GROUND"))
+	{
+		group1.push_back(GROUP_GROUND);
+	}
+
+	if (Cmp(name2, "KINEMATIC"))
+	{
+		group2.push_back(GROUP_COLLIDABLE_NON_PUSHABLE);
+		group2.push_back(GROUP_COLLIDABLE_NON_PUSHABLE_NO_CAMERA_HIT);
+	}
+	else if (Cmp(name2, "DYNAMIC"))
+	{
+		group2.push_back(GROUP_COLLIDABLE_PUSHABLE);
+	}
+	else if (Cmp(name2, "TRIGGER"))
+	{
+		group2.push_back(GROUP_TRIGGER);
+	}
+	else if (Cmp(name2, "STATIC"))
+	{
+		group2.push_back(GROUP_STATIC);
+	}
+	else if (Cmp(name2, "GROUND"))
+	{
+		group2.push_back(GROUP_GROUND);
+	}
+
+	for (CUInt i = 0; i < group1.size(); i++)
+	{
+		for (CUInt j = 0; j < group2.size(); j++)
+		{
+			CBool value = gPhysXscene->getGroupCollisionFlag(group1[i], group2[j]);
+
+			if (value)
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+			return 1;
+		}
+	}
+
+	//PrintInfo("\nGetPhysicsCollisionFlags() Error: group1 and/or group2 string is invalid", COLOR_RED);
+	return 0;
+}
+
 
 CInt SetMultisamplingValue(lua_State* L)
 {

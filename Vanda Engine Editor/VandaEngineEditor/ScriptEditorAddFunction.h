@@ -172,7 +172,7 @@ private:
 	CChar SetPhysicsGravity[MAX_URI_SIZE];
 	CChar EnablePhysicsGroundPlane[MAX_URI_SIZE];
 	CChar DisablePhysicsGroundPlane[MAX_URI_SIZE];
-	CChar SetPhysicGroundHeight[MAX_URI_SIZE];
+	CChar SetPhysicsGroundHeight[MAX_URI_SIZE];
 	CChar SetDistanceBetweenPhysicsCameraAndCharacterController[MAX_URI_SIZE];
 	CChar SetCharacterControllerCapsuleRadius[MAX_URI_SIZE];
 	CChar SetCharacterControllerCapsuleHeight[MAX_URI_SIZE];
@@ -191,6 +191,14 @@ private:
 	CChar GetCharacterControllerPosition[MAX_URI_SIZE];
 
 	CChar GetDistanceBetweenPhysicsCameraAndCharacterController[MAX_URI_SIZE];
+
+	CChar GetPhysicsDefaultRestitution[MAX_URI_SIZE];
+	CChar GetPhysicsDefaultSkinWidth[MAX_URI_SIZE];
+	CChar GetPhysicsDefaultStaticFriction[MAX_URI_SIZE];
+	CChar GetPhysicsDefaultDynamicFriction[MAX_URI_SIZE];
+	CChar GetPhysicsGravity[MAX_URI_SIZE];
+	CChar GetPhysicsGroundHeight[MAX_URI_SIZE];
+	CChar GetPhysicsCollisionFlags[MAX_URI_SIZE];
 
 	CChar SetMultisamplingValue[MAX_URI_SIZE];
 	CChar SetAnisotropicFilteringValue[MAX_URI_SIZE];
