@@ -273,6 +273,14 @@ CInt GetCharacterControllerPosition(lua_State* L);
 
 CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L);
 
+CInt GetCharacterControllerCapsuleRadius(lua_State* L);
+CInt GetCharacterControllerCapsuleHeight(lua_State* L);
+CInt GetCharacterControllerForcePower(lua_State* L);
+CInt GetCharacterControllerWalkSpeed(lua_State* L);
+CInt GetCharacterControllerRunSpeed(lua_State* L);
+CInt GetCharacterControllerStepOffset(lua_State* L);
+CInt GetCharacterControllerJumpPower(lua_State* L);
+
 CInt GetPhysicsDefaultRestitution(lua_State* L);
 CInt GetPhysicsDefaultSkinWidth(lua_State* L);
 CInt GetPhysicsDefaultStaticFriction(lua_State* L);

@@ -180,6 +180,14 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 
 	Cpy(GetDistanceBetweenPhysicsCameraAndCharacterController, "double GetDistanceBetweenPhysicsCameraAndCharacterController()");
 
+	Cpy(GetCharacterControllerCapsuleRadius, "double GetCharacterControllerCapsuleRadius()");
+	Cpy(GetCharacterControllerCapsuleHeight, "double GetCharacterControllerCapsuleHeight()");
+	Cpy(GetCharacterControllerForcePower, "double GetCharacterControllerForcePower()");
+	Cpy(GetCharacterControllerWalkSpeed, "double GetCharacterControllerWalkSpeed()");
+	Cpy(GetCharacterControllerRunSpeed, "double GetCharacterControllerRunSpeed()");
+	Cpy(GetCharacterControllerStepOffset, "double GetCharacterControllerStepOffset()");
+	Cpy(GetCharacterControllerJumpPower, "double GetCharacterControllerJumpPower()");
+
 	Cpy(GetPhysicsDefaultRestitution, "double GetPhysicsDefaultRestitution()");
 	Cpy(GetPhysicsDefaultSkinWidth, "double GetPhysicsDefaultSkinWidth()");
 	Cpy(GetPhysicsDefaultStaticFriction, "double GetPhysicsDefaultStaticFriction()");
@@ -2546,6 +2554,34 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(WriteStringVariableToFile);
 		}
+		else if (Cmp(szBuffer, "GetCharacterControllerCapsuleRadius"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerCapsuleRadius);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerCapsuleHeight"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerCapsuleHeight);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerForcePower"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerForcePower);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerWalkSpeed"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerWalkSpeed);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerRunSpeed"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerRunSpeed);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerStepOffset"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerStepOffset);
+		}
+		else if (Cmp(szBuffer, "GetCharacterControllerJumpPower"))
+		{
+			m_richFunctionName.SetWindowTextA(GetCharacterControllerJumpPower);
+		}
 
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
@@ -2739,6 +2775,14 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetCharacterControllerPosition");
 
 	InsertItem("GetDistanceBetweenPhysicsCameraAndCharacterController");
+
+	InsertItem("GetCharacterControllerCapsuleRadius");
+	InsertItem("GetCharacterControllerCapsuleHeight");
+	InsertItem("GetCharacterControllerForcePower");
+	InsertItem("GetCharacterControllerWalkSpeed");
+	InsertItem("GetCharacterControllerRunSpeed");
+	InsertItem("GetCharacterControllerStepOffset");
+	InsertItem("GetCharacterControllerJumpPower");
 
 	InsertItem("GetPhysicsDefaultRestitution");
 	InsertItem("GetPhysicsDefaultSkinWidth");

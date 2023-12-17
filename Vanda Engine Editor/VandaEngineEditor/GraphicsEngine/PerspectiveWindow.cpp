@@ -10413,6 +10413,133 @@ CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L)
 	return 1;
 }
 
+CInt GetCharacterControllerCapsuleRadius(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerCapsuleRadius() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fCapsuleRadius;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerCapsuleHeight(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerCapsuleHeight() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fCapsuleHeight;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerForcePower(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerForcePower() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fCharacterPower;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerWalkSpeed(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerWalkSpeed() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fCharacterWalkSpeed;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerRunSpeed(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerRunSpeed() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fCharacterRunSpeed;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerStepOffset(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerStepOffset() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fCharacterStepOffset;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerJumpPower(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetCharacterControllerJumpPower() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat value = g_physXProperties.m_fJumpPower;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+
 CInt GetPhysicsDefaultRestitution(lua_State* L)
 {
 	if (g_testScript)

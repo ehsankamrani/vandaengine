@@ -192,6 +192,14 @@ private:
 
 	CChar GetDistanceBetweenPhysicsCameraAndCharacterController[MAX_URI_SIZE];
 
+	CChar GetCharacterControllerCapsuleRadius[MAX_URI_SIZE];
+	CChar GetCharacterControllerCapsuleHeight[MAX_URI_SIZE];
+	CChar GetCharacterControllerForcePower[MAX_URI_SIZE];
+	CChar GetCharacterControllerWalkSpeed[MAX_URI_SIZE];
+	CChar GetCharacterControllerRunSpeed[MAX_URI_SIZE];
+	CChar GetCharacterControllerStepOffset[MAX_URI_SIZE];
+	CChar GetCharacterControllerJumpPower[MAX_URI_SIZE];
+
 	CChar GetPhysicsDefaultRestitution[MAX_URI_SIZE];
 	CChar GetPhysicsDefaultSkinWidth[MAX_URI_SIZE];
 	CChar GetPhysicsDefaultStaticFriction[MAX_URI_SIZE];

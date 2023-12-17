@@ -242,6 +242,14 @@ static void LuaRegisterFunctions(lua_State* L)
 
 	lua_register(L, "GetDistanceBetweenPhysicsCameraAndCharacterController", GetDistanceBetweenPhysicsCameraAndCharacterController);
 
+	lua_register(L, "GetCharacterControllerCapsuleRadius", GetCharacterControllerCapsuleRadius);
+	lua_register(L, "GetCharacterControllerCapsuleHeight", GetCharacterControllerCapsuleHeight);
+	lua_register(L, "GetCharacterControllerForcePower", GetCharacterControllerForcePower);
+	lua_register(L, "GetCharacterControllerWalkSpeed", GetCharacterControllerWalkSpeed);
+	lua_register(L, "GetCharacterControllerRunSpeed", GetCharacterControllerRunSpeed);
+	lua_register(L, "GetCharacterControllerStepOffset", GetCharacterControllerStepOffset);
+	lua_register(L, "GetCharacterControllerJumpPower", GetCharacterControllerJumpPower);
+
 	lua_register(L, "GetPhysicsDefaultRestitution", GetPhysicsDefaultRestitution);
 	lua_register(L, "GetPhysicsDefaultSkinWidth", GetPhysicsDefaultSkinWidth);
 	lua_register(L, "GetPhysicsDefaultStaticFriction", GetPhysicsDefaultStaticFriction);

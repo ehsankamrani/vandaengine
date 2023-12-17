@@ -7103,6 +7103,70 @@ CInt GetDistanceBetweenPhysicsCameraAndCharacterController(lua_State* L)
 	return 1;
 }
 
+CInt GetCharacterControllerCapsuleRadius(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fCapsuleRadius;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerCapsuleHeight(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fCapsuleHeight;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerForcePower(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fCharacterPower;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerWalkSpeed(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fCharacterWalkSpeed;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerRunSpeed(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fCharacterRunSpeed;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerStepOffset(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fCharacterStepOffset;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetCharacterControllerJumpPower(lua_State* L)
+{
+	CFloat value = g_physXProperties.m_fJumpPower;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+
 CInt GetPhysicsDefaultRestitution(lua_State* L)
 {
 	CFloat value = g_physXProperties.m_fDefaultRestitution;
@@ -23785,7 +23849,7 @@ CBool CMain::Render()
 				g_engineVideos[i]->UpdateScript();
 
 			//force exit
-			if (!m_loadScene && g_input.KeyDown(DIK_F5) && g_input.KeyDown(DIK_LCONTROL))
+			if (!m_loadScene && g_input.KeyDown(DIK_F5))
 				m_exitGame = CTrue;
 
 			if (GetExitGame()) return CFalse; //exit game 
@@ -25034,7 +25098,7 @@ CBool CMain::ProcessInputs()
 	}
 
 	//force exit
-	if (g_input.KeyDown(DIK_F5) && g_input.KeyDown(DIK_LCONTROL))
+	if (g_input.KeyDown(DIK_F5))
 		m_exitGame = CTrue;
 
 	if (m_lockInput)
