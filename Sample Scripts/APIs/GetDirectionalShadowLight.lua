@@ -1,0 +1,17 @@
+--Copyright (C) 2023 Ehsan Kamrani 
+--This file is licensed and distributed under MIT license
+
+--Explanations: https://vanda3d.org/getdirectionalshadowlight/
+
+value = ""
+
+function Init()
+	value = GetDirectionalShadowLight()
+
+	message = string.format("\nDirecional shadow light name is : %s" ,value)
+	PrintConsole(message)
+end
+
+function Update()
+
+end
