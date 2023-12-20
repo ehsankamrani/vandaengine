@@ -8,7 +8,7 @@ value = 0
 function Init()
 	value = GetDirectionalShadowResolution()
 
-	message = string.format("\nDirecional shadow resolution is : %d" ,value)
+	message = string.format("\nDirectional shadow resolution is : %d" ,value)
 	PrintConsole(message)
 end
 

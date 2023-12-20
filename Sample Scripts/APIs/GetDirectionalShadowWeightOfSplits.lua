@@ -8,7 +8,7 @@ value = 0.0
 function Init()
 	value = GetDirectionalShadowWeightOfSplits()
 
-	message = string.format("\nDirecional shadow weight of splits is : %.2f" ,value)
+	message = string.format("\nDirectional shadow weight of splits is : %.2f" ,value)
 	PrintConsole(message)
 end
 

@@ -8,7 +8,7 @@ value = 0.0
 function Init()
 	value = GetDirectionalShadowFarClipPlane()
 
-	message = string.format("\nDirecional shadow far clip plane is : %.2f" ,value)
+	message = string.format("\nDirectional shadow far clip plane is : %.2f" ,value)
 	PrintConsole(message)
 end
 

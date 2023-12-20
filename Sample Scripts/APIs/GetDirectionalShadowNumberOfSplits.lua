@@ -8,7 +8,7 @@ value = 0
 function Init()
 	value = GetDirectionalShadowNumberOfSplits()
 
-	message = string.format("\nDirecional shadow number of splits is : %d" ,value)
+	message = string.format("\nDirectional shadow number of splits is : %d" ,value)
 	PrintConsole(message)
 end
 

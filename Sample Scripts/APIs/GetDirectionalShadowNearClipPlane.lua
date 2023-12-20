@@ -8,7 +8,7 @@ value = 0.0
 function Init()
 	value = GetDirectionalShadowNearClipPlane()
 
-	message = string.format("\nDirecional shadow near clip plane is : %.2f" ,value)
+	message = string.format("\nDirectional shadow near clip plane is : %.2f" ,value)
 	PrintConsole(message)
 end
 

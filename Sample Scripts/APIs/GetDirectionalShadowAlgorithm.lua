@@ -8,7 +8,7 @@ value = ""
 function Init()
 	value = GetDirectionalShadowAlgorithm()
 
-	message = string.format("\nDirecional shadow algorithm is : %s" ,value)
+	message = string.format("\nDirectional shadow algorithm is : %s" ,value)
 	PrintConsole(message)
 end
 

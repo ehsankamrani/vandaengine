@@ -8,7 +8,7 @@ value = ""
 function Init()
 	value = GetDirectionalShadowLight()
 
-	message = string.format("\nDirecional shadow light name is : %s" ,value)
+	message = string.format("\nDirectional shadow light name is : %s" ,value)
 	PrintConsole(message)
 end
 

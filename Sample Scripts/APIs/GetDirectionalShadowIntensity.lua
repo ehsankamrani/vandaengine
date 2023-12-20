@@ -8,7 +8,7 @@ value = 0.0
 function Init()
 	value = GetDirectionalShadowIntensity()
 
-	message = string.format("\nDirecional shadow intensity is : %.2f" ,value)
+	message = string.format("\nDirectional shadow intensity is : %.2f" ,value)
 	PrintConsole(message)
 end
 
