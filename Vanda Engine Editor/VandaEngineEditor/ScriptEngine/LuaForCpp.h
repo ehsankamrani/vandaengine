@@ -194,6 +194,15 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetDirectionalShadowIntensity", SetDirectionalShadowIntensity);
 	lua_register(L, "SetDirectionalShadowLight", SetDirectionalShadowLight);
 
+	lua_register(L, "GetDirectionalShadowAlgorithm", GetDirectionalShadowAlgorithm);
+	lua_register(L, "GetDirectionalShadowNumberOfSplits", GetDirectionalShadowNumberOfSplits);
+	lua_register(L, "GetDirectionalShadowWeightOfSplits", GetDirectionalShadowWeightOfSplits);
+	lua_register(L, "GetDirectionalShadowNearClipPlane", GetDirectionalShadowNearClipPlane);
+	lua_register(L, "GetDirectionalShadowFarClipPlane", GetDirectionalShadowFarClipPlane);
+	lua_register(L, "GetDirectionalShadowResolution", GetDirectionalShadowResolution);
+	lua_register(L, "GetDirectionalShadowIntensity", GetDirectionalShadowIntensity);
+	lua_register(L, "GetDirectionalShadowLight", GetDirectionalShadowLight);
+
 	lua_register(L, "SetLightAmbient", SetLightAmbient);
 	lua_register(L, "SetLightDiffuse", SetLightDiffuse);
 	lua_register(L, "SetLightSpecular", SetLightSpecular);

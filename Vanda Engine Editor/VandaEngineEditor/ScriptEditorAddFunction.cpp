@@ -132,6 +132,15 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetDirectionalShadowIntensity, "SetDirectionalShadowIntensity(float shadowIntensity)");
 	Cpy(SetDirectionalShadowLight, "SetDirectionalShadowLight(string directionalLightName)");
 
+	Cpy(GetDirectionalShadowAlgorithm, "string GetDirectionalShadowAlgorithm()");
+	Cpy(GetDirectionalShadowNumberOfSplits, "int GetDirectionalShadowNumberOfSplits()");
+	Cpy(GetDirectionalShadowWeightOfSplits, "double GetDirectionalShadowWeightOfSplits()");
+	Cpy(GetDirectionalShadowNearClipPlane, "double GetDirectionalShadowNearClipPlane()");
+	Cpy(GetDirectionalShadowFarClipPlane, "double GetDirectionalShadowFarClipPlane()");
+	Cpy(GetDirectionalShadowResolution, "int GetDirectionalShadowResolution()");
+	Cpy(GetDirectionalShadowIntensity, "double GetDirectionalShadowIntensity()");
+	Cpy(GetDirectionalShadowLight, "string GetDirectionalShadowLight()");
+
 	Cpy(SetLightAmbient, "SetLightAmbient(string lightObjectName, float red, float green, float blue)");
 	Cpy(SetLightDiffuse, "SetLightDiffuse(string lightObjectName, float red, float green, float blue)");
 	Cpy(SetLightSpecular, "SetLightSpecular(string lightObjectName, float red, float green, float blue)");
@@ -2582,7 +2591,38 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetCharacterControllerJumpPower);
 		}
-
+		else if (Cmp(szBuffer, "GetDirectionalShadowAlgorithm"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowAlgorithm);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowNumberOfSplits"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowNumberOfSplits);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowWeightOfSplits"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowWeightOfSplits);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowNearClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowNearClipPlane);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowFarClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowFarClipPlane);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowResolution"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowResolution);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowIntensity"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowIntensity);
+		}
+		else if (Cmp(szBuffer, "GetDirectionalShadowLight"))
+		{
+			m_richFunctionName.SetWindowTextA(GetDirectionalShadowLight);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2727,6 +2767,15 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetDirectionalShadowResolution");
 	InsertItem("SetDirectionalShadowIntensity");
 	InsertItem("SetDirectionalShadowLight");
+
+	InsertItem("GetDirectionalShadowAlgorithm");
+	InsertItem("GetDirectionalShadowNumberOfSplits");
+	InsertItem("GetDirectionalShadowWeightOfSplits");
+	InsertItem("GetDirectionalShadowNearClipPlane");
+	InsertItem("GetDirectionalShadowFarClipPlane");
+	InsertItem("GetDirectionalShadowResolution");
+	InsertItem("GetDirectionalShadowIntensity");
+	InsertItem("GetDirectionalShadowLight");
 
 	InsertItem("SetLightAmbient");
 	InsertItem("SetLightDiffuse");

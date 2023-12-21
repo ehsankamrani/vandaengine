@@ -225,6 +225,15 @@ CInt SetDirectionalShadowResolution(lua_State* L);
 CInt SetDirectionalShadowIntensity(lua_State* L);
 CInt SetDirectionalShadowLight(lua_State* L);
 
+CInt GetDirectionalShadowAlgorithm(lua_State* L);
+CInt GetDirectionalShadowNumberOfSplits(lua_State* L);
+CInt GetDirectionalShadowWeightOfSplits(lua_State* L);
+CInt GetDirectionalShadowNearClipPlane(lua_State* L);
+CInt GetDirectionalShadowFarClipPlane(lua_State* L);
+CInt GetDirectionalShadowResolution(lua_State* L);
+CInt GetDirectionalShadowIntensity(lua_State* L);
+CInt GetDirectionalShadowLight(lua_State* L);
+
 CInt SetLightAmbient(lua_State* L);
 CInt SetLightDiffuse(lua_State* L);
 CInt SetLightSpecular(lua_State* L);

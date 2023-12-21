@@ -144,6 +144,15 @@ private:
 	CChar SetDirectionalShadowIntensity[MAX_URI_SIZE];
 	CChar SetDirectionalShadowLight[MAX_URI_SIZE];
 
+	CChar GetDirectionalShadowAlgorithm[MAX_URI_SIZE];
+	CChar GetDirectionalShadowNumberOfSplits[MAX_URI_SIZE];
+	CChar GetDirectionalShadowWeightOfSplits[MAX_URI_SIZE];
+	CChar GetDirectionalShadowNearClipPlane[MAX_URI_SIZE];
+	CChar GetDirectionalShadowFarClipPlane[MAX_URI_SIZE];
+	CChar GetDirectionalShadowResolution[MAX_URI_SIZE];
+	CChar GetDirectionalShadowIntensity[MAX_URI_SIZE];
+	CChar GetDirectionalShadowLight[MAX_URI_SIZE];
+
 	CChar SetLightAmbient[MAX_URI_SIZE];
 	CChar SetLightDiffuse[MAX_URI_SIZE];
 	CChar SetLightSpecular[MAX_URI_SIZE];

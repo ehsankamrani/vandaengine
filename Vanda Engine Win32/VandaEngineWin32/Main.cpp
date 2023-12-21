@@ -5097,6 +5097,144 @@ CInt SetDirectionalShadowLight(lua_State* L)
 	return 0;
 }
 
+CInt GetDirectionalShadowAlgorithm(lua_State* L)
+{
+	CChar algorithm[MAX_NAME_SIZE];
+
+	if (g_shadowProperties.m_shadowType == eSHADOW_SINGLE_HL)
+	{
+		Cpy(algorithm, "SHADOW_SINGLE_HL");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_SINGLE)
+	{
+		Cpy(algorithm, "SHADOW_SINGLE");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_MULTI_LEAK)
+	{
+		Cpy(algorithm, "SHADOW_MULTI_LEAK");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_MULTI_NOLEAK)
+	{
+		Cpy(algorithm, "SHADOW_MULTI_NOLEAK");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_PCF)
+	{
+		Cpy(algorithm, "SHADOW_PCF");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_PCF_TRILIN)
+	{
+		Cpy(algorithm, "SHADOW_PCF_TRILIN");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_PCF_4TAP)
+	{
+		Cpy(algorithm, "SHADOW_PCF_4TAP");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_PCF_8TAP)
+	{
+		Cpy(algorithm, "SHADOW_PCF_8TAP");
+	}
+	else if (g_shadowProperties.m_shadowType == eSHADOW_PCF_GAUSSIAN)
+	{
+		Cpy(algorithm, "SHADOW_PCF_GAUSSIAN");
+	}
+
+	lua_pushstring(L, algorithm);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowNumberOfSplits(lua_State* L)
+{
+	CInt splits = 0;
+
+	if (g_shadowProperties.m_shadowSplits == eSHADOW_1_SPLIT)
+	{
+		splits = 1;
+	}
+	else if (g_shadowProperties.m_shadowSplits == eSHADOW_2_SPLITS)
+	{
+		splits = 2;
+	}
+	else if (g_shadowProperties.m_shadowSplits == eSHADOW_3_SPLITS)
+	{
+		splits = 3;
+	}
+	else if (g_shadowProperties.m_shadowSplits == eSHADOW_4_SPLITS)
+	{
+		splits = 4;
+	}
+
+	lua_pushinteger(L, splits);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowWeightOfSplits(lua_State* L)
+{
+	CFloat value = g_shadowProperties.m_shadowSplitWeight;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowNearClipPlane(lua_State* L)
+{
+	CFloat value = g_shadowProperties.m_shadowNearClipPlane;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowFarClipPlane(lua_State* L)
+{
+	CFloat value = g_shadowProperties.m_shadowFarClipPlane;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowResolution(lua_State* L)
+{
+	CInt resolution = 0;
+
+	if (g_shadowProperties.m_shadowResolution == eSHADOW_1024)
+	{
+		resolution = 1024;
+	}
+	else if (g_shadowProperties.m_shadowResolution == eSHADOW_2048)
+	{
+		resolution = 2048;
+	}
+	else if (g_shadowProperties.m_shadowResolution == eSHADOW_4096)
+	{
+		resolution = 4096;
+	}
+
+	lua_pushinteger(L, resolution);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowIntensity(lua_State* L)
+{
+	CFloat value = g_shadowProperties.m_intensity;
+
+	lua_pushnumber(L, value);
+
+	return 1;
+}
+
+CInt GetDirectionalShadowLight(lua_State* L)
+{
+	lua_pushstring(L, g_shadowProperties.m_directionalLightName);
+
+	return 1;
+}
+
+
 CInt SetLightAmbient(lua_State* L)
 {
 	//if (g_testScript)
