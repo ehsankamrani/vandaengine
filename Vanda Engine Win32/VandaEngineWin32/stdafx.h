@@ -209,6 +209,13 @@ CInt SetPrefabInstanceTransparency(lua_State* L);
 CInt EnablePrefabInstanceMaterial(lua_State* L);
 CInt DisablePrefabInstanceMaterial(lua_State* L);
 
+CInt GetPrefabInstanceAmbient(lua_State* L);
+CInt GetPrefabInstanceDiffuse(lua_State* L);
+CInt GetPrefabInstanceSpecular(lua_State* L);
+CInt GetPrefabInstanceEmission(lua_State* L);
+CInt GetPrefabInstanceShininess(lua_State* L);
+CInt GetPrefabInstanceTransparency(lua_State* L);
+
 CInt SetPhysicsDefaultRestitution(lua_State* L);
 CInt SetPhysicsDefaultSkinWidth(lua_State* L);
 CInt SetPhysicsDefaultStaticFriction(lua_State* L);

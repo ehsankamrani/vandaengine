@@ -172,6 +172,13 @@ private:
 	CChar EnablePrefabInstanceMaterial[MAX_URI_SIZE];
 	CChar DisablePrefabInstanceMaterial[MAX_URI_SIZE];
 
+	CChar GetPrefabInstanceAmbient[MAX_URI_SIZE];
+	CChar GetPrefabInstanceDiffuse[MAX_URI_SIZE];
+	CChar GetPrefabInstanceSpecular[MAX_URI_SIZE];
+	CChar GetPrefabInstanceEmission[MAX_URI_SIZE];
+	CChar GetPrefabInstanceShininess[MAX_URI_SIZE];
+	CChar GetPrefabInstanceTransparency[MAX_URI_SIZE];
+
 	CChar SetPhysicsDefaultRestitution[MAX_URI_SIZE];
 	CChar SetPhysicsDefaultSkinWidth[MAX_URI_SIZE];
 	CChar SetPhysicsDefaultStaticFriction[MAX_URI_SIZE];

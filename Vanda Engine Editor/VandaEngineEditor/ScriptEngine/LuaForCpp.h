@@ -222,6 +222,13 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "EnablePrefabInstanceMaterial", EnablePrefabInstanceMaterial);
 	lua_register(L, "DisablePrefabInstanceMaterial", DisablePrefabInstanceMaterial);
 
+	lua_register(L, "GetPrefabInstanceAmbient", GetPrefabInstanceAmbient);
+	lua_register(L, "GetPrefabInstanceDiffuse", GetPrefabInstanceDiffuse);
+	lua_register(L, "GetPrefabInstanceSpecular", GetPrefabInstanceSpecular);
+	lua_register(L, "GetPrefabInstanceEmission", GetPrefabInstanceEmission);
+	lua_register(L, "GetPrefabInstanceShininess", GetPrefabInstanceShininess);
+	lua_register(L, "GetPrefabInstanceTransparency", GetPrefabInstanceTransparency);
+
 	lua_register(L, "SetPhysicsDefaultRestitution", SetPhysicsDefaultRestitution);
 	lua_register(L, "SetPhysicsDefaultSkinWidth", SetPhysicsDefaultSkinWidth);
 	lua_register(L, "SetPhysicsDefaultStaticFriction", SetPhysicsDefaultStaticFriction);

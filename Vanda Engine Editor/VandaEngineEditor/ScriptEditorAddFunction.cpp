@@ -160,6 +160,13 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(EnablePrefabInstanceMaterial, "EnablePrefabInstanceMaterial(string prefabInstanceName)");
 	Cpy(DisablePrefabInstanceMaterial, "DisablePrefabInstanceMaterial(string prefabInstanceName)");
 
+	Cpy(GetPrefabInstanceAmbient, "double, double, double GetPrefabInstanceAmbient(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceDiffuse, "double, double, double GetPrefabInstanceDiffuse(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceSpecular, "double, double, double GetPrefabInstanceSpecular(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceEmission, "double, double, double GetPrefabInstanceEmission(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceShininess, "double GetPrefabInstanceShininess(string prefabInstanceName)");
+	Cpy(GetPrefabInstanceTransparency, "double GetPrefabInstanceTransparency(string prefabInstanceName)");
+
 	Cpy(SetPhysicsDefaultRestitution, "SetPhysicsDefaultRestitution(float restitution)");
 	Cpy(SetPhysicsDefaultSkinWidth, "SetPhysicsDefaultSkinWidth(float skinWidth)");
 	Cpy(SetPhysicsDefaultStaticFriction, "SetPhysicsDefaultStaticFriction(float staticFriction)");
@@ -2623,6 +2630,30 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetDirectionalShadowLight);
 		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceAmbient"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceAmbient);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceDiffuse"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceDiffuse);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceSpecular"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceSpecular);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceEmission"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceEmission);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceShininess"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceShininess);
+		}
+		else if (Cmp(szBuffer, "GetPrefabInstanceTransparency"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPrefabInstanceTransparency);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2795,6 +2826,13 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetPrefabInstanceTransparency");
 	InsertItem("EnablePrefabInstanceMaterial");
 	InsertItem("DisablePrefabInstanceMaterial");
+
+	InsertItem("GetPrefabInstanceAmbient");
+	InsertItem("GetPrefabInstanceDiffuse");
+	InsertItem("GetPrefabInstanceSpecular");
+	InsertItem("GetPrefabInstanceEmission");
+	InsertItem("GetPrefabInstanceShininess");
+	InsertItem("GetPrefabInstanceTransparency");
 
 	InsertItem("SetPhysicsDefaultRestitution");
 	InsertItem("SetPhysicsDefaultSkinWidth");
