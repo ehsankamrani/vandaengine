@@ -752,6 +752,7 @@ private:
 	CFogProperties m_fogProperties;
 	CShadowProperties m_shadowProperties;
 	CPhysXProperties m_physicsProperties;
+	CCameraProperties m_cameraProperties;
 	std::vector<CInstanceLight*>m_engineLights;
 	std::vector<CGUIButton*> m_guiButtons;
 	std::vector<CGUIImage*> m_guiImages;

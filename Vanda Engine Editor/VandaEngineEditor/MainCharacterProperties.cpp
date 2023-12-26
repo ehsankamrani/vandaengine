@@ -18,6 +18,7 @@ CMainCharacterProperties::CMainCharacterProperties(CWnd* pParent /*=NULL*/)
 	: CDialog(CMainCharacterProperties::IDD, pParent)
 {
 	m_camera = new CUpdateCamera();
+	m_cameraProperties.Reset();
 }
 
 CMainCharacterProperties::~CMainCharacterProperties()
@@ -51,6 +52,8 @@ void CMainCharacterProperties::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CAMERA_DEFAULT_TILT, m_editBoxDefaultTilt);
 	DDX_Control(pDX, IDC_EDIT_CAMERA_MIN_TILT, m_editBoxMinTilt);
 	DDX_Control(pDX, IDC_EDIT_CAMERA_MAX_TILT, m_editBoxMaxTilt);
+	DDX_Control(pDX, IDC_EDIT_CAMERA_NEAR_CLIP_PLANE, m_editBoxNearClipPlane);
+	DDX_Control(pDX, IDC_EDIT_CAMERA_FAR_CLIP_PLANE, m_editBoxFarClipPlane);
 }
 
 
@@ -78,6 +81,8 @@ BEGIN_MESSAGE_MAP(CMainCharacterProperties, CDialog)
 	ON_EN_CHANGE(IDC_EDIT_CAMERA_DEFAULT_TILT, &CMainCharacterProperties::OnEnChangeEditCameraDefaultTilt)
 	ON_EN_CHANGE(IDC_EDIT_CAMERA_MIN_TILT, &CMainCharacterProperties::OnEnChangeEditCameraMinTilt)
 	ON_EN_CHANGE(IDC_EDIT_CAMERA_MAX_TILT, &CMainCharacterProperties::OnEnChangeEditCameraMaxTilt)
+	ON_EN_CHANGE(IDC_EDIT_CAMERA_NEAR_CLIP_PLANE, &CMainCharacterProperties::OnEnChangeEditCameraNearClipPlane)
+	ON_EN_CHANGE(IDC_EDIT_CAMERA_FAR_CLIP_PLANE, &CMainCharacterProperties::OnEnChangeEditCameraFarClipPlane)
 END_MESSAGE_MAP()
 
 
@@ -180,6 +185,8 @@ BOOL CMainCharacterProperties::OnInitDialog()
 	m_strDefaultTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraTilt));
 	m_strMinTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMinTilt));
 	m_strMaxTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMaxTilt));
+	m_strNearClipPlane.Format("%.2f", m_cameraProperties.m_playModePerspectiveNCP);
+	m_strFarClipPlane.Format("%.2f", m_cameraProperties.m_playModePerspectiveFCP);
 
 	m_fCameraCharacterDistance = atof(m_strCameraCharacterDistance);
 	m_fCapsuleRadius = atof(m_strCapsuleRadius);
@@ -203,6 +210,8 @@ BOOL CMainCharacterProperties::OnInitDialog()
 	m_fDefaultTilt = atof(m_strDefaultTilt);
 	m_fMinTilt = atof(m_strMinTilt);
 	m_fMaxTilt = atof(m_strMaxTilt);
+	m_fNearClipPlane = atof(m_strNearClipPlane);
+	m_fFarClipPlane = atof(m_strFarClipPlane);
 
 	m_editBoxCameraCharacterDistance.SetWindowTextA(m_strCameraCharacterDistance);
 	m_editBoxCapsuleRadius.SetWindowTextA(m_strCapsuleRadius);
@@ -226,6 +235,8 @@ BOOL CMainCharacterProperties::OnInitDialog()
 	m_editBoxDefaultTilt.SetWindowTextA(m_strDefaultTilt);
 	m_editBoxMinTilt.SetWindowTextA(m_strMinTilt);
 	m_editBoxMaxTilt.SetWindowTextA(m_strMaxTilt);
+	m_editBoxNearClipPlane.SetWindowTextA(m_strNearClipPlane);
+	m_editBoxFarClipPlane.SetWindowTextA(m_strFarClipPlane);
 
 	if (m_physXProperties.m_bJumping)
 		m_checkBoxJumping.SetCheck(BST_CHECKED);
@@ -249,7 +260,8 @@ void CMainCharacterProperties::OnBnClickedOk()
 		m_strJumpPower.IsEmpty() || m_strCharacterSkinWidth.IsEmpty() || m_strCharacterSlopeLimit.IsEmpty() ||
 		m_strCharacterStepOffset.IsEmpty() || m_strRunDelayIn.IsEmpty() || m_strWalkDelayIn.IsEmpty() || m_strRunDelayIn.IsEmpty() ||
 		m_strJumpDelayIn.IsEmpty() || m_strJumpDelayOut.IsEmpty() || m_strDefaultFOV.IsEmpty() || m_strMinFOV.IsEmpty() ||
-		m_strMaxFOV.IsEmpty() || m_strDefaultTilt.IsEmpty() || m_strMinTilt.IsEmpty() || m_strMaxTilt.IsEmpty())
+		m_strMaxFOV.IsEmpty() || m_strDefaultTilt.IsEmpty() || m_strMinTilt.IsEmpty() || m_strMaxTilt.IsEmpty() ||
+		m_strNearClipPlane.IsEmpty() || m_strFarClipPlane.IsEmpty())
 	{
 		MessageBox("Please enter valid data for all of the required fields", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
@@ -281,7 +293,16 @@ void CMainCharacterProperties::OnBnClickedOk()
 			MessageBox("step offset must be equal to or greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 			return;
 		}
-
+		if (m_fNearClipPlane <= 0.0)
+		{
+			MessageBox("Near Clip Plane must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
+		if (m_fFarClipPlane <= 0.0)
+		{
+			MessageBox("Far Clip Plane must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+			return;
+		}
 
 		m_physXProperties.m_fCameraCharacterDistance = atof(m_strCameraCharacterDistance);
 		m_physXProperties.m_fCapsuleRadius = atof(m_strCapsuleRadius);
@@ -308,6 +329,9 @@ void CMainCharacterProperties::OnBnClickedOk()
 		m_camera->m_perspectiveCameraMinTilt = NxMath::degToRad(atof(m_strMinTilt));
 		m_camera->m_perspectiveCameraMaxTilt = NxMath::degToRad(atof(m_strMaxTilt));
 
+		m_cameraProperties.m_playModePerspectiveNCP = atof(m_strNearClipPlane);
+		m_cameraProperties.m_playModePerspectiveFCP = atof(m_strFarClipPlane);
+
 		CInt checkState;
 		checkState = m_checkBoxJumping.GetCheck();
 		if (checkState == BST_CHECKED)
@@ -324,7 +348,8 @@ void CMainCharacterProperties::OnBnClickedOk()
 		ex_pMainCharacterDlg->SetPhysXProperties(m_physXProperties);
 		ex_pMainCharacterDlg->SetCharacterBlendingProperties(m_characterBlendingProperties);
 		ex_pMainCharacterDlg->SetCharacterCameraProperties(m_camera);
-
+		ex_pMainCharacterDlg->SetCameraNCP(m_cameraProperties.m_playModePerspectiveNCP);
+		ex_pMainCharacterDlg->SetCameraFCP(m_cameraProperties.m_playModePerspectiveFCP);
 	}
 	CDialog::OnOK();
 }
@@ -337,6 +362,7 @@ void CMainCharacterProperties::OnBnClickedButtonReset()
 		m_physXProperties.Reset();
 		m_characterBlendingProperties.Reset();
 		m_camera->Reset();
+		m_cameraProperties.Reset();
 
 		m_strCameraCharacterDistance.Format("%.2f", m_physXProperties.m_fCameraCharacterDistance);
 		m_strCapsuleRadius.Format("%.2f", m_physXProperties.m_fCapsuleRadius);
@@ -360,8 +386,9 @@ void CMainCharacterProperties::OnBnClickedButtonReset()
 		m_strDefaultTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraTilt));
 		m_strMinTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMinTilt));
 		m_strMaxTilt.Format("%.2f", NxMath::radToDeg(m_camera->m_perspectiveCameraMaxTilt));
+		m_strNearClipPlane.Format("%.2f", m_cameraProperties.m_playModePerspectiveNCP);
+		m_strFarClipPlane.Format("%.2f", m_cameraProperties.m_playModePerspectiveFCP);
 
-								
 		m_fCameraCharacterDistance = atof(m_strCameraCharacterDistance);
 		m_fCapsuleRadius = atof(m_strCapsuleRadius);
 		m_fCapsuleHeight = atof(m_strCapsuleHeight);
@@ -384,6 +411,8 @@ void CMainCharacterProperties::OnBnClickedButtonReset()
 		m_fDefaultTilt = atof(m_strDefaultTilt);
 		m_fMinTilt = atof(m_strMinTilt);
 		m_fMaxTilt = atof(m_strMaxTilt);
+		m_fNearClipPlane = atof(m_strNearClipPlane);
+		m_fFarClipPlane = atof(m_strFarClipPlane);
 
 		m_editBoxCameraCharacterDistance.SetWindowTextA(m_strCameraCharacterDistance);
 		m_editBoxCapsuleRadius.SetWindowTextA(m_strCapsuleRadius);
@@ -407,6 +436,8 @@ void CMainCharacterProperties::OnBnClickedButtonReset()
 		m_editBoxDefaultTilt.SetWindowTextA(m_strDefaultTilt);
 		m_editBoxMinTilt.SetWindowTextA(m_strMinTilt);
 		m_editBoxMaxTilt.SetWindowTextA(m_strMaxTilt);
+		m_editBoxNearClipPlane.SetWindowTextA(m_strNearClipPlane);
+		m_editBoxFarClipPlane.SetWindowTextA(m_strFarClipPlane);
 
 		if (m_physXProperties.m_bJumping)
 			m_checkBoxJumping.SetCheck(BST_CHECKED);
@@ -489,7 +520,6 @@ void CMainCharacterProperties::OnEnChangeEditCameraMinTilt()
 {
 	m_editBoxMinTilt.GetWindowTextA(m_strMinTilt);
 	m_fMinTilt = atof(m_strMinTilt);
-
 }
 
 
@@ -497,6 +527,19 @@ void CMainCharacterProperties::OnEnChangeEditCameraMaxTilt()
 {
 	m_editBoxMaxTilt.GetWindowTextA(m_strMaxTilt);
 	m_fMaxTilt = atof(m_strMaxTilt);
+}
+
+void CMainCharacterProperties::OnEnChangeEditCameraNearClipPlane()
+{
+	m_editBoxNearClipPlane.GetWindowTextA(m_strNearClipPlane);
+	m_fNearClipPlane = atof(m_strNearClipPlane);
+}
+
+
+void CMainCharacterProperties::OnEnChangeEditCameraFarClipPlane()
+{
+	m_editBoxFarClipPlane.GetWindowTextA(m_strFarClipPlane);
+	m_fFarClipPlane = atof(m_strFarClipPlane);
 }
 
 CVoid CMainCharacterProperties::SetCharacterCameraProperties(CUpdateCamera* properties)

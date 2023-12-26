@@ -86,6 +86,8 @@ private:
 
 	CFloat m_fPlayMoreIdlesEveryXSeconds;
 
+	CFloat m_cameraNearClipPlane;
+	CFloat m_cameraFarClipPlane;
 public:
 	CEdit m_editPosX;
 	CEdit m_editPosY;
@@ -106,6 +108,9 @@ public:
 	CVoid SetCharacterBlendingProperties(CCharacterBlendingProperties properties);
 	CVoid SetCharacterCameraProperties(CUpdateCamera* properties);
 	CVoid SetCharacterSoundProperties(CCharacterSoundProperties properties);
+	CVoid SetCameraNCP(CFloat nearClipPlane) { m_cameraNearClipPlane = nearClipPlane; }
+	CVoid SetCameraFCP(CFloat farClipPlane) { m_cameraFarClipPlane = farClipPlane; }
+
 	CEdit m_editBoxPlayMoreIdlesEveryXSeconds;
 	afx_msg void OnEnChangeEditDelayPlayMoreIdlesRandomly();
 	afx_msg void OnBnClickedButtonSounds();

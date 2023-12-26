@@ -149,11 +149,20 @@ void CEditCamera::OnBnClickedOk()
 	}
 	g_cameraProperties.m_freePerspectiveFOV = atof(m_strFreeCameraFOV);
 	g_render.GetDefaultInstanceCamera()->m_abstractCamera->SetAngle(atof(m_strFreeCameraFOV));
+
 	//ncp
 	m_richEditFreeCameraNCP.GetWindowTextA(m_strFreeCameraNCP);
 	if (m_strFreeCameraNCP.IsEmpty())
 	{
 		MessageBox("Please Enter a Value for Perspective Camera NCP");
+		return;
+	}
+
+	CFloat ncp = atof(m_strFreeCameraNCP);
+
+	if (ncp <= 0.0)
+	{
+		MessageBox("Near clip plane of free camera must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 	g_cameraProperties.m_freePerspectiveNCP = atof(m_strFreeCameraNCP);
@@ -165,6 +174,15 @@ void CEditCamera::OnBnClickedOk()
 		MessageBox("Please Enter a Value for Perspective Camera FCP");
 		return;
 	}
+
+	CFloat fcp = atof(m_strFreeCameraFCP);
+
+	if (fcp <= 0.0)
+	{
+		MessageBox("Far clip plane of free camera must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	g_cameraProperties.m_freePerspectiveFCP = atof(m_strFreeCameraFCP);
 
 	////fov
@@ -201,6 +219,15 @@ void CEditCamera::OnBnClickedOk()
 		MessageBox("Please Enter a Value for Perspective Camera NCP");
 		return;
 	}
+
+	ncp = atof(m_strPlayModeCameraNCP);
+
+	if (ncp <= 0.0)
+	{
+		MessageBox("Near clip plane of Physics camera must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	g_cameraProperties.m_playModePerspectiveNCP = atof(m_strPlayModeCameraNCP);
 
 	//fcp
@@ -210,6 +237,15 @@ void CEditCamera::OnBnClickedOk()
 		MessageBox("Please Enter a Value for Perspective Camera FCP");
 		return;
 	}
+
+	fcp = atof(m_strPlayModeCameraFCP);
+
+	if (fcp <= 0.0)
+	{
+		MessageBox("Far clip plane of Physics camera must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
+
 	g_cameraProperties.m_playModePerspectiveFCP = atof(m_strPlayModeCameraFCP);
 
 	//fov
@@ -228,13 +264,30 @@ void CEditCamera::OnBnClickedOk()
 		MessageBox("Please Enter a Value for Collada Camera NCP");
 		return;
 	}
+
+	ncp = atof(m_strDAECameraNCP);
+
+	if (ncp <= 0.0)
+	{
+		MessageBox("Near clip plane of imported cameras must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	g_cameraProperties.m_daeCameraNCP = atof(m_strDAECameraNCP);
 
 	//fcp
 	m_richEditColladaCameraFCP.GetWindowTextA(m_strDAECameraFCP);
+
 	if (m_strDAECameraFCP.IsEmpty())
 	{
 		MessageBox("Please Enter a Value for Collada Camera FCP");
+		return;
+	}
+
+	fcp = atof(m_strDAECameraFCP);
+
+	if (fcp <= 0.0)
+	{
+		MessageBox("Far clip plane of imported cameras must be greater than 0.0", "Vanda Engine Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 	g_cameraProperties.m_daeCameraFCP = atof(m_strDAECameraFCP);

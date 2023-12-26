@@ -20,7 +20,8 @@ CSaveLoadCharacterProfile::CSaveLoadCharacterProfile(CWnd* pParent /*=NULL*/)
 	m_profileIndex = -1;
 	m_save = CFalse;
 	m_camera = CNew(CUpdateCamera);
-
+	m_cameraNearClipPlane = 0.01f;
+	m_cameraFarClipPlane = 5000;
 }
 
 CSaveLoadCharacterProfile::~CSaveLoadCharacterProfile()
@@ -269,6 +270,9 @@ void CSaveLoadCharacterProfile::OnBnClickedOk()
 		fwrite(&m_camera->m_perspectiveCameraMinTilt, sizeof(CFloat), 1, filePtr);
 		fwrite(&m_camera->m_perspectiveCameraMaxTilt, sizeof(CFloat), 1, filePtr);
 
+		fwrite(&m_cameraNearClipPlane, sizeof(CFloat), 1, filePtr);
+		fwrite(&m_cameraFarClipPlane, sizeof(CFloat), 1, filePtr);
+
 		fclose(filePtr);
 
 		if (!foundTarget)
@@ -383,7 +387,12 @@ void CSaveLoadCharacterProfile::OnBnClickedOk()
 		fread(&m_camera->m_perspectiveCameraMinTilt, sizeof(CFloat), 1, filePtr);
 		fread(&m_camera->m_perspectiveCameraMaxTilt, sizeof(CFloat), 1, filePtr);
 
+		fread(&m_cameraNearClipPlane, sizeof(CFloat), 1, filePtr);
+		fread(&m_cameraFarClipPlane, sizeof(CFloat), 1, filePtr);
+
 		ex_pMainCharacterDlg->SetCharacterCameraProperties(m_camera);
+		ex_pMainCharacterDlg->SetCameraNCP(m_cameraNearClipPlane);
+		ex_pMainCharacterDlg->SetCameraFCP(m_cameraFarClipPlane);
 
 		fclose(filePtr);
 

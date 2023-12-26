@@ -115,6 +115,10 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "GetPhysicsCameraMinTilt", GetPhysicsCameraMinTilt);
 	lua_register(L, "SetPhysicsCameraYaw", SetPhysicsCameraYaw);
 	lua_register(L, "GetPhysicsCameraYaw", GetPhysicsCameraYaw);
+	lua_register(L, "SetPhysicsCameraNearClipPlane", SetPhysicsCameraNearClipPlane);
+	lua_register(L, "SetPhysicsCameraFarClipPlane", SetPhysicsCameraFarClipPlane);
+	lua_register(L, "GetPhysicsCameraNearClipPlane", GetPhysicsCameraNearClipPlane);
+	lua_register(L, "GetPhysicsCameraFarClipPlane", GetPhysicsCameraFarClipPlane);
 
 	lua_register(L, "LoadResource", LoadResource);
 	lua_register(L, "DeleteResource", DeleteResource);
@@ -221,6 +225,7 @@ static void LuaRegisterFunctions(lua_State* L)
 	lua_register(L, "SetPrefabInstanceTransparency", SetPrefabInstanceTransparency);
 	lua_register(L, "EnablePrefabInstanceMaterial", EnablePrefabInstanceMaterial);
 	lua_register(L, "DisablePrefabInstanceMaterial", DisablePrefabInstanceMaterial);
+	lua_register(L, "IsPrefabInstanceMaterialEnabled", IsPrefabInstanceMaterialEnabled);
 
 	lua_register(L, "GetPrefabInstanceAmbient", GetPrefabInstanceAmbient);
 	lua_register(L, "GetPrefabInstanceDiffuse", GetPrefabInstanceDiffuse);

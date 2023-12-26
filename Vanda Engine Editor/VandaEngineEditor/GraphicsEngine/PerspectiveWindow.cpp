@@ -3668,6 +3668,96 @@ CInt GetPhysicsCameraYaw(lua_State* L)
 	return 0;
 }
 
+CInt SetPhysicsCameraNearClipPlane(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraNearClipPlane()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat ncp;
+
+	ncp = (CFloat)lua_tonumber(L, 1);
+
+	if (ncp < 0.0f)
+	{
+		PrintInfo("\nError: argument of SetPhysicsCameraNearClipPlane() must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
+	g_cameraProperties.m_playModePerspectiveNCP = ncp;
+
+	return 0;
+}
+
+CInt SetPhysicsCameraFarClipPlane(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for SetPhysicsCameraFarClipPlane()", COLOR_RED);
+		return 0;
+	}
+
+	CFloat fcp;
+
+	fcp = (CFloat)lua_tonumber(L, 1);
+
+	if (fcp < 0.0f)
+	{
+		PrintInfo("\nError: argument of SetPhysicsCameraFarClipPlane() must be greater than 0.0", COLOR_RED);
+		return 0;
+	}
+
+	g_cameraProperties.m_playModePerspectiveFCP = fcp;
+
+	return 0;
+}
+
+CInt GetPhysicsCameraNearClipPlane(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetPhysicsCameraNearClipPlane() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat ncp = g_cameraProperties.m_playModePerspectiveNCP;
+
+	lua_pushnumber(L, ncp);
+
+	return 1;
+}
+
+CInt GetPhysicsCameraFarClipPlane(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		PrintInfo("\nGetPhysicsCameraFarClipPlane() will be executed", COLOR_GREEN);
+		return 0;
+	}
+
+	CFloat fcp = g_cameraProperties.m_playModePerspectiveFCP;
+
+	lua_pushnumber(L, fcp);
+
+	return 1;
+}
+
 CInt LoadResource(lua_State* L)
 {
 	if (g_testScript)
@@ -9576,6 +9666,110 @@ CInt DisablePrefabInstanceMaterial(lua_State* L)
 		PrintInfo(temp, COLOR_RED);
 		return 0;
 	}
+	return 0;
+}
+
+CInt IsPrefabInstanceMaterialEnabled(lua_State* L)
+{
+	if (g_testScript)
+		return 0;
+
+	int argc = lua_gettop(L);
+	if (argc < 1)
+	{
+		PrintInfo("\nPlease specify 1 argument for IsPrefabInstanceMaterialEnabled()", COLOR_RED);
+		return 0;
+	}
+
+	CChar luaToString[MAX_NAME_SIZE];
+	Cpy(luaToString, lua_tostring(L, 1));
+	StringToUpper(luaToString);
+
+	CBool foundPrefabInstance = CFalse;
+
+	if (Cmp("THIS", luaToString))
+	{
+		if (g_editorMode == eMODE_VSCENE)
+		{
+			if (g_currentInstancePrefab)
+			{
+				if(g_currentInstancePrefab->IsMaterialEnabled())
+					lua_pushboolean(L, 1);
+				else
+					lua_pushboolean(L, 0);
+				return 1;
+			}
+			else
+			{
+				PrintInfo("\nIsPrefabInstanceMaterialEnabled() Error: Couldn't find current prefab instance", COLOR_RED);
+			}
+			return 0;
+		}
+		else if (g_editorMode == eMODE_PREFAB)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nIsPrefabInstanceMaterialEnabled() will execute for current prefab instance");
+			PrintInfo(temp, COLOR_GREEN);
+			return 0;
+		}
+	}
+
+	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
+	{
+		for (CUInt pr = 0; pr < g_projects.size(); pr++)
+		{
+			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
+			{
+				for (CUInt j = 0; j < g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames.size(); j++)
+				{
+					CChar prefabInstanceName[MAX_NAME_SIZE];
+					Cpy(prefabInstanceName, g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+					StringToUpper(prefabInstanceName);
+
+					if (Cmp(prefabInstanceName, luaToString))
+					{
+						foundPrefabInstance = CTrue;
+						CChar message[MAX_NAME_SIZE];
+						sprintf(message, "\nProject '%s', VScene '%s' : IsPrefabInstanceMaterialEnabled(%s) will execute", g_projects[pr]->m_name, g_projects[pr]->m_sceneNames[i].c_str(), g_projects[pr]->m_vsceneObjectNames[i].m_instancePrefabNames[j].m_name);
+						PrintInfo(message, COLOR_GREEN);
+						break;
+					}
+				}
+			}
+		}
+		if (!foundPrefabInstance)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nIsPrefabInstanceMaterialEnabled() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+			PrintInfo(temp, COLOR_RED);
+		}
+
+		return 0;
+	}
+
+	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	{
+		CChar prefabName[MAX_NAME_SIZE];
+		Cpy(prefabName, g_instancePrefab[i]->GetName());
+		StringToUpper(prefabName);
+		if (Cmp(prefabName, luaToString))
+		{
+			foundPrefabInstance = CTrue;
+			if (g_instancePrefab[i]->IsMaterialEnabled())
+				lua_pushboolean(L, 1);
+			else
+				lua_pushboolean(L, 0);
+			return 1;
+		}
+	}
+	if (!foundPrefabInstance)
+	{
+		CChar temp[MAX_NAME_SIZE];
+		sprintf(temp, "\nIsPrefabInstanceMaterialEnabled() Error: %s%s%s", "Couldn't find '", luaToString, "' Prefab Instance");
+		PrintInfo(temp, COLOR_RED);
+		return 0;
+	}
+
 	return 0;
 }
 

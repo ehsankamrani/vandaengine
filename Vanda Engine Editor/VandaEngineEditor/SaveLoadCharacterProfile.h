@@ -44,12 +44,18 @@ public:
 	CVoid SetPhysXProperties(CPhysXProperties physXProperties);
 	CVoid SetCharacterBlendingProperties(CCharacterBlendingProperties properties);
 	CVoid SetCharacterCameraProperties(CUpdateCamera* m_camera);
+	CVoid SetCameraNCP(CFloat nearClipPlane) { m_cameraNearClipPlane = nearClipPlane; }
+	CVoid SetCameraFCP(CFloat farClipPlane) { m_cameraFarClipPlane = farClipPlane; }
+
 	std::vector<std::string> m_idle;
 	std::vector<std::string> m_walk;
 	std::vector<std::string> m_jump;
 	std::vector<std::string> m_run;
 	CChar m_characterName[MAX_NAME_SIZE];
 	CPhysXCameraType m_characterType;
+	CFloat m_cameraNearClipPlane;
+	CFloat m_cameraFarClipPlane;
+
 	afx_msg void OnEnChangeProfileName();
 	virtual BOOL OnInitDialog();
 	CVoid SetSaveMode(CBool save);

@@ -63,6 +63,10 @@ private:
 	CChar GetPhysicsCameraMinTilt[MAX_URI_SIZE];
 	CChar SetPhysicsCameraYaw[MAX_URI_SIZE];
 	CChar GetPhysicsCameraYaw[MAX_URI_SIZE];
+	CChar SetPhysicsCameraNearClipPlane[MAX_URI_SIZE];
+	CChar SetPhysicsCameraFarClipPlane[MAX_URI_SIZE];
+	CChar GetPhysicsCameraNearClipPlane[MAX_URI_SIZE];
+	CChar GetPhysicsCameraFarClipPlane[MAX_URI_SIZE];
 
 	CChar LoadResource[MAX_URI_SIZE];
 	CChar DeleteResource[MAX_URI_SIZE];
@@ -171,6 +175,7 @@ private:
 	CChar SetPrefabInstanceTransparency[MAX_URI_SIZE];
 	CChar EnablePrefabInstanceMaterial[MAX_URI_SIZE];
 	CChar DisablePrefabInstanceMaterial[MAX_URI_SIZE];
+	CChar IsPrefabInstanceMaterialEnabled[MAX_URI_SIZE];
 
 	CChar GetPrefabInstanceAmbient[MAX_URI_SIZE];
 	CChar GetPrefabInstanceDiffuse[MAX_URI_SIZE];

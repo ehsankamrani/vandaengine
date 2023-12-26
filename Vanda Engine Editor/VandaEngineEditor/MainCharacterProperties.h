@@ -68,7 +68,8 @@ private:
 	CString m_strDefaultTilt;
 	CString m_strMinTilt;
 	CString m_strMaxTilt;
-
+	CString m_strNearClipPlane;
+	CString m_strFarClipPlane;
 
 	CFloat m_fCameraCharacterDistance;
 	CFloat m_fCapsuleRadius;
@@ -93,7 +94,8 @@ private:
 	CFloat m_fDefaultTilt;
 	CFloat m_fMinTilt;
 	CFloat m_fMaxTilt;
-
+	CFloat m_fNearClipPlane;
+	CFloat m_fFarClipPlane;
 
 public:
 	CEdit m_editBoxCharacterSlopeLimit;
@@ -104,8 +106,12 @@ public:
 
 	CCharacterBlendingProperties m_characterBlendingProperties;
 	CUpdateCamera* m_camera;
+	CCameraProperties m_cameraProperties;
+
 	inline CVoid SetCharacterBlendingProperties(CCharacterBlendingProperties properties) { m_characterBlendingProperties = properties; }
 	CVoid SetCharacterCameraProperties(CUpdateCamera* properties);
+	CVoid SetCameraNCP(CFloat nearClipPlane) { m_cameraProperties.m_playModePerspectiveNCP = nearClipPlane; }
+	CVoid SetCameraFCP(CFloat farClipPlane) { m_cameraProperties.m_playModePerspectiveFCP = farClipPlane; }
 
 	CButton m_checkBoxDebugMode;
 	afx_msg void OnBnClickedButtonReset();
@@ -131,4 +137,8 @@ public:
 	afx_msg void OnEnChangeEditCameraDefaultTilt();
 	afx_msg void OnEnChangeEditCameraMinTilt();
 	afx_msg void OnEnChangeEditCameraMaxTilt();
+	CEdit m_editBoxNearClipPlane;
+	CEdit m_editBoxFarClipPlane;
+	afx_msg void OnEnChangeEditCameraNearClipPlane();
+	afx_msg void OnEnChangeEditCameraFarClipPlane();
 };

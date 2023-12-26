@@ -38,6 +38,8 @@ CAddMainCharacter::CAddMainCharacter(CWnd* pParent /*=NULL*/)
 	m_clickedJumpSound = CFalse;
 	m_scriptUpdated = CFalse;
 	m_hasScript = CFalse;
+	m_cameraNearClipPlane = g_cameraProperties.m_playModePerspectiveNCP;
+	m_cameraFarClipPlane = g_cameraProperties.m_playModePerspectiveFCP;
 }
 
 CAddMainCharacter::~CAddMainCharacter()
@@ -424,6 +426,9 @@ BOOL CAddMainCharacter::OnInitDialog()
 	m_camera->m_perspectiveCameraMinTilt = g_camera->m_perspectiveCameraMinTilt;
 	m_camera->m_perspectiveCameraMaxTilt = g_camera->m_perspectiveCameraMaxTilt;
 
+	m_cameraNearClipPlane = g_cameraProperties.m_playModePerspectiveNCP;
+	m_cameraFarClipPlane = g_cameraProperties.m_playModePerspectiveFCP;
+
 	if (g_mainCharacter->GetHasScript())
 	{
 		m_editBoxScript.SetWindowTextA(g_mainCharacter->GetScriptPath());
@@ -602,6 +607,9 @@ void CAddMainCharacter::OnBnClickedOk()
 	g_camera->m_perspectiveCameraMinTilt = m_camera->m_perspectiveCameraMinTilt;
 	g_camera->m_perspectiveCameraMaxTilt = m_camera->m_perspectiveCameraMaxTilt;
 
+	g_cameraProperties.m_playModePerspectiveNCP = m_cameraNearClipPlane;
+	g_cameraProperties.m_playModePerspectiveFCP = m_cameraFarClipPlane;
+
 	ex_pVandaEngineDlg->ResetPhysX(CFalse);
 
 	CVec3f translate, scale;
@@ -746,6 +754,9 @@ void CAddMainCharacter::OnBnClickedButtonProperties()
 	m_dlgCharacterProperties->SetCharacterBlendingProperties(m_characterBlendingProperties);
 
 	m_dlgCharacterProperties->SetCharacterCameraProperties(m_camera);
+	m_dlgCharacterProperties->SetCameraNCP(m_cameraNearClipPlane);
+	m_dlgCharacterProperties->SetCameraFCP(m_cameraFarClipPlane);
+
 	if (m_dlgCharacterProperties->DoModal() == IDOK)
 	{
 	}
@@ -1093,7 +1104,8 @@ void CAddMainCharacter::OnBnClickedButtonSaveProfile()
 	m_dlgProfiles.SetPhysXProperties(m_physXProperties);
 	m_dlgProfiles.SetCharacterBlendingProperties(m_characterBlendingProperties);
 	m_dlgProfiles.SetCharacterCameraProperties(m_camera);
-
+	m_dlgProfiles.SetCameraNCP(m_cameraNearClipPlane);
+	m_dlgProfiles.SetCameraFCP(m_cameraFarClipPlane);
 
 	m_dlgProfiles.DoModal();
 }

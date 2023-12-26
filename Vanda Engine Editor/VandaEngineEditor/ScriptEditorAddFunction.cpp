@@ -53,6 +53,10 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(GetPhysicsCameraMinTilt, "double GetPhysicsCameraMinTilt()");
 	Cpy(SetPhysicsCameraYaw, "SetPhysicsCameraYaw(float yawDegree)");
 	Cpy(GetPhysicsCameraYaw, "double GetPhysicsCameraYaw()");
+	Cpy(SetPhysicsCameraNearClipPlane, "SetPhysicsCameraNearClipPlane(float ncp)");
+	Cpy(SetPhysicsCameraFarClipPlane, "SetPhysicsCameraFarClipPlane(float fcp)");
+	Cpy(GetPhysicsCameraNearClipPlane, "double GetPhysicsCameraNearClipPlane()");
+	Cpy(GetPhysicsCameraFarClipPlane, "double GetPhysicsCameraFarClipPlane()");
 
 	Cpy(LoadResource, "LoadResource(string resourceDirectoryName, string resourceFileName)");
 	Cpy(DeleteResource, "DeleteResource(string resourceDirectoryName, string resourceFileName)");
@@ -159,6 +163,7 @@ CScriptEditorAddFunction::CScriptEditorAddFunction(CWnd* pParent /*=NULL*/)
 	Cpy(SetPrefabInstanceTransparency, "SetPrefabInstanceTransparency(string prefabInstanceName, float transparency)");
 	Cpy(EnablePrefabInstanceMaterial, "EnablePrefabInstanceMaterial(string prefabInstanceName)");
 	Cpy(DisablePrefabInstanceMaterial, "DisablePrefabInstanceMaterial(string prefabInstanceName)");
+	Cpy(IsPrefabInstanceMaterialEnabled, "bool IsPrefabInstanceMaterialEnabled(string prefabInstanceName)");
 
 	Cpy(GetPrefabInstanceAmbient, "double, double, double GetPrefabInstanceAmbient(string prefabInstanceName)");
 	Cpy(GetPrefabInstanceDiffuse, "double, double, double GetPrefabInstanceDiffuse(string prefabInstanceName)");
@@ -1104,6 +1109,10 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(DisablePrefabInstanceMaterial);
 		}
+		else if (Cmp(szBuffer, "IsPrefabInstanceMaterialEnabled"))
+		{
+			m_richFunctionName.SetWindowTextA(IsPrefabInstanceMaterialEnabled);
+		}
 		else if (Cmp(szBuffer, "SetPhysicsDefaultRestitution"))
 		{
 			m_richFunctionName.SetWindowTextA(SetPhysicsDefaultRestitution);
@@ -1763,15 +1772,15 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		}
 		else if (Cmp(szBuffer, "GetGUITextPosition"))
 		{
-		m_richFunctionName.SetWindowTextA(GetGUITextPosition);
+			m_richFunctionName.SetWindowTextA(GetGUITextPosition);
 		}
 		else if (Cmp(szBuffer, "SetGUIPosition"))
 		{
-		m_richFunctionName.SetWindowTextA(SetGUIPosition);
+			m_richFunctionName.SetWindowTextA(SetGUIPosition);
 		}
 		else if (Cmp(szBuffer, "GetGUIPosition"))
 		{
-		m_richFunctionName.SetWindowTextA(GetGUIPosition);
+			m_richFunctionName.SetWindowTextA(GetGUIPosition);
 		}
 		else if (Cmp(szBuffer, "AddForceToCharacterController"))
 		{
@@ -2654,6 +2663,22 @@ void CScriptEditorAddFunction::OnLvnItemchangedListFunctions(NMHDR *pNMHDR, LRES
 		{
 			m_richFunctionName.SetWindowTextA(GetPrefabInstanceTransparency);
 		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraNearClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraNearClipPlane);
+		}
+		else if (Cmp(szBuffer, "SetPhysicsCameraFarClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(SetPhysicsCameraFarClipPlane);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraNearClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraNearClipPlane);
+		}
+		else if (Cmp(szBuffer, "GetPhysicsCameraFarClipPlane"))
+		{
+			m_richFunctionName.SetWindowTextA(GetPhysicsCameraFarClipPlane);
+		}
 
 		CInt end = m_richFunctionName.GetWindowTextLengthA();
 		m_richFunctionName.SetSel(0, end);
@@ -2719,6 +2744,10 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("GetPhysicsCameraMaxTilt");
 	InsertItem("SetPhysicsCameraYaw");
 	InsertItem("GetPhysicsCameraYaw");
+	InsertItem("SetPhysicsCameraNearClipPlane");
+	InsertItem("SetPhysicsCameraFarClipPlane");
+	InsertItem("GetPhysicsCameraNearClipPlane");
+	InsertItem("GetPhysicsCameraFarClipPlane");
 
 	InsertItem("LoadResource");
 	InsertItem("DeleteResource");
@@ -2826,6 +2855,7 @@ BOOL CScriptEditorAddFunction::OnInitDialog()
 	InsertItem("SetPrefabInstanceTransparency");
 	InsertItem("EnablePrefabInstanceMaterial");
 	InsertItem("DisablePrefabInstanceMaterial");
+	InsertItem("IsPrefabInstanceMaterialEnabled");
 
 	InsertItem("GetPrefabInstanceAmbient");
 	InsertItem("GetPrefabInstanceDiffuse");

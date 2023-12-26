@@ -102,6 +102,10 @@ CInt GetPhysicsCameraMaxTilt(lua_State *L);
 CInt GetPhysicsCameraMinTilt(lua_State *L);
 CInt SetPhysicsCameraYaw(lua_State *L);
 CInt GetPhysicsCameraYaw(lua_State *L);
+CInt SetPhysicsCameraNearClipPlane(lua_State* L);
+CInt SetPhysicsCameraFarClipPlane(lua_State* L);
+CInt GetPhysicsCameraNearClipPlane(lua_State* L);
+CInt GetPhysicsCameraFarClipPlane(lua_State* L);
 
 //Resources
 CInt LoadResource(lua_State *L);
@@ -208,6 +212,7 @@ CInt SetPrefabInstanceShininess(lua_State* L);
 CInt SetPrefabInstanceTransparency(lua_State* L);
 CInt EnablePrefabInstanceMaterial(lua_State* L);
 CInt DisablePrefabInstanceMaterial(lua_State* L);
+CInt IsPrefabInstanceMaterialEnabled(lua_State* L);
 
 CInt GetPrefabInstanceAmbient(lua_State* L);
 CInt GetPrefabInstanceDiffuse(lua_State* L);
