@@ -3,6 +3,8 @@
 
 --Explanations: https://vanda3d.org/isprefabinstancematerialenabled/
 
+--Name of script is IsPrefabInstanceMaterialEnabled2.lua
+
 enabled = false
 message = ""
 
