@@ -8,7 +8,7 @@
 x = 0
 y = 0
 function OnSelectMouseLButtonDown()
-	x,y = GetGUIImagePosition("this", "image1")
+	x,y = GetGUIImagePosition("this", "BackgroundImg")
 
 	message = string.format("\nGUI image position is > %d, %d" , x,y)
 	PrintConsole(message)
