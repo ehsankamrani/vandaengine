@@ -7,6 +7,7 @@
 
 x = 0
 y = 0
+
 function OnSelectMouseLButtonDown()
 	x,y = GetGUITextPosition("this", "text1")
 
