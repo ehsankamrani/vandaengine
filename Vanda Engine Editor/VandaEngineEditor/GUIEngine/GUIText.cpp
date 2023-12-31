@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CGUIText.cpp : implementation file
 //
@@ -14,6 +14,8 @@ CGUIText::CGUIText()
 
 	m_visible = CTrue;
 	m_scale = 1.0;
+	m_gui = NULL;
+
 	SetIndex();
 }
 

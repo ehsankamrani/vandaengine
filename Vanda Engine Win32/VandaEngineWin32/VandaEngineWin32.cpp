@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 /******************************************************
@@ -22,10 +22,11 @@
 
 class COpenALSoundBuffer;
 //Edition.MaxVersion.MinVersion.BugFixes;
-CInt g_version = 298;
+CInt g_version = 299;
 CChar g_edition[MAX_NAME_SIZE];
 CScene* g_currentScene = NULL;
 CInstancePrefab* g_currentInstancePrefab = NULL;
+CGUI* g_currentGUI = NULL;
 CWater* g_currentWater = NULL;
 CLight* g_currentLight = NULL;
 C3DSound* g_current3DSound = NULL;

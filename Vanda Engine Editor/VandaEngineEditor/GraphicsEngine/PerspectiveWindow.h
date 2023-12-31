@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -435,6 +435,8 @@ public:
 	CBool m_pauseAllUpdateEvents;
 	CBool m_pauseAllSounds;
 	FILE* m_luaFile;
+	std::vector<std::string> m_prefabInstanceNamesToBeDeleted;
+	CInt DeletePrefabInstancesAtRuntime();
 };
 
 extern CInt g_numLights;

@@ -50,7 +50,7 @@ DIK_A to DIK_Z for alphabets
 	g_Input.CShutdown();
 
 ***********************************************/
-//Modified work: Copyright (C) 2023 Ehsan Kamrani 
+//Modified work: Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once

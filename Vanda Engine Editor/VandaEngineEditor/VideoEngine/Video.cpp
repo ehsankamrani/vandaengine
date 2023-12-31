@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 //How to load and play video with FFmpeg, OpenAL and OpenAL. See also video.h
@@ -1279,6 +1279,7 @@ CVoid CVideo::InitScript()
 		g_currentVideo = this;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -1301,6 +1302,7 @@ CVoid CVideo::UpdateScript()
 		g_currentVideo = this;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))
@@ -1333,6 +1335,7 @@ CVoid CVideo::OnExitScript()
 		g_currentVideo = this;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "OnExit");
 		if (lua_isfunction(m_lua, -1))

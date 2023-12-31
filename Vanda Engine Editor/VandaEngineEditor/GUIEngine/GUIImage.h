@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -6,6 +6,7 @@
 #include "Utility.h"
 #include "..\\GraphicsEngine\\Image.h"
 #include "..\\GraphicsEngine\\PerspectiveWindow.h"
+#include "GUI.h"
 
 class CGUIImage
 {
@@ -30,6 +31,7 @@ private:
 
 	CInt m_nameIndex;
 
+	CGUI* m_gui;
 public:
 	inline CVoid SetImagePath(CChar* path) { Cpy(m_imagePath, path); }
 
@@ -65,5 +67,7 @@ public:
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }
 
+	CVoid SetGUI(CGUI* gui) { m_gui = gui; }
+	CGUI* GetGUI() { return m_gui; }
 };
 

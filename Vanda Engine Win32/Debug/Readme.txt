@@ -1,5 +1,5 @@
-Vanda Engine 2.9.8
-Copyright (C) 2023 Ehsan Kamrani
+Vanda Engine 2.9.9
+Copyright (C) 2024 Ehsan Kamrani
 
 www.vanda3d.org
 www.facebook.com/vandaengine

@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CAddAmbientSound.cpp : implementation file
 //
@@ -36,16 +36,19 @@ CGUI::~CGUI()
 CVoid CGUI::AddGUIButton(CGUIButton* button)
 {
 	m_guiButtons.push_back(button); 
+	button->SetGUI(this);
 }
 
 CVoid CGUI::AddGUIImage(CGUIImage* image)
 { 
 	m_guiImages.push_back(image);
+	image->SetGUI(this);
 }
 
 CVoid CGUI::AddGUIText(CGUIText* text)
 {
 	m_guiTexts.push_back(text);
+	text->SetGUI(this);
 }
 
 CVec2f CGUI::GetPosition(CBool positionForRender)

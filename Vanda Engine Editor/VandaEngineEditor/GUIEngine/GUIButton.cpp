@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CGUIButton.cpp : implementation file
 //
@@ -32,6 +32,7 @@ CGUIButton::CGUIButton()
 
 	m_visible = CTrue;
 	m_scale = 1.0;
+	m_gui = NULL;
 
 	m_lua = LuaNewState();
 	LuaOpenLibs(m_lua);
@@ -402,6 +403,7 @@ CVoid CGUIButton::OnSelectMouseLButtonDownScript()
 		g_currentVideo = NULL;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = this->GetGUI();
 
 		lua_getglobal(m_lua, "OnSelectMouseLButtonDown");
 		if (lua_isfunction(m_lua, -1))
@@ -424,6 +426,7 @@ CVoid CGUIButton::OnSelectMouseRButtonDownScript()
 		g_currentVideo = NULL;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = this->GetGUI();
 
 		lua_getglobal(m_lua, "OnSelectMouseRButtonDown");
 		if (lua_isfunction(m_lua, -1))
@@ -446,6 +449,7 @@ CVoid CGUIButton::OnSelectMouseEnterScript()
 		g_currentVideo = NULL;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = this->GetGUI();
 
 		lua_getglobal(m_lua, "OnSelectMouseEnter");
 		if (lua_isfunction(m_lua, -1))

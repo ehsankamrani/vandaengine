@@ -1,10 +1,12 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
 #include "afxwin.h"
 #include "Utility.h"
 #include  "Defines.h"
+#include "GUI.h"
+
 class CImage;
 
 class CGUIButton
@@ -56,6 +58,7 @@ private:
 	
 	lua_State* m_lua;
 
+	CGUI* m_gui;
 public:
 	inline CVoid SetMainImagePath(CChar* path) { Cpy(m_mainImagePath, path); }
 	inline CVoid SetLeftClickImagePath(CChar* path) { Cpy(m_leftClickImagePath, path); }
@@ -160,5 +163,7 @@ public:
 	CVoid SetScriptIntVariable(CChar* variableName, CInt value);
 	CVoid SetScriptDoubleVariable(CChar* variableName, CDouble value);
 
+	CVoid SetGUI(CGUI* gui) { m_gui = gui; }
+	CGUI* GetGUI() { return m_gui; }
 };
 

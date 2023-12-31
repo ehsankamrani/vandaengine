@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -154,6 +154,7 @@ CVoid CTrigger::OnTriggerEnterScript(CChar *otherActorName)
 		g_currentVideo = NULL;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerEnter");
 		if (lua_isfunction(m_lua, -1))
@@ -177,6 +178,7 @@ CVoid CTrigger::OnTriggerStayScript(CChar *otherActorName)
 		g_currentVideo = NULL;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerStay");
 		if (lua_isfunction(m_lua, -1))
@@ -200,6 +202,7 @@ CVoid CTrigger::OnTriggerExitScript(CChar *otherActorName)
 		g_currentVideo = NULL;
 		g_current3DSound = NULL;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "OnTriggerExit");
 		if (lua_isfunction(m_lua, -1))

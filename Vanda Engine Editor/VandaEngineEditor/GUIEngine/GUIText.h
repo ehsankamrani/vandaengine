@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
@@ -6,6 +6,8 @@
 #include "Utility.h"
 #include "..\\GraphicsEngine\\SimpleFont.h"
 #include "..\\GraphicsEngine\\PerspectiveWindow.h"
+#include "GUI.h"
+
 class CGUIText
 {
 public:
@@ -25,6 +27,7 @@ private:
 	CSimpleFont* m_font;
 	CSimpleFont* m_fontSmall;
 	CInt m_nameIndex;
+	CGUI* m_gui;
 public:
 	CVec2f SetPosition(CVec2f pos);
 	CVoid SetPosition2(CVec2f pos);
@@ -56,5 +59,8 @@ public:
 
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }
+
+	CVoid SetGUI(CGUI* gui) { m_gui = gui; }
+	CGUI* GetGUI() { return m_gui; }
 };
 

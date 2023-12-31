@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // VandaEngineEditorDlg.h : header file
@@ -1155,6 +1155,7 @@ extern CBool g_openNewGUIFromList;
 
 extern CScene* g_currentScene; //current scene that we are working on it.
 extern CInstancePrefab* g_currentInstancePrefab;
+extern CGUI* g_currentGUI;
 extern CWater* g_currentWater;
 extern CLight* g_currentLight;
 extern C3DSound* g_current3DSound;

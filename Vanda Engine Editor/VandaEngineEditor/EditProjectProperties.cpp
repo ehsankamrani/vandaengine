@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // EditProjectProperties.cpp : implementation file
@@ -149,7 +149,7 @@ void CEditProjectProperties::OnOK()
 			}
 
 			CChar temp[256];
-			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.8 (", newProjectName, " - ", m_currentVSceneNameWithoutDot, ")");
+			sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.9 (", newProjectName, " - ", m_currentVSceneNameWithoutDot, ")");
 			ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 			//save changes to projects.dat
@@ -230,7 +230,7 @@ void CEditProjectProperties::OnOK()
 		}
 
 		CChar temp[256];
-		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.8 (", newProject->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
+		sprintf(temp, "%s%s%s%s%s", "Vanda Engine 2.9.9 (", newProject->m_name, " - ", m_currentVSceneNameWithoutDot, ")");
 		ex_pVandaEngineDlg->SetWindowTextA(temp);
 
 		//create new directory

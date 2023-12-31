@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -12730,6 +12730,22 @@ CInt ShowGUIButton(lua_State* L)
 	Cpy(buttonName, lua_tostring(L, 2));
 	StringToUpper(buttonName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nShowGUIButton() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -12796,6 +12812,22 @@ CInt HideGUIButton(lua_State* L)
 	CChar buttonName[MAX_NAME_SIZE];
 	Cpy(buttonName, lua_tostring(L, 2));
 	StringToUpper(buttonName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nHideGUIButton() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
@@ -12864,6 +12896,22 @@ CInt ShowGUIImage(lua_State* L)
 	Cpy(imageName, lua_tostring(L, 2));
 	StringToUpper(imageName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nShowGUIImage() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -12930,6 +12978,22 @@ CInt HideGUIImage(lua_State* L)
 	CChar imageName[MAX_NAME_SIZE];
 	Cpy(imageName, lua_tostring(L, 2));
 	StringToUpper(imageName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nHideGUIImage() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
@@ -12998,6 +13062,22 @@ CInt ShowGUIText(lua_State* L)
 	Cpy(textName, lua_tostring(L, 2));
 	StringToUpper(textName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nShowGUIText() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -13064,6 +13144,22 @@ CInt HideGUIText(lua_State* L)
 	CChar textName[MAX_NAME_SIZE];
 	Cpy(textName, lua_tostring(L, 2));
 	StringToUpper(textName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nHideGUIText() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
@@ -13140,6 +13236,22 @@ CInt ScaleGUIButton(lua_State* L)
 		return 0;
 	}
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nScaleGUIButton() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -13213,6 +13325,22 @@ CInt ScaleGUIImage(lua_State* L)
 	{
 		//PrintInfo("\nScaleGUIImage() Error: scale variable must be equal or greater than 1.0", COLOR_RED);
 		return 0;
+	}
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nScaleGUIImage() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
 	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
@@ -13291,6 +13419,22 @@ CInt SetGUIButtonPosition(lua_State* L)
 	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nSetGUIButtonPosition() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -13365,6 +13509,22 @@ CInt SetGUIImagePosition(lua_State* L)
 	x = (CFloat)lua_tonumber(L, 3);
 	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nSetGUIImagePosition() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
@@ -13441,6 +13601,22 @@ CInt SetGUITextPosition(lua_State* L)
 	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nSetGUITextPosition() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -13510,6 +13686,22 @@ CInt GetGUIButtonPosition(lua_State* L)
 	CChar buttonName[MAX_NAME_SIZE];
 	Cpy(buttonName, lua_tostring(L, 2));
 	StringToUpper(buttonName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nGetGUIButtonPosition() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
@@ -13585,6 +13777,22 @@ CInt GetGUIImagePosition(lua_State* L)
 	Cpy(imageName, lua_tostring(L, 2));
 	StringToUpper(imageName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nGetGUIImagePosition() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
 		CChar gui[MAX_NAME_SIZE];
@@ -13656,6 +13864,22 @@ CInt GetGUITextPosition(lua_State* L)
 	CChar textName[MAX_NAME_SIZE];
 	Cpy(textName, lua_tostring(L, 2));
 	StringToUpper(textName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else
+		{
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "%s%s%s", "\nGetGUITextPosition() Error: Couldn't find current GUI");
+			//PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	for (CUInt i = 0; i < g_guis.size(); i++)
 	{
@@ -14272,7 +14496,7 @@ CInt DeletePrefabInstance(lua_State* L)
 	int argc = lua_gettop(L);
 	if (argc < 1)
 	{
-		//PrintInfo("\nPlease specify 1 arguments for DeletePrefabInstance()", COLOR_RED);
+		//PrintInfo("\nPlease specify 1 argument for DeletePrefabInstance()", COLOR_RED);
 		return 0;
 	}
 
@@ -14282,100 +14506,24 @@ CInt DeletePrefabInstance(lua_State* L)
 	Cpy(name, lua_tostring(L, 1));
 	StringToUpper(name);
 
-	CBool foundPrefabInstance = CFalse;
-
-	CBool foundTarget = CFalse;
-	CPrefab* dstPrefab = NULL;
-	CBool isStatic = CFalse;
-	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	if (Cmp(name, "THIS"))
 	{
-		CChar currentInstanceName[MAX_NAME_SIZE];
-		Cpy(currentInstanceName, g_instancePrefab[i]->GetName());
-		StringToUpper(currentInstanceName);
-
-		if (Cmp(currentInstanceName, name))
+		if (g_currentInstancePrefab)
 		{
-			dstPrefab = g_instancePrefab[i]->GetPrefab();
-			isStatic = g_instancePrefab[i]->GetIsStatic();
-			//remove instance from prefab
-			for (CUInt j = 0; j < dstPrefab->GetNumInstances(); j++)
-			{
-				CBool foundTarget = CFalse;
-				if (Cmp(dstPrefab->GetInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
-				{
-					dstPrefab->RemoveInstance(j);
-					foundTarget = CTrue;
-				}
-				if (foundTarget)
-					break;
-			}
-			for (CUInt k = 0; k < 4; k++)
-			{
-				CBool condition = CFalse;
-				if (k < 3)
-				{
-					if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
-						condition = CTrue;
-				}
-				else
-				{
-					if (g_instancePrefab[i]->GetHasCollider())
-						condition = CTrue;
-				}
-				if (condition)
-				{
-					CScene* scene = g_instancePrefab[i]->GetScene(k);
-					g_main->RemoveSelectedScene(scene->GetName(), scene->GetDocURI());
-				}
-			}
-
-			//remove it from water as well
-			for (CUInt k = 0; k < g_engineWaters.size(); k++)
-			{
-				for (CUInt l = 0; l < g_engineWaters[k]->GetNumPrefabInstances(); l++)
-				{
-					if (Cmp(g_engineWaters[k]->GetPrefabInstance(l)->GetName(), g_instancePrefab[i]->GetName()))
-						g_engineWaters[k]->RemovePrefabInstance(l);
-				}
-			}
-
-			CDelete(g_instancePrefab[i]);
-			g_instancePrefab.erase(g_instancePrefab.begin() + i);
-
-			foundTarget = CTrue;
+			Cpy(name, g_currentInstancePrefab->GetName());
+			StringToUpper(name);
 		}
-		if (foundTarget)
-			break;
-	}
-	if (foundTarget)
-	{
-		if (dstPrefab && dstPrefab->GetNumInstances() == 0)
+		else
 		{
-			//now remove the prefab
-			for (CUInt k = 0; k < g_prefab.size(); k++)
-			{
-				if (Cmp(dstPrefab->GetName(), g_prefab[k]->GetName()))
-				{
-					CDelete(g_prefab[k]);
-					g_prefab.erase(g_prefab.begin() + k);
-					break;
-				}
-			}
-		}
-		if (isStatic)
-			g_octree->ResetState();
-	}
+			//CChar temp[MAX_NAME_SIZE];
+			//sprintf(temp, "\nDeletePrefabInstance() Error: Couldn't find current Prefab instance");
+			//PrintInfo(temp, COLOR_RED);
 
-	//update max radius
-	g_maxInstancePrefabRadius = -1.f;
-	for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-	{
-		if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
-		{
-			if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
-				g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			return 0;
 		}
 	}
+
+	g_main->m_prefabInstanceNamesToBeDeleted.push_back(name);
 
 	return 0;
 }
@@ -24936,6 +25084,8 @@ CBool CMain::Render()
 	if (g_mainCharacter && g_mainCharacter->GetUpdateEvent())
 		g_mainCharacter->UpdateScript();
 
+	DeletePrefabInstancesAtRuntime();
+
 	if (g_updateOctree && g_scene.size() > 0)
 	{
 		//Force Update
@@ -26766,6 +26916,7 @@ CBool CMain::Reset()
 	g_currentTrigger = NULL;
 	g_currentEngineCamera = NULL;
 	g_currentVideo = NULL;
+	g_currentGUI = NULL;
 
 	m_showMenuCursor = CFalse;
 	m_pauseMainCharacterAnimations = CFalse;
@@ -30934,7 +31085,7 @@ CVoid CMain::DrawGUI()
 	m_timerCounter++;
 	g_font->StartRendering();
 	//g_font->Print( "Vanda Engine", 10.0f, 980.0f, 0.0f, 1.0f, 1.0f, 1.0f );
-	//g_font->Print( "Copyright (C) 2023 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
+	//g_font->Print( "Copyright (C) 2024 Ehsan Kamrani ", 10.0f, 950.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "http://www.vandaengine.org", 10.0f, 920.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 	//g_font->Print( "Press F4 for help...", 10.0f, 890.0f, 0.0f, 1.0f, 1.0f, 1.0f );
 
@@ -32396,4 +32547,115 @@ CVoid CMain::ResumeAllScriptUpdateEvents()
 		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
 	}
 
+}
+
+CInt CMain::DeletePrefabInstancesAtRuntime()
+{
+	if (m_prefabInstanceNamesToBeDeleted.size() == 0)
+		return 0;
+
+	for (CUInt index = 0; index < m_prefabInstanceNamesToBeDeleted.size(); index++)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, m_prefabInstanceNamesToBeDeleted[index].c_str());
+
+		CBool foundTarget = CFalse;
+		CPrefab* dstPrefab = NULL;
+		CBool isStatic = CFalse;
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			CChar currentInstanceName[MAX_NAME_SIZE];
+			Cpy(currentInstanceName, g_instancePrefab[i]->GetName());
+			StringToUpper(currentInstanceName);
+
+			if (Cmp(currentInstanceName, name))
+			{
+				dstPrefab = g_instancePrefab[i]->GetPrefab();
+				isStatic = g_instancePrefab[i]->GetIsStatic();
+				//remove instance from prefab
+				for (CUInt j = 0; j < dstPrefab->GetNumInstances(); j++)
+				{
+					CBool foundTarget = CFalse;
+					if (Cmp(dstPrefab->GetInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+					{
+						dstPrefab->RemoveInstance(j);
+						foundTarget = CTrue;
+					}
+					if (foundTarget)
+						break;
+				}
+				for (CUInt k = 0; k < 4; k++)
+				{
+					CBool condition = CFalse;
+					if (k < 3)
+					{
+						if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+							condition = CTrue;
+					}
+					else
+					{
+						if (g_instancePrefab[i]->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition)
+					{
+						CScene* scene = g_instancePrefab[i]->GetScene(k);
+						g_main->RemoveSelectedScene(scene->GetName(), scene->GetDocURI());
+					}
+				}
+
+				//remove it from water as well
+				for (CUInt k = 0; k < g_engineWaters.size(); k++)
+				{
+					for (CUInt l = 0; l < g_engineWaters[k]->GetNumPrefabInstances(); l++)
+					{
+						if (Cmp(g_engineWaters[k]->GetPrefabInstance(l)->GetName(), g_instancePrefab[i]->GetName()))
+							g_engineWaters[k]->RemovePrefabInstance(l);
+					}
+				}
+
+				CDelete(g_instancePrefab[i]);
+				g_instancePrefab.erase(g_instancePrefab.begin() + i);
+
+				foundTarget = CTrue;
+			}
+			if (foundTarget)
+				break;
+		}
+
+		if (foundTarget)
+		{
+			if (dstPrefab && dstPrefab->GetNumInstances() == 0)
+			{
+				//now remove the prefab
+				for (CUInt k = 0; k < g_prefab.size(); k++)
+				{
+					if (Cmp(dstPrefab->GetName(), g_prefab[k]->GetName()))
+					{
+						CDelete(g_prefab[k]);
+						g_prefab.erase(g_prefab.begin() + k);
+						break;
+					}
+				}
+			}
+			if (isStatic)
+				g_octree->ResetState();
+		}
+
+		//update max radius
+		g_maxInstancePrefabRadius = -1.f;
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+	}
+
+	m_prefabInstanceNamesToBeDeleted.clear();
+
+	return 0;
 }

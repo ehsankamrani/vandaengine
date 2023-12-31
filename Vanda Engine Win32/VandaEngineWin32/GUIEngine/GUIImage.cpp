@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 // CGUIImage.cpp : implementation file
 //
@@ -12,6 +12,8 @@ CGUIImage::CGUIImage()
 	m_updateImage = CFalse;
 	m_visible = CTrue;
 	m_scale = 1.0;
+	m_gui = NULL;
+
 	SetIndex();
 }
 

@@ -1,9 +1,11 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #pragma once
 #include "../Common/Utility.h"
 #include "..\\GraphicsEngine\\SimpleFont.h"
+#include "GUI.h"
+
 class CGUIText
 {
 public:
@@ -22,6 +24,7 @@ private:
 	CChar m_guiName[MAX_NAME_SIZE];
 	CFont* m_font;
 	CInt m_nameIndex;
+	CGUI* m_gui;
 public:
 	inline CVoid SetPosition(CVec2f pos) { m_position.x = pos.x; m_position.y = pos.y; }
 	inline CVoid SetName(CChar* name) { Cpy(m_name, name); }
@@ -51,5 +54,7 @@ public:
 	CVoid SetIndex() { m_nameIndex = g_nameIndex++; }
 	CInt GetIndex() { return m_nameIndex; }
 
+	CVoid SetGUI(CGUI* gui) { m_gui = gui; }
+	CGUI* GetGUI() { return m_gui; }
 };
 

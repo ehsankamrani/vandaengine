@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 #include "stdafx.h"
@@ -147,6 +147,7 @@ CVoid C3DSound::InitScript()
 		g_currentVideo = NULL;
 		g_current3DSound = this;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "Init");
 		if (lua_isfunction(m_lua, -1))
@@ -169,6 +170,7 @@ CVoid C3DSound::UpdateScript()
 		g_currentVideo = NULL;
 		g_current3DSound = this;
 		g_currentAmbientSound = NULL;
+		g_currentGUI = NULL;
 
 		lua_getglobal(m_lua, "Update");
 		if (lua_isfunction(m_lua, -1))

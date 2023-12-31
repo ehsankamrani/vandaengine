@@ -1,4 +1,4 @@
-//Copyright (C) 2023 Ehsan Kamrani 
+//Copyright (C) 2024 Ehsan Kamrani 
 //This file is licensed and distributed under MIT license
 
 // PerspectiveWindow.cpp : implementation file
@@ -19628,6 +19628,29 @@ CInt ShowGUIButton(lua_State* L)
 	Cpy(buttonName, lua_tostring(L, 2));
 	StringToUpper(buttonName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nShowGUIButton(%s) will be executed for current GUI", buttonName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nShowGUIButton() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -19773,6 +19796,29 @@ CInt HideGUIButton(lua_State* L)
 	CChar buttonName[MAX_NAME_SIZE];
 	Cpy(buttonName, lua_tostring(L, 2));
 	StringToUpper(buttonName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nHideGUIButton(%s) will be executed for current GUI", buttonName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nHideGUIButton() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -19920,6 +19966,29 @@ CInt ShowGUIImage(lua_State* L)
 	Cpy(imageName, lua_tostring(L, 2));
 	StringToUpper(imageName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nShowGUIImage(%s) will be executed for current GUI", imageName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nShowGUIImage() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -20065,6 +20134,29 @@ CInt HideGUIImage(lua_State* L)
 	CChar imageName[MAX_NAME_SIZE];
 	Cpy(imageName, lua_tostring(L, 2));
 	StringToUpper(imageName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nHideGUIImage(%s) will be executed for current GUI", imageName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nHideGUIImage() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -20212,6 +20304,29 @@ CInt ShowGUIText(lua_State* L)
 	Cpy(textName, lua_tostring(L, 2));
 	StringToUpper(textName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nShowGUIText(%s) will be executed for current GUI", textName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nShowGUIText() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -20357,6 +20472,29 @@ CInt HideGUIText(lua_State* L)
 	CChar textName[MAX_NAME_SIZE];
 	Cpy(textName, lua_tostring(L, 2));
 	StringToUpper(textName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nHideGUIText(%s) will be executed for current GUI", textName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nHideGUIText() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -20510,6 +20648,29 @@ CInt ScaleGUIButton(lua_State* L)
 	{
 		PrintInfo("\nScaleGUIButton() Error: scale variable must be equal or greater than 1.0", COLOR_RED);
 		return 0;
+	}
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nScaleGUIButton(%s, %.2f) will be executed for current GUI", buttonName, scale);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nScaleGUIButton() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
 	}
 
 	if (g_editorMode == eMODE_GUI)
@@ -20666,6 +20827,29 @@ CInt ScaleGUIImage(lua_State* L)
 		return 0;
 	}
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nScaleGUIImage(%s, %.2f) will be executed for current GUI", imageName, scale);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nScaleGUIImage() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -20816,6 +21000,29 @@ CInt SetGUIButtonPosition(lua_State* L)
 	x = (CFloat)lua_tonumber(L, 3);
 	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nSetGUIButtonPosition(%s, %.2f, %.2f) will be executed for current GUI", buttonName, pos.x, pos.y);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nSetGUIButtonPosition() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -20968,6 +21175,29 @@ CInt SetGUIImagePosition(lua_State* L)
 	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nSetGUIImagePosition(%s, %.2f, %.2f) will be executed for current GUI", imageName, pos.x, pos.y);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nSetGUIImagePosition() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -21119,6 +21349,29 @@ CInt SetGUITextPosition(lua_State* L)
 	y = (CFloat)lua_tonumber(L, 4);
 	CVec2f pos(x, y);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nSetGUITextPosition(%s, %.2f, %.2f) will be executed for current GUI", textName, pos.x, pos.y);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nSetGUITextPosition() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -21264,6 +21517,29 @@ CInt GetGUIButtonPosition(lua_State* L)
 	CChar buttonName[MAX_NAME_SIZE];
 	Cpy(buttonName, lua_tostring(L, 2));
 	StringToUpper(buttonName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetGUIButtonPosition(%s) will be executed for current GUI", buttonName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nGetGUIButtonPosition() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -21418,6 +21694,29 @@ CInt GetGUIImagePosition(lua_State* L)
 	Cpy(imageName, lua_tostring(L, 2));
 	StringToUpper(imageName);
 
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetGUIImagePosition(%s) will be executed for current GUI", imageName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nGetGUIImagePosition() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if (g_editorMode == eMODE_GUI)
 	{
 		CChar guiName[MAX_NAME_SIZE];
@@ -21569,6 +21868,29 @@ CInt GetGUITextPosition(lua_State* L)
 	CChar textName[MAX_NAME_SIZE];
 	Cpy(textName, lua_tostring(L, 2));
 	StringToUpper(textName);
+
+	if (Cmp(GUIName, "THIS"))
+	{
+		if (g_editorMode == eMODE_GUI)
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nGetGUITextPosition(%s) will be executed for current GUI", textName);
+			PrintInfo(message, COLOR_GREEN);
+			return 0;
+		}
+		else if (g_editorMode == eMODE_VSCENE && g_currentGUI)
+		{
+			Cpy(GUIName, g_currentGUI->GetName());
+			StringToUpper(GUIName);
+		}
+		else if (g_editorMode == eMODE_VSCENE)
+		{
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "%s", "\nGetGUITextPosition() Error: Couldn't find current GUI");
+			PrintInfo(temp, COLOR_RED);
+			return 0;
+		}
+	}
 
 	if (g_editorMode == eMODE_GUI)
 	{
@@ -22488,6 +22810,15 @@ CInt DeletePrefabInstance(lua_State* L)
 
 	if (g_editorMode == eMODE_PREFAB || g_editorMode == eMODE_GUI)
 	{
+		if (Cmp(name, "THIS"))
+		{
+			CChar message[MAX_NAME_SIZE];
+			sprintf(message, "\nDeletePrefabInstance() will delete current prefab instance");
+			PrintInfo(message, COLOR_GREEN);
+
+			return 0;
+		}
+
 		for (CUInt pr = 0; pr < g_projects.size(); pr++)
 		{
 			for (CUInt i = 0; i < g_projects[pr]->m_vsceneObjectNames.size(); i++)
@@ -22519,102 +22850,24 @@ CInt DeletePrefabInstance(lua_State* L)
 		return 0;
 	}
 
-	CBool foundTarget = CFalse;
-	CPrefab* dstPrefab = NULL;
-	CBool isStatic = CFalse;
-	for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+	if (Cmp(name, "THIS"))
 	{
-		CChar currentInstanceName[MAX_NAME_SIZE];
-		Cpy(currentInstanceName, g_instancePrefab[i]->GetName());
-		StringToUpper(currentInstanceName);
-
-		if (Cmp(currentInstanceName, name))
+		if (g_currentInstancePrefab)
 		{
-			dstPrefab = g_instancePrefab[i]->GetPrefab();
-			isStatic = g_instancePrefab[i]->GetIsStatic();
-			//remove instance from prefab
-			for (CUInt j = 0; j < dstPrefab->GetNumInstances(); j++)
-			{
-				CBool foundTarget = CFalse;
-				if (Cmp(dstPrefab->GetInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
-				{
-					dstPrefab->RemoveInstance(j);
-					foundTarget = CTrue;
-				}
-				if (foundTarget)
-					break;
-			}
-			for (CUInt k = 0; k < 4; k++)
-			{
-				CBool condition = CFalse;
-				if (k < 3)
-				{
-					if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
-						condition = CTrue;
-				}
-				else
-				{
-					if (g_instancePrefab[i]->GetHasCollider())
-						condition = CTrue;
-				}
-				if (condition)
-				{
-					CScene* scene = g_instancePrefab[i]->GetScene(k);
-					ex_pVandaEngineDlg->RemoveSelectedScene(scene->GetName(), scene->GetDocURI());
-				}
-			}
-
-			//remove it from water as well
-			for (CUInt k = 0; k < g_engineWaters.size(); k++)
-			{
-				for (CUInt l = 0; l < g_engineWaters[k]->GetNumPrefabInstances(); l++)
-				{
-					if (Cmp(g_engineWaters[k]->GetPrefabInstance(l)->GetName(), g_instancePrefab[i]->GetName()))
-						g_engineWaters[k]->RemovePrefabInstance(l);
-				}
-			}
-
-			CDelete(g_instancePrefab[i]);
-			g_instancePrefab.erase(g_instancePrefab.begin() + i);
-
-			foundTarget = CTrue;
+			Cpy(name, g_currentInstancePrefab->GetName());
+			StringToUpper(name);
 		}
-		if (foundTarget)
-			break;
-	}
-	if (foundTarget)
-	{
-		if (dstPrefab && dstPrefab->GetNumInstances() == 0)
+		else
 		{
-			//now remove the prefab
-			for (CUInt k = 0; k < g_prefab.size(); k++)
-			{
-				if (Cmp(dstPrefab->GetName(), g_prefab[k]->GetName()))
-				{
-					CChar prefabName[MAX_NAME_SIZE];
-					sprintf(prefabName, "%s%s%s", "\nPrefab ' ", dstPrefab->GetName(), " ' removed from memory");
-					PrintInfo(prefabName, COLOR_YELLOW);
+			CChar temp[MAX_NAME_SIZE];
+			sprintf(temp, "\nDeletePrefabInstance() Error: Couldn't find current Prefab instance");
+			PrintInfo(temp, COLOR_RED);
 
-					CDelete(g_prefab[k]);
-					g_prefab.erase(g_prefab.begin() + k);
-					break;
-				}
-			}
-		}
-		if (isStatic)
-			g_octree->ResetState();
-	}
-
-	//update max radius
-	g_maxInstancePrefabRadius = -1.f;
-	for (CUInt j = 0; j < g_instancePrefab.size(); j++)
-	{
-		if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
-		{
-			if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
-				g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			return 0;
 		}
 	}
+
+	g_multipleView->m_prefabInstanceNamesToBeDeleted.push_back(name);
 
 	return 0;
 }
@@ -40181,6 +40434,11 @@ CVoid CMultipleWindows::DrawPerspective()
 		}
 	}
 
+	if (g_multipleView->IsPlayGameMode())
+	{
+		DeletePrefabInstancesAtRuntime();
+	}
+
 	if (g_updateOctree && g_scene.size() > 0)
 	{
 		PrintInfo("\nUpdating Octree...", COLOR_GREEN);
@@ -46477,4 +46735,119 @@ CVoid CMultipleWindows::ResumeAllScriptUpdateEvents()
 		g_engineCameraInstances[i]->SetUpdateEvent(CTrue);
 	}
 
+}
+
+CInt CMultipleWindows::DeletePrefabInstancesAtRuntime()
+{
+	if (m_prefabInstanceNamesToBeDeleted.size() == 0)
+		return 0;
+
+	for (CUInt index = 0; index < m_prefabInstanceNamesToBeDeleted.size(); index++)
+	{
+		CChar name[MAX_NAME_SIZE];
+		Cpy(name, m_prefabInstanceNamesToBeDeleted[index].c_str());
+
+		CBool foundTarget = CFalse;
+		CPrefab* dstPrefab = NULL;
+		CBool isStatic = CFalse;
+
+		for (CUInt i = 0; i < g_instancePrefab.size(); i++)
+		{
+			CChar currentInstanceName[MAX_NAME_SIZE];
+			Cpy(currentInstanceName, g_instancePrefab[i]->GetName());
+			StringToUpper(currentInstanceName);
+
+			if (Cmp(currentInstanceName, name))
+			{
+				dstPrefab = g_instancePrefab[i]->GetPrefab();
+				isStatic = g_instancePrefab[i]->GetIsStatic();
+				//remove instance from prefab
+				for (CUInt j = 0; j < dstPrefab->GetNumInstances(); j++)
+				{
+					CBool foundTarget = CFalse;
+					if (Cmp(dstPrefab->GetInstance(j)->GetName(), g_instancePrefab[i]->GetName()))
+					{
+						dstPrefab->RemoveInstance(j);
+						foundTarget = CTrue;
+					}
+					if (foundTarget)
+						break;
+				}
+				for (CUInt k = 0; k < 4; k++)
+				{
+					CBool condition = CFalse;
+					if (k < 3)
+					{
+						if (g_instancePrefab[i]->GetPrefab()->GetHasLod(k))
+							condition = CTrue;
+					}
+					else
+					{
+						if (g_instancePrefab[i]->GetHasCollider())
+							condition = CTrue;
+					}
+					if (condition)
+					{
+						CScene* scene = g_instancePrefab[i]->GetScene(k);
+						ex_pVandaEngineDlg->RemoveSelectedScene(scene->GetName(), scene->GetDocURI());
+					}
+				}
+
+				//remove it from water as well
+				for (CUInt k = 0; k < g_engineWaters.size(); k++)
+				{
+					for (CUInt l = 0; l < g_engineWaters[k]->GetNumPrefabInstances(); l++)
+					{
+						if (Cmp(g_engineWaters[k]->GetPrefabInstance(l)->GetName(), g_instancePrefab[i]->GetName()))
+							g_engineWaters[k]->RemovePrefabInstance(l);
+					}
+				}
+
+				CDelete(g_instancePrefab[i]);
+				g_instancePrefab.erase(g_instancePrefab.begin() + i);
+
+				foundTarget = CTrue;
+			}
+			if (foundTarget)
+				break;
+		}
+
+		if (foundTarget)
+		{
+			if (dstPrefab && dstPrefab->GetNumInstances() == 0)
+			{
+				//now remove the prefab
+				for (CUInt k = 0; k < g_prefab.size(); k++)
+				{
+					if (Cmp(dstPrefab->GetName(), g_prefab[k]->GetName()))
+					{
+						CChar prefabName[MAX_NAME_SIZE];
+						sprintf(prefabName, "%s%s%s", "\nPrefab ' ", dstPrefab->GetName(), " ' removed from memory");
+						PrintInfo(prefabName, COLOR_YELLOW);
+
+						CDelete(g_prefab[k]);
+						g_prefab.erase(g_prefab.begin() + k);
+						break;
+					}
+				}
+			}
+			if (isStatic)
+				g_octree->ResetState();
+		}
+
+		//update max radius
+		g_maxInstancePrefabRadius = -1.f;
+		for (CUInt j = 0; j < g_instancePrefab.size(); j++)
+		{
+			if (g_instancePrefab[j]->GetScene(0) && g_instancePrefab[j]->GetScene(0)->CastShadow())
+			{
+				if (g_instancePrefab[j]->GetRadius() > g_maxInstancePrefabRadius)
+					g_maxInstancePrefabRadius = g_instancePrefab[j]->GetRadius();
+			}
+		}
+	}
+
+	m_prefabInstanceNamesToBeDeleted.clear();
+
+	return 0;
 }
